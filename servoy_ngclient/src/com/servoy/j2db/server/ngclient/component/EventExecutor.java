@@ -31,7 +31,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.INGApplication;
-import com.servoy.j2db.server.ngclient.WebComponent;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Debug;
 
 
@@ -50,7 +50,7 @@ public class EventExecutor
 		this.formController = formController;
 	}
 
-	public Object execute(WebComponent component, String eventType, int eventId, Object[] args)
+	public Object execute(WebFormComponent component, String eventType, int eventId, Object[] args)
 	{
 		Scriptable scope = null;
 		Function f = null;

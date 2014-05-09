@@ -29,7 +29,7 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.server.ngclient.WebComponent;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -41,7 +41,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class RuntimeLegacyComponent implements Scriptable
 {
-	private final WebComponent component;
+	private final WebFormComponent component;
 	private final PutPropertyCallable putCallable;
 	private final GetPropertyCallable getCallable;
 	private static Map<String, String> ScriptNameToSpecName;
@@ -59,7 +59,7 @@ public class RuntimeLegacyComponent implements Scriptable
 		ScriptNameToSpecName.put("font", StaticContentSpecLoader.PROPERTY_FONTTYPE.getPropertyName());
 	}
 
-	public RuntimeLegacyComponent(WebComponent component)
+	public RuntimeLegacyComponent(WebFormComponent component)
 	{
 		this.component = component;
 		putCallable = new PutPropertyCallable(this);

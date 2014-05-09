@@ -204,7 +204,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								String formName = obj.getString("formname");
 								JSONArray jsargs = obj.getJSONArray("args");
 								IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-								WebComponent webComponent = form.getWebComponent(obj.getString("beanname"));
+								WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
 								String eventType = obj.getString("event");
 								Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
 								for (int i = 0; jsargs != null && i < jsargs.length(); i++)
@@ -224,7 +224,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 									pushChanges(obj);
 									try
 									{
-										result = webComponent.execute(eventType, args);
+										result = webComponent.executeEvent(eventType, args);
 									}
 									catch (Exception e)
 									{
@@ -280,7 +280,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								if (ok && obj.has("parentForm") && !obj.isNull("parentForm"))
 								{
 									IWebFormController parentForm = client.getFormManager().getForm(obj.getString("parentForm"));
-									WebComponent containerComponent = parentForm.getFormUI().getWebComponent(obj.getString("bean"));
+									WebFormComponent containerComponent = parentForm.getFormUI().getWebComponent(obj.getString("bean"));
 									if (containerComponent != null)
 									{
 										containerComponent.updateVisibleForm(form.getFormUI(), isVisible, obj.optInt("formIndex"));
@@ -317,7 +317,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					String formName = obj.getString("formname");
 					IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-					WebComponent webComponent = form.getWebComponent(obj.getString("beanname"));
+					WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
 
 					Object property = webComponent.getProperty(obj.getString("property"));
 					LookupListModel lstModel = null;
@@ -427,7 +427,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					pushChanges(obj);
 					if (apply)
 					{
-						WebComponent webComponent = form.getWebComponent(obj.getString("beanname"));
+						WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
 						form.getDataAdapterList().pushChanges(webComponent, obj.getString("property"));
 					}
 				}
@@ -449,7 +449,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
 		String beanName = obj.optString("beanname");
 
-		WebComponent webComponent = beanName.length() > 0 ? form.getWebComponent(beanName) : (WebComponent)form;
+		WebFormComponent webComponent = beanName.length() > 0 ? form.getWebComponent(beanName) : (WebFormComponent)form;
 		JSONObject changes = obj.getJSONObject("changes");
 		Iterator<String> keys = changes.keys();
 		while (keys.hasNext())

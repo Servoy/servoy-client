@@ -41,8 +41,8 @@ import com.servoy.j2db.util.Text;
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
 	/**componentPropertiesWithTagExpression : keeps track of properties with tags from a bean (properties of type 'tagstring') */
-	private final Map<WebComponent, List<String>> componentPropertiesWithTagExpression = new HashMap<>();
-	private final Map<String, List<Pair<WebComponent, String>>> recordDataproviderToComponent = new HashMap<>();
+	private final Map<WebFormComponent, List<String>> componentPropertiesWithTagExpression = new HashMap<>();
+	private final Map<String, List<Pair<WebFormComponent, String>>> recordDataproviderToComponent = new HashMap<>();
 	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
 	private final INGApplication application;
 	private final IWebFormController formController;
@@ -70,13 +70,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	}
 
 	@Override
-	public Object execute(WebComponent webComponent, String event, int eventId, Object[] args)
+	public Object executeEvent(WebFormComponent webComponent, String event, int eventId, Object[] args)
 	{
 		return executor.execute(webComponent, event, eventId, args);
 	}
 
 	@Override
-	public Object executeApi(WebComponentApiDefinition apiDefinition, String elementName, Object[] args)
+	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String elementName, Object[] args)
 	{
 		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
 		return application.getWebsocketSession().executeApi(apiDefinition, formController.getName(), elementName, args);
@@ -88,7 +88,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return inlineScriptExecutor.eval(script, args);
 	}
 
-	public void add(WebComponent component, Map<String, String> hm)
+	public void add(WebFormComponent component, Map<String, String> hm)
 	{
 		for (Entry<String, String> entry : hm.entrySet())
 		{
@@ -108,15 +108,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		relatedForms.remove(form);
 	}
 
-	public void add(WebComponent component, String recordDataProvider, String beanDataProvider)
+	public void add(WebFormComponent component, String recordDataProvider, String beanDataProvider)
 	{
-		List<Pair<WebComponent, String>> list = recordDataproviderToComponent.get(recordDataProvider);
+		List<Pair<WebFormComponent, String>> list = recordDataproviderToComponent.get(recordDataProvider);
 		if (list == null)
 		{
-			list = new ArrayList<Pair<WebComponent, String>>();
+			list = new ArrayList<Pair<WebFormComponent, String>>();
 			recordDataproviderToComponent.put(recordDataProvider, list);
 		}
-		list.add(new Pair<WebComponent, String>(component, beanDataProvider));
+		list.add(new Pair<WebFormComponent, String>(component, beanDataProvider));
 
 		Map<String, String> map = beanToDataHolder.get(component.getFormElement());
 		if (map == null)
@@ -127,7 +127,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		map.put(beanDataProvider, recordDataProvider);
 	}
 
-	public void addTaggedProperty(WebComponent component, String beanTaggedProperty)
+	public void addTaggedProperty(WebFormComponent component, String beanTaggedProperty)
 	{
 		List<String> props = componentPropertiesWithTagExpression.get(component);
 		if (props == null)
@@ -168,15 +168,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private void pushRecordValues(boolean fireChangeEvent, boolean fireOnDataChange)
 	{
 		boolean changed = false;
-		for (Entry<String, List<Pair<WebComponent, String>>> entry : recordDataproviderToComponent.entrySet())
+		for (Entry<String, List<Pair<WebFormComponent, String>>> entry : recordDataproviderToComponent.entrySet())
 		{
 			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), entry.getKey());
 			Object oldValue;
 			boolean isPropertyChanged;
-			WebComponent wc;
+			WebFormComponent wc;
 			String property;
 			String onDataChange, onDataChangeCallback;
-			for (Pair<WebComponent, String> pair : entry.getValue())
+			for (Pair<WebFormComponent, String> pair : entry.getValue())
 			{
 				wc = pair.getLeft();
 				property = pair.getRight();
@@ -186,11 +186,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (fireOnDataChange && onDataChange != null && wc.hasEvent(onDataChange) && isPropertyChanged)
 				{
 					JSONObject event = EventExecutor.createEvent(onDataChange);
-					Object returnValue = wc.execute(onDataChange, new Object[] { oldValue, value, event });
+					Object returnValue = wc.executeEvent(onDataChange, new Object[] { oldValue, value, event });
 					onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
 					if (onDataChangeCallback != null)
 					{
-						wc.executeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+						wc.executeApiInvoke(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
 					}
 				}
 				changed = isPropertyChanged || changed;
@@ -198,7 +198,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 
 		//evaluate tagged properties
-		for (WebComponent component : componentPropertiesWithTagExpression.keySet())
+		for (WebFormComponent component : componentPropertiesWithTagExpression.keySet())
 		{
 			for (String taggedProp : componentPropertiesWithTagExpression.get(component))
 			{
@@ -209,9 +209,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 
 		// valuelist update
-		Map<String, WebComponent> webComponents = formController.getFormUI().getWebComponents();
+		Map<String, WebFormComponent> webComponents = formController.getFormUI().getWebComponents();
 		Object valuelist;
-		for (WebComponent wc : webComponents.values())
+		for (WebFormComponent wc : webComponents.values())
 		{
 			for (String valuelistProperty : wc.getFormElement().getValuelistProperties())
 			{
@@ -238,12 +238,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		pushRecordValues(true, true);
 	}
 
-	public void pushChanges(WebComponent webComponent, String beanProperty)
+	public void pushChanges(WebFormComponent webComponent, String beanProperty)
 	{
 		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty));
 	}
 
-	public void pushChanges(WebComponent webComponent, String beanProperty, Object newValue)
+	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object newValue)
 	{
 		Map<String, String> map = beanToDataHolder.get(webComponent.getFormElement());
 		if (map == null)
@@ -262,17 +262,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (onDataChange != null && webComponent.hasEvent(onDataChange))
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange);
-				Object returnValue = webComponent.execute(onDataChange, new Object[] { oldValue, newValue, event });
+				Object returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, newValue, event });
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
-					webComponent.executeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+					webComponent.executeApiInvoke(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
 				}
 			}
 		}
 	}
 
-	public void startEdit(WebComponent webComponent, String property)
+	public void startEdit(WebFormComponent webComponent, String property)
 	{
 		Object dataProvider = beanToDataHolder.get(webComponent.getFormElement()).get(property);
 		if (dataProvider != null && !ScopesUtils.isVariableScope(dataProvider.toString()))
@@ -381,19 +381,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void setFindMode(boolean findMode)
 	{
 		this.findMode = findMode;
-		Set<WebComponent> webcomponents = new HashSet<>();
-		for (List<Pair<WebComponent, String>> lst : recordDataproviderToComponent.values())
+		Set<WebFormComponent> webcomponents = new HashSet<>();
+		for (List<Pair<WebFormComponent, String>> lst : recordDataproviderToComponent.values())
 		{
-			for (Pair<WebComponent, String> pair : lst)
+			for (Pair<WebFormComponent, String> pair : lst)
 			{
 				webcomponents.add(pair.getLeft());
 			}
 		}
 		WebComponentApiDefinition apiDef = new WebComponentApiDefinition("setFindMode");
 		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE };
-		for (WebComponent webComponent : webcomponents)
+		for (WebFormComponent webComponent : webcomponents)
 		{
-			executeApi(apiDef, webComponent.getName(), args);
+			executeApiInvoke(apiDef, webComponent.getName(), args);
 		}
 	}
 }

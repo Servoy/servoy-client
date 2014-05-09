@@ -22,7 +22,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.WebComponentApiDefinition;
 
-import com.servoy.j2db.server.ngclient.WebComponent;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 
 /**
  * Javascript function to call a client-side function in the web component api.
@@ -35,9 +35,9 @@ public class WebComponentFunction implements Function
 	private Scriptable prototype;
 	private Scriptable parent;
 	private final WebComponentApiDefinition definition;
-	private final WebComponent component;
+	private final WebFormComponent component;
 
-	public WebComponentFunction(WebComponent component, WebComponentApiDefinition definition)
+	public WebComponentFunction(WebFormComponent component, WebComponentApiDefinition definition)
 	{
 		this.component = component;
 		this.definition = definition;
@@ -47,7 +47,7 @@ public class WebComponentFunction implements Function
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
 		// No unwrapping here so that javascript objects can also be sent to client
-		return component.executeApi(definition, args);
+		return component.executeApiInvoke(definition, args);
 	}
 
 	@Override

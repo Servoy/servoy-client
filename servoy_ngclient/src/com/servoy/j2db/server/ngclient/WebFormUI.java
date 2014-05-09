@@ -44,9 +44,9 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 @SuppressWarnings("nls")
-public class WebFormUI extends WebComponent implements IWebFormUI
+public class WebFormUI extends WebFormComponent implements IWebFormUI
 {
-	protected final Map<String, WebComponent> components = new HashMap<>();
+	protected final Map<String, WebFormComponent> components = new HashMap<>();
 	private final INGApplication application;
 	private final IWebFormController formController;
 
@@ -87,7 +87,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				continue;
 			}
 
-			WebComponent component = ComponentFactory.createComponent(application, dal, fe, this);
+			WebFormComponent component = ComponentFactory.createComponent(application, dal, fe, this);
 			if (!fe.getName().startsWith("svy_"))
 			{
 				RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
@@ -165,7 +165,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	 *  -component and componentNode should have been just componentNode (but currently WebCoponent is not nested)
 	 */
 	public void fillProperties(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec, DataAdapterList dal,
-		WebComponent component, Object componentNode, String level)
+		WebFormComponent component, Object componentNode, String level)
 	{
 		if (propertySpec.isArray())
 		{
@@ -251,9 +251,9 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	 */
 	private void putInComponentNode(Object componentNode, String propName, Object propValue)
 	{
-		if (componentNode instanceof WebComponent)
+		if (componentNode instanceof WebFormComponent)
 		{
-			((WebComponent)componentNode).putProperty(propName, propValue);
+			((WebFormComponent)componentNode).putProperty(propName, propValue);
 		}
 		else
 		{
@@ -266,7 +266,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	 * @return
 	 */
 	private Object initFormElementProperty(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec,
-		DataAdapterList dal, WebComponent component, Object componentNode, String level, boolean isArrayElement)
+		DataAdapterList dal, WebFormComponent component, Object componentNode, String level, boolean isArrayElement)
 	{
 		Object ret = null;
 		switch (propertySpec.getType())
@@ -345,17 +345,17 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		return dataAdapterList;
 	}
 
-	public void add(WebComponent component)
+	public void add(WebFormComponent component)
 	{
 		components.put(component.getName(), component);
 	}
 
-	public WebComponent getWebComponent(String name)
+	public WebFormComponent getWebComponent(String name)
 	{
 		return components.get(name);
 	}
 
-	public Map<String, WebComponent> getWebComponents()
+	public Map<String, WebFormComponent> getWebComponents()
 	{
 		return components;
 	}
@@ -364,11 +364,11 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	{
 		Map<String, Map<String, Object>> props = new HashMap<String, Map<String, Object>>();
 
-		ArrayList<WebComponent> allComponents = new ArrayList<WebComponent>();
+		ArrayList<WebFormComponent> allComponents = new ArrayList<WebFormComponent>();
 		allComponents.add(this); // add the form itself
 		allComponents.addAll(components.values());
 
-		for (WebComponent wc : allComponents)
+		for (WebFormComponent wc : allComponents)
 		{
 			props.put(wc == this ? "" : wc.getName(), wc.getPropertiesClearChanged()); //$NON-NLS-1$
 		}
@@ -380,11 +380,11 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	{
 		Map<String, Map<String, Object>> props = new HashMap<String, Map<String, Object>>(8);
 
-		ArrayList<WebComponent> allComponents = new ArrayList<WebComponent>();
+		ArrayList<WebFormComponent> allComponents = new ArrayList<WebFormComponent>();
 		allComponents.add(this); // add the form itself
 		allComponents.addAll(components.values());
 
-		for (WebComponent wc : allComponents)
+		for (WebFormComponent wc : allComponents)
 		{
 			Map<String, Object> changes = wc.getChanges();
 			if (changes.size() > 0)
@@ -509,10 +509,10 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		{
 			tabSeqComponents.get(i).setCalculatedTabSequence(currentIndex++);
 		}
-		if (startComponent != null && parentContainerOrWindowName instanceof WebComponent)
+		if (startComponent != null && parentContainerOrWindowName instanceof WebFormComponent)
 		{
 			// upwards traversal
-			((WebComponent)parentContainerOrWindowName).recalculateTabSequence(currentIndex);
+			((WebFormComponent)parentContainerOrWindowName).recalculateTabSequence(currentIndex);
 		}
 		nextAvailableTabSequence = currentIndex;
 		return currentIndex;
@@ -548,7 +548,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				}
 
 			});
-		for (WebComponent comp : components.values())
+		for (WebFormComponent comp : components.values())
 		{
 			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(PropertyType.tabseq);
 			for (PropertyDescription pd : tabSeqProps.values())
@@ -562,7 +562,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		return tabSeqComponents;
 	}
 
-	public void setParentContainer(WebComponent parentContainer)
+	public void setParentContainer(WebFormComponent parentContainer)
 	{
 		this.parentContainerOrWindowName = parentContainer;
 	}
@@ -854,9 +854,9 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		{
 			return (String)parentContainerOrWindowName;
 		}
-		if (parentContainerOrWindowName instanceof WebComponent && ((WebComponent)parentContainerOrWindowName).getParent() != null)
+		if (parentContainerOrWindowName instanceof WebFormComponent && ((WebFormComponent)parentContainerOrWindowName).getParent() != null)
 		{
-			return ((WebComponent)parentContainerOrWindowName).getParent().getContainerName();
+			return ((WebFormComponent)parentContainerOrWindowName).getParent().getContainerName();
 		}
 		return null;
 	}

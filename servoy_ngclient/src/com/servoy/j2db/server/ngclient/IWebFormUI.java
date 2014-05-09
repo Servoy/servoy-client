@@ -38,12 +38,12 @@ public interface IWebFormUI extends IBasicFormUI, IView
 	 * @param string
 	 * @return
 	 */
-	WebComponent getWebComponent(String name);
+	WebFormComponent getWebComponent(String name);
 
 	/**
 	 * @return
 	 */
-	Map<String, WebComponent> getWebComponents();
+	Map<String, WebFormComponent> getWebComponents();
 
 	/**
 	 * @return
@@ -61,7 +61,7 @@ public interface IWebFormUI extends IBasicFormUI, IView
 
 	int recalculateTabIndex(int startIndex, TabSequencePropertyWithComponent startComponent);
 
-	void setParentContainer(WebComponent parentContainer);
+	void setParentContainer(WebFormComponent parentContainer);
 
 	int getNextAvailableTabSequence();
 

@@ -25,7 +25,6 @@ import com.servoy.j2db.dataprocessing.IRecord;
 
 /**
  * @author jcompagner
- *
  */
 public interface IDataAdapterList extends IDataConverter, ITagResolver
 {
@@ -33,21 +32,21 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 * @param webComponent
 	 * @param string
 	 */
-	void pushChanges(WebComponent webComponent, String string);
+	void pushChanges(WebFormComponent webComponent, String string);
 
 	/**
 	 * @param webComponent
 	 * @param string
 	 * @param newValue
 	 */
-	void pushChanges(WebComponent webComponent, String string, Object newValue);
+	void pushChanges(WebFormComponent webComponent, String string, Object newValue);
 
 	/**
 	 * @param webComponent
 	 * @param string
 	 * @param args
 	 */
-	Object execute(WebComponent webComponent, String event, int eventId, Object[] args);
+	Object executeEvent(WebFormComponent webComponent, String event, int eventId, Object[] args);
 
 	/**
 	 * @param apiDefinition
@@ -55,7 +54,7 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 * @param args
 	 * @return
 	 */
-	Object executeApi(WebComponentApiDefinition apiDefinition, String elementName, Object[] args);
+	Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String elementName, Object[] args);
 
 	/**
 	 * @param script
@@ -75,7 +74,7 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 * @param webComponent
 	 * @param property
 	 */
-	void startEdit(WebComponent webComponent, String property);
+	void startEdit(WebFormComponent webComponent, String property);
 
 	/**
 	 * @param findMode

@@ -16,6 +16,7 @@ import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -30,36 +31,38 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
-
+/**
+ * Servoy extension to work with webcomponents on a form
+ * @author jcompagner
+ */
 @SuppressWarnings("nls")
-public class WebComponent implements ListDataListener
+public class WebFormComponent extends WebComponent implements ListDataListener
 {
-	private final String name;
-	protected final Map<String, Object> properties = new HashMap<>();
-	private final Map<String, Integer> events = new HashMap<>();
-	protected IDataAdapterList dataAdapterList;
-
+	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final Set<String> changedProperties = new HashSet<>(3);
 	private final FormElement formElement;
 	private final IWebFormUI parentForm;
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
+
 	// list of all tabseq properties ordered by design time value; tabseq will be updated with runtime value
 	private final List<Pair<String, Integer>> calculatedTabSequence = new ArrayList<Pair<String, Integer>>();
+
+	protected IDataAdapterList dataAdapterList;
+
 	// the next available tab sequence number (after this component and all its subtree)
 	protected int nextAvailableTabSequence;
 
-	protected WebComponent(String name, Form form)
+	protected WebFormComponent(String name, Form form)
 	{
 		this(name, new FormElement(form), null, null);
 	}
 
-	public WebComponent(String name, FormElement fe, IDataAdapterList dataAdapterList, IWebFormUI parentForm)
+	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList, IWebFormUI parentForm)
 	{
-		this.name = name;
+		super(name);
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 		this.parentForm = parentForm;
-		properties.put("name", name);
 		if (fe.getLabel() != null)
 		{
 			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
@@ -73,8 +76,8 @@ public class WebComponent implements ListDataListener
 				@Override
 				public int compare(PropertyDescription o1, PropertyDescription o2)
 				{
-					int tabSeq1 = Utils.getAsInteger(WebComponent.this.getInitialProperty(o1.getName()));
-					int tabSeq2 = Utils.getAsInteger(WebComponent.this.getInitialProperty(o2.getName()));
+					int tabSeq1 = Utils.getAsInteger(WebFormComponent.this.getInitialProperty(o1.getName()));
+					int tabSeq2 = Utils.getAsInteger(WebFormComponent.this.getInitialProperty(o2.getName()));
 					if (tabSeq1 != tabSeq2)
 					{
 						return tabSeq1 - tabSeq2;
@@ -236,11 +239,6 @@ public class WebComponent implements ListDataListener
 		properties.put(propertyName, convertValue(propertyName, propertyValue));
 	}
 
-	public String getName()
-	{
-		return name;
-	}
-
 	public Map<String, Object> getChanges()
 	{
 		if (changedProperties.size() > 0)
@@ -272,30 +270,32 @@ public class WebComponent implements ListDataListener
 		return events.containsKey(eventType);
 	}
 
-	public Object execute(String eventType, Object[] args)
+	@Override
+	public Object executeEvent(String eventType, Object[] args)
 	{
 		Integer eventId = events.get(eventType);
 		if (eventId != null)
 		{
-			return dataAdapterList.execute(this, eventType, eventId.intValue(), args);
+			return dataAdapterList.executeEvent(this, eventType, eventId.intValue(), args);
 		}
 		throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
 	}
 
-	public Object executeApi(WebComponentApiDefinition apiDefinition, Object[] args)
+	@Override
+	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, Object[] args)
 	{
-		return dataAdapterList.executeApi(apiDefinition, getName(), args);
+		return dataAdapterList.executeApiInvoke(apiDefinition, getName(), args);
 	}
 
 	@Override
 	public String toString()
 	{
-		return "<" + name + ">";
+		return "<" + getName() + ">";
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -306,7 +306,7 @@ public class WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -317,7 +317,7 @@ public class WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

@@ -262,7 +262,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			}
 			else return RowData.EMPTY;
 		}
-		Collection<WebComponent> bodyComponents = getBodyComponents(components.values());
+		Collection<WebFormComponent> bodyComponents = getBodyComponents(components.values());
 		int currentIndex = startTabSeqIndex + startOffset * bodyComponents.size();
 		for (int i = startIdx; i < endIdx; i++)
 		{
@@ -270,7 +270,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			dataAdapterList.setRecord(record, false);
 			Map<String, Object> rowProperties = new HashMap<String, Object>();
 			rowProperties.put("_svyRowId", record.getPKHashKey() + "_" + i);
-			for (WebComponent wc : bodyComponents)
+			for (WebFormComponent wc : bodyComponents)
 			{
 				//TODO 
 				//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
@@ -319,16 +319,16 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		return new RowData(rows, startIdx - foundsetStartRow, endIdx - foundsetStartRow);
 	}
 
-	private Collection<WebComponent> getBodyComponents(Collection<WebComponent> components)
+	private Collection<WebFormComponent> getBodyComponents(Collection<WebFormComponent> components)
 	{
 		Form frm = formController.getForm();
 		Part body = getBodyPart(frm);
 		int bodyStartY = frm.getPartStartYPos(body.getID());
 		int bodyEndY = body.getHeight();
 
-		List<WebComponent> ret = new ArrayList<>();
+		List<WebFormComponent> ret = new ArrayList<>();
 		//filter only body elements
-		for (WebComponent wc : components)
+		for (WebFormComponent wc : components)
 		{
 			if (wc.getFormElement().getPersist() instanceof BaseComponent)
 			{
@@ -397,7 +397,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	}
 
 
-	private static List<String> getWebComponentPropertyType(WebComponent wc, PropertyType type)
+	private static List<String> getWebComponentPropertyType(WebFormComponent wc, PropertyType type)
 	{
 		WebComponentSpec componentSpec = wc.getFormElement().getWebComponentSpec();
 		ArrayList<String> properties = new ArrayList<>(3);

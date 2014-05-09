@@ -271,7 +271,7 @@ public class MediaResourcesServlet extends HttpServlet
 						if (wsSession != null)
 						{
 							IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
-							WebComponent webComponent = form.getWebComponent(elementName);
+							WebFormComponent webComponent = form.getWebComponent(elementName);
 							form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
 						}
 					}

@@ -30,7 +30,7 @@ import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpec;
 
-import com.servoy.j2db.server.ngclient.WebComponent;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 
 /**
@@ -39,13 +39,13 @@ import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
  */
 public class RuntimeWebComponent implements Scriptable
 {
-	private final WebComponent component;
+	private final WebFormComponent component;
 	private Scriptable prototypeScope;
 	private final Set<String> specProperties;
 	private final Set<String> dataProviderProperties;
 	private final Map<String, WebComponentFunction> apiFunctions;
 
-	public RuntimeWebComponent(WebComponent component, WebComponentSpec webComponentSpec)
+	public RuntimeWebComponent(WebFormComponent component, WebComponentSpec webComponentSpec)
 	{
 		this.component = component;
 		this.specProperties = webComponentSpec == null ? null : webComponentSpec.getAllPropertiesNames();

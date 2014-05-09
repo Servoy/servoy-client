@@ -29,7 +29,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
  * @author obuligan
  *
  */
-public class DefaultNavigatorWebComponent extends WebComponent implements IFoundSetEventListener, ListSelectionListener
+public class DefaultNavigatorWebComponent extends WebFormComponent implements IFoundSetEventListener, ListSelectionListener
 {
 	private IFoundSet foundset;
 
@@ -46,7 +46,7 @@ public class DefaultNavigatorWebComponent extends WebComponent implements IFound
 
 
 	@Override
-	public Object execute(String event, Object[] args)
+	public Object executeEvent(String event, Object[] args)
 	{
 		if (event.equals(DefaultNavigator.SETELECTEDINDEX_FUNCTION_NAME))
 		{

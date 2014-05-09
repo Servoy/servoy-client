@@ -26,11 +26,11 @@ import com.servoy.j2db.util.Utils;
  */
 public class TabSequencePropertyWithComponent
 {
-	private final WebComponent component;
+	private final WebFormComponent component;
 	private final String tabSeqProperty;
 
 
-	public TabSequencePropertyWithComponent(WebComponent component, String tabSeqProperty)
+	public TabSequencePropertyWithComponent(WebFormComponent component, String tabSeqProperty)
 	{
 		this.component = component;
 		this.tabSeqProperty = tabSeqProperty;
@@ -56,7 +56,7 @@ public class TabSequencePropertyWithComponent
 		return tabSeqProperty;
 	}
 
-	public WebComponent getComponent()
+	public WebFormComponent getComponent()
 	{
 		return component;
 	}
