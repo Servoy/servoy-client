@@ -17,8 +17,15 @@
 
 package com.servoy.j2db.server.ngclient.eventthread;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeJavaObject;
+
+import com.servoy.j2db.scripting.InstanceJavaMembers;
+import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.server.headlessclient.eventthread.Event;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.IWebFormController;
 
 
 /**
@@ -57,6 +64,20 @@ public class NGEvent extends Event
 		{
 			previous = client.getRuntimeWindowManager().getCurrentWindowName();
 			client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
+			IWebFormController currentForm = client.getFormManager().getCurrentForm();
+			if (currentForm != null)
+			{
+				SolutionScope ss = client.getScriptEngine().getSolutionScope();
+				Context.enter();
+				try
+				{
+					ss.put("currentcontroller", ss, new NativeJavaObject(ss, currentForm.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
+				}
+				finally
+				{
+					Context.exit();
+				}
+			}
 			try
 			{
 				super.execute();
