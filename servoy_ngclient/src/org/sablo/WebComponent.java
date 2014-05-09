@@ -42,11 +42,21 @@ public abstract class WebComponent
 		properties.put("name", name);
 	}
 
+	/**
+	 * Returns the component name
+	 * @return the name
+	 */
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Execute incoming event
+	 * @param eventType
+	 * @param args
+	 * @return
+	 */
 	public abstract Object executeEvent(String eventType, Object[] args);
 
 	public abstract Object executeApiInvoke(WebComponentApiDefinition apiDefinition, Object[] args);
