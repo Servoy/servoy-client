@@ -64,7 +64,7 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.NGClient;
-import com.servoy.j2db.server.ngclient.WebComponent;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
@@ -260,7 +260,7 @@ public class PersistFieldInstanceTest
 		Assert.assertEquals(1, formElements.size());
 		for (FormElement formElement : formElements)
 		{
-			WebComponent wc = ComponentFactory.createComponent(client, null, formElement, null);
+			WebFormComponent wc = ComponentFactory.createComponent(client, null, formElement, null);
 			Object property = wc.getProperty("valuelistID");
 			Assert.assertTrue(property != null ? property.getClass().getName() : "null", property instanceof CustomValueList);
 			Assert.assertEquals("#,###.00", ((CustomValueList)property).getFormat().getDisplayFormat());
@@ -284,7 +284,7 @@ public class PersistFieldInstanceTest
 		Assert.assertEquals(1, formElements.size());
 		for (FormElement formElement : formElements)
 		{
-			WebComponent wc = ComponentFactory.createComponent(client, null, formElement, null);
+			WebFormComponent wc = ComponentFactory.createComponent(client, null, formElement, null);
 			List<Map<String, Object>> tabs = (List)wc.getConvertedPropertyWithDefault("tabs", false, true);
 			Assert.assertEquals(2, tabs.size());
 			Map<String, Object> map = tabs.get(1);
