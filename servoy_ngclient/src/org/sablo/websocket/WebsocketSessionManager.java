@@ -42,7 +42,7 @@ public class WebsocketSessionManager
 		return endpointType + ':' + uuid;
 	}
 
-	public static void addWebSocketSession(String endpointType, String uuid, IWebsocketSession wsSession)
+	public static void addSession(String endpointType, String uuid, IWebsocketSession wsSession)
 	{
 		synchronized (wsSessions)
 		{
@@ -51,7 +51,7 @@ public class WebsocketSessionManager
 		}
 	}
 
-	public static IWebsocketSession removeWebSocketSession(String endpointType, String uuid)
+	public static IWebsocketSession removeSession(String endpointType, String uuid)
 	{
 		synchronized (wsSessions)
 		{
