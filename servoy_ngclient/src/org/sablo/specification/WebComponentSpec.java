@@ -34,6 +34,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Parse .spec files for components.
+ * 
  * @author rgansevles
  */
 @SuppressWarnings("nls")
