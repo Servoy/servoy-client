@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.json.JSONObject;
 
 /**
- * Interface for classes handling a websocket session.
+ * Interface for classes handling a websocket user session.
  * @author rgansevles
  */
 public interface IWebsocketSession
