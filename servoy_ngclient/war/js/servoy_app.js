@@ -92,7 +92,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            var formModel = formState.model;
 		            var layout = formState.layout;
 		            var newFormData = msg.forms[formname];
-		            var newFormProperties = newFormData['']; // get form properties
+		            var newFormProperties = newFormData['']; // f form properties
 
 		            if(newFormProperties) {
 		            	if (!formModel['']) formModel[''] = {};
@@ -485,6 +485,18 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			    	$timeout(function(){
 			    		$window.open(url,target,targetOptions)
 			    	},timeout)	    	
+		},
+		getScreenSize:function() {
+			  if ($window.screen) {
+				  return{width: $window.screen.width, height: $window.screen.height, orientation:$window.orientation};
+			  }
+			return null;
+		},
+		getLocation:function() {
+			return $window.location.href;
+		},
+		getUserAgentAndPlatform:function() {
+			return {userAgent:$window.navigator.userAgent,platform:$window.navigator.platform};
 		}
 	}
 	

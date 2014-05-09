@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
@@ -41,6 +42,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 // TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
 // then we can extend that one.
@@ -98,7 +100,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -283,7 +285,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.INGApplication#getChangeListener()
 	 */
 	@Override
@@ -338,10 +340,57 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return scheduledExecutorService;
 	}
 
+	@SuppressWarnings("nls")
+	@Override
+	public Dimension getScreenSize()
+	{
+		try
+		{
+			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getScreenSize", null);
+			if (retValue instanceof JSONObject)
+			{
+				int orientation = ((JSONObject)retValue).optInt("orientation", 0);
+				int width = ((JSONObject)retValue).optInt("width", -1);
+				int height = ((JSONObject)retValue).optInt("height", -1);
+				if (orientation == 90 || orientation == -90)
+				{
+					return new Dimension(height, width);
+				}
+				return new Dimension(width, height);
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		return null;
+	}
+
 	@Override
 	public URL getServerURL()
 	{
-		// TODO get from actual client
+		try
+		{
+			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getLocation", null);
+			if (retValue instanceof String)
+			{
+				String url = (String)retValue;
+				int index = url.indexOf("/solutions/");
+				if (index != -1)
+				{
+					url = url.substring(0, index);
+				}
+				if (!url.toLowerCase().startsWith("http"))
+				{
+					url = "http://" + url;
+				}
+				return new URL(url);
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
 		return super.getServerURL();
 	}
 
@@ -354,14 +403,50 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public String getClientOSName()
 	{
-		// TODO check the actual client
+		try
+		{
+			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getUserAgentAndPlatform", null);
+			if (retValue instanceof JSONObject)
+			{
+				String userAgent = ((JSONObject)retValue).optString("userAgent");
+				if (userAgent != null)
+				{
+					if (userAgent.indexOf("NT 6.1") != -1) return "Windows 7";
+					if (userAgent.indexOf("NT 6.0") != -1) return "Windows Vista";
+					if (userAgent.indexOf("NT 5.1") != -1 || userAgent.indexOf("Windows XP") != -1) return "Windows XP";
+					if (userAgent.indexOf("Linux") != -1) return "Linux";
+					if (userAgent.indexOf("Mac") != -1) return "Mac OS";
+				}
+				String platform = ((JSONObject)retValue).optString("platform");
+				if (platform != null) return platform;
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
 		return super.getClientOSName();
 	}
 
 	@Override
 	public int getClientPlatform()
 	{
-		// TODO check the actual client
+		try
+		{
+			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getUserAgentAndPlatform", null);
+			if (retValue instanceof JSONObject)
+			{
+				String platform = ((JSONObject)retValue).optString("platform");
+				if (platform != null)
+				{
+					return Utils.getPlatform(platform);
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
 		return super.getClientPlatform();
 	}
 
@@ -482,13 +567,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public void looseFocus()
 	{
 		// TODO call request focus on a div in a client?
-	}
-
-	@Override
-	public Dimension getScreenSize()
-	{
-		// TODO just call the client to get the size
-		return null;
 	}
 
 	@Override
