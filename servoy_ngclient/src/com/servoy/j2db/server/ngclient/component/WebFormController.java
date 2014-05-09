@@ -396,11 +396,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
 	{
-		if (parentFormController != null && !visible)
+		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
+		if (parentFormController != null && !visible && notifyVisibleSuccess)
 		{
 			IWebFormController parentFC = parentFormController.get();
 			if (parentFC != null) parentFC.getFormUI().getDataAdapterList().removeRelatedForm(this);
 		}
-		return super.notifyVisible(visible, invokeLaterRunnables);
+		return notifyVisibleSuccess;
 	}
 }

@@ -13,8 +13,8 @@ import java.util.WeakHashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.PropertyType.DataproviderConfig;
+import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
@@ -104,6 +104,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void removeRelatedForm(IWebFormController form)
 	{
+		form.setParentFormController(null);
 		relatedForms.remove(form);
 	}
 
