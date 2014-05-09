@@ -93,8 +93,9 @@ public class PersistFieldInstanceTest
 	public void buildSolution()
 	{
 		File[] locations = new File[2];
-		locations[0] = new File("war/servoydefault/");
-		locations[1] = new File("war/webcomponents/");
+		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		locations[0] = new File(f.getAbsoluteFile() + "/../war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+		locations[1] = new File(f.getAbsoluteFile() + "/../war/webcomponents/");
 		new WebComponentSpecProvider(locations);
 
 		final TestRepository tr = new TestRepository();
@@ -184,8 +185,11 @@ public class PersistFieldInstanceTest
 						@Override
 						public IClientHost getClientHost() throws RemoteException
 						{
+
+							System.out.println("return le client host now");
 							return new IClientHost()
 							{
+
 								@Override
 								public void unregister(String client_id) throws RemoteException
 								{
@@ -288,7 +292,7 @@ public class PersistFieldInstanceTest
 			List<Map<String, Object>> tabs = (List)wc.getConvertedPropertyWithDefault("tabs", false, true);
 			Assert.assertEquals(2, tabs.size());
 			Map<String, Object> map = tabs.get(1);
-			Assert.assertSame(tabForm, map.get("containsFormId"));
+			Assert.assertSame(tabForm.getName(), map.get("containsFormId"));
 		}
 	}
 
