@@ -19,6 +19,7 @@ package org.sablo.websocket;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 /**
@@ -112,12 +113,13 @@ public class WebsocketSessionManager
 		{
 			//do global non active cleanup
 			long currentTime = System.currentTimeMillis();
-			Iterator<Long> iterator = nonActiveWsSessions.values().iterator();
+			Iterator<Entry<String, Long>> iterator = nonActiveWsSessions.entrySet().iterator();
 			while (iterator.hasNext())
 			{
-				Long entry = iterator.next();
-				if (currentTime - entry.longValue() > SESSION_TIMEOUT)
+				Entry<String, Long> entry = iterator.next();
+				if (currentTime - entry.getValue().longValue() > SESSION_TIMEOUT)
 				{
+					wsSessions.remove(entry.getKey());
 					iterator.remove();
 				}
 			}
