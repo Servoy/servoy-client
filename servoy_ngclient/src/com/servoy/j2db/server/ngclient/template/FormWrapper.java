@@ -37,6 +37,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.util.Utils;
 
@@ -231,7 +232,7 @@ public class FormWrapper
 		if (!properties.containsKey("size")) properties.put("size", form.getSize());
 		removeUnneededFormProperties(properties);
 
-		return JSONUtils.addObjectPropertiesToWriter(new JSONStringer().object(), properties).endObject().toString();
+		return JSONUtils.addObjectPropertiesToWriter(new JSONStringer().object(), properties, NGClientForJsonConverter.INSTANCE).endObject().toString();
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

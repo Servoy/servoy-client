@@ -20,9 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sablo.specification.PropertyType;
-import org.sablo.websocket.utils.JSONUtils;
-
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
@@ -384,8 +381,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		visible = true;
 		currentForm.getFormUI().setParentWindowName(getName());
 		Map<String, Object> mainForm = new HashMap<String, Object>();
-		mainForm.put("templateURL", JSONUtils.toStringObject(currentForm.getForm(), PropertyType.form));
-		mainForm.put("width", currentForm.getForm().getWidth());
+		mainForm.put("templateURL", currentForm.getForm().getName());
+		mainForm.put("width", Integer.valueOf(currentForm.getForm().getWidth()));
 		mainForm.put("name", currentForm.getName());
 
 		Map<String, Object> navigatorForm = new HashMap<String, Object>();
@@ -418,8 +415,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				Form navForm = getApplication().getFlattenedSolution().getForm(navigatorId);
 				if (navForm != null)
 				{
-					navigatorForm.put("templateURL", JSONUtils.toStringObject(navForm, PropertyType.form));
-					navigatorForm.put("width", navForm.getWidth());
+					navigatorForm.put("templateURL", navForm.getName());
+					navigatorForm.put("width", Integer.valueOf(navForm.getWidth()));
 					getApplication().getWebsocketSession().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null);
 				}
 			}

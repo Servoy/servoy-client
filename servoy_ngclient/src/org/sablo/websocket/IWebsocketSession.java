@@ -94,4 +94,10 @@ public interface IWebsocketSession
 	 * @throws IOException
 	 */
 	Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
+
+	/**
+	 * Get the converter for converting domain objects to supported objects for json messages.
+	 * Return null for no specific conversion.
+	 */
+	IForJsonConverter getForJsonConverter();
 }

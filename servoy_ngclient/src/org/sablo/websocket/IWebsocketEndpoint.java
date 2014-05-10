@@ -45,10 +45,11 @@ public interface IWebsocketEndpoint
 	 * Send a message to the browser, add conversion
 	 * @param data
 	 * @param async when false, wait for response
+	 * @param forJsonConverter
 	 * @return remote response (when not async)
 	 * @throws IOException
 	 */
-	Object sendMessage(Map<String, ? > data, boolean async) throws IOException;
+	Object sendMessage(Map<String, ? > data, boolean async, IForJsonConverter forJsonConverter) throws IOException;
 
 	/**
 	 * Just send this text as message, no conversion, no waiting for response.
@@ -66,7 +67,7 @@ public interface IWebsocketEndpoint
 	 * @param success is this a normal or an error response?
 	 * @throws IOException
 	 */
-	void sendResponse(Object msgId, Object object, boolean success) throws IOException;
+	void sendResponse(Object msgId, Object object, boolean success, IForJsonConverter forJsonConverter) throws IOException;
 
 	/** Execute a service call asynchronously.
 	 * 

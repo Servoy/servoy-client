@@ -15,7 +15,6 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyType.DataproviderConfig;
 import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
@@ -362,7 +361,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			return propertyValue;
 		}
-		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(application));
+		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(application));
 	}
 
 	@Override
@@ -374,7 +373,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		PropertyDescription propertyDescription = fe.getWebComponentSpec().getProperties().get(propertyName);
 		if (propertyDescription == null) propertyDescription = fe.getWebComponentSpec().getHandlers().get(propertyName);
-		return JSONUtils.toStringObject(propertyValue, propertyDescription.getType());
+		return NGClientForJsonConverter.toStringObject(propertyValue, propertyDescription.getType());
 	}
 
 	@Override
@@ -396,4 +395,5 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			executeApiInvoke(apiDef, webComponent.getName(), args);
 		}
 	}
+
 }

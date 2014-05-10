@@ -37,8 +37,8 @@ import org.json.JSONStringer;
 import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.BaseWebsocketSession;
+import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.IService;
-import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.FlattenedSolution;
@@ -234,7 +234,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								}
 								if (obj.has("cmsgid")) // client wants response
 								{
-									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), error == null ? result : error, error == null);
+									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), error == null ? result : error, error == null,
+										getForJsonConverter());
 								}
 							}
 							catch (JSONException | IOException e)
@@ -295,14 +296,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 									}
 								}
 								Utils.invokeLater(client, invokeLaterRunnables);
-								getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true);
+								getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true, getForJsonConverter());
 							}
 							catch (Exception e)
 							{
 								Debug.error(e);
 								try
 								{
-									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), e.getMessage(), false);
+									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), e.getMessage(), false, getForJsonConverter());
 								}
 								catch (IOException | JSONException e1)
 								{
@@ -587,7 +588,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private void sendChanges(Map<String, Map<String, Map<String, Object>>> properties) throws IOException
 	{
-		getActiveWebsocketEndpoint().sendMessage(properties.size() == 0 ? null : Collections.singletonMap("forms", properties), true);
+		getActiveWebsocketEndpoint().sendMessage(properties.size() == 0 ? null : Collections.singletonMap("forms", properties), true, getForJsonConverter());
 	}
 
 	/**
@@ -629,13 +630,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			data.put("call", call);
 
-			Object ret = getActiveWebsocketEndpoint().sendMessage(data, false);
+			Object ret = getActiveWebsocketEndpoint().sendMessage(data, false, getForJsonConverter());
 			// convert back
 			if (ret instanceof Long && apiDefinition.getReturnType().getType() == PropertyType.date)
 			{
 				return new Date(((Long)ret).longValue());
 			}
-			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType(), new DataConverterContext(getClient())); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
+			return NGClientForJsonConverter.toJavaObject(ret, apiDefinition.getReturnType(), new DataConverterContext(getClient())); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException | IOException e)
 		{
@@ -650,5 +651,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		super.executeAsyncServiceCall(serviceName, functionName, arguments);
 		valueChanged();
+	}
+
+	@Override
+	public IForJsonConverter getForJsonConverter()
+	{
+		return NGClientForJsonConverter.INSTANCE;
 	}
 }

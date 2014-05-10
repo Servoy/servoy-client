@@ -214,7 +214,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
 	{
 		addServiceCall(serviceName, functionName, arguments);
-		return sendMessage(null, false); // will return response from last service call
+		return sendMessage(null, false, wsSession.getForJsonConverter()); // will return response from last service call
 	}
 
 	@SuppressWarnings("unchecked")
@@ -234,7 +234,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		}
 	}
 
-	public String writeDataWithConversions(Map<String, ? > data) throws JSONException
+	public String writeDataWithConversions(Map<String, ? > data, IForJsonConverter forJsonConverter) throws JSONException
 	{
 		JSONWriter writer = new JSONStringer().object();
 		DataConversion dataConversion = new DataConversion();
@@ -242,7 +242,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		{
 			dataConversion.pushNode(entry.getKey());
 			writer.key(entry.getKey());
-			JSONUtils.toJSONValue(writer, entry.getValue(), dataConversion);
+			JSONUtils.toJSONValue(writer, entry.getValue(), dataConversion, forJsonConverter);
 			dataConversion.popNode();
 		}
 
@@ -257,7 +257,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	}
 
 
-	public Object sendMessage(Map<String, ? > data, boolean async) throws IOException
+	public Object sendMessage(Map<String, ? > data, boolean async, IForJsonConverter forJsonConverter) throws IOException
 	{
 		if ((data == null || data.size() == 0) && serviceCalls.size() == 0) return null;
 
@@ -279,7 +279,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 
 		try
 		{
-			sendText(writeDataWithConversions(message));
+			sendText(writeDataWithConversions(message, forJsonConverter));
 		}
 		catch (JSONException e)
 		{
@@ -297,14 +297,14 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	}
 
 	@Override
-	public void sendResponse(Object msgId, Object object, boolean success) throws IOException
+	public void sendResponse(Object msgId, Object object, boolean success, IForJsonConverter forJsonConverter) throws IOException
 	{
 		Map<String, Object> data = new HashMap<>();
 		data.put("cmsgid", msgId);
 		data.put(success ? "ret" : "exception", object);
 		try
 		{
-			sendText(writeDataWithConversions(data));
+			sendText(writeDataWithConversions(data, forJsonConverter));
 		}
 		catch (JSONException e)
 		{

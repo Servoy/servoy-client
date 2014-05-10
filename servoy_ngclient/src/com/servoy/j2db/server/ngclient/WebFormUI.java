@@ -19,7 +19,6 @@ import org.json.JSONException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentSpec;
-import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
@@ -408,8 +407,8 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	{
 		if ("size".equals(propertyName))
 		{
-			properties.put(propertyName,
-				JSONUtils.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension), new DataConverterContext(application)));
+			properties.put(propertyName, NGClientForJsonConverter.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension),
+				new DataConverterContext(application)));
 		}
 	}
 

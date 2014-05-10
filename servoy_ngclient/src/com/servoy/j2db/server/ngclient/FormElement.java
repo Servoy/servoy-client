@@ -113,7 +113,7 @@ public final class FormElement
 						{
 							// TODO where the handle PropertyType.form properties? (see tabpanel below)
 							//toJavaObject shoudl accept application because it is needed for format
-							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, context));
+							jsonMap.put(key, NGClientForJsonConverter.toJavaObject(jsonProperties.get(key), pd, context));
 							//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
 						}
 					}
@@ -479,7 +479,7 @@ public final class FormElement
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.addObjectPropertiesToWriter(propertyWriter, properties);
+			JSONUtils.addObjectPropertiesToWriter(propertyWriter, properties, NGClientForJsonConverter.INSTANCE);
 			return propertyWriter.endObject().toString();
 		}
 		catch (JSONException | IllegalArgumentException e)

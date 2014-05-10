@@ -97,7 +97,7 @@ public abstract class BaseWebsocketSession implements IWebsocketSession
 		}
 		else
 		{
-			Debug.warn("Unknown servie called: " + serviceName);
+			Debug.warn("Unknown service called: " + serviceName);
 		}
 	}
 
@@ -125,7 +125,7 @@ public abstract class BaseWebsocketSession implements IWebsocketSession
 		{
 			try
 			{
-				getActiveWebsocketEndpoint().sendResponse(msgId, error == null ? result : error, error == null);
+				getActiveWebsocketEndpoint().sendResponse(msgId, error == null ? result : error, error == null, getForJsonConverter());
 			}
 			catch (IOException e)
 			{
@@ -144,6 +144,13 @@ public abstract class BaseWebsocketSession implements IWebsocketSession
 	public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
 	{
 		getActiveWebsocketEndpoint().executeAsyncServiceCall(serviceName, functionName, arguments);
+	}
+
+	@Override
+	public IForJsonConverter getForJsonConverter()
+	{
+		// by default no conversion, only support basic types
+		return null;
 	}
 
 }
