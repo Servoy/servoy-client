@@ -90,7 +90,9 @@ public class FormTemplateGenerator
 		{
 			if (isWebcomponentBean(persist))
 			{
-				return ((Bean)persist).getBeanClassName().substring(((Bean)persist).getBeanClassName().indexOf(':') + 1);
+
+				String beanClassName = ((Bean)persist).getBeanClassName();
+				return getComponentTypeName(beanClassName);
 			}
 		}
 		else
@@ -155,6 +157,16 @@ public class FormTemplateGenerator
 		throw new RuntimeException("unknown persist type: " + persist);
 	}
 
+
+	/**
+	 * @param beanClassName
+	 * @return
+	 */
+	public static String getComponentTypeName(String beanClassName)
+	{
+		return beanClassName.substring(beanClassName.indexOf(':') + 1);
+	}
+
 	/**
 	 * @param persist
 	 * @return false if the persist has no valuelist or at most one value in the valuelist, true otherwise
@@ -187,4 +199,6 @@ public class FormTemplateGenerator
 		}
 		return true;
 	}
+
+
 }
