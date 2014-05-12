@@ -58,7 +58,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * This class is passed as value by the JEditListModel(==FormModel) and represents 1 row
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord", scriptingName = "JSRecord")
@@ -158,7 +158,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * called by data adapter for a new value
-	 * 
+	 *
 	 * @param dataProviderID the data requested for
 	 * @param useCache, false if you want for sure the value recalculated if is calculation
 	 */
@@ -197,7 +197,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			{
 				return converted ? row.getValue(dataProviderID) : row.getRawValue(dataProviderID);//also stored calcs are always calculated ones(required due to use of plugin methods in calc);
 			}
-			if (containsCalc) //check if calculation 
+			if (containsCalc) //check if calculation
 			{
 				UsedDataProviderTracker usedDataProviderTracker = new UsedDataProviderTracker(
 					getParentFoundSet().getFoundSetManager().getApplication().getFlattenedSolution());
@@ -280,7 +280,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * called by dataadapter
-	 * 
+	 *
 	 * @return oldvalue
 	 */
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing)
@@ -529,7 +529,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	{
 		if (name == null) return false;
 
-		if ("foundset".equals(name) || "exception".equals(name) || jsFunctions.containsKey(name)) return true; //$NON-NLS-1$ //$NON-NLS-2$ 
+		if ("foundset".equals(name) || "exception".equals(name) || jsFunctions.containsKey(name)) return true; //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (FoundSet.isToplevelKeyword(name)) return false;
 
@@ -580,7 +580,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		try
 		{
 			if ("foundset".equals(name) || "exception".equals(name)) return; //$NON-NLS-1$ //$NON-NLS-2$
-			if (jsFunctions.containsKey(name)) return;//dont allow to set 
+			if (jsFunctions.containsKey(name)) return;//dont allow to set
 
 			Object realValue = value;
 			if (realValue instanceof IDelegate< ? >)
@@ -910,9 +910,9 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	/**
 	 * Returns true or false if the record is being edited or not.
 	 *
-	 * @sample 
+	 * @sample
 	 * var isEditing = foundset.getSelectedRecord().isEditing() // also foundset.getRecord can be used
-	 * 
+	 *
 	 * @return a boolean when in edit.
 	 */
 	@JSFunction
@@ -923,11 +923,11 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Returns true if the current record is a new record or false otherwise.
-	 * 
+	 *
 	 * @sample
-	 * var isNew = foundset.getSelectedRecord().isNew(); 
-	 * 
-	 * @return true if the current record is a new record, false otherwise; 
+	 * var isNew = foundset.getSelectedRecord().isNew();
+	 *
+	 * @return true if the current record is a new record, false otherwise;
 	 */
 	@JSFunction
 	public boolean isNew()
@@ -938,22 +938,29 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	/**
 	 * Returns an array with the primary key values of the record.
 	 *
-	 * @sample 
+	 * @sample
 	 * var pks = foundset.getSelectedRecord().getPKs() // also foundset.getRecord can be used
-	 * 
+	 *
 	 * @return an Array with the pk values.
 	 */
 	@JSFunction
 	public Object[] getPKs()
 	{
-		return getPK();
+
+		int[] pkpos = parent.getSQLSheet().getPKIndexes();
+		Object[] pk = getPK();
+		for (int i = 0; i < pk.length; i++)
+		{
+			pk[i] = parent.getSQLSheet().convertValueToObject(pk[i], pkpos[i], parent.getFoundSetManager().getColumnConverterManager());
+		}
+		return pk;
 	}
 
 	/**
 	 * Delete this record from the Foundset and the underlying datasource.
-	 * 
+	 *
 	 * @deprecated Use foundset.deleteRecord(record)
-	 * 
+	 *
 	 * @sample
 	 * var record= %%prefix%%foundset.getRecord(index);
 	 * record.deleteRecord();
@@ -974,10 +981,10 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	/**
 	 * If this record exists in underlying datasource it will do a re-query to fetch the latest data from the datasource.
 	 * NOTE: If you use transactions then it will be the data of your last update of this record in the transaction,
-	 * not the latest committed data of that record in the datasource. 
-	 * 
+	 * not the latest committed data of that record in the datasource.
+	 *
 	 * @deprecated  As of release 6.1, replaced by {@link #revertChanges()}. Note that revertChanges does in memory revert of outstanding changes, does not query the database.
-	 * 
+	 *
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.rollbackChanges();
@@ -998,8 +1005,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Reverts the in memory outstanding (not saved) changes of the record.
-	 * 
-	 * 
+	 *
+	 *
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.revertChanges();
@@ -1021,13 +1028,13 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Saves this record to the datasource if it had changes.
-	 * 
+	 *
 	 * @deprecated Use databasemanager.saveData(record)
-	 * 
+	 *
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.save();
-	 * 
+	 *
 	 * @return true if the save was done without an error.
 	 */
 	@Deprecated
@@ -1046,8 +1053,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	/**
 	 * Returns a JSDataSet with outstanding (not saved) changed data of this record.
 	 * column1 is the column name, colum2 is the old data and column3 is the new data.
-	 * 
-	 * NOTE: To return an array of records with outstanding changed data, see the function databaseManager.getEditedRecords(). 
+	 *
+	 * NOTE: To return an array of records with outstanding changed data, see the function databaseManager.getEditedRecords().
 	 *
 	 * @sample
 	 * /** @type {JSDataSet} *&#47;
@@ -1056,7 +1063,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * {
 	 * 	application.output(dataset.getValue(i,1) +' '+ dataset.getValue(i,2) +' '+ dataset.getValue(i,3));
 	 * }
-	 * 
+	 *
 	 * @return a JSDataSet with the changed data of this record.
 	 */
 	@JSFunction
@@ -1084,10 +1091,10 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Returns true if the current record has outstanding/changed data.
-	 * 
+	 *
 	 * @sample
 	 * var hasChanged = record.hasChangedData();
-	 * 
+	 *
 	 * @return true if the current record has outstanding/changed data.
 	 */
 	@JSFunction
@@ -1101,7 +1108,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 *
 	 * @sample
 	 * var exception = record.exception;
-	 * 
+	 *
 	 * @return The occurred exception.
 	 */
 	@JSReadonlyProperty
@@ -1115,7 +1122,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 *
 	 * @sample
 	 * var ds = record.getDataSource();
-	 * 
+	 *
 	 * @return The datasource string of this record.
 	 */
 	@JSFunction
@@ -1129,7 +1136,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 *
 	 * @sample
 	 * var parent = record.foundset;
-	 * 
+	 *
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
