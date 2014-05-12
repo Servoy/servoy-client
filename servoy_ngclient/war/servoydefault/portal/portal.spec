@@ -21,7 +21,7 @@ model:
         scrollbars : 'int', 
         showHorizontalLines : 'boolean', 
         showVerticalLines : 'boolean', 
-        size : 'dimension', 
+        size :  {type:'dimension', default:{width:200, heigth:200}}, 
         sortable : 'boolean', 
         styleClass : 'string', 
         tabSeq : 'tabseq', 

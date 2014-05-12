@@ -16,6 +16,7 @@
 
 package org.sablo.specification;
 
+import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +36,8 @@ import java.util.jar.Manifest;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -89,7 +92,8 @@ public class WebComponentPackage
 							WebComponentSpec parsed = WebComponentSpec.parseSpec(specfileContent, reader.getPackageName(), specpath);
 							// add/overwrite properties defined by us
 							parsed.putProperty("location", new PropertyDescription("location", PropertyType.point));
-							parsed.putProperty("size", new PropertyDescription("size", PropertyType.dimension));
+							PropertyDescription sizePropertyDescriptor = createSizePDbutKeepDefaultSize(parsed);
+							parsed.putProperty("size", sizePropertyDescriptor);
 							parsed.putProperty("anchors", new PropertyDescription("anchors", PropertyType.intnumber));
 							descriptions.add(parsed);
 						}
@@ -104,6 +108,36 @@ public class WebComponentPackage
 			reader = null;
 		}
 		return cachedDescriptions;
+	}
+
+	/**
+	 * @param parsed
+	 * @return
+	 * @throws JSONException
+	 */
+	protected PropertyDescription createSizePDbutKeepDefaultSize(WebComponentSpec parsed) throws JSONException
+	{
+		PropertyDescription sizePropertyDescriptor = new PropertyDescription("size", PropertyType.dimension);
+		PropertyDescription sizeProperty = parsed.getProperty("size");
+		if (sizeProperty != null)
+		{
+			Object defaultValue = sizeProperty.getDefaultValue();
+			try
+			{
+				if (defaultValue instanceof JSONObject)
+				{
+					Integer width = (Integer)((JSONObject)defaultValue).get("width");
+					Integer height = (Integer)((JSONObject)defaultValue).get("heigth");
+					sizePropertyDescriptor = new PropertyDescription("size", PropertyType.dimension, false, null, new Dimension(width.intValue(),
+						height.intValue()));
+				}
+			}
+			catch (JSONException e)
+			{
+				Debug.log(e);
+			}
+		}
+		return sizePropertyDescriptor;
 	}
 
 	private static List<String> getWebComponentSpecNames(Manifest mf)

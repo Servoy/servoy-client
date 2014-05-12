@@ -15,7 +15,7 @@ model:
         readOnly : 'boolean', 
         scrollTabs : 'boolean', 
         selectedTabColor : 'color', 
-        size : 'dimension', 
+        size :  {type:'dimension', default:{width:300, heigth:300}}, 
         styleClass : { type:'styleclass', values:[]}, 
         tabOrientation : {type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}, 
         tabSeq : 'tabseq', 

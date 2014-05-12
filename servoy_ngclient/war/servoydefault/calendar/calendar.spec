@@ -18,7 +18,7 @@ model:
         placeholderText : 'tagstring', 
         scrollbars : 'int', 
         selectOnEnter : 'boolean', 
-        size : 'dimension', 
+        size :  {type:'dimension', default:{width:140, heigth:20}}, 
         styleClass : { type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs', 'svy-line-height-normal']}, 
         tabSeq : 'tabseq', 
         text : 'tagstring', 
