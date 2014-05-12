@@ -17,7 +17,7 @@ model:
         margin : 'dimension', 
         placeholderText : 'tagstring', 
         scrollbars : 'int', 
-        size :  {type:'dimension', default:{width:140, heigth:20}}, 
+        size :  {type:'dimension', default:{width:140, height:20}}, 
         styleClass : { type:'styleclass', values:[]}, 
         tabSeq : 'tabseq', 
         text : 'tagstring', 

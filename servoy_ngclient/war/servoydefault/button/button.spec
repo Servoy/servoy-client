@@ -19,7 +19,7 @@ model:
         mnemonic : 'string', 
         rolloverCursor : 'int', 
         rolloverImageMediaID : 'media', 
-        size :  {type:'dimension', default:{width:80, heigth:20}}, 
+        size :  {type:'dimension', default:{width:80, height:20}}, 
         styleClass : { type:'styleclass', values:['btn','btn-default','btn-lg','btn-sm','btn-xs']}, 
         tabSeq : 'tabseq', 
         text : 'tagstring', 
