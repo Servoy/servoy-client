@@ -42,7 +42,7 @@ public class ComponentResourcesExporter
 	 */
 	public static void copyComponents(File tmpWarDir) throws IOException
 	{
-		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir);
+		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir, null);
 	}
 
 	public static String getComponentDirectoryNames()
@@ -66,7 +66,7 @@ public class ComponentResourcesExporter
 	 * @param tmpWarDir
 	 * @throws IOException 
 	 */
-	private static void copy(Enumeration<String> paths, File destDir) throws IOException
+	private static void copy(Enumeration<String> paths, File destDir, String exclude) throws IOException
 	{
 		if (paths != null)
 		{
@@ -76,19 +76,37 @@ public class ComponentResourcesExporter
 				if (path.endsWith("/"))
 				{
 					File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
-					copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir);
+					copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir, exclude);
 				}
 				else
 				{
 					URL entry = Activator.getContext().getBundle().getEntry(path);
-					FileUtils.copyInputStreamToFile(entry.openStream(), new File(destDir, FilenameUtils.getName(path)));
+					if (exclude == null || (exclude != null && !path.contains(exclude))) FileUtils.copyInputStreamToFile(entry.openStream(), new File(destDir,
+						FilenameUtils.getName(path)));
 				}
 			}
 		}
 	}
 
+	public static void copyClassFiles(File libDir) throws IOException
+	{
+		Enumeration<String> entryPaths = Activator.getContext().getBundle().getEntryPaths("/bin/"); //$NON-NLS-1$
+		if (entryPaths != null) // servoy_ngclient plugin launched from eclipse workspace
+		{
+			copy(Activator.getContext().getBundle().getEntryPaths("/bin/com/"), new File(libDir, "com"), "/com/servoy/j2db/server/ngclient/startup/");
+			copy(Activator.getContext().getBundle().getEntryPaths("/bin/org/"), new File(libDir, "org"), null);
+		}
+		else
+		{
+			copy(Activator.getContext().getBundle().getEntryPaths("/com/"), new File(libDir, "com"), "/com/servoy/j2db/server/ngclient/startup/");
+			copy(Activator.getContext().getBundle().getEntryPaths("/org/"), new File(libDir, "org"), null);
+		}
+
+
+	}
+
 	public static void copyLibs(File libDir) throws IOException
 	{
-		copy(Activator.getContext().getBundle().getEntryPaths("/lib/"), libDir);
+		copy(Activator.getContext().getBundle().getEntryPaths("/lib/"), libDir, null);
 	}
 }
