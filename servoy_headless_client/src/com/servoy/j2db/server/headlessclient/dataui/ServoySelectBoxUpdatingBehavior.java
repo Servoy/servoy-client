@@ -77,7 +77,7 @@ public class ServoySelectBoxUpdatingBehavior extends ServoyFormComponentUpdating
 			@Override
 			public CharSequence postDecorateScript(CharSequence script)
 			{
-				return "var actionParam = Servoy.Utils.getActionParams(event); " + script;
+				return "var actionParam = Servoy.Utils.getActionParams(event,false); " + script;
 			}
 		};
 	}

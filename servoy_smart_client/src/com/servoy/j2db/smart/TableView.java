@@ -809,6 +809,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						event.setElementName(gc.getName());
 						event.setModifiers(e.getModifiers() == IEventExecutor.MODIFIERS_UNSPECIFIED ? 0 : e.getModifiers());
 						event.setLocation(editor != null ? new Point(e.getPoint().x - editor.getX(), e.getPoint().y) : e.getPoint());
+						event.setAbsoluteLocation(e.getLocationOnScreen());
 						scriptExecuter.executeFunction(String.valueOf(gc.getOnRightClickMethodID()), new Object[] { event }, true, e.getComponent(), false,
 							StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName(), false);
 					}
@@ -933,7 +934,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 								editCellAt(row, column, e);
 							}
 							((BaseEventExecutor)ee).fireRightclickCommand(true, editor, e.getModifiers(), fc.getName(),
-								new Point(e.getPoint().x - editor.getX(), e.getPoint().y - editor.getY()));
+								new Point(e.getPoint().x - editor.getX(), e.getPoint().y - editor.getY()), null);
 						}
 					}
 				}

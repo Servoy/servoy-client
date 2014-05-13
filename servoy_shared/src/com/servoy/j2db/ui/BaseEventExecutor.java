@@ -227,13 +227,13 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers, Point mouseLocation)
 	{
-		return fireRightclickCommand(saveData, display, modifiers, null, mouseLocation);
+		return fireRightclickCommand(saveData, display, modifiers, null, mouseLocation, null);
 	}
 
-	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers, String formName, Point mouseLocation)
+	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers, String formName, Point mouseLocation, Point absoluteMouseLocation)
 	{
 		return fireEventCommand(EventType.rightClick, rightClickCommand, null, rightClickArgs, saveData, display, false, modifiers, formName, false,
-			mouseLocation);
+			mouseLocation, absoluteMouseLocation);
 	}
 
 	/* ----------------------------------------- */
@@ -246,6 +246,13 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	public Object fireEventCommand(EventType type, String cmd, Object[] args, Object[] persistArgs, boolean saveData, Object display, boolean focusEvent,
 		int modifiers, String formName, boolean executeWhenFieldValidationFailed, Point mouseLocation)
+	{
+		return fireEventCommand(type, cmd, args, persistArgs, saveData, display, focusEvent, modifiers, formName, executeWhenFieldValidationFailed,
+			mouseLocation, null);
+	}
+
+	public Object fireEventCommand(EventType type, String cmd, Object[] args, Object[] persistArgs, boolean saveData, Object display, boolean focusEvent,
+		int modifiers, String formName, boolean executeWhenFieldValidationFailed, Point mouseLocation, Point absoluteMouseLocation)
 	{
 		if (actionListener == null) return null;
 		FormController fc = actionListener.getFormController();
@@ -273,6 +280,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 		event.setElementName(name);
 		event.setModifiers(modifiers == MODIFIERS_UNSPECIFIED ? 0 : modifiers);
 		if (mouseLocation != null) event.setLocation(mouseLocation);
+		if (absoluteMouseLocation != null) event.setAbsoluteLocation(absoluteMouseLocation);
 		return actionListener.executeFunction(cmd, Utils.arrayMerge(Utils.arrayJoin(args, new Object[] { event }), persistArgs), saveData, source, focusEvent,
 			null, executeWhenFieldValidationFailed);
 	}

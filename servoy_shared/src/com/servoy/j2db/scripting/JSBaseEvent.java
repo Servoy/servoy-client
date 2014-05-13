@@ -44,6 +44,7 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 	protected Object data;
 	protected int x;
 	protected int y;
+	protected Point absoluteLocation;
 
 	public JSBaseEvent()
 	{
@@ -268,4 +269,21 @@ public class JSBaseEvent implements IConstantsObject, IJSEvent
 		this.x = point.x;
 		this.y = point.y;
 	}
+
+	/**
+	 * @return the absoluteLocation
+	 */
+	public Point getAbsoluteLocation()
+	{
+		return absoluteLocation;
+	}
+
+	/**
+	 * @param absoluteLocation the absoluteLocation to set
+	 */
+	public void setAbsoluteLocation(Point absoluteLocation)
+	{
+		this.absoluteLocation = absoluteLocation;
+	}
+
 }
