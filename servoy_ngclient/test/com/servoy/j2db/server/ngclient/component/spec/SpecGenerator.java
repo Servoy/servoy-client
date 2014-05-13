@@ -86,10 +86,12 @@ public class SpecGenerator
 	static
 	{
 		specTemplateList.add(new SpecTemplateModel("button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class, new String[] {
-			"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js",
-			"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js",
-			"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" }));
+		specTemplateList.add(new SpecTemplateModel(
+			"calendar",
+			"Calendar",
+			IRepository.FIELDS,
+			IRuntimeCalendar.class,
+			new String[] { "servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js", "servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js", "servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" }));
 		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel(
 			"combobox",
@@ -382,6 +384,7 @@ public class SpecGenerator
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback', 'parsehtml':true }}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:140}}");
 		componentRepoTypeMappingExceptions.put("htmlview", htmlViewRepoTypeMapping);
 
 		HashMap<String, String> buttonTypeMapping = new HashMap<String, String>();
@@ -391,86 +394,109 @@ public class SpecGenerator
 			"{type:'int', values:[{TOP:1}, {CENTER:0} ,{BOTTOM:3}], default: 0}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
 			"{type:'int', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}], default: 0}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:80, height:20}}");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
 
 		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs', 'svy-line-height-normal']}");
+
+		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("calendar", calendarTypeMapping);
 
 		HashMap<String, String> checkTypeMapping = new HashMap<String, String>();
 		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:['checkbox']}");
+		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("check", checkTypeMapping);
 
 		HashMap<String, String> checkGroupTypeMapping = new HashMap<String, String>();
 		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("checkgroup", checkGroupTypeMapping);
 
 		HashMap<String, String> comboTypeMapping = new HashMap<String, String>();
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs', 'select2-container-svy-xs']}");
+		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("combobox", comboTypeMapping);
 
 		HashMap<String, String> htmlAreaMapping = new HashMap<String, String>();
 		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:140}}");
 		componentRepoTypeMappingExceptions.put("htmlarea", htmlAreaMapping);
 
 		HashMap<String, String> imageMediaMapping = new HashMap<String, String>();
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("imagemedia", imageMediaMapping);
 
 		HashMap<String, String> labelMapping = new HashMap<String, String>();
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
 			"{type:'int', values:[{TOP:1}, {CENTER:0} ,{BOTTOM:3}], default: 0}");
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:80, height:20}}");
 		componentRepoTypeMappingExceptions.put("label", labelMapping);
 
 		HashMap<String, String> listboxTypeMapping = new HashMap<String, String>();
 		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:140}}");
 		componentRepoTypeMappingExceptions.put("listbox", listboxTypeMapping);
 
 		HashMap<String, String> passwordMapping = new HashMap<String, String>();
 		passwordMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		passwordMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("password", passwordMapping);
 
 		HashMap<String, String> radioTypeMapping = new HashMap<String, String>();
 		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:['radio']}");
+		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("radio", radioTypeMapping);
 
 		HashMap<String, String> radioGroupTypeMapping = new HashMap<String, String>();
 		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("radiogroup", radioGroupTypeMapping);
 
 		HashMap<String, String> spinnerMapping = new HashMap<String, String>();
 		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("spinner", spinnerMapping);
 
 		HashMap<String, String> splitpaneMapping = new HashMap<String, String>();
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:300, height:300}}");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
 
 		HashMap<String, String> tabpanelMapping = new HashMap<String, String>();
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:300, height:300}}");
 		componentRepoTypeMappingExceptions.put("tabpanel", tabpanelMapping);
 
 		HashMap<String, String> textareaTypeMapping = new HashMap<String, String>();
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:140}}");
 		componentRepoTypeMappingExceptions.put("textarea", textareaTypeMapping);
 
 		HashMap<String, String> textfieldTypeMapping = new HashMap<String, String>();
 		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("textfield", textfieldTypeMapping);
 
 		HashMap<String, String> typeaheadTypeMapping = new HashMap<String, String>();
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
+
+		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
+		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:200, height:200}}");
+		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
