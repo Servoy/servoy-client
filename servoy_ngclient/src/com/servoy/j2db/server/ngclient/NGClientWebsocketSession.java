@@ -34,11 +34,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
+import org.sablo.eventthread.Event;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.IService;
+import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.FlattenedSolution;
@@ -53,6 +56,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -96,6 +100,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return !client.isShutDown();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.websocket.BaseWebsocketSession#createDispatcher()
+	 */
+	@Override
+	protected IEventDispatcher<Event> createDispatcher()
+	{
+		return new NGEventDispatcher(client);
+	}
+
 	@Override
 	public void onOpen(final String solutionName)
 	{
@@ -103,7 +118,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 		if (Utils.stringIsEmpty(solutionName))
 		{
-			getActiveWebsocketEndpoint().cancelSession("Invalid solution name");
+			WebsocketEndpoint.get().cancelSession("Invalid solution name");
 			return;
 		}
 
@@ -114,7 +129,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		windowName = client.getRuntimeWindowManager().createMainWindow();
 		try
 		{
-			getActiveWebsocketEndpoint().sendMessage(
+			WebsocketEndpoint.get().sendMessage(
 				new JSONStringer().object().key("srvuuid").value(getUuid()).key("windowName").value(windowName).endObject().toString());
 		}
 		catch (IOException | JSONException e)
@@ -234,7 +249,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								}
 								if (obj.has("cmsgid")) // client wants response
 								{
-									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), error == null ? result : error, error == null,
+									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), error == null ? result : error, error == null,
 										getForJsonConverter());
 								}
 							}
@@ -296,14 +311,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 									}
 								}
 								Utils.invokeLater(client, invokeLaterRunnables);
-								getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true, getForJsonConverter());
+								WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true, getForJsonConverter());
 							}
 							catch (Exception e)
 							{
 								Debug.error(e);
 								try
 								{
-									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), e.getMessage(), false, getForJsonConverter());
+									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), e.getMessage(), false, getForJsonConverter());
 								}
 								catch (IOException | JSONException e1)
 								{
@@ -544,7 +559,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					stringer.object().key("styleSheetPath").value(
 						"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName());
-					getActiveWebsocketEndpoint().sendMessage(stringer.endObject().toString());
+					WebsocketEndpoint.get().sendMessage(stringer.endObject().toString());
 				}
 				catch (Exception e)
 				{
@@ -573,7 +588,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void valueChanged()
 	{
 		// if there is an incoming message or an NGEvent running on event thread, postpone sending until it's done; else push it.
-		if (getActiveWebsocketEndpoint().hasSession() && client != null && handlingEvent.get() == 0)
+		if (WebsocketEndpoint.get().hasSession() && client != null && handlingEvent.get() == 0)
 		{
 			try
 			{
@@ -588,7 +603,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private void sendChanges(Map<String, Map<String, Map<String, Object>>> properties) throws IOException
 	{
-		getActiveWebsocketEndpoint().sendMessage(properties.size() == 0 ? null : Collections.singletonMap("forms", properties), true, getForJsonConverter());
+		WebsocketEndpoint.get().sendMessage(properties.size() == 0 ? null : Collections.singletonMap("forms", properties), true, getForJsonConverter());
 	}
 
 	/**
@@ -630,7 +645,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			data.put("call", call);
 
-			Object ret = getActiveWebsocketEndpoint().sendMessage(data, false, getForJsonConverter());
+			Object ret = WebsocketEndpoint.get().sendMessage(data, false, getForJsonConverter());
 			// convert back
 			if (ret instanceof Long && apiDefinition.getReturnType().getType() == PropertyType.date)
 			{

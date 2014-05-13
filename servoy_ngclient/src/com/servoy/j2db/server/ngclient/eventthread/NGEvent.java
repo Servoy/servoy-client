@@ -19,18 +19,18 @@ package com.servoy.j2db.server.ngclient.eventthread;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
+import org.sablo.eventthread.Event;
 
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
-import com.servoy.j2db.server.headlessclient.eventthread.Event;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 
 
 /**
- * Event used in {@link EventDispatcher} used for {@link INGApplication}
- * 
+ * Event used in {@link NGEventDispatcher} used for {@link INGApplication}
+ *
  * @author rgansevles
  *
  */
@@ -42,7 +42,7 @@ public class NGEvent extends Event
 
 	public NGEvent(INGApplication client, Runnable runnable)
 	{
-		super(runnable);
+		super(client.getWebsocketSession(), runnable);
 		this.client = client;
 		// if this is the event dispatch thread where this event is made, then just use the current set window name
 		if (client.isEventDispatchThread())
@@ -56,41 +56,43 @@ public class NGEvent extends Event
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.eventthread.Event#beforeExecute()
+	 */
 	@Override
-	public void execute()
+	protected void beforeExecute()
 	{
 		client.getWebsocketSession().startHandlingEvent();
-		try
+		previous = client.getRuntimeWindowManager().getCurrentWindowName();
+		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
+		IWebFormController currentForm = client.getFormManager().getCurrentForm();
+		if (currentForm != null)
 		{
-			previous = client.getRuntimeWindowManager().getCurrentWindowName();
-			client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
-			IWebFormController currentForm = client.getFormManager().getCurrentForm();
-			if (currentForm != null)
-			{
-				SolutionScope ss = client.getScriptEngine().getSolutionScope();
-				Context.enter();
-				try
-				{
-					ss.put("currentcontroller", ss, new NativeJavaObject(ss, currentForm.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
-				}
-				finally
-				{
-					Context.exit();
-				}
-			}
+			SolutionScope ss = client.getScriptEngine().getSolutionScope();
+			Context.enter();
 			try
 			{
-				super.execute();
+				ss.put("currentcontroller", ss, new NativeJavaObject(ss, currentForm.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
 			}
 			finally
 			{
-				client.getRuntimeWindowManager().setCurrentWindowName(previous);
+				Context.exit();
 			}
 		}
-		finally
-		{
-			client.getWebsocketSession().stopHandlingEvent();
-		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.eventthread.Event#afterExecute()
+	 */
+	@Override
+	protected void afterExecute()
+	{
+		client.getRuntimeWindowManager().setCurrentWindowName(previous);
+		client.getWebsocketSession().stopHandlingEvent();
 	}
 
 	@Override

@@ -17,8 +17,11 @@
 package org.sablo.websocket;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.json.JSONObject;
+import org.sablo.eventthread.Event;
+import org.sablo.eventthread.IEventDispatcher;
 
 /**
  * Interface for classes handling a websocket user session.
@@ -27,14 +30,35 @@ import org.json.JSONObject;
 public interface IWebsocketSession
 {
 	/**
+	 * Called when an endpoint is created for this session.
+	 * @param endpoint
+	 */
+	public void registerEndpoint(IWebsocketEndpoint endpoint);
+
+	/**
+	 * Called when an endpoint is closed for this session.
+	 * @param endpoint
+	 */
+	public void deregisterEndpoint(IWebsocketEndpoint endpoint);
+
+	/**
+	 * get all the current registered endpoints for this session.
+	 *
+	 * @return
+	 */
+	public List<IWebsocketEndpoint> getRegisteredEnpoints();
+
+	/**
+	 * Returns the event dispatcher, that should be a separate thread that processes all the events.
+	 *
+	 * @return
+	 */
+	public IEventDispatcher<Event> getEventDispatcher();
+
+	/**
 	 * Can it still be used?
 	 */
 	boolean isValid();
-
-	/**
-	 * Rebind this websocket session to a new endpoint (browser reconnect)
-	 */
-	void setActiveWebsocketEndpoint(IWebsocketEndpoint websocketEndpoint);
 
 	/**
 	 * Called when a new connection is started (also on reconnect)
@@ -78,7 +102,7 @@ public interface IWebsocketSession
 	void callService(String serviceName, String methodName, JSONObject args, Object msgId);
 
 	/** Execute a service call asynchronously.
-	 * 
+	 *
 	 * @param serviceName
 	 * @param functionName
 	 * @param arguments
@@ -86,7 +110,7 @@ public interface IWebsocketSession
 	void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments);
 
 	/** Execute a service call synchronously.
-	 * 
+	 *
 	 * @param serviceName
 	 * @param functionName
 	 * @param arguments

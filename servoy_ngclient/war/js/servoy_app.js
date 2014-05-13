@@ -265,7 +265,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 
 	        state = formStates[formName] = { model: model, api: api, layout: layout,
                             style: {
-                            //position: "absolute",
+                            position: "absolute",
                             left: "0px",
                             top: "0px",
                             minWidth : formProperties.size.width + "px",

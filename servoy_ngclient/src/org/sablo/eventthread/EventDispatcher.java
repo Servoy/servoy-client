@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.eventthread;
+package org.sablo.eventthread;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -23,18 +23,15 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.server.headlessclient.eventthread.Event;
-import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
-import com.servoy.j2db.server.headlessclient.eventthread.IEventProgressMonitor;
+import org.sablo.websocket.IWebsocketSession;
+
 import com.servoy.j2db.util.Debug;
 
 /**
  * Runnable of the ScriptThread that executes {@link Event} objects.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class EventDispatcher<E extends Event> implements Runnable, IEventDispatcher<E>
 {
@@ -47,22 +44,20 @@ public class EventDispatcher<E extends Event> implements Runnable, IEventDispatc
 
 	private volatile Thread scriptThread = null;
 
-	private final IServiceProvider client;
+	private final IWebsocketSession session;
 
-	public EventDispatcher(IServiceProvider client)
+	public EventDispatcher(IWebsocketSession session)
 	{
-		this.client = client;
+		this.session = session;
 	}
 
 	public void run()
 	{
-		J2DBGlobals.setServiceProvider(client);
 		scriptThread = Thread.currentThread();
 		while (!exit)
 		{
 			dispatch();
 		}
-		J2DBGlobals.setServiceProvider(null);
 	}
 
 	private void dispatch()
@@ -213,7 +208,7 @@ public class EventDispatcher<E extends Event> implements Runnable, IEventDispatc
 		synchronized (events)
 		{
 			// add a nop event so that the dispatcher is triggered.
-			events.add(new Event(null));
+			events.add(new Event(session, null));
 			events.notifyAll();
 		}
 	}

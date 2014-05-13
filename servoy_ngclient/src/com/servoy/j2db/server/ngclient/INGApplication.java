@@ -18,19 +18,15 @@
 package com.servoy.j2db.server.ngclient;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
-import com.servoy.j2db.server.ngclient.eventthread.NGEvent;
 
 /**
  * Client with websocket-client specific features.
- * 
+ *
  * @author rgansevles
  *
  */
 public interface INGApplication extends IApplication
 {
-	IEventDispatcher<NGEvent> getEventDispatcher();
-
 	INGClientWebsocketSession getWebsocketSession();
 
 	IChangeListener getChangeListener();

@@ -51,13 +51,37 @@ import com.servoy.j2db.util.Debug;
  * <li>messages protocol with data conversion (currently only date)
  * <li>service calls (both server to client and client to server)
  * </ul>
- * 
+ *
  * @author jcompagner, rgansevles
  */
 @SuppressWarnings("nls")
 @ServerEndpoint(value = "/websocket/{endpointType}/{id}/{argument}")
 public class WebsocketEndpoint implements IWebsocketEndpoint
 {
+	private static ThreadLocal<IWebsocketEndpoint> currentInstance = new ThreadLocal<>();
+
+	public static IWebsocketEndpoint get()
+	{
+		IWebsocketEndpoint websocketEndpoint = currentInstance.get();
+		if (websocketEndpoint == null)
+		{
+			throw new IllegalStateException("no current websocket endpoint set");
+		}
+		return websocketEndpoint;
+	}
+
+	public static boolean exists()
+	{
+		return currentInstance.get() != null;
+	}
+
+	public static IWebsocketEndpoint set(IWebsocketEndpoint endpoint)
+	{
+		IWebsocketEndpoint websocketEndpoint = currentInstance.get();
+		currentInstance.set(endpoint);
+		return websocketEndpoint;
+	}
+
 	/*
 	 * connection with browser
 	 */
@@ -78,8 +102,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 
 	@OnOpen
 	public void start(Session newSession, @PathParam("endpointType")
-	final String endpointType, @PathParam("id")
-	String id, @PathParam("argument")
+	final String endpointType, @PathParam("id") String id, @PathParam("argument")
 	final String arg) throws Exception
 	{
 		session = newSession;
@@ -88,9 +111,16 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		String argument = "NULL".equals(arg) ? null : arg;
 
 		wsSession = WebsocketSessionManager.getOrCreateSession(endpointType, uuid, true);
-		wsSession.setActiveWebsocketEndpoint(this);
-
-		wsSession.onOpen(argument);
+		try
+		{
+			currentInstance.set(this);
+			wsSession.registerEndpoint(this);
+			wsSession.onOpen(argument);
+		}
+		finally
+		{
+			currentInstance.remove();
+		}
 	}
 
 	@OnError
@@ -118,7 +148,6 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		{
 			try
 			{
-				System.err.println("calling close on " + session);
 				session.close(closeReason);
 			}
 			catch (IOException e)
@@ -126,7 +155,11 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 			}
 			session = null;
 		}
-		wsSession = null;
+		if (wsSession != null)
+		{
+			wsSession.deregisterEndpoint(this);
+			wsSession = null;
+		}
 	}
 
 	@OnClose
@@ -162,6 +195,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		JSONObject obj;
 		try
 		{
+			currentInstance.set(this);
 			obj = new JSONObject(message);
 			if (obj.has("smsgid"))
 			{
@@ -184,14 +218,18 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 				wsSession.callService(serviceName, methodName, obj.optJSONObject("args"), obj.opt("cmsgid"));
 				return;
 			}
+			wsSession.handleMessage(obj);
 		}
 		catch (JSONException e)
 		{
 			Debug.error(e);
 			return;
 		}
+		finally
+		{
+			currentInstance.remove();
+		}
 
-		wsSession.handleMessage(obj);
 	}
 
 	private void addServiceCall(String serviceName, String functionName, Object[] arguments)
@@ -323,7 +361,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 
 
 	/** Wait for a response message with given messsageId.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	protected Object waitResponse(Integer messageId) throws IOException
 	{

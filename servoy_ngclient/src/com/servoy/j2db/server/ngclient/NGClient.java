@@ -31,8 +31,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
-import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
-import com.servoy.j2db.server.ngclient.eventthread.EventDispatcher;
 import com.servoy.j2db.server.ngclient.eventthread.NGEvent;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -51,8 +49,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	private static final long serialVersionUID = 1L;
 
 	private final INGClientWebsocketSession wsSession;
-
-	private IEventDispatcher<NGEvent> executor;
 
 	private transient volatile ServoyScheduledExecutor scheduledExecutorService;
 
@@ -109,10 +105,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return (INGFormManager)super.getFormManager();
 	}
 
-	public Map<String, Map<String, Map<String, Object>>> getChanges()
+	public synchronized Map<String, Map<String, Map<String, Object>>> getChanges()
 	{
 		Map<String, Map<String, Map<String, Object>>> changes = new HashMap<>(8);
-
+		if (isShutDown()) return changes;
 		for (IFormController fc : getFormManager().getCachedFormControllers())
 		{
 			if (fc.isFormVisible())
@@ -149,20 +145,20 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	protected void doInvokeLater(Runnable r)
 	{
-		getEventDispatcher().addEvent(new NGEvent(this, r));
+		wsSession.getEventDispatcher().addEvent(new NGEvent(this, r));
 	}
 
 	@Override
 	public boolean isEventDispatchThread()
 	{
-		return getEventDispatcher().isEventDispatchThread();
+		return wsSession.getEventDispatcher().isEventDispatchThread();
 	}
 
 	@Override
 	public void invokeAndWait(Runnable r)
 	{
 		FutureTask<Object> future = new FutureTask<Object>(r, null);
-		getEventDispatcher().addEvent(new NGEvent(this, future));
+		wsSession.getEventDispatcher().addEvent(new NGEvent(this, future));
 		try
 		{
 			future.get(); // blocking
@@ -586,31 +582,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return runtimeWindowManager;
 	}
 
-	public final synchronized IEventDispatcher<NGEvent> getEventDispatcher()
-	{
-		if (executor == null)
-		{
-			Thread thread = new Thread(executor = createDispatcher(), "Executor,clientid:" + getClientID());
-			thread.setDaemon(true);
-			thread.start();
-		}
-		return executor;
-	}
-
-	/**
-	 * Method to create the {@link IEventDispatcher} runnable
-	 */
-	protected IEventDispatcher<NGEvent> createDispatcher()
-	{
-		return new EventDispatcher<NGEvent>(this);
-	}
-
 	@Override
-	public void shutDown(boolean force)
+	public synchronized void shutDown(boolean force)
 	{
 		super.shutDown(force);
-		if (executor != null) executor.destroy();
-		executor = null;
 		if (scheduledExecutorService != null)
 		{
 			scheduledExecutorService.shutdownNow();

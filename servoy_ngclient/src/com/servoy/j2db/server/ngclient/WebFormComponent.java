@@ -67,7 +67,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		{
 			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
 		}
-		if (fe.getWebComponentSpec(false) != null)
+		if (!(fe.getPersist() instanceof Form) && fe.getWebComponentSpec(false) != null)
 		{
 			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(PropertyType.tabseq);
 			List<PropertyDescription> sortedList = new SortedList<PropertyDescription>(new Comparator<PropertyDescription>()
@@ -295,7 +295,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -306,7 +306,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -317,7 +317,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

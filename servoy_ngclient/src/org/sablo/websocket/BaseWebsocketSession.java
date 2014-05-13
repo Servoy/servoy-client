@@ -17,10 +17,16 @@
 package org.sablo.websocket;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.sablo.eventthread.Event;
+import org.sablo.eventthread.EventDispatcher;
+import org.sablo.eventthread.IEventDispatcher;
 
 import com.servoy.j2db.util.Debug;
 
@@ -31,25 +37,51 @@ import com.servoy.j2db.util.Debug;
  */
 public abstract class BaseWebsocketSession implements IWebsocketSession
 {
-	private IWebsocketEndpoint wsEndpoint;
-
 	private final Map<String, IService> services = new HashMap<>();
+	private final List<IWebsocketEndpoint> registeredEnpoints = Collections.synchronizedList(new ArrayList<IWebsocketEndpoint>());
 
 	private String uuid;
+	private IEventDispatcher<Event> executor;
 
 	public BaseWebsocketSession()
 	{
 	}
 
-	@Override
-	public void setActiveWebsocketEndpoint(IWebsocketEndpoint wsEndpoint)
+	public void registerEndpoint(IWebsocketEndpoint endpoint)
 	{
-		this.wsEndpoint = wsEndpoint;
+		registeredEnpoints.add(endpoint);
 	}
 
-	public IWebsocketEndpoint getActiveWebsocketEndpoint()
+	public void deregisterEndpoint(IWebsocketEndpoint endpoint)
 	{
-		return wsEndpoint;
+		registeredEnpoints.remove(endpoint);
+	}
+
+	/**
+	 * @return the registeredEnpoints
+	 */
+	public List<IWebsocketEndpoint> getRegisteredEnpoints()
+	{
+		return Collections.unmodifiableList(registeredEnpoints);
+	}
+
+	public final synchronized IEventDispatcher<Event> getEventDispatcher()
+	{
+		if (executor == null)
+		{
+			Thread thread = new Thread(executor = createDispatcher(), "Executor,uuid:" + getUuid());
+			thread.setDaemon(true);
+			thread.start();
+		}
+		return executor;
+	}
+
+	/**
+	 * Method to create the {@link IEventDispatcher} runnable
+	 */
+	protected IEventDispatcher<Event> createDispatcher()
+	{
+		return new EventDispatcher<Event>(this);
 	}
 
 	public void onOpen(String argument)
@@ -59,7 +91,11 @@ public abstract class BaseWebsocketSession implements IWebsocketSession
 	@Override
 	public void closeSession()
 	{
-		getActiveWebsocketEndpoint().closeSession();
+		for (IWebsocketEndpoint endpoint : registeredEnpoints.toArray(new IWebsocketEndpoint[registeredEnpoints.size()]))
+		{
+			endpoint.closeSession();
+		}
+		if (executor != null) executor.destroy();
 	}
 
 	/**
@@ -125,7 +161,7 @@ public abstract class BaseWebsocketSession implements IWebsocketSession
 		{
 			try
 			{
-				getActiveWebsocketEndpoint().sendResponse(msgId, error == null ? result : error, error == null, getForJsonConverter());
+				WebsocketEndpoint.get().sendResponse(msgId, error == null ? result : error, error == null, getForJsonConverter());
 			}
 			catch (IOException e)
 			{
@@ -137,13 +173,13 @@ public abstract class BaseWebsocketSession implements IWebsocketSession
 	@Override
 	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
 	{
-		return getActiveWebsocketEndpoint().executeServiceCall(serviceName, functionName, arguments);
+		return WebsocketEndpoint.get().executeServiceCall(serviceName, functionName, arguments);
 	}
 
 	@Override
 	public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
 	{
-		getActiveWebsocketEndpoint().executeAsyncServiceCall(serviceName, functionName, arguments);
+		WebsocketEndpoint.get().executeAsyncServiceCall(serviceName, functionName, arguments);
 	}
 
 	@Override
