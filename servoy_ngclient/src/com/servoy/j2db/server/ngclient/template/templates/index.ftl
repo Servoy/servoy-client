@@ -22,7 +22,9 @@
 		<!-- base 3th party libraries -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css"/>
 		<link rel="stylesheet" href="css/ng-grid.css"/>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="js/bootstrap-window/css/bootstrap-window.css"/>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
 		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.js"></script>
 		<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.min.js"></script> -->
@@ -31,10 +33,14 @@
 		<script src="js/angularui/ng-grid-2.0.7.debug.js"></script>
 		<script src="js/numeral.js"></script>
 		<script src="js/angular-file-upload/dist/angular-file-upload.min.js"></script>
-
+		<script src="js/bootstrap-window/js/Window.js"></script>    <!-- TODO replace these with bootstrap-window.min.js --> 
+		<script src="js/bootstrap-window/js/WindowManager.js"></script>	<!-- see ^ -->	
+		
+		
 		<!-- base servoy libraries -->
 		<link rel="stylesheet" href="css/servoy.css"/>
 		<script src="js/servoy.js"></script>
+		<script src="js/servoyWindowManager.js"></script>
 		<script src="js/servoyformat.js"></script>
 		<script src="js/servoytooltip.js"></script>
 		<script src="js/fileupload.js"></script>

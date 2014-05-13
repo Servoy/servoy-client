@@ -1,5 +1,5 @@
 var controllerProvider;
-angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule']).config(function($controllerProvider) {
+angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule','servoyWindowManager']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
 }).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
@@ -265,7 +265,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 
 	        state = formStates[formName] = { model: model, api: api, layout: layout,
                             style: {
-                            position: "absolute",
+                            //position: "absolute",
                             left: "0px",
                             top: "0px",
                             minWidth : formProperties.size.width + "px",
@@ -500,20 +500,21 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		}
 	}
 	
-}]).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
+}]).factory("$windowService", function($servoyWindowManager, $modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
 	var instances = {};
 	
 	var formTemplateUrls = {};
 	
-	 $templateCache.put("template/modal/window.html",
-			    "<div tabindex=\"-1\" class=\"modal fade {{ windowClass }}\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\">\n" +
-			    "    <div class=\"modal-dialog\" ng-style=\"formSize\"><div class=\"modal-content\" ng-style=\"formSize\" ng-transclude></div></div>\n" +
-			    "</div>");
+//	 $templateCache.put("template/modal/window.html",
+//			    "<div tabindex=\"-1\" class=\"modal fade {{ windowClass }}\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\">\n" +
+//			    "    <div class=\"modal-dialog\" ng-style=\"formSize\"><div class=\"modal-content\" ng-style=\"formSize\" ng-transclude></div></div>\n" +
+//			    "</div>");
 	return {
 		show: function(name,dialogDescription) {
+			console.log(dialogDescription)
 			if (!instances[name]) {
-				var modalInstance = $modal.open({
-					templateUrl: "templates/modaldialog.html",
+				var windowInstance = $servoyWindowManager.open({
+					templateUrl: "templates/dialog.html",
 					controller: "DialogInstanceCtrl",
 					windowClass: "tester",
 					resolve: {
@@ -528,12 +529,15 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 						},
 						formSize: function() {
 							return dialogDescription.size;
-						}
+						},
+						windowType: function(){
+							return dialogDescription.windowType;
+						}					
 					}
 				});
-				modalInstance.form = dialogDescription.form;
-				modalInstance.size = dialogDescription.size;
-				instances[name] = modalInstance;
+				windowInstance.form = dialogDescription.form;
+				windowInstance.size = dialogDescription.size;
+				instances[name] = windowInstance;
 			}
 			else {
 				$log.error("modal dialog with name: " + name + " already showing");
@@ -587,7 +591,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
           scope.$$childHead.formSize = scope.formSize; 
         }
       };
-}]).controller("DialogInstanceCtrl", function ($scope, $modalInstance,$windowService, $servoyInternal,windowName,title,form,formSize) {
+}]).controller("DialogInstanceCtrl", function ($scope, $windowInstance,$windowService, $servoyInternal,windowName,title,form,formSize) {
 	$scope.title = title;
 	$scope.windowName = windowName;
 	$scope.formSize =formSize;

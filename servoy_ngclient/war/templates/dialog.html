@@ -1,0 +1,11 @@
+<div class="window">
+	<div class="window-header">
+		<button type="button" class="close"
+			ng-click="cancel()"
+		    data-dismiss="window" 
+			aria-hidden="true">x</button>
+		<h4 class="window-title" ng-bind='title'></h4>
+	</div>
+    <div class="window-body"  ng-include="getFormUrl()"></div>
+	<div class="window-footer"></div>
+</div>

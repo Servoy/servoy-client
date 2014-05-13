@@ -359,6 +359,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		arguments.put("title", getTitle());
 		Form form = getApplication().getFlattenedSolution().getForm(formName);
 		arguments.put("form", form);
+		arguments.put("windowType", windowType);
 		int wdth = width;
 		int hght = height;
 		if (wdth == -1) wdth = form.getSize().width;

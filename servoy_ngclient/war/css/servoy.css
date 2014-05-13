@@ -28,3 +28,16 @@ label.svy-check-radio input{
 label.svy-check-radio span{
 	vertical-align: middle;
 }
+
+
+/*BOOTSTRAP WINDOW CUSTOMIZATION*/
+.window .window-body,
+.window .window-header,
+.window .window-footer{
+	padding:5px;
+	border:none;
+	margin:0px;
+}
+.window .window-body{
+	overflow:auto;
+}

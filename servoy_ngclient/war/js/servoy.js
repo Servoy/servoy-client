@@ -723,6 +723,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
+        	element.css({position:'relative'});
         	scope.$watch(attrs.svyFormstyle, function(newVal) {
         		if (newVal)
         		{
