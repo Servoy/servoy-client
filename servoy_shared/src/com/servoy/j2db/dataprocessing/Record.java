@@ -946,12 +946,14 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	@JSFunction
 	public Object[] getPKs()
 	{
-
-		int[] pkpos = parent.getSQLSheet().getPKIndexes();
 		Object[] pk = getPK();
-		for (int i = 0; i < pk.length; i++)
+		if (pk != null)
 		{
-			pk[i] = parent.getSQLSheet().convertValueToObject(pk[i], pkpos[i], parent.getFoundSetManager().getColumnConverterManager());
+			int[] pkpos = parent.getSQLSheet().getPKIndexes();
+			for (int i = 0; i < pk.length; i++)
+			{
+				pk[i] = parent.getSQLSheet().convertValueToObject(pk[i], pkpos[i], parent.getFoundSetManager().getColumnConverterManager());
+			}
 		}
 		return pk;
 	}
