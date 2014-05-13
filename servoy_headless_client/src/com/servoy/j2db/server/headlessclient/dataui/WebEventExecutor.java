@@ -240,7 +240,7 @@ public class WebEventExecutor extends BaseEventExecutor
 							public CharSequence postDecorateScript(CharSequence script)
 							{
 								String functionScript = "if (testDoubleClickId('" + component.getMarkupId() + "')) { " + script + "};";
-								return "var actionParam = Servoy.Utils.getActionParams(event); " +
+								return "var actionParam = Servoy.Utils.getActionParams(event,false); " +
 									(hasDoubleClickCmd() ? "Servoy.Utils.startClickTimer(function() { " + functionScript +
 										" Servoy.Utils.clickTimerRunning = false; return false; });" : functionScript);
 							}
@@ -281,7 +281,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event,false)"); //$NON-NLS-1$
 					}
 
 					@SuppressWarnings("nls")
@@ -338,16 +338,21 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected void onEvent(AjaxRequestTarget target)
 					{
-						WebEventExecutor.this.onEvent(JSEvent.EventType.rightClick, target, component,
+						WebEventExecutor.this.onEvent(
+							JSEvent.EventType.rightClick,
+							target,
+							component,
 							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
 							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
-								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my"))), new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("glx")), //$NON-NLS-1$
+								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("gly")))); //$NON-NLS-1$
 					}
 
 					@Override
 					protected CharSequence generateCallbackScript(final CharSequence partialCall)
 					{
-						return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)"); //$NON-NLS-1$
+						return super.generateCallbackScript(partialCall +
+							"+Servoy.Utils.getActionParams(event," + ((component instanceof SortableCellViewHeader) ? "true" : "false") + ")"); //$NON-NLS-1$
 					}
 
 					@Override
@@ -389,7 +394,13 @@ public class WebEventExecutor extends BaseEventExecutor
 		onEvent(type, target, comp, webModifiers, null);
 	}
 
-	public void onEvent(final EventType type, final AjaxRequestTarget target, final Component comp, final int webModifiers, final Point mouseLocation)
+	public void onEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers, Point mouseLocation)
+	{
+		onEvent(type, target, comp, webModifiers, mouseLocation,null);
+	}
+
+	public void onEvent(final EventType type, final AjaxRequestTarget target, final Component comp, final int webModifiers, final Point mouseLocation,
+		final Point absoluteMouseLocation)
 	{
 		ServoyForm form = comp.findParent(ServoyForm.class);
 		if (form == null)
@@ -406,13 +417,13 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				public void run()
 				{
-					handleEvent(type, target, comp, webModifiers, mouseLocation, page);
+					handleEvent(type, target, comp, webModifiers, mouseLocation, absoluteMouseLocation, page);
 				}
 			}));
 		}
 		else
 		{
-			handleEvent(type, target, comp, webModifiers, mouseLocation, page);
+			handleEvent(type, target, comp, webModifiers, mouseLocation, absoluteMouseLocation, page);
 		}
 		if (target != null)
 		{
@@ -428,7 +439,8 @@ public class WebEventExecutor extends BaseEventExecutor
 	 * @param mouseLocation
 	 * @param page
 	 */
-	private void handleEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers, Point mouseLocation, Page page)
+	private void handleEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers, Point mouseLocation, Point absoluteMouseLocation,
+		Page page)
 	{
 		WebClientSession.get().getWebClient().executeEvents(); // process model changes from web components
 
@@ -493,7 +505,7 @@ public class WebEventExecutor extends BaseEventExecutor
 						break;
 					case rightClick :
 						// if right click, mark the meta flag as it is on the smart client
-						fireRightclickCommand(false, comp, convertModifiers(webModifiers | 8), mouseLocation);
+						fireRightclickCommand(false, comp, convertModifiers(webModifiers | 8), null, mouseLocation, absoluteMouseLocation);
 						break;
 					case none :
 					case dataChange :

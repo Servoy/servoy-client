@@ -933,7 +933,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected CharSequence generateCallbackScript(final CharSequence partialCall)
 				{
-					return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)" + "+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$ //$NON-NLS-2$
+					return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event,false)" + "+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 
 				@Override

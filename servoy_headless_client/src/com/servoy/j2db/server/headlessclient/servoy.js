@@ -2290,7 +2290,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		return modifiers;
 	  },  
 	  
-	  getActionParams: function(e)
+	  getActionParams: function(e,globalLocation)
 	  {
 		e = Wicket.fixEvent(e);
 	  	var elem;
@@ -2306,8 +2306,12 @@ if (typeof(Servoy.Utils) == "undefined")
   		var elXY = Servoy.Utils.getXY(elem);
   		var mx = e.offsetX ? e.offsetX : ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - elXY[0]);
   		var my = e.offsetY ? e.offsetY : ((e.pageY ? e.pageY : e.clientY + document.body.scrollTop + document.documentElement.scrollTop) - elXY[1]);
-
-  		return '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + mx + '&my=' + my;
+  		var url = '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + mx + '&my=' + my;
+  		if (globalLocation)
+  		{
+  			url += '&glx='+ (e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) + '&gly=' + (e.clientY + document.body.scrollTop + document.documentElement.scrollTop);
+  		}
+  		return url;
 	  },
 
 	  isChrome : navigator.userAgent.toLowerCase().indexOf('chrome') > -1,
