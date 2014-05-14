@@ -730,6 +730,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         			if(isInContainer(scope)){
         				delete newVal.minWidth
         				delete newVal.minHeight
+        				element.css({position:'absolute'});
         			}
         			element.css(newVal)
         		}	
