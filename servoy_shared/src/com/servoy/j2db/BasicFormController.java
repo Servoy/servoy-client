@@ -615,9 +615,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 	}
 
-	private void executeOnShowMethod()
+	public void executeOnShowMethod()
 	{
-		if (!executingOnLoad && form.getOnShowMethodID() > 0)
+		if (didOnload && !executingOnLoad && form.getOnShowMethodID() > 0)
 		{
 			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope) };//isFirstTime
 			didOnShowOnce = true;
