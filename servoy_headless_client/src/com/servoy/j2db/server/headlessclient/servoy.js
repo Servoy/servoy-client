@@ -2406,7 +2406,7 @@ if (typeof(Servoy.Utils) == "undefined")
     	  Servoy.Utils.scrollTimer = setTimeout(function() {
         	  wicketAjaxGet
         	  (					
-        			  callbackUrl+'&x='+Servoy.Utils.getScrollPosition(elId).x+'&y='+Servoy.Utils.getScrollPosition(elId).y,
+        			  callbackUrl+'&locationX='+Servoy.Utils.getScrollPosition(elId).x+'&locationY='+Servoy.Utils.getScrollPosition(elId).y,
         			  null,
         			  function() { onAjaxError(); }.bind($('#' + elId).get(0)),
         			  function() { return Wicket.$(elId) != null; }.bind($('#' + elId).get(0))
@@ -3183,7 +3183,7 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 			        	  Servoy.HTMLEdit.scrollTimer = setTimeout(function() {
 				        	  wicketAjaxGet
 				        	  (					
-				        			  scrollCallback+'&x='+$(editor.getWin()).scrollLeft()+'&y='+$(editor.getWin()).scrollTop(),
+				        			  scrollCallback+'&locationX='+$(editor.getWin()).scrollLeft()+'&locationY='+$(editor.getWin()).scrollTop(),
 				        			  null,
 				        			  function() { onAjaxError(); }.bind($('#' + wrapperId).get(0)),
 				        			  function() { return Wicket.$(wrapperId) != null; }.bind($('#' + wrapperId).get(0))
