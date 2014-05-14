@@ -262,6 +262,24 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 					break;
 				}
+				case "formloaded" :
+					final String fName = obj.getString("formname");
+					String formUrl = formsOnClient.get(fName);
+					synchronized (formUrl)
+					{
+						formUrl.notifyAll();
+					}
+					client.invokeLater(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							IWebFormController fc = client.getFormManager().getForm(fName);
+							fc.executeOnLoadMethod();
+							if (fc.isFormVisible()) fc.executeOnShowMethod();
+						}
+					});
+					break;
 				case "formreadOnly" :
 				{
 					IWebFormController form = parseForm(obj);
@@ -477,7 +495,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public void touchForm(Form form, String realInstanceName)
+	public void touchForm(Form form, String realInstanceName, boolean async)
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
@@ -486,6 +504,22 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			// form is not yet on the client, send over the controller
 			updateController(form, formName, formUrl);
+			if (!async)
+			{
+				synchronized (formUrl)
+				{
+					try
+					{
+						formUrl.wait(); // wait for the 'formloaded' event from client
+						IWebFormController fc = client.getFormManager().getForm(formName);
+						fc.executeOnLoadMethod();
+					}
+					catch (InterruptedException ex)
+					{
+						Debug.error(ex);
+					}
+				}
+			}
 		}
 	}
 

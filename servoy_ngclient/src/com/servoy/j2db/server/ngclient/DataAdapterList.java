@@ -27,6 +27,7 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
@@ -78,7 +79,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String elementName, Object[] args)
 	{
 		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
-		return application.getWebsocketSession().executeApi(apiDefinition, formController.getName(), elementName, args);
+		INGClientWebsocketSession clientSession = application.getWebsocketSession();
+		Form form = formController.getForm();
+		clientSession.touchForm(form, formController.getName(), false);
+		return clientSession.executeApi(apiDefinition, formController.getName(), elementName, args);
 	}
 
 	@Override

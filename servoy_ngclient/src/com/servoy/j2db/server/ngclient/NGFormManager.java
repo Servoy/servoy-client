@@ -256,7 +256,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				createdFormControllers.put(fp.getName(), fp);
 				fp.init();
 				fp.setView(fp.getView());
-				fp.executeOnLoadMethod();
 			}
 			finally
 			{

@@ -275,6 +275,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                             border: formProperties.border},
                             properties: formProperties};
 	        
+	        
+	        $rootScope.updatingFormUrl = '';
+	        wsSession.sendMessageObject({cmd:'formloaded',formname:formName});
 	        // send the special request initial data for this form 
 	        // this can also make the form (IFormUI instance) on the server if that is not already done
 	        wsSession.sendMessageObject({cmd:'requestdata',formname:formName});
@@ -440,7 +443,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	solutionTitle: "",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	styleSheetPath: undefined
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope) {
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
 		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";
@@ -451,6 +454,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		}
 		return $solutionSettings.navigatorForm.templateURL;
 	}
+	$rootScope.updatingFormUrl = '';
 	
 }).factory("$applicationService",['$window','$timeout','webStorage',function($window,$timeout,webStorage) {
 	
@@ -570,6 +574,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		},
 		updateController: function(formName,controllerCode, realFormUrl) {
 			$rootScope.$apply(function() {
+				$rootScope.updatingFormUrl = realFormUrl;
 				$servoyInternal.clearformState(formName)
 				eval(controllerCode);
 				formTemplateUrls[formName] = realFormUrl;

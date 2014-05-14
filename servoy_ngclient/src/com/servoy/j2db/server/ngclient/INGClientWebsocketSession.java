@@ -51,7 +51,7 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 	 * @param flattenedForm
 	 * @param realInstanceName
 	 */
-	void touchForm(Form flattenedForm, String realInstanceName);
+	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
 
 	void solutionLoaded(Solution flattenedSolution);
 
