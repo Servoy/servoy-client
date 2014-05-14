@@ -114,7 +114,7 @@ public class NGClientForJsonConverter implements IForJsonConverter
 				map.put("realValue", list.getRealElementAt(i));
 				map.put("displayValue", list.getElementAt(i));
 			}
-			return map;
+			return array;
 		}
 
 		if (value instanceof LookupListModel)
