@@ -49,8 +49,8 @@ public class ScrollBehavior extends ServoyAjaxEventBehavior implements IHeaderCo
 	@Override
 	protected void onEvent(AjaxRequestTarget target)
 	{
-		component.setScroll(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("x")), //$NON-NLS-1$
-			Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("y"))); //$NON-NLS-1$
+		component.setScroll(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("locationX")), //$NON-NLS-1$
+			Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("locationY"))); //$NON-NLS-1$
 	}
 
 	@Override

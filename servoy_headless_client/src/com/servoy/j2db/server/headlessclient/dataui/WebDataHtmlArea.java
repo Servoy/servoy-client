@@ -171,8 +171,8 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 			@Override
 			protected void respond(AjaxRequestTarget target)
 			{
-				WebDataHtmlArea.this.setScroll(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("x")),
-					Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("y")));
+				WebDataHtmlArea.this.setScroll(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("locationX")),
+					Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("locationY")));
 			}
 		});
 	}

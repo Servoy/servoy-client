@@ -945,6 +945,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	@Override
 	public String getScrollComponentMarkupId()
 	{
-		return "tinymce";
+		return getMarkupId();
 	}
 }
