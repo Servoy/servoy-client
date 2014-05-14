@@ -23,7 +23,6 @@ import org.sablo.eventthread.Event;
 
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 
@@ -58,7 +57,7 @@ public class NGEvent extends Event
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.eventthread.Event#beforeExecute()
 	 */
 	@Override
@@ -74,7 +73,8 @@ public class NGEvent extends Event
 			Context.enter();
 			try
 			{
-				ss.put("currentcontroller", ss, new NativeJavaObject(ss, currentForm.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
+				ss.put(
+					"currentcontroller", ss, new NativeJavaObject(ss, currentForm.initForJSUsage(), new InstanceJavaMembers(ss, com.servoy.j2db.BasicFormController.JSForm.class))); //$NON-NLS-1$
 			}
 			finally
 			{
@@ -85,7 +85,7 @@ public class NGEvent extends Event
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.eventthread.Event#afterExecute()
 	 */
 	@Override
