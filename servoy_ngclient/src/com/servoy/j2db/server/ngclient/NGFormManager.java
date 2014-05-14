@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeJavaObject;
 import org.sablo.websocket.IService;
 
 import com.servoy.j2db.BasicFormManager;
@@ -42,8 +44,10 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -255,6 +259,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				fp = new WebFormController((INGApplication)application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
 				fp.init();
+				setCurrentControllerJS(fp);
 				fp.setView(fp.getView());
 			}
 			finally
@@ -263,6 +268,21 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 			}
 		}
 		return fp;
+	}
+
+	public void setCurrentControllerJS(IWebFormController currentController)
+	{
+		SolutionScope ss = application.getScriptEngine().getSolutionScope();
+		Context.enter();
+		try
+		{
+			ss.put(
+				"currentcontroller", ss, new NativeJavaObject(ss, currentController.initForJSUsage(), new InstanceJavaMembers(ss, com.servoy.j2db.BasicFormController.JSForm.class))); //$NON-NLS-1$
+		}
+		finally
+		{
+			Context.exit();
+		}
 	}
 
 	/*
