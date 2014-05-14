@@ -107,14 +107,14 @@ public class NGClientForJsonConverter implements IForJsonConverter
 		{
 			IValueList list = (IValueList)value;
 			List<Map<String, Object>> array = new ArrayList<>(list.getSize());
-			Map<String, Object> map;
+			Map<String, Object> map = new HashMap<String, Object>();
 			for (int i = 0; i < list.getSize(); i++)
 			{
 				array.add(map = new HashMap<>());
 				map.put("realValue", list.getRealElementAt(i));
 				map.put("displayValue", list.getElementAt(i));
 			}
-			return list;
+			return map;
 		}
 
 		if (value instanceof LookupListModel)
