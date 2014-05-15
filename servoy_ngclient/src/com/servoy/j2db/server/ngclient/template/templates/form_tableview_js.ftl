@@ -17,11 +17,6 @@
 <#include "form_js_base.ftl"> 
 <#macro form_js_body>
     
-	var tmpModel;
-	if ($scope.model['']) {
-  		tmpModel = $scope.model[''];
-  		$scope.model[''] = [];
-	}
 	$scope.cellRender = function(row, columnName, columnModel) { 
 		var cellModel = row.getProperty(columnName);
 		if (!cellModel.svyInit) {
@@ -151,7 +146,7 @@
 	}, false);
 	
 	
-	$scope.$watch('model..totalRows', function (newVal, oldVal) {	
+	$scope.$watch('model..totalRows', function (newVal, oldVal) {
 		if (angular.isUndefined(oldVal))
 		{
 			$scope.grid${controllerName}.$gridScope.pagingOptions.pageSize = Math.ceil(($scope.grid${controllerName}.$gridScope.viewportDimHeight()-2)/(${rowHeight}+1)); //border is 1px
@@ -201,16 +196,5 @@
 	</#list>
 		]
 	};
-	if (tmpModel)
-	{
-		$timeout(function() {
-			// first get on the same level as the paint events.
-			$timeout(function() {
-				// this will be after the paint events.		
-		    	$scope.model[''] = tmpModel;
-			},10);
-		},10);
-	}
-
 </#macro> 
 <@form_js/> 
