@@ -259,8 +259,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				fp = new WebFormController((INGApplication)application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
 				fp.init();
-				setCurrentControllerJS(fp);
 				fp.setView(fp.getView());
+				fp.executeOnLoadMethod();
 			}
 			finally
 			{
@@ -467,6 +467,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 			if (fp != null)
 			{
+				setCurrentControllerJS(fp);
 				// test if solution is closed in the onload method.
 				if (application.getSolution() == null) return null;
 

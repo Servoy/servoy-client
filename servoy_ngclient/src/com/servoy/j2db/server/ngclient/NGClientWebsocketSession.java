@@ -102,7 +102,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#createDispatcher()
 	 */
 	@Override
@@ -269,16 +269,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						formUrl.notifyAll();
 					}
-					client.invokeLater(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							IWebFormController fc = client.getFormManager().getForm(fName);
-							fc.executeOnLoadMethod();
-							if (fc.isFormVisible()) fc.executeOnShowMethod();
-						}
-					});
 					break;
 				case "formreadOnly" :
 				{
@@ -503,7 +493,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (formsOnClient.putIfAbsent(formName, formUrl) == null)
 		{
 			// form is not yet on the client, send over the controller
-			updateController(form, formName, formUrl);
+			updateController(form, formName, formUrl, !async);
 			if (!async)
 			{
 				synchronized (formUrl)
@@ -511,8 +501,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					try
 					{
 						formUrl.wait(); // wait for the 'formloaded' event from client
-						IWebFormController fc = client.getFormManager().getForm(formName);
-						fc.executeOnLoadMethod();
 					}
 					catch (InterruptedException ex)
 					{
@@ -528,7 +516,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * @param fs
 	 * @param form
 	 */
-	private void updateController(Form form, String realFormName, String formUrl)
+	private void updateController(Form form, String realFormName, String formUrl, boolean forceDisplay)
 	{
 		try
 		{
@@ -554,11 +542,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			if (client.isEventDispatchThread())
 			{
-				executeServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
+				executeServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController",
+					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceDisplay) });
 			}
 			else
 			{
-				executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
+				executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController",
+					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceDisplay) });
 			}
 		}
 		catch (IOException e)
@@ -571,7 +561,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void updateForm(Form form, String name)
 	{
 		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
-		updateController(form, name, formUrl);
+		updateController(form, name, formUrl, false);
 	}
 
 	@Override
