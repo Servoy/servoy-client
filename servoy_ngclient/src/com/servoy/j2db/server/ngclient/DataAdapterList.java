@@ -33,6 +33,7 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Text;
@@ -47,7 +48,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final INGApplication application;
 	private final IWebFormController formController;
 	private final EventExecutor executor;
-	private final InlineScriptExecutor inlineScriptExecutor;
 	private final WeakHashMap<IWebFormController, String> relatedForms = new WeakHashMap<>();
 
 	private IRecordInternal record;
@@ -58,7 +58,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		this.application = application;
 		this.formController = formController;
 		this.executor = new EventExecutor(application, formController);
-		this.inlineScriptExecutor = new InlineScriptExecutor(formController);
 	}
 
 	/**
@@ -88,7 +87,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public Object executeInlineScript(String script, JSONObject args)
 	{
-		return inlineScriptExecutor.eval(script, args);
+		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args);
+		return decryptedScript != null ? formController.eval(decryptedScript) : null;
 	}
 
 	public void add(WebFormComponent component, Map<String, String> hm)
@@ -348,6 +348,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		Map<String, String> recordDataproviderMapping = beanToDataHolder.get(fe);
 		if (recordDataproviderMapping != null) dataproviderID = recordDataproviderMapping.get(propertyName);
 
+		boolean convertInlineScript = false;
 		if (dataproviderID != null)
 		{
 			if (findMode)
@@ -358,13 +359,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
 
-			if (((DataproviderConfig)fe.getWebComponentSpec().getProperty(propertyName).getConfig()).hasParseHtml())
-			{
-				return inlineScriptExecutor.updateScripts(propertyValue.toString());
-			}
-
-			return propertyValue;
+			convertInlineScript = ((DataproviderConfig)fe.getWebComponentSpec().getProperty(propertyName).getConfig()).hasParseHtml();
 		}
+		if (HtmlUtils.startsWithHtml(propertyValue)) return HTMLTagsConverter.convert(propertyValue.toString(), application.getSolutionName(),
+			formController.getName(), convertInlineScript);
 		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(application));
 	}
 

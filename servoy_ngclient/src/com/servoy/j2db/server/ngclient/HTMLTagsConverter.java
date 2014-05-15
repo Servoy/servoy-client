@@ -29,30 +29,23 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.servoy.j2db.IFormController;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Utility class to execute inline scripts
+ * Convert tags inside html content
  * @author gboros
  */
-public class InlineScriptExecutor
+public class HTMLTagsConverter
 {
 	private static final String[] scanTags = new String[] { "src", "href", "background", "onsubmit", "onreset", "onselect", "onclick", "ondblclick", "onfocus", "onblur", "onchange", "onkeydown", "onkeypress", "onkeyup", "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$ //$NON-NLS-14$ //$NON-NLS-15$ //$NON-NLS-16$ //$NON-NLS-17$ //$NON-NLS-18$ //$NON-NLS-19$
 	private static final String javascriptPrefix = "javascript:"; //$NON-NLS-1$
-	private static final String BROWSER_PARAM = "browser:";
+	private static final String mediaPrefix = "media://"; //$NON-NLS-1$
+	private static final String BROWSER_PARAM = "browser:"; //$NON-NLS-1$
 
-	private final IFormController formController;
-
-	public InlineScriptExecutor(IFormController formController)
-	{
-		this.formController = formController;
-	}
-
-	public String updateScripts(String htmlContent)
+	public static String convert(String htmlContent, String solutionName, String formName, boolean convertInlineScript)
 	{
 		Document doc = Jsoup.parse(htmlContent);
 		Elements bodyElements = doc.body().getAllElements();
@@ -72,7 +65,7 @@ public class InlineScriptExecutor
 				if (Arrays.asList(scanTags).indexOf(attr.getKey()) != -1)
 				{
 					String replaceContent = attr.getValue();
-					if (replaceContent.startsWith(javascriptPrefix))
+					if (convertInlineScript && replaceContent.startsWith(javascriptPrefix))
 					{
 						String script = replaceContent.substring(javascriptPrefix.length());
 						ArrayList<String> browserArguments = getBrowserArguments(script);
@@ -86,7 +79,7 @@ public class InlineScriptExecutor
 						String encryptedFormName = "";
 						try
 						{
-							encryptedFormName = SecuritySupport.encrypt(Settings.getInstance(), formController.getName());
+							encryptedFormName = SecuritySupport.encrypt(Settings.getInstance(), formName);
 							script = SecuritySupport.encrypt(Settings.getInstance(), script);
 						}
 						catch (Exception ex)
@@ -97,6 +90,11 @@ public class InlineScriptExecutor
 						attr.setValue(javascriptPrefix + "executeInlineScript('" + encryptedFormName + "', '" + script + "', " +
 							browserArgumentsMap.toString() + ")");
 					}
+					else if (replaceContent.startsWith(mediaPrefix))
+					{
+						String media = replaceContent.substring(mediaPrefix.length());
+						attr.setValue("/resources/fs/" + solutionName + media);
+					}
 				}
 			}
 		}
@@ -104,7 +102,7 @@ public class InlineScriptExecutor
 		return doc.html();
 	}
 
-	private ArrayList<String> getBrowserArguments(String s)
+	private static ArrayList<String> getBrowserArguments(String s)
 	{
 		ArrayList<String> browserArguments = new ArrayList<String>();
 
@@ -132,7 +130,7 @@ public class InlineScriptExecutor
 		return browserArguments;
 	}
 
-	private int searchEndVariable(String script, int start)
+	private static int searchEndVariable(String script, int start)
 	{
 		int counter = start;
 		int brace = 0;
@@ -165,7 +163,7 @@ public class InlineScriptExecutor
 		return 0;
 	}
 
-	public Object eval(String encryptedJavascript, JSONObject params)
+	public static String decryptInlineScript(String encryptedJavascript, JSONObject params)
 	{
 		try
 		{
@@ -180,11 +178,11 @@ public class InlineScriptExecutor
 				javascript = javascript.replace(browserParamWithArgument, arg.toString());
 			}
 
-			return formController.eval(javascript);
+			return javascript;
 		}
 		catch (Exception ex)
 		{
-			Debug.error("Cannot eval inline javascript", ex);
+			Debug.error("Cannot decrypt inline javascript", ex);
 		}
 		return null;
 	}
