@@ -83,8 +83,6 @@ public interface IFormController extends IForm
 
 	public void executeOnLoadMethod();
 
-	public void executeOnShowMethod();
-
 
 	/**
 	 * @param cmd
