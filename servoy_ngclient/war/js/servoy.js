@@ -723,14 +723,13 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-        	element.css({position:'relative'});
+        	element.css({position:'absolute'});
         	scope.$watch(attrs.svyFormstyle, function(newVal) {
         		if (newVal)
         		{
         			if(isInContainer(scope)){
         				delete newVal.minWidth
         				delete newVal.minHeight
-        				element.css({position:'absolute'});
         			}
         			element.css(newVal)
         		}	
