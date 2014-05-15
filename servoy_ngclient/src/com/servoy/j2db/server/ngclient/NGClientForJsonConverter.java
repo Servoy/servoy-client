@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -397,6 +398,11 @@ public class NGClientForJsonConverter implements IForJsonConverter
 						{
 							return "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
 								media.getName();
+						}
+						else
+						{
+							Debug.log("could not convert value: " + propertyValue + " to an media, media not found");
+							return "";
 						}
 					}
 					break;

@@ -537,6 +537,10 @@ public final class FormElement
 						}
 						convPropertiesMap.put(pv, url);
 					}
+					else
+					{
+						Debug.log("media " + val + " not found for component: " + persist);
+					}
 					break;
 				}
 
