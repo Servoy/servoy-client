@@ -516,7 +516,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * @param fs
 	 * @param form
 	 */
-	private void updateController(Form form, String realFormName, String formUrl, boolean forceDisplay)
+	private void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
 	{
 		try
 		{
@@ -543,12 +543,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			if (client.isEventDispatchThread())
 			{
 				executeServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceDisplay) });
+					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
 			}
 			else
 			{
 				executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceDisplay) });
+					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
 			}
 		}
 		catch (IOException e)

@@ -572,12 +572,12 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         		$window.location.reload(true);
     		})
 		},
-		updateController: function(formName,controllerCode, realFormUrl, forceDisplay) {
+		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
 			$rootScope.$apply(function() {
 				$servoyInternal.clearformState(formName)
 				eval(controllerCode);
 				formTemplateUrls[formName] = realFormUrl;
-				if(forceDisplay) $rootScope.updatingFormUrl = realFormUrl;
+				if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
 			});
 		},
  		getFormUrl: function(formName) {
