@@ -417,6 +417,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
     	  } else {
     		  compModel = $scope.model[$attrs['svyLayoutUpdate']];
     	  }
+    	  if (!compModel) return; // not found, maybe a missing bean
 
     	  if(($attrs['svyLayoutUpdate'].length == 0) || (compModel.anchors !== undefined)) {
         	  var resizeTimeoutID = null;
