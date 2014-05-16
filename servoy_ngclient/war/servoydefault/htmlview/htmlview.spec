@@ -33,32 +33,36 @@ handlers:
 },
 api:
 {
-        getAsPlainText:{
+        getAsPlainText: {
             returns: 'string',
-                 }, 
-        getScrollX:{
+            callOn: 1
+        },
+        getScrollX: {
             returns: 'int',
-                 }, 
-        getScrollY:{
+            callOn: 1
+        },
+        getScrollY: {
             returns: 'int',
-                 }, 
-        getSelectedText:{
+            callOn: 1
+        },
+        getSelectedText: {
             returns: 'string',
-                 }, 
-        replaceSelectedText:{
-            
-            parameters:[{'s':'string'}]
-        }, 
-        requestFocus:{
-            
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
-        }, 
-        selectAll:{
-            
-                 }, 
-        setScroll:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        } 
+            callOn: 1
+        },
+        replaceSelectedText: {
+            parameters:[{'s':'string'}],
+            callOn: 1
+        },
+        requestFocus: {
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
+            callOn: 1
+        },
+        selectAll: {
+
+        },
+        setScroll: {
+            parameters:[{'x':'int'},{'y':'int'}],
+            callOn: 1
+        }
 }
  

@@ -121,17 +121,23 @@ public class SpecGenerator
 			IRepository.TABPANELS,
 			com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
 			new String[] { "servoydefault/splitpane/bg-splitter/js/splitter.js", "servoydefault/splitpane/bg-splitter/css/style.css" },
-			new ApiMethod[] { new ApiMethod("getDividerLocation", "double", null, null, null), new ApiMethod("setDividerLocation", "void",
-				Arrays.asList(new String[] { "location" }), Arrays.asList(new String[] { "double" }), Arrays.asList(new String[] { "false" })), new ApiMethod(
-				"getDividerSize", "int", null, null, null), new ApiMethod("setDividerSize", "void", Arrays.asList(new String[] { "size" }),
-				Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })), new ApiMethod("getResizeWeight", "double", null, null, null), new ApiMethod(
-				"setResizeWeight", "void", Arrays.asList(new String[] { "resizeWeight" }), Arrays.asList(new String[] { "double" }),
-				Arrays.asList(new String[] { "false" })), new ApiMethod("getContinuousLayout", "boolean", null, null, null), new ApiMethod(
-				"setContinuousLayout", "void", Arrays.asList(new String[] { "b" }), Arrays.asList(new String[] { "boolean" }),
-				Arrays.asList(new String[] { "false" })), new ApiMethod("getRightFormMinSize", "int", null, null, null), new ApiMethod("setRightFormMinSize",
-				"void", Arrays.asList(new String[] { "minSize" }), Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })), new ApiMethod(
-				"getLeftFormMinSize", "int", null, null, null), new ApiMethod("setLeftFormMinSize", "void", Arrays.asList(new String[] { "minSize" }),
-				Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })) }));
+			// @formatter:off
+			new ApiMethod[] {
+				getApiMethod("getDividerLocation", "double", null, null, null),
+				getApiMethod("setDividerLocation", "void", Arrays.asList(new String[] { "location" }), Arrays.asList(new String[] { "double" }), Arrays.asList(new String[] { "false" })),
+				getApiMethod("getDividerSize", "int", null, null, null),
+				getApiMethod("setDividerSize", "void", Arrays.asList(new String[] { "size" }),	Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })),
+				getApiMethod("getResizeWeight", "double", null, null, null),
+				getApiMethod("setResizeWeight", "void", Arrays.asList(new String[] { "resizeWeight" }), Arrays.asList(new String[] { "double" }), Arrays.asList(new String[] { "false" })),
+				getApiMethod("getContinuousLayout", "boolean", null, null, null),
+				getApiMethod("setContinuousLayout", "void", Arrays.asList(new String[] { "b" }), Arrays.asList(new String[] { "boolean" }),	Arrays.asList(new String[] { "false" })),
+				getApiMethod("getRightFormMinSize", "int", null, null, null),
+				getApiMethod("setRightFormMinSize",	"void", Arrays.asList(new String[] { "minSize" }), Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })),
+				getApiMethod("getLeftFormMinSize", "int", null, null, null),
+				getApiMethod("setLeftFormMinSize", "void", Arrays.asList(new String[] { "minSize" }), Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" }))
+			}
+			// @formatter:on
+		));
 		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
 			new String[] { "servoydefault/portal/portal.css" }));
 		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
@@ -139,6 +145,12 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class, new String[0]));
 
 		//specTemplateList.add(new SpecTemplateModel("navigator","Navigator", IRepository.FIELDS));
+	}
+
+	private static ApiMethod getApiMethod(String name, String returnType, List<String> parametersNames, List<String> parameterTypes,
+		List<String> optionalParameters)
+	{
+		return new ApiMethod(name, returnType, parametersNames, parameterTypes, optionalParameters, null);
 	}
 
 
@@ -299,7 +311,7 @@ public class SpecGenerator
 						}
 						if (apiToRemove != null) specModel.getApis().remove(apiToRemove);
 						if (addNewApi && !serverSideApi.contains(functionName)) specModel.getApis().add(
-							new ApiMethod(functionName, returnType, parameterNames, parameterTypes, optionalParams));
+							new ApiMethod(functionName, returnType, parameterNames, parameterTypes, optionalParams, metaDataForApi.get(functionName)));
 					}
 				}
 			}
@@ -335,6 +347,12 @@ public class SpecGenerator
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "multiselectListbox", IRepository.BOOLEAN, Boolean.FALSE));
 			}
+			if ("portal".equals(componentSpec.getName()))
+			{
+				ContentSpec cs = new ContentSpec();
+				model.add(cs.new Element(-1, IRepository.FIELDS, "relatedFoundset", -1, null));
+				model.add(cs.new Element(-1, IRepository.FIELDS, "childElements", -1, null));
+			}
 			if (componentSpec.getRepositoryType() == IRepository.TABPANELS)
 			{
 				ContentSpec cs = new ContentSpec();
@@ -362,6 +380,7 @@ public class SpecGenerator
 	private static final Map<String, List<String>> perComponentExceptions = new HashMap<>();
 	private static final Map<String, List<String>> perComponentInternalProperties = new HashMap<>();
 	private static final List<String> serverSideApi = new ArrayList<>();
+	private static final Map<String, List<String>> metaDataForApi = new HashMap<String, List<String>>();
 	static
 	{
 		// general type mappings
@@ -396,6 +415,12 @@ public class SpecGenerator
 			"{type:'int', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}], default: 0}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:80, height:20}}");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
+
+		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
+		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:200, height:200}}");
+		portalTypeMapping.put("relatedFoundset", "foundset");
+		portalTypeMapping.put("childElements", "{ type: 'component[]', forFoundsetTypedProperty: 'relatedFoundset' }");
+		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 
 		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
@@ -494,10 +519,6 @@ public class SpecGenerator
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:140, height:20}}");
 		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
 
-		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
-		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:200, height:200}}");
-		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
-
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}");
@@ -549,6 +570,7 @@ public class SpecGenerator
 		perComponentExceptions.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 		perComponentExceptions.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 		perComponentExceptions.put("button", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName()))));
+		perComponentInternalProperties.put("portal", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_RELATIONNAME.getPropertyName()))));
 		perComponentInternalProperties.put(
 			"htmlview",
 			new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
@@ -572,6 +594,16 @@ public class SpecGenerator
 		serverSideApi.add("putClientProperty");
 		serverSideApi.add("setLocation");
 		serverSideApi.add("setSize");
+
+		final String callOnSelected = "callOn: 1"; // ONE_SELECTED_RECORD_IF_TEMPLATE; see globalServoyCustomTypes.spec 
+		metaDataForApi.put("getSelectedText", Arrays.asList(new String[] { callOnSelected }));
+		metaDataForApi.put("replaceSelectedText", Arrays.asList(new String[] { callOnSelected }));
+		metaDataForApi.put("requestFocus", Arrays.asList(new String[] { callOnSelected }));
+		metaDataForApi.put("getScrollX", Arrays.asList(new String[] { callOnSelected }));
+		metaDataForApi.put("getScrollY", Arrays.asList(new String[] { callOnSelected }));
+		metaDataForApi.put("setScroll", Arrays.asList(new String[] { callOnSelected }));
+		metaDataForApi.put("getAsPlainText", Arrays.asList(new String[] { callOnSelected }));
+		metaDataForApi.put("getSelectedElements", Arrays.asList(new String[] { callOnSelected }));
 	}
 
 	// @formatter:on

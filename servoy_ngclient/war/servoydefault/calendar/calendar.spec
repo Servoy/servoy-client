@@ -38,9 +38,9 @@ handlers:
 },
 api:
 {
-        requestFocus:{
-            
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
-        } 
+        requestFocus: {
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
+            callOn: 1
+        }
 }
  

@@ -55,6 +55,6 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	void solutionLoaded(Solution flattenedSolution);
 
-	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String beanName, Object[] arguments);
+	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String componentName, Object[] arguments);
 
 }

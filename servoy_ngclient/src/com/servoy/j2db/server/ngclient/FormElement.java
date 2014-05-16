@@ -33,37 +33,24 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentSpec;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.AbstractBase;
-import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.Bean;
-import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportChilds;
-import com.servoy.j2db.persistence.ISupportExtendsID;
-import com.servoy.j2db.persistence.ISupportName;
-import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.persistence.Tab;
-import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
-import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -71,112 +58,92 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public final class FormElement
 {
-	private final IPersist persist;
+	private final Form form;
 	private final Map<String, Object> propertyValues;
+	private final String componentTypeString;
+
+	private final PersistBasedFormElementImpl legacyImpl;
+	private final String uniqueIdWithinForm;
 
 	public FormElement(Form form)
 	{
-		this.persist = form;
-		Map<String, Object> map = getFlattenedPropertiesMap();
+		this.form = form;
+		legacyImpl = new PersistBasedFormElementImpl(form, this);
+		componentTypeString = null;
+		this.uniqueIdWithinForm = String.valueOf(form.getID());
+
+		Map<String, Object> map = legacyImpl.getFlattenedPropertiesMap();
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
-	/**
-	 * @param persist
-	 */
 	public FormElement(IFormElement persist, final IDataConverterContext context)
 	{
-		this.persist = persist;
-		if (persist instanceof Bean)
-		{
-			String customJSONString = ((Bean)persist).getBeanXML();
-			if (customJSONString != null)
-			{
-				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), context);
-				try
-				{
-					Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
-					Map<String, PropertyDescription> eventProperties = getWebComponentSpec().getHandlers();
-					JSONObject jsonProperties = new JSONObject(customJSONString);
-					Iterator keys = jsonProperties.keys();
-					while (keys.hasNext())
-					{
-						String key = (String)keys.next();
-						// is it a property
-						PropertyDescription pd = specProperties.get(key);
-						if (pd == null)
-						{
-							// or an event
-							pd = eventProperties.get(key);
-						}
-						if (pd != null)
-						{
-							// TODO where the handle PropertyType.form properties? (see tabpanel below)
-							//toJavaObject shoudl accept application because it is needed for format
-							jsonMap.put(key, NGClientForJsonConverter.toJavaObject(jsonProperties.get(key), pd, context));
-							//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
-						}
-					}
-					fillPropertiesWithDefaults(specProperties, jsonMap);
-					adjustLocationRelativeToPart(persist, context.getSolution(), jsonMap);
-				}
-				catch (Exception ex)
-				{
-					Debug.error("Error while parsing json", ex);
-				}
-				propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(jsonMap, jsonMap.size()));
-			}
-			else
-			{
-				propertyValues = Collections.emptyMap();
-			}
-		}
-		else if (persist instanceof AbstractBase)
-		{
-			Map<String, Object> map = getConvertedPropertiesMap(getFlattenedPropertiesMap(), context);
-			if (persist instanceof TabPanel)
-			{
-				ArrayList<Map<String, Object>> tabList = new ArrayList<>();
-				// add the tabs.
-				Iterator<IPersist> tabs = ((TabPanel)persist).getTabs();
-				boolean active = true;
-				while (tabs.hasNext())
-				{
-					Map<String, Object> tabMap = new HashMap<>();
-					Tab tab = (Tab)tabs.next();
-					tabMap.put("text", tab.getText());
-					tabMap.put("relationName", tab.getRelationName());
-					tabMap.put("active", Boolean.valueOf(active));
-					tabMap.put("foreground", tab.getForeground());
-					tabMap.put("name", tab.getName());
-					tabMap.put("mnemonic", tab.getMnemonic());
-					int containsFormID = tab.getContainsFormID();
-					// TODO should this be resolved way later on?
-					// if solution model then this form can change..
-					Form form = context.getSolution().getForm(containsFormID);
-					tabMap.put("containsFormId", form.getName());
+		legacyImpl = new PersistBasedFormElementImpl(persist, this);
+		this.form = legacyImpl.getForm();
+		this.componentTypeString = FormTemplateGenerator.getComponentTypeName(persist);
+		this.uniqueIdWithinForm = String.valueOf(persist.getID());
 
-					tabList.add(tabMap);
-					active = false;
-				}
-				map.put("tabs", tabList);
-			}
-			else if (persist instanceof Field && ((Field)persist).getDisplayType() == Field.MULTISELECT_LISTBOX)
-			{
-				map.put("multiselectListbox", Boolean.TRUE);
-			}
-			Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
-			fillPropertiesWithDefaults(specProperties, map);
-			adjustLocationRelativeToPart(persist, context.getSolution(), map);
-			propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
-		}
-		else
+		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
+		Map<String, Object> map = legacyImpl.getConvertedProperties(context, specProperties);
+
+		fillPropertiesWithDefaults(specProperties, map, context);
+		adjustLocationRelativeToPart(context.getSolution(), map);
+		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
+	}
+
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, IDataConverterContext context)
+	{
+		legacyImpl = null;
+		this.form = form;
+		this.componentTypeString = componentTypeString;
+		this.uniqueIdWithinForm = uniqueIdWithinForm;
+
+		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
+		Map<String, Object> map = new HashMap<>();
+		try
 		{
-			propertyValues = Collections.emptyMap();
+			getConvertedJSONDefinitionProperties(context, specProperties, map, getWebComponentSpec().getHandlers(), jsonObject);
+		}
+		catch (JSONException ex)
+		{
+			Debug.error("Error while parsing component design JSON", ex);
+		}
+
+		fillPropertiesWithDefaults(specProperties, map, context);
+		adjustLocationRelativeToPart(context.getSolution(), map);
+		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
+	}
+
+	void getConvertedJSONDefinitionProperties(IDataConverterContext context, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
+		Map<String, PropertyDescription> eventProperties, JSONObject jsonProperties) throws JSONException
+	{
+		Iterator keys = jsonProperties.keys();
+		while (keys.hasNext())
+		{
+			String key = (String)keys.next();
+			// is it a property
+			PropertyDescription pd = specProperties.get(key);
+			if (pd == null)
+			{
+				// or an event
+				pd = eventProperties.get(key);
+			}
+			if (pd != null)
+			{
+				// TODO where the handle PropertyType.form properties? (see tabpanel below)
+				// toJavaObject should accept application because it is needed for format
+				jsonMap.put(key, NGClientForJsonConverter.toJavaObject(jsonProperties.get(key), pd, context, ConversionLocation.DESIGN, null));
+				//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
+			}
 		}
 	}
 
-	private void fillPropertiesWithDefaults(Map<String, PropertyDescription> specProperties, Map<String, Object> map)
+	public IPersist getLegacyPersistIfAvailable()
+	{
+		return legacyImpl.getPersist();
+	}
+
+	private void fillPropertiesWithDefaults(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IDataConverterContext context)
 	{
 		if (specProperties != null && map != null)
 		{
@@ -184,26 +151,32 @@ public final class FormElement
 			{
 				if (pd.getDefaultValue() != null && !map.containsKey(pd.getName()))
 				{
-					map.put(pd.getName(), pd.getDefaultValue());
+					try
+					{
+						map.put(pd.getName(), NGClientForJsonConverter.toJavaObject(pd.getDefaultValue(), pd, context, ConversionLocation.DESIGN, null));
+					}
+					catch (JSONException e)
+					{
+						Debug.error("Error while parsing/loading default value for property: " + pd.getName() + ". Value: " + pd.getDefaultValue(), e);
+					}
 				}
 			}
 		}
 	}
 
-	private void adjustLocationRelativeToPart(IFormElement persist, FlattenedSolution fs, Map<String, Object> map)
+	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map)
 	{
-		if (map != null && persist.getParent() instanceof Form)
+		if (map != null && form != null)
 		{
-			Form form = (Form)persist.getParent();
-			form = fs.getFlattenedForm(form);
-			Point location = persist.getLocation();
+			Form flatForm = fs.getFlattenedForm(form);
+			Point location = getDesignLocation();
 			if (location != null)
 			{
 				Point newLocation = new Point(location);
-				Part part = form.getPartAt(location.y);
+				Part part = flatForm.getPartAt(location.y);
 				if (part != null)
 				{
-					int top = form.getPartStartYPos(part.getID());
+					int top = flatForm.getPartStartYPos(part.getID());
 					newLocation.y = newLocation.y - top;
 					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
 				}
@@ -212,34 +185,11 @@ public final class FormElement
 		}
 	}
 
-	private Map<String, Object> getFlattenedPropertiesMap()
-	{
-		IPersist p = persist;
-		if (p instanceof IFlattenedPersistWrapper)
-		{
-			p = ((IFlattenedPersistWrapper)p).getWrappedPersist();
-		}
-		if (p instanceof ISupportExtendsID)
-		{
-			Map<String, Object> map = new HashMap<String, Object>();
-			List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)p);
-			for (int i = hierarchy.size() - 1; i >= 0; i--)
-			{
-				map.putAll(hierarchy.get(i).getPropertiesMap());
-			}
-			return map;
-		}
-		return ((AbstractBase)p).getPropertiesMap();
-	}
-
 	public Map<String, Object> getProperties()
 	{
 		return propertyValues;
 	}
 
-	/**
-	 * @return
-	 */
 	public WebComponentSpec getWebComponentSpec()
 	{
 		return getWebComponentSpec(true);
@@ -248,23 +198,18 @@ public final class FormElement
 	public WebComponentSpec getWebComponentSpec(boolean throwException)
 	{
 		WebComponentSpec spec = null;
-		if (persist instanceof IFormElement)
+		try
 		{
-			try
-			{
-				spec = WebComponentSpecProvider.getInstance().getWebComponentDescription(FormTemplateGenerator.getComponentTypeName((IFormElement)persist));
-			}
-			catch (RuntimeException re)
-			{
-				Debug.error(re);
-				if (throwException) throw re;
-			}
+			spec = WebComponentSpecProvider.getInstance().getWebComponentDescription(componentTypeString);
+		}
+		catch (RuntimeException re)
+		{
+			Debug.error(re);
+			if (throwException) throw re;
 		}
 		if (spec == null)
 		{
-			String errorMessage = "Component spec for " +
-				((persist instanceof IFormElement) ? FormTemplateGenerator.getComponentTypeName((IFormElement)persist) : persist.toString()) +
-				" not found, check your component spec file";
+			String errorMessage = "Component spec for " + componentTypeString + " not found; please check your component spec file(s).";
 			Debug.error(errorMessage);
 			if (throwException) throw new IllegalStateException(errorMessage);
 		}
@@ -272,21 +217,19 @@ public final class FormElement
 	}
 
 	/**
-	 * @return
+	 * Never returns null. Will try to return a name that is unique in containing form and consistent between different runs - if a name
+	 * was not explicitly set on the component.
 	 */
 	public String getName()
 	{
-		String name = ((ISupportName)persist).getName();
+		String name = (String)getProperty(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName());
 		if (name == null)
 		{
-			name = "svy_" + persist.getID();
+			name = "svy_" + uniqueIdWithinForm;
 		}
 		return name;
 	}
 
-	/**
-	 * @param name
-	 */
 	public Object getProperty(String name)
 	{
 		return propertyValues.get(name);
@@ -298,16 +241,15 @@ public final class FormElement
 		String[] split = name.split("\\.");
 		if (split.length > 1)
 		{
-			return ((Map)propertyValues.get(split[0])).get(split[1]);
+			return ((Map)getProperty(split[0])).get(split[1]);
 		}// end toRemove
 
 		if (propertyValues.containsKey(name))
 		{
-			return propertyValues.get(name);
+			return getProperty(name);
 		}
 
-		if (StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName().equals(name) && persist instanceof GraphicalComponent &&
-			((GraphicalComponent)persist).getOnActionMethodID() <= 0)
+		if (StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName().equals(name) && isGraphicalComponentWithNoAction())
 		{
 			// legacy behavior
 			return Integer.valueOf(-1);
@@ -317,7 +259,7 @@ public final class FormElement
 
 		if (propertyDescription != null)
 		{
-			switch (propertyDescription.getType())
+			switch (propertyDescription.getType().getDefaultEnumValue())
 			{
 				case bool :
 					return Boolean.FALSE;
@@ -338,65 +280,60 @@ public final class FormElement
 		return null;
 	}
 
+	public boolean isForm()
+	{
+		return legacyImpl != null && legacyImpl.isForm();
+	}
+
 	/**
-	 * @return
+	 * Refactored hack.
 	 */
+	boolean isGraphicalComponentWithNoAction()
+	{
+		if ("svy-button".equals(componentTypeString) || "svy-label".equals(componentTypeString))
+		{
+			Object onAction = getProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName());
+			if (onAction == null || (onAction instanceof Integer && (((Integer)onAction).intValue() <= 0))) return true;
+		}
+		return false;
+	}
+
 	public Form getForm()
 	{
-		if (persist instanceof Form) return (Form)persist;
-		ISupportChilds parent = persist.getParent();
-		while (parent != null && !(parent instanceof Form))
-		{
-			parent = parent.getParent();
-		}
-		return (Form)parent;
+		return form;
 	}
 
-	public IPersist getPersist()
-	{
-		return persist;
-	}
-
-	/**
-	 * @return
-	 */
 	public boolean isLegacy()
 	{
-		return !(persist instanceof Bean);
+		return legacyImpl != null && legacyImpl.isLegacy();
 	}
 
 	public String getTagname()
 	{
-		if (persist instanceof IFormElement)
-		{
-			return "data-" + FormTemplateGenerator.getComponentTypeName((IFormElement)persist);
-		}
-		return "data-form";
+		return componentTypeString != null ? "data-" + componentTypeString : "data-form";
+	}
 
+	public String getTypeName()
+	{
+		return componentTypeString;
 	}
 
 	public IFormElement getLabel()
 	{
 		IFormElement label = null;
-		if (persist instanceof IFormElement)
+		String name = (String)getProperty(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName());
+
+		if (name != null && form != null)
 		{
-			String name = ((IFormElement)persist).getName();
-			if (name != null)
+			Iterator<IPersist> formElementsIte = form.getAllObjects();
+			IPersist p;
+			while (formElementsIte.hasNext())
 			{
-				ISupportChilds persistParent = ((IFormElement)persist).getParent();
-				if (persistParent instanceof Form)
+				p = formElementsIte.next();
+				if (p instanceof GraphicalComponent && name.equals(((GraphicalComponent)p).getLabelFor()))
 				{
-					Iterator<IPersist> formElementsIte = ((Form)persistParent).getAllObjects();
-					IPersist p;
-					while (formElementsIte.hasNext())
-					{
-						p = formElementsIte.next();
-						if (p instanceof GraphicalComponent && name.equals(((GraphicalComponent)p).getLabelFor()))
-						{
-							label = (GraphicalComponent)p;
-							break;
-						}
-					}
+					label = (GraphicalComponent)p;
+					break;
 				}
 			}
 		}
@@ -423,7 +360,7 @@ public final class FormElement
 	{
 		List<String> valuelistProperties = new ArrayList<>();
 		WebComponentSpec componentSpec = getWebComponentSpec();
-		Map<String, PropertyDescription> properties = componentSpec.getProperties(PropertyType.valuelist);
+		Map<String, PropertyDescription> properties = componentSpec.getProperties(IPropertyType.Default.valuelist.getType());
 
 		for (PropertyDescription pd : properties.values())
 		{
@@ -436,8 +373,14 @@ public final class FormElement
 		return valuelistProperties;
 	}
 
-	@SuppressWarnings("nls")
+	// called by ftl template
 	public String getPropertiesString() throws JSONException
+	{
+		return propertiesAsJSON(null).toString();
+	}
+
+	@SuppressWarnings("nls")
+	public JSONWriter propertiesAsJSON(JSONWriter writer) throws JSONException
 	{
 		Map<String, Object> properties = new HashMap<>();
 		WebComponentSpec componentSpec = getWebComponentSpec();
@@ -446,7 +389,7 @@ public final class FormElement
 		{
 			Object val = getProperty(pd.getName());
 			if (val == null) continue;
-			switch (pd.getType())
+			switch (pd.getType().getDefaultEnumValue())
 			{
 			// dataprovider,formats,valuelist are always only pushed through the components
 				case dataprovider :
@@ -463,10 +406,10 @@ public final class FormElement
 			}
 		}
 
-		if (persist instanceof BaseComponent)
+		if (legacyImpl == null || !legacyImpl.isForm())
 		{
 			Map<String, Object> propertiesMap = new HashMap<>(propertyValues);
-			Dimension dim = ((BaseComponent)persist).getSize();
+			Dimension dim = getDesignSize();
 			properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
 			Integer anchor = (Integer)propertiesMap.get(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
 			if (anchor != null)
@@ -475,12 +418,12 @@ public final class FormElement
 			}
 		}
 
-		JSONWriter propertyWriter = new JSONStringer();
+		JSONWriter propertyWriter = (writer != null ? writer : new JSONStringer());
 		try
 		{
 			propertyWriter.object();
 			JSONUtils.addObjectPropertiesToWriter(propertyWriter, properties, NGClientForJsonConverter.INSTANCE);
-			return propertyWriter.endObject().toString();
+			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{
@@ -489,68 +432,27 @@ public final class FormElement
 		}
 	}
 
-	/**
-	 * AbstractBase.getPropertiesMap() returns for format,borderType  etc the STRING representation instead of the high level class representation used in ngClient
-	 * Converts string representation to high level Class representation of properties
-	 *
-	 * Initially only for border
-	 */
-	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, final IDataConverterContext context)
+	Dimension getDesignSize()
 	{
-		Map<String, Object> convPropertiesMap = new HashMap<>();
-		for (String pv : propertiesMap.keySet())
+		Dimension dim = null;
+		if (propertyValues != null)
 		{
-			Object val = propertiesMap.get(pv);
-			if (val == null) continue;
-			switch (pv)
-			{
-				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_BORDERTYPE : //PropertyType.border.getType
-					convPropertiesMap.put(pv, ComponentFactoryHelper.createBorder((String)val));
-					break;
-				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_FONTTYPE : //PropertyType.font.getType
-					convPropertiesMap.put(pv, PersistHelper.createFont((String)val));
-					break;
-				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID :
-				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_IMAGEMEDIAID :
-				{
-					Media media = context.getSolution().getMedia(Utils.getAsInteger(val));
-					if (media != null)
-					{
-						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
-							media.getName();
-						Dimension imageSize = ImageLoader.getSize(media.getMediaData());
-						boolean paramsAdded = false;
-						if (imageSize != null)
-						{
-							paramsAdded = true;
-							url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
-						}
-						if (context.getApplication() != null)
-						{
-							Solution sc = context.getSolution().getSolutionCopy(false);
-							if (sc != null && sc.getMedia(media.getName()) != null)
-							{
-								if (paramsAdded) url += "&";
-								else url += "?";
-								url += "uuid=" + context.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
-							}
-						}
-						convPropertiesMap.put(pv, url);
-					}
-					else
-					{
-						Debug.log("media " + val + " not found for component: " + persist);
-					}
-					break;
-				}
-
-				default :
-					convPropertiesMap.put(pv, val);
-					break;
-			}
+			dim = (Dimension)getProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
 		}
+		if (dim == null && legacyImpl != null && legacyImpl.getPersist() instanceof ISupportSize) dim = ((ISupportSize)legacyImpl.getPersist()).getSize();
+		if (dim == null) dim = new Dimension(80, 80); // just like a Bean persist would do
+		return dim;
+	}
 
-		return convPropertiesMap;
+	Point getDesignLocation()
+	{
+		Point location = null;
+		if (propertyValues != null)
+		{
+			location = (Point)getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
+		}
+		if (location == null && legacyImpl != null && legacyImpl.getPersist() instanceof ISupportBounds) location = ((ISupportBounds)legacyImpl.getPersist()).getLocation();
+		return location;
 	}
 
 	/*

@@ -28,8 +28,9 @@ import java.util.Map.Entry;
 import javax.swing.event.ListDataListener;
 
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.property.IComplexTypeImpl;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.JSONUtils.JSONWritable;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -38,7 +39,6 @@ import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.ValueList;
@@ -105,7 +105,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				Debug.error(e);
 			}
 		}
-		else if (rowChanges != null && rowChanges.size() > 0)
+		else if (rowChanges.size() > 0)
 		{
 			if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
 			Map<String, Object> rowProps = props.get("");
@@ -275,13 +275,14 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
 				// namepanel2 has a nested property which is a dataproviderID
 				Map<String, Object> cellProperties = new HashMap<>();
-				List<String> tagstrings = getWebComponentPropertyType(wc, PropertyType.tagstring);
+				List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), IPropertyType.Default.tagstring.getType());
 				for (String tagstringPropID : tagstrings)
 				{
 					cellProperties.put(tagstringPropID, wc.getProperty(tagstringPropID));
 				}
 
-				List<String> dataproviders = getWebComponentPropertyType(wc, PropertyType.dataprovider);
+				List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(),
+					IPropertyType.Default.dataprovider.getType());
 				for (String dataproviderID : dataproviders)
 				{
 					cellProperties.put(dataproviderID, wc.getProperty(dataproviderID));
@@ -329,11 +330,11 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		//filter only body elements
 		for (WebFormComponent wc : components)
 		{
-			if (wc.getFormElement().getPersist() instanceof BaseComponent)
+			if (!wc.getFormElement().isForm())
 			{
-				Point location = ((BaseComponent)wc.getFormElement().getPersist()).getLocation();
-				//svy_default_navigator doesn't have location
-				if (location != null && (bodyStartY <= location.y && bodyEndY > location.y))
+				Point location = wc.getFormElement().getDesignLocation();
+
+				if (location != null && !(wc instanceof DefaultNavigatorWebComponent) && (bodyStartY <= location.y && bodyEndY > location.y))
 				{
 					ret.add(wc);
 				}
@@ -403,9 +404,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	}
 
 
-	private static List<String> getWebComponentPropertyType(WebFormComponent wc, PropertyType type)
+	public static List<String> getWebComponentPropertyType(WebComponentSpec componentSpec, IComplexTypeImpl type)
 	{
-		WebComponentSpec componentSpec = wc.getFormElement().getWebComponentSpec();
 		ArrayList<String> properties = new ArrayList<>(3);
 		Map<String, PropertyDescription> specProperties = componentSpec.getProperties();
 		for (Entry<String, PropertyDescription> e : specProperties.entrySet())

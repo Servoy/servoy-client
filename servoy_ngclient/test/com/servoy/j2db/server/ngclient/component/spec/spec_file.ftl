@@ -33,14 +33,16 @@ handlers:
 api:
 {
     <#list apis as api>
-        ${api.name}:{
-            <#if (api.returnType != 'void')>returns: '${api.returnType}',</#if>
-         <#if (api.parameters?size>0)>   parameters:[<#list api.parameters as param><#rt>
+        ${api.name}: {
+<#if (api.returnType != 'void')>            returns: '${api.returnType}'<#if (api.parameters?size>0 || api.hints??)>,
+</#if></#if><#if (api.parameters?size>0)>            parameters:[<#list api.parameters as param><#rt>
            {'${param.left}':'${param.right}'<#t>
             <#if (api.isOpitionalParameter(param.left)!='false')>,'optional':'${api.isOpitionalParameter(param.left)}'}<#else>}</#if><#t>
-            <#if param_has_next>,</#if></#list>]<#lt>
-         </#if>
-        }<#if api_has_next>,</#if> 
+            <#if param_has_next>,</#if></#list>]<#if api.hints??>,<#lt>
+</#if></#if><#if api.hints??><#list api.hints as hint>            ${hint}<#if hint_has_next>,
+            </#if></#list></#if><#lt>
+
+        }<#if api_has_next>,</#if>
     </#list>
 }<#if types??>${types}</#if>
  

@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.mozilla.javascript.Callable;
@@ -27,8 +28,10 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Utils;
 
@@ -118,6 +121,9 @@ public class RuntimeLegacyComponent implements Scriptable
 			isReadonly = true;
 			name = StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName();
 		}
+
+		if (!isLegacyProperty(name)) return Scriptable.NOT_FOUND;
+
 		Object value = convertValue(name, component.getConvertedPropertyWithDefault(convertName(name),
 			StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name), !needsValueConversion(name)));
 
@@ -127,6 +133,22 @@ public class RuntimeLegacyComponent implements Scriptable
 		}
 
 		return value;
+	}
+
+	private boolean isLegacyProperty(String name)
+	{
+		boolean validProperty = false; // to avoid new properties for legacy portals for example (relatedFoundset, childElements)...
+		Iterator<Element> it = StaticContentSpecLoader.getContentSpec().getPropertiesForObjectType(
+			component.getFormElement().getLegacyPersistIfAvailable().getTypeID());
+		while (it.hasNext())
+		{
+			if (convertName(name).equals(it.next().getName()))
+			{
+				validProperty = true;
+				break;
+			}
+		}
+		return validProperty;
 	}
 
 	@Override
@@ -163,7 +185,7 @@ public class RuntimeLegacyComponent implements Scriptable
 				value = !((Boolean)value).booleanValue();
 			}
 		}
-		component.putProperty(convertName(name), value);
+		component.putProperty(convertName(name), value, ConversionLocation.SERVER);
 	}
 
 	@Override
@@ -331,9 +353,9 @@ public class RuntimeLegacyComponent implements Scriptable
 		@Override
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
-			if (propertyName.equals("absoluteFormLocationY") && component.getFormElement().getPersist() instanceof IFormElement) //$NON-NLS-1$
+			if (propertyName.equals("absoluteFormLocationY") && component.getFormElement().getLegacyPersistIfAvailable() instanceof IFormElement) //$NON-NLS-1$
 			{
-				return Integer.valueOf(((IFormElement)component.getFormElement().getPersist()).getLocation().y);
+				return Integer.valueOf(((IFormElement)component.getFormElement().getLegacyPersistIfAvailable()).getLocation().y);
 			}
 
 			if ("clientProperty".equals(propertyName) && args != null && args.length > 0)
@@ -341,9 +363,10 @@ public class RuntimeLegacyComponent implements Scriptable
 				return getClientProperty(args[0]);
 			}
 
-			if (propertyName.equals("designTimeProperty") && args != null && args.length > 0 && component.getFormElement().getPersist() instanceof AbstractBase)
+			if (propertyName.equals("designTimeProperty") && args != null && args.length > 0 &&
+				component.getFormElement().getLegacyPersistIfAvailable() instanceof AbstractBase)
 			{
-				return Utils.parseJSExpression(((AbstractBase)component.getFormElement().getPersist()).getCustomDesignTimeProperty((String)args[0]));
+				return Utils.parseJSExpression(((AbstractBase)component.getFormElement().getLegacyPersistIfAvailable()).getCustomDesignTimeProperty((String)args[0]));
 			}
 
 			return scriptable.get(propertyName, null);

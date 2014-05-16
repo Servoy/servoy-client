@@ -6,13 +6,14 @@ model:
 {
         background : 'color', 
         borderType : 'border', 
+        childElements : { type: 'component[]', forFoundsetTypedProperty: 'relatedFoundset' }, 
         enabled : {type:'boolean', default:true}, 
         foreground : 'color', 
         initialSort : 'string', 
         intercellSpacing : 'dimension', 
         location : 'point', 
         multiLine : 'boolean', 
-        relationName : 'string', 
+        relatedFoundset : 'foundset', 
         reorderable : 'boolean', 
         resizable : 'boolean', 
         resizeble : 'boolean', 
@@ -38,39 +39,38 @@ handlers:
 },
 api:
 {
-        deleteRecord:{
-            
-                 }, 
-        duplicateRecord:{
-            
+        deleteRecord: {
+
+        },
+        duplicateRecord: {
             parameters:[{'addOnTop':'boolean','optional':'true'}]
-        }, 
-        getMaxRecordIndex:{
+        },
+        getMaxRecordIndex: {
+            returns: 'int'
+        },
+        getScrollX: {
             returns: 'int',
-                 }, 
-        getScrollX:{
+            callOn: 1
+        },
+        getScrollY: {
             returns: 'int',
-                 }, 
-        getScrollY:{
-            returns: 'int',
-                 }, 
-        getSelectedIndex:{
-            returns: 'int',
-                 }, 
-        getSortColumns:{
-            returns: 'string',
-                 }, 
-        newRecord:{
-            
+            callOn: 1
+        },
+        getSelectedIndex: {
+            returns: 'int'
+        },
+        getSortColumns: {
+            returns: 'string'
+        },
+        newRecord: {
             parameters:[{'addOnTop':'boolean','optional':'true'}]
-        }, 
-        setScroll:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        }, 
-        setSelectedIndex:{
-            
+        },
+        setScroll: {
+            parameters:[{'x':'int'},{'y':'int'}],
+            callOn: 1
+        },
+        setSelectedIndex: {
             parameters:[{'index':'int'}]
-        } 
+        }
 }
  

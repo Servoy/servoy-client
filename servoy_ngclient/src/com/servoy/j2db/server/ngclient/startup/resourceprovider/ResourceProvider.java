@@ -39,9 +39,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sablo.specification.WebComponentPackage;
-import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.property.CustomPropertyTypeResolver;
 
+import com.servoy.j2db.server.ngclient.properties.ComponentTypeImpl;
+import com.servoy.j2db.server.ngclient.properties.FoundsetTypeImpl;
 import com.servoy.j2db.server.ngclient.startup.Activator;
 import com.servoy.j2db.util.Utils;
 
@@ -82,7 +85,22 @@ public class ResourceProvider implements Filter
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException
 	{
+		registerComplexPropertyTypes();
 		initSpecProvider();
+	}
+
+	private void registerComplexPropertyTypes()
+	{
+		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
+		CustomPropertyTypeResolver typeResolver = CustomPropertyTypeResolver.getInstance();
+		if (!typeResolver.hasTypeName("foundset")) //$NON-NLS-1$
+		{
+			typeResolver.registerNewComplexType("foundset", new FoundsetTypeImpl()); //$NON-NLS-1$
+		}
+		if (!typeResolver.hasTypeName("component")) //$NON-NLS-1$
+		{
+			typeResolver.registerNewComplexType("component", new ComponentTypeImpl()); //$NON-NLS-1$
+		}
 	}
 
 	@SuppressWarnings("nls")

@@ -27,8 +27,10 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.PropertyType.DataproviderConfig;
-import org.sablo.specification.PropertyType.ValuesConfig;
+import org.sablo.specification.property.CustomPropertyTypeResolver;
+import org.sablo.specification.property.DataproviderConfig;
+import org.sablo.specification.property.IPropertyConfigurationParser;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -41,9 +43,12 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class WebComponentSpec extends PropertyDescription
 {
+
+	public static final String TYPES_KEY = "types";
+
 	private final Map<String, PropertyDescription> handlers = new HashMap<>(); // second String is always a "function" for now, but in the future it will probably contain more (to specify sent args/types...)
 	private final Map<String, WebComponentApiDefinition> apis = new HashMap<>();
-	private final Map<String, PropertyDescription> types = new HashMap<>();
+	private final Map<String, IPropertyType> types = new HashMap<>();
 	private final String definition;
 	private final String[] libraries;
 	private final String displayName;
@@ -80,9 +85,14 @@ public class WebComponentSpec extends PropertyDescription
 	}
 
 
-	void addType(PropertyDescription componentType)
+	void addType(IPropertyType componentType)
 	{
 		types.put(componentType.getName(), componentType);
+	}
+
+	void addTypes(Map<String, IPropertyType> componentTypes)
+	{
+		types.putAll(componentTypes);
 	}
 
 	/**
@@ -139,49 +149,32 @@ public class WebComponentSpec extends PropertyDescription
 		return libraries == null ? new String[0] : libraries;
 	}
 
-	private static ParsedProperty parsePropertyString(final String propertyString, final WebComponentSpec spec, final String specpath)
+	private static ParsedProperty parsePropertyString(final String propertyString, final Map<String, IPropertyType> availableTypes, final String specpath)
 	{
 		String property = propertyString.replaceAll("\\s", "");
 		boolean isArray = false;
-		PropertyType type = null;
-		PropertyDescription wct = null;
 		if (property.endsWith("[]"))
 		{
 			isArray = true;
 			property = property.substring(0, property.length() - 2);
 		}
-		wct = spec.getType(property);
-		if (wct != null)
+		IPropertyType t = availableTypes.get(property);
+		if (t == null)
 		{
-			type = PropertyType.custom;
-		}
-		else
-		{
-			type = getPropertyType(property, specpath);
-		}
-		return new ParsedProperty(type, isArray, wct);
-	}
-
-	public static PropertyType getPropertyType(String name, String specpath)
-	{
-		try
-		{
-			return PropertyType.get(name);
-		}
-		catch (IllegalArgumentException e)
-		{
-			StringBuilder sb = new StringBuilder("Could not parse property '" + name + "' from file '" + specpath + "', avaliable types are:");
-			for (PropertyType type : PropertyType.values())
+			StringBuilder sb = new StringBuilder("Could not parse property '" + property + "' from file '" + specpath + "', avaliable types are:");
+			for (IPropertyType type : availableTypes.values())
 			{
 				sb.append(type).append(' ');
 			}
 			Debug.error(sb.toString());
 			return null;
 		}
+		return new ParsedProperty(t, isArray);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static WebComponentSpec parseSpec(String specfileContent, String packageName, String specpath) throws JSONException
+	public static WebComponentSpec parseSpec(String specfileContent, String packageName, Map<String, IPropertyType> globalTypes, String specpath)
+		throws JSONException
 	{
 		JSONObject json = new JSONObject('{' + specfileContent + '}');
 
@@ -189,36 +182,14 @@ public class WebComponentSpec extends PropertyDescription
 			json.optJSONArray("libraries"));
 
 		// first types, can be used in properties
-		if (json.has("types"))
-		{
-			JSONObject jsonObject = json.getJSONObject("types");
-			// first add all types
-			Iterator<String> types = jsonObject.keys();
-			while (types.hasNext())
-			{
-				String name = types.next();
-				PropertyDescription wct = new PropertyDescription(name, PropertyType.custom);
-				spec.addType(wct);
-			}
-			// then parse all the types (so that they can find each other)
-			types = jsonObject.keys();
-			while (types.hasNext())
-			{
-				String typeName = types.next();
-				PropertyDescription type = spec.getType(typeName);
-				type.putAll(parseProperties("model", jsonObject.getJSONObject(typeName), specpath, spec));
-				// TODO this is currently never true? See 5 lines above this, types are always just PropertyDescription?
-				// is this really supported? or should we add it just to the properties? But how are these handlers then added and used?
-				if (type instanceof WebComponentSpec)
-				{
-					((WebComponentSpec)type).putAllHandlers(parseProperties("handlers", jsonObject.getJSONObject(typeName), specpath, spec));
-				}
-			}
-		}
+		Map<String, IPropertyType> foundCustomTypes = parseTypes(json, globalTypes, specpath);
+		spec.addTypes(foundCustomTypes);
 
+		Map<String, IPropertyType> availableCustomTypes = new HashMap<>(foundCustomTypes);
+		if (globalTypes != null) availableCustomTypes.putAll(globalTypes);
 		// properties
-		spec.putAll(parseProperties("model", json, specpath, spec));
-		spec.putAllHandlers(parseProperties("handlers", json, specpath, spec));
+		spec.putAll(parseProperties("model", json, availableCustomTypes, specpath));
+		spec.putAllHandlers(parseProperties("handlers", json, availableCustomTypes, specpath));
 
 		// api
 		if (json.has("api"))
@@ -229,34 +200,100 @@ public class WebComponentSpec extends PropertyDescription
 				JSONObject jsonDef = api.getJSONObject(func);
 				WebComponentApiDefinition def = new WebComponentApiDefinition(func);
 
-				if (jsonDef.has("parameters"))
+				Iterator<String> it = jsonDef.keys();
+				JSONObject customConfiguration = null;
+				while (it.hasNext())
 				{
-					JSONArray params = jsonDef.getJSONArray("parameters");
-					for (int p = 0; p < params.length(); p++)
+					String key = it.next();
+					if ("parameters".equals(key))
 					{
-						JSONObject param = params.getJSONObject(p);
-						String paramName = parseParamName(param);
-						boolean isOptional = false;
-						if (param.has("optional")) isOptional = true;
+						JSONArray params = jsonDef.getJSONArray("parameters");
+						for (int p = 0; p < params.length(); p++)
+						{
+							JSONObject param = params.getJSONObject(p);
+							String paramName = parseParamName(param);
+							boolean isOptional = false;
+							if (param.has("optional")) isOptional = true;
 
-						ParsedProperty pp = parsePropertyString(param.getString(paramName), spec, specpath);
-						PropertyDescription desc = new PropertyDescription(paramName, pp.type, Boolean.valueOf(pp.array));
-						desc.setOptional(isOptional);
-						def.addParameter(desc);
+							ParsedProperty pp = parsePropertyString(param.getString(paramName), availableCustomTypes, specpath);
+							PropertyDescription desc = new PropertyDescription(paramName, pp.type, Boolean.valueOf(pp.array)); // hmm why not set the array field instead of configObject here?
+							desc.setOptional(isOptional);
+							def.addParameter(desc);
+						}
+					}
+					else if ("returns".equals(key))
+					{
+						ParsedProperty pp = parsePropertyString(jsonDef.getString("returns"), availableCustomTypes, specpath);
+						PropertyDescription desc = new PropertyDescription("return", pp.type, Boolean.valueOf(pp.array)); // hmm why not set the array field instead of configObject here?
+						def.setReturnType(desc);
+					}
+					else
+					{
+						if (customConfiguration == null) customConfiguration = new JSONObject();
+						customConfiguration.put(key, jsonDef.get(key));
 					}
 				}
-
-				if (jsonDef.has("returns"))
-				{
-					ParsedProperty pp = parsePropertyString(jsonDef.getString("returns"), spec, specpath);
-					PropertyDescription desc = new PropertyDescription("return", pp.type, Boolean.valueOf(pp.array));
-					def.setReturnType(desc);
-				}
+				if (customConfiguration != null) def.setCustomConfigOptions(customConfiguration);
 
 				spec.addApi(def);
 			}
 		}
 		return spec;
+	}
+
+	static Map<String, IPropertyType> parseTypes(JSONObject json, Map<String, IPropertyType> availableTypes, String specpath) throws JSONException
+	{
+		Map<String, IPropertyType> foundTypes = new HashMap<>();
+		if (json.has("types"))
+		{
+			JSONObject jsonObject = json.getJSONObject("types");
+			// first create all types
+			Iterator<String> types = jsonObject.keys();
+			while (types.hasNext())
+			{
+				String name = types.next();
+				IPropertyType wct = CustomPropertyTypeResolver.getInstance().resolveCustomPropertyType(name);
+				foundTypes.put(name, wct);
+			}
+
+			// merge with global custom types for availability
+			Map<String, IPropertyType> allAvailableTypes;
+			if (availableTypes != null)
+			{
+				allAvailableTypes = new HashMap<>(foundTypes);
+				allAvailableTypes.putAll(availableTypes);
+			}
+			else
+			{
+				allAvailableTypes = foundTypes;
+			}
+
+			// then parse all the types (so that they can find each other)
+			types = jsonObject.keys();
+			while (types.hasNext())
+			{
+				String typeName = types.next();
+				IPropertyType type = foundTypes.get(typeName);
+				JSONObject typeJSON = jsonObject.getJSONObject(typeName);
+				if (typeJSON.has("model"))
+				{
+					// TODO will we really use anything else but model (like api/handlers)? Cause if not, we can just drop the need for "model"
+					type.getCustomJSONTypeDefinition().putAll(parseProperties("model", typeJSON, allAvailableTypes, specpath));
+				}
+				else
+				{
+					// allow custom types to be defined even without the "model" clutter
+					type.getCustomJSONTypeDefinition().putAll(parseProperties(typeName, jsonObject, allAvailableTypes, specpath));
+				}
+				// TODO this is currently never true? See 5 lines above this, types are always just PropertyDescription?
+				// is this really supported? or should we add it just to the properties? But how are these handlers then added and used
+				if (type instanceof WebComponentSpec)
+				{
+					((WebComponentSpec)type).putAllHandlers(parseProperties("handlers", jsonObject.getJSONObject(typeName), allAvailableTypes, specpath));
+				}
+			}
+		}
+		return foundTypes;
 	}
 
 	private static String parseParamName(JSONObject param)
@@ -277,23 +314,12 @@ public class WebComponentSpec extends PropertyDescription
 		return paramName;
 	}
 
-	/**
-	 * @param next
-	 * @return
-	 */
-	public PropertyDescription getType(String name)
+	public IPropertyType getType(String name)
 	{
 		return types.get(name);
 	}
 
-	/**
-	 * @param propKey
-	 * @param spec
-	 * @param json
-	 * @param specpath
-	 * @throws JSONException
-	 */
-	private static Map<String, PropertyDescription> parseProperties(String propKey, JSONObject json, String specpath, WebComponentSpec spec)
+	private static Map<String, PropertyDescription> parseProperties(String propKey, JSONObject json, Map<String, IPropertyType> availableTypes, String specpath)
 		throws JSONException
 	{
 		Map<String, PropertyDescription> pds = new HashMap<>();
@@ -303,25 +329,22 @@ public class WebComponentSpec extends PropertyDescription
 			for (String key : Utils.iterate((Iterator<String>)jsonProps.keys()))
 			{
 				Object value = jsonProps.get(key);
-				PropertyDescription propWCT = null;
-				PropertyType type = null;
+				IPropertyType type = null;
 				boolean isArray = false;
 				JSONObject configObject = null;
 				Object defaultValue = null;
 				List<Object> values = null;
 				if (value instanceof String)
 				{
-					ParsedProperty pp = parsePropertyString((String)value, spec, specpath);
+					ParsedProperty pp = parsePropertyString((String)value, availableTypes, specpath);
 					isArray = pp.array;
-					propWCT = pp.wct;
 					type = pp.type;
 				}
 				else if (value instanceof JSONObject && ((JSONObject)value).has("type"))
 				{
-					ParsedProperty pp = parsePropertyString(((JSONObject)value).getString("type"), spec, specpath);
+					ParsedProperty pp = parsePropertyString(((JSONObject)value).getString("type"), availableTypes, specpath);
 					type = pp.type;
 					isArray = pp.array;
-					propWCT = pp.wct; // todo can this be not null here and then having also a config object?
 					configObject = ((JSONObject)value);
 					if (((JSONObject)value).has("default"))
 					{
@@ -341,7 +364,9 @@ public class WebComponentSpec extends PropertyDescription
 				if (type != null)
 				{
 					Object config = null;
-					switch (type)
+					IPropertyConfigurationParser configParser = type.getPropertyConfigurationParser();
+					if (configParser != null) config = configParser.parseProperyConfiguration(configObject);
+					else switch (type.getDefaultEnumValue())
 					{
 						case dataprovider :
 							config = parseDataproviderConfig(configObject);
@@ -371,11 +396,9 @@ public class WebComponentSpec extends PropertyDescription
 						case valuelist :
 							config = parseValueListConfig(configObject);
 							break;
-						case custom :
-							config = propWCT;
-							break;
 
 						default :
+							config = configObject;
 							break;
 					}
 
@@ -522,15 +545,13 @@ public class WebComponentSpec extends PropertyDescription
 
 	private static class ParsedProperty
 	{
-		private final PropertyType type;
+		private final IPropertyType type;
 		private final boolean array;
-		private final PropertyDescription wct;
 
-		ParsedProperty(PropertyType type, boolean array, PropertyDescription wct)
+		ParsedProperty(IPropertyType type, boolean array)
 		{
 			this.type = type;
 			this.array = array;
-			this.wct = wct;
 		}
 	}
 }

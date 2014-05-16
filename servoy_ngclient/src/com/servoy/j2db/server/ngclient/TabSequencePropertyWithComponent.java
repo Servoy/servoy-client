@@ -17,14 +17,17 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import com.servoy.j2db.persistence.IPersist;
+import java.awt.Dimension;
+import java.awt.Point;
+
+import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
  *
  */
-public class TabSequencePropertyWithComponent
+public class TabSequencePropertyWithComponent implements ISupportBounds
 {
 	private final WebFormComponent component;
 	private final String tabSeqProperty;
@@ -46,11 +49,6 @@ public class TabSequencePropertyWithComponent
 		component.setCalculatedTabSequence(tabSequence, tabSeqProperty);
 	}
 
-	public IPersist getPersist()
-	{
-		return component.getFormElement().getPersist();
-	}
-
 	public String getProperty()
 	{
 		return tabSeqProperty;
@@ -70,5 +68,29 @@ public class TabSequencePropertyWithComponent
 		}
 		TabSequencePropertyWithComponent other = (TabSequencePropertyWithComponent)obj;
 		return Utils.equalObjects(tabSeqProperty, other.tabSeqProperty) && component == other.component;
+	}
+
+	@Override
+	public void setSize(Dimension d)
+	{
+		// not used (just getters are useful here for sorting using existing comparators)
+	}
+
+	@Override
+	public Dimension getSize()
+	{
+		return component.getFormElement().getDesignSize();
+	}
+
+	@Override
+	public void setLocation(Point p)
+	{
+		// not used (just getters are useful here for sorting using existing comparators)
+	}
+
+	@Override
+	public Point getLocation()
+	{
+		return component.getFormElement().getDesignLocation();
 	}
 }

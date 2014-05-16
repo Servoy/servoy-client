@@ -37,13 +37,12 @@ handlers:
 },
 api:
 {
-        requestFocus:{
-            
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
-        }, 
-        setValueListItems:{
-            
+        requestFocus: {
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
+            callOn: 1
+        },
+        setValueListItems: {
             parameters:[{'value':'object'}]
-        } 
+        }
 }
  

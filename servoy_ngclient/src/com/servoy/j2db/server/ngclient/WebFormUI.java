@@ -17,8 +17,9 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
@@ -36,6 +37,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -77,10 +79,13 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		DataAdapterList dal = new DataAdapterList(application, formController);
 		Form form = formController.getForm();
 		ElementScope elementsScope = initElementScope(formController);
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new DataConverterContext(application));
+		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), getDataConverterContext());
 		int counter = 0;
 		for (FormElement fe : formElements)
 		{
+			// do something similar for child elements (so properties of type 'components' which contain componentSpecs in them)
+			// TODO ac doSomethingSimilarAndRemoveComment();
+
 			WebComponentSpec componentSpec = fe.getWebComponentSpec(false);
 			if (componentSpec == null)
 			{
@@ -89,17 +94,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 			}
 
 			WebFormComponent component = ComponentFactory.createComponent(application, dal, fe, this);
-			if (!fe.getName().startsWith("svy_"))
-			{
-				RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-				elementsScope.put(fe.getName(), formController.getFormScope(), runtimeComponent);
-				elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
-				if (fe.isLegacy())
-				{
-					// add legacy behavior
-					runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
-				}
-			}
+			counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
 			add(component);
 
 			for (String propName : fe.getProperties().keySet())
@@ -157,6 +152,43 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		dataAdapterList = dal;
 	}
 
+	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpec componentSpec, WebFormComponent component)
+	{
+		ElementScope elementsScope = getElementsScope();
+		if (elementsScope != null)
+		{
+			Object tmp = elementsScope.get("length", elementsScope);
+			int counter = tmp instanceof Integer ? ((Integer)tmp).intValue() : 0;
+			contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
+		}
+		else
+		{
+			Debug.error(new RuntimeException("Trying to contribute to a non-existent elements scope for form: " + getName()));
+		}
+	}
+
+	private int contributeComponentToElementsScope(ElementScope elementsScope, int counter, FormElement fe, WebComponentSpec componentSpec,
+		WebFormComponent component)
+	{
+		if (!fe.getName().startsWith("svy_"))
+		{
+			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
+			elementsScope.put(fe.getName(), formController.getFormScope(), runtimeComponent);
+			elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
+			if (fe.isLegacy())
+			{
+				// add legacy behavior
+				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
+			}
+		}
+		return counter;
+	}
+
+	public IDataConverterContext getDataConverterContext()
+	{
+		return new DataConverterContext(application);
+	}
+
 	/**
 	 *  -fe is only needed because of format . It accesses another property value based on the 'for' property (). TODO this FormElement parameter should be analyzed because format accepts a flat property value.
 	 *
@@ -168,14 +200,16 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	public void fillProperties(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec, DataAdapterList dal,
 		WebFormComponent component, Object componentNode, String level)
 	{
-		if (propertySpec.isArray())
+		// TODO This whole method content I think can be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
+		// except for initial filling of all properties from FormElement into WebComponent
+		if (propertySpec.isArray() && formElementProperty instanceof List && !(formElementProperty instanceof IComplexPropertyValue)) // if it's a special property type that handles directly arrays, it could be a different kind of object
 		{
 			List<Object> processedArray = new ArrayList<>();
 			List<Object> fePropertyArray = (List<Object>)formElementProperty;
 			for (Object arrayValue : fePropertyArray)
 			{
 				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, propertySpec, dal, component, componentNode, level, true);
-				switch (propertySpec.getType())
+				switch (propertySpec.getType().getDefaultEnumValue())
 				{
 					case dataprovider : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
 					{
@@ -214,7 +248,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		{
 			Object propValue = initFormElementProperty(formElNodeForm, fe, formElementProperty, propertySpec, dal, component, componentNode, level, false);
 			String propName = propertySpec.getName();
-			switch (propertySpec.getType())
+			switch (propertySpec.getType().getDefaultEnumValue())
 			{
 				case dataprovider : // array of dataprovider is not supported yet (DAL does not support arrays)
 				{
@@ -254,7 +288,9 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	{
 		if (componentNode instanceof WebFormComponent)
 		{
-			((WebFormComponent)componentNode).putProperty(propName, propValue);
+			// TODO this will convert a second time (the first conversion was done in FormElement; is this really needed? cause
+			// converted value reaching conversion again doesn't seem nice 
+			((WebFormComponent)componentNode).putProperty(propName, propValue, ConversionLocation.DESIGN);
 		}
 		else
 		{
@@ -263,14 +299,16 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	}
 
 	/**
+	 * This method turns a design-time property into a Runtime Object that will be used as that property.
 	 *  TODO merge component and component node remove isarrayElement parameter
 	 * @return
 	 */
 	private Object initFormElementProperty(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec,
 		DataAdapterList dal, WebFormComponent component, Object componentNode, String level, boolean isArrayElement)
 	{
+		// TODO This whole method I think can be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
 		Object ret = null;
-		switch (propertySpec.getType())
+		switch (propertySpec.getType().getDefaultEnumValue())
 		{
 //			case dataprovider :
 //			{
@@ -316,25 +354,30 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 			}
 			case valuelist : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
 				break;
-			case custom :
-			{
-				String innerLevelpropName = level + propertySpec.getName();
-				Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
-				Map<String, Object> newComponentNode = new HashMap<>();
-				PropertyDescription localPropertyType = (PropertyDescription)propertySpec.getConfig();
-
-				for (String prop : props.keySet())
-				{
-					PropertyDescription localPropertyDescription = localPropertyType.getProperty(prop);
-					fillProperties(formElNodeForm, fe, props.get(prop), localPropertyDescription, dal, component, newComponentNode, isArrayElement ? ""
-						: innerLevelpropName + ".");
-				}
-				ret = newComponentNode;
-				break;
-			}
 			default :
 			{
-				ret = formElementProperty;
+				if (propertySpec.getType().getCustomJSONTypeDefinition() != null && formElementProperty instanceof Map &&
+					!(formElementProperty instanceof IComplexPropertyValue))
+				{
+					// TODO Remove this when pure tree-like JSON properties which use complex types in leafs are operational (so no need for flattening them any more)
+					String innerLevelpropName = level + propertySpec.getName();
+					Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
+					Map<String, Object> newComponentNode = new HashMap<>();
+					PropertyDescription localPropertyType = propertySpec.getType().getCustomJSONTypeDefinition();
+
+					for (String prop : props.keySet())
+					{
+						PropertyDescription localPropertyDescription = localPropertyType.getProperty(prop);
+						fillProperties(formElNodeForm, fe, props.get(prop), localPropertyDescription, dal, component, newComponentNode, isArrayElement ? ""
+							: innerLevelpropName + ".");
+					}
+					ret = newComponentNode;
+					break;
+				}
+				else
+				{
+					ret = formElementProperty;
+				}
 			}
 		}
 		return ret;
@@ -398,6 +441,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	private ElementScope initElementScope(IFormController controller)
 	{
+		// TODO ac addChildElementsHereAsWell();
 		FormScope formScope = controller.getFormScope();
 		ElementScope elementsScope = new ElementScope(formScope);
 		formScope.putWithoutFireChange("elements", elementsScope); //$NON-NLS-1$
@@ -409,8 +453,9 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	{
 		if ("size".equals(propertyName))
 		{
-			properties.put(propertyName, NGClientForJsonConverter.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension),
-				new DataConverterContext(application)));
+			properties.put(propertyName, NGClientForJsonConverter.toJavaObject(propertyValue,
+				new PropertyDescription("size", IPropertyType.Default.dimension.getType()), new DataConverterContext(application),
+				ConversionLocation.BROWSER_UPDATE, properties.get(propertyName)));
 		}
 	}
 
@@ -475,25 +520,31 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	private void propagatePropertyToAllComponents(String property, Object value)
 	{
-		FormScope formScope = formController.getFormScope();
-		if (formScope != null)
+		ElementScope elementScope = getElementsScope(); //$NON-NLS-1$
+		if (elementScope != null)
 		{
-			ElementScope elementScope = (ElementScope)formScope.get("elements", null); //$NON-NLS-1$
-			if (elementScope != null)
+			Object[] components = elementScope.getValues();
+			if (components != null)
 			{
-				Object[] components = elementScope.getValues();
-				if (components != null)
+				for (Object component : components)
 				{
-					for (Object component : components)
+					if (component instanceof RuntimeWebComponent)
 					{
-						if (component instanceof RuntimeWebComponent)
-						{
-							((RuntimeWebComponent)component).put(property, null, value);
-						}
+						((RuntimeWebComponent)component).put(property, null, value);
 					}
 				}
 			}
 		}
+	}
+
+	private ElementScope getElementsScope()
+	{
+		FormScope formScope = formController.getFormScope();
+		if (formScope != null)
+		{
+			return (ElementScope)formScope.get("elements", null);
+		}
+		return null;
 	}
 
 	@Override
@@ -533,9 +584,9 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 					if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
 					{
 						//delegate to Yx
-						int yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(o1.getPersist(), o2.getPersist());
+						int yxCompare = PositionComparator.XY_BOUNDS_COMPARATOR.compare(o1, o2);
 						// if they are at the same position, and are different persist, just use UUID to decide the sequence
-						return yxCompare == 0 ? o1.getPersist().getUUID().compareTo(o2.getPersist().getUUID()) : yxCompare;
+						return yxCompare == 0 ? o1.getComponent().getName().compareTo(o2.getComponent().getName()) : yxCompare;
 					}
 					else if (seq1 == ISupportTabSeq.DEFAULT)
 					{
@@ -551,7 +602,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 			});
 		for (WebFormComponent comp : components.values())
 		{
-			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(PropertyType.tabseq);
+			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(IPropertyType.Default.tabseq.getType());
 			for (PropertyDescription pd : tabSeqProps.values())
 			{
 				if (Utils.getAsInteger(comp.getInitialProperty(pd.getName())) >= 0)
@@ -1145,6 +1196,12 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void valueChanged()
+	{
+		application.getChangeListener().valueChanged();
 	}
 
 }

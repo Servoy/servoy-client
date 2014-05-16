@@ -35,6 +35,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.NativeDate;
@@ -42,7 +43,8 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
+import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.IForJsonConverter;
 
 import com.servoy.j2db.component.ComponentFormat;
@@ -324,129 +326,206 @@ public class NGClientForJsonConverter implements IForJsonConverter
 	}
 
 	/**
-	 * Converts a JSON value to a Java value based on bean spec type.
+	 * Enum values that can be used to specify a conversion needs to take place based on a value FROM a source type or TO a destination type. 
+	 */
+	public static enum ConversionLocation
+	{
+
+		/**
+		 * A conversion needs to happen FROM JSON design-time value or TO JSON design-time value
+		 */
+		DESIGN,
+
+		/**
+		 * A conversion needs to happen FROM update JSON browser sent value or TO an update JSON that will be sent to browser.
+		 */
+		BROWSER_UPDATE,
+
+		/**
+		 * A conversion needs to happen (FROM JSON browser sent value or) TO a JSON that will be sent to browser.
+		 */
+		BROWSER,
+
+		/**
+		 * A conversion needs to happen FROM server implementation specific type or TO server implementation specific type.
+		 */
+		SERVER
+
+	}
+
+	/**
+	 * Converts a JSON value / primitive (if jsonSource is DESIGN or BROWSER) or custom server Java object (if jsonSource is SERVER, assuming
+	 * that a custom complex type knows how to interpret thes custom server side set objects) to a Java value representing that property based on bean spec type.<br>
+	 * 
+	 * @param oldJavaObject the object that currently represents this JSON's property
 	 * @param propertyValue can be a JSONObject or array or primitive. (so something deserialized from a JSON string)
+	 * @param component can be null in case for example return values are converted
+	 * @param jsonSource hints about where the object to be converted originated from.
 	 * @return the corresponding Java object based on bean spec.
 	 */
-	public static Object toJavaObject(Object json, PropertyDescription componentSpecType, IDataConverterContext converterContext) throws JSONException
+	public static Object toJavaObject(Object sourceValue, PropertyDescription componentSpecType, IDataConverterContext converterContext,
+		ConversionLocation jsonSource, Object oldJavaObject) throws JSONException
 	{
-		Object propertyValue = json;
-		if (propertyValue != null && componentSpecType != null)
+		Object propertyValue = sourceValue;
+		if (sourceValue != null && componentSpecType != null)
 		{
-			switch (componentSpecType.getType())
+			IPropertyType type = componentSpecType.getType();
+
+			if (propertyValue instanceof IComplexPropertyValue)
 			{
-				case dimension :
-					if (propertyValue instanceof Object[])
-					{
-						return new Dimension(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-					}
-					if (propertyValue instanceof JSONObject)
-					{
-						return new Dimension(((JSONObject)propertyValue).getInt("width"), ((JSONObject)propertyValue).getInt("height"));
-					}
-					if (propertyValue instanceof NativeObject)
-					{
-						NativeObject value = (NativeObject)propertyValue;
-						return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
-					}
-					break;
-
-				case point :
-					if (propertyValue instanceof Object[])
-					{
-						return new Point(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-					}
-					if (propertyValue instanceof JSONObject)
-					{
-						return new Point(((JSONObject)propertyValue).getInt("x"), ((JSONObject)propertyValue).getInt("y"));
-					}
-					if (propertyValue instanceof NativeObject)
-					{
-						NativeObject value = (NativeObject)propertyValue;
-						return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
-					}
-					break;
-
-				case color :
-					if (propertyValue instanceof String)
-					{
-						return PersistHelper.createColor(propertyValue.toString());
-					}
-					break;
-
-				case format :
-					if (propertyValue instanceof String)
-					{
-						//todo recreate ComponentFormat object (it has quite a lot of dependencies , application,pesist  etc)
-						return propertyValue;
-					}
-					break;
-
-				case border :
-					if (propertyValue instanceof String)
-					{
-						return ComponentFactoryHelper.createBorder((String)propertyValue);
-					}
-					break;
-
-				case media :
-					if (propertyValue instanceof Integer)
-					{
-						// special support for media type (that needs a FS to resolve the media)
-						Media media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
-						if (media != null)
+				// FormElement and WebComponent both do conversions on init so you end up
+				// being asked to convert an already converted value; leave it as it is then
+			}
+			else if (jsonSource == ConversionLocation.BROWSER_UPDATE && type.getJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
+			{
+				propertyValue = type.getJSONToJavaPropertyConverter(componentSpecType.isArray()).jsonToJava(propertyValue,
+					(IComplexPropertyValue)oldJavaObject, componentSpecType.getConfig());
+			}
+			else if (jsonSource == ConversionLocation.DESIGN && type.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
+			{
+				propertyValue = type.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()).designJSONToJava(propertyValue,
+					componentSpecType.getConfig());
+			}
+			else if (jsonSource == ConversionLocation.SERVER && type.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()) != null)
+			{
+				propertyValue = type.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()).serverObjToJava(propertyValue,
+					componentSpecType.getConfig(), (IComplexPropertyValue)oldJavaObject);
+			}
+			else if (componentSpecType.isArray() && propertyValue instanceof JSONArray)
+			{
+				JSONArray arr = ((JSONArray)propertyValue);
+				List oldList = (oldJavaObject instanceof List ? (List)oldJavaObject : null);
+				List<Object> list = new ArrayList<>();
+				for (int i = 0; i < arr.length(); i++)
+				{
+					list.add(toJavaObject(arr.get(i), componentSpecType.asArrayElement(), converterContext, jsonSource, (oldList != null && oldList.size() > i)
+						? oldList.get(i) : null));
+				}
+				return list;
+			}
+			else
+			{
+				switch (type.getDefaultEnumValue())
+				{
+					case dimension :
+						if (propertyValue instanceof Object[])
 						{
-							return "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
-								media.getName();
+							return new Dimension(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
 						}
+						if (propertyValue instanceof JSONObject)
+						{
+							return new Dimension(((JSONObject)propertyValue).getInt("width"), ((JSONObject)propertyValue).getInt("height"));
+						}
+						if (propertyValue instanceof NativeObject)
+						{
+							NativeObject value = (NativeObject)propertyValue;
+							return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
+						}
+						break;
+
+					case point :
+						if (propertyValue instanceof Object[])
+						{
+							return new Point(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
+						}
+						if (propertyValue instanceof JSONObject)
+						{
+							return new Point(((JSONObject)propertyValue).getInt("x"), ((JSONObject)propertyValue).getInt("y"));
+						}
+						if (propertyValue instanceof NativeObject)
+						{
+							NativeObject value = (NativeObject)propertyValue;
+							return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
+						}
+						break;
+
+					case color :
+						if (propertyValue instanceof String)
+						{
+							return PersistHelper.createColor(propertyValue.toString());
+						}
+						break;
+
+					case format :
+						if (propertyValue instanceof String)
+						{
+							//todo recreate ComponentFormat object (it has quite a lot of dependencies , application,pesist  etc)
+							return propertyValue;
+						}
+						break;
+
+					case border :
+						if (propertyValue instanceof String)
+						{
+							return ComponentFactoryHelper.createBorder((String)propertyValue);
+						}
+						break;
+
+					case media :
+						if (propertyValue instanceof Integer)
+						{
+							// special support for media type (that needs a FS to resolve the media)
+							Media media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
+							if (media != null)
+							{
+								return "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
+									media.getName();
+							}
 						else
 						{
 							Debug.log("could not convert value: " + propertyValue + " to an media, media not found");
 							return "";
 						}
-					}
-					break;
-
-				case formscope :
-					INGApplication app = converterContext.getApplication();
-					if (propertyValue instanceof String && app != null)
-					{
-						return app.getFormManager().getForm((String)propertyValue).getFormScope();
-					}
-					break;
-
-				case custom :
-				{
-					if (json instanceof JSONObject)
-					{
-						JSONObject jsonObject = (JSONObject)json;
-						PropertyDescription typeSpec = (PropertyDescription)componentSpecType.getConfig();
-						Map<String, Object> ret = new HashMap<String, Object>();
-						for (Entry<String, PropertyDescription> entry : typeSpec.getProperties().entrySet())
-						{
-							String key = entry.getKey();
-							if (jsonObject.has(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
-							{
-								ret.put(key, toJavaObject(jsonObject.get(key), entry.getValue(), converterContext));
-							}
 						}
-						return ret;
-					}
-					break;
-				}
+						break;
 
-				default :
+					case formscope :
+						INGApplication app = converterContext.getApplication();
+						if (propertyValue instanceof String && app != null)
+						{
+							return app.getFormManager().getForm((String)propertyValue).getFormScope();
+						}
+						break;
+
+					default :
+					{
+						if (sourceValue instanceof JSONObject)
+						{
+							JSONObject jsonObject = (JSONObject)sourceValue;
+							PropertyDescription typeSpec = type.getCustomJSONTypeDefinition();
+							Map<String, Object> ret = new HashMap<String, Object>();
+							Map<String, Object> oldMap = (oldJavaObject != null && oldJavaObject instanceof Map) ? (Map<String, Object>)oldJavaObject : null;
+							for (Entry<String, PropertyDescription> entry : typeSpec.getProperties().entrySet())
+							{
+								String key = entry.getKey();
+								if (jsonObject.has(key))
+								{
+									ret.put(
+										key,
+										toJavaObject(jsonObject.opt(key), entry.getValue(), converterContext, jsonSource, oldMap != null ? oldMap.get(key)
+											: null));
+								}
+								else if (oldMap != null && oldMap.containsKey(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
+								{
+									ret.put(key, oldMap.get(key));
+								}
+							}
+							return ret;
+						}
+						break;
+					}
+				}
 			}
 		}
 
 		return propertyValue;
 	}
 
-	public static Object toStringObject(Object propertyValue, PropertyType propertyType)
+	public static Object toStringObject(Object propertyValue, IPropertyType propertyType)
 	{
 		if (propertyValue != null && propertyType != null)
 		{
-			switch (propertyType)
+			switch (propertyType.getDefaultEnumValue())
 			{
 				case dimension :
 					if (propertyValue instanceof Dimension)

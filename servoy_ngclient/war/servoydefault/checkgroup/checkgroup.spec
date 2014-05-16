@@ -37,23 +37,24 @@ handlers:
 },
 api:
 {
-        getScrollX:{
+        getScrollX: {
             returns: 'int',
-                 }, 
-        getScrollY:{
+            callOn: 1
+        },
+        getScrollY: {
             returns: 'int',
-                 }, 
-        requestFocus:{
-            
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
-        }, 
-        setScroll:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        }, 
-        setValueListItems:{
-            
+            callOn: 1
+        },
+        requestFocus: {
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
+            callOn: 1
+        },
+        setScroll: {
+            parameters:[{'x':'int'},{'y':'int'}],
+            callOn: 1
+        },
+        setValueListItems: {
             parameters:[{'value':'object'}]
-        } 
+        }
 }
  

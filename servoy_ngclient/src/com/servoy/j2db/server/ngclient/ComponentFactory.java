@@ -25,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
@@ -39,6 +39,7 @@ import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -54,8 +55,9 @@ public class ComponentFactory
 		String name = fe.getName();
 		if (name != null)
 		{
+			// TODO ac anything to do here for custom special types?
 			WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList, formUI);
-			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(PropertyType.valuelist);
+			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(IPropertyType.Default.valuelist.getType());
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{
 				int valuelistID = Utils.getAsInteger(fe.getPropertyWithDefault(vlProp.getName()));
@@ -75,7 +77,7 @@ public class ComponentFactory
 								String format = null;
 								if (dataproviderID != null)
 								{
-									Map<String, PropertyDescription> properties = fe.getWebComponentSpec().getProperties(PropertyType.format);
+									Map<String, PropertyDescription> properties = fe.getWebComponentSpec().getProperties(IPropertyType.Default.format.getType());
 									for (PropertyDescription pd : properties.values())
 									{
 										// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
@@ -95,7 +97,7 @@ public class ComponentFactory
 								valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val)
 									: new DBValueList(application, val);
 						}
-						webComponent.putProperty(vlProp.getName(), valueList);
+						webComponent.putProperty(vlProp.getName(), valueList, ConversionLocation.DESIGN);
 					}
 				}
 			}

@@ -31,83 +31,77 @@ handlers:
 },
 api:
 {
-        addTab:{
+        addTab: {
             returns: 'boolean',
             parameters:[{'form/formname':'object []'},{'name':'object','optional':'true'},{'tabText':'object','optional':'true'},{'tooltip':'object','optional':'true'},{'iconURL':'object','optional':'true'},{'fg':'object','optional':'true'},{'bg':'object','optional':'true'},{'relatedfoundset/relationname':'object','optional':'true'},{'index':'object','optional':'true'}]
-        }, 
-        getMaxTabIndex:{
-            returns: 'int',
-                 }, 
-        getMnemonicAt:{
+        },
+        getMaxTabIndex: {
+            returns: 'int'
+        },
+        getMnemonicAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getSelectedTabFormName:{
-            returns: 'string',
-                 }, 
-        getTabBGColorAt:{
+        },
+        getSelectedTabFormName: {
+            returns: 'string'
+        },
+        getTabBGColorAt: {
             returns: 'string',
             parameters:[{'unnamed_0':'int'}]
-        }, 
-        getTabFGColorAt:{
+        },
+        getTabFGColorAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabFormNameAt:{
+        },
+        getTabFormNameAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabNameAt:{
+        },
+        getTabNameAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabRelationNameAt:{
+        },
+        getTabRelationNameAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabTextAt:{
+        },
+        getTabTextAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        isTabEnabled:{
+        },
+        isTabEnabled: {
             returns: 'boolean',
             parameters:[{'unnamed_0':'int'}]
-        }, 
-        isTabEnabledAt:{
+        },
+        isTabEnabledAt: {
             returns: 'boolean',
             parameters:[{'i':'int'}]
-        }, 
-        removeAllTabs:{
-            returns: 'boolean',
-                 }, 
-        removeTabAt:{
+        },
+        removeAllTabs: {
+            returns: 'boolean'
+        },
+        removeTabAt: {
             returns: 'boolean',
             parameters:[{'index':'int'}]
-        }, 
-        setMnemonicAt:{
-            
+        },
+        setMnemonicAt: {
             parameters:[{'index':'int'},{'text':'string'}]
-        }, 
-        setTabBGColorAt:{
-            
+        },
+        setTabBGColorAt: {
             parameters:[{'unnamed_0':'int'},{'unnamed_1':'string'}]
-        }, 
-        setTabEnabled:{
-            
+        },
+        setTabEnabled: {
             parameters:[{'unnamed_0':'int'},{'unnamed_1':'boolean'}]
-        }, 
-        setTabEnabledAt:{
-            
+        },
+        setTabEnabledAt: {
             parameters:[{'i':'int'},{'b':'boolean'}]
-        }, 
-        setTabFGColorAt:{
-            
+        },
+        setTabFGColorAt: {
             parameters:[{'i':'int'},{'s':'string'}]
-        }, 
-        setTabTextAt:{
-            
+        },
+        setTabTextAt: {
             parameters:[{'index':'int'},{'text':'string'}]
-        } 
+        }
 },
 types: {
   tab: {

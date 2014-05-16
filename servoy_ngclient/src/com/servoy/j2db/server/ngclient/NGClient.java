@@ -61,6 +61,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public NGClient(INGClientWebsocketSession wsSession)
 	{
 		super(new WebCredentials());
+
 		this.wsSession = wsSession;
 		settings = Settings.getInstance();
 		try
@@ -75,7 +76,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			Debug.error(e);
 		}
 	}
-
 
 	public void loadSolution(String solutionName) throws RepositoryException
 	{
@@ -96,7 +96,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -279,11 +279,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return new NGFormManager(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.INGApplication#getChangeListener()
-	 */
 	@Override
 	public IChangeListener getChangeListener()
 	{

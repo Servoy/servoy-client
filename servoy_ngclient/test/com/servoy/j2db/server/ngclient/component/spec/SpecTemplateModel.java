@@ -33,6 +33,10 @@ import com.servoy.j2db.util.Utils;
  */
 public class SpecTemplateModel
 {
+
+	public static final int ADD = 1;
+	public static final int REPLACE = 2;
+
 	private final String name;
 	private final String displayName;
 	private final Class< ? > apiInterface;
@@ -110,6 +114,7 @@ public class SpecTemplateModel
 		return libraries;
 	}
 
+	// called from spec_file.ftl
 	public String getPropTypeWithDefault(String compName, Element element)
 	{
 		String type = SpecGenerator.getSpecTypeFromRepoType(compName, element);

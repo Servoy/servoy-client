@@ -16,217 +16,83 @@
 
 package org.sablo.specification;
 
+import org.sablo.specification.property.IDesignJSONToJavaPropertyConverter;
+import org.sablo.specification.property.IJSONToJavaPropertyConverter;
+import org.sablo.specification.property.IPropertyConfigurationParser;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
+
+
 /**
- * Enum for available property types in web component spec
+ * Base class for property types in web component spec files.
+ * 
  * @author rgansevles
+ * @author acostescu
  */
 @SuppressWarnings("nls")
-public enum PropertyType
+public class PropertyType implements IPropertyType
 {
-	// @formatter:off
-	color,
-	string,
-	tagstring,
-	point,
-	dimension,
-	insets,
-	font,
-	border,
-	bool("boolean"),
-	scrollbars,
-	bytenumber("byte"),
-	doublenumber("double"),
-	floatnumber("float"),
-	intnumber("int"),
-	longnumber("long"),
-	shortnumber("short"),
-	values,
-	dataprovider,
-	valuelist,
-	function,
-	form,
-	formscope,
-	format,
-	relation,
-	tabseq,
-	media,
-	mediaoptions,
-	styleclass,
-	object,
-	bean,
-	custom, // special type for custom types defined in the spec file.
-	date; // can be used in api calls
 
-	// @formatter:on
+	private final String typeName;
+	private final Default defaultEnumValue;
 
-	final String alias;
-
-	private PropertyType()
+	public PropertyType(String typeName)
 	{
-		this(null);
+		this(typeName, Default.customDoNotTreatThisInSwitches);
 	}
 
-	private PropertyType(String alias)
+	public PropertyType(String typeName, Default defaultEnumValue)
 	{
-		this.alias = alias;
+		this.typeName = typeName;
+		this.defaultEnumValue = defaultEnumValue;
+	}
+
+	@Override
+	public Default getDefaultEnumValue()
+	{
+		return defaultEnumValue;
+	}
+
+	@Override
+	public String getName()
+	{
+		return typeName;
 	}
 
 	@Override
 	public String toString()
 	{
-		return alias == null ? name() : alias;
+		return typeName + " - Property type";
 	}
 
-	public static PropertyType get(String name)
+	@Override
+	public PropertyDescription getCustomJSONTypeDefinition()
 	{
-		for (PropertyType type : PropertyType.values())
-		{
-			if (type.toString().equals(name))
-			{
-				return type;
-			}
-		}
-		throw new IllegalArgumentException("No enum constant " + PropertyType.class.getName() + '.' + name);
+		return null;
 	}
 
-	/**
-	 * Specific config class for dataprovider type
-	 */
-	public static class DataproviderConfig
+	@Override
+	public IPropertyConfigurationParser<?> getPropertyConfigurationParser()
 	{
-		private final String onDataChange;
-		private final String onDataChangeCallback;
-		private final boolean parseHtml;
-
-		public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml)
-		{
-			this.onDataChange = onDataChange;
-			this.onDataChangeCallback = onDataChangeCallback;
-			this.parseHtml = parseHtml;
-		}
-
-		public String getOnDataChange()
-		{
-			return onDataChange;
-		}
-
-		public String getOnDataChangeCallback()
-		{
-			return onDataChangeCallback;
-		}
-
-		public boolean hasParseHtml()
-		{
-			return parseHtml;
-		}
+		return null;
 	}
 
-	/**
-	 * Specific config class for values type
-	 */
-	public static class ValuesConfig
+	@Override
+	public IJSONToJavaPropertyConverter<?, ?> getJSONToJavaPropertyConverter(boolean isArray)
 	{
-		private boolean hasDefault = false;
-		private Object[] real;
-		private String[] display;
-		private Object realDefault;
-		private String displayDefault;
-		private boolean editable;
-		private boolean multiple;
-
-		public ValuesConfig addDefault(Object realDef, String displayDef)
-		{
-			this.hasDefault = true;
-			this.realDefault = realDef;
-			this.displayDefault = displayDef;
-			return this;
-		}
-
-		public boolean hasDefault()
-		{
-			return hasDefault;
-		}
-
-		public Object getRealDefault()
-		{
-			return realDefault;
-		}
-
-		public String getDisplayDefault()
-		{
-			return displayDefault;
-		}
-
-		public ValuesConfig setValues(Object[] real, String[] display)
-		{
-			this.real = real;
-			this.display = display;
-			return this;
-		}
-
-		public ValuesConfig setValues(Object[] realAndDisplay)
-		{
-			String[] strings;
-			if (realAndDisplay instanceof String[])
-			{
-				strings = (String[])realAndDisplay;
-			}
-			else
-			{
-				strings = new String[realAndDisplay.length];
-				for (int i = 0; i < realAndDisplay.length; i++)
-				{
-					strings[i] = realAndDisplay[i] == null ? "" : realAndDisplay[i].toString();
-				}
-			}
-			return setValues(realAndDisplay, strings);
-		}
-
-		public Object[] getReal()
-		{
-			return real;
-		}
-
-		public String[] getDisplay()
-		{
-			return display;
-		}
-
-		public int getRealIndexOf(Object value)
-		{
-			if (real != null)
-			{
-				for (int i = 0; i < real.length; i++)
-				{
-					if ((value == null && real[i] == null) || (value != null && value.equals(real[i])))
-					{
-						return hasDefault ? i + 1 : i;
-					}
-				}
-			}
-			return -1;
-		}
-
-		public ValuesConfig setEditable(boolean editable)
-		{
-			this.editable = editable;
-			return this;
-		}
-
-		public boolean isEditable()
-		{
-			return editable;
-		}
-
-		public ValuesConfig setMultiple(boolean multiple)
-		{
-			this.multiple = multiple;
-			return this;
-		}
-
-		public boolean isMultiple()
-		{
-			return multiple;
-		}
+		return null;
 	}
+
+	@Override
+	public IDesignJSONToJavaPropertyConverter<?, ?> getDesignJSONToJavaPropertyConverter(boolean isArray)
+	{
+		return null;
+	}
+
+	@Override
+	public IServerObjToJavaPropertyConverter<?, ?> getServerObjectToJavaPropertyConverter(boolean isArray)
+	{
+		return null;
+	}
+
 }

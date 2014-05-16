@@ -10,7 +10,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  // START TEST MODELS
     	  var textFieldApi = {}; 
     	  var preparedActionHandler = function(args, rowId) {
-				alert('clicked:\n  selected = ' + $scope.model.foundset.viewPort.selectedRowIds
+				alert('clicked:\n  selected = ' + $scope.model.foundset.selectedRowIndexes
  						+ '\n  Text field value (Row 2): ' + $scope.model.foundset.viewPort.rows[1].nameColumn
  						+ '\n  Selected text in text field (for selected row): ' + $scope.model.elements[1].api.getSelectedText()
  						+ '\n  Button 2 text: ' + $scope.model.elements[0].model.text);
@@ -31,6 +31,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  elements: [
     			             	{
     			             		componentDirectiveName: "svy-button",
+    			             		name: 'svy_1073741969',
     			             		model: {
     			             			"enabled":true,
     			             			"text":"show dialog",
@@ -49,6 +50,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			             	},
     			             	{
     			             		componentDirectiveName: "svy-textfield",
+    			             		name: 'datatextfield1c',
     			             		model: {
     			             			"enabled":true,
     			             			"visible":true,
@@ -89,7 +91,6 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     					         	{ _svyRowId: 'someRowIdHASH4', nameColumn: "Watcher" },
     					         	{ _svyRowId: 'someRowIdHASH5', nameColumn: "Hatcher" }
     					  ],
-    					  selectedRowIds: ['someRowIdHASH2'],
     					  loadRecordsAsync: function(startIndex, size) {
     						  alert('Load async requested: ' + startIndex + ', ' + size);
     					  },
@@ -97,12 +98,13 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     						  // TODO implement
     					  }
     				  },
+    				  selectedRowIndexes: [16], // can be out of viewPort as well
     				  multiSelect: false,
     			  }
     	  };
     	  
     	  $timeout(function() {
-    		  textFieldApi.requestFocus();
+    		  if (textFieldApi.requestFocus) textFieldApi.requestFocus();
     	  }, 5000);
     	  // END TESTING MODELS
     	  
@@ -174,9 +176,31 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  if (!rowProxies[elementIndex]) rowProxies[elementIndex] = {};
     		  return rowProxies[elementIndex];
     	  }
+    	  
+    	  function rowIdToViewportRelativeRowIndex(rowId) {
+    		  for (var i = foundset.viewPort.rows.length - 1; i >= 0; i--)
+    			  if (foundset.viewPort.rows[i][ROW_ID_COL_KEY] === rowId) return i;
+    		  return -1;
+    	  }
 
-    	  function isRowSelectedWithRowId(rowId) {
-    		  return foundset.viewPort.selectedRowIds.indexOf(rowId) >= 0;
+    	  function rowIdToAbsoluteRowIndex(rowId) {
+    		  return viewPortToAbsolute(rowIdToViewportRelativeRowIndex(rowId));
+    	  }
+
+    	  function viewPortToAbsolute(rowIndex) {
+    		  return rowIndex >= 0 ? rowIndex + foundset.viewPort.startIndex : -1;
+    	  }
+
+    	  function absoluteToViewPort(rowIndex) {
+    		  return rowIndex - foundset.viewPort.startIndex;
+    	  }
+
+    	  function isRowIndexSelected(rowIndex) {
+    		  return foundset.selectedRowIndexes.indexOf(rowIndex) >= 0;
+    	  }
+    	  
+    	  function isInViewPort(absoluteRowIndex) {
+    		  return (absoluteRowIndex >= foundset.viewPort.startIndex && absoluteRowIndex < (foundset.viewPort.startIndex + foundset.viewPort.size));
     	  }
     	  
     	  // merges foundset record dataprovider/tagstring properties into the element's model
@@ -232,7 +256,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  for (var rowId in rowProxyObjects) {
     				  var cellProxies = rowProxyObjects[rowId][elementIndex];
     				  if (cellProxies && cellProxies.cellApi && cellProxies.cellApi[apiFunctionName]) {
-    					  var rowIsSelected = isRowSelectedWithRowId(rowId);
+    					  var rowIsSelected = isRowIndexSelected(rowIdToAbsoluteRowIndex(rowId));
     					  if (rowIsSelected || (!callOnOneSelectedCellOnly)) retVal = cellProxies.cellApi[apiFunctionName].apply(cellProxies.cellApi[apiFunctionName], arguments);
     					  
     					  // give back return value from a selected row cell if possible
@@ -269,8 +293,78 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  return cellProxies.cellApi;
     	  }
 
+    	  $scope.cellApplyHandlerWrapper = function(ngGridRow, elementIndex) {
+    		  var rowId = ngGridRow.getProperty(ROW_ID_COL_KEY);
+    		  var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
+
+    		  if (!cellProxies.cellApplyHandler) {
+        		  var columnApplyHandler = elements[elementIndex].apply;
+        		  cellProxies.cellApplyHandler = function(property) {
+        			  return columnApplyHandler(property,cellProxies.mergedCellModel,rowId);
+        		  };
+    		  }
+    		  return cellProxies.cellApplyHandler;
+    	  }
+
+    	  // bind foundset.selectedRowIndexes to what nggrid has to offer
+    	  var selectedItemsProxy = []; // keeps entire foundset row items from model.foundset.viewPort.rows
+    	  for (var rowIdx = 0;  rowIdx < foundset.viewPort.rows.length; rowIdx++) {
+    		  if (isRowIndexSelected(viewPortToAbsolute(rowIdx))) selectedItemsProxy.push(foundset.viewPort.rows[rowIdx]);
+    	  }
+    	  function updateFoundsetSelectionFromGrid(newNGGridSelectedItems) {
+			  // update foundset object selection when it changes in ngGrid
+    		  var tmpSelectedRowIdxs = {};
+			  for (var rowIdxInSelected = 0; rowIdxInSelected < newNGGridSelectedItems.length; rowIdxInSelected++) {
+				  var absRowIdx = rowIdToAbsoluteRowIndex(newNGGridSelectedItems[rowIdxInSelected][ROW_ID_COL_KEY]);
+				  if (!isRowIndexSelected(absRowIdx)) foundset.selectedRowIndexes.push(absRowIdx);
+				  tmpSelectedRowIdxs['_' + absRowIdx] = true;
+			  }
+			  for (var rowIdxInSelected = 0; rowIdxInSelected < foundset.selectedRowIndexes.length; rowIdxInSelected++) {
+				  if (!tmpSelectedRowIdxs['_' + foundset.selectedRowIndexes[rowIdxInSelected]]) {
+					  // here we also handle the case when in multiselect there are records selected outside of viewport
+					  // in that case if CTRL was pressed then this $watch should not remove those records from selection
+					  // TODO if CTRL was not pressed in multi-selection, the outside-of-viewPort-selectedIndexes should be cleared as well - but not by this $watch code
+					  if (!foundset.multiSelect || isInViewPort(rowIdxInSelected)) foundset.selectedRowIndexes.splice(rowIdxInSelected, 1);
+				  }
+			  }
+			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
+		  }
+    	  $scope.$watchCollection(function() { return selectedItemsProxy; }, updateFoundsetSelectionFromGrid);
+    	  $scope.$watchCollection('model.foundset.selectedRowIndexes', function(newFSSelectedItems) {
+			  // update ngGrid selection when it changes in foundset
+    		  var tmpSelectedRowIdxs = {};
+			  for (var rowIdxInSelected = 0; rowIdxInSelected < selectedItemsProxy.length; rowIdxInSelected++) {
+				  var absRowIdx = rowIdToAbsoluteRowIndex(selectedItemsProxy[rowIdxInSelected][ROW_ID_COL_KEY]);
+				  if (newFSSelectedItems.indexOf(absRowIdx) < 0) selectedItemsProxy.splice(rowIdxInSelected, 1);
+				  tmpSelectedRowIdxs['_' + absRowIdx] = true;
+			  }
+			  for (var rowIdxInSelected = 0; rowIdxInSelected < newFSSelectedItems.length; rowIdxInSelected++) {
+				  var rowIdx = newFSSelectedItems[rowIdxInSelected];
+				  if (isInViewPort(rowIdx) && !tmpSelectedRowIdxs['_' + rowIdx]) {
+	    			  selectedItemsProxy.push(foundset.viewPort.rows[absoluteToViewPort(rowIdx)]);
+				  }
+			  }
+			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
+		  });
+
+    	  $scope.gridOptions = {
+    			  data: 'model.foundset.viewPort.rows',
+    			  enableCellSelection: true,
+    			  enableRowSelection: true,
+    			  selectedItems: selectedItemsProxy,
+    			  multiSelect: foundset.multiSelect,
+    			  enablePaging: true,
+    			  showFooter: (getPageCount() > 1),
+    			  totalServerItems: 'model.foundset.serverSize',
+    			  pagingOptions: $scope.pagingOptions,
+    			  primaryKey: ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
+    			  columnDefs: columnDefinitions
+    	  };
+    	  
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
     		  return function() {
+    			  $scope.gridOptions.selectItem(rowIdToViewportRelativeRowIndex(rowId), true); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
+    			  updateFoundsetSelectionFromGrid(selectedItemsProxy); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
     			  var recordHandler = handler.selectRecordHandler(rowId)
     			  return recordHandler.apply(recordHandler, arguments);
     		  }
@@ -291,74 +385,6 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  }
     		  return cellProxies.cellHandlers;
     	  }
-
-    	  $scope.cellApplyHandlerWrapper = function(ngGridRow, elementIndex) {
-    		  var rowId = ngGridRow.getProperty(ROW_ID_COL_KEY);
-    		  var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
-
-    		  if (!cellProxies.cellApplyHandler) {
-        		  var columnApplyHandler = elements[elementIndex].apply;
-        		  cellProxies.cellApplyHandler = function(property) {
-        			  return columnApplyHandler(property,cellProxies.mergedCellModel,rowId);
-        		  };
-    		  }
-    		  return cellProxies.cellApplyHandler;
-    	  }
-
-    	  // bind foundset.viewPort.selectedRowIds to what nggrid has to offer
-    	  var selectedItemsProxy = []; // keeps entire foundset row items from model.foundset.viewPort.rows
-    	  for (var rowIdx in foundset.viewPort.rows) {
-    		  if (foundset.viewPort.selectedRowIds.indexOf(foundset.viewPort.rows[rowIdx][ROW_ID_COL_KEY]) >= 0) selectedItemsProxy.push(foundset.viewPort.rows[rowIdx]);
-    	  }
-    	  $scope.$watchCollection(function() { return selectedItemsProxy; }, function(newNGGridSelectedItems, oldNGGridSelectedItems) {
-			  // update foundset object selection when it changes in ngGrid
-    		  var tmpSelectedRowIds = {};
-			  for (var rowIdx in newNGGridSelectedItems) {
-				  var row = newNGGridSelectedItems[rowIdx];
-				  if (foundset.viewPort.selectedRowIds.indexOf(row[ROW_ID_COL_KEY]) < 0) foundset.viewPort.selectedRowIds.push(row[ROW_ID_COL_KEY]);
-				  tmpSelectedRowIds[row[ROW_ID_COL_KEY]] = true;
-			  }
-			  for (var rowIdIdx in foundset.viewPort.selectedRowIds) {
-				  if (!tmpSelectedRowIds[foundset.viewPort.selectedRowIds[rowIdIdx]]) foundset.viewPort.selectedRowIds.splice(rowIdIdx, 1);
-			  }
-			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
-		  });
-    	  $scope.$watchCollection('model.foundset.viewPort.selectedRowIds', function(newFSSelectedItems, oldFSSelectedItems) {
-			  // update ngGrid selection when it changes in foundset
-    		  var tmpSelectedRowIds = {};
-			  for (var rowIdx in selectedItemsProxy) {
-				  var row = selectedItemsProxy[rowIdx];
-				  if (newFSSelectedItems.indexOf(row[ROW_ID_COL_KEY]) < 0) selectedItemsProxy.splice(rowIdx, 1);
-				  tmpSelectedRowIds[row[ROW_ID_COL_KEY]] = true;
-			  }
-			  for (var rowIdIdx in newFSSelectedItems) {
-				  var rowId = newFSSelectedItems[rowIdIdx];
-				  if (!tmpSelectedRowIds[rowId]) {
-					  var wholeRowObj;
-			    	  for (var rowIdx in foundset.viewPort.rows) {
-			    		  if (foundset.viewPort.rows[rowIdx][ROW_ID_COL_KEY] === rowId) {
-			    			  selectedItemsProxy.push(foundset.viewPort.rows[rowIdx]);
-			    			  break;
-			    		  }
-			    	  }
-				  }
-			  }
-			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
-		  });
-
-    	  $scope.gridOptions = {
-    			  data: 'model.foundset.viewPort.rows',
-    			  enableCellSelection: true,
-    			  enableRowSelection: true,
-    			  selectedItems: selectedItemsProxy,
-    			  multiSelect: foundset.multiSelect,
-    			  enablePaging: true,
-    			  showFooter: (getPageCount() > 1),
-    			  totalServerItems: 'model.foundset.serverSize',
-    			  pagingOptions: $scope.pagingOptions,
-    			  primaryKey: ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
-    			  columnDefs: columnDefinitions
-    	  };
       },
       templateUrl: 'servoydefault/portal/portal.html',
       replace: true

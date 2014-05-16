@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.json.JSONObject;
+
 /**
  * Parsed web component api function definition.
  * @author rgansevles
@@ -29,6 +31,7 @@ public class WebComponentApiDefinition
 	private final String name;
 	private final List<PropertyDescription> parameters = new ArrayList<>();
 	private PropertyDescription returnType;
+	private JSONObject customConfigOptions;
 
 	public WebComponentApiDefinition(String name)
 	{
@@ -60,11 +63,16 @@ public class WebComponentApiDefinition
 		return returnType;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
+	void setCustomConfigOptions(JSONObject customConfigOptions)
+	{
+		this.customConfigOptions = customConfigOptions;
+	}
+
+	public JSONObject getCustomConfigOptions()
+	{
+		return this.customConfigOptions;
+	}
+
 	@Override
 	public String toString()
 	{

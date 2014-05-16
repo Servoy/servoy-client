@@ -54,7 +54,7 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 * @param args
 	 * @return
 	 */
-	Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String elementName, Object[] args);
+	Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String componentName, Object[] args);
 
 	/**
 	 * @param script

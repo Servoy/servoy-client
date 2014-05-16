@@ -13,8 +13,8 @@ import java.util.WeakHashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType.DataproviderConfig;
 import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.property.DataproviderConfig;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
@@ -31,6 +31,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
@@ -76,13 +77,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	}
 
 	@Override
-	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String elementName, Object[] args)
+	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String componentName, Object[] args)
 	{
 		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
 		INGClientWebsocketSession clientSession = application.getWebsocketSession();
 		Form form = formController.getForm();
 		clientSession.touchForm(form, formController.getName(), false);
-		return clientSession.executeApi(apiDefinition, formController.getName(), elementName, args);
+		return clientSession.executeApi(apiDefinition, formController.getName(), componentName, args);
 	}
 
 	@Override
@@ -201,7 +202,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				wc = pair.getLeft();
 				property = pair.getRight();
 				oldValue = wc.getProperty(property);
-				isPropertyChanged = wc.putProperty(property, value);
+				isPropertyChanged = wc.putProperty(property, value, ConversionLocation.SERVER);
 				onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
 				if (fireOnDataChange && onDataChange != null && wc.hasEvent(onDataChange) && isPropertyChanged)
 				{
@@ -224,12 +225,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				String initialPropValue = (String)component.getInitialProperty(taggedProp);
 				String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
-				changed = component.putProperty(taggedProp, tagValue) || changed;
+				changed = component.putProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
 			}
 		}
 
 		// valuelist update
 		Map<String, WebFormComponent> webComponents = formController.getFormUI().getWebComponents();
+		// TODO how to handle nested components through custom component[] property types for example? - those are not listed in formUI
 		Object valuelist;
 		for (WebFormComponent wc : webComponents.values())
 		{
@@ -358,7 +360,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-	public Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue) throws JSONException
+	public Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue, ConversionLocation sourceOfValue, Object oldValue)
+		throws JSONException
 	{
 		if (propertyValue == JSONObject.NULL) return null;
 		String dataproviderID = null;
@@ -380,7 +383,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		if (HtmlUtils.startsWithHtml(propertyValue)) return HTMLTagsConverter.convert(propertyValue.toString(), application.getSolutionName(),
 			formController.getName(), convertInlineScript);
-		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(application));
+		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(application),
+			sourceOfValue, oldValue);
 	}
 
 	@Override

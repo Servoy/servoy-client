@@ -19,6 +19,8 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.Map;
 
+import org.sablo.specification.WebComponentSpec;
+
 import com.servoy.j2db.IBasicFormUI;
 import com.servoy.j2db.IView;
 
@@ -26,7 +28,7 @@ import com.servoy.j2db.IView;
  * @author jcompagner
  *
  */
-public interface IWebFormUI extends IBasicFormUI, IView
+public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 {
 
 	/**
@@ -69,5 +71,8 @@ public interface IWebFormUI extends IBasicFormUI, IView
 
 	public void setParentWindowName(String parentWindowName);
 
+	public IDataConverterContext getDataConverterContext();
+
+	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpec componentSpec, WebFormComponent component);
 
 }

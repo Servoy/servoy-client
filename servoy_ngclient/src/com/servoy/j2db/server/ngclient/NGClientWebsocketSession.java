@@ -36,8 +36,8 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.sablo.eventthread.Event;
 import org.sablo.eventthread.IEventDispatcher;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.IService;
@@ -55,6 +55,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -349,12 +350,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					if (property instanceof CustomValueList)
 					{
 						lstModel = new LookupListModel(client, (CustomValueList)property);
-						webComponent.putProperty(obj.getString("property"), lstModel);
+						webComponent.putProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 					else if (property instanceof LookupValueList)
 					{
 						lstModel = new LookupListModel(client, (LookupValueList)property);
-						webComponent.putProperty(obj.getString("property"), lstModel);
+						webComponent.putProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 					else if (property instanceof LookupListModel)
 					{
@@ -650,7 +651,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 
 	@Override
-	public Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String beanName, Object[] arguments)
+	public Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String componentName, Object[] arguments)
 	{
 		// {"call":{"form":"product","bean":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}}
 		try
@@ -661,7 +662,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 			Map<String, Object> call = new HashMap<>();
 			call.put("form", formName);
-			call.put("bean", beanName);
+			call.put("bean", componentName);
 			call.put("api", apiDefinition.getName());
 
 			IWebFormController form = client.getFormManager().getForm(formName);
@@ -677,11 +678,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 			Object ret = WebsocketEndpoint.get().sendMessage(data, false, getForJsonConverter());
 			// convert back
-			if (ret instanceof Long && apiDefinition.getReturnType().getType() == PropertyType.date)
+			if (ret instanceof Long && apiDefinition.getReturnType().getType() == IPropertyType.Default.date.getType())
 			{
 				return new Date(((Long)ret).longValue());
 			}
-			return NGClientForJsonConverter.toJavaObject(ret, apiDefinition.getReturnType(), new DataConverterContext(getClient())); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
+			return NGClientForJsonConverter.toJavaObject(ret, apiDefinition.getReturnType(), new DataConverterContext(getClient()),
+				ConversionLocation.BROWSER_UPDATE, null); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException | IOException e)
 		{

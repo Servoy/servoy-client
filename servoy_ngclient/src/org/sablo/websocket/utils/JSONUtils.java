@@ -21,7 +21,6 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,7 +29,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.websocket.IForJsonConverter;
+
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
+import com.servoy.j2db.util.Debug;
 
 
 /**
@@ -45,13 +48,14 @@ public class JSONUtils
 	 * Writes the given object into the JSONWriter. (it is meant to be used for transforming the basic types that can be sent by beans/components)
 	 * @param writer the JSONWriter.
 	 * @param value the value to be written to the writer.
-	 * @return the new writer object to continue writing JSON.
+	 * @return the writer object to continue writing JSON.
 	 * @throws JSONException
 	 * @throws IllegalArgumentException if the given object could not be written to JSON for some reason.
 	 */
-	public static JSONWriter toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter) throws JSONException, IllegalArgumentException
+	public static JSONWriter toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType)
+		throws JSONException, IllegalArgumentException
 	{
-		return toJSONValue(writer, value, null, forJsonConverter);
+		return toJSONValue(writer, value, null, forJsonConverter, toDestinationType);
 	}
 
 	/**
@@ -60,13 +64,21 @@ public class JSONUtils
 	 * @param value the value to be written to the writer.
 	 * @param clientConversion the object where the type (like Date) of the conversion that should happen on the client.
 	 * @param forJsonConverter 
-	 * @return the new writer object to continue writing JSON.
+	 * @return the writer object to continue writing JSON.
 	 * @throws JSONException
 	 * @throws IllegalArgumentException if the given object could not be written to JSON for some reason.
 	 */
-	public static JSONWriter toJSONValue(JSONWriter writer, Object value, DataConversion clientConversion, IForJsonConverter forJsonConverter)
-		throws JSONException, IllegalArgumentException
+	public static JSONWriter toJSONValue(JSONWriter writer, Object value, DataConversion clientConversion, IForJsonConverter forJsonConverter,
+		ConversionLocation toDestinationType) throws JSONException, IllegalArgumentException
 	{
+		if (value instanceof IComplexPropertyValue)
+		{
+			if (toDestinationType == ConversionLocation.BROWSER_UPDATE) return ((IComplexPropertyValue)value).changesToJSON(writer, clientConversion);
+			else if (toDestinationType == ConversionLocation.BROWSER) return ((IComplexPropertyValue)value).toJSON(writer, clientConversion);
+			else if (toDestinationType == ConversionLocation.DESIGN) return ((IComplexPropertyValue)value).toDesignJSON(writer); // less frequent or never
+			else Debug.error(new RuntimeException("Trying to conver a java object to JSON value of unknown/unsupported destination type."));
+		}
+
 		JSONWriter w = writer;
 
 		final Object converted = forJsonConverter == null ? value : forJsonConverter.convertForJson(value);
@@ -155,7 +167,7 @@ public class JSONUtils
 			for (int i = 0; i < lst.size(); i++)
 			{
 				if (clientConversion != null) clientConversion.pushNode(String.valueOf(i));
-				toJSONValue(w, lst.get(i), clientConversion, forJsonConverter);
+				toJSONValue(w, lst.get(i), clientConversion, forJsonConverter, toDestinationType);
 				if (clientConversion != null) clientConversion.popNode();
 			}
 			w.endArray();
@@ -167,7 +179,7 @@ public class JSONUtils
 			for (int i = 0; i < array.length; i++)
 			{
 				if (clientConversion != null) clientConversion.pushNode(String.valueOf(i));
-				toJSONValue(w, array[i], clientConversion, forJsonConverter);
+				toJSONValue(w, array[i], clientConversion, forJsonConverter, toDestinationType);
 				if (clientConversion != null) clientConversion.popNode();
 			}
 			w.endArray();
@@ -191,13 +203,13 @@ public class JSONUtils
 					w.key(keys[0]);
 					w.object();
 					w.key(keys[1]);
-					toJSONValue(w, entry.getValue(), clientConversion, forJsonConverter);
+					toJSONValue(w, entry.getValue(), clientConversion, forJsonConverter, toDestinationType);
 					w.endObject();
 				}// END TODO REMOVE
 				else
 				{
 					w.key(entry.getKey());
-					toJSONValue(w, entry.getValue(), clientConversion, forJsonConverter);
+					toJSONValue(w, entry.getValue(), clientConversion, forJsonConverter, toDestinationType);
 				}
 				if (clientConversion != null) clientConversion.popNode();
 			}
@@ -205,7 +217,7 @@ public class JSONUtils
 		}
 		else if (converted instanceof JSONWritable)
 		{
-			toJSONValue(w, ((JSONWritable)converted).toMap(), clientConversion, forJsonConverter);
+			toJSONValue(w, ((JSONWritable)converted).toMap(), clientConversion, forJsonConverter, toDestinationType);
 		}
 		else
 		{
@@ -228,32 +240,31 @@ public class JSONUtils
 		return new JSONObject(json).toString(); // just to validate - can we do this nicer with available lib (we might not need the "normalize" part)?
 	}
 
-	/**
-	 * Adds all properties of the given object as key-value pairs in the writer.
-	 * @param propertyWriter the writer.
-	 * @param objectToMerge the object contents to be merged into the writer prepared object.
-	 * @throws JSONException if the writer is not prepared (to write object contents) or other json exception occurs.
-	 */
-	public static void addObjectPropertiesToWriter(JSONWriter propertyWriter, JSONObject objectToMerge) throws JSONException
-	{
-		Iterator< ? > it = objectToMerge.keys();
-		while (it.hasNext())
-		{
-			String key = (String)it.next();
-			propertyWriter.key(key).value(objectToMerge.get(key));
-		}
-	}
+//	/**
+//	 * Adds all properties of the given object as key-value pairs in the writer.
+//	 * @param propertyWriter the writer.
+//	 * @param objectToMerge the object contents to be merged into the writer prepared object.
+//	 * @throws JSONException if the writer is not prepared (to write object contents) or other json exception occurs.
+//	 */
+//	public static void addObjectPropertiesToWriter(JSONWriter propertyWriter, JSONObject objectToMerge) throws JSONException
+//	{
+//		Iterator< ? > it = objectToMerge.keys();
+//		while (it.hasNext())
+//		{
+//			String key = (String)it.next();
+//			propertyWriter.key(key).value(objectToMerge.get(key));
+//		}
+//	}
 
 	public static JSONWriter addObjectPropertiesToWriter(JSONWriter jsonWriter, Map<String, Object> properties, IForJsonConverter forJsonConverter)
 		throws JSONException, IllegalArgumentException
 	{
 		for (Entry<String, Object> entry : properties.entrySet())
 		{
-			toJSONValue(jsonWriter.key(entry.getKey()), entry.getValue(), forJsonConverter);
+			toJSONValue(jsonWriter.key(entry.getKey()), entry.getValue(), forJsonConverter, ConversionLocation.BROWSER);
 		}
 		return jsonWriter;
 	}
-
 
 	public static interface JSONWritable
 	{

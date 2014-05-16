@@ -221,6 +221,7 @@ public class FormWrapper
 		return baseComponents;
 	}
 
+	// called by ftl template
 	public String getPropertiesString() throws JSONException, IllegalArgumentException
 	{
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties

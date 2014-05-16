@@ -39,16 +39,16 @@ handlers:
 },
 api:
 {
-        getLabelForElementName:{
-            returns: 'string',
-                 }, 
-        getParameterValue:{
+        getLabelForElementName: {
+            returns: 'string'
+        },
+        getParameterValue: {
             returns: 'string',
             parameters:[{'param':'string'}]
-        }, 
-        getThumbnailJPGImage:{
+        },
+        getThumbnailJPGImage: {
             returns: 'byte []',
             parameters:[{'width':'int','optional':'true'},{'height':'int','optional':'true'}]
-        } 
+        }
 }
  

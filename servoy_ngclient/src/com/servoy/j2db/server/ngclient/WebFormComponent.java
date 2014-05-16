@@ -18,14 +18,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
@@ -63,13 +64,14 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 		this.parentForm = parentForm;
+
 		if (fe.getLabel() != null)
 		{
 			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
 		}
-		if (!(fe.getPersist() instanceof Form) && fe.getWebComponentSpec(false) != null)
+		if (!fe.isForm() && fe.getWebComponentSpec(false) != null)
 		{
-			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(PropertyType.tabseq);
+			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(IPropertyType.Default.tabseq.getType());
 			List<PropertyDescription> sortedList = new SortedList<PropertyDescription>(new Comparator<PropertyDescription>()
 			{
 
@@ -93,7 +95,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 				calculatedTabSequence.add(new Pair<>(pd.getName(), Utils.getAsInteger(getInitialProperty(pd.getName()))));
 			}
 			nextAvailableTabSequence = getMaxTabSequence() + 1;
-			if (fe.getPersist() instanceof GraphicalComponent && ((GraphicalComponent)fe.getPersist()).getOnActionMethodID() <= 0)
+			if (fe.isGraphicalComponentWithNoAction())
 			{
 				// hack for legacy behavior
 				properties.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), Integer.valueOf(-1));
@@ -116,19 +118,20 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 	 * @param propertyName
 	 * @param propertyValue
 	 */
-	public boolean putProperty(String propertyName, Object propertyValue)
+	public boolean putProperty(String propertyName, Object propertyValue, ConversionLocation sourceOfValue)
 	{
+		Map<String, Object> map = properties;
 		try
 		{
-			propertyValue = convertValue(propertyName, propertyValue);
+			propertyValue = convertValue(propertyName, propertyValue, sourceOfValue, map.get(propertyName)); // the propertyName can contain dots but that is supported by convertValue 
 		}
 		catch (Exception e)
 		{
 			Debug.error(e);
 		}
+
 		String ownProperty = propertyName;
 		String lastProperty = propertyName;
-		Map<String, Object> map = properties;
 		String[] split = propertyName.split("\\.");
 		if (split.length > 1)
 		{
@@ -145,6 +148,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 			}
 			lastProperty = split[split.length - 1];
 		}
+
 		if (map.containsKey(lastProperty))
 		{
 			Object oldValue = map.put(lastProperty, propertyValue);
@@ -164,7 +168,23 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 			{
 				((LookupListModel)propertyValue).addListDataListener(this);
 			}
-			if (!Utils.equalObjects(propertyValue, oldValue))
+
+			if (propertyValue instanceof IComplexPropertyValue && propertyValue != oldValue)
+			{
+				// TODO in the future we could allow changes to be pushed more granular (JSON subtrees), not only at root property level - as we already do this type of thing in many places
+				final String complexPropertyRoot = ownProperty;
+				// a new complex property is linked to this component; initialize it
+				((IComplexPropertyValue)propertyValue).init(new IChangeListener()
+				{
+					@Override
+					public void valueChanged()
+					{
+						changedProperties.add(complexPropertyRoot);
+						getParent().valueChanged();
+					}
+				}, this, propertyName);
+			}
+			else if (!Utils.equalObjects(propertyValue, oldValue))
 			{
 				changedProperties.add(ownProperty);
 				return true;
@@ -211,9 +231,10 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		return formElement.getPropertyWithDefault(propertyName);
 	}
 
-	private Object convertValue(String propertyName, Object propertyValue) throws JSONException
+	private Object convertValue(String propertyName, Object propertyValue, ConversionLocation sourceOfValue, Object oldValue) throws JSONException
 	{
-		return dataAdapterList != null ? dataAdapterList.convertToJavaObject(formElement, propertyName, propertyValue) : propertyValue;
+		return dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue, sourceOfValue, oldValue)
+			: propertyValue;
 	}
 
 	/**
@@ -236,7 +257,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 				properties.put(propertyName + '.' + key, ((JSONObject)propertyValue).get(key));
 			}
 		}// end TODO REMOVE
-		properties.put(propertyName, convertValue(propertyName, propertyValue));
+		properties.put(propertyName, convertValue(propertyName, propertyValue, ConversionLocation.BROWSER_UPDATE, properties.get(propertyName)));
 	}
 
 	public Map<String, Object> getChanges()
@@ -401,7 +422,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 			}
 		}
 		this.nextAvailableTabSequence = getMaxTabSequence() + 1;
-		putProperty(propertyName, Integer.valueOf(tabSequence));
+		putProperty(propertyName, Integer.valueOf(tabSequence), ConversionLocation.SERVER);
 	}
 
 	private int getMaxTabSequence()

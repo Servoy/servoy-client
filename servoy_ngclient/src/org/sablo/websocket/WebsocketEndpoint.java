@@ -40,6 +40,7 @@ import org.json.JSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -102,7 +103,8 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 
 	@OnOpen
 	public void start(Session newSession, @PathParam("endpointType")
-	final String endpointType, @PathParam("id") String id, @PathParam("argument")
+	final String endpointType, @PathParam("id")
+	String id, @PathParam("argument")
 	final String arg) throws Exception
 	{
 		session = newSession;
@@ -281,7 +283,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		{
 			dataConversion.pushNode(entry.getKey());
 			writer.key(entry.getKey());
-			JSONUtils.toJSONValue(writer, entry.getValue(), dataConversion, forJsonConverter);
+			JSONUtils.toJSONValue(writer, entry.getValue(), dataConversion, forJsonConverter, ConversionLocation.BROWSER_UPDATE);
 			dataConversion.popNode();
 		}
 

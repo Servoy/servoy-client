@@ -27,7 +27,11 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
+import org.sablo.specification.property.IComplexTypeImpl;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.util.Debug;
 
@@ -40,25 +44,31 @@ public class WebComponentSpecProvider
 {
 
 	private final Map<String, WebComponentSpec> cachedDescriptions = new HashMap<>();
+	private final Map<String, IPropertyType> globalTypes = new HashMap<>();
 
 	private final IPackageReader[] packageReaders;
+
+	public WebComponentSpecProvider(File[] packages)
+	{
+		this(getReades(packages));
+	}
 
 	public WebComponentSpecProvider(IPackageReader[] packageReaders)
 	{
 		this.packageReaders = packageReaders;
+		List<WebComponentPackage> packages = new ArrayList<>();
 		for (IPackageReader packageReader : packageReaders)
 		{
-			WebComponentPackage p = new WebComponentPackage(packageReader);
-
-			try
-			{
-				cache(p.getWebComponentDescriptions());
-			}
-			catch (IOException e)
-			{
-				Debug.error("Cannot read web component package: " + packageReader.getName(), e); //$NON-NLS-1$
-			}
-			finally
+			packages.add(new WebComponentPackage(packageReader));
+		}
+		try
+		{
+			readGloballyDefinedTypes(packages);
+			cacheComponentSpecs(packages);
+		}
+		finally
+		{
+			for (WebComponentPackage p : packages)
 			{
 				p.dispose();
 			}
@@ -66,9 +76,64 @@ public class WebComponentSpecProvider
 		instance = this;
 	}
 
-	public WebComponentSpecProvider(File[] packages)
+	protected void cacheComponentSpecs(List<WebComponentPackage> packages)
 	{
-		this(getReades(packages));
+		for (WebComponentPackage p : packages)
+		{
+			try
+			{
+				cache(p.getWebComponentDescriptions(globalTypes));
+			}
+			catch (IOException e)
+			{
+				Debug.error("Cannot read web component specs from package: " + p.getName(), e); //$NON-NLS-1$
+			}
+		}
+	}
+
+	protected void readGloballyDefinedTypes(List<WebComponentPackage> packages)
+	{
+		// populate default types
+		for (IPropertyType.Default e : IPropertyType.Default.values())
+		{
+			IPropertyType type = e.getType();
+			globalTypes.put(type.getName(), type);
+		}
+
+		try
+		{
+			JSONObject typeContainer = new JSONObject();
+			JSONObject allGlobalTypesFromAllPackages = new JSONObject();
+			typeContainer.put(WebComponentSpec.TYPES_KEY, allGlobalTypesFromAllPackages);
+
+			for (WebComponentPackage p : packages)
+			{
+				try
+				{
+					p.appendGlobalTypesJSON(allGlobalTypesFromAllPackages);
+				}
+				catch (IOException e)
+				{
+					Debug.error("Cannot read globally defined types from package: " + p.getName(), e); //$NON-NLS-1$
+				}
+			}
+
+			try
+			{
+				Map<String, IPropertyType> parsedTypes = WebComponentSpec.parseTypes(typeContainer, globalTypes,
+					"flattened global types - from all web component packages");
+				globalTypes.putAll(parsedTypes);
+			}
+			catch (Exception e)
+			{
+				Debug.error("Cannot parse flattened global types - from all web component packages.", e);
+			}
+		}
+		catch (JSONException e)
+		{
+			// should never happen
+			Debug.error("Error Creating a simple JSON object hierarchy while reading globally defined types...");
+		}
 	}
 
 	private static IPackageReader[] getReades(File[] packages)
@@ -98,6 +163,11 @@ public class WebComponentSpecProvider
 		}
 	}
 
+	public IComplexTypeImpl getGlobalType(String typeName)
+	{
+		return globalTypes.get(typeName);
+	}
+
 	public WebComponentSpec getWebComponentDescription(String componentTypeName)
 	{
 		return cachedDescriptions.get(componentTypeName);
@@ -118,7 +188,7 @@ public class WebComponentSpecProvider
 	/**
 	 * @param array
 	 */
-	public static void init(IPackageReader[] locations)
+	public static synchronized void init(IPackageReader[] locations)
 	{
 		instance = new WebComponentSpecProvider(locations);
 	}

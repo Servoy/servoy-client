@@ -30,120 +30,110 @@ handlers:
 },
 api:
 {
-        addTab:{
+        addTab: {
             returns: 'boolean',
             parameters:[{'vargs':'object []'}]
-        }, 
-        getContinuousLayout:{
-            returns: 'boolean',
-                 }, 
-        getDividerLocation:{
-            returns: 'double',
-                 }, 
-        getDividerSize:{
-            returns: 'int',
-                 }, 
-        getLeftForm:{
-            returns: 'formscope',
-                 }, 
-        getLeftFormMinSize:{
-            returns: 'int',
-                 }, 
-        getMaxTabIndex:{
-            returns: 'int',
-                 }, 
-        getMnemonicAt:{
+        },
+        getContinuousLayout: {
+            returns: 'boolean'
+        },
+        getDividerLocation: {
+            returns: 'double'
+        },
+        getDividerSize: {
+            returns: 'int'
+        },
+        getLeftForm: {
+            returns: 'formscope'
+        },
+        getLeftFormMinSize: {
+            returns: 'int'
+        },
+        getMaxTabIndex: {
+            returns: 'int'
+        },
+        getMnemonicAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getResizeWeight:{
-            returns: 'double',
-                 }, 
-        getRightForm:{
-            returns: 'formscope',
-                 }, 
-        getRightFormMinSize:{
-            returns: 'int',
-                 }, 
-        getTabFGColorAt:{
+        },
+        getResizeWeight: {
+            returns: 'double'
+        },
+        getRightForm: {
+            returns: 'formscope'
+        },
+        getRightFormMinSize: {
+            returns: 'int'
+        },
+        getTabFGColorAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabFormNameAt:{
+        },
+        getTabFormNameAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabNameAt:{
+        },
+        getTabNameAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabRelationNameAt:{
+        },
+        getTabRelationNameAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        getTabTextAt:{
+        },
+        getTabTextAt: {
             returns: 'string',
             parameters:[{'i':'int'}]
-        }, 
-        isTabEnabledAt:{
-            returns: 'boolean',
-            parameters:[{'i':'int'}]
-        }, 
-        removeAllTabs:{
-            returns: 'boolean',
-                 }, 
-        removeTabAt:{
+        },
+        isTabEnabledAt: {
             returns: 'boolean',
             parameters:[{'i':'int'}]
-        }, 
-        setContinuousLayout:{
-            
+        },
+        removeAllTabs: {
+            returns: 'boolean'
+        },
+        removeTabAt: {
+            returns: 'boolean',
+            parameters:[{'i':'int'}]
+        },
+        setContinuousLayout: {
             parameters:[{'b':'boolean'}]
-        }, 
-        setDividerLocation:{
-            
+        },
+        setDividerLocation: {
             parameters:[{'location':'double'}]
-        }, 
-        setDividerSize:{
-            
+        },
+        setDividerSize: {
             parameters:[{'size':'int'}]
-        }, 
-        setLeftForm:{
+        },
+        setLeftForm: {
             returns: 'boolean',
             parameters:[{'form':'object'},{'relation':'object','optional':'true'}]
-        }, 
-        setLeftFormMinSize:{
-            
+        },
+        setLeftFormMinSize: {
             parameters:[{'minSize':'int'}]
-        }, 
-        setMnemonicAt:{
-            
+        },
+        setMnemonicAt: {
             parameters:[{'index':'int'},{'text':'string'}]
-        }, 
-        setResizeWeight:{
-            
+        },
+        setResizeWeight: {
             parameters:[{'resizeWeight':'double'}]
-        }, 
-        setRightForm:{
+        },
+        setRightForm: {
             returns: 'boolean',
             parameters:[{'form':'object'},{'relation':'object','optional':'true'}]
-        }, 
-        setRightFormMinSize:{
-            
+        },
+        setRightFormMinSize: {
             parameters:[{'minSize':'int'}]
-        }, 
-        setTabEnabledAt:{
-            
+        },
+        setTabEnabledAt: {
             parameters:[{'i':'int'},{'b':'boolean'}]
-        }, 
-        setTabFGColorAt:{
-            
+        },
+        setTabFGColorAt: {
             parameters:[{'i':'int'},{'clr':'string'}]
-        }, 
-        setTabTextAt:{
-            
+        },
+        setTabTextAt: {
             parameters:[{'i':'int'},{'text':'string'}]
-        } 
+        }
 },
 types: {
   tab: {

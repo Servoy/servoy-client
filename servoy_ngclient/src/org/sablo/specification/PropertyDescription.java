@@ -22,7 +22,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.util.Utils;
 
@@ -34,7 +37,7 @@ import com.servoy.j2db.util.Utils;
 public class PropertyDescription
 {
 	private final String name;
-	private final PropertyType type;
+	private final IPropertyType type;
 	private final Object config;
 	private final boolean array;
 	private boolean optional = false; // currently only used in the context of an api function parameter
@@ -45,22 +48,22 @@ public class PropertyDescription
 	private Map<String, PropertyDescription> properties = null;
 
 
-	public PropertyDescription(String name, PropertyType type)
+	public PropertyDescription(String name, IPropertyType type)
 	{
 		this(name, type, false, null, null);
 	}
 
-	public PropertyDescription(String name, PropertyType type, Object config)
+	public PropertyDescription(String name, IPropertyType type, Object config)
 	{
 		this(name, type, false, config, null);
 	}
 
-	public PropertyDescription(String name, PropertyType type, boolean array, Object config, Object defaultValue)
+	public PropertyDescription(String name, IPropertyType type, boolean array, Object config, Object defaultValue)
 	{
 		this(name, type, array, config, defaultValue, null);
 	}
 
-	public PropertyDescription(String name, PropertyType type, boolean array, Object config, Object defaultValue, List<Object> values)
+	public PropertyDescription(String name, IPropertyType type, boolean array, Object config, Object defaultValue, List<Object> values)
 	{
 		this.name = name;
 		this.type = type;
@@ -70,10 +73,7 @@ public class PropertyDescription
 		this.values = values;
 	}
 
-	/**
-	 * @param valuelist
-	 */
-	public Map<String, PropertyDescription> getProperties(PropertyType pt)
+	public Map<String, PropertyDescription> getProperties(IPropertyType pt)
 	{
 		if (properties != null)
 		{
@@ -101,15 +101,12 @@ public class PropertyDescription
 	}
 
 
-	/**
-	 * @return the name
-	 */
 	public String getName()
 	{
 		return name;
 	}
 
-	public PropertyType getType()
+	public IPropertyType getType()
 	{
 		return type;
 	}
@@ -126,22 +123,14 @@ public class PropertyDescription
 
 	public List<Object> getValues()
 	{
-		return new ArrayList<Object>(values);
+		return values == null ? null : new ArrayList<Object>(values);
 	}
 
-	/**
-	 * @return
-	 */
 	public boolean isArray()
 	{
 		return array;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
@@ -153,11 +142,6 @@ public class PropertyDescription
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -201,12 +185,13 @@ public class PropertyDescription
 
 	public PropertyDescription getProperty(String name)
 	{
-		String[] split = name.split("\\.");
-		if (split.length > 1)
+		int indexOfDot = name.indexOf('.');
+		if (indexOfDot >= 0)
 		{
-			PropertyDescription propertyDescription = properties.get(split[0]);
-			PropertyDescription typeSpec = (PropertyDescription)propertyDescription.getConfig();
-			return typeSpec.getProperty(split[1]);
+			// this must be a custom type then
+			PropertyDescription propertyDescription = properties.get(name.substring(0, indexOfDot));
+			PropertyDescription typeSpec = propertyDescription.getType().getCustomJSONTypeDefinition();
+			return typeSpec.getProperty(name.substring(indexOfDot + 1));
 		}
 
 		if (properties != null)
@@ -228,14 +213,55 @@ public class PropertyDescription
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
 		return "PropertyDescription[name:" + name + ",type:" + type + ",array:" + array + ",config:" + config + ",default value:" + defaultValue + "]";
 	}
+
+	public String toStringWholeTree()
+	{
+		return toStringWholeTree(new StringBuffer(100), 1).toString();
+	}
+
+	public StringBuffer toStringWholeTree(StringBuffer b, int level)
+	{
+		b.append(toString());
+		if (properties != null)
+		{
+			for (Entry<String, PropertyDescription> p : properties.entrySet())
+			{
+				b.append('\n');
+				addSpaces(b, level);
+				b.append(p.getKey()).append(": ").append(p.getValue().toStringWholeTree(b, level + 1)); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			b.append('\n');
+			addSpaces(b, level);
+			b.append("(no nested child properties)");
+		}
+		return b;
+	}
+
+	protected void addSpaces(StringBuffer b, int level)
+	{
+		for (int i = 0; i < level * 2; i++)
+			b.append(' ');
+	}
+
+	/**
+	 * In case this property is an array (see {@link #isArray()}) it will return the same property description type for an element of that array.
+	 */
+	public PropertyDescription asArrayElement()
+	{
+		if (!isArray()) return this;
+
+		PropertyDescription clone = new PropertyDescription(name, type, false, config, defaultValue, values);
+		clone.setOptional(optional);
+		clone.properties = properties;
+		return clone;
+	}
+
 }

@@ -25,7 +25,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -35,6 +37,8 @@ import java.util.jar.Manifest;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONObject;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -46,6 +50,8 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class WebComponentPackage
 {
+
+	private static final String GLOBAL_TYPES_MANIFEST_ATTR = "Global-Types";
 
 	public interface IPackageReader
 	{
@@ -70,7 +76,51 @@ public class WebComponentPackage
 		this.reader = reader;
 	}
 
-	public List<WebComponentSpec> getWebComponentDescriptions() throws IOException
+	public String getName()
+	{
+		return reader.getName();
+	}
+
+	public void appendGlobalTypesJSON(JSONObject allGlobalTypesFromAllPackages) throws IOException
+	{
+		Manifest mf = reader.getManifest();
+
+		if (mf != null)
+		{
+			Attributes mainAttrs = mf.getMainAttributes();
+			if (mainAttrs != null)
+			{
+				String globalTypesSpecPath = mainAttrs.getValue(GLOBAL_TYPES_MANIFEST_ATTR);
+				if (globalTypesSpecPath != null)
+				{
+					try
+					{
+						String specfileContent = reader.readTextFile(globalTypesSpecPath, Charset.forName("UTF8")); // TODO: check encoding
+						if (specfileContent != null)
+						{
+							JSONObject json = new JSONObject('{' + specfileContent + '}');
+							Object types = json.get(WebComponentSpec.TYPES_KEY);
+							if (types instanceof JSONObject)
+							{
+								Iterator<String> typesIt = ((JSONObject)types).keys();
+								while (typesIt.hasNext())
+								{
+									String key = typesIt.next();
+									allGlobalTypesFromAllPackages.put(key, ((JSONObject)types).get(key));
+								}
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						Debug.error("Cannot parse global spec file '" + globalTypesSpecPath + "' from package '" + reader.toString() + "'. ", e);
+					}
+				}
+			}
+		}
+	}
+
+	public List<WebComponentSpec> getWebComponentDescriptions(Map<String, IPropertyType> globalTypes) throws IOException
 	{
 		if (cachedDescriptions == null)
 		{
@@ -86,11 +136,14 @@ public class WebComponentPackage
 					{
 						try
 						{
-							WebComponentSpec parsed = WebComponentSpec.parseSpec(specfileContent, reader.getPackageName(), specpath);
+							WebComponentSpec parsed = WebComponentSpec.parseSpec(specfileContent, reader.getPackageName(), globalTypes, specpath);
 							// add properties defined by us
-							if (parsed.getProperty("size") == null) parsed.putProperty("size", new PropertyDescription("size", PropertyType.dimension));
-							if (parsed.getProperty("location") == null) parsed.putProperty("location", new PropertyDescription("location", PropertyType.point));
-							if (parsed.getProperty("anchors") == null) parsed.putProperty("anchors", new PropertyDescription("anchors", PropertyType.intnumber));
+							if (parsed.getProperty("size") == null) parsed.putProperty("size", new PropertyDescription("size",
+								IPropertyType.Default.dimension.getType()));
+							if (parsed.getProperty("location") == null) parsed.putProperty("location", new PropertyDescription("location",
+								IPropertyType.Default.point.getType()));
+							if (parsed.getProperty("anchors") == null) parsed.putProperty("anchors", new PropertyDescription("anchors",
+								IPropertyType.Default.intnumber.getType()));
 							descriptions.add(parsed);
 						}
 						catch (Exception e)

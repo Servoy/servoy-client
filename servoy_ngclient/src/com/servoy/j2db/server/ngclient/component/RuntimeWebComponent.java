@@ -26,10 +26,13 @@ import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
 
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 
@@ -43,6 +46,7 @@ public class RuntimeWebComponent implements Scriptable
 	private Scriptable prototypeScope;
 	private final Set<String> specProperties;
 	private final Set<String> dataProviderProperties;
+	private final Map<String, IServerObjToJavaPropertyConverter< ? , ? >> complexProperties;
 	private final Map<String, WebComponentFunction> apiFunctions;
 
 	public RuntimeWebComponent(WebFormComponent component, WebComponentSpec webComponentSpec)
@@ -51,6 +55,8 @@ public class RuntimeWebComponent implements Scriptable
 		this.specProperties = webComponentSpec == null ? null : webComponentSpec.getAllPropertiesNames();
 		this.apiFunctions = new HashMap<String, WebComponentFunction>();
 		this.dataProviderProperties = new HashSet<>();
+		this.complexProperties = new HashMap<>();
+
 		if (webComponentSpec != null)
 		{
 			for (WebComponentApiDefinition def : webComponentSpec.getApis().values())
@@ -60,9 +66,19 @@ public class RuntimeWebComponent implements Scriptable
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (Entry<String, PropertyDescription> e : specs.entrySet())
 			{
-				if (e.getValue().getType() == PropertyType.dataprovider)
+				IPropertyType type = e.getValue().getType();
+				if (type == IPropertyType.Default.dataprovider.getType())
 				{
 					dataProviderProperties.add(e.getKey());
+				}
+				else
+				{
+					IServerObjToJavaPropertyConverter< ? , ? > javascriptToPropertyConverter = type.getServerObjectToJavaPropertyConverter(e.getValue().isArray());
+					if (javascriptToPropertyConverter != null)
+					{
+						// we have a custom property that is able to convert values for javascript
+						complexProperties.put(e.getKey(), javascriptToPropertyConverter);
+					}
 				}
 			}
 		}
@@ -79,6 +95,15 @@ public class RuntimeWebComponent implements Scriptable
 	{
 		if (specProperties != null && specProperties.contains(name))
 		{
+			if (complexProperties.containsKey(name))
+			{
+				Object val = component.getProperty(name);
+				if (val instanceof IComplexPropertyValue)
+				{
+					Object scriptValue = ((IComplexPropertyValue)val).toServerObj();
+					return (scriptValue == IComplexPropertyValue.NOT_AVAILABLE ? Scriptable.NOT_FOUND : scriptValue);
+				}
+			}
 			return component.getConvertedPropertyWithDefault(name, dataProviderProperties.contains(name), true);
 		}
 		if (apiFunctions.containsKey(name))
@@ -112,7 +137,11 @@ public class RuntimeWebComponent implements Scriptable
 	{
 		if (specProperties != null && specProperties.contains(name))
 		{
-			return true;
+			if (complexProperties.containsKey(name))
+			{
+				return complexProperties.get(name).usesServerObjRepresentation();
+			}
+			else return true;
 		}
 		if (apiFunctions.containsKey(name)) return true;
 
@@ -141,7 +170,7 @@ public class RuntimeWebComponent implements Scriptable
 		}
 		if (specProperties != null && specProperties.contains(name))
 		{
-			component.putProperty(name, value);
+			component.putProperty(name, value, ConversionLocation.SERVER);
 		}
 		else if (prototypeScope != null)
 		{
@@ -211,6 +240,10 @@ public class RuntimeWebComponent implements Scriptable
 		ArrayList<String> al = new ArrayList<>();
 		al.addAll(specProperties);
 		al.addAll(apiFunctions.keySet());
+		for (Entry<String, IServerObjToJavaPropertyConverter< ? , ? >> cp : complexProperties.entrySet())
+		{
+			if (!cp.getValue().usesServerObjRepresentation()) al.remove(cp.getKey());
+		}
 		return al.toArray();
 	}
 

@@ -38,23 +38,23 @@ handlers:
 },
 api:
 {
-        getSelectedText:{
+        getSelectedText: {
             returns: 'string',
-                 }, 
-        replaceSelectedText:{
-            
-            parameters:[{'s':'string'}]
-        }, 
-        requestFocus:{
-            
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
-        }, 
-        selectAll:{
-            
-                 }, 
-        setValueListItems:{
-            
+            callOn: 1
+        },
+        replaceSelectedText: {
+            parameters:[{'s':'string'}],
+            callOn: 1
+        },
+        requestFocus: {
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
+            callOn: 1
+        },
+        selectAll: {
+
+        },
+        setValueListItems: {
             parameters:[{'value':'object'}]
-        } 
+        }
 }
  

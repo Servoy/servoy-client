@@ -33,8 +33,10 @@ public class ApiMethod
 	private final String returnType;
 	private final List<Pair<String, String>> parameters;
 	private final List<String> optionalParameters;
+	private final List<String> hints;
 
-	public ApiMethod(String name, String returnType, List<String> parametersNames, List<String> parameterTypes, List<String> optionalParameters)
+	public ApiMethod(String name, String returnType, List<String> parametersNames, List<String> parameterTypes, List<String> optionalParameters,
+		List<String> hints)
 	{
 		this.name = name;
 		this.parameters = new ArrayList<Pair<String, String>>();
@@ -49,6 +51,7 @@ public class ApiMethod
 		}
 		this.optionalParameters = optionalParameters;
 		this.returnType = returnType;
+		this.hints = hints; // metaData contains more info about this method; for example, when the component is used in a table-view/grid layout, should the api method be called on all records or just a selected record?
 
 	}
 
@@ -70,6 +73,11 @@ public class ApiMethod
 	public List<Pair<String, String>> getParameters()
 	{
 		return parameters;
+	}
+
+	public List<String> getHints()
+	{
+		return hints;
 	}
 
 }
