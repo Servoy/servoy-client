@@ -17,8 +17,11 @@
 
 package com.servoy.j2db.debug;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
+
+import org.sablo.eventthread.WebsocketSessionEndpoints;
 
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
@@ -45,7 +48,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	/**
 	 * @param webSocketClientEndpoint
-	 * @param designerCallback 
+	 * @param designerCallback
 	 */
 	public DebugNGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback)
 	{
@@ -115,7 +118,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDebugClient#setCurrent(com.servoy.j2db.persistence.Solution)
 	 */
 	@Override
@@ -127,7 +130,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDebugClient#refreshForI18NChange(boolean)
 	 */
 	@Override
@@ -139,7 +142,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDebugClient#refreshPersists(java.util.Collection)
 	 */
 	@Override
@@ -156,7 +159,16 @@ public class DebugNGClient extends NGClient implements IDebugClient
 			{
 				((WebFormUI)controller.getFormUI()).init();
 			}
-			getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null);
+			WebsocketSessionEndpoints allendpoints = new WebsocketSessionEndpoints(getWebsocketSession());
+			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null);
+			try
+			{
+				allendpoints.sendMessage(null, true, getWebsocketSession().getForJsonConverter());
+			}
+			catch (IOException e)
+			{
+				reportError("error sending changes to the client", e);
+			}
 		}
 
 		for (IFormController controller : scopesAndFormsToReload[0])
