@@ -53,7 +53,7 @@ public abstract class BaseSolutionHelper
 	}
 
 	// gets a mobile property manipulator handle from a JSXYZ (solution model type) type.
-	// TODO ac in order to avoid casts we could introduce a new interface for getting mobile properties + a new interface for each IBaseSM... type that also extends that interface
+
 	/**
 	 * Should never return null for a jsObject that is capable of having mobile properties.
 	 */
