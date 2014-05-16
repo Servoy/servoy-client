@@ -71,7 +71,7 @@ public class JSI18N implements IJSI18N
 	 * The country must be an upper case 2 letter code defined by IS-3166
 	 * see http://www.chemie.fu-berlin.de/diverse/doc/ISO_3166.html 
 	 *
-	 * NOTE: For more information on i18n, see the chapter on Internationalization (i18n) in the Servoy Developer User's Guide, beginning with the Introduction to i18n
+	 * NOTE: For more information on i18n, see the chapter on Internationalization in the Servoy Developer User's Guide, and the chapter on Internationalization-I18N in the Programming Guide.
 	 * 
 	 * @sample
 	 * //Warning: already created form elements with i18n text lookup will not change,
@@ -92,7 +92,7 @@ public class JSI18N implements IJSI18N
 	/**
 	 * Gets the current language; based on the current locale settings in the Servoy Client Locale preferences. 
 	 * 
-	 * NOTE: For more information on i18n, see the chapter on Internationalization (i18n) in the Servoy Developer User's Guide, beginning with the Introduction to i18n
+	 * NOTE: For more information on i18n, see the chapter on Internationalization in the Servoy Developer User's Guide, and the chapter on Internationalization-I18N in the Programming Guide.
 	 * @sample
 	 * var currLang = i18n.getCurrentLanguage();
 	 * 
@@ -107,7 +107,7 @@ public class JSI18N implements IJSI18N
 	/**
 	 * Gets the current country; based on the current locale settings in the Servoy Client Locale preferences. 
 	 * 
-	 * NOTE: For more information on i18n, see the chapter on Internationalization (i18n) in the Servoy Developer User's Guide, beginning with the Introduction to i18n
+	 * NOTE: For more information on i18n, see the chapter on Internationalization in the Servoy Developer User's Guide, and the chapter on Internationalization-I18N in the Programming Guide.
 	 * 
 	 * @sample
 	 * var currCountry = i18n.getCurrentCountry();
@@ -469,6 +469,8 @@ public class JSI18N implements IJSI18N
 	 * @sample
 	 * // This will set the default time zone to Central European Time
 	 * i18n.setTimeZone("Europe/Amsterdam");
+	 * 
+	 * @param timezone the client's time zone
 	 */
 	@JSFunction
 	public void setTimeZone(String timezone)
