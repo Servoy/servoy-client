@@ -172,7 +172,7 @@ public class NGClientForJsonConverter implements IForJsonConverter
 		{
 			Map<String, Object> map = new HashMap<>();
 			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.getMediaInfo((byte[])value);
-			map.put("url", "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + mediaInfo.getName());
+			map.put("url", "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName());
 			map.put("contentType", mediaInfo.getContentType());
 			return map;
 		}
