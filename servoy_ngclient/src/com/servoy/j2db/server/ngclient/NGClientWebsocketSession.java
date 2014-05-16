@@ -79,6 +79,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	private final AtomicInteger handlingEvent = new AtomicInteger(0);
 
 	private final ConcurrentMap<String, String> formsOnClient = new ConcurrentHashMap<>();
+	private boolean proccessChanges;
 
 	public NGClientWebsocketSession()
 	{
@@ -102,7 +103,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createDispatcher()
 	 */
 	@Override
@@ -612,15 +613,20 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void valueChanged()
 	{
 		// if there is an incoming message or an NGEvent running on event thread, postpone sending until it's done; else push it.
-		if (WebsocketEndpoint.get().hasSession() && client != null && handlingEvent.get() == 0)
+		if (!proccessChanges && WebsocketEndpoint.get().hasSession() && client != null && handlingEvent.get() == 0)
 		{
 			try
 			{
+				proccessChanges = true;
 				sendChanges(client.getChanges());
 			}
 			catch (IOException e)
 			{
 				Debug.error(e);
+			}
+			finally
+			{
+				proccessChanges = false;
 			}
 		}
 	}

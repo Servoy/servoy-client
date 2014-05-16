@@ -52,6 +52,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private IRecordInternal record;
 	private boolean findMode;
+	private boolean settingRecord;
 
 	public DataAdapterList(INGApplication application, IWebFormController formController)
 	{
@@ -143,23 +144,39 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)
 	{
-		if (this.record != null)
+		if (settingRecord)
 		{
-			this.record.removeModificationListener(this);
-		}
-		this.record = (IRecordInternal)record;
-		if (this.record != null)
-		{
-			this.record.addModificationListener(this);
-			pushRecordValues(fireChangeEvent, false);
-		}
-
-		for (IWebFormController form : relatedForms.keySet())
-		{
-			if (form.isFormVisible())
+			if (record != this.record)
 			{
-				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form)) : null);
+				throw new IllegalStateException("Record " + record + " is being set on DAL when record: " + this.record + " is being processed");
 			}
+			return;
+		}
+		try
+		{
+			settingRecord = true;
+			if (this.record != null)
+			{
+				this.record.removeModificationListener(this);
+			}
+			this.record = (IRecordInternal)record;
+			if (this.record != null)
+			{
+				pushRecordValues(fireChangeEvent, false);
+				this.record.addModificationListener(this);
+			}
+
+			for (IWebFormController form : relatedForms.keySet())
+			{
+				if (form.isFormVisible())
+				{
+					form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form)) : null);
+				}
+			}
+		}
+		finally
+		{
+			settingRecord = false;
 		}
 	}
 
