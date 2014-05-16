@@ -295,7 +295,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -306,7 +306,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -317,7 +317,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -425,5 +425,10 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 	public IWebFormUI getParent()
 	{
 		return parentForm;
+	}
+
+	public int getFormIndex(IWebFormUI form)
+	{
+		return visibleForms.containsKey(form) ? visibleForms.get(form).intValue() : -1;
 	}
 }

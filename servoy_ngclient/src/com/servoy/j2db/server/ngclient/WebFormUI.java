@@ -24,6 +24,8 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.BufferedDataSet;
+import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -566,6 +568,11 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		this.parentContainerOrWindowName = parentContainer;
 	}
 
+	public Object getParentContainer()
+	{
+		return parentContainerOrWindowName;
+	}
+
 	@Override
 	public String getParentWindowName()
 	{
@@ -932,16 +939,32 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormUI#getFormContext()
-	 */
 	@Override
 	public JSDataSet getFormContext()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		IDataSet set = new BufferedDataSet(
+			new String[] { "windowname", "formname", "containername", "tabname", "tabindex", "tabindex1based" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		set.addRow(new Object[] { null, formController.getName(), null, null, null, null });
+		Object currentContainer = parentContainerOrWindowName;
+		WebFormUI currentForm = this;
+		while (currentContainer instanceof WebFormComponent)
+		{
+			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
+			int index = currentComponent.getFormIndex(currentForm);
+			currentForm = (WebFormUI)currentComponent.getParent();
+			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
+				index + 1) });
+			currentContainer = currentForm.getParentContainer();
+		}
+		if (currentContainer instanceof String)
+		{
+			// fill in window name
+			for (int i = 0; i < set.getRowCount(); i++)
+			{
+				set.getRow(i)[0] = currentContainer;
+			}
+		}
+		return new JSDataSet(formController.getApplication(), set);
 	}
 
 	/*
