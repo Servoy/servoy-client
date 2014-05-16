@@ -168,6 +168,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	{
 		if (wsSession != null)
 		{
+			wsSession.deregisterEndpoint(this);
 			WebsocketSessionManager.closeSession(endpointType, wsSession.getUuid());
 		}
 		session = null;
