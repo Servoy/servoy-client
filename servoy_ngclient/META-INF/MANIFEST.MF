@@ -9,6 +9,7 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.startup.resourceprovider,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils,
+ org.sablo.eventthread,
  org.sablo.specification,
  org.sablo.websocket
 Require-Bundle: servoy_shared,
