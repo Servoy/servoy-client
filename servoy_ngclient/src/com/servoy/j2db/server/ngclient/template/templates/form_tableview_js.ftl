@@ -17,6 +17,11 @@
 <#include "form_js_base.ftl"> 
 <#macro form_js_body>
     
+    var tmpRows;
+	if ($scope.model['']) {
+  		tmpRows = $scope.model[''].rows;
+  		$scope.model[''].rows = [];
+	}
 	$scope.cellRender = function(row, columnName, columnModel) { 
 		var cellModel = row.getProperty(columnName);
 		if (!cellModel.svyInit) {
@@ -37,21 +42,33 @@
 	}
 	if (!$scope.model['']) $scope.model[''] = {};
 	 
-	$scope.model[''].currentPage = 1;
+	if (!$scope.model[''].currentPage) $scope.model[''].currentPage = 1;
 	$scope.$watch('model..currentPage', function (newVal, oldVal) {
 		if (newVal !== oldVal) {
-		$timeout(function() {
 			$scope.pagingOptions.currentPage = newVal;
-			});
 		}
 	}, false);
 	
-	$scope.pagingOptions = {pageSize: ${pageSize}, currentPage: 1};
-	$scope.$watch('pagingOptions', function (newVal, oldVal) {
+	$scope.pagingOptions = {pageSize: 0, currentPage: $scope.model[''].currentPage};
+	if ($scope.model[''].pageSize) $scope.pagingOptions.pageSize = $scope.model[''].pageSize;
+	$scope.$watch('pagingOptions.pageSize', function (newVal, oldVal) {
 		if (newVal !== oldVal) {
-			$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',currentPage:newVal.currentPage, pageSize:newVal.pageSize});
+			$scope.model[''].pageSize = newVal;
+			$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',pageSize:newVal});
 		}
-	}, true);
+	}, false);
+	$scope.$watch('pagingOptions.currentPage', function (newVal, oldVal) {
+		if ($scope.model[''].currentPage != newVal) {
+			$timeout(function(){ 
+			    if ($scope.pagingOptions.currentPage == newVal) {
+					$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',currentPage:newVal});
+				}
+				else {
+				console.log("not the same");
+				}
+			},200);
+		}
+	}, false);
 	$scope.$watch('model..updatedRows', function (newVal, oldVal) {
 		if (newVal && newVal !== oldVal) {
 			var rows = $scope.model[''].rows;
@@ -145,8 +162,8 @@
 		}
 	}, false);
 	
-	
-	$scope.$watch('model..totalRows', function (newVal, oldVal) {
+	var firstTime = true;
+	$scope.$watch('model..totalRows', function (newVal, oldVal) {	
 		if (angular.isUndefined(oldVal))
 		{
 			$scope.grid${controllerName}.$gridScope.pagingOptions.pageSize = Math.ceil(($scope.grid${controllerName}.$gridScope.viewportDimHeight()-2)/(${rowHeight}+1)); //border is 1px
@@ -154,8 +171,9 @@
 				$scope.$apply();
 			});
 		}	
-		if (newVal !== oldVal)
+		if (firstTime || newVal !== oldVal)
 		{
+			firstTime = false;
 			 var rowsHeight = parseInt(newVal) * $scope.grid${controllerName}.$gridScope.rowHeight;
 			 var show =  rowsHeight > $scope.grid${controllerName}.$gridScope.viewportDimHeight();
 			 $scope.grid${controllerName}.$gridScope.enablePaging = show;
@@ -166,7 +184,7 @@
 			 }
 		}
 	}, false);
-
+	
 	$scope.columnDefs = new Array(); 
 	<#assign i = 0>
 	<#list bodyComponents as bc>
@@ -208,5 +226,17 @@
 	columnDefs: 'columnDefs'
 	};
 
+	if (tmpRows)
+	{
+		$timeout(function() {
+			// first get on the same level as the paint events.
+			$timeout(function() {
+				if ($scope.model[''].rows.length == 0) {
+					// this will be after the paint events.		
+		    		$scope.model[''].rows = tmpRows;
+		    	}
+			},10);
+		},10);
+	}
 </#macro> 
 <@form_js/> 

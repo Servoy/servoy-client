@@ -51,7 +51,6 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 {
-	public static final int DEFAULT_PAGE_SIZE = 25;
 	public static final int HEADER_HEIGHT = 30;
 
 	private final IWebFormController formController;
@@ -63,9 +62,10 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	private boolean allChanged = false;
 	private int startTabSeqIndex = 1;
 	private int pageSize;
+	private IFoundSetInternal previousFS;
 
 	/**
-	 * @param application 
+	 * @param application
 	 * @param name
 	 * @param form
 	 * @param application
@@ -159,7 +159,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetEventListener#foundSetChanged(com.servoy.j2db.dataprocessing.FoundSetEvent)
 	 */
 	@Override
@@ -184,7 +184,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 					int startRow = Math.max(startIdx, event.getFirstRow());
 					int numberOfDeletes = Math.min(event.getLastRow(), endIdx) - event.getFirstRow() + 1;
 
-					RowData data = getRows(endIdx - Math.min(DEFAULT_PAGE_SIZE, numberOfDeletes), endIdx);
+					RowData data = getRows(endIdx - Math.min(getPageSize(), numberOfDeletes), endIdx);
 
 					rowChanges.add(new RowData(data.rows, startRow - startIdx, startRow + numberOfDeletes - startIdx, RowData.DELETE));
 				}
@@ -196,8 +196,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			}
 			else if (event.getChangeType() == FoundSetEvent.CHANGE_INSERT)
 			{
-				int startIdx = (currentPage - 1) * DEFAULT_PAGE_SIZE;
-				int endIdx = currentPage * DEFAULT_PAGE_SIZE;
+				int startIdx = (currentPage - 1) * getPageSize();
+				int endIdx = currentPage * getPageSize();
 				if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
 				if (event.getFirstRow() < endIdx)
 				{
@@ -227,11 +227,11 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	 */
 	public int getPageSize()
 	{
-		return pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
+		return pageSize;
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void setAllChanged()
 	{
@@ -243,8 +243,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	@SuppressWarnings("nls")
 	private RowData getRows(int startRow, int lastRow)
 	{
-		if (currentFoundset == null) return RowData.EMPTY;
-
+		if (currentFoundset == null || getPageSize() == 0) return RowData.EMPTY;
 		List<Map<String, Object>> rows = new ArrayList<>();
 		int startIdx = (currentPage - 1) * getPageSize();
 		int endIdx = currentPage * getPageSize();
@@ -272,7 +271,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			rowProperties.put("_svyRowId", record.getPKHashKey() + "_" + i);
 			for (WebFormComponent wc : bodyComponents)
 			{
-				//TODO 
+				//TODO
 				//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
 				// namepanel2 has a nested property which is a dataproviderID
 				Map<String, Object> cellProperties = new HashMap<>();
@@ -333,7 +332,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			if (wc.getFormElement().getPersist() instanceof BaseComponent)
 			{
 				Point location = ((BaseComponent)wc.getFormElement().getPersist()).getLocation();
-				//svy_default_navigator doesn't have location 
+				//svy_default_navigator doesn't have location
 				if (location != null && (bodyStartY <= location.y && bodyEndY > location.y))
 				{
 					ret.add(wc);
@@ -365,7 +364,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#setModel(com.servoy.j2db.dataprocessing.IFoundSetInternal)
 	 */
 	@Override
@@ -374,19 +373,26 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		if (fs == currentFoundset) return;
 
 		if (currentFoundset != null) currentFoundset.removeFoundSetEventListener(this);
+		if (fs == null)
+		{
+			previousFS = currentFoundset;
+		}
 		currentFoundset = fs;
 		if (currentFoundset != null)
 		{
 			currentFoundset.addFoundSetEventListener(this);
+			int page = previousFS == currentFoundset ? currentPage : -1;
 			setAllChanged();
+			if (page != -1) currentPage = page;
 			application.getChangeListener().valueChanged();
+			previousFS = null;
 		}
 
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.WebFormUI#destroy()
 	 */
 	@Override
@@ -501,7 +507,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.ListModel#getSize()
 		 */
 		@Override
@@ -512,7 +518,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.ListModel#getElementAt(int)
 		 */
 		@Override
@@ -523,7 +529,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.ListModel#addListDataListener(javax.swing.event.ListDataListener)
 		 */
 		@Override
@@ -533,7 +539,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.ListModel#removeListDataListener(javax.swing.event.ListDataListener)
 		 */
 		@Override
@@ -543,7 +549,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#getRealElementAt(int)
 		 */
 		@Override
@@ -554,7 +560,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#getRelationName()
 		 */
 		@Override
@@ -565,7 +571,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#fill(com.servoy.j2db.dataprocessing.IRecordInternal)
 		 */
 		@Override
@@ -575,7 +581,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#realValueIndexOf(java.lang.Object)
 		 */
 		@Override
@@ -586,7 +592,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#indexOf(java.lang.Object)
 		 */
 		@Override
@@ -597,7 +603,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#deregister()
 		 */
 		@Override
@@ -607,7 +613,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#getAllowEmptySelection()
 		 */
 		@Override
@@ -618,7 +624,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#getName()
 		 */
 		@Override
@@ -629,7 +635,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#hasRealValues()
 		 */
 		@Override
@@ -640,7 +646,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#setFallbackValueList(com.servoy.j2db.dataprocessing.IValueList)
 		 */
 		@Override
@@ -650,7 +656,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#getFallbackValueList()
 		 */
 		@Override
@@ -661,7 +667,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.IValueList#getValueList()
 		 */
 		@Override

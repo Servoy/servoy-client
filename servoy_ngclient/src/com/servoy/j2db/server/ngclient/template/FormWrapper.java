@@ -83,11 +83,6 @@ public class FormWrapper
 		return "angular.module('servoyApp').controller";
 	}
 
-	public int getPageSize()
-	{
-		return WebGridFormUI.DEFAULT_PAGE_SIZE;
-	}
-
 	public int getHeaderHeight()
 	{
 		if (form.hasPart(Part.HEADER))
