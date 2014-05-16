@@ -166,7 +166,32 @@
 			 }
 		}
 	}, false);
-	
+
+	$scope.columnDefs = new Array(); 
+	<#assign i = 0>
+	<#list bodyComponents as bc>
+		$scope.columnDefs[${i}] = {
+			<#if bc.label??>
+			headerCellTemplate: '<${bc.label.tagname} headerCell name="${bc.label.name}" svy-model="model.${bc.label.name}" svy-api="api.${bc.label.name}" svy-handlers="handlers.${bc.label.name}" svy-apply="handlers.${bc.label.name}.svy_apply" svy-servoyApi="handlers.${bc.label.name}.svy_servoyApi"/>'
+			<#else>
+			displayName: '${bc.name}'
+			</#if>,
+			cellTemplate: '<${bc.tagname} name="${bc.name}" svy-model="cellRender(row, \'${bc.name}\', model.${bc.name})" svy-api="cellApiWrapper(api.${bc.name},row.getProperty(\'${bc.name}\'))" svy-handlers="cellHandler(row,\'${bc.name}\',handlers.${bc.name})" svy-apply="applyWrapper(handlers.${bc.name}.svy_apply,row.getProperty(\'${bc.name}\'))"/>',
+			<#if bc.properties.size??>
+			width: ${bc.properties.size.width},
+			</#if>
+			<#if bc.properties.visible??>
+			visible: ${bc.properties.visible?c},
+			</#if>
+		};
+		<#if bc.properties.visible??>
+			$scope.$watch('model.${bc.name}.visible', function (newVal, oldVal) {
+				$scope.columnDefs[${i}].visible = newVal;
+			}, false);
+		</#if>
+		<#assign i = i + 1>
+	</#list>
+
 	$scope.grid${controllerName} = {
 	data: 'model..rows',
 	enableCellSelection: true,
@@ -180,21 +205,8 @@
 	totalServerItems: 'model..totalRows',
 	pagingOptions: $scope.pagingOptions,
 	primaryKey: '_svyRowId',
-	columnDefs: [
-	<#list bodyComponents as bc>
-		{
-			<#if bc.label??>
-			headerCellTemplate: '<${bc.label.tagname} headerCell name="${bc.label.name}" svy-model="model.${bc.label.name}" svy-api="api.${bc.label.name}" svy-handlers="handlers.${bc.label.name}" svy-apply="handlers.${bc.label.name}.svy_apply" svy-servoyApi="handlers.${bc.label.name}.svy_servoyApi"/>'
-			<#else>
-			displayName: '${bc.name}'
-			</#if>,
-			cellTemplate: '<${bc.tagname} name="${bc.name}" svy-model="cellRender(row, \'${bc.name}\', model.${bc.name})" svy-api="cellApiWrapper(api.${bc.name},row.getProperty(\'${bc.name}\'))" svy-handlers="cellHandler(row,\'${bc.name}\',handlers.${bc.name})" svy-apply="applyWrapper(handlers.${bc.name}.svy_apply,row.getProperty(\'${bc.name}\'))"/>',
-			<#if bc.properties.size??>
-			width: ${bc.properties.size.width}
-			</#if>
-		}<#if bc_has_next>,</#if>
-	</#list>
-		]
+	columnDefs: 'columnDefs'
 	};
+
 </#macro> 
 <@form_js/> 
