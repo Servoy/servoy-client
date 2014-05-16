@@ -28,10 +28,10 @@ import com.servoy.j2db.util.Utils;
  */
 public class DeveloperPreferences
 {
-	public static final String DUMMY_AUTHENTICATION_SETTING = "developer.useDummyAuth"; //$NON-NLS-1$
+	public static final String DUMMY_AUTHENTICATION_SETTING = "developer.useDummyAuth";
 	public static final boolean DUMMY_AUTHENTICATION_DEFAULT = true; // note that the pref is hidden now
 
-	public static final String SERIALIZING_PROXY_SETTING = "developer.useSerializingProxy"; //$NON-NLS-1$
+	public static final String SERIALIZING_PROXY_SETTING = "developer.useSerializingProxy";
 	public static final boolean SERIALIZING_PROXY_DEFAULT = true; // note that the pref is hidden now
 
 	private final Properties settings;

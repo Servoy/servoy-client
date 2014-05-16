@@ -48,8 +48,7 @@ import com.servoy.j2db.util.ServoyException;
  * @author jcompagner
  * @since 6.0
  *
- */
-@SuppressWarnings("nls")
+ */
 public class ProfileDataServer implements IDataServer
 {
 	private final IDataServer dataserver;

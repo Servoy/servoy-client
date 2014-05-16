@@ -68,14 +68,14 @@ public final class ProfileData
 			Arrays.sort(this.lineNumbers);
 		}
 		// calcs always end with _ and are always in a source file that ends with _calculations)
-		if (functionName != null && functionName.endsWith("_") && sourceName.endsWith("_calculations.js")) //$NON-NLS-1$ //$NON-NLS-2$
+		if (functionName != null && functionName.endsWith("_") && sourceName.endsWith("_calculations.js"))
 		{
 			this.functionName = functionName.substring(0, functionName.length() - 1);
 			this.isCalculation = true;
 		}
 		else
 		{
-			this.functionName = functionName == null ? "<eval>" : functionName; //$NON-NLS-1$
+			this.functionName = functionName == null ? "<eval>" : functionName;
 			this.isCalculation = false;
 		}
 		this.time = time;
@@ -93,55 +93,55 @@ public final class ProfileData
 			{
 				JSEvent event = (JSEvent)args[i];
 				StringBuilder sb = new StringBuilder();
-				sb.append("JSEvent["); //$NON-NLS-1$
+				sb.append("JSEvent[");
 				boolean added = false;
 				if (event.getType() != null)
 				{
-					sb.append("type="); //$NON-NLS-1$
+					sb.append("type=");
 					sb.append(event.getType());
 					added = true;
 				}
 				if (event.getFormName() != null)
 				{
-					if (added) sb.append(","); //$NON-NLS-1$
-					sb.append("form="); //$NON-NLS-1$
+					if (added) sb.append(",");
+					sb.append("form=");
 					sb.append(event.getFormName());
 					added = true;
 				}
 				if (event.getElementName() != null)
 				{
-					if (added) sb.append(","); //$NON-NLS-1$
-					sb.append("element="); //$NON-NLS-1$
+					if (added) sb.append(",");
+					sb.append("element=");
 					sb.append(event.getElementName());
 					added = true;
 				}
 				if (event.getModifiers() != 0)
 				{
-					if (added) sb.append(","); //$NON-NLS-1$
-					sb.append("modifiers="); //$NON-NLS-1$
+					if (added) sb.append(",");
+					sb.append("modifiers=");
 					sb.append(event.getModifiers());
 					added = true;
 				}
 				if (event.getX() != 0)
 				{
-					if (added) sb.append(","); //$NON-NLS-1$
-					sb.append("x="); //$NON-NLS-1$
+					if (added) sb.append(",");
+					sb.append("x=");
 					sb.append(event.getX());
 					added = true;
 				}
 				if (event.getY() != 0)
 				{
-					if (added) sb.append(","); //$NON-NLS-1$
-					sb.append("y="); //$NON-NLS-1$
+					if (added) sb.append(",");
+					sb.append("y=");
 					sb.append(event.getY());
 					added = true;
 				}
-				sb.append("]"); //$NON-NLS-1$
+				sb.append("]");
 				this.args[i] = sb.toString();
 			}
 			else if (args[i] instanceof Undefined)
 			{
-				this.args[i] = "undefined"; //$NON-NLS-1$
+				this.args[i] = "undefined";
 			}
 			else
 			{
@@ -255,39 +255,39 @@ public final class ProfileData
 	 */
 	public void toXML(StringBuilder sb)
 	{
-		String childPrefix = "\t"; //$NON-NLS-1$
+		String childPrefix = "\t";
 
-		int endLine = sb.lastIndexOf("\n"); //$NON-NLS-1$
+		int endLine = sb.lastIndexOf("\n");
 		if (endLine != -1)
 		{
 			childPrefix = sb.substring(endLine + 1) + '\t';
 		}
 
-		sb.append("<profiledata "); //$NON-NLS-1$
-		sb.append("methodname=\""); //$NON-NLS-1$
+		sb.append("<profiledata ");
+		sb.append("methodname=\"");
 		sb.append(functionName);
-		sb.append("\" innerfuction=\""); //$NON-NLS-1$
+		sb.append("\" innerfuction=\"");
 		sb.append(innerFunction);
-		sb.append("\" owntime=\""); //$NON-NLS-1$
+		sb.append("\" owntime=\"");
 		sb.append(getOwnTime());
-		sb.append("\" totaltime=\""); //$NON-NLS-1$
+		sb.append("\" totaltime=\"");
 		sb.append(time);
-		sb.append("\" args=\""); //$NON-NLS-1$
+		sb.append("\" args=\"");
 		sb.append(getArgs());
-		sb.append("\" source=\""); //$NON-NLS-1$
+		sb.append("\" source=\"");
 		sb.append(sourceName);
 		if (parentSourceCall != null)
 		{
-			sb.append("\" callposition=\""); //$NON-NLS-1$
+			sb.append("\" callposition=\"");
 			sb.append(parentSourceCall);
 		}
-		sb.append("\">"); //$NON-NLS-1$
+		sb.append("\">");
 		for (ProfileData child : childs)
 		{
 			sb.append('\n');
 			sb.append(childPrefix);
 			child.toXML(sb);
 		}
-		sb.append("</profiledata>"); //$NON-NLS-1$
+		sb.append("</profiledata>");
 	}
 }

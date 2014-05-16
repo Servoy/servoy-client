@@ -57,7 +57,6 @@ import com.servoy.j2db.util.ILogLevel;
  * @author jcompagner
  * 
  */
-@SuppressWarnings("nls")
 public class DebugWebClient extends WebClient implements IDebugWebClient
 {
 	private SolutionMetaData solution;

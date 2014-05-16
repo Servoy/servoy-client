@@ -200,7 +200,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 
 		// fill the scripts menu
-		@SuppressWarnings("nls")
 		@Override
 		protected ScriptMenuItem getScriptMenuItem(ScriptMethod sm, FunctionDefinition functionDefinition, int autoSortcut)
 		{
@@ -273,7 +272,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 
 				private void setUpFormWindow(final FormWindow window, InputMap im, ActionMap am)
 				{
-					am.put("CTRL+L", new AbstractAction() //$NON-NLS-1$
+					am.put("CTRL+L", new AbstractAction()
 						{
 							public void actionPerformed(ActionEvent e)
 							{
@@ -299,7 +298,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 								}
 							}
 						});
-					im.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, J2DBClient.menuShortcutKeyMask), "CTRL+L"); //$NON-NLS-1$
+					im.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, J2DBClient.menuShortcutKeyMask), "CTRL+L");
 				}
 
 			};
@@ -457,11 +456,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			try
 			{
-				return new URL("http://localhost:" + ApplicationServerRegistry.get().getWebServerPort()); //$NON-NLS-1$
+				return new URL("http://localhost:" + ApplicationServerRegistry.get().getWebServerPort());
 			}
 			catch (MalformedURLException e)
 			{
-				Debug.trace("Cannot find base URL for solution loading image...", e); //$NON-NLS-1$
+				Debug.trace("Cannot find base URL for solution loading image...", e);
 				return null;
 			}
 		}
@@ -481,7 +480,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		return shutDown;
 	}
 
-	@SuppressWarnings("nls")
 	public DebugJ2DBClient(boolean setSingletonServiceProvider, final IDesignerCallback callback)
 	{
 		super(setSingletonServiceProvider);
@@ -490,7 +488,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		startupApplication(new String[0]);
 		InputMap inputMap = mainPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 		ActionMap actionMap = mainPanel.getActionMap();
-		actionMap.put("CTRL+L", new AbstractAction() //$NON-NLS-1$
+		actionMap.put("CTRL+L", new AbstractAction()
 			{
 				public void actionPerformed(ActionEvent e)
 				{
@@ -536,7 +534,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	/**
 	 * @see com.servoy.j2db.smart.J2DBClient#getServerURL()
 	 */
-	@SuppressWarnings("nls")
 	@Override
 	public URL getServerURL()
 	{
@@ -652,12 +649,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 	}
 
-	@SuppressWarnings("nls")
 	@Override
 	protected LoginDialog createLoginDialog()
 	{
 		// Override login dialog, add a 'use dummy login' checkbox
-		return new LoginDialog(frame, this, Messages.getString("servoy.logindialog.title"), false, false /* do not show remember-me/dummy login check */) //$NON-NLS-1$
+		return new LoginDialog(frame, this, Messages.getString("servoy.logindialog.title"), false, false /* do not show remember-me/dummy login check */)
 		{
 			@Override
 			protected JCheckBox createRememberMeCheckbox()
@@ -774,7 +770,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	/**
 	 * @see com.servoy.j2db.smart.J2DBClient#addURLStreamHandler(java.lang.String, java.net.URLStreamHandler)
 	 */
-	@SuppressWarnings("nls")
 	@Override
 	public void addURLStreamHandler(String protocolName, URLStreamHandler handler)
 	{
@@ -862,11 +857,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				createMenuBar(actions);
 				fillToolbar(actions);
 
-				String showMenuBar = settings.getProperty("servoy.smartclient.showMenuBar"); //$NON-NLS-1$
-				if (showMenuBar != null && showMenuBar.equals("false")) frame.getJMenuBar().setVisible(false); //$NON-NLS-1$
+				String showMenuBar = settings.getProperty("servoy.smartclient.showMenuBar");
+				if (showMenuBar != null && showMenuBar.equals("false")) frame.getJMenuBar().setVisible(false);
 				else frame.getJMenuBar().setVisible(true);
-				String showToolBar = settings.getProperty("servoy.smartclient.showToolBar"); //$NON-NLS-1$
-				if (showToolBar != null && showToolBar.equals("false")) toolbarsPanel.setVisible(false); //$NON-NLS-1$
+				String showToolBar = settings.getProperty("servoy.smartclient.showToolBar");
+				if (showToolBar != null && showToolBar.equals("false")) toolbarsPanel.setVisible(false);
 				else toolbarsPanel.setVisible(true);
 			}
 			if (getMainApplicationFrame().isVisible())
@@ -1060,7 +1055,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	 * @see com.servoy.j2db.smart.J2DBClient#reportError(java.awt.Component, java.lang.String, java.lang.Object)
 	 */
 	@Override
-	@SuppressWarnings("nls")
 	public void reportError(final Component parentComponent, String msg, Object detail)
 	{
 		String message = msg;
@@ -1299,7 +1293,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 				catch (Exception e)
 				{
-					Debug.error("Error during logout", e); //$NON-NLS-1$
+					Debug.error("Error during logout", e);
 				}
 			}
 		}
@@ -1328,7 +1322,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		//don't install the shutdownhook;
 	}
 
-	@SuppressWarnings("nls")
 	@Override
 	protected void startupApplication(String[] args)
 	{
@@ -1439,12 +1432,12 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			{
 				if (changedProperties.containsKey(LookAndFeelInfo.class.getName()))
 				{
-					String selectedlnfSetting = getSettings().getProperty("selectedlnf"); //$NON-NLS-1$
+					String selectedlnfSetting = getSettings().getProperty("selectedlnf");
 					if (selectedlnfSetting != null) changedProperties.put(LookAndFeelInfo.class.getName(), selectedlnfSetting);
 				}
 				if (changedProperties.containsKey(Font.class.getName()))
 				{
-					String font = getSettings().getProperty("font"); //$NON-NLS-1$
+					String font = getSettings().getProperty("font");
 					if (font != null) changedProperties.put(Font.class.getName(), PersistHelper.createFont(font));
 				}
 

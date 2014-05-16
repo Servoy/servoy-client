@@ -113,7 +113,7 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 		boolean innerFunction = false;
 		String name = node.getFunctionName();
 		DebuggableScript currentNode = node;
-		while ((name == null || name.equals("")) && currentNode.getParent() != null) //$NON-NLS-1$
+		while ((name == null || name.equals("")) && currentNode.getParent() != null)
 		{
 			name = currentNode.getParent().getFunctionName();
 			lineNumbers = currentNode.getLineNumbers();

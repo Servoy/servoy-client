@@ -79,8 +79,8 @@ import com.servoy.j2db.util.Utils;
 public class DebugClientHandler implements IDebugClientHandler, IDesignerCallback
 {
 
-	public static final String SUPPORTED_DEBUG_CLIENT_TYPE_ID = "debugClientTypeID"; //$NON-NLS-1$
-	public static final String DEBUG_CLIENT_PROVIDER_EXTENSION_POINT_ID = "servoy_debug.debugClientProvider"; //$NON-NLS-1$
+	public static final String SUPPORTED_DEBUG_CLIENT_TYPE_ID = "debugClientTypeID";
+	public static final String DEBUG_CLIENT_PROVIDER_EXTENSION_POINT_ID = "servoy_debug.debugClientProvider";
 
 
 	//This is needed for mobile client launch with switch to service option .
@@ -505,7 +505,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 						{
 							try
 							{
-								provider = (IDebugClientPovider<T>)ce.createExecutableExtension("class"); //$NON-NLS-1$
+								provider = (IDebugClientPovider<T>)ce.createExecutableExtension("class");
 								T debugClient = createDebugClient(provider);
 								if (debugClient != null) return debugClient;
 							}

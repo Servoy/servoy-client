@@ -60,7 +60,6 @@ public class DebugUtils
 		public void updateForm(Form form);
 	}
 
-	@SuppressWarnings("nls")
 	public static void errorToDebugger(IExecutingEnviroment engine, String message, Object errorDetail)
 	{
 		Object detail = errorDetail;
@@ -115,7 +114,6 @@ public class DebugUtils
 		}
 	}
 
-	@SuppressWarnings("nls")
 	public static void stdoutToDebugger(IExecutingEnviroment engine, Object message)
 	{
 		if (engine instanceof RemoteDebugScriptEngine)
