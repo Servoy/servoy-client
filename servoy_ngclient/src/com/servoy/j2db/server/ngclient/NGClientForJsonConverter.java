@@ -45,6 +45,7 @@ import org.mozilla.javascript.UniqueTag;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IForJsonConverter;
 
 import com.servoy.j2db.component.ComponentFormat;
@@ -323,34 +324,6 @@ public class NGClientForJsonConverter implements IForJsonConverter
 			map.put("titleJustiffication", titleJust);
 		}
 		return map;
-	}
-
-	/**
-	 * Enum values that can be used to specify a conversion needs to take place based on a value FROM a source type or TO a destination type. 
-	 */
-	public static enum ConversionLocation
-	{
-
-		/**
-		 * A conversion needs to happen FROM JSON design-time value or TO JSON design-time value
-		 */
-		DESIGN,
-
-		/**
-		 * A conversion needs to happen FROM update JSON browser sent value or TO an update JSON that will be sent to browser.
-		 */
-		BROWSER_UPDATE,
-
-		/**
-		 * A conversion needs to happen (FROM JSON browser sent value or) TO a JSON that will be sent to browser.
-		 */
-		BROWSER,
-
-		/**
-		 * A conversion needs to happen FROM server implementation specific type or TO server implementation specific type.
-		 */
-		SERVER
-
 	}
 
 	/**

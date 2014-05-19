@@ -31,8 +31,8 @@ import org.sablo.specification.WebComponentSpec;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
+import org.sablo.websocket.ConversionLocation;
 
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 

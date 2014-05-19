@@ -20,11 +20,12 @@ package com.servoy.j2db.server.ngclient;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.sablo.websocket.ConversionLocation;
+
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 
 /**
  * @author obuligan

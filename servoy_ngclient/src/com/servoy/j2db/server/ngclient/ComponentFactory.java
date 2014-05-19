@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
@@ -39,7 +40,6 @@ import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 

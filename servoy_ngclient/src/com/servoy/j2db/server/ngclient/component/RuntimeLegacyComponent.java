@@ -26,12 +26,12 @@ import java.util.Map;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Utils;
 

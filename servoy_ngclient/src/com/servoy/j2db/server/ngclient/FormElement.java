@@ -36,6 +36,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpec;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -47,7 +48,6 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;

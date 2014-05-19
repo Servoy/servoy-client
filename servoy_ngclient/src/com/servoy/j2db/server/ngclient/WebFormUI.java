@@ -20,6 +20,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpec;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
@@ -36,7 +37,6 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;

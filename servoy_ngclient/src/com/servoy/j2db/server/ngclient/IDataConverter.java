@@ -18,8 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import org.json.JSONException;
-
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
+import org.sablo.websocket.ConversionLocation;
 
 /**
  * Converter from client data (JSON) to backend data

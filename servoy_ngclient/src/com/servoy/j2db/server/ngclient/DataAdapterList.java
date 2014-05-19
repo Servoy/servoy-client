@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.DataproviderConfig;
+import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
@@ -31,7 +32,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
