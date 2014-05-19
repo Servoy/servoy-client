@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.Map;
 
+import org.sablo.IChangeListener;
 import org.sablo.specification.WebComponentSpec;
 
 import com.servoy.j2db.IBasicFormUI;

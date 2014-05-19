@@ -19,11 +19,11 @@ package com.servoy.j2db.server.ngclient.property;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.websocket.utils.DataConversion;
 
-import com.servoy.j2db.server.ngclient.IChangeListener;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 

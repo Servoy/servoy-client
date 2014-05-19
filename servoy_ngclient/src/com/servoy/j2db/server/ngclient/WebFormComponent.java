@@ -16,6 +16,7 @@ import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;

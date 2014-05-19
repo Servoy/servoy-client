@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import org.sablo.IChangeListener;
+
 import com.servoy.j2db.IApplication;
 
 /**

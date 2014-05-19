@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import org.sablo.IChangeListener;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.IWebsocketSession;
 
