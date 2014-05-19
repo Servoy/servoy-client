@@ -624,6 +624,7 @@ public class ScriptEngine implements IScriptSupport
 				String methodName = f.get("_methodname_", f).toString(); //$NON-NLS-1$
 				String formscope = thisObject.toString();
 				if (thisObject instanceof FormScope) formscope = ((FormScope)thisObject).getFormController().getName();
+				if (thisObject instanceof GlobalScope) formscope = ((GlobalScope)thisObject).getScopeName();
 				methodName = formscope + "." + methodName; //$NON-NLS-1$
 
 				//run
