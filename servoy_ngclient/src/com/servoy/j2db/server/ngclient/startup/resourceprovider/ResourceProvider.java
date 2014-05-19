@@ -43,8 +43,8 @@ import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.CustomPropertyTypeResolver;
 
-import com.servoy.j2db.server.ngclient.properties.ComponentTypeImpl;
-import com.servoy.j2db.server.ngclient.properties.FoundsetTypeImpl;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeImpl;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeImpl;
 import com.servoy.j2db.server.ngclient.startup.Activator;
 import com.servoy.j2db.util.Utils;
 

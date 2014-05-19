@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.properties;
+package com.servoy.j2db.server.ngclient.property;
 
 import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IDesignJSONToJavaPropertyConverter;

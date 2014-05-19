@@ -49,7 +49,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.NGClientForJsonConverter.ConversionLocation;
-import com.servoy.j2db.server.ngclient.properties.ComponentTypeImpl;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeImpl;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;

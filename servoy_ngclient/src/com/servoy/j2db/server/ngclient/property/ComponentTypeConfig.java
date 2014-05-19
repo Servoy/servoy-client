@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.properties;
+package com.servoy.j2db.server.ngclient.property;
 
 /**
  * .spec file configuration of 'component' typed properties. It can link a component or an array of components to a 'foundset'
