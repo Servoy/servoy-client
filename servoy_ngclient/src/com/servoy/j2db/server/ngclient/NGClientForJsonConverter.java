@@ -193,10 +193,10 @@ public class NGClientForJsonConverter implements IForJsonConverter
 			Map<String, Object> borderStyle = new HashMap<>();
 			map.put("borderStyle", borderStyle);
 
-			borderStyle.put("borderTop", border.getTop() + "px");
-			borderStyle.put("borderRight", border.getRight() + "px");
-			borderStyle.put("borderBottom", border.getBottom() + "px");
-			borderStyle.put("borderLeft", border.getLeft() + "px");
+			borderStyle.put("borderTopWidth", border.getTop() + "px");
+			borderStyle.put("borderRightWidth", border.getRight() + "px");
+			borderStyle.put("borderBottomWidth", border.getBottom() + "px");
+			borderStyle.put("borderLeftWidth", border.getLeft() + "px");
 			borderStyle.put("borderTopColor", border.getTopColor());
 			borderStyle.put("borderRightColor", border.getRightColor());
 			borderStyle.put("borderBottomColor", border.getBottomColor());
@@ -471,11 +471,11 @@ public class NGClientForJsonConverter implements IForJsonConverter
 								return "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
 									media.getName();
 							}
-						else
-						{
-							Debug.log("could not convert value: " + propertyValue + " to an media, media not found");
-							return "";
-						}
+							else
+							{
+								Debug.log("could not convert value: " + propertyValue + " to an media, media not found");
+								return "";
+							}
 						}
 						break;
 
