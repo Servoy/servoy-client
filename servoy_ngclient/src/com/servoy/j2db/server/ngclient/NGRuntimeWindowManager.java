@@ -77,6 +77,28 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 				}
 				break;
 			}
+			case "resize" :
+			{
+				String windowName = args.optString("name");
+				JSONObject size = args.optJSONObject("size");
+				if (windowName != null && size != null)
+				{
+					NGRuntimeWindow window = getWindow(windowName);
+					window.updateSize(size.optInt("width"), size.optInt("height"));
+				}
+				break;
+			}
+			case "move" :
+			{
+				String windowName = args.optString("name");
+				JSONObject location = args.optJSONObject("location");
+				if (windowName != null && location != null)
+				{
+					NGRuntimeWindow window = getWindow(windowName);
+					window.updateLocation(location.optInt("x"), location.optInt("y"));
+				}
+				break;
+			}
 		}
 		return null;
 	}
@@ -122,6 +144,8 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 	@Override
 	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
+		((INGApplication)application).getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "create",
+			new Object[] { windowName, String.valueOf(type) });
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
 

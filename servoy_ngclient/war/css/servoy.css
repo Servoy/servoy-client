@@ -40,4 +40,9 @@ label.svy-check-radio span{
 }
 .window .window-body{
 	overflow:auto;
+	height:100%;
+	/*position:absolute;*/
+}
+.window{
+	/*overflow:auto;*/
 }

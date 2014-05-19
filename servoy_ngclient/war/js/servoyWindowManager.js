@@ -10,17 +10,8 @@ angular.module('servoyWindowManager',[])
 	            var dialogOpenedDeferred = $q.defer();
 
 	         //prepare an instance of a window to be injected into controllers and returned to a caller
-	            var windowInstance = {
-	              bsWindowInstance:null,		
-	              result: dialogResultDeferred.promise,
-	              opened: dialogOpenedDeferred.promise,
-	              close: function (result) {
-	            	  //$modalStack.close(modalInstance, reason);
-	              },
-	              dismiss: function (reason) {
-	            	  windowInstance.bsWindowInstance.close();	              
-	              }
-	            };
+	            var windowInstance =windowOptions.windowInstance; 
+	            
 	        //merge and clean up options
 	            windowOptions.resolve = windowOptions.resolve || {};
 	        //verify options
@@ -44,23 +35,46 @@ angular.module('servoyWindowManager',[])
 	              //controllers
 	              if (windowOptions.controller) {
 	                ctrlLocals.$scope = windowScope;
-	                ctrlLocals.$windowInstance = windowInstance;
+	                ctrlLocals.windowInstance = windowInstance;
 	                angular.forEach(windowOptions.resolve, function (value, key) {
 	                  ctrlLocals[key] = tplAndVars[resolveIter++];
 	                });
 
 	                $controller(windowOptions.controller, ctrlLocals);
 	              }  	        	  
-	           var isModal = (ctrlLocals.windowType == 1);
+	           var isModal = (ctrlLocals.windowInstance.type == 1);
+	           
+	        //resolve initial bounds
+	           var location = null;
+	           var size = null;
+	           if(windowInstance.initialBounds){
+	        	   var bounds = windowInstance.initialBounds;
+	        	   location = {x:bounds.x,
+	        			       y:bounds.y};
+	        	   size = {width:bounds.width,height:bounds.height}
+	           }
+	           if(windowInstance.location){
+	        	   location = windowInstance.location;	        	   
+	           }
+	           if(windowInstance.size){
+	        	   size = windowInstance.size;
+	           }
+	           if(!location){
+	        	   location=centerWindow(windowInstance.formSize)
+	           }
+	        //create the bs window instance
 	        	var win = WM.createWindow({
-	        		id:ctrlLocals.windowName,
+	        		id:windowInstance.name,
 	                template: tplAndVars[0],
 	                title: "Loading...",
 	                bodyContent: "Loading...",
+	                resizable:!!windowInstance.resizable,
+	                location:location,
+	                size:size,
 		            isModal:isModal 
 	            })
 	            var compiledWin = $compile(win.$el)(windowScope);
-	        	//set servoy managed window Instance
+	        	//set servoy managed bootstrap-window Instance
 	        	windowInstance.bsWindowInstance =win; 
 	          },function resolveError(reason) {
 	            	dialogResultDeferred.reject(reason);
@@ -73,7 +87,7 @@ angular.module('servoyWindowManager',[])
 	                dialogOpenedDeferred.reject(false);
 	           });	        	
 	           
-	        return windowInstance;
+	        return dialogOpenedDeferred.promise;
 		}
 	}	
 	
@@ -94,5 +108,18 @@ angular.module('servoyWindowManager',[])
           }
         });
         return promisesArr;
-      }  
+     }
+    function centerWindow(formSize){
+    	var body = $('body');
+    	var browserWindow =  $(window);
+        var top, left,
+            bodyTop = parseInt(body.position().top, 10) + parseInt(body.css('paddingTop'), 10);
+            left = (browserWindow.width() / 2) - (formSize.width / 2);
+            top = (browserWindow.height() / 2) - (formSize.height / 2);
+        if (top < bodyTop) {
+            top = bodyTop;
+        }
+       return {x:left,y:top}
+    };
+    
 }]);

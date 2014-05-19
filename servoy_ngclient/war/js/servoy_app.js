@@ -1,5 +1,5 @@
 var controllerProvider;
-angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule','servoyWindowManager']).config(function($controllerProvider) {
+angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
 }).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
@@ -504,54 +504,98 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		}
 	}
 	
-}]).factory("$windowService", function($servoyWindowManager, $modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings, $window, $servoyInternal,webStorage) {
 	var instances = {};
-	
+	var storage = webStorage.session;
+	if(storage.get('svyWinInstances')){
+		instances = JSON.parse(storage.get('svyWinInstances'))
+		for(key in instances){
+			var win =  instances[key]
+		}
+	}
 	var formTemplateUrls = {};
 	
-//	 $templateCache.put("template/modal/window.html",
-//			    "<div tabindex=\"-1\" class=\"modal fade {{ windowClass }}\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\">\n" +
-//			    "    <div class=\"modal-dialog\" ng-style=\"formSize\"><div class=\"modal-content\" ng-style=\"formSize\" ng-transclude></div></div>\n" +
-//			    "</div>");
 	return {
-		show: function(name,dialogDescription) {
-			console.log(dialogDescription)
-			if (!instances[name]) {
-				var windowInstance = $servoyWindowManager.open({
+		create: function (name,type){
+			if(!instances[name]){
+				var win = 
+					{name:name,
+					 type:type,
+					 title:'',
+					 opacity:1,
+					 undecorated:false,
+					 bsWindowInstance:null,  // bootstrap-window instance , available only after creation 
+				     hide: function (result) {
+				    	 win.bsWindowInstance.close();
+				    	 if(!this.storeBounds){
+				    		  delete this.location;
+				    		  delete this.size;
+				    	 }
+				     },
+				     setLocation:function(location){
+				    	 this.location = location;
+				    	 if(win.bsWindowInstance){
+				    		 win.bsWindowInstance.$el.css('left',this.location.x+'px');
+					    	 win.bsWindowInstance.$el.css('top',this.location.y+'px'); 
+				    	 }				    	 
+				     },
+				     setSize:function(size){
+				    	 this.size = size;
+				    	 if(win.bsWindowInstance){
+				    		 win.bsWindowInstance.$el.css('width',this.size.width+'px');
+					    	 win.bsWindowInstance.$el.css('height',this.size.height+'px'); 
+				    	 }				    	 
+				     },
+				     onResize:function($event,size){
+				    	win.size = size;  
+				    	//storage.add(JSON.stringify(instances));				    	
+				    	$servoyInternal.callService("$windowService", "resize", {name:win.name,size:win.size});
+				     },
+				     onMove:function($event,location){
+				    	 win.location = location;
+				    	 $servoyInternal.callService("$windowService", "move", {name:win.name,location:win.location});
+				     }
+					};
+				
+				instances[name] = win;
+				return win;
+			}
+			
+		},
+		show: function(name,arg) {	
+			var instance = instances[name];
+			if (instance) {
+				instance.formSize = arg.formSize;
+				$servoyWindowManager.open({
 					templateUrl: "templates/dialog.html",
 					controller: "DialogInstanceCtrl",
 					windowClass: "tester",
-					resolve: {
-						title: function () {
-							return dialogDescription.title;
-						},
-						form: function () {
-							return dialogDescription.form;
-						},
-						windowName: function() {
-							return name;
-						},
-						formSize: function() {
-							return dialogDescription.size;
-						},
-						windowType: function(){
-							return dialogDescription.windowType;
-						}					
-					}
+					windowInstance:instance
+				}).then(function(){
+					instance.bsWindowInstance.$el.on('bswin.resize',instance.onResize)
+					instance.bsWindowInstance.$el.on('bswin.move',instance.onMove)
 				});
-				windowInstance.form = dialogDescription.form;
-				windowInstance.size = dialogDescription.size;
-				instances[name] = windowInstance;
+				instance.form = arg.form;
 			}
 			else {
-				$log.error("modal dialog with name: " + name + " already showing");
+				$log.error("Trying to show window with name: '" + name + "' which is not created.");
+			}
+		},
+		hide:function(name){
+			var instance = instances[name];
+			if (instance) {
+				instance.hide();
+			}else {
+				$log.error("Trying to hide window : '" + name + "' which is not created.");
 			}
 		},
 		dismiss: function(name) {
 			var instance = instances[name];
 			if (instance) {
-				instance.dismiss();
+				instance.hide();
 				delete instances[name];
+			}else{
+				$log.error("Trying to destroy window : '" + name + "' which is not created.");
 			}
 		},
 		switchForm: function(name,mainForm,navigatorForm) {		
@@ -562,10 +606,69 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         		}
     		})
 		},
-		setTitle: function(title) {		
-        	$rootScope.$apply(function() { // TODO treat multiple windows case
-        		$solutionSettings.solutionTitle = title;
-    		})
+		setTitle: function(name,title) {
+        	$rootScope.$apply(function() {
+				if(instances[name] && instances[name].type!= 2){
+					instances[name].title =title;
+	    		}else{
+	    			$solutionSettings.solutionTitle = title;
+	    		}
+			});
+		},
+		setInitialBounds:function(name,initialBounds){
+			if(instances[name]){
+				instances[name].initialBounds = initialBounds;
+			}			
+		},
+		setStoreBounds:function(name,storeBounds){
+			if(instances[name]){
+				instances[name].storeBounds = storeBounds;
+			}
+		},
+		resetBounds:function(name){
+			if(instances[name]){
+				instances[name].storeBounds = false;				
+			}
+		},
+		setLocation:function(name,location){
+			if(instances[name]){
+				instances[name].setLocation(location);				
+			}
+		},		
+		setSize:function(name,size){
+			if(instances[name]){
+				instances[name].setSize(size);				
+			}
+		},	
+		setUndecorated:function(name,undecorated){
+			if(instances[name]){
+				instances[name].undecorated = undecorated;				
+			}
+		},
+		setOpacity:function(name,opacity){
+			if(instances[name]){
+				instances[name].opacity = opacity;				
+			}
+		},
+		setResizable:function(name,resizable){
+			if(instances[name]){
+				instances[name].resizable = resizable;				
+			}
+		},
+		setTransparent:function(name,transparent){
+			if(instances[name]){
+				instances[name].transparent = transparent;				
+			}
+		},
+		toFront:function(name){
+			if(instances[name]){
+				//TODO tofront				
+			}
+		},
+		toBack:function(name){
+			if(instances[name]){
+				//TODO toback				
+			}
 		},
 		reload: function() {
 			$rootScope.$apply(function() {
@@ -589,28 +692,27 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		},
 	}
 	
-}).directive('modalWindow', ['$modalStack', '$timeout', function ($modalStack, $timeout) {
-    return {
-        restrict: 'EA',
-        link: function (scope, element, attrs) {
-          scope.$$childHead.formSize = scope.formSize; 
-        }
-      };
-}]).controller("DialogInstanceCtrl", function ($scope, $windowInstance,$windowService, $servoyInternal,windowName,title,form,formSize) {
-	$scope.title = title;
-	$scope.windowName = windowName;
-	$scope.formSize =formSize;
+}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal) {
+	//$scope.title = title;
+	//$scope.windowName = windowName;
+	//$scope.formSize =formSize;
+	$scope.win =  windowInstance
 	$scope.getFormUrl = function() {
-		return $windowService.getFormUrl(form)
+		return $windowService.getFormUrl(windowInstance.form)
 	}
-	
-	$servoyInternal.setFormVisibility(form,true);
+	$scope.isUndecorated = function(){
+		return $scope.win.undecorated || ($scope.win.opacity<0.99)
+	}
+	$scope.getFormSize = function(){
+		return {'width':'200px'}
+	}
+	$servoyInternal.setFormVisibility(windowInstance.form,true);
 	
 	$scope.cancel = function () {
-		var promise = $servoyInternal.callService("$windowService", "windowClosing", {window:windowName});
+		var promise = $servoyInternal.callService("$windowService", "windowClosing", {window:windowInstance.name});
 		promise.then(function(ok) {
     		if (ok) {
-    			$windowService.dismiss(windowName);
+    			$windowService.hide(windowInstance.name);
     		}
     	})
 	};

@@ -67,7 +67,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#getContainerName()
 	 */
 	@Override
@@ -78,7 +78,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#getController()
 	 */
 	@Override
@@ -90,7 +90,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#setController(com.servoy.j2db.IFormController)
 	 */
 	@Override
@@ -109,7 +109,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#getHistory()
 	 */
 	@Override
@@ -121,23 +121,38 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
 	 */
 	@Override
 	public void resetBounds()
 	{
-		// TODO Auto-generated method stub
+		this.storeBounds = false;
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "resetBounds", new Object[] { this.getName() });
 
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#setLocation(int, int)
 	 */
 	@Override
 	public void setLocation(int x, int y)
+	{
+		if (this.x != x || this.y != y)
+		{
+			this.x = x;
+			this.y = y;
+			Map<String, Integer> location = new HashMap<>();
+			location.put("x", x);
+			location.put("y", y);
+			getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setLocation",
+				new Object[] { this.getName(), location });
+		}
+	}
+
+	public void updateLocation(int x, int y)
 	{
 		this.x = x;
 		this.y = y;
@@ -145,7 +160,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getX()
 	 */
 	@Override
@@ -156,7 +171,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getY()
 	 */
 	@Override
@@ -167,11 +182,25 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#setSize(int, int)
 	 */
 	@Override
 	public void setSize(int width, int height)
+	{
+		if (this.width != width || this.width != width)
+		{
+			this.width = width;
+			this.height = height;
+			Map<String, Integer> size = new HashMap<>();
+			size.put("width", width);
+			size.put("height", height);
+			getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setSize",
+				new Object[] { this.getName(), size });
+		}
+	}
+
+	public void updateSize(int width, int height)
 	{
 		this.width = width;
 		this.height = height;
@@ -179,7 +208,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWidth()
 	 */
 	@Override
@@ -190,13 +219,27 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getHeight()
 	 */
 	@Override
 	public int getHeight()
 	{
 		return height;
+	}
+
+
+	@Override
+	public void setInitialBounds(int x, int y, int width, int height)
+	{
+		super.setInitialBounds(x, y, width, height);
+		Map<String, Integer> initialBounds = new HashMap<>();
+		initialBounds.put("x", this.initialBounds.x);
+		initialBounds.put("y", this.initialBounds.y);
+		initialBounds.put("width", this.initialBounds.width);
+		initialBounds.put("height", this.initialBounds.height);
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setInitialBounds",
+			new Object[] { this.getName(), initialBounds });
 	}
 
 	@Override
@@ -214,12 +257,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	private void sendTitle(String title)
 	{
-		if (isVisible())
+		String titleString = "";
+		if (windowType == 2)
 		{
 			Solution solution = getApplication().getSolution();
-			String titleString = ""; //$NON-NLS-1$
 			String solutionTitle = solution.getTitleText();
-
 			if (solutionTitle == null)
 			{
 				titleString = solution.getName();
@@ -272,14 +314,18 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			{
 				titleString += " - " + appName; //$NON-NLS-1$
 			}
-
-			getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setTitle", new Object[] { titleString });
 		}
+		else
+		{
+			titleString = title;
+		}
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setTitle",
+			new Object[] { this.getName(), titleString });
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#isVisible()
 	 */
 	@Override
@@ -290,31 +336,30 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#toFront()
 	 */
 	@Override
 	public void toFront()
 	{
-		// TODO Auto-generated method stub
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "toFront", new Object[] { this.getName() });
 
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#toBack()
 	 */
 	@Override
 	public void toBack()
 	{
-		// TODO Auto-generated method stub
-
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "toBack", new Object[] { this.getName() });
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWrappedObject()
 	 */
 	@Override
@@ -323,16 +368,47 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		return this;
 	}
 
+	@Override
+	public void setOpacity(float opacity)
+	{
+		super.setOpacity(opacity);
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setOpacity", new Object[] { getName(), opacity });
+	}
+
+	@Override
+	public void setResizable(boolean resizable)
+	{
+		super.setResizable(resizable);
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setResizable",
+			new Object[] { getName(), resizable });
+	}
+
+	@Override
+	public void setUndecorated(boolean undecorated)
+	{
+		super.setUndecorated(undecorated);
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setUndecorated",
+			new Object[] { getName(), undecorated });
+	}
+
+	@Override
+	public void setTransparent(boolean isTransparent)
+	{
+		super.setTransparent(isTransparent);
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setTransparent",
+			new Object[] { getName(), isTransparent });
+	}
+
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#hideUI()
 	 */
 	@Override
 	public void hideUI()
 	{
 		visible = false;
-		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "hide", new Object[] { getName() });
 
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
@@ -341,9 +417,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 	}
 
+	@Override
+	public void setStoreBounds(boolean storeBounds)
+	{
+		super.setStoreBounds(storeBounds);
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setStoreBounds",
+			new Object[] { getName(), String.valueOf(storeBounds) });
+	}
+
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#doOldShow(java.lang.String, boolean, boolean)
 	 */
 	@Override
@@ -356,18 +440,15 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			controller.getFormUI().setParentWindowName(getName());
 		}
 		Map<String, Object> arguments = new HashMap<String, Object>();
-		arguments.put("title", getTitle());
+		//arguments.put("title", getTitle());
 		Form form = getApplication().getFlattenedSolution().getForm(formName);
-		arguments.put("form", form);
-		arguments.put("windowType", windowType);
-		int wdth = width;
-		int hght = height;
-		if (wdth == -1) wdth = form.getSize().width;
-		if (hght == -1) hght = form.getSize().height;
-		Map<String, String> size = new HashMap<>();
-		size.put("width", wdth + "px");
-		size.put("height", hght + "px");
-		arguments.put("size", size);
+		arguments.put("form", form.getName());
+		/* arguments.put("windowType", windowType); */
+		Map<String, Integer> size = new HashMap<>();
+		size.put("width", form.getSize().width);
+		size.put("height", form.getSize().height);
+		arguments.put("formSize", size);
+
 		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
 		this.formName = formName;

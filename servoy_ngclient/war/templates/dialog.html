@@ -1,11 +1,17 @@
-<div class="window">
-	<div class="window-header">
-		<button type="button" class="close"
-			ng-click="cancel()"
-		    data-dismiss="window" 
-			aria-hidden="true">x</button>
-		<h4 class="window-title" ng-bind='title'></h4>
+<div bindonce bo-class="{'window':!isUndecorated()}" 
+			  bo-style="{'background-color':win.transparent ? 'transparent':'inherit'}" >
+	<div bo-style="{'opacity':win.opacity}">
+		<div  class='window-header'
+			  bo-style="{'display':isUndecorated()? 'none':'block'}">
+			<button type="button" class="close"
+				ng-click="cancel()"
+			    data-dismiss="window" 
+				aria-hidden="true">x</button>
+			<h4 class="window-title"  ng-bind='win.title'></h4>
+		</div>	
+	    <div class="window-body"  ng-include="getFormUrl()" 
+	    	 ng-style="{'width':win.formSize.width+'px','height':win.formSize.height+'px'}"></div>    
+		<div class="window-footer"
+			 bo-style="{'display':isUndecorated()? 'none':'block'}"></div>
 	</div>
-    <div class="window-body"  ng-include="getFormUrl()"></div>
-	<div class="window-footer"></div>
 </div>

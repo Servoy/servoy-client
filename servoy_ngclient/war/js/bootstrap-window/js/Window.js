@@ -58,7 +58,6 @@ var Window = null;
         }
         options.elements.body.html(options.bodyContent);
         options.elements.footer.html(options.footerContent);
-        
         this.undock();
 
         this.setSticky(options.sticky);
@@ -67,7 +66,18 @@ var Window = null;
     Window.prototype.undock = function () {
         this.$el.css('visibility', 'hidden');
         this.$el.appendTo('body');
-        this.centerWindow();
+        if(!this.options.location){
+        	//default positioning
+        	this.centerWindow();        
+        }else{
+        	//user entered options
+            this.$el.css('left', this.options.location.x);
+            this.$el.css('top', this.options.location.y);
+        }
+        if(this.options.size){
+        	this.$el.css('width', this.options.size.width);
+            this.$el.css('height', this.options.size.height);
+        }
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             this.options.references.window.bind('orientationchange resize', function(event){
                 _this.centerWindow();
@@ -246,8 +256,11 @@ var Window = null;
             _this.$el.removeClass('west');
             _this.$el.removeClass('east');
             _this.$el.removeClass('north');
-            _this.$el.removeClass('south');
-
+            _this.$el.removeClass('south');     
+            var width = parseInt(_this.$el.css('width'));
+            var height = parseInt(_this.$el.css('height'));
+            var size = {width:width,height:height}            
+            _this.$el.trigger('bswin.resize',size)            
         });
         _this.options.elements.handle.off('mousedown');
         _this.options.elements.handle.on('mousedown', function(event) {
@@ -263,6 +276,10 @@ var Window = null;
         _this.options.elements.handle.on('mouseup', function(event) {
             _this.moving = false;
             $('body > *').removeClass('disable-select');
+            var left = parseInt(_this.$el.css('left'));
+            var top = parseInt(_this.$el.css('top'));
+            var location = {x:left,y:top}            
+            _this.$el.trigger('bswin.move',location)
         });
 
         _this.options.references.body.on('mousemove', function(event) {
@@ -273,20 +290,22 @@ var Window = null;
                 _this.$el.css('left', event.pageX - _this.offset.x);
             }
             if (_this.options.resizable && _this.resizing) {
+                var winBody = _this.$el.find('.window-body');
                 if (_this.$el.hasClass("east")) {
-                    _this.$el.css('width', event.pageX - _this.window_info.left);
+                	winBody.css('width', event.pageX - _this.window_info.left);
                 }
                 if (_this.$el.hasClass("west")) {
                     
                     _this.$el.css('left', event.pageX);
-                    _this.$el.css('width', _this.window_info.width + (_this.window_info.left  - event.pageX));
+                    winBody.css('width', _this.window_info.width + (_this.window_info.left  - event.pageX));
+                    console.log(_this.window_info.width + (_this.window_info.left  - event.pageX))
                 }
                 if (_this.$el.hasClass("south")) {
-                    _this.$el.css('height', event.pageY - _this.window_info.top);
+                	winBody.css('height', event.pageY - _this.window_info.top);
                 }
                 if (_this.$el.hasClass("north")) {
                     _this.$el.css('top', event.pageY);
-                    _this.$el.css('height', _this.window_info.height + (_this.window_info.top  - event.pageY));
+                    winBody.css('height', _this.window_info.height + (_this.window_info.top  - event.pageY));
                 }
             }
         });

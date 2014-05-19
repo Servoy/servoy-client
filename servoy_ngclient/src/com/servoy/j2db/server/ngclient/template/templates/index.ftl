@@ -34,7 +34,8 @@
 		<script src="js/numeral.js"></script>
 		<script src="js/angular-file-upload/dist/angular-file-upload.min.js"></script>
 		<script src="js/bootstrap-window/js/Window.js"></script>    <!-- TODO replace these with bootstrap-window.min.js --> 
-		<script src="js/bootstrap-window/js/WindowManager.js"></script>	<!-- see ^ -->	
+		<script src="js/bootstrap-window/js/WindowManager.js"></script>	<!-- see ^ -->
+		<script src="js/bindonce.js"></script>	
 		
 		
 		<!-- base servoy libraries -->

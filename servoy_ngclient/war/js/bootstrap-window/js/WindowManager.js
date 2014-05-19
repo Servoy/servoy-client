@@ -39,9 +39,9 @@ var WindowManager = null;
 
             window.setIndex(startZIndex + index*zIndexIncrement);
         });
-        if(this.windows.length>0){
+        if(this.modalStack.length>0){
 			//update modal backdrop z-index.
-			var lastWindowZindex = parseInt(this.windows[this.windows.length-1].$el.css('z-index'));
+			var lastWindowZindex = parseInt(this.modalStack[this.modalStack.length-1].$el.css('z-index'));
 			var backdrop = $('.modal-backdrop');
 			if(backdrop)backdrop.css('z-index',lastWindowZindex-1);
         }
@@ -58,9 +58,9 @@ var WindowManager = null;
                 focusedWindowIndex = index;
             }
         });
-        this.windows.push(this.windows.splice(focusedWindowIndex, 1)[0]);
-        
-
+        if(this.modalStack.indexOf(focused_window) == -1){
+        	this.windows.push(this.windows.splice(focusedWindowIndex, 1)[0]);
+        }        
         focused_window.setActive(true);
         this.resortWindows();
 
