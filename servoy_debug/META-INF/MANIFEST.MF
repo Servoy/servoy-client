@@ -12,7 +12,8 @@ Require-Bundle: servoy_headless_client,
  org.eclipse.core.runtime,
  org.eclipse.swt;bundle-version="3.102.1",
  javax.servlet;bundle-version="3.0.0",
- servoy_ngclient
+ servoy_ngclient,
+ sablo
 Export-Package: com.servoy.j2db.debug,
  com.servoy.j2db.debug.extensions,
  com.servoy.j2db.debug.layout
