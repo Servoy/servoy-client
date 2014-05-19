@@ -29,6 +29,8 @@ public interface IWebFormController extends IFormController
 	@Override
 	public IWebFormUI getFormUI();
 
+	public INGApplication getApplication();
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -40,4 +42,9 @@ public interface IWebFormController extends IFormController
 	void recalculateTabIndex();
 
 	void setParentFormController(IWebFormController parentFormController);
+
+	/**
+	 * @param b
+	 */
+	public void setRendering(boolean rendering);
 }

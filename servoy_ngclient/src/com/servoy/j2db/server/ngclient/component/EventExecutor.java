@@ -30,7 +30,6 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Debug;
 
@@ -41,12 +40,10 @@ import com.servoy.j2db.util.Debug;
  */
 public class EventExecutor
 {
-	private final INGApplication application;
 	private final IFormController formController;
 
-	public EventExecutor(INGApplication application, IFormController formController)
+	public EventExecutor(IFormController formController)
 	{
-		this.application = application;
 		this.formController = formController;
 	}
 
@@ -70,10 +67,10 @@ public class EventExecutor
 
 			if (scope == null)
 			{
-				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(eventId);
+				ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventId);
 				if (scriptMethod != null)
 				{
-					scope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+					scope = formController.getApplication().getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
 				}
 				if (scope != null)
 				{
@@ -111,11 +108,11 @@ public class EventExecutor
 
 		try
 		{
-			return application.getScriptEngine().executeFunction(f, scope, scope, args, false, true);
+			return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, args, false, true);
 		}
 		catch (Exception ex)
 		{
-			application.reportJSError(ex.getMessage(), ex);
+			formController.getApplication().reportJSError(ex.getMessage(), ex);
 			return null;
 		}
 	}

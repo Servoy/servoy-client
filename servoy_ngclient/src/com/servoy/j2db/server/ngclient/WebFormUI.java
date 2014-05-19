@@ -22,7 +22,6 @@ import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
@@ -50,7 +49,6 @@ import com.servoy.j2db.util.Utils;
 public class WebFormUI extends WebFormComponent implements IWebFormUI
 {
 	protected final Map<String, WebFormComponent> components = new HashMap<>();
-	private final INGApplication application;
 	private final IWebFormController formController;
 
 	private boolean enabled = true;
@@ -61,8 +59,12 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	{
 		super(formController.getName(), formController.getForm());
 		this.formController = formController;
-		this.application = (INGApplication)formController.getApplication();
 		init();
+	}
+
+	public final INGApplication getApplication()
+	{
+		return formController.getApplication();
 	}
 
 	/**
@@ -76,7 +78,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	public void init()
 	{
 		components.clear();
-		DataAdapterList dal = new DataAdapterList(application, formController);
+		DataAdapterList dal = new DataAdapterList(formController);
 		Form form = formController.getForm();
 		ElementScope elementsScope = initElementScope(formController);
 		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), getDataConverterContext());
@@ -89,11 +91,11 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 			WebComponentSpec componentSpec = fe.getWebComponentSpec(false);
 			if (componentSpec == null)
 			{
-				application.reportError("Didn't find a spec file for component " + fe + " when creating form: " + form.getName(), null);
+				getApplication().reportError("Didn't find a spec file for component " + fe + " when creating form: " + form.getName(), null);
 				continue;
 			}
 
-			WebFormComponent component = ComponentFactory.createComponent(application, dal, fe, this);
+			WebFormComponent component = ComponentFactory.createComponent(getApplication(), dal, fe, this);
 			counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
 			add(component);
 
@@ -186,7 +188,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	public IDataConverterContext getDataConverterContext()
 	{
-		return new DataConverterContext(application);
+		return new DataConverterContext(getApplication());
 	}
 
 	/**
@@ -289,7 +291,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		if (componentNode instanceof WebFormComponent)
 		{
 			// TODO this will convert a second time (the first conversion was done in FormElement; is this really needed? cause
-			// converted value reaching conversion again doesn't seem nice 
+			// converted value reaching conversion again doesn't seem nice
 			((WebFormComponent)componentNode).putProperty(propName, propValue, ConversionLocation.DESIGN);
 		}
 		else
@@ -338,7 +340,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 					// get dataproviderId
 					String dataproviderId = (String)fe.getProperties().get(propertySpec.getConfig());
 					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
-						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElNodeForm), application);
+						getApplication().getFlattenedSolution().getDataproviderLookup(getApplication().getFoundSetManager(), formElNodeForm), getApplication());
 					ret = format;
 				}
 				break;
@@ -412,9 +414,17 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		allComponents.add(this); // add the form itself
 		allComponents.addAll(components.values());
 
-		for (WebFormComponent wc : allComponents)
+		try
 		{
-			props.put(wc == this ? "" : wc.getName(), wc.getPropertiesClearChanged()); //$NON-NLS-1$
+			getController().setRendering(true);
+			for (WebFormComponent wc : allComponents)
+			{
+				props.put(wc == this ? "" : wc.getName(), wc.getPropertiesClearChanged()); //$NON-NLS-1$
+			}
+		}
+		finally
+		{
+			getController().setRendering(false);
 		}
 
 		return props;
@@ -428,13 +438,21 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		allComponents.add(this); // add the form itself
 		allComponents.addAll(components.values());
 
-		for (WebFormComponent wc : allComponents)
+		try
 		{
-			Map<String, Object> changes = wc.getChanges();
-			if (changes.size() > 0)
+			getController().setRendering(true);
+			for (WebFormComponent wc : allComponents)
 			{
-				props.put(wc == this ? "" : wc.getName(), changes); //$NON-NLS-1$
+				Map<String, Object> changes = wc.getChanges();
+				if (changes.size() > 0)
+				{
+					props.put(wc == this ? "" : wc.getName(), changes); //$NON-NLS-1$
+				}
 			}
+		}
+		finally
+		{
+			getController().setRendering(false);
 		}
 		return props;
 	}
@@ -454,7 +472,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		if ("size".equals(propertyName))
 		{
 			properties.put(propertyName, NGClientForJsonConverter.toJavaObject(propertyValue,
-				new PropertyDescription("size", IPropertyType.Default.dimension.getType()), new DataConverterContext(application),
+				new PropertyDescription("size", IPropertyType.Default.dimension.getType()), new DataConverterContext(getApplication()),
 				ConversionLocation.BROWSER_UPDATE, properties.get(propertyName)));
 		}
 	}
@@ -465,7 +483,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	 * @see com.servoy.j2db.ui.IFormUI#getController()
 	 */
 	@Override
-	public IForm getController()
+	public IWebFormController getController()
 	{
 		return formController;
 	}
@@ -520,7 +538,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	private void propagatePropertyToAllComponents(String property, Object value)
 	{
-		ElementScope elementScope = getElementsScope(); //$NON-NLS-1$
+		ElementScope elementScope = getElementsScope();
 		if (elementScope != null)
 		{
 			Object[] components = elementScope.getValues();
@@ -1199,9 +1217,9 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	}
 
 	@Override
-	public void valueChanged()
+	public final void valueChanged()
 	{
-		application.getChangeListener().valueChanged();
+		getApplication().getChangeListener().valueChanged();
 	}
 
 }

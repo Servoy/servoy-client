@@ -47,14 +47,24 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 {
 	private int view;
 	private final IWebFormUI formUI;
-	private boolean adjustingModel;
+	private boolean rendering;
 
 	public WebFormController(INGApplication application, Form form, String name)
 	{
 		super(application, form, name);
-		if (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED) formUI = new WebGridFormUI(
-			application, this);
+		if (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED) formUI = new WebGridFormUI(this);
 		else formUI = new WebFormUI(this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.BasicFormController#getApplication()
+	 */
+	@Override
+	public final INGApplication getApplication()
+	{
+		return (INGApplication)super.getApplication();
 	}
 
 	/*
@@ -150,6 +160,11 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return true;
 	}
 
+	public void setRendering(boolean rendering)
+	{
+		if (rendering == this.rendering) throw new IllegalArgumentException("rendering is already: " + this.rendering);
+		this.rendering = rendering;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -159,7 +174,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	protected void refreshAllPartRenderers(IRecordInternal[] records)
 	{
-		if (!isFormVisible || application.isShutDown()) return;
+		if (!isFormVisible || application.isShutDown() || rendering) return;
 		// don't do anything yet when there are records but the selection is invalid
 		if (formModel != null && (formModel.getSize() > 0 && (formModel.getSelectedIndex() < 0 || formModel.getSelectedIndex() >= formModel.getSize()))) return;
 

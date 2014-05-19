@@ -46,7 +46,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final Map<WebFormComponent, List<String>> componentPropertiesWithTagExpression = new HashMap<>();
 	private final Map<String, List<Pair<WebFormComponent, String>>> recordDataproviderToComponent = new HashMap<>();
 	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
-	private final INGApplication application;
 	private final IWebFormController formController;
 	private final EventExecutor executor;
 	private final WeakHashMap<IWebFormController, String> relatedForms = new WeakHashMap<>();
@@ -55,19 +54,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private boolean findMode;
 	private boolean settingRecord;
 
-	public DataAdapterList(INGApplication application, IWebFormController formController)
+	public DataAdapterList(IWebFormController formController)
 	{
-		this.application = application;
 		this.formController = formController;
-		this.executor = new EventExecutor(application, formController);
+		this.executor = new EventExecutor(formController);
 	}
 
 	/**
 	 * @return the application
 	 */
-	public INGApplication getApplication()
+	public final INGApplication getApplication()
 	{
-		return application;
+		return formController.getApplication();
 	}
 
 	@Override
@@ -80,7 +78,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String componentName, Object[] args)
 	{
 		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
-		INGClientWebsocketSession clientSession = application.getWebsocketSession();
+		INGClientWebsocketSession clientSession = getApplication().getWebsocketSession();
 		Form form = formController.getForm();
 		clientSession.touchForm(form, formController.getName(), false);
 		return clientSession.executeApi(apiDefinition, formController.getName(), componentName, args);
@@ -248,7 +246,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (fireChangeEvent && changed)
 		{
-			application.getChangeListener().valueChanged();
+			getApplication().getChangeListener().valueChanged();
 		}
 
 	}
@@ -305,7 +303,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public String getStringValue(String name)
 	{
-		String stringValue = TagResolver.formatObject(getValueObject(record, name), application.getLocale(), application.getSettings());
+		String stringValue = TagResolver.formatObject(getValueObject(record, name), getApplication().getLocale(), getApplication().getSettings());
 		return processValue(stringValue, name, null); // TODO last param ,IDataProviderLookup, should be implemented
 	}
 
@@ -381,10 +379,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			convertInlineScript = ((DataproviderConfig)fe.getWebComponentSpec().getProperty(propertyName).getConfig()).hasParseHtml();
 		}
-		if (HtmlUtils.startsWithHtml(propertyValue)) return HTMLTagsConverter.convert(propertyValue.toString(), application.getSolutionName(),
+		if (HtmlUtils.startsWithHtml(propertyValue)) return HTMLTagsConverter.convert(propertyValue.toString(), getApplication().getSolutionName(),
 			formController.getName(), convertInlineScript);
-		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(application),
-			sourceOfValue, oldValue);
+		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(
+			getApplication()), sourceOfValue, oldValue);
 	}
 
 	@Override

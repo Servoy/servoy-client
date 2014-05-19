@@ -110,12 +110,12 @@ public class NGClientForJsonConverter implements IForJsonConverter
 		{
 			IValueList list = (IValueList)value;
 			List<Map<String, Object>> array = new ArrayList<>(list.getSize());
-			Map<String, Object> map = new HashMap<String, Object>();
 			for (int i = 0; i < list.getSize(); i++)
 			{
-				array.add(map = new HashMap<>());
+				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", list.getRealElementAt(i));
 				map.put("displayValue", list.getElementAt(i));
+				array.add(map);
 			}
 			return array;
 		}
@@ -124,12 +124,12 @@ public class NGClientForJsonConverter implements IForJsonConverter
 		{
 			LookupListModel list = (LookupListModel)value;
 			List<Map<String, Object>> array = new ArrayList<>(list.getSize());
-			Map<String, Object> map;
 			for (int i = 0; i < list.getSize(); i++)
 			{
-				array.add(map = new HashMap<>());
+				Map<String, Object> map = new HashMap<>();
 				map.put("realValue", list.getRealElementAt(i));
 				map.put("displayValue", list.getElementAt(i));
+				array.add(map);
 			}
 			return array;
 		}
