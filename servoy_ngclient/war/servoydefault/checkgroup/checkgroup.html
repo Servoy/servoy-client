@@ -5,13 +5,14 @@
 	 svy-margin='model.margin'
 	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
 	 svy-font='model.fontType'
+	 svy-horizontalalignment='model.horizontalAlignment'
      ng-style="style" svy-tooltip='model.toolTipText' >
   <label class='svy-check-radio'
   		 ng-repeat="item in  model.valuelistID  | filter:notNullOrEmpty('realValue')"
   		 ng-click="checkBoxClicked($index)">
      <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
-           ng-disabled="model.enabled == false" 
-          ng-readonly="model.editable == false" svy-tabseq='model.tabSeq'
+           ng-disabled="model.enabled == false || model.editable == false"
+           svy-tabseq='model.tabSeq'
            />
      <span ng-bind='item.displayValue'></span>
   </label>

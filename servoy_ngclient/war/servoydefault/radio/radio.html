@@ -1,17 +1,17 @@
 <label class='svy-check-radio'
 	 ng-click="radioClicked()" 
      ng-hide = "model.valuelistID == null || model.valuelistID[0] == null" 
-	 ng-class='model.styleClass ? model.styleClass : "radio"'
+	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
      ng-style="style" 
      svy-border="model.borderType" 
      svy-foreground="model.foreground" 
-     svy-background="model.transparent ? 'transparent' : model.background" 
+     svy-background="model.transparent ? 'transparent' : model.background"
+     svy-horizontalalignment='model.horizontalAlignment' 
      svy-tooltip='model.toolTipText'>
   <input type="radio"
 	     ng-model="model.dataProviderID"
 	     ng-value="model.valuelistID[0].realValue"
-		 ng-disabled="model.enabled == false"
-		 ng-readonly="model.editable == false" 
+		 ng-disabled="model.enabled == false || model.editable == false"
 		 svy-margin="model.margin"
 		 svy-scrollbars="model.scrollbars" id="{{model.markupId}}"
 		 svy-tabseq='model.tabSeq'

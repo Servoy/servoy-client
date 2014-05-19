@@ -4,12 +4,13 @@
 	 svy-scrollbars='model.scrollbars'
 	 svy-margin='model.margin'
 	 svy-font='model.fontType'
+	 svy-horizontalalignment='model.horizontalAlignment'
 	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
 	 svy-tooltip='model.toolTipText' >
   <label class='svy-check-radio'
          ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')"  svy-tooltip='model.toolTipText'>
          <input type="radio" ng-model="model.dataProviderID"  ng-value="item.realValue"  
-	       ng-change="handlers.svy_apply('dataProviderID')" ng-disabled="model.enabled == false" ng-readonly="model.editable == false" svy-tabseq='model.tabSeq'
+	       ng-change="handlers.svy_apply('dataProviderID')"  ng-disabled="model.enabled == false || model.editable == false" svy-tabseq='model.tabSeq'
 	      />
 	     <span ng-bind='item.displayValue' ></span>
   </label>
