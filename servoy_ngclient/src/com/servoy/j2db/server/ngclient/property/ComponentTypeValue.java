@@ -57,7 +57,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	// these arrays represent the array of elements (it can be refactored into an array of a new custom class)
 	private FormElement[] elements;
 	private WebFormComponent[] childComponents;
-	private List<String>[] apisOnOne; // here are the api's that should be called on one selected row only
+	private List<String>[] apisOnAll; // here are the api's that should be called on all records, not only selected one when called on a foundset linked component
 	private Map<String, String>[] dataLinks;
 
 	private boolean componentsAreCreated = false;
@@ -92,7 +92,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 				JSONArray arrayOfElementSpecs = (JSONArray)designJSONValue;
 
 				elements = new FormElement[arrayOfElementSpecs.length()];
-				apisOnOne = new ArrayList[arrayOfElementSpecs.length()];
+				apisOnAll = new ArrayList[arrayOfElementSpecs.length()];
 				dataLinks = new HashMap[arrayOfElementSpecs.length()];
 				childComponents = new WebFormComponent[arrayOfElementSpecs.length()];
 
@@ -103,14 +103,14 @@ public class ComponentTypeValue implements IComplexPropertyValue
 						(JSONObject)elementSpec.get(ComponentTypeImpl.DEFINITION_KEY), component.getFormElement().getForm(), component.getName() +
 							propertyName + "_" + i, component.getParent().getDataConverterContext()); //$NON-NLS-1$
 					JSONArray callTypes = elementSpec.optJSONArray(ComponentTypeImpl.API_CALL_TYPES_KEY);
-					if (callTypes == null) apisOnOne[i] = findCallTypesInApiSpecDefinition(elements[i].getWebComponentSpec().getApis());
+					if (callTypes == null) apisOnAll[i] = findCallTypesInApiSpecDefinition(elements[i].getWebComponentSpec().getApis());
 					else
 					{
-						apisOnOne[i] = new ArrayList<String>();
+						apisOnAll[i] = new ArrayList<String>();
 						for (int j = 0; j < callTypes.length(); j++)
 						{
 							JSONObject o = callTypes.getJSONObject(j);
-							if (o.getInt(ComponentTypeImpl.CALL_ON_KEY) == 1) apisOnOne[i].add(o.getString(ComponentTypeImpl.FUNCTION_NAME_KEY));
+							if (o.getInt(ComponentTypeImpl.CALL_ON_KEY) == ComponentTypeImpl.CALL_ON_ALL_RECORDS) apisOnAll[i].add(o.getString(ComponentTypeImpl.FUNCTION_NAME_KEY));
 						}
 					}
 					dataLinks[i] = findDataLinks(elements[i]);
@@ -176,7 +176,8 @@ public class ComponentTypeValue implements IComplexPropertyValue
 			for (Entry<String, WebComponentApiDefinition> apiMethod : apis.entrySet())
 			{
 				JSONObject apiConfigOptions = apiMethod.getValue().getCustomConfigOptions();
-				if (apiConfigOptions != null && apiConfigOptions.optInt(ComponentTypeImpl.CALL_ON_KEY, 0) == 1)
+				if (apiConfigOptions != null &&
+					apiConfigOptions.optInt(ComponentTypeImpl.CALL_ON_KEY, ComponentTypeImpl.CALL_ON_SELECTED_RECORD) == ComponentTypeImpl.CALL_ON_ALL_RECORDS)
 				{
 					arr.add(apiMethod.getKey());
 				}
@@ -224,12 +225,12 @@ public class ComponentTypeValue implements IComplexPropertyValue
 					}
 					destinationJSON.endArray();
 				}
-				if (apisOnOne[i] != null)
+				if (apisOnAll[i] != null)
 				{
 					destinationJSON.key("apiCallTypes").array();
-					for (String methodName : apisOnOne[i])
+					for (String methodName : apisOnAll[i])
 					{
-						destinationJSON.object().key(methodName).value(1).endObject();
+						destinationJSON.object().key(methodName).value(ComponentTypeImpl.CALL_ON_ALL_RECORDS).endObject();
 					}
 					destinationJSON.endArray();
 				}

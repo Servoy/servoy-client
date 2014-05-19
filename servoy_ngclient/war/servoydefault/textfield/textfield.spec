@@ -39,22 +39,20 @@ handlers:
 api:
 {
         getSelectedText: {
-            returns: 'string',
-            callOn: 1
+            returns: 'string'
         },
         replaceSelectedText: {
-            parameters:[{'s':'string'}],
-            callOn: 1
+            parameters:[{'s':'string'}]
         },
         requestFocus: {
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
-            callOn: 1
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         },
         selectAll: {
 
         },
         setValueListItems: {
-            parameters:[{'value':'object'}]
+            parameters:[{'value':'object'}],
+            callOn: 1
         }
 }
  

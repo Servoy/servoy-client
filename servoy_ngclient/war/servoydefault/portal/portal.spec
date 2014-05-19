@@ -49,12 +49,10 @@ api:
             returns: 'int'
         },
         getScrollX: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         getScrollY: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         getSelectedIndex: {
             returns: 'int'
@@ -66,8 +64,7 @@ api:
             parameters:[{'addOnTop':'boolean','optional':'true'}]
         },
         setScroll: {
-            parameters:[{'x':'int'},{'y':'int'}],
-            callOn: 1
+            parameters:[{'x':'int'},{'y':'int'}]
         },
         setSelectedIndex: {
             parameters:[{'index':'int'}]

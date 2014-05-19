@@ -38,23 +38,20 @@ handlers:
 api:
 {
         getScrollX: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         getScrollY: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         requestFocus: {
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
-            callOn: 1
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         },
         setScroll: {
-            parameters:[{'x':'int'},{'y':'int'}],
-            callOn: 1
+            parameters:[{'x':'int'},{'y':'int'}]
         },
         setValueListItems: {
-            parameters:[{'value':'object'}]
+            parameters:[{'value':'object'}],
+            callOn: 1
         }
 }
  

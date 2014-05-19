@@ -34,35 +34,28 @@ handlers:
 api:
 {
         getAsPlainText: {
-            returns: 'string',
-            callOn: 1
+            returns: 'string'
         },
         getScrollX: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         getScrollY: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         getSelectedText: {
-            returns: 'string',
-            callOn: 1
+            returns: 'string'
         },
         replaceSelectedText: {
-            parameters:[{'s':'string'}],
-            callOn: 1
+            parameters:[{'s':'string'}]
         },
         requestFocus: {
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
-            callOn: 1
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         },
         selectAll: {
 
         },
         setScroll: {
-            parameters:[{'x':'int'},{'y':'int'}],
-            callOn: 1
+            parameters:[{'x':'int'},{'y':'int'}]
         }
 }
  

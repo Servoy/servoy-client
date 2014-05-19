@@ -39,6 +39,9 @@ public class ComponentTypeImpl implements IComplexTypeImpl<ComponentTypeConfig, 
 	public final static String API_CALL_TYPES_KEY = "apiCallTypes"; //$NON-NLS-1$
 
 	public final static String CALL_ON_KEY = "callOn"; //$NON-NLS-1$
+	public final static int CALL_ON_SELECTED_RECORD = 0;
+	public final static int CALL_ON_ALL_RECORDS = 1;
+
 	public final static String FUNCTION_NAME_KEY = "functionName"; //$NON-NLS-1$
 
 	@Override

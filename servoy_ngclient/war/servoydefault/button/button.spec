@@ -43,8 +43,7 @@ api:
             parameters:[{'width':'int','optional':'true'},{'height':'int','optional':'true'}]
         },
         requestFocus: {
-            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}],
-            callOn: 1
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         }
 }
  

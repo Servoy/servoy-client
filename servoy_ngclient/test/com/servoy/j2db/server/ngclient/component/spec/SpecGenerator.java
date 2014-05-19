@@ -595,15 +595,8 @@ public class SpecGenerator
 		serverSideApi.add("setLocation");
 		serverSideApi.add("setSize");
 
-		final String callOnSelected = "callOn: 1"; // ONE_SELECTED_RECORD_IF_TEMPLATE; see globalServoyCustomTypes.spec 
-		metaDataForApi.put("getSelectedText", Arrays.asList(new String[] { callOnSelected }));
-		metaDataForApi.put("replaceSelectedText", Arrays.asList(new String[] { callOnSelected }));
-		metaDataForApi.put("requestFocus", Arrays.asList(new String[] { callOnSelected }));
-		metaDataForApi.put("getScrollX", Arrays.asList(new String[] { callOnSelected }));
-		metaDataForApi.put("getScrollY", Arrays.asList(new String[] { callOnSelected }));
-		metaDataForApi.put("setScroll", Arrays.asList(new String[] { callOnSelected }));
-		metaDataForApi.put("getAsPlainText", Arrays.asList(new String[] { callOnSelected }));
-		metaDataForApi.put("getSelectedElements", Arrays.asList(new String[] { callOnSelected }));
+		final String callOnAll = "callOn: 1"; // ALL_RECORDS_IF_TEMPLATE; see globalServoyCustomTypes.spec 
+		metaDataForApi.put("setValueListItems", Arrays.asList(new String[] { callOnAll }));
 	}
 
 	// @formatter:on

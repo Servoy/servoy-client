@@ -38,16 +38,13 @@ handlers:
 api:
 {
         getScrollX: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         getScrollY: {
-            returns: 'int',
-            callOn: 1
+            returns: 'int'
         },
         setScroll: {
-            parameters:[{'x':'int'},{'y':'int'}],
-            callOn: 1
+            parameters:[{'x':'int'},{'y':'int'}]
         }
 }
  
