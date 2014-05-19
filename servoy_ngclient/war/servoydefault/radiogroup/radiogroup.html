@@ -8,7 +8,9 @@
 	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
 	 svy-tooltip='model.toolTipText' >
   <label class='svy-check-radio'
-         ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')"  svy-tooltip='model.toolTipText'>
+         ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')"  
+         svy-tooltip='model.toolTipText'
+         svy-horizontaldirection='model.scrollbars'>
          <input type="radio" ng-model="model.dataProviderID"  ng-value="item.realValue"  
 	       ng-change="handlers.svy_apply('dataProviderID')"  ng-disabled="model.enabled == false || model.editable == false" svy-tabseq='model.tabSeq'
 	      />

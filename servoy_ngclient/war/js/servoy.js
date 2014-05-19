@@ -30,9 +30,17 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
                       EAST : 2,
                       SOUTH : 4,
                       WEST : 8
+}).value("$scrollbarConstants", {
+	SCROLLBARS_WHEN_NEEDED : 0,
+	VERTICAL_SCROLLBAR_AS_NEEDED : 1,
+	VERTICAL_SCROLLBAR_ALWAYS : 2,
+	VERTICAL_SCROLLBAR_NEVER : 4,
+	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
+	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
+	HORIZONTAL_SCROLLBAR_NEVER : 32
 }).value("$foundsetConstants", {
                       CALL_ON_ONE_SELECTED_ROW : 1
-}).factory("$utils",function($rootScope) {
+}).factory("$utils",function($rootScope,$scrollbarConstants) {
 	
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -61,14 +69,6 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	     return code==keyCode;
 	}
 	
-	var SCROLLBARS_WHEN_NEEDED = 0;
-	var VERTICAL_SCROLLBAR_AS_NEEDED = 1;
-	var VERTICAL_SCROLLBAR_ALWAYS = 2;
-	var VERTICAL_SCROLLBAR_NEVER = 4;
-	var HORIZONTAL_SCROLLBAR_AS_NEEDED = 8;
-	var HORIZONTAL_SCROLLBAR_ALWAYS = 16;
-	var HORIZONTAL_SCROLLBAR_NEVER = 32;
-	
 	return{
 		
 		/** this function can be used in filters .It accepts a string jsonpath the property to test for null. 
@@ -93,11 +93,11 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	    				},
 		getScrollbarsStyleObj:function (scrollbars){
 				     var style = {}; 
-				        if ((scrollbars & HORIZONTAL_SCROLLBAR_NEVER) == HORIZONTAL_SCROLLBAR_NEVER)
+				        if ((scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
 						{
 							style.overflowX = "hidden";
 						}
-						else if ((scrollbars & HORIZONTAL_SCROLLBAR_ALWAYS) == HORIZONTAL_SCROLLBAR_ALWAYS)
+						else if ((scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
 						{
 							style.overflowX = "scroll";
 						}
@@ -106,11 +106,11 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 							style.overflowX = "auto";
 						}
 				    
-						if ((scrollbars & VERTICAL_SCROLLBAR_NEVER) == VERTICAL_SCROLLBAR_NEVER)
+						if ((scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) == $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER)
 						{
 							style.overflowY = "hidden"; 
 						}
-						else if ((scrollbars & VERTICAL_SCROLLBAR_ALWAYS) == VERTICAL_SCROLLBAR_ALWAYS)
+						else if ((scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS) == $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
 						{
 							style.overflowY = "scroll"; //$NON-NLS-1$
 						}
@@ -357,6 +357,19 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         	if(scrollbarsModelObj){ //only design time property, no watch
                 element.css($utils.getScrollbarsStyleObj(scrollbarsModelObj));
         	}
+         }
+    }
+})
+.directive('svyHorizontaldirection',  function ($parse,$scrollbarConstants) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	var scrollbarsModelObj= $parse(attrs.svyHorizontaldirection)(scope);
+        	if ((scrollbarsModelObj & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) == $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) // vertical scrollbar never
+			{
+        		element.css('float','left');
+        		element.css('margin-right','2px');
+			}
          }
     }
 })
