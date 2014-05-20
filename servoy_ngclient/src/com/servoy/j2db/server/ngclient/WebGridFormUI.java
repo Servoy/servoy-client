@@ -272,11 +272,6 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			}
 			else return RowData.EMPTY;
 		}
-		if (Thread.currentThread().getName().startsWith("http"))
-		{
-			System.err.println("test");
-		}
-		System.err.println(Thread.currentThread().getName() + " start: " + currentFoundset.getDataSource());
 		Collection<WebFormComponent> bodyComponents = getBodyComponents(components.values());
 		int currentIndex = startTabSeqIndex + startOffset * bodyComponents.size();
 		for (int i = startIdx; i < endIdx; i++)
