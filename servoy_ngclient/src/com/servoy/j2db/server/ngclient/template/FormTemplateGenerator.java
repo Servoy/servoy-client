@@ -154,7 +154,7 @@ public class FormTemplateGenerator
 				return "svy-portal";
 			}
 		}
-		throw new RuntimeException("unknown persist type: " + persist);
+		return "svy-errorbean";
 	}
 
 

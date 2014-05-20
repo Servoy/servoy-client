@@ -101,12 +101,16 @@ class PersistBasedFormElementImpl
 				catch (Exception ex)
 				{
 					Debug.error("Error while parsing bean design json", ex);
+					jsonMap.put("text", "Error while parsing bean design json(bean not supported in NGClient?): " + persist);
 				}
 				return jsonMap;
 			}
 			else
 			{
-				return Collections.emptyMap();
+				Map<String, Object> defaultProperties = new HashMap<String, Object>();
+				defaultProperties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), ((Bean)persist).getSize());
+				defaultProperties.put("text", "Bean not supported in NGClient: " + persist);
+				return defaultProperties;
 			}
 		}
 		else if (persist instanceof AbstractBase)

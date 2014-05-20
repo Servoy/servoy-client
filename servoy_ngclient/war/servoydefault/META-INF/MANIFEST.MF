@@ -12,6 +12,9 @@ Web-Component: True
 Name: combobox/combobox.spec
 Web-Component: True
 
+Name: errorbean/errorbean.spec
+Web-Component: True
+
 Name: label/label.spec
 Web-Component: True
 
