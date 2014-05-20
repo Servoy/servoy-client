@@ -24,6 +24,7 @@ model:
         text : 'tagstring', 
         toolTipText : 'tagstring', 
         transparent : 'boolean', 
+        valuelistID : { type: 'valuelist', for: 'dataProviderID'}, 
         visible : {type:'boolean', default:true} 
 },
 handlers:
