@@ -115,7 +115,8 @@ public class NGClientForJsonConverter implements IForJsonConverter
 			{
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", list.getRealElementAt(i));
-				map.put("displayValue", list.getElementAt(i));
+				Object displayValue = list.getElementAt(i);
+				map.put("displayValue", displayValue != null ? displayValue : "");
 				array.add(map);
 			}
 			return array;

@@ -575,10 +575,15 @@ public class SpecGenerator
 			"htmlview",
 			new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()), (StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),
-				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()),
-				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 		perComponentInternalProperties.put("splitpane", new ArrayList<>(Arrays.asList("tabIndex")));
-
+		perComponentInternalProperties.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("htmlarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("imagemedia", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("textarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("textfield", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		
 		serverSideApi.add("getAbsoluteFormLocationY");
 		serverSideApi.add("getClientProperty");
 		serverSideApi.add("getDataProviderID");
