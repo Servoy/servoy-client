@@ -33,15 +33,25 @@ label.svy-check-radio span{
 .window .window-body,
 .window .window-header,
 .window .window-footer{
+	overflow: auto;
 	padding:5px;
 	border:none;
 	margin:0px;
 }
+.window .window-header{
+	cursor:inherit;
+}
 .window .window-body{
-	overflow:auto;
-	height:100%;
-	/*position:absolute;*/
+	min-width:100px;
+	min-height:100px;
+}
+.window .window-header .window-title
+{
+    cursor: move;
 }
 .window{
-	/*overflow:auto;*/
+	min-width:100px;
+	min-height:100px;
+	max-width :1500px;
+	max-width :1200px;
 }

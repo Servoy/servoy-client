@@ -1,4 +1,4 @@
-var WindowManager = null;
+var WindowManager = null;// jshint ignore:line
 (function($) {
     "use strict";
     var zIndexIncrement =100;
@@ -59,7 +59,7 @@ var WindowManager = null;
             }
         });
         if(this.modalStack.indexOf(focused_window) == -1){
-        	this.windows.push(this.windows.splice(focusedWindowIndex, 1)[0]);
+			this.windows.push(this.windows.splice(focusedWindowIndex, 1)[0]);
         }        
         focused_window.setActive(true);
         this.resortWindows();

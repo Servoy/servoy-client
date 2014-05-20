@@ -2,10 +2,27 @@ var Window = null;
 (function($) {
 
     "use strict";
-    Window = function(options) {
-        options = options || {};
-        var defaults = {
-                selectors: {
+    var resizeConstants={
+		NORTH:1,
+		SOUTH:2,
+		EAST:4,
+		WEST:8
+    };
+    var resizeAnchorClasses ={
+		'1':'ns-resize', // NORTH
+		'2':'ns-resize', // SOUTH
+		'4':'ew-resize', // EAST
+		'8':'ew-resize', // WEST
+		'5':'nesw-resize', // N-E
+		'9':'nwse-resize', // N-W
+		'6':'nwse-resize', // S-E
+		'10':'nesw-resize',// S-W
+		'0':''
+	};
+	Window = function(options) {
+		options = options || {};
+		var defaults = {
+				selectors: {
                     handle: '.window-header',
                     title: '.window-title',
                     body: '.window-body',
@@ -67,15 +84,15 @@ var Window = null;
         this.$el.css('visibility', 'hidden');
         this.$el.appendTo('body');
         if(!this.options.location){
-        	//default positioning
-        	this.centerWindow();        
+			//default positioning
+			this.centerWindow();        
         }else{
-        	//user entered options
+			//user entered options
             this.$el.css('left', this.options.location.x);
             this.$el.css('top', this.options.location.y);
         }
         if(this.options.size){
-        	this.$el.css('width', this.options.size.width);
+			this.$el.css('width', this.options.size.width);
             this.$el.css('height', this.options.size.height);
         }
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
@@ -213,7 +230,7 @@ var Window = null;
         });
 
         this.$el.off('mousedown');
-        this.$el.on('mousedown', function() {
+        this.$el.on('mousedown', function(event) {
             if (_this.options.blocker) {
                 _this.options.blocker.getElement().trigger('focused');
                 _this.options.blocker.blink();
@@ -222,29 +239,40 @@ var Window = null;
                 _this.$el.trigger('focused');
             }
             
-            if (_this.$el.hasClass('ns-resize') || _this.$el.hasClass('ew-resize')) {
+            if (_this.$el.hasClass(lastResizeClass)) {
                 $('body > *').addClass('disable-select');
                 _this.resizing = true;
                 _this.offset = {};
-                _this.offset.x = event.pageX;
-                _this.offset.y = event.pageY;
+				_this.offset.x = event.pageX - _this.$el.position().left;
+                _this.offset.y = event.pageY - _this.$el.position().top;
                 _this.window_info = {
                     top: _this.$el.position().top,
                     left: _this.$el.position().left,
                     width: _this.$el.width(),
                     height: _this.$el.height()
                 };
+                
+            	var offX = event.offsetX;
+            	var offY = event.offsetY;
+            	if (!event.offsetX){
+            		// FireFox Fix
+            		offX = event.originalEvent.layerX;
+            		offY = event.originalEvent.layerY;
+            	}
+                var target = $(event.target);
+				var windowOffsetX = target.offset().left - _this.$el.offset().left;
+				var windowOffsetY = target.offset().top - _this.$el.offset().top;
 
-                if (event.offsetY < 5) {
+                if (offY + windowOffsetY < 5) {
                     _this.$el.addClass('north');
                 }
-                if (event.offsetY > (_this.$el.height() - 5)) {
+                if (offY + windowOffsetY > (_this.$el.height() - 5)) {
                     _this.$el.addClass('south');
                 }
-                if (event.offsetX < 5) {
+                if (offX + windowOffsetX < 5) {
                     _this.$el.addClass('west');
                 }
-                if (event.offsetX > (_this.$el.width() - 5)) {
+                if (offX + windowOffsetY > (_this.$el.width() - 5)) {
                     _this.$el.addClass('east');
                 }
             }
@@ -252,6 +280,7 @@ var Window = null;
 
         _this.options.references.body.on('mouseup', function () {
             _this.resizing = false;
+            _this.moving = false;
             $('body > *').removeClass('disable-select');
             _this.$el.removeClass('west');
             _this.$el.removeClass('east');
@@ -259,14 +288,27 @@ var Window = null;
             _this.$el.removeClass('south');     
             var width = parseInt(_this.$el.css('width'));
             var height = parseInt(_this.$el.css('height'));
-            var size = {width:width,height:height}            
-            _this.$el.trigger('bswin.resize',size)            
+			var size = {width:width,height:height};            
+			_this.$el.trigger('bswin.resize',size);            
         });
         _this.options.elements.handle.off('mousedown');
         _this.options.elements.handle.on('mousedown', function(event) {
-            if (_this.options.blocker) {
-                return;
-            }
+            var handleHeight = _this.options.elements.handle.outerHeight();
+            var handleWidth = _this.options.elements.handle.outerWidth();
+			var offX = event.offsetX;
+			var offY = event.offsetY;
+        	if (!event.offsetX){
+        		// FireFox Fix
+        		offX = event.originalEvent.layerX;
+        		offY = event.originalEvent.layerY;
+        	}
+            if (_this.options.blocker ||
+            	offY < 5 ||
+				handleHeight - offY < 5 || 
+				offX < 5 ||
+				handleWidth - offX < 5) {
+				return;
+			}
             _this.moving = true;
             _this.offset = {};
             _this.offset.x = event.pageX - _this.$el.position().left;
@@ -278,34 +320,42 @@ var Window = null;
             $('body > *').removeClass('disable-select');
             var left = parseInt(_this.$el.css('left'));
             var top = parseInt(_this.$el.css('top'));
-            var location = {x:left,y:top}            
-            _this.$el.trigger('bswin.move',location)
+            var location = {x:left,y:top};            
+            _this.$el.trigger('bswin.move',location);
         });
 
         _this.options.references.body.on('mousemove', function(event) {
-            if (_this.moving) {
+			if (_this.moving) {
                 var top = _this.options.elements.handle.position().top,
                     left = _this.options.elements.handle.position().left;
                 _this.$el.css('top', event.pageY - _this.offset.y);
                 _this.$el.css('left', event.pageX - _this.offset.x);
             }
             if (_this.options.resizable && _this.resizing) {
-                var winBody = _this.$el.find('.window-body');
+                var winBody = _this.$el.find(_this.options.selectors.body);
+                var winHeadFootHeight = 0;
+				var head = _this.$el.find(_this.options.selectors.handle);
+                if(head){
+					winHeadFootHeight += head.outerHeight();
+                }
+                var foot = _this.$el.find(_this.options.selectors.footer);
+                if(foot){
+					winHeadFootHeight += foot.outerHeight();
+                }
                 if (_this.$el.hasClass("east")) {
-                	winBody.css('width', event.pageX - _this.window_info.left);
+					winBody.css('width', event.pageX - _this.window_info.left);
                 }
                 if (_this.$el.hasClass("west")) {
                     
                     _this.$el.css('left', event.pageX);
                     winBody.css('width', _this.window_info.width + (_this.window_info.left  - event.pageX));
-                    console.log(_this.window_info.width + (_this.window_info.left  - event.pageX))
                 }
                 if (_this.$el.hasClass("south")) {
-                	winBody.css('height', event.pageY - _this.window_info.top);
+					winBody.css('height', event.pageY - _this.window_info.top - winHeadFootHeight);
                 }
                 if (_this.$el.hasClass("north")) {
-                    _this.$el.css('top', event.pageY);
-                    winBody.css('height', _this.window_info.height + (_this.window_info.top  - event.pageY));
+					_this.$el.css('top', event.pageY);
+                    winBody.css('height', _this.window_info.height + (_this.window_info.top  - event.pageY) - winHeadFootHeight);
                 }
             }
         });
@@ -315,24 +365,42 @@ var Window = null;
 			$('body > *').removeClass('disable-select');
 		});
 
+        var lastResizeClass = '';
         this.$el.on('mousemove', function (event) {
             if (_this.options.blocker) {
                 return;
             }
-            if (_this.options.resizable) {
-                if (event.offsetY > (_this.$el.height() - 5) || event.offsetY < 5) {
-                    _this.$el.addClass('ns-resize');
-                } else {
-                    _this.$el.removeClass('ns-resize');
-                }
-                if (event.offsetX > (_this.$el.width() - 5) || event.offsetX < 5) {
-                    _this.$el.addClass('ew-resize');
+            if (_this.options.resizable ) {
+				var resizeClassIdx = 0;
+				//target can be the header or footer, and event.offsetX/Y will be relative to the header/footer .Adjust to '.window';
+				var target = $(event.target);
+				var windowOffsetX = target.offset().left - _this.$el.offset().left;
+				var windowOffsetY = target.offset().top - _this.$el.offset().top;
 
-                } else {
-                    _this.$el.removeClass('ew-resize');
+            	var offX = event.offsetX;
+            	var offY = event.offsetY;
+            	if (!event.offsetX){
+            		// FireFox Fix
+            		offX = event.originalEvent.layerX;
+            		offY = event.originalEvent.layerY;
+            	}
+                if (offY + windowOffsetY > (_this.$el.height() - 5) ) {
+                    resizeClassIdx += resizeConstants.SOUTH;
                 }
+                if (offY + windowOffsetY< 5) {
+                    resizeClassIdx += resizeConstants.NORTH;
+                }
+                if (offX + windowOffsetX> _this.$el.width() - 5) {
+					resizeClassIdx += resizeConstants.EAST;
+                }
+                if (offX + windowOffsetX< 5)
+                {
+					resizeClassIdx += resizeConstants.WEST;
+                }
+				_this.$el.removeClass(lastResizeClass);
+                lastResizeClass=resizeAnchorClasses[resizeClassIdx];
+                _this.$el.addClass(lastResizeClass);
             }
-
         });
     };
 
