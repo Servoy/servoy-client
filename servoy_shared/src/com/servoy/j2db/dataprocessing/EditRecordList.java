@@ -29,8 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.mozilla.javascript.JavaScriptException;
-
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IPrepareForSave;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
@@ -781,48 +779,69 @@ public class EditRecordList
 
 			// get the size of the edited records before the table events, so that we can look if those events did change records again.
 			editedRecordsSize = editedRecords.size();
+			Record rowUpdateInfoRecord = null;
+			boolean isAfterEventException = false;
 			for (RowUpdateInfo rowUpdateInfo : infosToBePostProcessed)
 			{
 				try
 				{
-					((FoundSet)rowUpdateInfo.getRecord().getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfo.getRecord() },
+					rowUpdateInfoRecord = rowUpdateInfo.getRecord();
+					((FoundSet)rowUpdateInfoRecord.getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfoRecord },
 						rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION ? StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID
 							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, true);
 				}
 				catch (ServoyException e)
 				{
-					Debug.error("Failed to execute after update/insert trigger.", e); //$NON-NLS-1$
-					if (e instanceof DataException && e.getCause() instanceof JavaScriptException) throw (JavaScriptException)e.getCause();
+					// trigger method threw exception
+					isAfterEventException = true;
+					lastStopEditingException = e;
+					failedCount++;
+					rowUpdateInfoRecord.getRawData().setLastException(e);
+					editRecordsLock.lock();
+					try
+					{
+						if (!failedRecords.contains(rowUpdateInfoRecord))
+						{
+							failedRecords.add(rowUpdateInfoRecord);
+						}
+					}
+					finally
+					{
+						editRecordsLock.unlock();
+					}
 				}
 			}
 
-			Iterator<Map.Entry<FoundSet, List<Record>>> it = foundsetToRecords.entrySet().iterator();
-			while (it.hasNext())
+			if (!isAfterEventException)
 			{
-				Map.Entry<FoundSet, List<Record>> entry = it.next();
-				FoundSet fs = entry.getKey();
-				fs.recordsUpdated(entry.getValue(), foundsetToAggregateDeletes.get(fs));
-			}
-			boolean shouldFireEditChange;
-			editRecordsLock.lock();
-			try
-			{
-				shouldFireEditChange = editedRecords.size() == 0;
-			}
-			finally
-			{
-				editRecordsLock.unlock();
-			}
-			if (shouldFireEditChange)
-			{
-				fireEditChange();
+				Iterator<Map.Entry<FoundSet, List<Record>>> it = foundsetToRecords.entrySet().iterator();
+				while (it.hasNext())
+				{
+					Map.Entry<FoundSet, List<Record>> entry = it.next();
+					FoundSet fs = entry.getKey();
+					fs.recordsUpdated(entry.getValue(), foundsetToAggregateDeletes.get(fs));
+				}
+				boolean shouldFireEditChange;
+				editRecordsLock.lock();
+				try
+				{
+					shouldFireEditChange = editedRecords.size() == 0;
+				}
+				finally
+				{
+					editRecordsLock.unlock();
+				}
+				if (shouldFireEditChange)
+				{
+					fireEditChange();
+				}
 			}
 			if (failedCount > 0)
 			{
 				lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
 				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
 					lastStopEditingException);
-				else fsm.getApplication().reportJSError("save failed for 1 or more records", lastStopEditingException); //$NON-NLS-1$
+				else if (!isAfterEventException) fsm.getApplication().reportJSError("save failed for 1 or more records", lastStopEditingException); //$NON-NLS-1$
 				return ISaveConstants.SAVE_FAILED;
 			}
 		}
@@ -833,7 +852,7 @@ public class EditRecordList
 				fsm.getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
 				return ISaveConstants.SAVE_FAILED;
 			}
-			else if (e instanceof IllegalStateException || e instanceof JavaScriptException)
+			else if (e instanceof IllegalStateException)
 			{
 				fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), e); //$NON-NLS-1$
 				return ISaveConstants.SAVE_FAILED;
