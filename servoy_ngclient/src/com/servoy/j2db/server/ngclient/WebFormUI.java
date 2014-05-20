@@ -308,7 +308,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 	private Object initFormElementProperty(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec,
 		DataAdapterList dal, WebFormComponent component, Object componentNode, String level, boolean isArrayElement)
 	{
-		// TODO This whole method I think can be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
+		// TODO This whole method I think should be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
 		Object ret = null;
 		switch (propertySpec.getType().getDefaultEnumValue())
 		{

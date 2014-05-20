@@ -15,7 +15,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
  						+ '\n  Selected text in text field (for selected row): ' + $scope.model.elements[1].api.getSelectedText()
  						+ '\n  Button 2 text: ' + $scope.model.elements[0].model.text);
 				alert('rowID received as argument for on action = ' + rowId);
- 				$scope.model.elements[0].model.text += '.';
+ 				$scope.model.elements[0].model.text += ' ***';
  				$scope.model.elements[1].api.requestFocus();
  				$timeout(function() {
  					$scope.model.elements[1].api.setSelection(1,3);
@@ -73,8 +73,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			             			            { propertyName: "dataProviderID", dataprovider: "nameColumn" }
     			             			],
     			             			apiCallTypes: {
-    			             				requestFocus: $foundsetConstants.CALL_ON_ONE_SELECTED_ROW,
-    			             				getSelectedText: $foundsetConstants.CALL_ON_ONE_SELECTED_ROW
+    			             				setValueListItems: $foundsetConstants.CALL_ON_ALL_RECORDS_IF_TEMPLATE,
     			             			}
     			             		}
     			             	}
@@ -93,6 +92,14 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     					  ],
     					  loadRecordsAsync: function(startIndex, size) {
     						  alert('Load async requested: ' + startIndex + ', ' + size);
+    						  $scope.model.foundset.viewPort.startIndex = startIndex;
+    						  $scope.model.foundset.viewPort.rows =  [
+    						          					         	{ _svyRowId: 'someRowIdHASH6', nameColumn: "ABC Bubu" },
+    						        					         	{ _svyRowId: 'someRowIdHASH7', nameColumn: "ABC Yogy" },
+    						        					         	{ _svyRowId: 'someRowIdHASH8', nameColumn: "ABC Ranger" },
+    						        					         	{ _svyRowId: 'someRowIdHASH9', nameColumn: "ABC Watcher" },
+    						        					         	{ _svyRowId: 'someRowIdHASH10', nameColumn: "ABC Hatcher" }
+    						        					  ];
     					  },
     					  loadExtraRecords: function(negativeOrPositiveCount) {
     						  // TODO implement
@@ -246,9 +253,9 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  var retVal;
     			  var retValForSelectedStored = false;
     			  var retValForSelectedCell;
-    			  var callOnOneSelectedCellOnly = false;
+    			  var callOnOneSelectedCellOnly = true;
     			  if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.apiCallTypes) {
-    				  callOnOneSelectedCellOnly = (elements[elementIndex].forFoundset.apiCallTypes[apiFunctionName] == $foundsetConstants.CALL_ON_ONE_SELECTED_ROW);
+    				  callOnOneSelectedCellOnly = (elements[elementIndex].forFoundset.apiCallTypes[apiFunctionName] != $foundsetConstants.CALL_ON_ONE_SELECTED_ROW);
     			  }
     			  
 				  // so if callOnOneSelectedCellOnly is true, then it will be called only once for one of the selected rows;

@@ -175,7 +175,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 				// TODO in the future we could allow changes to be pushed more granular (JSON subtrees), not only at root property level - as we already do this type of thing in many places
 				final String complexPropertyRoot = ownProperty;
 				// a new complex property is linked to this component; initialize it
-				((IComplexPropertyValue)propertyValue).init(new IChangeListener()
+				((IComplexPropertyValue)propertyValue).attachToComponent(new IChangeListener()
 				{
 					@Override
 					public void valueChanged()
@@ -183,7 +183,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 						changedProperties.add(complexPropertyRoot);
 						getParent().valueChanged();
 					}
-				}, this, propertyName);
+				}, this);
 			}
 			else if (!Utils.equalObjects(propertyValue, oldValue))
 			{

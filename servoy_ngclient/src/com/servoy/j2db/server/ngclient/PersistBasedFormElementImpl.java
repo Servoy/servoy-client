@@ -252,9 +252,20 @@ class PersistBasedFormElementImpl
 			map.remove("relationName");
 
 			Portal portal = ((Portal)portalPersist);
-			HashMap<String, Object> tmp = new HashMap<>();
-			tmp.put("foundsetSelector", portal.getRelationName());
-			map.put("relatedFoundset", tmp);
+			JSONObject relatedFoundset = new JSONObject();
+			relatedFoundset.put("foundsetSelector", portal.getRelationName());
+
+			// get property type 'foundset'
+			PropertyDescription pd = specProperties.get("relatedFoundset");
+			if (pd == null)
+			{
+				Debug.error(new RuntimeException("Cannot find foundset special type to use for portal."));
+				return;
+			}
+			else
+			{
+				map.put("relatedFoundset", NGClientForJsonConverter.toJavaObject(relatedFoundset, pd, context, ConversionLocation.DESIGN, null));
+			}
 
 //			components: 'component[]',
 //			component: {
@@ -281,7 +292,7 @@ class PersistBasedFormElementImpl
 			}
 
 			// get property type 'component definition'
-			PropertyDescription pd = specProperties.get("childElements");
+			pd = specProperties.get("childElements");
 			if (pd == null)
 			{
 				Debug.error(new RuntimeException("Cannot find component definition special type to use for portal."));

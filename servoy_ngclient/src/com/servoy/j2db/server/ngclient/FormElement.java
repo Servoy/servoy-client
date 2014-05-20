@@ -32,9 +32,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
+import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpec;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.JSONUtils;
@@ -56,14 +58,15 @@ import com.servoy.j2db.util.Debug;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public final class FormElement
+public final class FormElement implements IWebComponentInitializer
 {
 	private final Form form;
-	private final Map<String, Object> propertyValues;
+	private Map<String, Object> propertyValues;
 	private final String componentTypeString;
 
 	private final PersistBasedFormElementImpl legacyImpl;
 	private final String uniqueIdWithinForm;
+	private IDataConverterContext dataConverterContext;
 
 	public FormElement(Form form)
 	{
@@ -78,6 +81,7 @@ public final class FormElement
 
 	public FormElement(IFormElement persist, final IDataConverterContext context)
 	{
+		this.dataConverterContext = context;
 		legacyImpl = new PersistBasedFormElementImpl(persist, this);
 		this.form = legacyImpl.getForm();
 		this.componentTypeString = FormTemplateGenerator.getComponentTypeName(persist);
@@ -86,13 +90,15 @@ public final class FormElement
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 		Map<String, Object> map = legacyImpl.getConvertedProperties(context, specProperties);
 
-		fillPropertiesWithDefaults(specProperties, map, context);
+		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values 
+		initProperties(specProperties, map, context);
 		adjustLocationRelativeToPart(context.getSolution(), map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, IDataConverterContext context)
 	{
+		this.dataConverterContext = context;
 		legacyImpl = null;
 		this.form = form;
 		this.componentTypeString = componentTypeString;
@@ -109,9 +115,15 @@ public final class FormElement
 			Debug.error("Error while parsing component design JSON", ex);
 		}
 
-		fillPropertiesWithDefaults(specProperties, map, context);
+		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values 
+		initProperties(specProperties, map, context);
 		adjustLocationRelativeToPart(context.getSolution(), map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
+	}
+
+	public IDataConverterContext getDataConverterContext()
+	{
+		return dataConverterContext;
 	}
 
 	void getConvertedJSONDefinitionProperties(IDataConverterContext context, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
@@ -143,7 +155,7 @@ public final class FormElement
 		return legacyImpl.getPersist();
 	}
 
-	private void fillPropertiesWithDefaults(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IDataConverterContext context)
+	private void initProperties(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IDataConverterContext context)
 	{
 		if (specProperties != null && map != null)
 		{
@@ -158,6 +170,14 @@ public final class FormElement
 					catch (JSONException e)
 					{
 						Debug.error("Error while parsing/loading default value for property: " + pd.getName() + ". Value: " + pd.getDefaultValue(), e);
+					}
+				}
+				else
+				{
+					Object value = map.get(pd.getName());
+					if (value instanceof IComplexPropertyValue)
+					{
+						((IComplexPropertyValue)value).initialize(this, pd.getName(), pd.getDefaultValue());
 					}
 				}
 			}

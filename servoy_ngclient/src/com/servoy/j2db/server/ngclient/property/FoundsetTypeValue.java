@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.property;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
+import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.websocket.utils.DataConversion;
@@ -47,7 +48,14 @@ public class FoundsetTypeValue implements IComplexPropertyValue
 	}
 
 	@Override
-	public void init(IChangeListener changeMonitor, WebComponent component, String propertyName)
+	public void initialize(IWebComponentInitializer fe, String propertyName, Object defaultValue)
+	{
+		// TODO ac Auto-generated method stub
+
+	}
+
+	@Override
+	public void attachToComponent(IChangeListener changeMonitor, WebComponent component)
 	{
 		this.component = (WebFormComponent)component;
 		// TODO ac Auto-generated method stub
@@ -69,6 +77,8 @@ public class FoundsetTypeValue implements IComplexPropertyValue
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
 		// TODO ac Auto-generated method stub
+		if (changed) return toJSON(destinationJSON, conversionMarkers);
+		else destinationJSON.value(null);
 		return destinationJSON;
 	}
 
