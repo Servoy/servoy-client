@@ -18,14 +18,13 @@ Require-Bundle: servoy_shared,
  javax.servlet;bundle-version="3.0.0",
  org.apache.tomcat;bundle-version="7.0.52",
  javax.websocket;bundle-version="1.0.0",
- org.eclipse.equinox.common,
  slf4j.api;bundle-version="1.6.1",
  org.apache.commons.io;bundle-version="2.4.0",
- log4j;bundle-version="1.2.17"
+ log4j;bundle-version="1.2.17",
+ org.jsoup;bundle-version="1.7.3",
+ org.freemarker.freemarker;bundle-version="2.3.20"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .,
- lib/freemarker.jar,
- lib/jsoup-1.7.3.jar
+Bundle-ClassPath: .
 Bundle-Vendor: Servoy
 Import-Package: org.osgi.framework
 Bundle-Activator: com.servoy.j2db.server.ngclient.startup.Activator
