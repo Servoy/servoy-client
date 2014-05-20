@@ -7,7 +7,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_shared,
  servoy_smart_client,
- javax.servlet;bundle-version="3.0.0"
+ javax.servlet;bundle-version="3.0.0",
+ slf4j.api;bundle-version="1.6.1"
 Bundle-Vendor: Servoy
 Export-Package: com.servoy.j2db.server.headlessclient,
  com.servoy.j2db.server.headlessclient.dataui,
