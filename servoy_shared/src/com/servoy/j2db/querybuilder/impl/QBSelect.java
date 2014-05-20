@@ -176,7 +176,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
-	 * foundset.loadRecords(query)	 
+	 * foundset.loadRecords(query)
 	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition having() throws RepositoryException
@@ -272,11 +272,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.where.add(query.columns.contact_id.eq(query.getParameter('mycontactid')))
-	 * 	
+	 *
 	 * 	// load orders where contact_id = 100
 	 * 	query.params['mycontactid'] = 100
 	 * 	foundset.loadRecords(query)
-	 * 	
+	 *
 	 * 	// load orders where contact_id = 200
 	 * 	query.params['mycontactid'] = 200
 	 * 	foundset.loadRecords(query)
@@ -326,7 +326,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *	        .add(query.columns.flag.eq(2))
 	 *	        .add(query.column.order_date.gt(new Date()))
 	 *	     )
-	 *	);	
+	 *	);
 	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition and()
@@ -338,7 +338,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * Create an negated condition.
 	 * @sample
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
-	 * 
+	 *
 	 * @param cond the logical condition to negate
 	 */
 	@JSFunction
@@ -352,7 +352,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * Create an negated condition.
 	 * @sample
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
-	 * 
+	 *
 	 * @param cond the condition to negate
 	 */
 	@JSFunction
@@ -365,7 +365,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * Get an exists-condition from a subquery
 	 * @sample
 	 * foundset.query.where.add(query.exists(query2))
-	 * 
+	 *
 	 */
 	public QBCondition js_exists(QBSelect q) throws RepositoryException
 	{
@@ -400,7 +400,6 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		}
 		return functions;
 	}
-
 
 	public QuerySelect getQuery()
 	{
@@ -464,7 +463,6 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@Override
 	public String toString()
 	{
-		QuerySelect q = getQuery(false);
-		return "QBSelect(" + (q == null ? "" : q.toString()) + ")";
+		return "QBSelect(" + getQuery(true).toString() + ')';
 	}
 }

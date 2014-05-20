@@ -43,7 +43,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * @author rgansevles
- * 
+ *
  * @since 6.1
  *
  */
@@ -83,24 +83,30 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @sample
 	 *  /** @type {QBSelect<db:/example_data/order_details>} *&#47;
 	 * 	var subquery = databaseManager.createSelect('db:/example_data/order_details')
-	 * 		
+	 *
 	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.where.add(query
-	 * 		.or 
+	 * 		.or
 	 * 			.add(query.columns.order_id.not.isin([1, 2, 3]))
-	 * 			
+	 *
 	 * 			.add(query.exists(
 	 * 					subquery.where.add(subquery.columns.orderid.eq(query.columns.order_id)).root
 	 * 			))
 	 * 		)
-	 * 		
+	 *
 	 * 	foundset.loadRecords(query)
 	 */
 	@JSReadonlyProperty
 	public QBSelect getRoot()
 	{
 		return root;
+	}
+
+	@JSFunction
+	public QBJoin[] getJoins()
+	{
+		return joins.values().toArray(new QBJoin[joins.size()]);
 	}
 
 	@Override
@@ -193,7 +199,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *  var join2 = query.joins.add('orders_to_customers', 'cust')
 	 * 	query.where.add(join2.columns.customerid.eq(999))
 	 * 	foundset.loadRecords(query)
-	 * 
+	 *
 	 * @param dataSource data source
 	 * @param joinType join type, one of JSRelation.LEFT_OUTER_JOIN, JSRelation.INNER_JOIN, JSRelation.RIGHT_OUTER_JOIN, JSRelation.FULL_JOIN
 	 */
@@ -206,7 +212,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, String)
 	 * @sampleas add(String, int)
-	 * 
+	 *
 	 * @param dataSourceOrRelation data source
 	 * @param alias the alias for joining table
 	 */
@@ -229,7 +235,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String)
 	 * @sampleas add(String, int)
-	 * 
+	 *
 	 * @param dataSource data source
 	 */
 	@JSFunction
@@ -241,11 +247,11 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, int, String)
 	 * @sampleas add(String, int)
-	 * 
+	 *
 	 * @param dataSource data source
 	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
 	 * @param alias the alias for joining table
-	 * 
+	 *
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType, String alias) throws RepositoryException

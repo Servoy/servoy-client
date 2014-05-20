@@ -25,9 +25,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Multiple joins added together.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QueryCompositeJoin implements ISQLTableJoin
 {
@@ -125,6 +125,20 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		}
 		joins = invertedJoins;
 		this.name = newName;
+	}
+
+	@Override
+	public int getJoinType()
+	{
+		for (int i = 0; i < joins.size(); i++)
+		{
+			ISQLJoin join = joins.get(i);
+			if (join instanceof ISQLTableJoin)
+			{
+				return ((ISQLTableJoin)join).getJoinType();
+			}
+		}
+		return ISQLJoin.INNER_JOIN;
 	}
 
 	public void setJoinType(int joinType)

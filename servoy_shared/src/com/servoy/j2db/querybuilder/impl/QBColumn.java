@@ -121,7 +121,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value1
 	 * @param value2
 	 * @sample
-	 * query.where.add(query.columns.flag.between(0, 5)) 
+	 * query.where.add(query.columns.flag.between(0, 5))
 	 */
 	@JSFunction
 	public QBCondition between(Object value1, Object value2)
@@ -190,9 +190,9 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Compare column with a value or another column.
 	 * Operator: like
-	 * 
+	 *
 	 * @param pattern the string value of the pattern
-	 * 
+	 *
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('Serv%'))
 	 */
@@ -205,10 +205,10 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Compare column with a value or another column.
 	 * Operator: like, with escape character
-	 * 
+	 *
 	 * @param pattern the string value of the pattern
 	 * @param escape the escape char
-	 * 
+	 *
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('X_%', '_'))
 	 */
@@ -222,7 +222,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create a negated condition.
 	 * @sample
 	 * query.where.add(query.columns.flag.not.eq(1))
-	 * 
+	 *
 	 */
 	@JSReadonlyProperty
 	public QBColumn not()
@@ -664,4 +664,14 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 		return getRoot().functions().year(this);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return negate ? "!" : "" + queryColumn.toString();
+	}
 }

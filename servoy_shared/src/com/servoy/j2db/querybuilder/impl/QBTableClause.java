@@ -63,16 +63,22 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	}
 
 	/**
+	 * Returns the datasource for this.
+	 *
 	 * @return the dataSource
 	 */
+	@JSFunction
 	public String getDataSource()
 	{
 		return dataSource;
 	}
 
 	/**
+	 *  Returns the table alias for this.
+	 *
 	 * @return the tableAlias
 	 */
+	@JSFunction
 	public String getTableAlias()
 	{
 		return tableAlias;
@@ -82,9 +88,11 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 
 
 	/**
-	 * Get columns from query
+	 * Get all the columns of the datasource that can be used for this query (select or where clause)
 	 * @sample
-	 * foundset.getQuery().columns
+	 * var query = foundset.getQuery();
+	 * query.result.add(query.columns.name, "name");
+	 * query.where.add(query.columns.orderdate.isNull)
 	 */
 	@JSReadonlyProperty
 	public QBColumns columns() throws ServoyException
@@ -120,8 +128,8 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#getColumn(String)
 	 * @sample
 	 * foundset.getQuery().getColumn('orderid')
-	 * 
-	 * @param name the name of column to get 
+	 *
+	 * @param name the name of column to get
 	 */
 	@JSFunction
 	public QBColumn getColumn(String name) throws RepositoryException
@@ -145,9 +153,9 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#getColumn(String, String)
 	 * @sample
 	 * foundset.getQuery().getColumn('orderid', 'opk')
-	 * 
+	 *
 	 * @param columnTableAlias the alias for the table
-	 * @param name the name of column to get 
+	 * @param name the name of column to get
 	 */
 	@JSFunction
 	public QBColumn getColumn(String columnTableAlias, String name) throws RepositoryException

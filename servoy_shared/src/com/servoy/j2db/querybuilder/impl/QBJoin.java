@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ISQLTableJoin;
@@ -47,6 +49,17 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	}
 
 	/**
+	 * Returns the join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 *
+	 * @return joinType.
+	 */
+	@JSFunction
+	public int getJoinType()
+	{
+		return join.getJoinType();
+	}
+
+	/**
 	 * Get the on clause for the join.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/person>} *&#47;
@@ -57,7 +70,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	 * /** @type {QBJoin<db:/example_data/person>} *&#47;
 	 * var join2 = query.joins.add('db:/example_data/person')
 	 * join2.on.add(join1.columns.parent_person_id.eq(join2.columns.person_id))
-	 * 	
+	 *
 	 * query.where.add(join2.columns.name.eq('john'))
 	 * foundset.loadRecords(query)
 	 */
@@ -69,5 +82,11 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 			on = new QBLogicalCondition(getRoot(), this, join.getCondition());
 		}
 		return on;
+	}
+
+	@Override
+	public String toString()
+	{
+		return join.toString();
 	}
 }

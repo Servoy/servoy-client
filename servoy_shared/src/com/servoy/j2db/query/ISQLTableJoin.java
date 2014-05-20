@@ -33,4 +33,6 @@ public interface ISQLTableJoin extends ISQLJoin
 	AndCondition getCondition();
 
 	boolean hasInnerJoin();
+
+	int getJoinType();
 }
