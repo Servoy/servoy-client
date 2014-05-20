@@ -33,7 +33,6 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.sablo.specification.WebComponentSpecProvider;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ClientLogin;
@@ -186,7 +185,6 @@ public class PersistFieldInstanceTest
 						public IClientHost getClientHost() throws RemoteException
 						{
 
-							System.out.println("return le client host now");
 							return new IClientHost()
 							{
 
