@@ -6,16 +6,15 @@ input[type=date] {
 	line-height: normal;
 }
 
-.gridStyle {
-    border: 1px solid rgb(212,212,212);
-    width: 1024px; 
-    height: 600px;
-}
-
 #mktipmsg {
 	display: none;
 	position: absolute;
 }
+
+.ngVerticalBarVisible {
+	width: 0px!important;/*override value from ng-grid css*/	
+}
+
 /*align labels for radios and check groups with input element*/
 label.svy-check-radio{
 	display:block;
