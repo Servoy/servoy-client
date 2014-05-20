@@ -18,7 +18,9 @@ Require-Bundle: servoy_shared,
  javax.servlet;bundle-version="3.0.0",
  org.apache.tomcat;bundle-version="7.0.52",
  javax.websocket;bundle-version="1.0.0",
- org.eclipse.equinox.common
+ org.eclipse.equinox.common,
+ slf4j.api;bundle-version="1.6.1",
+ org.apache.commons.io;bundle-version="2.4.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  lib/freemarker.jar,
