@@ -326,7 +326,6 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			rows.add(rowProperties);
 		}
 		dataAdapterList.setRecord(currentFoundset.getRecord(currentFoundset.getSelectedIndex()), false);
-		System.err.println(Thread.currentThread().getName());
 		return new RowData(rows, startIdx - foundsetStartRow, endIdx - foundsetStartRow);
 	}
 
