@@ -67,7 +67,7 @@ import com.servoy.j2db.util.ScopesUtils;
 /**
  * This class encapsulates all the dataproviders for a form part (mainly the body) ,it does the creation and setup of dataAdapters<br>
  * An object of this class is usually hold inside a part 'Renderer'.
- * 
+ *
  * @author jblok
  */
 public class DataAdapterList implements IModificationListener, ITagResolver
@@ -86,7 +86,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	/**
 	 * Constructor I<br>
 	 * Creates all data adapters, and dataChangeListeners between them.
-	 * 
+	 *
 	 * @param p the part this adapterlist is working for
 	 * @param formObjects , map with IPersist -> IDisplay
 	 * @param displays may provide map with dataProviderID -> IDataAdapter for already created adapters, or null/empty if none
@@ -289,7 +289,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	/**
 	 * Walk over the relation sequence to add data adapters.
-	 * 
+	 *
 	 * @param dataAdapter
 	 * @param relations
 	 * @param rel
@@ -341,11 +341,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	/**
 	 * Inform all dataAdapters about the new state. <br><br>
-	 * 
-	 * Note on param: stopAnyEdit, the Renderer paints state 6 (record 6) after that the editor comes in and edits 
-	 * that state 6, then another row must be repainted so State 7 and it calls stop editing on 6, but the editor is 
+	 *
+	 * Note on param: stopAnyEdit, the Renderer paints state 6 (record 6) after that the editor comes in and edits
+	 * that state 6, then another row must be repainted so State 7 and it calls stop editing on 6, but the editor is
 	 * still editing that state 6
-	 * 
+	 *
 	 * @param state the new state (can be null to delete old state)
 	 */
 	public void setRecord(IRecordInternal state, boolean stopAnyEdit)
@@ -379,7 +379,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		//1) handle first related data (needed for comboboxes)
 		for (IDisplayRelatedData drd : relatedDataAdapters)
 		{
-			if (state != null)// && !(state instanceof PrototypeState)) 
+			if (state != null)// && !(state instanceof PrototypeState))
 			{
 				if (!(drd instanceof RelatedFieldHolder))//performance enhancement
 				{
@@ -683,7 +683,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	/**
 	 * Checks whatever the dataAdapter is for count aggregate
-	 * 
+	 *
 	 * @param dataAdapter
 	 * @return true if dataAdapter is for count aggregate, otherwise false
 	 */
@@ -727,7 +727,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	private boolean destroyed = false;
 
 	/**
-	 * 
+	 *
 	 */
 	public void destroy()
 	{
@@ -841,7 +841,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	/**
 	 * Only meant to be used when a dataprovider value needs to be changed as a result of an operation other than display editing of this dataprovider. (for
 	 * example upload media would need to change "m_filename" and "m_mimetype", but media field's display adapter only handles "m").
-	 * 
+	 *
 	 * @param dataProviderID
 	 * @param obj
 	 */
@@ -918,7 +918,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			}
 			catch (IllegalArgumentException e)
 			{
-				Debug.trace(e);
+				// TODO handle the validaton errors.
+				fs.getFormController().getApplication().reportError("Validation for " + dataProviderID + " for value: " + obj + " failed.", e);
 			}
 		}
 		return null;
