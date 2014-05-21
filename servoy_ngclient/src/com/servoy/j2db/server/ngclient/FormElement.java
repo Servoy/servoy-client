@@ -454,25 +454,14 @@ public final class FormElement implements IWebComponentInitializer
 
 	Dimension getDesignSize()
 	{
-		Dimension dim = null;
-		if (propertyValues != null)
-		{
-			dim = (Dimension)getProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
-		}
-		if (dim == null && legacyImpl != null && legacyImpl.getPersist() instanceof ISupportSize) dim = ((ISupportSize)legacyImpl.getPersist()).getSize();
-		if (dim == null) dim = new Dimension(80, 80); // just like a Bean persist would do
-		return dim;
+		if (legacyImpl != null && legacyImpl.getPersist() instanceof ISupportSize) return ((ISupportSize)legacyImpl.getPersist()).getSize();
+		return null;
 	}
 
 	Point getDesignLocation()
 	{
-		Point location = null;
-		if (propertyValues != null)
-		{
-			location = (Point)getProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
-		}
-		if (location == null && legacyImpl != null && legacyImpl.getPersist() instanceof ISupportBounds) location = ((ISupportBounds)legacyImpl.getPersist()).getLocation();
-		return location;
+		if (legacyImpl != null && legacyImpl.getPersist() instanceof ISupportBounds) return ((ISupportBounds)legacyImpl.getPersist()).getLocation();
+		return null;
 	}
 
 	/*
