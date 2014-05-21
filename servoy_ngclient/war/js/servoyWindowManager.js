@@ -4,7 +4,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	var WM = new WindowManager();
 	var winInstances = {}
 	return {
-		instances: instances,
+		instances: winInstances,
 		open : function (windowOptions) {
 		        var dialogResultDeferred = $q.defer();
 	            var dialogOpenedDeferred = $q.defer();
