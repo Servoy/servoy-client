@@ -63,6 +63,8 @@ public interface IServerManagerInternal extends IServerManager
 
 	String[] getKnownDriverClassNames();
 
+	String[] getAllDriverClassNames();
+
 	ServerConfig[] getServerConfigs();
 
 	boolean logTableExists();
