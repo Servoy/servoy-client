@@ -547,7 +547,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			clientInfo.setUserName(login.getUserName());
 			clientInfo.setUserUid(login.getUserUid());
 			clientInfo.setUserGroups(login.getUserGroups());
-			clientInfo.setLoginTimestamp(login.getLoginTimeStamp());
 			if (login.getUserUid() == null)
 			{
 				clientInfo.setLastAuthentication(null, null, null);

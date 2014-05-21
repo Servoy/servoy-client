@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 package com.servoy.j2db;
 
 import java.io.Serializable;
@@ -31,16 +31,14 @@ public class ClientLogin implements Serializable
 	private final String userName;
 	private final String[] userGroups;
 	private final String jsReturn;
-	private final long loginTimeStamp;
 
-	public ClientLogin(String clientId, String userUid, String userName, String[] userGroups, String jsReturn, long loginTimeStamp)
+	public ClientLogin(String clientId, String userUid, String userName, String[] userGroups, String jsReturn)
 	{
 		this.clientId = clientId;
 		this.userUid = userUid;
 		this.userName = userName;
 		this.userGroups = userGroups;
 		this.jsReturn = jsReturn;
-		this.loginTimeStamp = loginTimeStamp;
 	}
 
 	public String getClientId()
@@ -66,11 +64,6 @@ public class ClientLogin implements Serializable
 	public String getJsReturn()
 	{
 		return jsReturn;
-	}
-
-	public long getLoginTimeStamp()
-	{
-		return loginTimeStamp;
 	}
 
 }
