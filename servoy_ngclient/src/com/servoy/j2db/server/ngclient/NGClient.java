@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.IChangeListener;
 
+import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
@@ -27,6 +28,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -37,6 +39,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
+import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
@@ -595,5 +598,52 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			scheduledExecutorService = null;
 		}
 		getWebsocketSession().closeSession();
+	}
+
+	private transient Object[] adsInfo = null;//cache to expensive to get each time
+
+	@Override
+	protected boolean registerClient(IUserClient uc) throws Exception
+	{
+		boolean registered = false;
+		try
+		{
+			registered = super.registerClient(uc);
+			if (!registered)
+			{
+				((NGClientWebsocketSession)wsSession).setClient(this);
+				invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						if (adsInfo == null) adsInfo = Ad.getAdInfo();
+						final int w = Utils.getAsInteger(adsInfo[1]);
+						final int h = Utils.getAsInteger(adsInfo[2]);
+						if (w > 50 && h > 50)
+						{
+							final URL url = (URL)adsInfo[0];
+							final int t = Utils.getAsInteger(adsInfo[3]);
+							getWebsocketSession().executeAsyncServiceCall(NGClient.APPLICATION_SERVICE, "showInfoPanel",
+								new Object[] { url.toString(), w, h, t, getI18NMessage("servoy.button.close") });
+						}
+					}
+				});
+			}
+		}
+		catch (final ApplicationException e)
+		{
+			//TODO
+			throw e;
+//			if (e.getErrorCode() == ServoyException.NO_LICENSE)
+//			{
+//				throw new RestartResponseException(ServoyServerToBusyPage.class);
+//			}
+//			else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
+//			{
+//				throw new RestartResponseException(ServoyServerInMaintenanceMode.class);
+//			}
+		}
+		return registered;
 	}
 }
