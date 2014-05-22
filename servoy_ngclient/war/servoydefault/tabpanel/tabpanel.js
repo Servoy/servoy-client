@@ -80,9 +80,11 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        function setFormVisible(tab,event) {
     	   if (!$scope.waitingForServerVisibility[tab.containsFormId])
     	   {
-    		   $scope.waitingForServerVisibility[tab.containsFormId] = true;
+    		   var formInWait = tab.containsFormId;
+       		   $scope.waitingForServerVisibility[formInWait] = true;
     		   var promise = $scope.svyServoyapi.setFormVisibility(tab.containsFormId,true, tab.relationName);
     		   promise.then(function(ok) {
+    			   delete $scope.waitingForServerVisibility[formInWait];
     			   if (ok){
     				   if(selectedTab != tab && $scope.handlers.onChangeMethodID)
     				   {
@@ -114,9 +116,11 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
         if (selectedTab) {
         	if (!$scope.waitingForServerVisibility[selectedTab.containsFormId])
         	{
-        		$scope.waitingForServerVisibility[selectedTab.containsFormId] = true;
+        		var formInWait = selectedTab.containsFormId;
+        		$scope.waitingForServerVisibility[formInWait] = true;
         		var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
         		promise.then(function(ok) {
+        			delete $scope.waitingForServerVisibility[formInWait];
         			if (ok) {
         				setFormVisible(tab,selectEvent);
         			}
