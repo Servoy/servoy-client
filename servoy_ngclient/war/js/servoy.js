@@ -244,7 +244,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		     // Listen for start edit
 	  	     element.bind('focus', function() {
 	  	        	setTimeout(function() { 
-		        		$servoyInternal.callService("formService", "startEdit", {formname:formname,beanname:beanname,property:propertyname})
+		        		$servoyInternal.callService("formService", "startEdit", {formname:formname,beanname:beanname,property:propertyname},true)
 	  	        	}, 0);
 	  	     });
 

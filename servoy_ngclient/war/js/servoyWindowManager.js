@@ -160,11 +160,11 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				     onResize:function($event,size){
 				    	win.size = size;  
 				    	//storage.add(JSON.stringify(instances));				    	
-				    	$servoyInternal.callService("$windowService", "resize", {name:win.name,size:win.size});
+				    	$servoyInternal.callService("$windowService", "resize", {name:win.name,size:win.size},true);
 				     },
 				     onMove:function($event,location){
 				    	 win.location = location;
-				    	 $servoyInternal.callService("$windowService", "move", {name:win.name,location:win.location});
+				    	 $servoyInternal.callService("$windowService", "move", {name:win.name,location:win.location},true);
 				     }
 					};
 				
@@ -297,7 +297,13 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
  		getFormUrl: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
-					$servoyInternal.callService("$windowService", "touchForm", {name:formName});
+					formTemplateUrls[formName] = "";
+					$servoyInternal.callService("$windowService", "touchForm", {name:formName},true);
+			}
+			else if (realFormUrl.length == 0)
+			{
+				// waiting for updateForm to come
+				return null;
 			}
 			return realFormUrl;
 		},
@@ -320,7 +326,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	$servoyInternal.setFormVisibility(windowInstance.form,true);
 	
 	$scope.cancel = function () {
-		var promise = $servoyInternal.callService("$windowService", "windowClosing", {window:windowInstance.name});
+		var promise = $servoyInternal.callService("$windowService", "windowClosing", {window:windowInstance.name},false);
 		promise.then(function(ok) {
     		if (ok) {
     			$windowService.hide(windowInstance.name);

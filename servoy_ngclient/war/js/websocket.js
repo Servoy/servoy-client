@@ -114,12 +114,20 @@ webSocketModule.factory('$webSocket',
 				return deferred.promise;
 			}
 
-			var callService = function(serviceName, methodName, argsObject) {
-				return sendDeferredMessage({
-					service : serviceName,
-					methodname : methodName,
-					args : argsObject
-				})
+			var callService = function(serviceName, methodName, argsObject,async) {
+				var cmd = {
+						service : serviceName,
+						methodname : methodName,
+						args : argsObject
+					};
+				if (async)
+				{
+					sendMessageObject(cmd);
+				}
+				else
+				{
+					return sendDeferredMessage(cmd)
+				}
 			}
 
 			var convertClientObject = function(value) {

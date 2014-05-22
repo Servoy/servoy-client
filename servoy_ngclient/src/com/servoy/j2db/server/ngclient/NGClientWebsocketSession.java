@@ -400,7 +400,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		else
 		{
-			Debug.warn("Unknown servie called: " + serviceName);
+			Debug.warn("Unknown service called: " + serviceName);
 		}
 	}
 

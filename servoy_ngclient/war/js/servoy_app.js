@@ -403,8 +403,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	setFormReadOnly: function(form,readOnly) {
 	    		wsSession.sendMessageObject({cmd:'formreadOnly',form:form,readOnly:readOnly})
 		    },
-	    	callService: function(serviceName, methodName, argsObject) {
-	    		return wsSession.callService(serviceName, methodName, argsObject)
+	    	callService: function(serviceName, methodName, argsObject, async) {
+	    		return wsSession.callService(serviceName, methodName, argsObject, async)
 	    	}
 	   }
 }).directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
@@ -521,6 +521,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	
 }]).run(function($window, $servoyInternal) {
 	$window.executeInlineScript = function(formname, script, params) {
-		$servoyInternal.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params})
+		$servoyInternal.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)
 	}
 })
