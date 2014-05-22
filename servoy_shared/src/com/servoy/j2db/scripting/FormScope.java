@@ -381,6 +381,17 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		{
 			return _fp;
 		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.scripting.LazyCompilationScope#getScopeName()
+		 */
+		@Override
+		public String getScopeName()
+		{
+			return _fp.getFormScope().getScopeName();
+		}
 	}
 
 

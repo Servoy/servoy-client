@@ -61,7 +61,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class ScriptVariableScope extends LazyCompilationScope
+public abstract class ScriptVariableScope extends LazyCompilationScope
 {
 	private final Map<String, Integer> nameType; //name -> type
 	private Map<String, Integer> replacedNameType; //name -> type

@@ -623,7 +623,7 @@ public class ScriptEngine implements IScriptSupport
 
 				String methodName = f.getClassName();
 				if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-				String formscope = thisObject.getClassName();
+				String formscope = scope.getClassName();
 				if (scope instanceof LazyCompilationScope) formscope = ((LazyCompilationScope)scope).getScopeName();
 				methodName = formscope + "." + methodName; //$NON-NLS-1$
 

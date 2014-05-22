@@ -5771,6 +5771,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					return "FoundSetScope"; //$NON-NLS-1$
 				}
+
+				@Override
+				public String getScopeName()
+				{
+					return FoundSet.this.getTable().getName();
+				}
 			};
 			scope.setFunctionParentScriptable(this); // make sure functions like getSize cannot be overridden
 			prototypeScope = scope;
