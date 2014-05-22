@@ -445,7 +445,11 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	public void setFont(Font f)
 	{
-		if (f != null && field != null) field.getScriptObject().setFont(PersistHelper.createFontString(f));
+		font = f;
+		if (f != null && field != null)
+		{
+			field.setFont(f);
+		}
 	}
 
 	private Color background;
