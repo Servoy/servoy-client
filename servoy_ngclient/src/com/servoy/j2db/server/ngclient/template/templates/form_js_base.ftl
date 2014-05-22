@@ -67,17 +67,17 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 		}
 		return wrapper;
 	}
-	
+
 	var servoyApi = function(beanname) {
 		return {
 			setFormVisibility: function(formname, visibility,relationname,formIndex) {
-				return $servoyInternal.setFormVisibility(formname, visibility,relationname,$scope.formname, beanname,formIndex);
+				return $servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:visibility,parentForm:$scope.formname,bean:beanname,relation:relationname,formIndex:formIndex})
 			},
 			setFormEnabled: function(formname, enabled) {
-				return $servoyInternal.setFormEnabled(formname, enabled);
+				return $servoyInternal.callService('formService', 'formenabled', {formname:formname,enabled:enabled})
 			},
 			setFormReadOnly: function(formname, readOnly) {
-				return $servoyInternal.setFormReadOnly(formname, readOnly);
+				return $servoyInternal.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly})
 			},
 			getFormUrl: function(formUrl) {
 				return $windowService.getFormUrl(formUrl);

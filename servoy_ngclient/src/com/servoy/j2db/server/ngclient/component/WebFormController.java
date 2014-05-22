@@ -166,11 +166,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		this.rendering = rendering;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#refreshAllPartRenderers(com.servoy.j2db.dataprocessing.IRecordInternal[])
-	 */
+	@Override
+	public boolean isRendering()
+	{
+		return rendering;
+	}
+
 	@Override
 	protected void refreshAllPartRenderers(IRecordInternal[] records)
 	{

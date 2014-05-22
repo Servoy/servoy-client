@@ -49,7 +49,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, java.util.Map)
 	 */
 	@Override
@@ -105,7 +105,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getMainApplicationWindow()
 	 */
 	@Override
@@ -116,7 +116,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getWindow(java.lang.String)
 	 */
 	@Override
@@ -127,7 +127,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getCurrentWindow()
 	 */
 	@Override
@@ -138,7 +138,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#createWindowInternal(java.lang.String, int, com.servoy.j2db.scripting.RuntimeWindow)
 	 */
 	@Override
@@ -151,7 +151,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getOrderedContainers()
 	 */
 	@Override

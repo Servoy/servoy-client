@@ -323,7 +323,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	$scope.getFormSize = function(){
 		return {'width':'200px'}
 	}
-	$servoyInternal.setFormVisibility(windowInstance.form,true);
+	$servoyInternal.callService('formService', 'formvisibility', {form:windowInstance.form,visible:true})
 	
 	$scope.cancel = function () {
 		var promise = $servoyInternal.callService("$windowService", "windowClosing", {window:windowInstance.name},false);

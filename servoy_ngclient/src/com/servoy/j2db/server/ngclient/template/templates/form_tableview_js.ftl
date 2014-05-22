@@ -54,14 +54,14 @@
 	$scope.$watch('pagingOptions.pageSize', function (newVal, oldVal) {
 		if (newVal !== oldVal) {
 			$scope.model[''].pageSize = newVal;
-			$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',pageSize:newVal});
+			$servoyInternal.callService('formService','requestdata',{formname:'${name}',pageSize:newVal});
 		}
 	}, false);
 	$scope.$watch('pagingOptions.currentPage', function (newVal, oldVal) {
 		if ($scope.model[''].currentPage != newVal) {
 			$timeout(function(){ 
 			    if ($scope.pagingOptions.currentPage == newVal) {
-					$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',currentPage:newVal});
+			    	$servoyInternal.callService('formService','requestdata',{formname:'${name}',currentPage:newVal});
 				}
 				else {
 				console.log("not the same");

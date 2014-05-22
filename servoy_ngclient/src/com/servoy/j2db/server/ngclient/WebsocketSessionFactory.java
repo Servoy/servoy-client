@@ -22,7 +22,7 @@ import org.sablo.websocket.IWebsocketSessionFactory;
 
 /**
  * Create websocket session handler based on endpoint type.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -52,12 +52,12 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 	 * @param ngClientEndpoint
 	 * @return the session
 	 */
-	public IWebsocketSession createSession(String endpointType)
+	public IWebsocketSession createSession(String endpointType, String uuid)
 	{
 		switch (endpointType)
 		{
 			case CLIENT_ENDPOINT :
-				NGClientWebsocketSession wsSession = new NGClientWebsocketSession();
+				NGClientWebsocketSession wsSession = new NGClientWebsocketSession(uuid);
 				wsSession.setClient(getClientCreator().createClient(wsSession));
 				return wsSession;
 		}

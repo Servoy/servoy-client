@@ -170,7 +170,7 @@ webSocketModule.factory('$webSocket',
 			 */
 			return {
 
-				connect : function(endpointType, id, argument) {
+				connect : function(endpointType, sessionid,windowid, argument) {
 
 					var loc = window.location, new_uri;
 					if (loc.protocol === "https:") {
@@ -186,7 +186,7 @@ webSocketModule.factory('$webSocket',
 					} else {
 						new_uri += loc.pathname + "/websocket";
 					}
-					new_uri += '/' + endpointType + '/' + (id || 'NULL') + '/'
+					new_uri += '/' + endpointType + '/' + (sessionid || 'NULL') + '/' + (windowid || 'NULL') + '/'
 							+ (argument || 'NULL')
 
 					websocket = new WebSocket(new_uri);

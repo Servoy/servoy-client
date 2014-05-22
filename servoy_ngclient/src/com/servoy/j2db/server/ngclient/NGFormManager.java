@@ -19,9 +19,12 @@ package com.servoy.j2db.server.ngclient;
 
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -38,6 +41,8 @@ import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
@@ -73,6 +78,11 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		super(application);
 		this.createdFormControllers = new ConcurrentHashMap<>();
 		application.getWebsocketSession().registerService("formService", this);
+	}
+
+	public final INGApplication getApplication()
+	{
+		return (INGApplication)application;
 	}
 
 	/*
@@ -674,14 +684,14 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, org.json.JSONObject)
 	 */
 	@Override
-	public Object executeMethod(String methodName, JSONObject args)
+	public Object executeMethod(String methodName, final JSONObject args) throws Exception
 	{
+		INGClientWebsocketSession websocketSession = getApplication().getWebsocketSession();
 		switch (methodName)
 		{
 			case "startEdit" :
 			{
-				String formName = args.optString("formname");
-				IWebFormUI form = getForm(formName).getFormUI();
+				IWebFormUI form = getFormAndSetCurrentWindow(args.optString("formname")).getFormUI();
 				form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"));
 				break;
 			}
@@ -690,7 +700,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				try
 				{
 					String formName = SecuritySupport.decrypt(Settings.getInstance(), args.optString("formname"));
-					IWebFormUI form = getForm(formName).getFormUI();
+					IWebFormUI form = getFormAndSetCurrentWindow(formName).getFormUI();
 					form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"));
 				}
 				catch (Exception ex)
@@ -699,7 +709,104 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				}
 				break;
 			}
+			case "requestdata" :
+			{
+				final String formName = args.optString("formname");
+				websocketSession.formCreated(formName);
+
+				IWebFormUI form = getFormAndSetCurrentWindow(formName).getFormUI();
+				if (form instanceof WebGridFormUI)
+				{
+					WebGridFormUI grid = (WebGridFormUI)form;
+					if (args.has("currentPage")) grid.setCurrentPage(args.optInt("currentPage"));
+					if (args.has("pageSize")) grid.setPageSize(args.optInt("pageSize"));
+				}
+				Map<String, Map<String, Object>> properties = form.getAllProperties();
+				Map<String, Map<String, Map<String, Object>>> formData = new HashMap<String, Map<String, Map<String, Object>>>();
+				formData.put(formName, properties);
+				try
+				{
+					websocketSession.sendChanges(formData);
+				}
+				catch (IOException e)
+				{
+					Debug.error(e);
+				}
+				break;
+			}
+			case "formreadOnly" :
+			{
+				IWebFormController form = getForm(args.optString("formname"));
+				if (form != null)
+				{
+					((WebFormController)form).setReadOnly(args.optBoolean("readOnly", false));
+				}
+				break;
+			}
+			case "formenabled" :
+			{
+				IWebFormController form = getForm(args.optString("formname"));
+				if (form != null)
+				{
+					((WebFormController)form).setComponentEnabled(args.optBoolean("enabled", true));
+				}
+				break;
+			}
+			case "formvisibility" :
+			{
+				IWebFormController parentForm = null;
+				IWebFormController form = null;
+				if (args.has("parentForm") && !args.isNull("parentForm"))
+				{
+					parentForm = getFormAndSetCurrentWindow(args.optString("parentForm"));
+					form = getForm(args.optString("formname"));
+				}
+				else
+				{
+					form = getFormAndSetCurrentWindow(args.optString("formname"));
+				}
+				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+				boolean isVisible = args.getBoolean("visible");
+				boolean ok = form.notifyVisible(isVisible, invokeLaterRunnables);
+				if (ok && parentForm != null)
+				{
+					WebFormComponent containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
+					if (containerComponent != null)
+					{
+						containerComponent.updateVisibleForm(form.getFormUI(), isVisible, args.optInt("formIndex"));
+					}
+					if (args.has("relation") && !args.isNull("relation"))
+					{
+						String relation = args.getString("relation");
+						FoundSet parentFs = parentForm.getFormModel();
+						IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
+						form.loadRecords(selectedRecord.getRelatedFoundSet(relation));
+						parentForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation);
+					}
+				}
+				Utils.invokeLater(getApplication(), invokeLaterRunnables);
+				return Boolean.valueOf(ok);
+			}
+
 		}
 		return null;
+	}
+
+	@Override
+	public IWebFormController getFormAndSetCurrentWindow(String formName)
+	{
+		IWebFormController form = getForm(formName);
+		if (form == null) throw new RuntimeException("form not found for formname:" + formName);
+		String windowName = form.getFormUI().getParentWindowName();
+		if (windowName != null)
+		{
+			application.getRuntimeWindowManager().setCurrentWindowName(windowName);
+			setCurrentControllerJS(getCurrentForm());
+		}
+		else
+		{
+			Debug.error("should the form " + formName + " have a window name?"); // throw new RuntimeException("window not set for form:" + formName + " (" + form + ")");
+		}
+		return form;
 	}
 }

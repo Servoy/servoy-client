@@ -14,7 +14,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
           		// also make location and size available in model
           		beanModel[key] = beanData[key];
           	}
-          	
+                
           	//beanData.anchors means anchors changed or must be initialized
             if((beanData.anchors !== undefined) && containerSize) {
                 var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
@@ -88,7 +88,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   // maybe do this with defer ($q)
 	   var ignoreChanges = false;
 	   $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec(window.location.pathname)[1];
-	   var wsSession = $webSocket.connect('client', webStorage.session.get("svyuuid"), $solutionSettings.solutionName)
+	   $solutionSettings.windowName = webStorage.session.get("windowid");
+	   var wsSession = $webSocket.connect('client', webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
        wsSession.onMessageObject = function (msg) {
 		   try {
 	        // data got back from the server
@@ -173,14 +174,15 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        		return func.apply(funcThis, call.args)
 	        	})
 	        }
-	        if (msg.srvuuid) {
-	        	webStorage.session.add("svyuuid",msg.srvuuid);
+	        if (msg.sessionid) {
+	        	webStorage.session.add("sessionid",msg.sessionid);
 	        }
 	        if (msg.styleSheetPath) {
 	        	$solutionSettings.styleSheetPath = msg.styleSheetPath;
 	        }
-	        if (msg.windowName) {
-	        	$solutionSettings.windowName = msg.windowName;
+	        if (msg.windowid) {
+	        	$solutionSettings.windowName = msg.windowid;
+	        	webStorage.session.add("windowid",msg.windowid);
 	        }
 		   } finally {
 			   ignoreChanges = false;
@@ -288,10 +290,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        
 	        
 	        $rootScope.updatingFormUrl = '';
-	        wsSession.sendMessageObject({cmd:'formloaded',formname:formName});
 	        // send the special request initial data for this form 
 	        // this can also make the form (IFormUI instance) on the server if that is not already done
-	        wsSession.sendMessageObject({cmd:'requestdata',formname:formName});
+	        wsSession.callService('formService', 'requestdata', {formname:formName})
 	        return state;
 	       },
 	       getExecutor: function(formName) {
@@ -406,15 +407,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    		wsSession.sendMessageObject({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter})
 	    		return deferred.promise;
 	    	},
-	    	setFormVisibility: function(form,visible,relation, parentForm, bean,formIndex) {
-	    		return wsSession.sendDeferredMessage({cmd:'formvisibility',form:form,visible:visible,parentForm:parentForm,bean:bean,relation:relation,formIndex:formIndex})
-	    	},
-	    	setFormEnabled: function(form,enabled) {
-	    		wsSession.sendMessageObject({cmd:'formenabled',form:form,enabled:enabled})
-	    	},
-	    	setFormReadOnly: function(form,readOnly) {
-	    		wsSession.sendMessageObject({cmd:'formreadOnly',form:form,readOnly:readOnly})
-		    },
 	    	callService: function(serviceName, methodName, argsObject, async) {
 	    		return wsSession.callService(serviceName, methodName, argsObject, async)
 	    	}

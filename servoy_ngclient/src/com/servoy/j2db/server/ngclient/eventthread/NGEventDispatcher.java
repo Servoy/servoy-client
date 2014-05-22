@@ -30,7 +30,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
  * @author rgansevles
  *
  */
-public class NGEventDispatcher extends EventDispatcher<Event>
+public class NGEventDispatcher extends EventDispatcher
 {
 	private final IServiceProvider client;
 
@@ -38,6 +38,12 @@ public class NGEventDispatcher extends EventDispatcher<Event>
 	{
 		super(client.getWebsocketSession());
 		this.client = client;
+	}
+
+	@Override
+	protected Event createEvent(Runnable event)
+	{
+		return new NGEvent((INGApplication)client, event);
 	}
 
 	@Override

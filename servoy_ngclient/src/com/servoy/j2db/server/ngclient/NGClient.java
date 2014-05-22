@@ -34,7 +34,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
-import com.servoy.j2db.server.ngclient.eventthread.NGEvent;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.WebCredentials;
@@ -56,7 +55,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private transient volatile ServoyScheduledExecutor scheduledExecutorService;
 
-	private NGRuntimeWindowManager runtimeWindowManager;
+	private volatile NGRuntimeWindowManager runtimeWindowManager;
 
 	private Map<Object, Object> uiProperties;
 
@@ -100,7 +99,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -149,7 +148,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	protected void doInvokeLater(Runnable r)
 	{
-		wsSession.getEventDispatcher().addEvent(new NGEvent(this, r));
+		wsSession.getEventDispatcher().addEvent(r);
 	}
 
 	@Override
@@ -162,7 +161,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public void invokeAndWait(Runnable r)
 	{
 		FutureTask<Object> future = new FutureTask<Object>(r, null);
-		wsSession.getEventDispatcher().addEvent(new NGEvent(this, future));
+		wsSession.getEventDispatcher().addEvent(future);
 		try
 		{
 			future.get(); // blocking
@@ -301,7 +300,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (scheduledExecutorService == null && !isShutDown())
 		{
-			synchronized (J2DBGlobals.class)
+			synchronized (this)
 			{
 				if (scheduledExecutorService == null)
 				{
@@ -576,7 +575,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (runtimeWindowManager == null)
 		{
-			runtimeWindowManager = new NGRuntimeWindowManager(this);
+			synchronized (this)
+			{
+				if (runtimeWindowManager == null) runtimeWindowManager = new NGRuntimeWindowManager(this);
+			}
 		}
 		return runtimeWindowManager;
 	}

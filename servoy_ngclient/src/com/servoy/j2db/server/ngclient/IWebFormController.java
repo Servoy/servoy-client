@@ -33,7 +33,7 @@ public interface IWebFormController extends IFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IForm#getFoundSet()
 	 */
 	@Override
@@ -47,4 +47,9 @@ public interface IWebFormController extends IFormController
 	 * @param b
 	 */
 	public void setRendering(boolean rendering);
+
+	/**
+	 * @return
+	 */
+	public boolean isRendering();
 }

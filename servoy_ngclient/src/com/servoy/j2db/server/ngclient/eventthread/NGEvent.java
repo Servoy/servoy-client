@@ -20,8 +20,6 @@ package com.servoy.j2db.server.ngclient.eventthread;
 import org.sablo.eventthread.Event;
 
 import com.servoy.j2db.server.ngclient.INGApplication;
-import com.servoy.j2db.server.ngclient.INGFormManager;
-import com.servoy.j2db.server.ngclient.IWebFormController;
 
 
 /**
@@ -33,28 +31,18 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 public class NGEvent extends Event
 {
 	private final INGApplication client;
-	private final String currentWindowName;
+	private String suspendedWindowName;
 	private String previous;
 
 	public NGEvent(INGApplication client, Runnable runnable)
 	{
 		super(client.getWebsocketSession(), runnable);
 		this.client = client;
-		// if this is the event dispatch thread where this event is made, then just use the current set window name
-		if (client.isEventDispatchThread())
-		{
-			currentWindowName = client.getRuntimeWindowManager().getCurrentWindowName();
-		}
-		else
-		{
-			// else take it from the current active endpoint
-			currentWindowName = client.getWebsocketSession().getCurrentWindowName();
-		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.eventthread.Event#beforeExecute()
 	 */
 	@Override
@@ -62,15 +50,11 @@ public class NGEvent extends Event
 	{
 		client.getWebsocketSession().startHandlingEvent();
 		previous = client.getRuntimeWindowManager().getCurrentWindowName();
-		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
-		INGFormManager formManager = client.getFormManager();
-		IWebFormController currentForm = formManager.getCurrentForm();
-		if (currentForm != null) formManager.setCurrentControllerJS(currentForm);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.eventthread.Event#afterExecute()
 	 */
 	@Override
@@ -84,6 +68,7 @@ public class NGEvent extends Event
 	public void willSuspend()
 	{
 		super.willSuspend();
+		suspendedWindowName = client.getRuntimeWindowManager().getCurrentWindowName();
 		client.getRuntimeWindowManager().setCurrentWindowName(previous);
 		client.getWebsocketSession().stopHandlingEvent();
 
@@ -94,7 +79,8 @@ public class NGEvent extends Event
 	{
 		super.willResume();
 		client.getWebsocketSession().startHandlingEvent();
-		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
+		previous = client.getRuntimeWindowManager().getCurrentWindowName();
+		client.getRuntimeWindowManager().setCurrentWindowName(suspendedWindowName);
 	}
 
 }

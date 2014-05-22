@@ -67,7 +67,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicMainContainer#getContainerName()
 	 */
 	@Override
@@ -78,7 +78,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicMainContainer#getController()
 	 */
 	@Override
@@ -90,7 +90,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicMainContainer#setController(com.servoy.j2db.IFormController)
 	 */
 	@Override
@@ -109,7 +109,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicMainContainer#getHistory()
 	 */
 	@Override
@@ -121,7 +121,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
 	 */
 	@Override
@@ -134,7 +134,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#setLocation(int, int)
 	 */
 	@Override
@@ -160,7 +160,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getX()
 	 */
 	@Override
@@ -171,7 +171,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getY()
 	 */
 	@Override
@@ -182,7 +182,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#setSize(int, int)
 	 */
 	@Override
@@ -208,7 +208,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWidth()
 	 */
 	@Override
@@ -219,7 +219,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getHeight()
 	 */
 	@Override
@@ -325,7 +325,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#isVisible()
 	 */
 	@Override
@@ -336,7 +336,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#toFront()
 	 */
 	@Override
@@ -348,7 +348,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#toBack()
 	 */
 	@Override
@@ -359,7 +359,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWrappedObject()
 	 */
 	@Override
@@ -401,7 +401,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#hideUI()
 	 */
 	@Override
@@ -427,7 +427,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#doOldShow(java.lang.String, boolean, boolean)
 	 */
 	@Override
@@ -497,6 +497,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				Form navForm = getApplication().getFlattenedSolution().getForm(navigatorId);
 				if (navForm != null)
 				{
+					getApplication().getFormManager().getForm(navForm.getName()).getFormUI().setParentWindowName(getName());
 					navigatorForm.put("templateURL", navForm.getName());
 					navigatorForm.put("width", Integer.valueOf(navForm.getWidth()));
 					getApplication().getWebsocketSession().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null, true);

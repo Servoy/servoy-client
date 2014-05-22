@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.IOException;
+import java.util.Map;
+
 import org.sablo.IChangeListener;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.IWebsocketSession;
@@ -40,8 +43,6 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	void closeSession();
 
-	String getCurrentWindowName();
-
 	/**
 	 * @param form
 	 * @param name
@@ -58,4 +59,13 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String componentName, Object[] arguments);
 
+	/**
+	 * @param formData
+	 */
+	void sendChanges(Map<String, Map<String, Map<String, Object>>> formData) throws IOException;
+
+	/**
+	 * @param formName
+	 */
+	void formCreated(String formName);
 }

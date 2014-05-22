@@ -19,12 +19,10 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,29 +32,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
-import org.sablo.eventthread.Event;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IForJsonConverter;
-import org.sablo.websocket.IService;
+import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
@@ -71,19 +65,18 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
-	private NGClient client;
-	private String windowName;
+	private static ThreadLocal<String> currentWindowName = new ThreadLocal<>();
 
-	// modal dialogs are just divs, so they share the same endpoint, we need to store the actual one.
-	private String currentWindowName;
+	private NGClient client;
 
 	private final AtomicInteger handlingEvent = new AtomicInteger(0);
 
-	private final ConcurrentMap<String, String> formsOnClient = new ConcurrentHashMap<>();
+	private final ConcurrentMap<IWebsocketEndpoint, ConcurrentMap<String, String>> endpointForms = new ConcurrentHashMap<>();
 	private boolean proccessChanges;
 
-	public NGClientWebsocketSession()
+	public NGClientWebsocketSession(String uuid)
 	{
+		super(uuid);
 	}
 
 	public void setClient(NGClient client)
@@ -102,13 +95,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return !client.isShutDown();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.BaseWebsocketSession#createDispatcher()
-	 */
 	@Override
-	protected IEventDispatcher<Event> createDispatcher()
+	protected IEventDispatcher createDispatcher()
 	{
 		return new NGEventDispatcher(client);
 	}
@@ -124,39 +112,48 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			return;
 		}
 
-		formsOnClient.clear();
-
-		IWebFormController currentForm = client.getFormManager().getCurrentForm();
-
-		windowName = client.getRuntimeWindowManager().createMainWindow();
+		J2DBGlobals.setServiceProvider(client);
 		try
 		{
-			WebsocketEndpoint.get().sendMessage(
-				new JSONStringer().object().key("srvuuid").value(getUuid()).key("windowName").value(windowName).endObject().toString());
-		}
-		catch (IOException | JSONException e)
-		{
-			Debug.error(e);
-		}
+			if (client.getSolution() != null)
+			{
+				if (!client.getSolution().getName().equals(solutionName))
+				{
+					client.closeSolution(true, null);
+				}
+				else
+				{
+					String windowId = WebsocketEndpoint.get().getWindowId();
+					if (windowId == null || client.getRuntimeWindowManager().getWindow(windowId) == null)
+					{
+						// TODO can this happen? What is now the current form?
+						WebsocketEndpoint.get().setWindowId(client.getRuntimeWindowManager().createMainWindow());
+						// make sure a form is set?
+					}
+					else
+					{
+						client.getRuntimeWindowManager().setCurrentWindowName(windowId);
+					}
+					IWebFormController currentForm = client.getFormManager().getCurrentForm();
+					if (currentForm != null)
+					{
+						// we have to call setcontroller again so that switchForm is called and the form is loaded into the reloaded/new window.
+						client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
+						sendSolutionCSSURL(client.getSolution());
+						return;
+					}
+				}
+			}
 
-		J2DBGlobals.setServiceProvider(client);
-		if (currentForm != null)
-		{
-			// TODO now we just get the current form that is was last current and set it back
-			// is there a better way? (the url doesn't have any info)
-			client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
-			sendSolutionCSSURL(client.getSolution());
-		}
-		else
-		{
-			// TODO should just load not go into the invokeLater (solution load method and so on are executed as is the onload/onshow of the first form)
-			client.invokeLater(new Runnable()
+			getEventDispatcher().addEvent(new Runnable()
 			{
 				@Override
 				public void run()
 				{
 					try
 					{
+						// the solution was not loaded or another was loaded, now create a main window and load the solution.
+						WebsocketEndpoint.get().setWindowId(client.getRuntimeWindowManager().createMainWindow());
 						client.loadSolution(solutionName);
 					}
 					catch (RepositoryException e)
@@ -165,6 +162,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 				}
 			});
+		}
+		finally
+		{
+			J2DBGlobals.setServiceProvider(null);
 		}
 	}
 
@@ -179,26 +180,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			// TODO: move these commands to services
 			// always just try to set the current window name
-			currentWindowName = obj.optString("windowname");
 			String event = obj.getString("cmd");
 			switch (event)
 			{
-				case "requestdata" :
-				{
-					String formName = obj.getString("formname");
-					IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-					if (form instanceof WebGridFormUI)
-					{
-						WebGridFormUI grid = (WebGridFormUI)form;
-						if (obj.has("currentPage")) grid.setCurrentPage(obj.getInt("currentPage"));
-						if (obj.has("pageSize")) grid.setPageSize(obj.getInt("pageSize"));
-					}
-					Map<String, Map<String, Object>> properties = form.getAllProperties();
-					Map<String, Map<String, Map<String, Object>>> formData = new HashMap<String, Map<String, Map<String, Object>>>();
-					formData.put(formName, properties);
-					sendChanges(formData);
-					break;
-				}
 				case "datapush" :
 				{
 					pushChanges(obj, false);
@@ -211,16 +195,15 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				case "event" :
 				{
-					client.invokeLater(new Runnable()
+					getEventDispatcher().addEvent(new Runnable()
 					{
 						@Override
 						public void run()
 						{
 							try
 							{
-								String formName = obj.getString("formname");
 								JSONArray jsargs = obj.getJSONArray("args");
-								IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
+								IWebFormUI form = client.getFormManager().getFormAndSetCurrentWindow(obj.getString("formname")).getFormUI();
 								WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
 								String eventType = obj.getString("event");
 								Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
@@ -262,81 +245,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 					});
 
-					break;
-				}
-				case "formloaded" :
-					final String fName = obj.getString("formname");
-					String formUrl = formsOnClient.get(fName);
-					synchronized (formUrl)
-					{
-						formUrl.notifyAll();
-					}
-					break;
-				case "formreadOnly" :
-				{
-					IWebFormController form = parseForm(obj);
-					if (form != null)
-					{
-						((WebFormController)form).setReadOnly(obj.getBoolean("readOnly"));
-					}
-					break;
-				}
-				case "formenabled" :
-				{
-					IWebFormController form = parseForm(obj);
-					if (form != null)
-					{
-						((WebFormController)form).setComponentEnabled(obj.getBoolean("enabled"));
-					}
-					break;
-				}
-				case "formvisibility" :
-				{
-					client.invokeLater(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							try
-							{
-								IWebFormController form = parseForm(obj);
-								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-								boolean isVisible = obj.getBoolean("visible");
-								boolean ok = form.notifyVisible(isVisible, invokeLaterRunnables);
-								if (ok && obj.has("parentForm") && !obj.isNull("parentForm"))
-								{
-									IWebFormController parentForm = client.getFormManager().getForm(obj.getString("parentForm"));
-									WebFormComponent containerComponent = parentForm.getFormUI().getWebComponent(obj.getString("bean"));
-									if (containerComponent != null)
-									{
-										containerComponent.updateVisibleForm(form.getFormUI(), isVisible, obj.optInt("formIndex"));
-									}
-									if (obj.has("relation") && !obj.isNull("relation"))
-									{
-										String relation = obj.getString("relation");
-										FoundSet parentFs = parentForm.getFormModel();
-										IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
-										form.loadRecords(selectedRecord.getRelatedFoundSet(relation));
-										parentForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation);
-									}
-								}
-								Utils.invokeLater(client, invokeLaterRunnables);
-								WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true, getForJsonConverter());
-							}
-							catch (Exception e)
-							{
-								Debug.error(e);
-								try
-								{
-									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), e.getMessage(), false, getForJsonConverter());
-								}
-								catch (IOException | JSONException e1)
-								{
-									Debug.error(e1);
-								}
-							}
-						}
-					});
 					break;
 				}
 				case "valuelistfilter" :
@@ -382,58 +290,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-	@Override
-	public void callService(String serviceName, final String methodName, final JSONObject args, final Object msgId)
-	{
-		final IService service = getService(serviceName);
-		if (service != null)
-		{
-			client.invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					doCallService(service, methodName, args, msgId);
-				}
-
-			});
-		}
-		else
-		{
-			Debug.warn("Unknown service called: " + serviceName);
-		}
-	}
-
-	private IWebFormController parseForm(JSONObject obj)
-	{
-		try
-		{
-			String formName = obj.getString("form");
-			if (formName.endsWith(".html"))
-			{
-				int index = formName.lastIndexOf('/');
-				formName = formName.substring(index + 1, formName.length() - 5);
-			}
-			return client.getFormManager().getForm(formName);
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-			return null;
-		}
-	}
-
 	private void pushChanges(final JSONObject obj, final boolean apply)
 	{
-		client.invokeLater(new Runnable()
+		getEventDispatcher().addEvent(new Runnable()
 		{
 			@Override
 			public void run()
 			{
 				try
 				{
-					String formName = obj.getString("formname");
-					IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
+					IWebFormUI form = client.getFormManager().getFormAndSetCurrentWindow(obj.getString("formname")).getFormUI();
 
 					if (form instanceof WebGridFormUI)
 					{
@@ -487,9 +353,45 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
+	public void formCreated(String formName)
+	{
+		ConcurrentMap<String, String> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
+		String formUrl = formsOnClient.get(formName);
+		synchronized (formUrl)
+		{
+			formUrl.notifyAll();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.websocket.BaseWebsocketSession#registerEndpoint(org.sablo.websocket.IWebsocketEndpoint)
+	 */
+	@Override
+	public void registerEndpoint(IWebsocketEndpoint endpoint)
+	{
+		super.registerEndpoint(endpoint);
+		endpointForms.put(endpoint, new ConcurrentHashMap<String, String>());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.websocket.BaseWebsocketSession#deregisterEndpoint(org.sablo.websocket.IWebsocketEndpoint)
+	 */
+	@Override
+	public void deregisterEndpoint(IWebsocketEndpoint endpoint)
+	{
+		super.deregisterEndpoint(endpoint);
+		endpointForms.remove(endpoint);
+	}
+
+	@Override
 	public void touchForm(Form form, String realInstanceName, boolean async)
 	{
 		if (form == null) return;
+		ConcurrentMap<String, String> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
 		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + formName + ".html";
 		if (formsOnClient.putIfAbsent(formName, formUrl) == null)
@@ -632,23 +534,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-	private void sendChanges(Map<String, Map<String, Map<String, Object>>> properties) throws IOException
+	public void sendChanges(Map<String, Map<String, Map<String, Object>>> properties) throws IOException
 	{
 		WebsocketEndpoint.get().sendMessage(properties.size() == 0 ? null : Collections.singletonMap("forms", properties), true, getForJsonConverter());
 	}
-
-	/**
-	 * @return the currentWindowName
-	 */
-	public String getCurrentWindowName()
-	{
-		if (!Utils.stringIsEmpty(currentWindowName))
-		{
-			return currentWindowName;
-		}
-		return windowName;
-	}
-
 
 	@Override
 	public Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String componentName, Object[] arguments)
