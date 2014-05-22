@@ -220,6 +220,7 @@ public class FormWrapper
 	{
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
 		if (!properties.containsKey("size")) properties.put("size", form.getSize());
+		properties.put("designSize", form.getSize());
 		removeUnneededFormProperties(properties);
 
 		return JSONUtils.addObjectPropertiesToWriter(new JSONStringer().object(), properties, NGClientForJsonConverter.INSTANCE).endObject().toString();

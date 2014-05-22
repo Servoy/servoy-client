@@ -199,6 +199,7 @@ public final class FormElement implements IWebComponentInitializer
 					int top = flatForm.getPartStartYPos(part.getID());
 					newLocation.y = newLocation.y - top;
 					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
+					map.put("offsetY", top);
 				}
 
 			}
@@ -437,6 +438,8 @@ public final class FormElement implements IWebComponentInitializer
 				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
 			}
 		}
+
+		if (propertyValues.containsKey("offsetY")) properties.put("offsetY", propertyValues.get("offsetY"));
 
 		JSONWriter propertyWriter = (writer != null ? writer : new JSONStringer());
 		try

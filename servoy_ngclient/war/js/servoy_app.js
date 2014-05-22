@@ -10,43 +10,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   var deferredProperties = {};
 	   var deferredformStates = {};
 	   var applyBeanData = function(beanModel, beanLayout, beanData, containerSize) {
-            var anchorInfoChanged = false;
           	for(var key in beanData) {
-          		switch(key)
-          		{
-          		case 'location':
-          			beanLayout.left = beanData[key].x+'px';
-          			beanLayout.top = beanData[key].y+'px';
-                    anchorInfoChanged = true;
-          			break;
-          			
-          		case 'size': 
-          			beanLayout.width = beanData[key].width+'px';
-          			beanLayout.height = beanData[key].height+'px';
-          			anchorInfoChanged = true;
-          			break;
-          			
-          		case 'anchors':
-          			anchorInfoChanged = true;
-          			break;
-          			
-          		case 'visible':
-          			if (beanData[key] == false)
-          			{
-          				beanLayout.display = 'none';
-          			}
-          			else
-          			{
-          				delete beanLayout.display;
-          			}
-          			break;	
-          		}
-          		
           		// also make location and size available in model
           		beanModel[key] = beanData[key];
           	}
-                
-            if((beanModel.anchors !== undefined) && anchorInfoChanged && containerSize) {
+          	
+          	//beanData.anchors means anchors changed or must be initialized
+            if((beanData.anchors !== undefined) && containerSize) {
                 var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
                 var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
                 var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
@@ -55,22 +25,64 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                 if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
                 if (!anchoredTop && !anchoredBottom) anchoredTop = true;
                 
-                if (anchoredTop) beanLayout.top = beanModel.location.y + 'px';
+                if (anchoredTop)
+                {
+                	if (beanLayout.top == undefined) beanLayout.top = beanModel.location.y + 'px';
+                }
                 else delete beanLayout.top;
                 
-                if (anchoredBottom) beanLayout.bottom = (containerSize.height - beanModel.location.y - beanModel.size.height) + "px";
+                if (anchoredBottom)
+                {
+                	if (beanLayout.bottom == undefined) beanLayout.bottom = (containerSize.height - beanModel.location.y - beanModel.size.height - beanModel.offsetY) + "px";
+                }
+                else delete beanLayout.bottom;
                 
                 if (!anchoredTop || !anchoredBottom) beanLayout.height = beanModel.size.height + 'px';
                 else delete beanLayout.height;
                 
-                if (anchoredLeft) beanLayout.left =  beanModel.location.x + 'px';
+                if (anchoredLeft)
+                {
+                	if (beanLayout.left == undefined) beanLayout.left =  beanModel.location.x + 'px';
+                }
                 else delete beanLayout.left;
                 
-                if (anchoredRight) beanLayout.right = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
+                if (anchoredRight)
+                {
+                	if (beanLayout.right == undefined) beanLayout.right = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
+                }
+                else delete beanLayout.right;
                 
                 if (!anchoredLeft || !anchoredRight) beanLayout.width = beanModel.size.width + 'px';
                 else delete beanLayout.width;
             }
+            
+            //we set the following properties iff the bean doesn't have anchors
+            if (beanModel.anchors == undefined)
+            {
+            	if (beanModel.location)
+            	{
+              		beanLayout.left = beanModel.location.x+'px';
+              		beanLayout.top = beanModel.location.y+'px';
+            	}
+                    
+            	if (beanModel.size)
+            	{
+              		beanLayout.width = beanModel.size.width+'px';
+              		beanLayout.height = beanModel.size.height+'px';
+            	}
+            }
+            
+            if (beanModel.visible != undefined)
+	   		{
+	   			if (beanModel.visible == false)
+      			{
+      				beanLayout.display = 'none';
+      			}
+      			else
+      			{
+      				delete beanLayout.display;
+      			}
+	   		}
 	   }
 		   
 	   // maybe do this with defer ($q)
@@ -104,7 +116,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            for(var beanname in newFormData) {
 		            	// copy over the changes, skip for form properties (beanname empty)
 		            	if(beanname != ''){
-		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], (newFormProperties && newFormProperties.size) ? newFormProperties.size : formState.properties.size);
+		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize);
 		            		for (var defProperty in deferredProperties) {
 		            			for(var key in newFormData[beanname]) {
 		            				if (defProperty == (formname + "_" + beanname + "_" + key)) {
@@ -260,7 +272,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                     model[beanname] = {};
                     api[beanname] = {};
                     layout[beanname] = { position: 'absolute' }
-                    applyBeanData(model[beanname], layout[beanname], beanDatas[beanname], formProperties.size)
+                    applyBeanData(model[beanname], layout[beanname], beanDatas[beanname], formProperties.designSize)
                 }
 
 	        state = formStates[formName] = { model: model, api: api, layout: layout,
@@ -357,7 +369,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	    if (changes.location || changes.size || changes.visible || changes.anchors) {
 	    	    	var beanLayout = formStates[formname].layout[beanname];
 	    	    	if(beanLayout) {
-	    	    		applyBeanData(formStates[formname].model[beanname], beanLayout, changes, formStates[formname].properties.size)	
+	    	    		applyBeanData(formStates[formname].model[beanname], beanLayout, changes, formStates[formname].properties.designSize)	
 	    	    	}
 	    	    }
 
