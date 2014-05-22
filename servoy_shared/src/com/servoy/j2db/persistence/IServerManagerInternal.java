@@ -47,6 +47,13 @@ public interface IServerManagerInternal extends IServerManager
 
 	File getDriversDir();
 
+	/**
+	 * Tries to load driver from drivers dir or system
+	 * @param driverClassName the name
+	 * @param url the jdbc url
+	 * @return the driver instance
+	 * @throws Exception
+	 */
 	Driver loadDriver(String driverClassName, String url) throws Exception;
 
 	IServer getServer(String string);
@@ -61,8 +68,16 @@ public interface IServerManagerInternal extends IServerManager
 
 	void saveServerConfig(String oldServerName, ServerConfig serverConfig) throws RepositoryException;
 
+	/**
+	 * Get list of drivers found in drivers dir
+	 * @return the known drivers
+	 */
 	String[] getKnownDriverClassNames();
 
+	/**
+	 * Get list of drivers found in drivers dir or used (system loaded)
+	 * @return the all the drivers
+	 */
 	String[] getAllDriverClassNames();
 
 	ServerConfig[] getServerConfigs();
