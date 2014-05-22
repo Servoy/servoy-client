@@ -257,6 +257,11 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		createScriptProviders(true);
 	}
 
+	public String getScopeName()
+	{
+		return ""; //$NON-NLS-1$
+	}
+
 	/**
 	 * @see java.lang.Object#toString()
 	 */

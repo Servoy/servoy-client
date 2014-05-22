@@ -69,6 +69,12 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		}
 	}
 
+	@Override
+	public String getScopeName()
+	{
+		return _fp.getName();
+	}
+
 	public void createVars()
 	{
 		//put all vars in scope if getForm is flattenform, it will return overridden scriptvars in correct order, sub wins

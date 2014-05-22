@@ -255,4 +255,10 @@ public class TableScope extends LazyCompilationScope
 		}
 		super.put(name, start, value);
 	}
+
+	@Override
+	public String getScopeName()
+	{
+		return table.getServerName() + "." + table.getName();
+	}
 }
