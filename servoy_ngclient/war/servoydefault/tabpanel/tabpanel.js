@@ -17,7 +17,8 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
         }
         var selectedTab;
         $scope.bgstyle = {}
-       
+        $scope.waitingForServerVisibility = {}
+        
         $scope.$watch("model.tabIndex", function(newValue) {
         	 if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
         	 var realTabIndex = $scope.model.tabIndex - 1;
@@ -77,19 +78,23 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        }
        
        function setFormVisible(tab,event) {
-       	var promise = $scope.svyServoyapi.setFormVisibility(tab.containsFormId,true, tab.relationName);
-       	promise.then(function(ok) {
-       		if (ok){
-       			if(selectedTab != tab && $scope.handlers.onChangeMethodID)
-       			{
-       				$scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab),event instanceof MouseEvent ? event : null);
-       			}   			
-       			selectedTab = tab;
-       			$scope.model.tabIndex = $scope.getTabIndex(selectedTab);
-       		} else {
-       			// will this ever happen?
-       		}
-       	});
+    	   if (!$scope.waitingForServerVisibility[tab.containsFormId])
+    	   {
+    		   $scope.waitingForServerVisibility[tab.containsFormId] = true;
+    		   var promise = $scope.svyServoyapi.setFormVisibility(tab.containsFormId,true, tab.relationName);
+    		   promise.then(function(ok) {
+    			   if (ok){
+    				   if(selectedTab != tab && $scope.handlers.onChangeMethodID)
+    				   {
+    					   $scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab),event instanceof MouseEvent ? event : null);
+    				   }   			
+    				   selectedTab = tab;
+    				   $scope.model.tabIndex = $scope.getTabIndex(selectedTab);
+    			   } else {
+    				   // will this ever happen?
+    			   }
+    		   });
+    	   }
        }
 
        $scope.getTabIndex = function(tab) {
@@ -107,16 +112,20 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
     	if ((tab != undefined && selectedTab != undefined && tab.containsFormId == selectedTab.containsFormId) || (tab == selectedTab)) return;
     	var selectEvent = $window.event ? $window.event : null;
         if (selectedTab) {
-        	var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
-        	promise.then(function(ok) {
-        		if (ok) {
-        			setFormVisible(tab,selectEvent);
-        		}
-        		else {
-        			tab.active = false;
-        			selectedTab.active = true;
-        		}
-        	})
+        	if (!$scope.waitingForServerVisibility[selectedTab.containsFormId])
+        	{
+        		$scope.waitingForServerVisibility[selectedTab.containsFormId] = true;
+        		var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
+        		promise.then(function(ok) {
+        			if (ok) {
+        				setFormVisible(tab,selectEvent);
+        			}
+        			else {
+        				tab.active = false;
+        				selectedTab.active = true;
+        			}
+        		})
+        	}
         }
         else {
         	setFormVisible(tab, selectEvent);
