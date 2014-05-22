@@ -114,7 +114,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			{
 				if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
 				Map<String, Object> rowProps = props.get("");
-				rowProps.put("updatedRows", rowChanges);
+				rowProps.put("updatedRows", new ArrayList<RowData>(rowChanges));
 				rowProps.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
 			}
 			allChanged = false;
@@ -189,7 +189,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				int startIdx = (currentPage - 1) * getPageSize();
 				int endIdx = currentPage * getPageSize();
 				if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
-				if (event.getFirstRow() < endIdx)
+				if (event.getFirstRow() <= endIdx)
 				{
 					int startRow = Math.max(startIdx, event.getFirstRow());
 					int numberOfDeletes = Math.min(event.getLastRow(), endIdx) - event.getFirstRow() + 1;
@@ -209,7 +209,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				int startIdx = (currentPage - 1) * getPageSize();
 				int endIdx = currentPage * getPageSize();
 				if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
-				if (event.getFirstRow() < endIdx)
+				if (event.getFirstRow() <= endIdx)
 				{
 					int startRow = Math.max(startIdx, event.getFirstRow());
 					int numberOfInserts = Math.min(event.getLastRow(), endIdx) - event.getFirstRow() + 1;
@@ -383,7 +383,10 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	{
 		if (fs == currentFoundset) return;
 
-		if (currentFoundset != null) currentFoundset.removeFoundSetEventListener(this);
+		if (currentFoundset != null)
+		{
+			currentFoundset.removeFoundSetEventListener(this);
+		}
 		if (fs == null)
 		{
 			previousFS = currentFoundset;
