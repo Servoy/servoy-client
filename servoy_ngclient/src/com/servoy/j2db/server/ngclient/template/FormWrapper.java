@@ -92,12 +92,6 @@ public class FormWrapper
 		return WebGridFormUI.HEADER_HEIGHT;
 	}
 
-	public int getGridHeight()
-	{
-		Part part = getBodyPart();
-		return part != null ? part.getHeight() : 0;
-	}
-
 	public int getGridWidth()
 	{
 		int rowWidth = 0;

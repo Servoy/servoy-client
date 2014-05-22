@@ -174,13 +174,13 @@
 		if (firstTime || newVal !== oldVal)
 		{
 			firstTime = false;
-			 var rowsHeight = parseInt(newVal) * $scope.grid${controllerName}.$gridScope.rowHeight;
-			 var show =  rowsHeight > $scope.grid${controllerName}.$gridScope.viewportDimHeight();
+			 var currentPageSize = $scope.grid${controllerName}.$gridScope.viewportDimHeight() /  $scope.grid${controllerName}.$gridScope.rowHeight;
+			 var show =  newVal > currentPageSize;
 			 $scope.grid${controllerName}.$gridScope.enablePaging = show;
 			 $scope.grid${controllerName}.$gridScope.showFooter = show;
 			 if ($scope.grid${controllerName}.$gridScope.config)
 			 {
-			 	$scope.grid${controllerName}.$gridScope.footerRowHeight = show ? $scope.grid${controllerName}.$gridScope.config.footerRowHeight : 0
+			 	$scope.grid${controllerName}.$gridScope.footerRowHeight = show ? $scope.grid${controllerName}.$gridScope.config.footerRowHeight : 0;
 			 }
 		}
 	}, false);

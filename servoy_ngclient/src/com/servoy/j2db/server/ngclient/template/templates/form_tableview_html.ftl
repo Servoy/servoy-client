@@ -24,7 +24,7 @@
 					</div>
 			</#list>
 		<#else>
-		    <div class="gridStyle" ng-grid="grid${controllerName}" style="height:${gridHeight}px;width:${gridWidth}px;"></div>
+		    <div class="gridStyle" ng-grid="grid${controllerName}" style="height:100%;width:${gridWidth}px;"></div>
 		</#if>
 	</div>
 </#list>

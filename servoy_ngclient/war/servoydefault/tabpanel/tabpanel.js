@@ -275,7 +275,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
     	   return $scope.model.name;
        }
       },
-      template: "<div style='min-height:100%' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()'></div></div>",
+      template: "<div style='height:100%;width:100%;position:absolute;' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()'></div></div>",
       replace: true
     };
   })
