@@ -42,16 +42,18 @@ label.svy-check-radio span{
 	cursor:inherit;
 }
 .window .window-body{
-	min-width:100px;
-	min-height:100px;
+	min-width:0px;
+	min-height:0px;
 }
 .window .window-header .window-title
 {
     cursor: move;
 }
 .window{
-	min-width:100px;
-	min-height:100px;
-	max-width :1500px;
-	max-width :1200px;
+	-webkit-transform: translate3d(0,0,0); /*TRICK* new layer is created not needing repaints on the layer below it */
+	transform: translate3d(0,0,0);
+	min-width:0px;
+	min-height:0px;
+	max-width :5000px;
+	max-height:5000px;
 }

@@ -1,12 +1,11 @@
 angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a component with handlers
-.factory('$servoyWindowManager', ['$timeout', '$rootScope','$http','$q','$templateCache','$injector','$controller','$compile',
-                           function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile) {
+.factory('$servoyWindowManager', ['$timeout', '$rootScope','$http','$q','$templateCache','$injector','$controller','$compile','WindowType',
+                           function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {
 	var WM = new WindowManager();
 	var winInstances = {}
 	return {
 		instances: winInstances,
 		open : function (windowOptions) {
-		        var dialogResultDeferred = $q.defer();
 	            var dialogOpenedDeferred = $q.defer();
 
 	         //prepare an instance of a window to be injected into controllers and returned to a caller
@@ -42,7 +41,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 
 	                $controller(windowOptions.controller, ctrlLocals);
 	              }  	        	  
-	           var isModal = (ctrlLocals.windowInstance.type == 1);
+	           var isModal = (ctrlLocals.windowInstance.type == WindowType.MODAL_DIALOG);
 	           
 	        //resolve initial bounds
 	           var location = null;
@@ -59,25 +58,28 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	           if(windowInstance.size){
 	        	   size = windowInstance.size;
 	           }
-	           if(!location){
-	        	   location=centerWindow(windowInstance.formSize)
-	           }
+	           //-1 means default size and location(center)
+	           if(!location || location.x <0) location=centerWindow(windowInstance.formSize)
+	           if(!size || size.width<0) size =null;
+	           
+	           //convert servoy x,y to library top , left
+	           var loc = {left:location.x,top:location.y}
 	        //create the bs window instance
+	           var compiledWin = $compile( tplAndVars[0])(windowScope);
 	        	var win = WM.createWindow({
 	        		id:windowInstance.name,
-	                template: tplAndVars[0],
+	        		fromElement: compiledWin,
 	                title: "Loading...",
 	                bodyContent: "Loading...",
 	                resizable:!!windowInstance.resizable,
-	                location:location,
+	                location:loc,
 	                size:size,
 		            isModal:isModal 
 	            })
-	            var compiledWin = $compile(win.$el)(windowScope);
 	        	//set servoy managed bootstrap-window Instance
-	        	windowInstance.bsWindowInstance =win; 
+	        	windowInstance.bsWindowInstance =win;
 	          },function resolveError(reason) {
-	            	dialogResultDeferred.reject(reason);
+	        	  	dialogOpenedDeferred.reject(reason);
 	          });
 	        
 	        //notify dialog opened or error	
@@ -122,10 +124,11 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
        return {x:left,y:top}
     };
     
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings, $window, $servoyInternal,webStorage) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $servoyInternal,webStorage,WindowType) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
-	
+	var storage = webStorage.local;
+	var sol = $solutionSettings.solutionName+'.'
 	return {
 		create: function (name,type){
 			if(!instances[name]){
@@ -148,22 +151,24 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				    	 if(win.bsWindowInstance){
 				    		 win.bsWindowInstance.$el.css('left',this.location.x+'px');
 					    	 win.bsWindowInstance.$el.css('top',this.location.y+'px'); 
-				    	 }				    	 
+				    	 }
+				    	 if(this.storeBounds) storage.add(sol+name+'.storedBounds.location',location)
 				     },
 				     setSize:function(size){
 				    	 this.size = size;
 				    	 if(win.bsWindowInstance){
-				    		 win.bsWindowInstance.$el.css('width',this.size.width+'px');
-					    	 win.bsWindowInstance.$el.css('height',this.size.height+'px'); 
+				    		 win.bsWindowInstance.setSize(size);				    		 
 				    	 }				    	 
+				    	 if(this.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
 				     },
 				     onResize:function($event,size){
-				    	win.size = size;  
-				    	//storage.add(JSON.stringify(instances));				    	
+				    	win.size = size;				    	
+				    	if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
 				    	$servoyInternal.callService("$windowService", "resize", {name:win.name,size:win.size},true);
 				     },
 				     onMove:function($event,location){
-				    	 win.location = location;
+				    	 win.location = {x:location.left,y:location.top};
+				    	 if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win.location)
 				    	 $servoyInternal.callService("$windowService", "move", {name:win.name,location:win.location},true);
 				     }
 					};
@@ -177,6 +182,10 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 			var instance = instances[name];
 			if (instance) {
 				instance.formSize = arg.formSize;
+				if(instance.storeBounds){
+					instance.size = storage.get(sol+name+'.storedBounds.size')
+					instance.location =  storage.get(sol+name+'.storedBounds.location')					
+				}
 				$servoyWindowManager.open({
 					templateUrl: "templates/dialog.html",
 					controller: "DialogInstanceCtrl",
@@ -185,7 +194,9 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				}).then(function(){
 					instance.bsWindowInstance.$el.on('bswin.resize',instance.onResize)
 					instance.bsWindowInstance.$el.on('bswin.move',instance.onMove)
-				});
+				},function(reason){
+					throw reason;
+				})
 				instance.form = arg.form;
 			}
 			else {
@@ -219,7 +230,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		},
 		setTitle: function(name,title) {
         	$rootScope.$apply(function() {
-				if(instances[name] && instances[name].type!= 2){
+				if(instances[name] && instances[name].type!= WindowType.WINDOW){
 					instances[name].title =title;
 	    		}else{
 	    			$solutionSettings.solutionTitle = title;
@@ -238,7 +249,9 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		},
 		resetBounds:function(name){
 			if(instances[name]){
-				instances[name].storeBounds = false;				
+				instances[name].storeBounds = false;	
+				storage.remove(sol+name+'.storedBounds.location',location)
+				storage.remove(sol+name+'.storedBounds.size',size)
 			}
 		},
 		setLocation:function(name,location){
@@ -309,19 +322,26 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		},
 	}
 	
+}).value('WindowType',{
+	DIALOG:0,
+	MODAL_DIALOG:1,
+	WINDOW:2
 }).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal) {
-	//$scope.title = title;
-	//$scope.windowName = windowName;
-	//$scope.formSize =formSize;
+
 	$scope.win =  windowInstance
 	$scope.getFormUrl = function() {
 		return $windowService.getFormUrl(windowInstance.form)
 	}
+	
 	$scope.isUndecorated = function(){
-		return $scope.win.undecorated || ($scope.win.opacity<0.99)
+		return $scope.win.undecorated || ($scope.win.opacity<1)
 	}
-	$scope.getFormSize = function(){
-		return {'width':'200px'}
+	
+	$scope.getSize = function(){
+		var win = $scope.win;
+		var width = win.size ? win.size.width:win.formSize.width;
+		var height = win.size ? win.size.height:win.formSize.height;
+		return {'width':width+'px','height':height+'px'}
 	}
 	$servoyInternal.callService('formService', 'formvisibility', {form:windowInstance.form,visible:true})
 	

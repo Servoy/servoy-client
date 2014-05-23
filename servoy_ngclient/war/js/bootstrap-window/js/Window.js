@@ -88,12 +88,11 @@ var Window = null;
 			this.centerWindow();        
         }else{
 			//user entered options
-            this.$el.css('left', this.options.location.x);
-            this.$el.css('top', this.options.location.y);
+            this.$el.css('left', this.options.location.left);
+            this.$el.css('top', this.options.location.top);
         }
         if(this.options.size){
-			this.$el.css('width', this.options.size.width);
-            this.$el.css('height', this.options.size.height);
+        	this.setSize(this.options.size);
         }
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             this.options.references.window.bind('orientationchange resize', function(event){
@@ -118,6 +117,21 @@ var Window = null;
     Window.prototype.show = function () {
         this.$el.css('visibility', 'visible');
         this.$el.fadeIn();
+    };
+    
+    Window.prototype.setSize = function(size){
+    	 var winBody = this.$el.find(this.options.selectors.body);
+         var winHeadFootHeight = 0;
+			var head = this.$el.find(this.options.selectors.handle);
+         if(head){
+				winHeadFootHeight += head.outerHeight();
+         }
+         var foot = this.$el.find(this.options.selectors.footer);
+         if(foot){
+				winHeadFootHeight += foot.outerHeight();
+         }
+         winBody.css('width', size.width - parseInt(this.$el.css("marginRight")) - parseInt(this.$el.css("marginLeft")) );
+         winBody.css('height', size.height - winHeadFootHeight);    	
     };
 
     Window.prototype.centerWindow = function () {
@@ -286,8 +300,8 @@ var Window = null;
             _this.$el.removeClass('east');
             _this.$el.removeClass('north');
             _this.$el.removeClass('south');     
-            var width = parseInt(_this.$el.css('width'));
-            var height = parseInt(_this.$el.css('height'));
+            var width = _this.$el.width();
+            var height = _this.$el.height();
 			var size = {width:width,height:height};            
 			_this.$el.trigger('bswin.resize',size);            
         });
@@ -318,10 +332,8 @@ var Window = null;
         _this.options.elements.handle.on('mouseup', function(event) {
             _this.moving = false;
             $('body > *').removeClass('disable-select');
-            var left = parseInt(_this.$el.css('left'));
-            var top = parseInt(_this.$el.css('top'));
-            var location = {x:left,y:top};            
-            _this.$el.trigger('bswin.move',location);
+            var pos = _this.$el.offset();         
+            _this.$el.trigger('bswin.move',pos);
         });
 
         _this.options.references.body.on('mousemove', function(event) {
@@ -412,12 +424,7 @@ var Window = null;
         if (options.left) {
             this.$el.css('left', options.left);
         }
-        if (options.height) {
-            this.$el.css('height', options.height);
-        }
-        if (options.width) {
-            this.$el.css('width', options.width);
-        }
+        this.setSize({height:options.height,width:options.width});
     };
 
     Window.prototype.setBlocker = function (window_handle) {

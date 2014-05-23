@@ -10,7 +10,7 @@
 			<h4 class="window-title"  ng-bind='win.title'></h4>
 		</div>	
 	    <div class="window-body"  ng-include="getFormUrl()" 
-	    	 ng-style="{'width':win.formSize.width+'px','height':win.formSize.height+'px'}"></div>    
+	    	 bo-style="getSize()"></div>    
 		<div class="window-footer"
 			 bo-style="{'display':isUndecorated()? 'none':'block'}"></div>
 	</div>
