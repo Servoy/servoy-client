@@ -47,7 +47,7 @@ public class WebComponentFunction implements Function
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
 		// No unwrapping here so that javascript objects can also be sent to client
-		return component.executeApiInvoke(definition, args);
+		return component.invokeApi(definition, args);
 	}
 
 	@Override

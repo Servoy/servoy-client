@@ -116,7 +116,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			if (fc.isFormVisible())
 			{
-				Map<String, Map<String, Object>> formChanges = ((WebFormUI)fc.getFormUI()).getAllChanges();
+				Map<String, Map<String, Object>> formChanges = ((WebFormUI)fc.getFormUI()).getAllComponentsChanges();
 				if (formChanges.size() > 0)
 				{
 					changes.put(fc.getName(), formChanges);

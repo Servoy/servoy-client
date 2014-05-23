@@ -79,12 +79,12 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 
 	public void setCurrentIndex(int index)
 	{
-		putProperty(DefaultNavigator.CURRENTINDEX_PROP, index, ConversionLocation.SERVER);
+		setProperty(DefaultNavigator.CURRENTINDEX_PROP, index, ConversionLocation.SERVER);
 	}
 
 	public void setMaxIndex(int maxIndex)
 	{
-		putProperty(DefaultNavigator.MAXINDEX_PROP, maxIndex, ConversionLocation.SERVER);
+		setProperty(DefaultNavigator.MAXINDEX_PROP, maxIndex, ConversionLocation.SERVER);
 	}
 
 	private void foundsetChanged()

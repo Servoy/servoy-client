@@ -26,6 +26,7 @@ import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 
 /**
@@ -105,7 +106,6 @@ public class FoundsetTypeValue implements IComplexPropertyValue
 	{
 		// this method gets called by linked component type property/properties
 		// TODO ac this is a dummy impl.; it must be a data adapter list useable with this foundset's contents and on the correct relation
-		return component.getParent().getDataAdapterList();
+		return ((IWebFormUI)component.getParent()).getDataAdapterList();
 	}
-
 }

@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 
 import javax.swing.event.ListDataListener;
 
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpec;
 import org.sablo.specification.property.IComplexTypeImpl;
@@ -74,40 +75,56 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	}
 
 	@Override
-	public Map<String, Map<String, Object>> getAllProperties()
+	public Map<String, Map<String, Object>> getAllComponentsProperties()
 	{
-		Map<String, Map<String, Object>> props = super.getAllProperties();
-		appendRows(props.get(""), getRows(-1, -1).rows);
+		Map<String, Map<String, Object>> props = super.getAllComponentsProperties();
+		try
+		{
+			getController().setRendering(true);
+			appendRows(props.get(""), getRows(-1, -1).rows);
+		}
+		finally
+		{
+			getController().setRendering(false);
+		}
 		return props;
 	}
 
 	@Override
 	@SuppressWarnings("nls")
-	public Map<String, Map<String, Object>> getAllChanges()
+	public Map<String, Map<String, Object>> getAllComponentsChanges()
 	{
-		Map<String, Map<String, Object>> props = super.getAllChanges();
-		if (allChanged)
+		Map<String, Map<String, Object>> props = super.getAllComponentsChanges();
+		try
 		{
-			try
+			getController().setRendering(true);
+			if (allChanged)
 			{
-				List<Map<String, Object>> rows = getRows(-1, -1).rows;
+				try
+				{
+					List<Map<String, Object>> rows = getRows(-1, -1).rows;
+					if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
+					appendRows(props.get(""), rows);
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
+			}
+			else if (rowChanges.size() > 0)
+			{
 				if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
-				appendRows(props.get(""), rows);
+				Map<String, Object> rowProps = props.get("");
+				rowProps.put("updatedRows", new ArrayList<RowData>(rowChanges));
+				rowProps.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
 			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
+			allChanged = false;
+			rowChanges.clear();
 		}
-		else if (rowChanges.size() > 0)
+		finally
 		{
-			if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
-			Map<String, Object> rowProps = props.get("");
-			rowProps.put("updatedRows", new ArrayList<RowData>(rowChanges));
-			rowProps.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
+			getController().setRendering(false);
 		}
-		allChanged = false;
-		rowChanges.clear();
 		return props;
 	}
 
@@ -237,92 +254,83 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	@SuppressWarnings("nls")
 	private RowData getRows(int startRow, int lastRow)
 	{
-		if (currentFoundset == null || getPageSize() == 0 || getController().isRendering()) return RowData.EMPTY;
-		try
+
+		if (currentFoundset == null || getPageSize() == 0) return RowData.EMPTY;
+		List<Map<String, Object>> rows = new ArrayList<>();
+		int startIdx = (currentPage - 1) * getPageSize();
+		int endIdx = currentPage * getPageSize();
+		if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
+
+		int foundsetStartRow = startIdx;
+		int startOffset = 0;
+		if (startRow != -1)
 		{
-			getController().setRendering(true);
-			List<Map<String, Object>> rows = new ArrayList<>();
-			int startIdx = (currentPage - 1) * getPageSize();
-			int endIdx = currentPage * getPageSize();
-			if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
-
-			int foundsetStartRow = startIdx;
-			int startOffset = 0;
-			if (startRow != -1)
+			if (startRow < endIdx && lastRow > startIdx)
 			{
-				if (startRow < endIdx && lastRow > startIdx)
-				{
-					startIdx = Math.max(startIdx, startRow);
-					endIdx = Math.min(endIdx, lastRow);
-					startOffset = Math.max(startIdx - startRow, 0);
-				}
-				else return RowData.EMPTY;
+				startIdx = Math.max(startIdx, startRow);
+				endIdx = Math.min(endIdx, lastRow);
+				startOffset = Math.max(startIdx - startRow, 0);
 			}
-			Collection<WebFormComponent> bodyComponents = getBodyComponents(components.values());
-			int currentIndex = startTabSeqIndex + startOffset * bodyComponents.size();
-			for (int i = startIdx; i < endIdx; i++)
-			{
-				IRecordInternal record = currentFoundset.getRecord(i);
-				dataAdapterList.setRecord(record, false);
-				Map<String, Object> rowProperties = new HashMap<String, Object>();
-				rowProperties.put("_svyRowId", record.getPKHashKey() + "_" + i);
-				for (WebFormComponent wc : bodyComponents)
-				{
-					//TODO
-					//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
-					// namepanel2 has a nested property which is a dataproviderID
-					Map<String, Object> cellProperties = new HashMap<>();
-					List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), IPropertyType.Default.tagstring.getType());
-					for (String tagstringPropID : tagstrings)
-					{
-						cellProperties.put(tagstringPropID, wc.getProperty(tagstringPropID));
-					}
-
-					List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(),
-						IPropertyType.Default.dataprovider.getType());
-					for (String dataproviderID : dataproviders)
-					{
-						cellProperties.put(dataproviderID, wc.getProperty(dataproviderID));
-					}
-					// add valuelists
-					Object valuelistObj;
-					for (String valuelistProperty : wc.getFormElement().getValuelistProperties())
-					{
-						if ((valuelistObj = wc.getProperty(valuelistProperty)) instanceof IValueList)
-						{
-							IValueList valuelist = (IValueList)valuelistObj;
-							// if it is related, global or has fallback, then the valuelist depends on the current record
-							if (valuelist.getValueList().getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES ||
-								valuelist.getValueList().getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ||
-								valuelist.getFallbackValueList() != null)
-
-							cellProperties.put(valuelistProperty, new ValuelistWrapper(valuelist, record));
-						}
-					}
-
-					cellProperties.put("svy_cn", wc.getName());
-					// execute onrender.
-					rowProperties.put(wc.getName(), cellProperties);
-				}
-				List<TabSequencePropertyWithComponent> tabSeqComponents = getTabSeqComponents();
-				for (TabSequencePropertyWithComponent propertyWithComponent : tabSeqComponents)
-				{
-					Map<String, Object> cellProperties = (Map<String, Object>)rowProperties.get(propertyWithComponent.getComponent().getName());
-					if (cellProperties != null) cellProperties.put(propertyWithComponent.getProperty(), currentIndex++);
-				}
-				rows.add(rowProperties);
-			}
-			dataAdapterList.setRecord(currentFoundset.getRecord(currentFoundset.getSelectedIndex()), false);
-
-			return new RowData(rows, startIdx - foundsetStartRow, endIdx - foundsetStartRow);
+			else return RowData.EMPTY;
 		}
-		finally
+		Collection<WebFormComponent> bodyComponents = getBodyComponents(getComponents());
+		int currentIndex = startTabSeqIndex + startOffset * bodyComponents.size();
+		for (int i = startIdx; i < endIdx; i++)
 		{
-			getController().setRendering(false);
+			IRecordInternal record = currentFoundset.getRecord(i);
+			dataAdapterList.setRecord(record, false);
+			Map<String, Object> rowProperties = new HashMap<String, Object>();
+			rowProperties.put("_svyRowId", record.getPKHashKey() + "_" + i);
+			for (WebFormComponent wc : bodyComponents)
+			{
+				//TODO
+				//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
+				// namepanel2 has a nested property which is a dataproviderID
+				Map<String, Object> cellProperties = new HashMap<>();
+				List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), IPropertyType.Default.tagstring.getType());
+				for (String tagstringPropID : tagstrings)
+				{
+					cellProperties.put(tagstringPropID, wc.getProperty(tagstringPropID));
+				}
+
+				List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(),
+					IPropertyType.Default.dataprovider.getType());
+				for (String dataproviderID : dataproviders)
+				{
+					cellProperties.put(dataproviderID, wc.getProperty(dataproviderID));
+				}
+				// add valuelists
+				Object valuelistObj;
+				for (String valuelistProperty : wc.getFormElement().getValuelistProperties())
+				{
+					if ((valuelistObj = wc.getProperty(valuelistProperty)) instanceof IValueList)
+					{
+						IValueList valuelist = (IValueList)valuelistObj;
+						// if it is related, global or has fallback, then the valuelist depends on the current record
+						if (valuelist.getValueList().getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES ||
+							valuelist.getValueList().getDatabaseValuesType() == IValueListConstants.RELATED_VALUES || valuelist.getFallbackValueList() != null)
+
+						cellProperties.put(valuelistProperty, new ValuelistWrapper(valuelist, record));
+					}
+				}
+
+				cellProperties.put("svy_cn", wc.getName());
+				// execute onrender.
+				rowProperties.put(wc.getName(), cellProperties);
+			}
+			List<TabSequencePropertyWithComponent> tabSeqComponents = getTabSeqComponents();
+			for (TabSequencePropertyWithComponent propertyWithComponent : tabSeqComponents)
+			{
+				Map<String, Object> cellProperties = (Map<String, Object>)rowProperties.get(propertyWithComponent.getComponent().getName());
+				if (cellProperties != null) cellProperties.put(propertyWithComponent.getProperty(), currentIndex++);
+			}
+			rows.add(rowProperties);
 		}
+		dataAdapterList.setRecord(currentFoundset.getRecord(currentFoundset.getSelectedIndex()), false);
+		return new RowData(rows, startIdx - foundsetStartRow, endIdx - foundsetStartRow);
 	}
 
-	private Collection<WebFormComponent> getBodyComponents(Collection<WebFormComponent> components)
+	private Collection<WebFormComponent> getBodyComponents(Collection<WebComponent> components)
 	{
 		Form frm = getController().getForm();
 		Part body = getBodyPart(frm);
@@ -331,8 +339,9 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 		List<WebFormComponent> ret = new ArrayList<>();
 		//filter only body elements
-		for (WebFormComponent wc : components)
+		for (WebComponent comp : components)
 		{
+			WebFormComponent wc = (WebFormComponent)comp;
 			if (!wc.getFormElement().isForm())
 			{
 				Point location = wc.getFormElement().getDesignLocation();

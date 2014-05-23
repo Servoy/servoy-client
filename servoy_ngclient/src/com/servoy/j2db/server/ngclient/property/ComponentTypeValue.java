@@ -38,6 +38,7 @@ import org.sablo.websocket.utils.DataConversion;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.util.Debug;
@@ -148,12 +149,12 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		}
 		componentsAreCreated = true;
 
-		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : component.getParent().getDataAdapterList());
+		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : ((IWebFormUI)component.getParent()).getDataAdapterList());
 
 		for (int i = 0; i < elements.length; i++)
 		{
-			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], component.getParent());
-			component.getParent().contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
+			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], (IWebFormUI)component.getParent());
+			((IWebFormUI)component.getParent()).contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
 		}
 	}
 

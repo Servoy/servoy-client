@@ -163,6 +163,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 			});
 		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
 		finally
 		{
 			J2DBGlobals.setServiceProvider(null);
@@ -258,12 +262,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					if (property instanceof CustomValueList)
 					{
 						lstModel = new LookupListModel(client, (CustomValueList)property);
-						webComponent.putProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
+						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 					else if (property instanceof LookupValueList)
 					{
 						lstModel = new LookupListModel(client, (LookupValueList)property);
-						webComponent.putProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
+						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 					else if (property instanceof LookupListModel)
 					{
@@ -365,7 +369,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#registerEndpoint(org.sablo.websocket.IWebsocketEndpoint)
 	 */
 	@Override
@@ -377,7 +381,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#deregisterEndpoint(org.sablo.websocket.IWebsocketEndpoint)
 	 */
 	@Override
@@ -540,7 +544,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String componentName, Object[] arguments)
+	public Object invokeApi(WebComponentApiDefinition apiDefinition, String formName, String componentName, Object[] arguments)
 	{
 		// {"call":{"form":"product","bean":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}}
 		try

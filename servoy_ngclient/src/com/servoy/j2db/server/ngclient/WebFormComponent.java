@@ -1,15 +1,12 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -26,9 +23,7 @@ import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -41,9 +36,7 @@ import com.servoy.j2db.util.Utils;
 public class WebFormComponent extends WebComponent implements ListDataListener
 {
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
-	private final Set<String> changedProperties = new HashSet<>(3);
 	private final FormElement formElement;
-	private final IWebFormUI parentForm;
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
 
 	// list of all tabseq properties ordered by design time value; tabseq will be updated with runtime value
@@ -54,23 +47,17 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 	// the next available tab sequence number (after this component and all its subtree)
 	protected int nextAvailableTabSequence;
 
-	protected WebFormComponent(String name, Form form)
-	{
-		this(name, new FormElement(form), null, null);
-	}
-
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList, IWebFormUI parentForm)
 	{
 		super(name);
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
-		this.parentForm = parentForm;
 
 		if (fe.getLabel() != null)
 		{
 			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
 		}
-		if (!fe.isForm() && fe.getWebComponentSpec(false) != null)
+		if (fe.getWebComponentSpec(false) != null)
 		{
 			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(IPropertyType.Default.tabseq.getType());
 			List<PropertyDescription> sortedList = new SortedList<PropertyDescription>(new Comparator<PropertyDescription>()
@@ -112,107 +99,6 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		return formElement;
 	}
 
-
-	/**
-	 * putting new data in recording changes.
-	 *
-	 * @param propertyName
-	 * @param propertyValue
-	 */
-	public boolean putProperty(String propertyName, Object propertyValue, ConversionLocation sourceOfValue)
-	{
-		Map<String, Object> map = properties;
-		try
-		{
-			propertyValue = convertValue(propertyName, propertyValue, sourceOfValue, map.get(propertyName)); // the propertyName can contain dots but that is supported by convertValue 
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-
-		String ownProperty = propertyName;
-		String lastProperty = propertyName;
-		String[] split = propertyName.split("\\.");
-		if (split.length > 1)
-		{
-			ownProperty = split[0];
-			for (int i = 0; i < split.length - 1; i++)
-			{
-				Map<String, Object> propertyMap = (Map<String, Object>)map.get(split[i]);
-				if (propertyMap == null)
-				{
-					propertyMap = new HashMap<>();
-					map.put(split[i], propertyMap);
-				}
-				map = propertyMap;
-			}
-			lastProperty = split[split.length - 1];
-		}
-
-		if (map.containsKey(lastProperty))
-		{
-			Object oldValue = map.put(lastProperty, propertyValue);
-			if (oldValue instanceof IValueList)
-			{
-				((IValueList)oldValue).removeListDataListener(this);
-			}
-			else if (oldValue instanceof LookupListModel)
-			{
-				((LookupListModel)oldValue).removeListDataListener(this);
-			}
-			if (propertyValue instanceof IValueList)
-			{
-				((IValueList)propertyValue).addListDataListener(this);
-			}
-			else if (propertyValue instanceof LookupListModel)
-			{
-				((LookupListModel)propertyValue).addListDataListener(this);
-			}
-
-			if (propertyValue instanceof IComplexPropertyValue && propertyValue != oldValue)
-			{
-				// TODO in the future we could allow changes to be pushed more granular (JSON subtrees), not only at root property level - as we already do this type of thing in many places
-				final String complexPropertyRoot = ownProperty;
-				// a new complex property is linked to this component; initialize it
-				((IComplexPropertyValue)propertyValue).attachToComponent(new IChangeListener()
-				{
-					@Override
-					public void valueChanged()
-					{
-						changedProperties.add(complexPropertyRoot);
-						getParent().valueChanged();
-					}
-				}, this);
-			}
-			else if (!Utils.equalObjects(propertyValue, oldValue))
-			{
-				changedProperties.add(ownProperty);
-				return true;
-			}
-		}
-		else
-		{
-			map.put(lastProperty, propertyValue);
-			if (propertyValue instanceof IValueList)
-			{
-				((IValueList)propertyValue).addListDataListener(this);
-			}
-			else if (propertyValue instanceof LookupListModel)
-			{
-				((LookupListModel)propertyValue).addListDataListener(this);
-			}
-			changedProperties.add(ownProperty);
-			return true;
-		}
-		return false;
-	}
-
-	public Object getProperty(String propertyName)
-	{
-		return properties.get(propertyName);
-	}
-
 	public Object getConvertedPropertyWithDefault(String propertyName, boolean designValue, boolean convertValue)
 	{
 		Object value = null;
@@ -232,10 +118,51 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		return formElement.getPropertyWithDefault(propertyName);
 	}
 
-	private Object convertValue(String propertyName, Object propertyValue, ConversionLocation sourceOfValue, Object oldValue) throws JSONException
+	@Override
+	protected Object convertPropertyValue(String propertyName, Object oldValue, Object propertyValue, ConversionLocation sourceOfValue) throws JSONException
 	{
-		return dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue, sourceOfValue, oldValue)
-			: propertyValue;
+		return (dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue, sourceOfValue, oldValue)
+			: propertyValue);
+	}
+
+	@Override
+	protected void onPropertyChange(String propertyName, Object oldValue, Object propertyValue)
+	{
+		if (oldValue instanceof IValueList)
+		{
+			((IValueList)oldValue).removeListDataListener(this);
+		}
+		else if (oldValue instanceof LookupListModel)
+		{
+			((LookupListModel)oldValue).removeListDataListener(this);
+		}
+		if (propertyValue instanceof IValueList)
+		{
+			((IValueList)propertyValue).addListDataListener(this);
+		}
+		else if (propertyValue instanceof LookupListModel)
+		{
+			((LookupListModel)propertyValue).addListDataListener(this);
+		}
+
+		if (oldValue != null)
+		{
+			if (propertyValue instanceof IComplexPropertyValue && propertyValue != oldValue)
+			{
+				// TODO in the future we could allow changes to be pushed more granular (JSON subtrees), not only at root property level - as we already do this type of thing in many places
+				final String complexPropertyRoot = propertyName;
+				// a new complex property is linked to this component; initialize it
+				((IComplexPropertyValue)propertyValue).attachToComponent(new IChangeListener()
+				{
+					@Override
+					public void valueChanged()
+					{
+						flagPropertyChanged(complexPropertyRoot);
+						((IWebFormUI)getParent()).valueChanged();
+					}
+				}, this);
+			}
+		}
 	}
 
 	/**
@@ -251,35 +178,14 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		//TODO remove this when hierarchical tree structure comes into play (only needed for )
 		if (propertyValue instanceof JSONObject)
 		{
-			Iterator it = ((JSONObject)propertyValue).keys();
+			Iterator<String> it = ((JSONObject)propertyValue).keys();
 			while (it.hasNext())
 			{
-				String key = (String)it.next();
+				String key = it.next();
 				properties.put(propertyName + '.' + key, ((JSONObject)propertyValue).get(key));
 			}
 		}// end TODO REMOVE
-		properties.put(propertyName, convertValue(propertyName, propertyValue, ConversionLocation.BROWSER_UPDATE, properties.get(propertyName)));
-	}
-
-	public Map<String, Object> getChanges()
-	{
-		if (changedProperties.size() > 0)
-		{
-			Map<String, Object> changes = new HashMap<>();
-			for (String propertyName : changedProperties)
-			{
-				changes.put(propertyName, properties.get(propertyName));
-			}
-			changedProperties.clear();
-			return changes;
-		}
-		return Collections.emptyMap();
-	}
-
-	public Map<String, Object> getPropertiesClearChanged()
-	{
-		changedProperties.clear();
-		return properties;
+		properties.put(propertyName, convertPropertyValue(propertyName, properties.get(propertyName), propertyValue, ConversionLocation.BROWSER_UPDATE));
 	}
 
 	public void add(String eventType, int functionID)
@@ -304,9 +210,9 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 	}
 
 	@Override
-	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, Object[] args)
+	public Object invokeApi(WebComponentApiDefinition apiDefinition, Object[] args)
 	{
-		return dataAdapterList.executeApiInvoke(apiDefinition, getName(), args);
+		return dataAdapterList.invokeApi(apiDefinition, getName(), args);
 	}
 
 	@Override
@@ -357,7 +263,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		{
 			if (entry.getValue() == e.getSource())
 			{
-				changedProperties.add(entry.getKey());
+				flagPropertyChanged(entry.getKey());
 			}
 		}
 	}
@@ -393,9 +299,10 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 				// add a 50 numbers gap
 				nextAvailableTabSequence = Math.max(maxTabIndex, startIndex + 50);
 				// go up in the tree
-				if (parentForm != null)
+				if (getParent() != null)
 				{
-					parentForm.recalculateTabIndex(nextAvailableTabSequence, new TabSequencePropertyWithComponent(this, calculatedTabSequence.get(0).getLeft()));
+					((IWebFormUI)getParent()).recalculateTabIndex(nextAvailableTabSequence, new TabSequencePropertyWithComponent(this,
+						calculatedTabSequence.get(0).getLeft()));
 				}
 			}
 		}
@@ -406,9 +313,10 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		if (nextAvailableTabSequence < availableSequence)
 		{
 			// go up in the tree
-			if (parentForm != null)
+			if (getParent() != null)
 			{
-				parentForm.recalculateTabIndex(availableSequence, new TabSequencePropertyWithComponent(this, calculatedTabSequence.get(0).getLeft()));
+				((IWebFormUI)getParent()).recalculateTabIndex(availableSequence, new TabSequencePropertyWithComponent(this,
+					calculatedTabSequence.get(0).getLeft()));
 			}
 		}
 	}
@@ -423,7 +331,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 			}
 		}
 		this.nextAvailableTabSequence = getMaxTabSequence() + 1;
-		putProperty(propertyName, Integer.valueOf(tabSequence), ConversionLocation.SERVER);
+		setProperty(propertyName, Integer.valueOf(tabSequence), ConversionLocation.SERVER);
 	}
 
 	private int getMaxTabSequence()
@@ -442,11 +350,6 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 	public int getNextAvailableTabSequence()
 	{
 		return nextAvailableTabSequence;
-	}
-
-	public IWebFormUI getParent()
-	{
-		return parentForm;
 	}
 
 	public int getFormIndex(IWebFormUI form)

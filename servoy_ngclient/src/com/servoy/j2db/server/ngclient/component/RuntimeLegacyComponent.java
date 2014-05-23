@@ -185,7 +185,7 @@ public class RuntimeLegacyComponent implements Scriptable
 				value = !((Boolean)value).booleanValue();
 			}
 		}
-		component.putProperty(convertName(name), value, ConversionLocation.SERVER);
+		component.setProperty(convertName(name), value, ConversionLocation.SERVER);
 	}
 
 	@Override

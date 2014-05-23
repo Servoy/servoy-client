@@ -24,13 +24,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.WebComponent;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Debug;
 
 
@@ -47,7 +47,7 @@ public class EventExecutor
 		this.formController = formController;
 	}
 
-	public Object executeEvent(WebFormComponent component, String eventType, int eventId, Object[] args)
+	public Object executeEvent(WebComponent component, String eventType, int eventId, Object[] args)
 	{
 		Scriptable scope = null;
 		Function f = null;

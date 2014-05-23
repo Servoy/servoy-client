@@ -170,7 +170,7 @@ public class RuntimeWebComponent implements Scriptable
 		}
 		if (specProperties != null && specProperties.contains(name))
 		{
-			component.putProperty(name, value, ConversionLocation.SERVER);
+			component.setProperty(name, value, ConversionLocation.SERVER);
 		}
 		else if (prototypeScope != null)
 		{

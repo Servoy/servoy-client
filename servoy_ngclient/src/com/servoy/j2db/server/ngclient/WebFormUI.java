@@ -16,7 +16,10 @@ import java.util.Map;
 import javax.swing.border.Border;
 
 import org.json.JSONException;
+import org.sablo.Container;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpec;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
@@ -46,18 +49,23 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 @SuppressWarnings("nls")
-public class WebFormUI extends WebFormComponent implements IWebFormUI
+public class WebFormUI extends Container implements IWebFormUI
 {
-	protected final Map<String, WebFormComponent> components = new HashMap<>();
+	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final IWebFormController formController;
 
 	private boolean enabled = true;
 	private boolean readOnly = false;
 	private Object parentContainerOrWindowName;
 
+	protected IDataAdapterList dataAdapterList;
+
+	// the next available tab sequence number (after this component and all its subtree)
+	protected int nextAvailableTabSequence;
+
 	public WebFormUI(IWebFormController formController)
 	{
-		super(formController.getName(), formController.getForm());
+		super(formController.getName());
 		this.formController = formController;
 		init();
 	}
@@ -292,7 +300,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		{
 			// TODO this will convert a second time (the first conversion was done in FormElement; is this really needed? cause
 			// converted value reaching conversion again doesn't seem nice
-			((WebFormComponent)componentNode).putProperty(propName, propValue, ConversionLocation.DESIGN);
+			((WebFormComponent)componentNode).setProperty(propName, propValue, ConversionLocation.DESIGN);
 		}
 		else
 		{
@@ -391,35 +399,55 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		return dataAdapterList;
 	}
 
-	public void add(WebFormComponent component)
+	public void add(String eventType, int functionID)
 	{
-		components.put(component.getName(), component);
+		events.put(eventType, Integer.valueOf(functionID));
 	}
 
+	public boolean hasEvent(String eventType)
+	{
+		return events.containsKey(eventType);
+	}
+
+	@Override
+	public Object executeEvent(String eventType, Object[] args)
+	{
+		Integer eventId = events.get(eventType);
+		if (eventId != null)
+		{
+			return dataAdapterList.executeEvent(this, eventType, eventId.intValue(), args);
+		}
+		throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
+	}
+
+	@Override
+	public Object invokeApi(WebComponentApiDefinition apiDefinition, Object[] args)
+	{
+		return dataAdapterList.invokeApi(apiDefinition, getName(), args);
+	}
+
+	@Override
 	public WebFormComponent getWebComponent(String name)
 	{
-		return components.get(name);
+		return (WebFormComponent)super.getComponent(name);
 	}
 
-	public Map<String, WebFormComponent> getWebComponents()
-	{
-		return components;
-	}
-
-	public Map<String, Map<String, Object>> getAllProperties()
+	public Map<String, Map<String, Object>> getAllComponentsProperties()
 	{
 		Map<String, Map<String, Object>> props = new HashMap<String, Map<String, Object>>();
 
-		ArrayList<WebFormComponent> allComponents = new ArrayList<WebFormComponent>();
+		ArrayList<WebComponent> allComponents = new ArrayList<WebComponent>();
 		allComponents.add(this); // add the form itself
-		allComponents.addAll(components.values());
+		allComponents.addAll(getComponents());
 
 		try
 		{
 			getController().setRendering(true);
-			for (WebFormComponent wc : allComponents)
+			for (WebComponent wc : allComponents)
 			{
-				props.put(wc == this ? "" : wc.getName(), wc.getPropertiesClearChanged()); //$NON-NLS-1$
+				Map<String, Object> changes = wc.getProperties();
+				wc.clearChanges();
+				props.put(wc == this ? "" : wc.getName(), changes); //$NON-NLS-1$
 			}
 		}
 		finally
@@ -430,18 +458,18 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		return props;
 	}
 
-	public Map<String, Map<String, Object>> getAllChanges()
+	public Map<String, Map<String, Object>> getAllComponentsChanges()
 	{
 		Map<String, Map<String, Object>> props = new HashMap<String, Map<String, Object>>(8);
 
-		ArrayList<WebFormComponent> allComponents = new ArrayList<WebFormComponent>();
+		ArrayList<WebComponent> allComponents = new ArrayList<WebComponent>();
 		allComponents.add(this); // add the form itself
-		allComponents.addAll(components.values());
+		allComponents.addAll(getComponents());
 
 		try
 		{
 			getController().setRendering(true);
-			for (WebFormComponent wc : allComponents)
+			for (WebComponent wc : allComponents)
 			{
 				Map<String, Object> changes = wc.getChanges();
 				if (changes.size() > 0)
@@ -466,7 +494,6 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		return elementsScope;
 	}
 
-	@Override
 	public void putBrowserProperty(String propertyName, Object propertyValue) throws JSONException
 	{
 		if ("size".equals(propertyName))
@@ -479,7 +506,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IFormUI#getController()
 	 */
 	@Override
@@ -618,8 +645,9 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 				}
 
 			});
-		for (WebFormComponent comp : components.values())
+		for (WebComponent component : components.values())
 		{
+			WebFormComponent comp = (WebFormComponent)component;
 			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(IPropertyType.Default.tabseq.getType());
 			for (PropertyDescription pd : tabSeqProps.values())
 			{
@@ -651,7 +679,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		}
 		else if (parentContainerOrWindowName instanceof WebFormComponent)
 		{
-			return ((WebFormComponent)parentContainerOrWindowName).getParent().getParentWindowName();
+			return ((WebFormUI)((WebFormComponent)parentContainerOrWindowName).getParent()).getParentWindowName();
 		}
 		return null;
 	}
@@ -661,10 +689,14 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		this.parentContainerOrWindowName = parentWindowName;
 	}
 
+	public int getNextAvailableTabSequence()
+	{
+		return nextAvailableTabSequence;
+	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setComponentVisible(boolean)
 	 */
 	@Override
@@ -676,7 +708,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#isVisible()
 	 */
 	@Override
@@ -688,7 +720,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setLocation(java.awt.Point)
 	 */
 	@Override
@@ -700,7 +732,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getLocation()
 	 */
 	@Override
@@ -712,7 +744,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setSize(java.awt.Dimension)
 	 */
 	@Override
@@ -724,7 +756,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getSize()
 	 */
 	@Override
@@ -736,7 +768,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setForeground(java.awt.Color)
 	 */
 	@Override
@@ -748,7 +780,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getForeground()
 	 */
 	@Override
@@ -760,7 +792,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setBackground(java.awt.Color)
 	 */
 	@Override
@@ -772,7 +804,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getBackground()
 	 */
 	@Override
@@ -784,7 +816,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setFont(java.awt.Font)
 	 */
 	@Override
@@ -796,7 +828,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getFont()
 	 */
 	@Override
@@ -808,7 +840,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setBorder(javax.swing.border.Border)
 	 */
 	@Override
@@ -820,7 +852,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getBorder()
 	 */
 	@Override
@@ -832,7 +864,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setName(java.lang.String)
 	 */
 	@Override
@@ -844,7 +876,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setOpaque(boolean)
 	 */
 	@Override
@@ -856,7 +888,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#isOpaque()
 	 */
 	@Override
@@ -868,7 +900,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setCursor(java.awt.Cursor)
 	 */
 	@Override
@@ -880,7 +912,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setToolTipText(java.lang.String)
 	 */
 	@Override
@@ -892,7 +924,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
 	@Override
@@ -904,7 +936,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getId()
 	 */
 	@Override
@@ -916,7 +948,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#showYesNoQuestionDialog(com.servoy.j2db.IApplication, java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -935,14 +967,14 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 		}
 		if (parentContainerOrWindowName instanceof WebFormComponent && ((WebFormComponent)parentContainerOrWindowName).getParent() != null)
 		{
-			return ((WebFormComponent)parentContainerOrWindowName).getParent().getContainerName();
+			return ((WebFormUI)((WebFormComponent)parentContainerOrWindowName).getParent()).getContainerName();
 		}
 		return null;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#printPreview(boolean, boolean, int, java.awt.print.PrinterJob)
 	 */
 	@Override
@@ -954,7 +986,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#print(boolean, boolean, boolean, java.awt.print.PrinterJob)
 	 */
 	@Override
@@ -966,7 +998,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#printXML(boolean)
 	 */
 	@Override
@@ -978,7 +1010,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#showSortDialog(com.servoy.j2db.IApplication, java.lang.String)
 	 */
 	@Override
@@ -990,7 +1022,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#getFormWidth()
 	 */
 	@Override
@@ -1002,7 +1034,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#getPartHeight(int)
 	 */
 	@Override
@@ -1042,7 +1074,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#changeFocusIfInvalid(java.util.List)
 	 */
 	@Override
@@ -1054,7 +1086,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#prepareForSave(boolean)
 	 */
 	@Override
@@ -1066,7 +1098,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#start(com.servoy.j2db.IApplication)
 	 */
 	@Override
@@ -1078,7 +1110,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#stop()
 	 */
 	@Override
@@ -1090,7 +1122,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#editCellAt(int)
 	 */
 	@Override
@@ -1102,7 +1134,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#stopUIEditing(boolean)
 	 */
 	@Override
@@ -1114,7 +1146,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#isEditing()
 	 */
 	@Override
@@ -1126,7 +1158,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#requestFocus()
 	 */
 	@Override
@@ -1138,7 +1170,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#ensureIndexIsVisible(int)
 	 */
 	@Override
@@ -1150,7 +1182,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#setEditable(boolean)
 	 */
 	@Override
@@ -1162,7 +1194,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#getVisibleRect()
 	 */
 	@Override
@@ -1174,7 +1206,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#setVisibleRect(java.awt.Rectangle)
 	 */
 	@Override
@@ -1186,7 +1218,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#setRowBGColorScript(java.lang.String, java.util.List)
 	 */
 	@Override
@@ -1198,7 +1230,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorScript()
 	 */
 	@Override
@@ -1210,7 +1242,7 @@ public class WebFormUI extends WebFormComponent implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorArgs()
 	 */
 	@Override

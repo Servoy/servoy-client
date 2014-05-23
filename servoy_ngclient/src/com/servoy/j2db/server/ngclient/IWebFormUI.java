@@ -17,9 +17,11 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.sablo.IChangeListener;
+import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentSpec;
 
 import com.servoy.j2db.IBasicFormUI;
@@ -35,7 +37,7 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	/**
 	 * @return
 	 */
-	Map<String, Map<String, Object>> getAllProperties();
+	Map<String, Map<String, Object>> getAllComponentsProperties();
 
 	/**
 	 * @param string
@@ -46,7 +48,7 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	/**
 	 * @return
 	 */
-	Map<String, WebFormComponent> getWebComponents();
+	Collection<WebComponent> getComponents();
 
 	/**
 	 * @return

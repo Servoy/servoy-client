@@ -97,7 +97,7 @@ public class ComponentFactory
 								valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val)
 									: new DBValueList(application, val);
 						}
-						webComponent.putProperty(vlProp.getName(), valueList, ConversionLocation.DESIGN);
+						webComponent.setProperty(vlProp.getName(), valueList, ConversionLocation.DESIGN);
 					}
 				}
 			}

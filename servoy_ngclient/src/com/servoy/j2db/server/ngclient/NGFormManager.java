@@ -721,7 +721,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 					if (args.has("currentPage")) grid.setCurrentPage(args.optInt("currentPage"));
 					if (args.has("pageSize")) grid.setPageSize(args.optInt("pageSize"));
 				}
-				Map<String, Map<String, Object>> properties = form.getAllProperties();
+				Map<String, Map<String, Object>> properties = form.getAllComponentsProperties();
 				Map<String, Map<String, Map<String, Object>>> formData = new HashMap<String, Map<String, Map<String, Object>>>();
 				formData.put(formName, properties);
 				try

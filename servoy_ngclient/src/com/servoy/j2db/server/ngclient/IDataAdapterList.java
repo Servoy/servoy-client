@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import org.json.JSONObject;
+import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentApiDefinition;
 
 import com.servoy.base.util.ITagResolver;
@@ -46,7 +47,7 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 * @param string
 	 * @param args
 	 */
-	Object executeEvent(WebFormComponent webComponent, String event, int eventId, Object[] args);
+	Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args);
 
 	/**
 	 * @param apiDefinition
@@ -54,7 +55,7 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 * @param args
 	 * @return
 	 */
-	Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String componentName, Object[] args);
+	Object invokeApi(WebComponentApiDefinition apiDefinition, String componentName, Object[] args);
 
 	/**
 	 * @param script

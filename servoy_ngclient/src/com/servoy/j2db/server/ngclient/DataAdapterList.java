@@ -1,6 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import java.util.WeakHashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.DataproviderConfig;
@@ -69,19 +71,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	}
 
 	@Override
-	public Object executeEvent(WebFormComponent webComponent, String event, int eventId, Object[] args)
+	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
 		return executor.executeEvent(webComponent, event, eventId, args);
 	}
 
 	@Override
-	public Object executeApiInvoke(WebComponentApiDefinition apiDefinition, String componentName, Object[] args)
+	public Object invokeApi(WebComponentApiDefinition apiDefinition, String componentName, Object[] args)
 	{
 		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
 		INGClientWebsocketSession clientSession = getApplication().getWebsocketSession();
 		Form form = formController.getForm();
 		clientSession.touchForm(form, formController.getName(), false);
-		return clientSession.executeApi(apiDefinition, formController.getName(), componentName, args);
+		return clientSession.invokeApi(apiDefinition, formController.getName(), componentName, args);
 	}
 
 	@Override
@@ -200,7 +202,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				wc = pair.getLeft();
 				property = pair.getRight();
 				oldValue = wc.getProperty(property);
-				isPropertyChanged = wc.putProperty(property, value, ConversionLocation.SERVER);
+				isPropertyChanged = wc.setProperty(property, value, ConversionLocation.SERVER);
 				onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
 				if (fireOnDataChange && onDataChange != null && wc.hasEvent(onDataChange) && isPropertyChanged)
 				{
@@ -209,7 +211,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
 					if (onDataChangeCallback != null)
 					{
-						wc.executeApiInvoke(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+						wc.invokeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
 					}
 				}
 				changed = isPropertyChanged || changed;
@@ -223,16 +225,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				String initialPropValue = (String)component.getInitialProperty(taggedProp);
 				String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
-				changed = component.putProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
+				changed = component.setProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
 			}
 		}
 
 		// valuelist update
-		Map<String, WebFormComponent> webComponents = formController.getFormUI().getWebComponents();
+		Collection<WebComponent> webComponents = formController.getFormUI().getComponents();
 		// TODO how to handle nested components through custom component[] property types for example? - those are not listed in formUI
 		Object valuelist;
-		for (WebFormComponent wc : webComponents.values())
+		for (WebComponent comp : webComponents)
 		{
+			WebFormComponent wc = (WebFormComponent)comp;
 			for (String valuelistProperty : wc.getFormElement().getValuelistProperties())
 			{
 				if ((valuelist = wc.getProperty(valuelistProperty)) instanceof IValueList)
@@ -286,7 +289,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
-					webComponent.executeApiInvoke(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+					webComponent.invokeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
 				}
 			}
 		}
@@ -413,7 +416,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE };
 		for (WebFormComponent webComponent : webcomponents)
 		{
-			executeApiInvoke(apiDef, webComponent.getName(), args);
+			invokeApi(apiDef, webComponent.getName(), args);
 		}
 	}
 
