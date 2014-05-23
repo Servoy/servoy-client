@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -141,6 +142,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				{
 					// make sure UUID PKs are matched regardless of casing (MSQ Sqlserver returns uppercase UUID strings for uniqueidentifier columns)
 					str = ((String)val).toLowerCase();
+				}
+				else if (val instanceof Date)
+				{
+					str = Long.toString(((Date)val).getTime());
 				}
 				else
 				{
