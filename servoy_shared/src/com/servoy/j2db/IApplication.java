@@ -367,10 +367,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param url the url to show
 	 * @param target the target
 	 * @param target_options the options
-	 * @param timeout_ms
+	 * @param timeout
 	 * @return true is successful
 	 */
-	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean onRootFrame);
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame);
 
 	/**
 	 * Test if this client is running from developer

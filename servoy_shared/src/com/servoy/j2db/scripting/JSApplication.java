@@ -1900,7 +1900,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions, Number timeout)
 	{
 		int _timeout = Utils.getAsInteger(timeout);
-		return application.showURL(url, webclientTarget, webclientTargetOptions, _timeout * 1000, true);
+		return application.showURL(url, webclientTarget, webclientTargetOptions, _timeout, true);
 	}
 
 	/**

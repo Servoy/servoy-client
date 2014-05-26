@@ -1348,9 +1348,9 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	@Override
-	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean closeDialogs)
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
-		return browserLauncher != null ? browserLauncher.showURL(url) : super.showURL(url, target, target_options, timeout_ms, closeDialogs);
+		return browserLauncher != null ? browserLauncher.showURL(url) : super.showURL(url, target, target_options, timeout, closeDialogs);
 	}
 
 	@Override

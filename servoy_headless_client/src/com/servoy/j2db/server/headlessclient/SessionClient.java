@@ -1418,7 +1418,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		return new Dimension(-1, -1);
 	}
 
-	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean onRootFrame)
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
 		//ignore
 		return false;
@@ -1464,7 +1464,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
@@ -1474,7 +1474,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
