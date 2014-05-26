@@ -62,7 +62,7 @@ public final class FormElement implements IWebComponentInitializer
 {
 	private final Form form;
 	private Map<String, Object> propertyValues;
-	private final String componentTypeString;
+	private final String componentType;
 
 	private final PersistBasedFormElementImpl legacyImpl;
 	private final String uniqueIdWithinForm;
@@ -72,7 +72,7 @@ public final class FormElement implements IWebComponentInitializer
 	{
 		this.form = form;
 		legacyImpl = new PersistBasedFormElementImpl(form, this);
-		componentTypeString = null;
+		componentType = null;
 		this.uniqueIdWithinForm = String.valueOf(form.getID());
 
 		Map<String, Object> map = legacyImpl.getFlattenedPropertiesMap();
@@ -84,7 +84,7 @@ public final class FormElement implements IWebComponentInitializer
 		this.dataConverterContext = context;
 		legacyImpl = new PersistBasedFormElementImpl(persist, this);
 		this.form = legacyImpl.getForm();
-		this.componentTypeString = FormTemplateGenerator.getComponentTypeName(persist);
+		this.componentType = FormTemplateGenerator.getComponentTypeName(persist);
 		this.uniqueIdWithinForm = String.valueOf(persist.getID());
 
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
@@ -101,7 +101,7 @@ public final class FormElement implements IWebComponentInitializer
 		this.dataConverterContext = context;
 		legacyImpl = null;
 		this.form = form;
-		this.componentTypeString = componentTypeString;
+		this.componentType = componentTypeString;
 		this.uniqueIdWithinForm = uniqueIdWithinForm;
 
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
@@ -226,7 +226,7 @@ public final class FormElement implements IWebComponentInitializer
 		WebComponentSpecification spec = null;
 		try
 		{
-			spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentTypeString);
+			spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
 		}
 		catch (RuntimeException re)
 		{
@@ -235,7 +235,7 @@ public final class FormElement implements IWebComponentInitializer
 		}
 		if (spec == null)
 		{
-			String errorMessage = "Component spec for " + componentTypeString + " not found; please check your component spec file(s).";
+			String errorMessage = "Component spec for " + componentType + " not found; please check your component spec file(s).";
 			Debug.error(errorMessage);
 			if (throwException) throw new IllegalStateException(errorMessage);
 		}
@@ -316,7 +316,7 @@ public final class FormElement implements IWebComponentInitializer
 	 */
 	boolean isGraphicalComponentWithNoAction()
 	{
-		if ("svy-button".equals(componentTypeString) || "svy-label".equals(componentTypeString))
+		if ("svy-button".equals(componentType) || "svy-label".equals(componentType))
 		{
 			Object onAction = getProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName());
 			if (onAction == null || (onAction instanceof Integer && (((Integer)onAction).intValue() <= 0))) return true;
@@ -336,12 +336,12 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getTagname()
 	{
-		return componentTypeString != null ? "data-" + componentTypeString : "data-form";
+		return componentType != null ? "data-" + componentType : "data-form";
 	}
 
 	public String getTypeName()
 	{
-		return componentTypeString;
+		return componentType;
 	}
 
 	public IFormElement getLabel()

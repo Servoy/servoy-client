@@ -46,7 +46,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList, IWebFormUI parentForm)
 	{
-		super(name);
+		super(fe.getTypeName(), name);
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 
