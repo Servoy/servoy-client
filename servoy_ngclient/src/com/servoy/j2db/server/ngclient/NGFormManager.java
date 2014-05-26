@@ -329,6 +329,17 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow().getController();
 	}
 
+	public IWebFormController getCurrentMainShowingNavigator()
+	{
+		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow().getNavigator();
+	}
+
+	@Override
+	public void setCurrentMainShowingNavigator(Integer navigatorID)
+	{
+		((INGApplication)application).getRuntimeWindowManager().getCurrentWindow().setNavigator(navigatorID);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -481,13 +492,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				// test if solution is closed in the onload method.
 				if (application.getSolution() == null) return null;
 
+				container.setController(fp);
 
 				//show panel as main
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				fp.notifyVisible(true, invokeLaterRunnables);
 				fp.recalculateTabIndex();
-
-				container.setController(fp);
 
 				String titleText = title;
 				if (titleText == null) titleText = f.getTitleText();

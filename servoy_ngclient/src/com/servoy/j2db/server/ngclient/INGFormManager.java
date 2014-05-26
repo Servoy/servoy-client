@@ -34,6 +34,10 @@ public interface INGFormManager extends IBasicFormManager
 
 	void setCurrentControllerJS(IWebFormController currentController);
 
+	IWebFormController getCurrentMainShowingNavigator();
+
+	void setCurrentMainShowingNavigator(Integer navigatorID);
+
 	/**
 	 * @param formName
 	 * @return

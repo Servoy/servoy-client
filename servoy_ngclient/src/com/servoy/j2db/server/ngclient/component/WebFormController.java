@@ -26,6 +26,7 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.IBasicFormManager;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
@@ -58,7 +59,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getApplication()
 	 */
 	@Override
@@ -127,16 +128,44 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		formUI.recalculateTabIndex(1, null);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#showNavigator(java.util.List)
-	 */
 	@Override
 	public void showNavigator(List<Runnable> invokeLaterRunnables)
 	{
-		// TODO Auto-generated method stub
-
+		if (getBasicFormManager() != null && getBasicFormManager().getCurrentMainShowingFormController() == this)
+		{
+			IFormController currentNavigator = getApplication().getFormManager().getCurrentMainShowingNavigator();
+			int form_id = form.getNavigatorID();
+			if (form_id > 0)
+			{
+				if (currentNavigator == null || currentNavigator.getForm().getID() != form_id)//is already there
+				{
+					if (currentNavigator != null)
+					{
+						currentNavigator.notifyVisible(false, invokeLaterRunnables);
+					}
+					Form navigator = application.getFlattenedSolution().getForm(form_id);
+					if (navigator != null)
+					{
+						IFormController navigatorController = getApplication().getFormManager().getForm(navigator.getName());
+						navigatorController.notifyVisible(true, invokeLaterRunnables);
+					}
+				}
+				else
+				{
+					// Try to lease it extra so it will be added to last used screens.
+					Form navigator = application.getFlattenedSolution().getForm(form_id);
+					if (navigator != null)
+					{
+						getBasicFormManager().leaseFormPanel(navigator.getName());
+					}
+				}
+			}
+			else if (form_id != Form.NAVIGATOR_IGNORE)
+			{
+				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables);
+			}
+			getApplication().getFormManager().setCurrentMainShowingNavigator(form_id);
+		}
 	}
 
 	/*
