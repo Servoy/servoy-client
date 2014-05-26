@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.mozilla.javascript.JavaScriptException;
+
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IPrepareForSave;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
@@ -780,7 +782,6 @@ public class EditRecordList
 			// get the size of the edited records before the table events, so that we can look if those events did change records again.
 			editedRecordsSize = editedRecords.size();
 			Record rowUpdateInfoRecord = null;
-			boolean isAfterEventException = false;
 			for (RowUpdateInfo rowUpdateInfo : infosToBePostProcessed)
 			{
 				try
@@ -792,56 +793,62 @@ public class EditRecordList
 				}
 				catch (ServoyException e)
 				{
-					// trigger method threw exception
-					isAfterEventException = true;
-					lastStopEditingException = e;
-					failedCount++;
-					rowUpdateInfoRecord.getRawData().setLastException(e);
-					editRecordsLock.lock();
-					try
+					if (e instanceof DataException && e.getCause() instanceof JavaScriptException)
 					{
-						if (!failedRecords.contains(rowUpdateInfoRecord))
+						// trigger method threw exception
+						lastStopEditingException = e;
+						failedCount++;
+						rowUpdateInfoRecord.getRawData().setLastException(e);
+						editRecordsLock.lock();
+						try
 						{
-							failedRecords.add(rowUpdateInfoRecord);
+							if (!failedRecords.contains(rowUpdateInfoRecord))
+							{
+								failedRecords.add(rowUpdateInfoRecord);
+							}
+						}
+						finally
+						{
+							editRecordsLock.unlock();
 						}
 					}
-					finally
+					else
 					{
-						editRecordsLock.unlock();
+						Debug.error("Failed to execute after update/insert trigger.", e); //$NON-NLS-1$
 					}
 				}
 			}
 
-			if (!isAfterEventException)
+			Iterator<Map.Entry<FoundSet, List<Record>>> it = foundsetToRecords.entrySet().iterator();
+			while (it.hasNext())
 			{
-				Iterator<Map.Entry<FoundSet, List<Record>>> it = foundsetToRecords.entrySet().iterator();
-				while (it.hasNext())
-				{
-					Map.Entry<FoundSet, List<Record>> entry = it.next();
-					FoundSet fs = entry.getKey();
-					fs.recordsUpdated(entry.getValue(), foundsetToAggregateDeletes.get(fs));
-				}
-				boolean shouldFireEditChange;
-				editRecordsLock.lock();
-				try
-				{
-					shouldFireEditChange = editedRecords.size() == 0;
-				}
-				finally
-				{
-					editRecordsLock.unlock();
-				}
-				if (shouldFireEditChange)
-				{
-					fireEditChange();
-				}
+				Map.Entry<FoundSet, List<Record>> entry = it.next();
+				FoundSet fs = entry.getKey();
+				fs.recordsUpdated(entry.getValue(), foundsetToAggregateDeletes.get(fs));
 			}
+			boolean shouldFireEditChange;
+			editRecordsLock.lock();
+			try
+			{
+				shouldFireEditChange = editedRecords.size() == 0;
+			}
+			finally
+			{
+				editRecordsLock.unlock();
+			}
+			if (shouldFireEditChange)
+			{
+				fireEditChange();
+			}
+
 			if (failedCount > 0)
 			{
-				lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
-				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
-					lastStopEditingException);
-				else if (!isAfterEventException) fsm.getApplication().reportJSError("save failed for 1 or more records", lastStopEditingException); //$NON-NLS-1$
+				if (!javascriptStop)
+				{
+					lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
+					fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
+						lastStopEditingException);
+				}
 				return ISaveConstants.SAVE_FAILED;
 			}
 		}
