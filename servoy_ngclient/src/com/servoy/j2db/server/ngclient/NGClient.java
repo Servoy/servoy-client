@@ -8,13 +8,13 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.IChangeListener;
@@ -77,6 +77,175 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			e.printStackTrace();
 			Debug.error(e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
+	 */
+	@Override
+	public Locale getLocale()
+	{
+		if (locale == null) initLocaleAndTimeZone();
+		return super.getLocale();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
+	 */
+	@Override
+	public TimeZone getTimeZone()
+	{
+		if (timeZone == null) initLocaleAndTimeZone();
+		return super.getTimeZone();
+	}
+
+	private void initLocaleAndTimeZone()
+	{
+		Object retValue;
+		try
+		{
+			retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getUtcOffsetsAndLocale", null);
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+			return;
+		}
+		if (retValue instanceof JSONObject)
+		{
+			if (timeZone == null)
+			{
+				String utc = ((JSONObject)retValue).optString("utcOffset");
+				if (utc != null)
+				{
+					// apparently it is platform dependent on whether you get the
+					// offset in a decimal form or not. This parses the decimal
+					// form of the UTC offset, taking into account several
+					// possibilities
+					// such as getting the format in +2.5 or -1.2
+
+					int dotPos = utc.indexOf('.');
+					if (dotPos >= 0)
+					{
+						String hours = utc.substring(0, dotPos);
+						String hourPart = utc.substring(dotPos + 1);
+
+						if (hours.startsWith("+"))
+						{
+							hours = hours.substring(1);
+						}
+						int offsetHours = Integer.parseInt(hours);
+						int offsetMins = (int)(Double.parseDouble(hourPart) * 6);
+
+						// construct a GMT timezone offset string from the retrieved
+						// offset which can be parsed by the TimeZone class.
+
+						AppendingStringBuffer sb = new AppendingStringBuffer("GMT");
+						sb.append(offsetHours > 0 ? "+" : "-");
+						sb.append(Math.abs(offsetHours));
+						sb.append(":");
+						if (offsetMins < 10)
+						{
+							sb.append("0");
+						}
+						sb.append(offsetMins);
+						timeZone = TimeZone.getTimeZone(sb.toString());
+					}
+					else
+					{
+						int offset = Integer.parseInt(utc);
+						if (offset < 0)
+						{
+							utc = utc.substring(1);
+						}
+						timeZone = TimeZone.getTimeZone("GMT" + ((offset > 0) ? "+" : "-") + utc);
+					}
+
+					String dstOffset = ((JSONObject)retValue).optString("utcDstOffset");
+					if (timeZone != null && dstOffset != null)
+					{
+						TimeZone dstTimeZone = null;
+						dotPos = dstOffset.indexOf('.');
+						if (dotPos >= 0)
+						{
+							String hours = dstOffset.substring(0, dotPos);
+							String hourPart = dstOffset.substring(dotPos + 1);
+
+							if (hours.startsWith("+"))
+							{
+								hours = hours.substring(1);
+							}
+							int offsetHours = Integer.parseInt(hours);
+							int offsetMins = (int)(Double.parseDouble(hourPart) * 6);
+
+							// construct a GMT timezone offset string from the
+							// retrieved
+							// offset which can be parsed by the TimeZone class.
+
+							AppendingStringBuffer sb = new AppendingStringBuffer("GMT");
+							sb.append(offsetHours > 0 ? "+" : "-");
+							sb.append(Math.abs(offsetHours));
+							sb.append(":");
+							if (offsetMins < 10)
+							{
+								sb.append("0");
+							}
+							sb.append(offsetMins);
+							dstTimeZone = TimeZone.getTimeZone(sb.toString());
+						}
+						else
+						{
+							int offset = Integer.parseInt(dstOffset);
+							if (offset < 0)
+							{
+								dstOffset = dstOffset.substring(1);
+							}
+							dstTimeZone = TimeZone.getTimeZone("GMT" + ((offset > 0) ? "+" : "-") + dstOffset);
+						}
+						// if the dstTimezone (1 July) has a different offset then
+						// the real time zone (1 January) try to combine the 2.
+						if (dstTimeZone != null && dstTimeZone.getRawOffset() != timeZone.getRawOffset())
+						{
+							int dstSaving = dstTimeZone.getRawOffset() - timeZone.getRawOffset();
+							String[] availableIDs = TimeZone.getAvailableIDs(timeZone.getRawOffset());
+							for (String availableID : availableIDs)
+							{
+								TimeZone zone = TimeZone.getTimeZone(availableID);
+								if (zone.getDSTSavings() == dstSaving)
+								{
+									// this is a best guess... still the start and end of the DST should
+									// be needed to know to be completely correct, or better yet
+									// not just the GMT offset but the TimeZone ID should be transfered
+									// from the browser.
+									timeZone = zone;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			if (locale == null)
+			{
+				String browserLocale = ((JSONObject)retValue).optString("locale");
+				if (browserLocale != null)
+				{
+					String[] languageAndCountry = browserLocale.split("-");
+					if (languageAndCountry.length == 1)
+					{
+						locale = new Locale(languageAndCountry[0]);
+					}
+					else if (languageAndCountry.length == 2)
+					{
+						locale = new Locale(languageAndCountry[0], languageAndCountry[1]);
+					}
+				}
+			}
 		}
 	}
 
@@ -175,81 +344,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			e.getCause().printStackTrace();
 			Debug.error(e.getCause());
 		}
-	}
-
-	@Override
-	public Locale getLocale() // TODO provide actual Implementatin
-	{
-		return new Locale("en", "US");
-	}
-
-	@Override
-	public void setLocale(Locale locale)
-	{
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public TimeZone getTimeZone()
-	{
-		// TODO get from actual client?
-		return null;
-	}
-
-	@Override
-	public void setTimeZone(TimeZone timeZone)
-	{
-		// TODO should this be remembered?
-		super.setTimeZone(timeZone);
-	}
-
-	@Override
-	public String getI18NMessage(String i18nKey)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getI18NMessage(String i18nKey, Object[] array)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getI18NMessageIfPrefixed(String i18nKey)
-	{
-		// TODO Auto-generated method stub
-		return i18nKey;
-	}
-
-	@Override
-	public void setI18NMessage(String i18nKey, String value)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void refreshI18NMessages()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setI18NMessagesFilter(String columnname, String[] value)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public ResourceBundle getResourceBundle(Locale locale)
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
