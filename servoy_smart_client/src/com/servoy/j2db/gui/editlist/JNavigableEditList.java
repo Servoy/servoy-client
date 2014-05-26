@@ -84,6 +84,7 @@ public class JNavigableEditList extends JEditList
 		{
 			if (isEditable())
 			{
+				editCellAt(getSelectedIndex(), e);
 				ListModel model = getModel();
 				if (model instanceof ComboModelListModelWrapper)
 				{
@@ -95,6 +96,7 @@ public class JNavigableEditList extends JEditList
 						comboModel.setElementAt(newValue, idx);
 					}
 				}
+				getCellEditor().stopCellEditing();
 			}
 		}
 	}
