@@ -340,18 +340,21 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 */
 	private void pushChanges(JSONObject obj) throws JSONException
 	{
-		String formName = obj.getString("formname");
-		IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-		String beanName = obj.optString("beanname");
-
-		WebComponent webComponent = beanName.length() > 0 ? form.getWebComponent(beanName) : (WebComponent)form;
 		JSONObject changes = obj.getJSONObject("changes");
-		Iterator<String> keys = changes.keys();
-		while (keys.hasNext())
+		if (changes.length() > 0)
 		{
-			String key = keys.next();
-			Object object = changes.get(key);
-			webComponent.putBrowserProperty(key, object);
+			String formName = obj.getString("formname");
+			IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
+			String beanName = obj.optString("beanname");
+
+			WebComponent webComponent = beanName.length() > 0 ? form.getWebComponent(beanName) : (WebComponent)form;
+			Iterator<String> keys = changes.keys();
+			while (keys.hasNext())
+			{
+				String key = keys.next();
+				Object object = changes.get(key);
+				webComponent.putBrowserProperty(key, object);
+			}
 		}
 	}
 
