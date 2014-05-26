@@ -20,6 +20,8 @@ package com.servoy.j2db.server.ngclient.template;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.sablo.specification.WebComponentSpecProvider;
+
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Bean;
@@ -38,6 +40,7 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.IDataConverterContext;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.util.Debug;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -85,6 +88,17 @@ public class FormTemplateGenerator
 	}
 
 	public static String getComponentTypeName(IFormElement persist)
+	{
+		String component_type = getPersistComponentTypeName(persist);
+		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type) == null)
+		{
+			Debug.error("Component spec for " + persist.getName() + " not found; please check your component spec file(s).");
+			return "svy-errorbean";
+		}
+		return component_type;
+	}
+
+	private static String getPersistComponentTypeName(IFormElement persist)
 	{
 		if (persist instanceof Bean)
 		{
@@ -164,7 +178,13 @@ public class FormTemplateGenerator
 	 */
 	public static String getComponentTypeName(String beanClassName)
 	{
-		return beanClassName.substring(beanClassName.indexOf(':') + 1);
+		String component_type = beanClassName.substring(beanClassName.indexOf(':') + 1);
+		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type) == null)
+		{
+			Debug.error("Component spec for " + beanClassName + " not found; please check your component spec file(s).");
+			return "svy-errorbean";
+		}
+		return component_type;
 	}
 
 	/**

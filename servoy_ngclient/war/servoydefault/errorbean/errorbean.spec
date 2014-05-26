@@ -6,6 +6,7 @@ model:
 {
         location : 'point', 
         size : {type:'dimension',  default: {width:80, height:20}}, 
-        text : {type:'string',  default: 'Error accesing element'}
+        error : 'string',
+        toolTipText : 'string'
 }
  
