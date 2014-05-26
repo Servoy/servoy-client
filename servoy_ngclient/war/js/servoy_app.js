@@ -457,7 +457,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			return $windowService.getFormUrl($solutionSettings.navigatorForm.templateURL);
 		}
 		return $solutionSettings.navigatorForm.templateURL;
-	}
+	}	
 	$rootScope.updatingFormUrl = '';
 	
 }).factory("$applicationService",['$window','$timeout','webStorage',function($window,$timeout,webStorage) {
@@ -492,7 +492,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		    	 if(!timeout) timeout = 0;	    	 
 			    	$timeout(function(){
 			    		$window.open(url,target,targetOptions)
-			    	},timeout)	    	
+			    	},timeout*1000)	    	
 		},
 		getScreenSize:function() {
 			  if ($window.screen) {

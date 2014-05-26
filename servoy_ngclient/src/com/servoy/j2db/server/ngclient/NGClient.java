@@ -99,7 +99,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -564,9 +564,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean onRootFrame)
+	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		this.getWebsocketSession().executeAsyncServiceCall(NGClient.APPLICATION_SERVICE, "showUrl", new Object[] { url, target, target_options, timeout_ms });
+		this.getWebsocketSession().executeAsyncServiceCall(NGClient.APPLICATION_SERVICE, "showUrl", new Object[] { url, target, target_options, timeout });
 		return true;
 	}
 
