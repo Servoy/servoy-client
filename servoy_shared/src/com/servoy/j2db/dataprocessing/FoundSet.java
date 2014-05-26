@@ -5775,7 +5775,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				@Override
 				public String getScopeName()
 				{
-					return FoundSet.this.getTable().getServerName() + "." + FoundSet.this.getTable().getName(); //$NON-NLS-1$
+					return getDataSource();
 				}
 			};
 			scope.setFunctionParentScriptable(this); // make sure functions like getSize cannot be overridden
