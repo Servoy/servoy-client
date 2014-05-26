@@ -59,7 +59,7 @@ public class RuntimeWebComponent implements Scriptable
 
 		if (webComponentSpec != null)
 		{
-			for (WebComponentApiDefinition def : webComponentSpec.getApis().values())
+			for (WebComponentApiDefinition def : webComponentSpec.getApiFunctions().values())
 			{
 				apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}

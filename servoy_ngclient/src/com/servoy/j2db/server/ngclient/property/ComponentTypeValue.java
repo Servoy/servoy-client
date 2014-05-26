@@ -103,7 +103,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 						(JSONObject)elementSpec.get(ComponentTypeImpl.DEFINITION_KEY), fe.getForm(),
 						fe.getName() + propertyName + "_" + i, fe.getDataConverterContext()); //$NON-NLS-1$
 					JSONArray callTypes = elementSpec.optJSONArray(ComponentTypeImpl.API_CALL_TYPES_KEY);
-					if (callTypes == null) apisOnAll[i] = findCallTypesInApiSpecDefinition(elements[i].getWebComponentSpec().getApis());
+					if (callTypes == null) apisOnAll[i] = findCallTypesInApiSpecDefinition(elements[i].getWebComponentSpec().getApiFunctions());
 					else
 					{
 						apisOnAll[i] = new ArrayList<String>();

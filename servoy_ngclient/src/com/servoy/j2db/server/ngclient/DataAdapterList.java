@@ -15,7 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.DataproviderConfig;
 import org.sablo.websocket.ConversionLocation;
 
@@ -210,7 +209,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
 					if (onDataChangeCallback != null)
 					{
-						wc.invokeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+						wc.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
 					}
 				}
 				changed = isPropertyChanged || changed;
@@ -288,7 +287,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
-					webComponent.invokeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+					webComponent.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
 				}
 			}
 		}
@@ -411,11 +410,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				webcomponents.add(pair.getLeft());
 			}
 		}
-		WebComponentApiDefinition apiDef = new WebComponentApiDefinition("setFindMode");
 		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE };
 		for (WebFormComponent webComponent : webcomponents)
 		{
-			webComponent.invokeApi(apiDef, args);
+			webComponent.invokeApi("setFindMode", args);
 		}
 	}
 }
