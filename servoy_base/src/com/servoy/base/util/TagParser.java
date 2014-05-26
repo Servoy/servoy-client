@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 /**
  * This class will resolve the %%i18n.keys%% by default, even without tag resolver
- * 
+ *
  * @author jblok
  */
 public class TagParser
@@ -33,6 +33,10 @@ public class TagParser
 		if (s == null)
 		{
 			return null;
+		}
+		if (s.startsWith("i18n:") && i18nProvider != null)
+		{
+			return i18nProvider.getI18NMessage(s.substring(5));
 		}
 
 		StringBuilder retval = new StringBuilder();

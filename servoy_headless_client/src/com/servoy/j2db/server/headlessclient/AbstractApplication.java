@@ -21,7 +21,14 @@ package com.servoy.j2db.server.headlessclient;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.text.MessageFormat;
+import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
 
 import javax.swing.Action;
@@ -33,11 +40,14 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.Messages;
 import com.servoy.j2db.ModeManager;
 import com.servoy.j2db.cmd.ICmd;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
@@ -57,6 +67,11 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractApplication extends ClientState implements IApplication
 {
+	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
+	private transient ResourceBundle localeJarMessages;
+	protected Locale locale;
+	protected TimeZone timeZone;
+
 	private transient ICmdManager cmdManager;
 	protected final WebCredentials credentials;
 	private transient IBeanManager beanManager;
@@ -70,7 +85,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IApplication#getOSName()
 	 */
 	public String getClientOSName()
@@ -159,20 +174,6 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	public void reportInfo(String message)
 	{
 		Debug.log(message);
-	}
-
-	public void setTimeZone(TimeZone timeZone)
-	{
-		ClientInfo clientInfo = getClientInfo();
-		clientInfo.setTimeZone(timeZone);
-		try
-		{
-			getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
 	}
 
 	@Override
@@ -296,6 +297,240 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 			};
 		}
 		return cmdManager;
+	}
+
+	@Override
+	public void refreshI18NMessages()
+	{
+		messages.clear();
+	}
+
+
+	public void setI18NMessagesFilter(String columnname, String[] value)
+	{
+		Properties properties = new Properties();
+		Messages.loadMessagesFromDatabaseInternal(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, locale,
+			Messages.ALL_LOCALES, null, null, columnname, value, getFoundSetManager());
+		Solution solution = getSolution();
+		Messages.loadMessagesFromDatabaseInternal(solution != null ? solution.getI18nDataSource() : null, getClientInfo().getClientId(), getSettings(),
+			getDataServer(), getRepository(), properties, locale, Messages.ALL_LOCALES, null, null, columnname, value, getFoundSetManager());
+		synchronized (messages)
+		{
+			messages.put(locale, properties);
+		}
+	}
+
+	public ResourceBundle getResourceBundle(Locale lc)
+	{
+		final Locale loc = lc != null ? lc : locale != null ? locale : Locale.getDefault();
+		final ResourceBundle jarMessages = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
+		final Properties msg = getMessages(loc);
+		return new ResourceBundle()
+		{
+			@Override
+			protected Object handleGetObject(String key)
+			{
+				return getI18NMessage(key, null, msg, jarMessages, loc);
+			}
+
+			@Override
+			public Locale getLocale()
+			{
+				return loc;
+			}
+
+			@Override
+			public Enumeration<String> getKeys()
+			{
+				return new Enumeration<String>()
+				{
+					private Enumeration< ? > solutionKeys = msg.keys();
+					private final Enumeration< ? > jarKeys = jarMessages.getKeys();
+
+					public String nextElement()
+					{
+						if (solutionKeys != null) return solutionKeys.nextElement().toString();
+						else return jarKeys.nextElement().toString();
+					}
+
+					public boolean hasMoreElements()
+					{
+						if (solutionKeys != null && solutionKeys.hasMoreElements())
+						{
+							return true;
+						}
+						solutionKeys = null;
+						return jarKeys.hasMoreElements();
+					}
+				};
+			}
+		};
+	}
+
+	public String getI18NMessage(String key, Object[] args)
+	{
+		if (key == null || key.length() == 0) return key;
+
+		Properties properties = getMessages(getLocale());
+		return getI18NMessage(key, args, properties, localeJarMessages, getLocale());
+	}
+
+	public String getI18NMessage(String key)
+	{
+		if (key == null || key.length() == 0) return key;
+
+		Properties properties = getMessages(getLocale());
+		return getI18NMessage(key, null, properties, localeJarMessages, getLocale());
+	}
+
+	public void setI18NMessage(String key, String value)
+	{
+		if (key != null)
+		{
+			Properties properties = getMessages(getLocale());
+			if (value == null)
+			{
+				properties.remove(key);
+				refreshI18NMessages();
+			}
+			else
+			{
+				properties.setProperty(key, value);
+			}
+
+		}
+	}
+
+	private static String getI18NMessage(String key, Object[] args, Properties msg, ResourceBundle jar, Locale loc)
+	{
+		String realKey = key;
+		if (realKey.startsWith("i18n:")) //$NON-NLS-1$
+		{
+			realKey = realKey.substring(5);
+		}
+		String message = null;
+		try
+		{
+			message = msg.getProperty(realKey);
+			if (message == null && jar != null)
+			{
+				try
+				{
+					message = jar.getString(realKey);
+				}
+				catch (Exception e)
+				{
+				}
+			}
+			if (message != null)
+			{
+				if (args == null || args.length == 0)
+				{
+					return message;
+				}
+				else
+				{
+					message = Utils.stringReplace(message, "'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+					return getFormattedText(message, loc, args);
+				}
+			}
+			return '!' + realKey + '!';
+		}
+		catch (MissingResourceException e)
+		{
+			return '!' + realKey + '!';
+		}
+		catch (Exception e)
+		{
+			return '!' + realKey + "!,txt:" + message + ", error:" + e.getMessage(); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	private static String getFormattedText(String message, Locale locale, Object[] args)
+	{
+		MessageFormat mf = new MessageFormat(message);
+		mf.setLocale(locale);
+		return mf.format(args);
+	}
+
+	private Properties getMessages(Locale loc)
+	{
+		Properties properties = null;
+		synchronized (messages)
+		{
+			properties = messages.get(loc);
+			if (properties == null && getClientInfo() != null)
+			{
+				properties = new Properties();
+				Messages.invalidConnection = false;
+				Messages.loadMessagesFromDatabaseInternal(null, ApplicationServerRegistry.get().getClientId(), getSettings(), getDataServer(), getRepository(),
+					properties, loc, getFoundSetManager());
+				if (getSolution() != null) //must be sure that solution is loaded, app might retrieve system messages, before solution loaded!
+				{
+					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), ApplicationServerRegistry.get().getClientId(), getSettings(),
+						getDataServer(), getRepository(), properties, loc, getFoundSetManager());
+					messages.put(loc, properties);
+				}
+			}
+			// also test here for the local jar message
+			if (localeJarMessages == null && loc.equals(getLocale()))
+			{
+				localeJarMessages = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
+			}
+		}
+
+		return properties == null ? new Properties() : properties;
+	}
+
+	/*
+	 * @see IServiceProvider#getI18NMessageIfPrefixed(String,Object[])
+	 */
+	public String getI18NMessageIfPrefixed(String key)
+	{
+		if (key != null && key.startsWith("i18n:")) //$NON-NLS-1$
+		{
+			return getI18NMessage(key.substring(5), null);
+		}
+		return key;
+	}
+
+	public synchronized void setLocale(Locale l)
+	{
+		if (locale != null && locale.equals(l)) return;
+		Locale old = locale;
+		locale = l;
+		localeJarMessages = null;
+		J2DBGlobals.firePropertyChange(this, "locale", old, locale); //$NON-NLS-1$
+	}
+
+	public Locale getLocale()
+	{
+		return locale == null ? Locale.getDefault() : locale;
+	}
+
+	public TimeZone getTimeZone()
+	{
+		return timeZone == null ? TimeZone.getDefault() : timeZone;
+	}
+
+	@Override
+	public synchronized void setTimeZone(TimeZone zone)
+	{
+		if (timeZone != null && timeZone.equals(zone)) return;
+		TimeZone old = timeZone;
+		timeZone = zone;
+		J2DBGlobals.firePropertyChange(this, "timeZone", old, timeZone); //$NON-NLS-1$
+
+		ClientInfo clientInfo = getClientInfo();
+		clientInfo.setTimeZone(timeZone);
+		try
+		{
+			getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
 	}
 
 	public ILAFManager getLAFManager()
