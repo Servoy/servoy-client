@@ -428,6 +428,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		//		}
 	}
 
+	public void selectionChanged()
+	{
+
+	}
+
 	public void valueChanged(ListSelectionEvent e)
 	{
 		if (!isFormVisible || formModel == null) return;
@@ -448,6 +453,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 					lastAdjusting = formModel.getSelectedIndex();
 					//System.out.println("calling save data" + eventCanBeNull);
 					application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
+					selectionChanged();
 				}
 				//if (!didSave) executeOnRecordSave();
 			}
