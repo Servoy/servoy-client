@@ -449,4 +449,14 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		return notifyVisibleSuccess;
 	}
+
+	@Override
+	public void selectionChanged()
+	{
+		super.selectionChanged();
+		if (formUI instanceof WebGridFormUI)
+		{
+			((WebGridFormUI)formUI).selectionChanged();
+		}
+	}
 }

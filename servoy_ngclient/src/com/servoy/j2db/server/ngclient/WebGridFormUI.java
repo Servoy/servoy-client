@@ -58,6 +58,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	private IFoundSetInternal currentFoundset;
 	private final List<RowData> rowChanges = new ArrayList<RowData>();
 	private boolean allChanged = false;
+	private boolean selectionChanged = false;
 	private int startTabSeqIndex = 1;
 	private int pageSize;
 	private IFoundSetInternal previousFS;
@@ -117,7 +118,15 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				Map<String, Object> rowProps = props.get("");
 				rowProps.put("updatedRows", new ArrayList<RowData>(rowChanges));
 				rowProps.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
+				rowProps.put("selectedIndex", Integer.toString(getController().getFoundSet().getSelectedIndex()));
 			}
+			else if (selectionChanged)
+			{
+				if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
+				Map<String, Object> rowProps = props.get("");
+				rowProps.put("selectedIndex", Integer.toString(getController().getFoundSet().getSelectedIndex()));
+			}
+			selectionChanged = false;
 			allChanged = false;
 			rowChanges.clear();
 		}
@@ -231,6 +240,11 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			}
 		}
 		getApplication().getChangeListener().valueChanged();
+	}
+
+	public void selectionChanged()
+	{
+		selectionChanged = true;
 	}
 
 	/**
