@@ -3,7 +3,6 @@ package com.servoy.j2db.server.ngclient;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,7 +11,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
@@ -163,29 +161,6 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 				}, this);
 			}
 		}
-	}
-
-	/**
-	 * put property from the outside world, not recording changes.
-	 * converting to the right type.
-	 * @param propertyName
-	 * @param propertyValue can be a JSONObject or array or primitive.
-	 */
-	public void putBrowserProperty(String propertyName, Object propertyValue) throws JSONException
-	{
-		// currently we keep Java objects in here; we could switch to having only json objects in here is it make things quicker
-		// (then whenever a server-side value is put in the map, convert it via JSONUtils.toJSONValue())
-		//TODO remove this when hierarchical tree structure comes into play (only needed for )
-		if (propertyValue instanceof JSONObject)
-		{
-			Iterator<String> it = ((JSONObject)propertyValue).keys();
-			while (it.hasNext())
-			{
-				String key = it.next();
-				properties.put(propertyName + '.' + key, ((JSONObject)propertyValue).get(key));
-			}
-		}// end TODO REMOVE
-		properties.put(propertyName, convertPropertyValue(propertyName, properties.get(propertyName), propertyValue, ConversionLocation.BROWSER_UPDATE));
 	}
 
 	public void add(String eventType, int functionID)

@@ -32,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
+import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IPropertyType;
@@ -345,7 +346,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
 		String beanName = obj.optString("beanname");
 
-		WebFormComponent webComponent = beanName.length() > 0 ? form.getWebComponent(beanName) : (WebFormComponent)form;
+		WebComponent webComponent = beanName.length() > 0 ? form.getWebComponent(beanName) : (WebComponent)form;
 		JSONObject changes = obj.getJSONObject("changes");
 		Iterator<String> keys = changes.keys();
 		while (keys.hasNext())
