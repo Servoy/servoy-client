@@ -27,7 +27,7 @@ import java.util.Set;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
@@ -49,7 +49,7 @@ public class RuntimeWebComponent implements Scriptable
 	private final Map<String, IServerObjToJavaPropertyConverter< ? , ? >> complexProperties;
 	private final Map<String, WebComponentFunction> apiFunctions;
 
-	public RuntimeWebComponent(WebFormComponent component, WebComponentSpec webComponentSpec)
+	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
 	{
 		this.component = component;
 		this.specProperties = webComponentSpec == null ? null : webComponentSpec.getAllPropertiesNames();

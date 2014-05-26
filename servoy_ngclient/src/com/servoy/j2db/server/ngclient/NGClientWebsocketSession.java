@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,7 +34,6 @@ import org.json.JSONStringer;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IForJsonConverter;
@@ -526,7 +524,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			try
 			{
 				proccessChanges = true;
-				sendChanges(client.getChanges());
+				sendChanges(WebsocketEndpoint.get().getAllComponentsChanges());
 			}
 			catch (IOException e)
 			{
@@ -545,53 +543,35 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public Object invokeApi(WebComponentApiDefinition apiDefinition, String formName, String componentName, Object[] arguments)
-	{
-		// {"call":{"form":"product","bean":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}}
-		try
-		{
-			Map<String, Map<String, Map<String, Object>>> changes = client.getChanges();
-			Map<String, Object> data = new HashMap<>();
-			data.put("forms", changes);
-
-			Map<String, Object> call = new HashMap<>();
-			call.put("form", formName);
-			call.put("bean", componentName);
-			call.put("api", apiDefinition.getName());
-
-			IWebFormController form = client.getFormManager().getForm(formName);
-			if (form.getFormUI() instanceof WebGridFormUI)
-			{
-				call.put("viewIndex", Integer.valueOf(((WebGridFormUI)form.getFormUI()).getSelectedViewIndex()));
-			}
-			if (arguments != null && arguments.length > 0)
-			{
-				call.put("args", arguments);
-			}
-			data.put("call", call);
-
-			Object ret = WebsocketEndpoint.get().sendMessage(data, false, getForJsonConverter());
-			// convert back
-			if (ret instanceof Long && apiDefinition.getReturnType().getType() == IPropertyType.Default.date.getType())
-			{
-				return new Date(((Long)ret).longValue());
-			}
-			return NGClientForJsonConverter.toJavaObject(ret, apiDefinition.getReturnType(), new DataConverterContext(getClient()),
-				ConversionLocation.BROWSER_UPDATE, null); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
-		}
-		catch (JSONException | IOException e)
-		{
-			Debug.error(e);
-		}
-
-		return null;
-	}
-
-	@Override
 	public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
 	{
 		super.executeAsyncServiceCall(serviceName, functionName, arguments);
 		valueChanged();
+	}
+
+	@Override
+	protected Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, Map<String, Object> callContributions)
+	{
+		try
+		{
+			Map<String, Object> call = new HashMap<>();
+			if (callContributions != null) call.putAll(callContributions);
+
+			IWebFormController form = client.getFormManager().getForm(receiver.getParent().getName());
+			touchForm(form.getForm(), form.getName(), false);
+			if (form.getFormUI() instanceof WebGridFormUI)
+			{
+				call.put("viewIndex", Integer.valueOf(((WebGridFormUI)form.getFormUI()).getSelectedViewIndex()));
+			}
+			Object ret = super.invokeApi(receiver, apiFunction, arguments, call);
+			return NGClientForJsonConverter.toJavaObject(ret, apiFunction.getReturnType(), new DataConverterContext(getClient()),
+				ConversionLocation.BROWSER_UPDATE, null); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+		}
+		return null;
 	}
 
 	@Override

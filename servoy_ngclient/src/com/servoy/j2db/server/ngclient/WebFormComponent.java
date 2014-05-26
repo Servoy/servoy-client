@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.ConversionLocation;
@@ -182,12 +181,6 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 			return dataAdapterList.executeEvent(this, eventType, eventId.intValue(), args);
 		}
 		throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
-	}
-
-	@Override
-	public Object invokeApi(WebComponentApiDefinition apiDefinition, Object[] args)
-	{
-		return dataAdapterList.invokeApi(apiDefinition, getName(), args);
 	}
 
 	@Override

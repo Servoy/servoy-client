@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -139,8 +139,8 @@ public class IndexTemplateGenerator
 		public Collection<String> getComponentReferences()
 		{
 			List<String> references = new ArrayList<>();
-			WebComponentSpec[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentDescriptions();
-			for (WebComponentSpec webComponentSpec : webComponentDescriptions)
+			WebComponentSpecification[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentSpecifications();
+			for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
 			{
 				references.add(webComponentSpec.getDefinition());
 			}
@@ -150,8 +150,8 @@ public class IndexTemplateGenerator
 		public Collection<String> getComponentCssReferences()
 		{
 			List<String> references = new ArrayList<>();
-			WebComponentSpec[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentDescriptions();
-			for (WebComponentSpec webComponentSpec : webComponentDescriptions)
+			WebComponentSpecification[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentSpecifications();
+			for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
 			{
 				String[] libraries = webComponentSpec.getLibraries();
 				for (String lib : libraries)
@@ -168,8 +168,8 @@ public class IndexTemplateGenerator
 		public Collection<String> getComponentJsReferences()
 		{
 			List<String> references = new ArrayList<>();
-			WebComponentSpec[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentDescriptions();
-			for (WebComponentSpec webComponentSpec : webComponentDescriptions)
+			WebComponentSpecification[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentSpecifications();
+			for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
 			{
 				String[] libraries = webComponentSpec.getLibraries();
 				for (String lib : libraries)

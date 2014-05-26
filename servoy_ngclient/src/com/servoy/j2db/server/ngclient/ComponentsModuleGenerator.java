@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 
 /**
@@ -48,8 +48,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 		resp.setContentType("text/javascript");
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
 
-		WebComponentSpec[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentDescriptions();
-		for (WebComponentSpec webComponentSpec : webComponentDescriptions)
+		WebComponentSpecification[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentSpecifications();
+		for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
 		{
 			String name = webComponentSpec.getName();
 			StringBuilder nameSb = new StringBuilder();

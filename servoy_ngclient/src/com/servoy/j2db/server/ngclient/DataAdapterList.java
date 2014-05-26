@@ -30,7 +30,6 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
@@ -76,15 +75,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return executor.executeEvent(webComponent, event, eventId, args);
 	}
 
-	@Override
-	public Object invokeApi(WebComponentApiDefinition apiDefinition, String componentName, Object[] args)
-	{
-		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
-		INGClientWebsocketSession clientSession = getApplication().getWebsocketSession();
-		Form form = formController.getForm();
-		clientSession.touchForm(form, formController.getName(), false);
-		return clientSession.invokeApi(apiDefinition, formController.getName(), componentName, args);
-	}
+//	@Override
+//	public Object invokeApi(WebComponentApiDefinition apiDefinition, String componentName, Object[] args)
+//	{
+//		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
+//		INGClientWebsocketSession clientSession = getApplication().getWebsocketSession();
+//		Form form = formController.getForm();
+//		clientSession.touchForm(form, formController.getName(), false);
+//		return clientSession.invokeApi(apiDefinition, formController.getName(), componentName, args);
+//	}
 
 	@Override
 	public Object executeInlineScript(String script, JSONObject args)
@@ -416,8 +415,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE };
 		for (WebFormComponent webComponent : webcomponents)
 		{
-			invokeApi(apiDef, webComponent.getName(), args);
+			webComponent.invokeApi(apiDef, args);
 		}
 	}
-
 }

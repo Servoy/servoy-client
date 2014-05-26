@@ -23,7 +23,6 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
-import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -277,23 +276,23 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return (INGFormManager)super.getFormManager();
 	}
 
-	public synchronized Map<String, Map<String, Map<String, Object>>> getChanges()
-	{
-		Map<String, Map<String, Map<String, Object>>> changes = new HashMap<>(8);
-		if (isShutDown()) return changes;
-		for (IFormController fc : getFormManager().getCachedFormControllers())
-		{
-			if (fc.isFormVisible())
-			{
-				Map<String, Map<String, Object>> formChanges = ((WebFormUI)fc.getFormUI()).getAllComponentsChanges();
-				if (formChanges.size() > 0)
-				{
-					changes.put(fc.getName(), formChanges);
-				}
-			}
-		}
-		return changes;
-	}
+//	public synchronized Map<String, Map<String, Map<String, Object>>> getAllComponentsChanges()
+//	{
+//		Map<String, Map<String, Map<String, Object>>> changes = new HashMap<>(8);
+//		if (isShutDown()) return changes;
+//		for (IFormController fc : getFormManager().getCachedFormControllers())
+//		{
+//			if (fc.isFormVisible())
+//			{
+//				Map<String, Map<String, Object>> formChanges = ((WebFormUI)fc.getFormUI()).getAllComponentsChanges();
+//				if (formChanges.size() > 0)
+//				{
+//					changes.put(fc.getName(), formChanges);
+//				}
+//			}
+//		}
+//		return changes;
+//	}
 
 	@Override
 	protected void solutionLoaded(Solution s)

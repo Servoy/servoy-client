@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
-import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.IBasicFormUI;
 import com.servoy.j2db.IView;
@@ -76,6 +76,6 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	public IDataConverterContext getDataConverterContext();
 
-	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpec componentSpec, WebFormComponent component);
+	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpecification componentSpec, WebFormComponent component);
 
 }

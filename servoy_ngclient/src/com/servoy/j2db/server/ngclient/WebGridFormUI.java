@@ -29,7 +29,7 @@ import javax.swing.event.ListDataListener;
 
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.JSONUtils.JSONWritable;
@@ -433,7 +433,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	}
 
 
-	public static List<String> getWebComponentPropertyType(WebComponentSpec componentSpec, IComplexTypeImpl type)
+	public static List<String> getWebComponentPropertyType(WebComponentSpecification componentSpec, IComplexTypeImpl type)
 	{
 		ArrayList<String> properties = new ArrayList<>(3);
 		Map<String, PropertyDescription> specProperties = componentSpec.getProperties();

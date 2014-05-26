@@ -34,7 +34,7 @@ import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
@@ -211,17 +211,17 @@ public final class FormElement implements IWebComponentInitializer
 		return propertyValues;
 	}
 
-	public WebComponentSpec getWebComponentSpec()
+	public WebComponentSpecification getWebComponentSpec()
 	{
 		return getWebComponentSpec(true);
 	}
 
-	public WebComponentSpec getWebComponentSpec(boolean throwException)
+	public WebComponentSpecification getWebComponentSpec(boolean throwException)
 	{
-		WebComponentSpec spec = null;
+		WebComponentSpecification spec = null;
 		try
 		{
-			spec = WebComponentSpecProvider.getInstance().getWebComponentDescription(componentTypeString);
+			spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentTypeString);
 		}
 		catch (RuntimeException re)
 		{
@@ -364,7 +364,7 @@ public final class FormElement implements IWebComponentInitializer
 	public Collection<String> getHandlers()
 	{
 		List<String> handlers = new ArrayList<>();
-		WebComponentSpec componentSpec = getWebComponentSpec();
+		WebComponentSpecification componentSpec = getWebComponentSpec();
 		Set<String> events = componentSpec.getHandlers().keySet();
 		for (String eventName : events)
 		{
@@ -380,7 +380,7 @@ public final class FormElement implements IWebComponentInitializer
 	public Collection<String> getValuelistProperties()
 	{
 		List<String> valuelistProperties = new ArrayList<>();
-		WebComponentSpec componentSpec = getWebComponentSpec();
+		WebComponentSpecification componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> properties = componentSpec.getProperties(IPropertyType.Default.valuelist.getType());
 
 		for (PropertyDescription pd : properties.values())
@@ -404,7 +404,7 @@ public final class FormElement implements IWebComponentInitializer
 	public JSONWriter propertiesAsJSON(JSONWriter writer) throws JSONException
 	{
 		Map<String, Object> properties = new HashMap<>();
-		WebComponentSpec componentSpec = getWebComponentSpec();
+		WebComponentSpecification componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (PropertyDescription pd : propDescription.values())
 		{
