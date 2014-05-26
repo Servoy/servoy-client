@@ -814,7 +814,7 @@ public class EditRecordList
 					}
 					else
 					{
-						Debug.error("Failed to execute after update/insert trigger.", e); //$NON-NLS-1$
+						fsm.getApplication().handleException("Failed to execute after update/insert trigger.", e); //$NON-NLS-1$
 					}
 				}
 			}
