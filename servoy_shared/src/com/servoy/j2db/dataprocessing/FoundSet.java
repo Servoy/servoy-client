@@ -5101,7 +5101,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#setSelectedIndex(java.lang.String)
 	 */
 	@Override
@@ -5775,7 +5775,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				@Override
 				public String getScopeName()
 				{
-					return FoundSet.this.getTable().getName();
+					return FoundSet.this.getTable().getServerName() + "." + FoundSet.this.getTable().getName(); //$NON-NLS-1$
 				}
 			};
 			scope.setFunctionParentScriptable(this); // make sure functions like getSize cannot be overridden
@@ -5859,7 +5859,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

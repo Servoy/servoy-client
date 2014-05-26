@@ -623,9 +623,17 @@ public class ScriptEngine implements IScriptSupport
 
 				String methodName = f.getClassName();
 				if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-				String formscope = scope.getClassName();
-				if (scope instanceof LazyCompilationScope) formscope = ((LazyCompilationScope)scope).getScopeName();
-				methodName = formscope + "." + methodName; //$NON-NLS-1$
+				String scopeName = scope.getClassName();
+				if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+				if (scope instanceof FoundSet)
+				{
+					Scriptable parentScope = ((FoundSet)scope).getPrototype();
+					if (parentScope instanceof LazyCompilationScope)
+					{
+						scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+					}
+				}
+				methodName = scopeName + "." + methodName; //$NON-NLS-1$
 
 				//run
 				if (!(application instanceof ISmartClientApplication))
