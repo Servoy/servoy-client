@@ -59,8 +59,8 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	        	   size = windowInstance.size;
 	           }
 	           //-1 means default size and location(center)
-	           if(!location || location.x <0) location=centerWindow(windowInstance.formSize)
-	           if(!size || size.width<0) size =null;
+	           if(!location || (location.x <0 && location.y <0)) location=centerWindow(windowInstance.formSize)
+	           if(!size || size.width<0 || size.height<0) size =null;
 	           
 	           //convert servoy x,y to library top , left
 	           var loc = {left:location.x,top:location.y}
