@@ -1789,7 +1789,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
-	private int guessValuelistType(Object[] realValues)
+	protected int guessValuelistType(Object[] realValues)
 	{
 		if (realValues == null)
 		{
