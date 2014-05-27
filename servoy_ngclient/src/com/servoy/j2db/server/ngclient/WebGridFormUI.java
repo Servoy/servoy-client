@@ -198,20 +198,19 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			{
 				int startIdx = (currentPage - 1) * getPageSize();
 				int endIdx = currentPage * getPageSize();
-				if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
-				if (event.getFirstRow() <= endIdx)
+				if ((startIdx <= event.getFirstRow() && event.getFirstRow() < endIdx) || (startIdx <= event.getLastRow() && event.getLastRow() < endIdx))
 				{
-					int startRow = Math.max(startIdx, event.getFirstRow());
-					int numberOfDeletes = Math.min(event.getLastRow(), endIdx) - event.getFirstRow() + 1;
+					// delete already happened so foundset size is changed
 
-					RowData data = getRows(endIdx - Math.min(getPageSize(), numberOfDeletes), endIdx);
+					// first row to be deleted inside current page
+					int startRow = Math.max(startIdx, event.getFirstRow());
+					// number of deletes from current page
+					int numberOfDeletes = Math.min(event.getLastRow() + 1, endIdx) - startRow;
+
+					// we need to replace same amount of records in current page; append rows if available
+					RowData data = getRows(Math.max(event.getLastRow() + 1, endIdx), Math.max(event.getLastRow() + 1, endIdx) + numberOfDeletes);
 
 					rowChanges.add(new RowData(data.rows, startRow - startIdx, startRow + numberOfDeletes - startIdx, RowData.DELETE));
-				}
-				else if (endIdx == 0)
-				{
-					// a delete all, set to all changed.
-					setAllChanged();
 				}
 			}
 			else if (event.getChangeType() == FoundSetEvent.CHANGE_INSERT)
@@ -219,12 +218,14 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				int startIdx = (currentPage - 1) * getPageSize();
 				int endIdx = currentPage * getPageSize();
 				if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
-				if (event.getFirstRow() <= endIdx)
+				if ((startIdx <= event.getFirstRow() && event.getFirstRow() < endIdx) || (startIdx <= event.getLastRow() && event.getLastRow() < endIdx))
 				{
 					int startRow = Math.max(startIdx, event.getFirstRow());
-					int numberOfInserts = Math.min(event.getLastRow(), endIdx) - event.getFirstRow() + 1;
+					// number of inserts from current page
+					int numberOfInserts = Math.min(event.getLastRow() + 1, endIdx) - startRow;
 
-					RowData rows = getRows(startRow, Math.min(startRow + numberOfInserts, endIdx));
+					// add records that fit current page
+					RowData rows = getRows(startRow, startRow + numberOfInserts);
 					rows.setType(RowData.INSERT);
 					rowChanges.add(rows);
 				}
@@ -265,6 +266,9 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		currentPage = 1;
 	}
 
+	/*
+	 * Get rows between two foundset indexes. The indexes are 0-based. startRow is inclusive, lastRow is exclusive.
+	 */
 	@SuppressWarnings("nls")
 	private RowData getRows(int startRow, int lastRow)
 	{

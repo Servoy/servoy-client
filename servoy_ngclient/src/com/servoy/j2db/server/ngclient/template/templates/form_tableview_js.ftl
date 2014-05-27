@@ -89,7 +89,14 @@
 				}
 				else if (item.type == 2) {
 					// delete, first make copy
-					rows = rows.slice();
+					if (updatedRows)
+					{
+						rows = rows.concat(updatedRows);
+					}
+					else
+					{
+						rows = rows.slice();
+					}
 					rows.splice(currentRow,item.endIndex-currentRow);
 					$scope.model[''].rows = rows;
 				}
