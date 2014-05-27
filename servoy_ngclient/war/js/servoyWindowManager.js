@@ -59,23 +59,23 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	        	   size = windowInstance.size;
 	           }
 	           //-1 means default size and location(center)
-	           if(!location || (location.x <0 && location.y <0)) location=centerWindow(windowInstance.formSize)
+	           if(!location || (location.x <0 && location.y <0)) location=centerWindow(windowInstance.form.size)
 	           if(!size || size.width<0 || size.height<0) size =null;
 	           
 	           //convert servoy x,y to library top , left
 	           var loc = {left:location.x,top:location.y}
+
 	        //create the bs window instance
-	           var compiledWin = $compile( tplAndVars[0])(windowScope);
 	        	var win = WM.createWindow({
 	        		id:windowInstance.name,
-	        		fromElement: compiledWin,
+	        		template: tplAndVars[0],
 	                title: "Loading...",
-	                bodyContent: "Loading...",
 	                resizable:!!windowInstance.resizable,
 	                location:loc,
 	                size:size,
 		            isModal:isModal 
 	            })
+		          var compiledWin = $compile( win.$el)(windowScope);
 	        	//set servoy managed bootstrap-window Instance
 	        	windowInstance.bsWindowInstance =win;
 	          },function resolveError(reason) {
@@ -131,6 +131,10 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	var sol = $solutionSettings.solutionName+'.'
 	return {
 		create: function (name,type){
+			// dispose old one
+			if(instances[name]){
+				
+			}
 			if(!instances[name]){
 				var win = 
 					{name:name,
@@ -170,6 +174,10 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				    	 win.location = {x:location.left,y:location.top};
 				    	 if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win.location)
 				    	 $servoyInternal.callService("$windowService", "move", {name:win.name,location:win.location},true);
+				     },
+				     clearBounds: function(){
+				    	 storage.remove(sol+name+'.storedBounds.location')
+				    	 storage.remove(sol+name+'.storedBounds.size')
 				     }
 					};
 				
@@ -181,7 +189,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		show: function(name,arg) {	
 			var instance = instances[name];
 			if (instance) {
-				instance.formSize = arg.formSize;
+				instance.title = arg.title;
 				if(instance.storeBounds){
 					instance.size = storage.get(sol+name+'.storedBounds.size')
 					instance.location =  storage.get(sol+name+'.storedBounds.location')					
@@ -197,7 +205,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				},function(reason){
 					throw reason;
 				})
-				instance.form = arg.form;
+				if(instance.form.name != arg.form) throw 'switchform should set the instances state before showing it'
 			}
 			else {
 				$log.error("Trying to show window with name: '" + name + "' which is not created.");
@@ -211,19 +219,23 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				$log.error("Trying to hide window : '" + name + "' which is not created.");
 			}
 		},
-		dismiss: function(name) {
+		destroy: function(name) {
 			var instance = instances[name];
 			if (instance) {
-				instance.hide();
+				instance.clearBounds();
 				delete instances[name];
 			}else{
 				$log.error("Trying to destroy window : '" + name + "' which is not created.");
 			}
 		},
-		switchForm: function(name,mainForm,navigatorForm) {		
-        	$rootScope.$apply(function() { // TODO treat multiple windows case
-        		if($solutionSettings.windowName == name) { // main window form switch
-        			$solutionSettings.mainForm = mainForm;
+		switchForm: function(name,form,navigatorForm) {		
+        	$rootScope.$apply(function() {
+        		if(instances[name] && instances[name].type != WindowType.WINDOW){
+        			instances[name].form = form;
+        			instances[name].navigatorForm = navigatorForm;    			
+        		}
+        		else if($solutionSettings.windowName == name) { // main window form switch
+        			$solutionSettings.mainForm = form;
         			$solutionSettings.navigatorForm = navigatorForm;
         		}
     		})
@@ -250,8 +262,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		resetBounds:function(name){
 			if(instances[name]){
 				instances[name].storeBounds = false;	
-				storage.remove(sol+name+'.storedBounds.location',location)
-				storage.remove(sol+name+'.storedBounds.size',size)
+				instances[name].clearBounds()
 			}
 		},
 		setLocation:function(name,location){
@@ -330,20 +341,29 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 
 	$scope.win =  windowInstance
 	$scope.getFormUrl = function() {
-		return $windowService.getFormUrl(windowInstance.form)
+		return $windowService.getFormUrl(windowInstance.form.name)
+	}
+	$scope.getNavigatorFormUrl = function() {
+		if (windowInstance.navigatorForm.templateURL && windowInstance.navigatorForm.templateURL.lastIndexOf("default_navigator_container.html") == -1) {
+			return $windowService.getFormUrl(windowInstance.navigatorForm.templateURL);
+		}
+		return windowInstance.navigatorForm.templateURL;
 	}
 	
 	$scope.isUndecorated = function(){
 		return $scope.win.undecorated || ($scope.win.opacity<1)
 	}
 	
-	$scope.getSize = function(){
+	$scope.getBodySize = function(){
 		var win = $scope.win;
-		var width = win.size ? win.size.width:win.formSize.width;
-		var height = win.size ? win.size.height:win.formSize.height;
+		var width = win.size ? win.size.width:win.form.size.width;
+		var height = win.form.size.height;
+		if(!win.size && win.navigatorForm.size){
+			width += win.navigatorForm.size.width;
+		}
 		return {'width':width+'px','height':height+'px'}
 	}
-	$servoyInternal.callService('formService', 'formvisibility', {form:windowInstance.form,visible:true})
+	$servoyInternal.callService('formService', 'formvisibility', {formname:windowInstance.form.name,visible:true})
 	
 	$scope.cancel = function () {
 		var promise = $servoyInternal.callService("$windowService", "windowClosing", {window:windowInstance.name},false);

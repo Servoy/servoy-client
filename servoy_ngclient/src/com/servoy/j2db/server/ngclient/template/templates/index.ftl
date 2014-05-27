@@ -69,9 +69,9 @@
 		<link rel="stylesheet" ng-href='{{solutionSettings.styleSheetPath}}'/>
 	</head>
 	<body >
-		<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="{'width':solutionSettings.navigatorForm.width+'px'}"
+		<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="{'width':solutionSettings.navigatorForm.size.width+'px'}"
 			ng-include="getNavigatorFormUrl()"></div>
-		<div ng-include="getMainFormUrl()" ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':solutionSettings.navigatorForm.width+'px'}"></div>
+		<div ng-include="getMainFormUrl()" ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':solutionSettings.navigatorForm.size.width+'px'}"></div>
 		<div ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
 	</body>
 </html>

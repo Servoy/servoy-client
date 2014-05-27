@@ -9,8 +9,13 @@
 				aria-hidden="true">x</button>
 			<h4 class="window-title"  ng-bind='win.title'></h4>
 		</div>	
-	    <div class="window-body"  ng-include="getFormUrl()" 
-	    	 bo-style="getSize()"></div>    
+	    <div class="window-body" 
+	    	 bo-style="getBodySize()">
+	    	 <div ng-if="win.navigatorForm.templateURL" ng-style="{'width':win.navigatorForm.size.width+'px'}"
+				  ng-include="getNavigatorFormUrl()"></div>
+	    	 <div ng-include="getFormUrl()"  
+	    	      ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':win.navigatorForm.size.width+'px'}" ></div>	    	 
+	    </div>    
 		<div class="window-footer"
 			 bo-style="{'display':isUndecorated()? 'none':'block'}"></div>
 	</div>

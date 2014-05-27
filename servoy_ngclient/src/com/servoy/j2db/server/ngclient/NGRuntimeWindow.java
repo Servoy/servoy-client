@@ -453,25 +453,23 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
-		getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+		this.formName = formName;
 		IWebFormController controller = getApplication().getFormManager().getForm(formName);
 		if (controller != null)
 		{
 			controller.getFormUI().setParentWindowName(getName());
+			switchForm(controller);
 		}
+		getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+
 		Map<String, Object> arguments = new HashMap<String, Object>();
-		//arguments.put("title", getTitle());
 		Form form = getApplication().getFlattenedSolution().getForm(formName);
 		arguments.put("form", form.getName());
-		/* arguments.put("windowType", windowType); */
-		Map<String, Integer> size = new HashMap<>();
-		size.put("width", form.getSize().width);
-		size.put("height", form.getSize().height);
-		arguments.put("formSize", size);
+		String titleArg = getTitle();
+		arguments.put("title", titleArg == null ? form.getName() : titleArg);
 
 		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
-		visible = true;
-		this.formName = formName;
+
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
 			getApplication().getWebsocketSession().getEventDispatcher().suspend(this);
@@ -481,10 +479,15 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private void switchForm(IWebFormController currentForm)
 	{
 		visible = true;
+		// set the parent and current window ,
 		currentForm.getFormUI().setParentWindowName(getName());
+		getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 		Map<String, Object> mainForm = new HashMap<String, Object>();
 		mainForm.put("templateURL", currentForm.getForm().getName());
-		mainForm.put("width", Integer.valueOf(currentForm.getForm().getWidth()));
+		Map<String, Integer> size = new HashMap<>();
+		size.put("width", currentForm.getForm().getSize().width);
+		size.put("height", currentForm.getForm().getSize().height);
+		mainForm.put("size", size);
 		mainForm.put("name", currentForm.getName());
 
 		Map<String, Object> navigatorForm = new HashMap<String, Object>();
@@ -498,13 +501,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			case Form.NAVIGATOR_NONE :
 			{
 				// just make it an empty object.
-				navigatorForm.put("width", 0);
+				Map<String, Integer> navSize = new HashMap<>();
+				navSize.put("width", 0);
+				navigatorForm.put("size", navSize);
 				break;
 			}
 			case Form.NAVIGATOR_DEFAULT :
 			{
 				navigatorForm.put("templateURL", "servoydefault/navigator/default_navigator_container.html");
-				navigatorForm.put("width", 70);
+				Map<String, Integer> navSize = new HashMap<>();
+				navSize.put("width", 70);
+				navigatorForm.put("size", navSize);
 				break;
 			}
 			case Form.NAVIGATOR_IGNORE :
@@ -519,7 +526,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				{
 					getApplication().getFormManager().getForm(navForm.getName()).getFormUI().setParentWindowName(getName());
 					navigatorForm.put("templateURL", navForm.getName());
-					navigatorForm.put("width", Integer.valueOf(navForm.getWidth()));
+					Map<String, Integer> navSize = new HashMap<>();
+					navSize.put("width", navForm.getSize().width);
+					navSize.put("height", navForm.getSize().height);
+					navigatorForm.put("size", navSize);
 					getApplication().getWebsocketSession().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null, true);
 				}
 			}
@@ -528,5 +538,13 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "switchForm",
 			new Object[] { getName(), mainForm, navigatorForm });
 		sendTitle(title);
+	}
+
+	@Override
+	public void destroy()
+	{
+		super.destroy();
+		hideUI();
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "destroy", new Object[] { getName() });
 	}
 }

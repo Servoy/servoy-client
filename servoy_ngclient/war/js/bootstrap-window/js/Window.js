@@ -73,8 +73,8 @@ var Window = null;
         if (options.fromElement && _this.$el.find('[data-dismiss=window]').length <= 0) {
             options.elements.title.append('<button class="close" data-dismiss="window">x</button>');
         }
-        options.elements.body.html(options.bodyContent);
-        options.elements.footer.html(options.footerContent);
+        if(options.bodyContent)options.elements.body.html(options.bodyContent);
+        if(options.footerContent)options.elements.footer.html(options.footerContent);
         this.undock();
 
         this.setSticky(options.sticky);
