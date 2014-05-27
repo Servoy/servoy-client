@@ -182,11 +182,6 @@ public final class FormElement implements IWebComponentInitializer
 				}
 			}
 		}
-		if (componentType.equals("svy-errorbean"))
-		{
-			if (map.get("error") == null) map.put("error", "Specification not found.");
-			if (((Dimension)map.get("size")).width < 120) map.put("toolTipText", "Please check servoy log.");
-		}
 	}
 
 	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map)

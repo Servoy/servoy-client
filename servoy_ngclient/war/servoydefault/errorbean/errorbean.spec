@@ -6,7 +6,7 @@ model:
 {
         location : 'point', 
         size : {type:'dimension',  default: {width:80, height:20}}, 
-        error : 'string',
+        error : {type:'string',  default: 'Specification not found.'},
         toolTipText : 'string'
 }
  
