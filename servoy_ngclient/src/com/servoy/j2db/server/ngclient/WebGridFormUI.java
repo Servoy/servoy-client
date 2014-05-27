@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.event.ListDataListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
@@ -39,6 +41,7 @@ import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
@@ -50,7 +53,7 @@ import com.servoy.j2db.util.Utils;
  * @author gboros
  *
  */
-public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
+public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, ListSelectionListener
 {
 	public static final int HEADER_HEIGHT = 30;
 
@@ -243,9 +246,13 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		getApplication().getChangeListener().valueChanged();
 	}
 
-	public void selectionChanged()
+	@Override
+	public void valueChanged(ListSelectionEvent e)
 	{
-		selectionChanged = true;
+		if (!e.getValueIsAdjusting())
+		{
+			selectionChanged = true;
+		}
 	}
 
 	/**
@@ -406,6 +413,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		if (currentFoundset != null)
 		{
 			currentFoundset.removeFoundSetEventListener(this);
+			((ISwingFoundSet)currentFoundset).getSelectionModel().removeListSelectionListener(this);
 		}
 		if (fs == null)
 		{
@@ -415,6 +423,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		if (currentFoundset != null)
 		{
 			currentFoundset.addFoundSetEventListener(this);
+			((ISwingFoundSet)currentFoundset).getSelectionModel().addListSelectionListener(this);
 			int page = previousFS == currentFoundset ? currentPage : -1;
 			setAllChanged();
 			if (page != -1) currentPage = page;
