@@ -1438,7 +1438,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public void giveMeFoundSet(IFoundSetListener l) throws ServoyException
 	{
 		IFoundSetInternal set = null;
-		if (l.getDataSource() == null || inMemDataSources.get(l.getDataSource()) != null || l.wantSharedFoundSet())
+		if (l.getDataSource() == null || l.wantSharedFoundSet())
 		{
 			String wantedGlobalRelationName = l.getGlobalRelationNamedFoundset(); // form is set on using a global relation through namedFoundset property
 			if (wantedGlobalRelationName != null)
