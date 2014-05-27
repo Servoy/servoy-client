@@ -329,17 +329,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow().getController();
 	}
 
-	public IWebFormController getCurrentMainShowingNavigator()
-	{
-		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow().getNavigator();
-	}
-
-	@Override
-	public void setCurrentMainShowingNavigator(Integer navigatorID)
-	{
-		((INGApplication)application).getRuntimeWindowManager().getCurrentWindow().setNavigator(navigatorID);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

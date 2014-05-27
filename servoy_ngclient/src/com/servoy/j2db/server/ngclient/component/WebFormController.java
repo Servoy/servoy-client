@@ -59,7 +59,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getApplication()
 	 */
 	@Override
@@ -70,7 +70,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getFormUI()
 	 */
 	@Override
@@ -81,7 +81,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#setView(int)
 	 */
 	@Override
@@ -92,7 +92,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getView()
 	 */
 	@Override
@@ -103,7 +103,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getBasicFormManager()
 	 */
 	@Override
@@ -114,7 +114,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getViewComponent()
 	 */
 	@Override
@@ -133,7 +133,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		if (getBasicFormManager() != null && getBasicFormManager().getCurrentMainShowingFormController() == this)
 		{
-			IFormController currentNavigator = getApplication().getFormManager().getCurrentMainShowingNavigator();
+			IFormController currentNavigator = getApplication().getRuntimeWindowManager().getCurrentWindow().getNavigator();
 			int form_id = form.getNavigatorID();
 			if (form_id > 0)
 			{
@@ -164,13 +164,13 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables);
 			}
-			getApplication().getFormManager().setCurrentMainShowingNavigator(form_id);
+			getApplication().getRuntimeWindowManager().getCurrentWindow().setNavigator(form_id);
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -249,7 +249,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#focusFirstField()
 	 */
 	@Override
@@ -261,7 +261,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#focusField(java.lang.String, boolean)
 	 */
 	@Override
@@ -273,7 +273,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#propagateFindMode(boolean)
 	 */
 	@Override
@@ -331,7 +331,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#refreshView()
 	 */
 	@Override
@@ -343,7 +343,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getDesignMode()
 	 */
 	@Override
@@ -355,7 +355,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#setDesignMode(com.servoy.j2db.DesignModeCallbacks)
 	 */
 	@Override
@@ -367,7 +367,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#setTabSequence(java.lang.Object[])
 	 */
 	@Override
@@ -379,7 +379,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getTabSequence()
 	 */
 	@Override
@@ -391,7 +391,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getPartYOffset(int)
 	 */
 	@Override
@@ -403,7 +403,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getJSApplicationNames(java.lang.Object, org.mozilla.javascript.Function, boolean)
 	 */
 	@Override
@@ -415,7 +415,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getJSEvent(java.lang.Object)
 	 */
 	@Override
