@@ -55,6 +55,22 @@ angular.module('svyListbox',['servoy']).directive('svyListbox', function($parse)
     		  $scope.api.getScrollY = function() {
     			  return $element.scrollTop();
     		  }
+    		  
+    		  $scope.api.setValueListItems = function(values) 
+              {
+            	  var valuelistItems = [];
+            	  for (var i = 0; i < values.length; i++)
+            	  {
+            		  var item = {};
+            		  item['displayValue'] = values[i][0];
+            		  if (values[i][1] !== undefined)
+            		  {
+            			  item['realValue'] = values[i][1];
+            		  }
+            		  valuelistItems.push(item); 
+            	  }
+            	  $scope.model.valuelistID = valuelistItems;
+              }
     	  } 
       },
       templateUrl: 'servoydefault/listbox/listbox.html',

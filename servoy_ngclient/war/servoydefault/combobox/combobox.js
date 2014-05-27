@@ -41,6 +41,22 @@ angular.module('svyCombobox',['servoy'])
 	            });
     	  }
     	  
+    	  $scope.api.setValueListItems = function(values) 
+          {
+        	  var valuelistItems = [];
+        	  for (var i = 0; i < values.length; i++)
+        	  {
+        		  var item = {};
+        		  item['displayValue'] = values[i][0];
+        		  if (values[i][1] !== undefined)
+        		  {
+        			  item['realValue'] = values[i][1];
+        		  }
+        		  valuelistItems.push(item); 
+        	  }
+        	  $scope.model.valuelistID = valuelistItems;
+          }
+    	  
     	  if (select2Css != null) {
     		  $svyNGEvents.afterNGProcessedDOM(function () {
     			  // $evalAsync so that the dom is processed already by angular; for example if there's a "<label for=.." linked to this combobox,

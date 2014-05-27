@@ -26,6 +26,7 @@ import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.IBasicFormUI;
 import com.servoy.j2db.IView;
+import com.servoy.j2db.dataprocessing.IValueList;
 
 /**
  * @author jcompagner
@@ -77,5 +78,7 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	public IDataConverterContext getDataConverterContext();
 
 	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpecification componentSpec, WebFormComponent component);
+
+	void refreshValueList(IValueList valuelist);
 
 }

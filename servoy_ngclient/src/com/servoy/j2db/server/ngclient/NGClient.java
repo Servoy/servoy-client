@@ -5,7 +5,9 @@ import java.awt.print.PageFormat;
 import java.io.IOException;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.sql.Types;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -19,20 +21,25 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.IChangeListener;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
+import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.WebCredentials;
@@ -81,7 +88,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
 	 */
 	@Override
@@ -93,7 +100,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
 	 */
 	@Override
@@ -740,5 +747,33 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 //			}
 		}
 		return registered;
+	}
+
+	@Override
+	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
+	{
+		ValueList vl = getFlattenedSolution().getValueList(name);
+		if (vl != null && vl.getValueListType() == IValueListConstants.CUSTOM_VALUES)
+		{
+			CustomValueList valueList = new CustomValueList(this, vl, vl.getCustomValues(), (vl.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS),
+				Types.OTHER, null);
+			int guessedType = Types.OTHER;
+			if (autoconvert && realValues != null)
+			{
+				guessedType = guessValuelistType(realValues);
+			}
+			else if (autoconvert && displayValues != null)
+			{
+				guessedType = guessValuelistType(displayValues);
+			}
+			valueList.setValueType(guessedType);
+			valueList.fillWithArrayValues(displayValues, realValues);
+			IBasicFormManager fm = getFormManager();
+			List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
+			for (IFormController form : cachedFormControllers)
+			{
+				((WebFormController)form).getFormUI().refreshValueList(valueList);
+			}
+		}
 	}
 }

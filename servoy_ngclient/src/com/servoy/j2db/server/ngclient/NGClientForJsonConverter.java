@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,9 @@ import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IForJsonConverter;
 
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.Column;
@@ -122,6 +125,28 @@ public class NGClientForJsonConverter implements IForJsonConverter
 			return array;
 		}
 
+		if (value instanceof JSDataSet || value instanceof IDataSet)
+		{
+			IDataSet set = null;
+			if (value instanceof JSDataSet)
+			{
+				set = ((JSDataSet)value).getDataSet();
+			}
+			else
+			{
+				set = (IDataSet)value;
+			}
+			List<List<Object>> array = new ArrayList<>(set.getRowCount());
+			if (set.getColumnCount() >= 1)
+			{
+				for (int i = 0; i < set.getRowCount(); i++)
+				{
+					Object[] row = set.getRow(i);
+					array.add(Arrays.asList(row));
+				}
+			}
+			return array;
+		}
 		if (value instanceof LookupListModel)
 		{
 			LookupListModel list = (LookupListModel)value;

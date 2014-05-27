@@ -33,6 +33,22 @@ angular.module('svyCheck',['servoy']).directive('svyCheck', function() {
         	  $scope.handlers.svy_apply('dataProviderID')
           }
           
+          $scope.api.setValueListItems = function(values) 
+          {
+        	  var valuelistItems = [];
+        	  for (var i = 0; i < values.length; i++)
+        	  {
+        		  var item = {};
+        		  item['displayValue'] = values[i][0];
+        		  if (values[i][1] !== undefined)
+        		  {
+        			  item['realValue'] = values[i][1];
+        		  }
+        		  valuelistItems.push(item); 
+        	  }
+        	  $scope.model.valuelistID = valuelistItems;
+          }
+          
           function getSelectionFromDataprovider()
           {
               if(!$scope.model.dataProviderID) return false;
