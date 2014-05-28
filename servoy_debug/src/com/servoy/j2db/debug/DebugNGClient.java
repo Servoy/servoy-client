@@ -50,7 +50,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	 * @param webSocketClientEndpoint
 	 * @param designerCallback
 	 */
-	public DebugNGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback)
+	public DebugNGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback) throws Exception
 	{
 		super(wsSession);
 		this.designerCallback = designerCallback;
@@ -118,7 +118,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IDebugClient#setCurrent(com.servoy.j2db.persistence.Solution)
 	 */
 	@Override
@@ -130,7 +130,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IDebugClient#refreshForI18NChange(boolean)
 	 */
 	@Override
@@ -142,7 +142,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IDebugClient#refreshPersists(java.util.Collection)
 	 */
 	@Override

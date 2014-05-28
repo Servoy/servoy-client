@@ -653,7 +653,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return debugWebClient;
 	}
 
-	public synchronized IDebugClient createDebugNGClient(Object wsSession)
+	public synchronized IDebugClient createDebugNGClient(Object wsSession) throws Exception
 	{
 		IFlattenedSolutionDebugListener debugListener = null;
 		if (debugNGClient != null && debugNGClient.getSolution() != null)
@@ -774,7 +774,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDesignerCallback#testAndStartDebugger()
 	 */
 	public void testAndStartDebugger()
@@ -784,7 +784,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDesignerCallback#addURLStreamHandler(java.lang.String, java.net.URLStreamHandler)
 	 */
 	@Override

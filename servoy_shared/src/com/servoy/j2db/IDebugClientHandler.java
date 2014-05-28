@@ -34,7 +34,7 @@ import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.server.shared.WebCredentials;
 
 /**
- * Handler for debug clients 
+ * Handler for debug clients
  * @author rgansevles
  *
  */
@@ -49,7 +49,7 @@ public interface IDebugClientHandler
 	IWebClientApplication createDebugWebClient(WebSession webClientSession, HttpServletRequest req, WebCredentials credentials, String method, Object[] objects)
 		throws Exception;
 
-	IDebugClient createDebugNGClient(Object wsSession);
+	IDebugClient createDebugNGClient(Object wsSession) throws Exception;
 
 	List<IDebugClient> getActiveDebugClients();
 
