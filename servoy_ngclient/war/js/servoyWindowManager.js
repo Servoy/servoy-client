@@ -4,6 +4,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	var WM = new WindowManager();
 	var winInstances = {}
 	return {
+		BSWindowManager: WM,
 		instances: winInstances,
 		open : function (windowOptions) {
 	            var dialogOpenedDeferred = $q.defer();
@@ -65,17 +66,18 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	           //convert servoy x,y to library top , left
 	           var loc = {left:location.x,top:location.y}
 
+	           var compiledWin = $compile( tplAndVars[0])(windowScope);
 	        //create the bs window instance
 	        	var win = WM.createWindow({
 	        		id:windowInstance.name,
-	        		template: tplAndVars[0],
+	        		fromElement: compiledWin,
 	                title: "Loading...",
 	                resizable:!!windowInstance.resizable,
 	                location:loc,
 	                size:size,
 		            isModal:isModal 
 	            })
-		          var compiledWin = $compile( win.$el)(windowScope);
+	            
 	        	//set servoy managed bootstrap-window Instance
 	        	windowInstance.bsWindowInstance =win;
 	          },function resolveError(reason) {
@@ -91,6 +93,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	           
 	        return dialogOpenedDeferred.promise;
 		}
+		
 	}	
 	
 	
@@ -174,6 +177,16 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				    	 win.location = {x:location.left,y:location.top};
 				    	 if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win.location)
 				    	 $servoyInternal.callService("$windowService", "move", {name:win.name,location:win.location},true);
+				     },
+				     toFront:function(){
+				    	 $servoyWindowManager.BSWindowManager.setFocused(this.bsWindowInstance)
+				     },
+				     toBack:function(){
+				    	 var windows = $servoyWindowManager.BSWindowManager.windows
+				    	 //move the BS window instance to the front of the array
+				    	 var from = windows.indexOf(this.bsWindowInstance)
+				    	 windows.splice(0/*to*/, 0, windows.splice(from, 1)[0]);
+				    	 $servoyWindowManager.BSWindowManager.setFocused(windows[windows.length-1]);
 				     },
 				     clearBounds: function(){
 				    	 storage.remove(sol+name+'.storedBounds.location')
@@ -297,12 +310,12 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		},
 		toFront:function(name){
 			if(instances[name]){
-				//TODO tofront				
+				instances[name].toFront();				
 			}
 		},
 		toBack:function(name){
 			if(instances[name]){
-				//TODO toback				
+				instances[name].toBack();				
 			}
 		},
 		reload: function() {
@@ -339,6 +352,8 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	WINDOW:2
 }).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal) {
 
+	// these scope variables can be accessed by child scopes
+	// for example the default navigator watches 'win' to see if it changed the current form
 	$scope.win =  windowInstance
 	$scope.getFormUrl = function() {
 		return $windowService.getFormUrl(windowInstance.form.name)

@@ -23,7 +23,7 @@ var WindowManager = null;// jshint ignore:line
 
     WindowManager.prototype.destroyWindow = function(window_handle) {
         var _this = this;
-        //TODO CHECK isMOdal option
+
         this.removeModal(window_handle);
         $.each(this.windows, function(index, window) {
             if (window === window_handle) {
