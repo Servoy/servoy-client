@@ -22,18 +22,20 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                 var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
                 var anchoredLeft = (beanModel.anchors & $anchorConstants.WEST) != 0; //west
                 
+                var runtimeChanges = beanData.size != undefined || beanData.location != undefined;
+                
                 if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
                 if (!anchoredTop && !anchoredBottom) anchoredTop = true;
                 
                 if (anchoredTop)
                 {
-                	if (beanLayout.top == undefined) beanLayout.top = beanModel.location.y + 'px';
+                	if (beanLayout.top == undefined || runtimeChanges && beanModel.location.y != undefined) beanLayout.top = beanModel.location.y + 'px';
                 }
                 else delete beanLayout.top;
                 
                 if (anchoredBottom)
                 {
-                	if (beanLayout.bottom == undefined) beanLayout.bottom = (containerSize.height - beanModel.location.y - beanModel.size.height - beanModel.offsetY) + "px";
+                	if (beanLayout.bottom == undefined)	 beanLayout.bottom = (containerSize.height - beanModel.location.y - beanModel.size.height - beanModel.offsetY) + "px";
                 }
                 else delete beanLayout.bottom;
                 
@@ -42,7 +44,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                 
                 if (anchoredLeft)
                 {
-                	if (beanLayout.left == undefined) beanLayout.left =  beanModel.location.x + 'px';
+                	if (beanLayout.left == undefined || runtimeChanges && beanModel.location.x != undefined) beanLayout.left =  beanModel.location.x + 'px';
                 }
                 else delete beanLayout.left;
                 
@@ -117,6 +119,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            for(var beanname in newFormData) {
 		            	// copy over the changes, skip for form properties (beanname empty)
 		            	if(beanname != ''){
+		            		if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined))
+		            		{	
+		            		    //size or location were changed at runtime, we need to update components with anchors
+		            			newFormData[beanname].anchors = formModel[beanname].anchors;
+		            		}
 		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize);
 		            		for (var defProperty in deferredProperties) {
 		            			for(var key in newFormData[beanname]) {
