@@ -292,7 +292,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        $rootScope.updatingFormUrl = '';
 	        // send the special request initial data for this form 
 	        // this can also make the form (IFormUI instance) on the server if that is not already done
-	        wsSession.callService('formService', 'requestdata', {formname:formName})
+	        wsSession.callService('formService', 'requestdata', {formname:formName},true)
 	        return state;
 	       },
 	       getExecutor: function(formName) {
