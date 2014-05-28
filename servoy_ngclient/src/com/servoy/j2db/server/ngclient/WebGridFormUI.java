@@ -219,6 +219,11 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 			}
 			else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
 			{
+				if (currentFoundset != null && event.getFirstRow() == 0 && event.getLastRow() == currentFoundset.getSize() - 1)
+				{
+					// if all the rows were changed, do not add to rows as it could add same thing multiple times
+					allChanged = true;
+				}
 				// get the rows that are changed.
 				RowData rows = getRows(event.getFirstRow(), event.getLastRow() + 1);
 				if (rows != RowData.EMPTY)

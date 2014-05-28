@@ -83,7 +83,10 @@
 						var sourceRow = updatedRows[i];
 						rows.splice(currentRow++,0,sourceRow);
 					}
-					rows.splice(rows.length-updatedRows.length,updatedRows.length);
+					if (rows.length > $scope.pagingOptions.pageSize)
+					{
+						rows.splice(rows.length-$scope.pagingOptions.pageSize,$scope.pagingOptions.pageSize);
+					}
 					// assign the new value
 					$scope.model[''].rows = rows;
 				}
