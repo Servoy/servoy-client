@@ -447,6 +447,11 @@ public class PersistFieldInstanceTest
 					};
 					return true;
 				}
+
+				@Override
+				protected void createPluginManager()
+				{
+				}
 			};
 			client.setUseLoginSolution(false);
 			client.loadSolutionsAndModules((SolutionMetaData)metadata);
