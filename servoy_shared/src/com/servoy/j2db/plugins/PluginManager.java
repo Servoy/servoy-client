@@ -83,10 +83,15 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	public PluginManager(ClassLoader lafLoader)
 	{
+		this(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins", lafLoader); //$NON-NLS-1$ 
+	}
+
+	public PluginManager(String pluginDirAsString, ClassLoader lafLoader)
+	{
 		super();
 		this.parentClassLoader = lafLoader;
-		pluginsDir = new File(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins"); //$NON-NLS-1$ 
-		if (pluginExtensions.size() == 0 && pluginsDir.isDirectory())
+		pluginsDir = new File(pluginDirAsString);
+		if (pluginExtensions.size() == 0 && this.pluginsDir.isDirectory())
 		{
 			readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
 		}
@@ -110,17 +115,6 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		}
 		URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
 		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader(), PLUGIN_CL_SUFFIX);
-	}
-
-	public PluginManager(String pluginDirAsString, ClassLoader lafLoader)
-	{
-		super();
-		this.parentClassLoader = lafLoader;
-		pluginsDir = new File(pluginDirAsString);
-		if (pluginExtensions.size() == 0 && this.pluginsDir.isDirectory())
-		{
-			readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
-		}
 	}
 
 	public File getPluginsDir()
@@ -730,15 +724,6 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			}
 		}
 		return _pluginsClassLoader;
-	}
-
-	/**
-	 * Load plugins. Load all plugin jars into class loader.
-	 */
-	@Deprecated
-	public ClassLoader getPluginClassLoader()
-	{
-		return getClassLoader();
 	}
 
 	@Override
