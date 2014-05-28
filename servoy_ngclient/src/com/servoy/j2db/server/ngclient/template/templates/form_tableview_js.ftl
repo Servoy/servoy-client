@@ -104,12 +104,17 @@
 					for (var i=0;i<updatedRows.length;i++) {
 						var sourceRow = updatedRows[i];
 						var targetRow = rows[currentRow++];
-						for(var p in sourceRow) {
-							for(var k in sourceRow[p]) {
-								targetRow[p][k] = sourceRow[p][k];
-							}
-							targetRow[p]._svyRowId = sourceRow._svyRowId; 
-						}
+						// add new foundSet entries
+						if(targetRow == null ) {
+							rows[currentRow-1] = updatedRows[i]
+						}else{
+							for(var p in sourceRow) {
+								for(var k in sourceRow[p]) {
+									targetRow[p][k] = sourceRow[p][k];
+								}
+								targetRow[p]._svyRowId = sourceRow._svyRowId; 
+							}	
+						}						
 					}
 				}
 			}

@@ -6,6 +6,7 @@ angular.module('svyCombobox',['servoy'])
       transclude: true,
       scope: {
         model: "=svyModel",
+        api:"=svyApi",
         handlers: "=svyHandlers"
       },
       controller: function($scope, $element, $attrs) {
@@ -41,7 +42,7 @@ angular.module('svyCombobox',['servoy'])
 	            });
     	  }
     	  
-    	  $scope.api.setValueListItems = function(values) 
+    	  scope.api.setValueListItems = function(values) 
           {
         	  var valuelistItems = [];
         	  for (var i = 0; i < values.length; i++)
