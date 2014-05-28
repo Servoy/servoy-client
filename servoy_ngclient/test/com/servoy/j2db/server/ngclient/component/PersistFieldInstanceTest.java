@@ -20,20 +20,29 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sablo.WebComponent;
+import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.websocket.IForJsonConverter;
+import org.sablo.websocket.IService;
+import org.sablo.websocket.IWebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ClientLogin;
@@ -63,6 +72,8 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -90,7 +101,7 @@ public class PersistFieldInstanceTest
 	private NGClient client;
 
 	@Before
-	public void buildSolution()
+	public void buildSolution() throws Exception
 	{
 		File[] locations = new File[2];
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
@@ -112,7 +123,207 @@ public class PersistFieldInstanceTest
 			ValueList valuelist = solution.createNewValueList(validator, "test");
 			valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
 
-			client = new NGClient(null)
+			client = new NGClient(new INGClientWebsocketSession()
+			{
+
+				@Override
+				public void valueChanged()
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void registerService(String name, IService service)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void registerEndpoint(IWebsocketEndpoint endpoint)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void onOpen(String argument)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public boolean isValid()
+				{
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void handleMessage(JSONObject obj)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public String getUuid()
+				{
+					return null;
+				}
+
+				@Override
+				public IService getService(String name)
+				{
+					return null;
+				}
+
+				@Override
+				public List<IWebsocketEndpoint> getRegisteredEnpoints()
+				{
+					// TODO Auto-generated method stub
+					return Collections.emptyList();
+				}
+
+				@Override
+				public IForJsonConverter getForJsonConverter()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IEventDispatcher getEventDispatcher()
+				{
+					return new IEventDispatcher()
+					{
+
+						@Override
+						public void run()
+						{
+						}
+
+						@Override
+						public void suspend(Object object)
+						{
+						}
+
+						@Override
+						public void resume(Object object)
+						{
+						}
+
+						@Override
+						public boolean isEventDispatchThread()
+						{
+							return true;
+						}
+
+						@Override
+						public void destroy()
+						{
+						}
+
+						@Override
+						public void addEvent(Runnable event)
+						{
+							event.run();
+						}
+					};
+				}
+
+				@Override
+				public Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void deregisterEndpoint(IWebsocketEndpoint endpoint)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void updateForm(Form form, String name)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void touchForm(Form flattenedForm, String realInstanceName, boolean async)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void stopHandlingEvent()
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void startHandlingEvent()
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void solutionLoaded(Solution flattenedSolution)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void sendChanges(Map<String, Map<String, Map<String, Object>>> formData) throws IOException
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public INGApplication getClient()
+				{
+					return client;
+				}
+
+				@Override
+				public void formCreated(String formName)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void closeSession()
+				{
+					// TODO Auto-generated method stub
+
+				}
+			})
 			{
 
 				/*
