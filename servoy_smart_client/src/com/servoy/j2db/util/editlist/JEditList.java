@@ -23,6 +23,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -30,8 +31,11 @@ import java.beans.PropertyChangeListener;
 import java.util.EventObject;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.DefaultCellEditor;
 import javax.swing.FocusManager;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -109,6 +113,20 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 				return 0;
 			}
 		});
+
+		//removed copy (CTRL+C) action from JList
+		InputMap im = this.getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap am = this.getActionMap();
+		Action copyAction = new AbstractAction()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				//do nothing
+			}
+		};
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK), "Copy");
+		am.put("Copy", copyAction);
+
 	}
 
 	protected int checkModelSize()
