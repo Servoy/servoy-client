@@ -49,7 +49,7 @@ public class Activator implements BundleActivator
 			WebsocketSessionFactory.get().setClientCreator(new IClientCreator()
 			{
 				@Override
-				public NGClient createClient(INGClientWebsocketSession wsSession)
+				public NGClient createClient(INGClientWebsocketSession wsSession) throws Exception
 				{
 					return (NGClient)service.createDebugNGClient(wsSession);
 				}
