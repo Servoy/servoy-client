@@ -23,5 +23,5 @@ package com.servoy.j2db.server.ngclient;
  */
 public interface IClientCreator
 {
-	public NGClient createClient(INGClientWebsocketSession wsSession);
+	public NGClient createClient(INGClientWebsocketSession wsSession) throws Exception;
 }

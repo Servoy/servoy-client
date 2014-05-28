@@ -52,7 +52,7 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 	 * @param ngClientEndpoint
 	 * @return the session
 	 */
-	public IWebsocketSession createSession(String endpointType, String uuid)
+	public IWebsocketSession createSession(String endpointType, String uuid) throws Exception
 	{
 		switch (endpointType)
 		{
@@ -74,7 +74,7 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 			clientCreator = new IClientCreator()
 			{
 				@Override
-				public NGClient createClient(INGClientWebsocketSession wsSession)
+				public NGClient createClient(INGClientWebsocketSession wsSession) throws Exception
 				{
 					return new NGClient(wsSession);
 				}

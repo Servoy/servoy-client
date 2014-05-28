@@ -67,7 +67,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 
-	public NGClient(INGClientWebsocketSession wsSession)
+	public NGClient(INGClientWebsocketSession wsSession) throws Exception
 	{
 		super(new WebCredentials());
 
@@ -81,8 +81,16 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
-			Debug.error(e);
+			// if exception directly do a shutdown, so that this client doesn't hang.
+			try
+			{
+				shutDown(true);
+			}
+			catch (Exception e2)
+			{
+				Debug.error("Cannot shutdown properly after client init failed", e2);
+			}
+			throw e;
 		}
 	}
 
