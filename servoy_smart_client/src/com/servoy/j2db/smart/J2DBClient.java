@@ -907,12 +907,12 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			catch (MalformedURLException ex)
 			{
 				Debug.error("Error loading the window icon image", ex); //$NON-NLS-1$
-				frame.setIconImage(loadImage("windowicon.gif").getImage()); //$NON-NLS-1$
+				frame.setIconImage(loadImage("windowicon.png").getImage()); //$NON-NLS-1$
 			}
 		}
 		else
 		{
-			frame.setIconImage(loadImage("windowicon.gif").getImage()); //$NON-NLS-1$
+			frame.setIconImage(loadImage("windowicon.png").getImage()); //$NON-NLS-1$
 		}
 
 		mainPanel = new MainPanel(this, null);
