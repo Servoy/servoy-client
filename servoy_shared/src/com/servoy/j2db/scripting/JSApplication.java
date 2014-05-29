@@ -42,6 +42,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeError;
 import org.mozilla.javascript.Scriptable;
@@ -1633,7 +1634,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		catch (Exception e)
 		{
 			setLastErrorCode(ServoyException.EXECUTE_PROGRAM_FAILED);
-			throw new ApplicationException(ServoyException.EXECUTE_PROGRAM_FAILED, e);
+			//throw new ApplicationException(ServoyException.EXECUTE_PROGRAM_FAILED, e);
+			ApplicationException applicationException = new ApplicationException(ServoyException.EXECUTE_PROGRAM_FAILED, e);
+			JavaScriptException javaScriptException = new JavaScriptException(applicationException + "\n" + applicationException.getScriptStackTrace(), "", 0);
+			throw javaScriptException;
 //		application.reportError(application.getI18NMessage("servoy.error.executing.program") + vargs[0], e); 
 		}
 		return output.toString();
