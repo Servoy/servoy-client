@@ -825,8 +825,9 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(411, IRepository.MEDIA, PROPERTY_DEPRECATED.getPropertyName(), IRepository.STRING);
 			cs.new Element(412, IRepository.FORMS, PROPERTY_DEPRECATED.getPropertyName(), IRepository.STRING);
 		}
-		if (old_repository_version < 44)
+		if (old_repository_version < 45)
 		{
+			// properties new in repository version 45, so if version < 45 we need to add them
 			cs.new Element(413, IRepository.FORMS, PROPERTY_LAYOUTGRID.getPropertyName(), IRepository.STRING);
 			cs.new Element(414, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.ELEMENTS);
 		}
