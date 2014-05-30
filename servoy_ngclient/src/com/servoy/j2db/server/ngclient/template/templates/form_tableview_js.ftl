@@ -205,7 +205,7 @@
 	<#list bodyComponents as bc>
 		$scope.columnDefs[${i}] = {
 			<#if bc.label??>
-			headerCellTemplate: '<${bc.label.tagname} headerCell name="${bc.label.name}" svy-model="model.${bc.label.name}" svy-api="api.${bc.label.name}" svy-handlers="handlers.${bc.label.name}" svy-apply="handlers.${bc.label.name}.svy_apply" svy-servoyApi="handlers.${bc.label.name}.svy_servoyApi"/>'
+			headerCellTemplate: '<${bc.label.tagname} headerCell name="${bc.label.name}" svy-model="model.${bc.label.name}" svy-api="api.${bc.label.name}" svy-handlers="handlers.${bc.label.name}" svy-apply="handlers.${bc.label.name}.svy_apply"/>'
 			<#else>
 			displayName: '${bc.name}'
 			</#if>,
