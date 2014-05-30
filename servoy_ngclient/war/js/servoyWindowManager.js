@@ -182,11 +182,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				    	 $servoyWindowManager.BSWindowManager.setFocused(this.bsWindowInstance)
 				     },
 				     toBack:function(){
-				    	 var windows = $servoyWindowManager.BSWindowManager.windows
-				    	 //move the BS window instance to the front of the array
-				    	 var from = windows.indexOf(this.bsWindowInstance)
-				    	 windows.splice(0/*to*/, 0, windows.splice(from, 1)[0]);
-				    	 $servoyWindowManager.BSWindowManager.setFocused(windows[windows.length-1]);
+				    	 $servoyWindowManager.BSWindowManager.sendToBack(this.bsWindowInstance)
 				     },
 				     clearBounds: function(){
 				    	 storage.remove(sol+name+'.storedBounds.location')
@@ -235,7 +231,6 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		destroy: function(name) {
 			var instance = instances[name];
 			if (instance) {
-				instance.clearBounds();
 				delete instances[name];
 			}else{
 				$log.error("Trying to destroy window : '" + name + "' which is not created.");

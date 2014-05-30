@@ -65,6 +65,17 @@ var WindowManager = null;// jshint ignore:line
         this.resortWindows();
 
     };
+    /**
+     * moves the winow to the back of the stack (stops at the first modal window)
+     * */
+    WindowManager.prototype.sendToBack = function(window) {
+    	 //move the BS window instance to the front of the array
+    	 var from = this.windows.indexOf(window)
+    	 var toWindow = this.modalStack.length > 0 ? this.modalStack[this.modalStack.length-1] : null;
+    	 var to = toWindow ? this.windows.indexOf(toWindow)+1: 0;
+    	 this.windows.splice(to/*to*/, 0, this.windows.splice(from, 1)[0]);
+    	 this.setFocused(this.windows[this.windows.length-1]);
+    };
 
     WindowManager.prototype.initialize = function(options) {
         this.options = options;
