@@ -18,7 +18,7 @@
 	   svy-tabseq='model.tabSeq'
 	   svy-horizontalalignment='model.horizontalAlignment'
 	   svy-verticalalignment='model.verticalAlignment'>
-	   		<span svy-imagemediaid='{img: model.imageMediaID, width: model.size.width, height: model.size.height}'/>
+	   		<span svy-imagemediaid='{img: model.imageMediaID, componentSize: model.size, rollOverImg:model.rolloverImageMediaID}'/>
  	   		<span ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'/>
 </div>
 </div>
