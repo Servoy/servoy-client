@@ -418,7 +418,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		WebComponentApiDefinition findModeCall = new WebComponentApiDefinition("setFindMode");
 		findModeCall.addParameter(new PropertyDescription("mode", new PropertyType("boolean")));
 		findModeCall.addParameter(new PropertyDescription("editable", new PropertyType("boolean")));
-		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE, editable ? Boolean.TRUE : Boolean.FALSE };
+		Object[] args = new Object[] { Boolean.valueOf(findMode), Boolean.valueOf(editable) };
 		for (WebFormComponent webComponent : webcomponents)
 		{
 			webComponent.invokeApi(findModeCall, args);
