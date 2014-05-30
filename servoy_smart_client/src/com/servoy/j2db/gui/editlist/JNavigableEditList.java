@@ -28,7 +28,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListModel;
 
 import com.servoy.j2db.util.editlist.JEditList;
-import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 import com.servoy.j2db.util.model.IEditListModel;
 
 public class JNavigableEditList extends JEditList
@@ -72,33 +71,6 @@ public class JNavigableEditList extends JEditList
 		ActionMap am = getActionMap();
 		am.put("go_down", new MoveUpDownAction(true)); //$NON-NLS-1$
 		am.put("go_up", new MoveUpDownAction(false)); //$NON-NLS-1$
-		am.put("select_current", new InvertSelectAction()); //$NON-NLS-1$
-	}
-
-	private class InvertSelectAction extends AbstractAction
-	{
-		private static final long serialVersionUID = -5469590253248558203L;
-
-		@SuppressWarnings("unchecked")
-		public void actionPerformed(ActionEvent e)
-		{
-			if (isEditable())
-			{
-				editCellAt(getSelectedIndex(), e);
-				ListModel model = getModel();
-				if (model instanceof ComboModelListModelWrapper)
-				{
-					ComboModelListModelWrapper comboModel = (ComboModelListModelWrapper)model;
-					int[] indices = getSelectedIndices();
-					for (int idx : indices)
-					{
-						Boolean newValue = new Boolean(!comboModel.isRowSelected(idx));
-						comboModel.setElementAt(newValue, idx);
-					}
-				}
-				getCellEditor().stopCellEditing();
-			}
-		}
 	}
 
 	private class MoveUpDownAction extends AbstractAction
@@ -127,6 +99,4 @@ public class JNavigableEditList extends JEditList
 			}
 		}
 	}
-
-
 }

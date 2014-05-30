@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -120,6 +121,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	private IValueList vl;
 	private final AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
 	private Format format;
+	private AbstractCell cellEditor;
 
 	public DataChoice(IApplication app, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, IValueList vl, int choiceType)
 	{
@@ -135,6 +137,18 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		list = new ComboModelListModelWrapper(vl, choiceType != Field.SPINNER, (choiceType == Field.MULTISELECT_LISTBOX || choiceType == Field.LIST_BOX));
 		enclosedComponent = new JNavigableEditList();
 		enclosedComponent.getActionMap().put("enter", null);
+		enclosedComponent.getActionMap().put("select_current", new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				if (enclosedComponent.isEditable() && cellEditor != null)
+				{
+					enclosedComponent.editCellAt(enclosedComponent.getSelectedIndex(), e);
+					cellEditor.doSelect(true, false);
+				}
+			}
+		});
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
 		enclosedComponent.setModel(createJListModel(list));
@@ -142,17 +156,20 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		if (choiceType == Field.RADIOS)
 		{
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new RadioCell()));
-			enclosedComponent.setCellEditor(new NavigableCellEditor(new RadioCell()));
+			cellEditor = new RadioCell();
+			enclosedComponent.setCellEditor(new NavigableCellEditor(cellEditor));
 		}
 		else if (choiceType == Field.CHECKS)
 		{
 			enclosedComponent.setCellRenderer(new NavigableCellRenderer(new CheckBoxCell()));
-			enclosedComponent.setCellEditor(new NavigableCellEditor(new CheckBoxCell()));
+			cellEditor = new CheckBoxCell();
+			enclosedComponent.setCellEditor(new NavigableCellEditor(cellEditor));
 		}
 		else
 		{
 			enclosedComponent.setCellRenderer(new LabelCell(shouldPaintSelection()));
-			enclosedComponent.setCellEditor(new LabelCell(shouldPaintSelection()));
+			cellEditor = new LabelCell(shouldPaintSelection());
+			enclosedComponent.setCellEditor(cellEditor);
 		}
 
 		setMultiValueSelect();
@@ -497,6 +514,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	public abstract class AbstractCell extends AbstractCellEditor implements IEditListEditor, ListCellRenderer, ActionListener
 	{
+		public void doSelect(boolean isCommandKeyDown, boolean isShiftDown)
+		{
+			if (editorComponent instanceof JToggleButton) ((JToggleButton)editorComponent).doClick();
+		}
+
 		protected void createRenderer()
 		{
 			rendererComponent.setOpaque(false);
@@ -889,40 +911,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		{
 			if (SwingUtilities.isLeftMouseButton(e))
 			{
-				boolean selected = isRowSelected(enclosedComponent.getEditingRow());
-				if (!UIUtils.isCommandKeyDown(e) && !e.isShiftDown() && choiceType == Field.MULTISELECT_LISTBOX)
-				{
-					list.setMultiValueSelect(false);
-				}
-				if (selected)
-				{
-					if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTISELECT_LISTBOX && list.getSelectedRows().size() > 1)
-					{
-						// clear the selection list
-						setElementAt(Boolean.FALSE, enclosedComponent.getEditingRow());
-					}
-					else
-					{
-						((JLabel)editorComponent).setBackground(enclosedComponent.getBackground());
-					}
-				}
-				else
-				{
-					((JLabel)editorComponent).setBackground(enclosedComponent.getSelectionBackground());
-				}
-				if (e.isShiftDown() && choiceType == Field.MULTISELECT_LISTBOX)
-				{
-					int clicked = enclosedComponent.getEditingRow();
-					int firstSelected = list.getSelectedRow();
-					int start = Math.min(clicked, firstSelected);
-					int end = Math.max(clicked, firstSelected);
-					for (int i = 0; i < list.getSize(); i++)
-					{
-						setElementAt((i >= start && i <= end) ? Boolean.TRUE : Boolean.FALSE, i);
-					}
-				}
-				stopCellEditing();
-				list.setMultiValueSelect(choiceType == Field.MULTISELECT_LISTBOX);
+				doSelect(UIUtils.isCommandKeyDown(e), e.isShiftDown());
 			}
 		}
 
@@ -936,6 +925,45 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 		public void mouseExited(MouseEvent e)
 		{
+		}
+
+		@Override
+		public void doSelect(boolean isCommandKeyDown, boolean isShiftDown)
+		{
+			boolean selected = isRowSelected(enclosedComponent.getEditingRow());
+			if (!isCommandKeyDown && !isShiftDown && choiceType == Field.MULTISELECT_LISTBOX)
+			{
+				list.setMultiValueSelect(false);
+			}
+			if (selected)
+			{
+				if (!isCommandKeyDown && choiceType == Field.MULTISELECT_LISTBOX && list.getSelectedRows().size() > 1)
+				{
+					// clear the selection list
+					setElementAt(Boolean.FALSE, enclosedComponent.getEditingRow());
+				}
+				else
+				{
+					((JLabel)editorComponent).setBackground(enclosedComponent.getBackground());
+				}
+			}
+			else
+			{
+				((JLabel)editorComponent).setBackground(enclosedComponent.getSelectionBackground());
+			}
+			if (isShiftDown && choiceType == Field.MULTISELECT_LISTBOX)
+			{
+				int clicked = enclosedComponent.getEditingRow();
+				int firstSelected = list.getSelectedRow();
+				int start = Math.min(clicked, firstSelected);
+				int end = Math.max(clicked, firstSelected);
+				for (int i = 0; i < list.getSize(); i++)
+				{
+					setElementAt((i >= start && i <= end) ? Boolean.TRUE : Boolean.FALSE, i);
+				}
+			}
+			stopCellEditing();
+			list.setMultiValueSelect(choiceType == Field.MULTISELECT_LISTBOX);
 		}
 	}
 
