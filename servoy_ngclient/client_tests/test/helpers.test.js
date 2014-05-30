@@ -218,21 +218,24 @@ describe('styles helpers', function() {
  	it("should apply svy-rollovercursor", function() { 
   		// is is a design time property, model is sent before
  			$scope.myModel = 12;
-	  		var template= '<div type="text" value="Dummy text" svy-rollovercursor="myModel"/>' 
+	  		var template= '<div value="Dummy text" svy-rollovercursor="myModel"/>' 
 	  	    var myDiv = $compile(template)($scope);
 	 		$scope.$digest();      
 	 		expect(myDiv[0].style.cursor).toBe('pointer');
 	  });
  	
- 	it("should apply svy-imagemediaid", function() {  // Implement this test case when
+ 	it("should apply svy-imagemediaid", function() { 
   		// is is a design time property, model is sent before
- 			$scope.myModel = {img: 'image1.jpg', width: 16, height: 16};
-	  		var template= '<div type="text" value="Dummy text" svy-imagemediaid="myModel"></div>' 
-	  	    var myDiv = $compile(template)($scope);
+ 			$scope.myModel = {img: 'image1.jpg', componentSize:{width: 16, height: 16}};
+	  		var template= $('<div  value="Dummy text" svy-imagemediaid="myModel"></div>')
+	  		 // this directive requires to be in a compnent with an isolated scope
+	  		var isolatedScope = $scope.$new(true)
+	  		template.data('$isolateScope',isolatedScope);
+	  	    var myDiv = $compile(template)(isolatedScope);
 	 		$scope.$digest();
 	 		expect(myDiv[0].style.backgroundImage).toContain('image1.jpg')
 	 		// change image at runtime
-	 		$scope.myModel = {img: 'image2.jpg', width: 16, height: 16};
+	 		$scope.myModel = {img: 'image2.jpg', componentSize:{width: 16, height: 16}};
 	 		$scope.$digest();
 	 		expect(myDiv[0].style.backgroundImage).toContain('image2.jpg')
 	  });
