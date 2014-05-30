@@ -270,29 +270,6 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 			return false;
 		}
 
-		if (!editable || !((IEditListModel)getModel()).isCellEditable(row))
-		{
-			IEditListEditor editor = getCellEditor();
-			if (e instanceof MouseEvent && editor != null)
-			{
-				Point p = ((MouseEvent)e).getPoint();
-				Component comp = editor.getListCellEditorComponent(this, null, true, row);
-				Rectangle recOldBounds = comp.getBounds();
-				comp.setBounds(getCellBounds(row, row));
-				add(comp);
-				comp.doLayout();
-				Point p2 = SwingUtilities.convertPoint(this, p, comp);
-				Component dispatchComponent = SwingUtilities.getDeepestComponentAt(comp, p2.x, p2.y);
-				if (dispatchComponent instanceof JButton)
-				{
-					JButton btn = (JButton)dispatchComponent;
-					if (shouldDispatchClickToButton(btn)) btn.doClick();
-				}
-				remove(comp);
-				repaint();
-			}
-			return false;
-		}
 
 		FocusManager fm = FocusManager.getCurrentManager();
 		//System.out.println("editCellAt3");

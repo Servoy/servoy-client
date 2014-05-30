@@ -25,12 +25,8 @@ import java.util.EventObject;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
-import com.servoy.j2db.smart.dataui.AbstractScriptLabel;
-import com.servoy.j2db.smart.dataui.DataCalendar;
-import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
@@ -42,9 +38,9 @@ import com.servoy.j2db.util.editlist.JEditList;
  */
 public class FormBodyEditor extends AbstractCellEditor implements IEditListEditor
 {
-	private ListCellRenderer editor = null;
+	private DataRenderer editor = null;
 
-	public FormBodyEditor(ListCellRenderer c)
+	public FormBodyEditor(DataRenderer c)
 	{
 		editor = c;
 	}
@@ -53,7 +49,7 @@ public class FormBodyEditor extends AbstractCellEditor implements IEditListEdito
 	{
 		if (editor instanceof DataRenderer)
 		{
-			((DataRenderer)editor).stopUIEditing(true);
+			editor.stopUIEditing(true);
 		}
 		return null;
 	}
@@ -131,4 +127,10 @@ public class FormBodyEditor extends AbstractCellEditor implements IEditListEdito
 		if (editor == null) return new JLabel("Please add body part or do not display form.");
 		return editor.getListCellRendererComponent(list, value, row, isSelected, true);
 	}
+
+	public DataRenderer getDataRenderer()
+	{
+		return editor;
+	}
+
 }

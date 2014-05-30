@@ -728,6 +728,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				if (background != null && !background.equals(lastEditorBgColor))
 				{
 					unselectedBackground = background;
+					lastEditorBgColor = background;
 				}
 				Color foreground = editor.getForeground();
 				if (foreground != null && !foreground.equals(lastEditorFgColor))

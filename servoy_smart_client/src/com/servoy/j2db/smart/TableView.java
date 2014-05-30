@@ -1812,6 +1812,16 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				}
 			}
 		}
+		if (editorComponents != null)
+		{
+			for (Component element : editorComponents)
+			{
+				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
+				{
+					((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).setReadOnly(!editable);
+				}
+			}
+		}
 		repaint();
 	}
 
