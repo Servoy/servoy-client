@@ -226,16 +226,16 @@ describe('styles helpers', function() {
  	
  	it("should apply svy-imagemediaid", function() { 
   		// is is a design time property, model is sent before
- 			$scope.myModel = {img: 'image1.jpg', componentSize:{width: 16, height: 16},rollOverImg:null};
+ 			$scope.myModel = {img: 'image1.jpg?imageWidth=121&imageHeight=92', componentSize:{width: 16, height: 16},rollOverImg:null};
 	  		var template= $('<div   svy-imagemediaid="myModel"></div>')
 	  		 // this directive requires to be in a compnent with an isolated scope
 	  		var isolatedScope = $scope.$new(true)
 	  		template.data('$isolateScope',isolatedScope);
-	  	    var myDiv = $compile(template)(isolatedScope);
+	  	    var myDiv = $compile(template)($scope);
 	 		$scope.$digest();
 	 		expect(myDiv[0].style.backgroundImage).toContain('image1.jpg')
 	 		// change image at runtime
-	 		$scope.myModel = {img: 'image2.jpg', componentSize:{width: 16, height: 16},rollOverImg:null};
+	 		$scope.myModel = {img: 'image2.jpg?imageWidth=121&imageHeight=92', componentSize:{width: 16, height: 16},rollOverImg:null};
 	 		$scope.$digest();
 	 		expect(myDiv[0].style.backgroundImage).toContain('image2.jpg')
 	  });
