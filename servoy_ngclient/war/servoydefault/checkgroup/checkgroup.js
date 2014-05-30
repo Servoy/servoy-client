@@ -12,7 +12,7 @@ angular.module('svyCheckgroup',['servoy']).directive('svyCheckgroup', function($
          $scope.notNullOrEmpty = $utils.notNullOrEmpty  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
          $scope.style = {width:'100%',height:'100%'}
          angular.extend($scope.style ,$utils.getScrollbarsStyleObj($scope.model.scrollbars));
-          
+
           var allowNullinc=0;
           
           $scope.selection= []
@@ -69,6 +69,19 @@ angular.module('svyCheckgroup',['servoy']).directive('svyCheckgroup', function($
         	  }
         	  $scope.model.valuelistID = valuelistItems;
           }
+          
+         // special method that servoy calls when this component goes into find mode.
+       	 $scope.api.setFindMode = function(findMode, editable) {
+       	 	if (findMode)
+       	 	{
+       	 		$scope.wasEditable = $scope.model.editable;
+       	 		if (!$scope.model.editable) $scope.model.editable = editable;
+       	 	}
+       	 	else
+       	 	{
+       	 		$scope.model.editable = $scope.wasEditable;
+       	 	}
+       	 };
           
     /* helper functions*/
           function setSelectionFromDataprovider(){

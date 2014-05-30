@@ -15,11 +15,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyType;
+import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.DataproviderConfig;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -410,10 +413,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				webcomponents.add(pair.getLeft());
 			}
 		}
-		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE };
+
+		boolean editable = !Boolean.TRUE.equals(getApplication().getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE));
+		WebComponentApiDefinition findModeCall = new WebComponentApiDefinition("setFindMode");
+		findModeCall.addParameter(new PropertyDescription("mode", new PropertyType("boolean")));
+		findModeCall.addParameter(new PropertyDescription("editable", new PropertyType("boolean")));
+		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE, editable ? Boolean.TRUE : Boolean.FALSE };
 		for (WebFormComponent webComponent : webcomponents)
 		{
-			webComponent.invokeApi("setFindMode", args);
+			webComponent.invokeApi(findModeCall, args);
 		}
 	}
 }

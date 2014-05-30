@@ -11,6 +11,7 @@ angular.module('svyCombobox',['servoy'])
       },
       controller: function($scope, $element, $attrs) {
     	   $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
+    	   $scope.findMode = false;
     	   $scope.customClasses = "";
     	   // uncomment the following comment to use select2 as default; or the other way around
     	   $scope.isSelect2 = ($scope.model.styleClass && ($scope.model.styleClass.indexOf('select2', 0) == 0)) /**/|| (typeof $scope.model.styleClass == 'undefined')/**/;
@@ -55,8 +56,22 @@ angular.module('svyCombobox',['servoy'])
         		  }
         		  valuelistItems.push(item); 
         	  }
-        	  $scope.model.valuelistID = valuelistItems;
+        	  scope.model.valuelistID = valuelistItems;
           }
+    	  
+    	// special method that servoy calls when this component goes into find mode.
+     	 scope.api.setFindMode = function(findMode, editable) {
+     		 scope.findMode = findMode;
+     		 if (findMode)
+      	 	{
+      	 		scope.wasEditable = scope.model.editable;
+      	 		if (!scope.model.editable) scope.model.editable = editable;
+      	 	}
+      	 	else
+      	 	{
+      	 		scope.model.editable = scope.wasEditable;
+      	 	}
+     	 };
     	  
     	  if (select2Css != null) {
     		  $svyNGEvents.afterNGProcessedDOM(function () {

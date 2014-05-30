@@ -5,11 +5,12 @@ angular.module('svyTypeahead',['servoy']).directive('svyTypeahead', function($ti
       scope: {
         model: "=svyModel",
         svyApply: "=",
-        handlers: "=svyHandlers"
+        handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       link: function($scope, $element, $attrs) {
     	  $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-    	  
+    	  $scope.findMode = false;
           var timeoutPromise = null;
           var lastAppliedDataProviderID = null;
 
@@ -41,6 +42,20 @@ angular.module('svyTypeahead',['servoy']).directive('svyTypeahead', function($ti
         	  }
         	  $scope.model.valuelistID = valuelistItems;
           }
+          
+         // special method that servoy calls when this component goes into find mode.
+       	 $scope.api.setFindMode = function(findMode, editable) {
+       		$scope.findMode = findMode;
+       	 	if (findMode)
+       	 	{
+       	 		$scope.wasEditable = $scope.model.editable;
+       	 		if (!$scope.model.editable) $scope.model.editable = editable;
+       	 	}
+       	 	else
+       	 	{
+       	 		$scope.model.editable = $scope.wasEditable;
+       	 	}
+       	 };
       },
       templateUrl: 'servoydefault/typeahead/typeahead.html',
       replace: true

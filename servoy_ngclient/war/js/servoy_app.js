@@ -358,10 +358,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	   var fulllist = getCombinedPropertyNames(now,prev);
 	    	    var changes = {}, prop;
 	    	    for (prop in fulllist) {
-	    	    	if (now[prop] == undefined) {
-	    	    		changes[prop] = 'svy_undefined'; // special previous had a value that is removed from the current.
-	    	    	}
-	    	    	else if (!prev) {
+	    	    	if (!prev) {
 	    	    		changes[prop] = $webSocket.convertClientObject(now[prop])
 	    	    	}
 	    	    	else if (prev[prop] !== now[prop]) {

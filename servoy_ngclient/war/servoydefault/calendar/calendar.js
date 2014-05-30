@@ -68,8 +68,17 @@ angular.module('svyCalendar',['servoy']).directive('svyCalendar', function(dateF
           
           var findMode = false;
           // special method that servoy calls when this component goes into find mode.
-          $scope.api.setFindMode = function(mode) {
-        	  findMode = mode;
+          $scope.api.setFindMode = function(mode, editable) {
+        	findMode = mode;
+        	if (findMode)
+      	 	{
+      	 		$scope.wasEditable = $scope.model.editable;
+      	 		if (!$scope.model.editable) $scope.model.editable = editable;
+      	 	}
+      	 	else
+      	 	{
+      	 		$scope.model.editable = $scope.wasEditable;
+      	 	}
           };
       },
       templateUrl: 'servoydefault/calendar/calendar.html',

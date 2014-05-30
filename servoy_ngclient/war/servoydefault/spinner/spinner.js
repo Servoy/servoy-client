@@ -5,11 +5,12 @@ angular.module('svySpinner',['servoy']).directive('svySpinner', function($utils)
       scope: {
         name: "=",
         model: "=svyModel",
-        handlers: "=svyHandlers"
+        handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       link: function($scope, $element, $attrs) {
     	  $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-    	  
+    	  $scope.findMode = false;
           $scope.selection = getSelectionFromDataprovider();
           $scope.$watch('model.dataProviderID', function() 
           { 
@@ -101,6 +102,20 @@ angular.module('svySpinner',['servoy']).directive('svySpinner', function($utils)
 	          	  }
 	          }
           }
+          
+       // special method that servoy calls when this component goes into find mode.
+       	 $scope.api.setFindMode = function(findMode, editable) {
+       		$scope.findMode = findMode;
+       	 	if (findMode)
+       	 	{
+       	 		$scope.wasEditable = $scope.model.editable;
+       	 		if (!$scope.model.editable) $scope.model.editable = editable;
+       	 	}
+       	 	else
+       	 	{
+       	 		$scope.model.editable = $scope.wasEditable;
+       	 	}
+       	 };
       },
       templateUrl: 'servoydefault/spinner/spinner.html',
       replace: true

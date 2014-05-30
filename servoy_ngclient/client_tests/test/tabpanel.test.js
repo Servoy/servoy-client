@@ -36,7 +36,7 @@ describe('svyTabpanel component', function() {
 					},
 					type: "EtchedBorder"					
 				},
-				fontType: "svy_undefined",
+				fontType: undefined,
 				tabs: [{						
 						active: true,
 						containsFormId: "solutions/dummyUnitTestSol/forms/tab1.html",

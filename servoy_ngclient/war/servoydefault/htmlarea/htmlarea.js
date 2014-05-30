@@ -9,7 +9,7 @@ angular.module('svyHtmlarea',['servoy','ui.tinymce']).directive('svyHtmlarea', f
       },
       controller: function($scope, $element, $attrs) {
        $scope.style = {width:'100%',height:'100%',overflow:'hidden'}     
-      
+       $scope.findMode = false;
        //evaluated by ui-tinymce directive
        $scope.tinyConfig ={
     		   /*overwrite ui-tinymce setup routine()*/
@@ -19,6 +19,11 @@ angular.module('svyHtmlarea',['servoy','ui.tinymce']).directive('svyHtmlarea', f
     			   	$scope.$watch('model.dataProviderID',function (newVal,oldVal){    			   		
     			   		if(newVal && oldVal!=newVal){
     			   		  ed.setContent(newVal)
+    			   		}    			   		
+    			   	})
+    			   	$scope.$watch('model.editable',function (newVal,oldVal){    			   		
+    			   		if(oldVal != newVal){
+    			   		  ed.getBody().setAttribute('contenteditable', newVal);
     			   		}    			   		
     			   	})
     			    ed.on('blur ExecCommand', function () {    				 
@@ -42,6 +47,20 @@ angular.module('svyHtmlarea',['servoy','ui.tinymce']).directive('svyHtmlarea', f
        $scope.api.getScrollY = function() {
     	   return $($scope.editor.getWin()).scrollTop();
        }
+       
+        // special method that servoy calls when this component goes into find mode.
+    	 $scope.api.setFindMode = function(findMode, editable) {
+    		$scope.findMode = findMode;
+    	 	if (findMode)
+    	 	{
+    	 		$scope.wasEditable = $scope.model.editable;
+    	 		if (!$scope.model.editable) $scope.model.editable = editable;
+    	 	}
+    	 	else
+    	 	{
+    	 		$scope.model.editable = $scope.wasEditable;
+    	 	}
+    	 };
       
       },
       templateUrl: 'servoydefault/htmlarea/htmlarea.html',

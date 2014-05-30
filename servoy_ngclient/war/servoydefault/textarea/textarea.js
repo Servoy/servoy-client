@@ -9,7 +9,7 @@ angular.module('svyTextarea',['servoy']).directive('svyTextarea', function($apif
       },
       controller: function($scope, $element, $attrs) {
           $scope.style = {width:'100%',height:'100%', resize:'none'}
-          
+          $scope.findMode = false;
     	  
     	 // fill in the api defined in the spec file
     	 $scope.api.onDataChangeCallback = function(event, returnval) {
@@ -36,6 +36,20 @@ angular.module('svyTextarea',['servoy']).directive('svyTextarea', function($apif
          $scope.api.getScrollY = function() {
         	 return $element.scrollTop();
          }
+         
+         // special method that servoy calls when this component goes into find mode.
+      	 $scope.api.setFindMode = function(findMode, editable) {
+      		$scope.findMode = findMode;
+      	 	if (findMode)
+      	 	{
+      	 		$scope.wasEditable = $scope.model.editable;
+      	 		if (!$scope.model.editable) $scope.model.editable = editable;
+      	 	}
+      	 	else
+      	 	{
+      	 		$scope.model.editable = $scope.wasEditable;
+      	 	}
+      	 };      
       },
       templateUrl: 'servoydefault/textarea/textarea.html',
       replace: true
