@@ -2752,16 +2752,22 @@ public final class Utils
 	/**
 	 * Removes the first map entry based on a map value
 	 * 
-	 * @param name the map value to remove the map entry
+	 * @param value the map value to remove the map entry
 	 * @param map a map from which to remove the value and key
 	 * @return the previous value associated with key, or null if there was no mapping for key
 	 */
-	public static <K, V> V mapRemoveByValue(V name, Map<K, V> map)
+	public static <K, V> V mapRemoveByValue(V value, Map<K, V> map)
 	{
 		K removalKey = null;
+
 		for (Map.Entry<K, V> entry : map.entrySet())
 		{
-			if (name.equals(entry.getValue()))
+			if (value == null && entry.getValue() == null)
+			{
+				removalKey = entry.getKey();
+				break;
+			}
+			else if (value.equals(entry.getValue()))
 			{
 				removalKey = entry.getKey();
 				break;
@@ -2785,7 +2791,11 @@ public final class Utils
 	{
 		for (Entry<K, V> entry : map.entrySet())
 		{
-			if (value.equals(entry.getValue()))
+			if (value == null && entry.getValue() == null)
+			{
+				return entry.getKey();
+			}
+			else if (value.equals(entry.getValue()))
 			{
 				return entry.getKey();
 			}
