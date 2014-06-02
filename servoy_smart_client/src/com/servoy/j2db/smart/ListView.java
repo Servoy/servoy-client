@@ -38,11 +38,13 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.smart.dataui.DataCalendar;
 import com.servoy.j2db.smart.dataui.DataRenderer;
+import com.servoy.j2db.smart.dataui.FormBodyEditor;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.editlist.EmptyEditListModel;
+import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
 import com.servoy.j2db.util.model.IEditListModel;
 
@@ -247,7 +249,7 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	@Override
 	public void setEditable(boolean editable)
 	{
-		super.setEditable(editable);
+		//super.setEditable(editable);
 		ListCellRenderer cellRenderer = getCellRenderer();
 		if (cellRenderer instanceof DataRenderer)
 		{
@@ -260,6 +262,20 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 			invalidate();
 			repaint();
 		}
+		IEditListEditor editorComponent = getCellEditor();
+		if (editorComponent instanceof FormBodyEditor)
+		{
+			FormBodyEditor formBodyEditor = (FormBodyEditor)editorComponent;
+			DataRenderer dataRenderer = formBodyEditor.getDataRenderer();
+			for (int i = 0; i < dataRenderer.getComponentCount(); i++)
+			{
+				Component c = dataRenderer.getComponent(i);
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof HasRuntimeReadOnly) ((HasRuntimeReadOnly)((IScriptableProvider)c).getScriptObject()).setReadOnly(!editable);
+			}
+			invalidate();
+			repaint();
+		}
+
 	}
 
 	@Override

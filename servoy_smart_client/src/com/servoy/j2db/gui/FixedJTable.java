@@ -52,7 +52,7 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
  */
 public class FixedJTable extends JTable
 {
-	private boolean editable = true;
+	//private boolean editable = true;
 
 	private boolean autoScroll;
 
@@ -108,7 +108,7 @@ public class FixedJTable extends JTable
 	 */
 	public boolean isEditable()
 	{
-		return editable;
+		return true;
 	}
 
 	/**
@@ -118,9 +118,8 @@ public class FixedJTable extends JTable
 	protected void processMouseEvent(MouseEvent e)
 	{
 		if (e.getID() == MouseEvent.MOUSE_PRESSED &&
-				((getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) ||
-				((getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION) && !UIUtils.isCommandKeyDown(e) && !e.isShiftDown())) &&
-				isEnabled())
+			((getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) || ((getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION) &&
+				!UIUtils.isCommandKeyDown(e) && !e.isShiftDown())) && isEnabled())
 		{
 			Point p = e.getPoint();
 			int row = rowAtPoint(p);
@@ -245,7 +244,8 @@ public class FixedJTable extends JTable
 	 */
 	public void setEditable(boolean editable)
 	{
-		this.editable = editable;
+
+		//this.editable = editable;
 		if (!editable && isEditing())
 		{
 			getCellEditor().stopCellEditing();
@@ -269,10 +269,10 @@ public class FixedJTable extends JTable
 				return true;
 			}
 		}
-		if (!editable)
-		{
-			return false;
-		}
+//		if (!editable)
+//		{
+//			return false;
+//		}
 		return super.isCellEditable(row, column);
 	}
 
