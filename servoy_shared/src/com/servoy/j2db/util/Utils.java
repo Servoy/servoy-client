@@ -2756,7 +2756,7 @@ public final class Utils
 	 * @param map a map from which to remove the value and key
 	 * @return the previous value associated with key, or null if there was no mapping for key
 	 */
-	public static <K, V> V mapRemoveByValue(V value, Map<K, V> map)
+	public static <K, V> K mapRemoveByValue(V value, Map<K, V> map)
 	{
 		K removalKey = null;
 
@@ -2767,7 +2767,7 @@ public final class Utils
 				removalKey = entry.getKey();
 				break;
 			}
-			else if (value.equals(entry.getValue()))
+			else if (value != null && value.equals(entry.getValue()))
 			{
 				removalKey = entry.getKey();
 				break;
@@ -2775,7 +2775,8 @@ public final class Utils
 		}
 		if (removalKey != null)
 		{
-			return map.remove(removalKey);
+			map.remove(removalKey);
+			return removalKey;
 		}
 		return null;
 	}
@@ -2795,7 +2796,7 @@ public final class Utils
 			{
 				return entry.getKey();
 			}
-			else if (value.equals(entry.getValue()))
+			else if (value != null && value.equals(entry.getValue()))
 			{
 				return entry.getKey();
 			}
@@ -2808,7 +2809,11 @@ public final class Utils
 		Set<T> keys = new HashSet<T>();
 		for (Entry<T, E> entry : map.entrySet())
 		{
-			if (value.equals(entry.getValue()))
+			if (value == null && entry.getValue() == null)
+			{
+				keys.add(entry.getKey());
+			}
+			else if (value != null && value.equals(entry.getValue()))
 			{
 				keys.add(entry.getKey());
 			}
