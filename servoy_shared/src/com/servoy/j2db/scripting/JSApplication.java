@@ -1636,9 +1636,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			setLastErrorCode(ServoyException.EXECUTE_PROGRAM_FAILED);
 			//throw new ApplicationException(ServoyException.EXECUTE_PROGRAM_FAILED, e);
 			ApplicationException applicationException = new ApplicationException(ServoyException.EXECUTE_PROGRAM_FAILED, e);
-			JavaScriptException javaScriptException = new JavaScriptException(applicationException + "\n" + applicationException.getScriptStackTrace(), "", 0);
+			JavaScriptException javaScriptException = new JavaScriptException(applicationException, "", 0);
 			throw javaScriptException;
-//		application.reportError(application.getI18NMessage("servoy.error.executing.program") + vargs[0], e); 
 		}
 		return output.toString();
 	}
