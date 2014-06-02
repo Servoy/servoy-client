@@ -36,7 +36,6 @@ import javax.swing.ActionMap;
 import javax.swing.DefaultCellEditor;
 import javax.swing.FocusManager;
 import javax.swing.InputMap;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -304,11 +303,6 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 			return true;
 		}
 		return false;
-	}
-
-	protected boolean shouldDispatchClickToButton(JButton button)
-	{
-		return true;
 	}
 
 	/**

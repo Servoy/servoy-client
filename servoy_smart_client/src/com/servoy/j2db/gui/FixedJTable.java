@@ -244,8 +244,6 @@ public class FixedJTable extends JTable
 	 */
 	public void setEditable(boolean editable)
 	{
-
-		//this.editable = editable;
 		if (!editable && isEditing())
 		{
 			getCellEditor().stopCellEditing();
@@ -269,10 +267,6 @@ public class FixedJTable extends JTable
 				return true;
 			}
 		}
-//		if (!editable)
-//		{
-//			return false;
-//		}
 		return super.isCellEditable(row, column);
 	}
 

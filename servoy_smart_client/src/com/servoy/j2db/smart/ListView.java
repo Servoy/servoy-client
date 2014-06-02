@@ -26,7 +26,6 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.JButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
@@ -36,7 +35,6 @@ import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.smart.dataui.DataCalendar;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.smart.dataui.FormBodyEditor;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -276,12 +274,6 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 			repaint();
 		}
 
-	}
-
-	@Override
-	protected boolean shouldDispatchClickToButton(JButton button)
-	{
-		return !((button.getParent() != null) && (button.getParent() instanceof DataCalendar));
 	}
 
 	/*
