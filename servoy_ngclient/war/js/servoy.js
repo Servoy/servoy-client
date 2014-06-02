@@ -401,10 +401,14 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
          		  var mediaOptions = scope.$eval('model.mediaOptions');
         		if(newVal.rollOverImg){ 
         		  rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, newVal.componentSize);
+        		}else {
+        		  rollOverImgStyle = null
         		}
         		if(newVal.img){
         		  imgStyle =parseImageOptions( newVal.img, mediaOptions, newVal.componentSize)
           		  element.css(imgStyle)
+        		}else {
+        		  imgStyle = null;
         		} 		
         	}, true)
         	
@@ -574,8 +578,6 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         		//over
         		if(rollOverImgStyle){
         			element.css(rollOverImgStyle)
-        		}else{
-        			element.css(clearStyle)
         		}
         	},function(){
         		//out
