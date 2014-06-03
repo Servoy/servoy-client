@@ -106,7 +106,7 @@ public class PersistFieldInstanceTest
 		File[] locations = new File[2];
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		locations[0] = new File(f.getAbsoluteFile() + "/../war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
-		locations[1] = new File(f.getAbsoluteFile() + "/../war/webcomponents/");
+		locations[1] = new File(f.getAbsoluteFile() + "/../war/servoycomponents/");
 		new WebComponentSpecProvider(locations);
 
 		final TestRepository tr = new TestRepository();
@@ -328,7 +328,7 @@ public class PersistFieldInstanceTest
 
 				/*
 				 * (non-Javadoc)
-				 * 
+				 *
 				 * @see com.servoy.j2db.ClientState#createRepository()
 				 */
 				@Override
@@ -530,7 +530,7 @@ public class PersistFieldInstanceTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObjectMetaData(int, com.servoy.j2db.util.UUID, java.lang.String, int, int, int)
 		 */
 		@Override
@@ -543,7 +543,7 @@ public class PersistFieldInstanceTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObject(com.servoy.j2db.persistence.RootObjectMetaData)
 		 */
 		@Override
