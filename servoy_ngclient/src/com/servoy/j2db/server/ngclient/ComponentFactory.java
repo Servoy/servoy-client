@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -57,7 +57,7 @@ public class ComponentFactory
 		{
 			// TODO ac anything to do here for custom special types?
 			WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList, formUI);
-			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(IPropertyType.Default.valuelist.getType());
+			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{
 				int valuelistID = Utils.getAsInteger(fe.getPropertyWithDefault(vlProp.getName()));
@@ -77,7 +77,7 @@ public class ComponentFactory
 								String format = null;
 								if (dataproviderID != null)
 								{
-									Map<String, PropertyDescription> properties = fe.getWebComponentSpec().getProperties(IPropertyType.Default.format.getType());
+									Map<String, PropertyDescription> properties = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
 									for (PropertyDescription pd : properties.values())
 									{
 										// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property

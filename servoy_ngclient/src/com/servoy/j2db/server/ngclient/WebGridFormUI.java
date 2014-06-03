@@ -32,8 +32,9 @@ import javax.swing.event.ListSelectionListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DataproviderPropertyType;
+import org.sablo.specification.property.types.TagStringPropertyType;
 import org.sablo.websocket.utils.JSONUtils.JSONWritable;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -306,14 +307,13 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 					//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
 					// namepanel2 has a nested property which is a dataproviderID
 					Map<String, Object> cellProperties = new HashMap<>();
-					List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), IPropertyType.Default.tagstring.getType());
+					List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), TagStringPropertyType.INSTANCE);
 					for (String tagstringPropID : tagstrings)
 					{
 						cellProperties.put(tagstringPropID, wc.getProperty(tagstringPropID));
 					}
 
-					List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(),
-						IPropertyType.Default.dataprovider.getType());
+					List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 					for (String dataproviderID : dataproviders)
 					{
 						cellProperties.put(dataproviderID, wc.getProperty(dataproviderID));
@@ -446,7 +446,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 	}
 
 
-	public static List<String> getWebComponentPropertyType(WebComponentSpecification componentSpec, IComplexTypeImpl type)
+	public static List<String> getWebComponentPropertyType(WebComponentSpecification componentSpec, IPropertyType type)
 	{
 		ArrayList<String> properties = new ArrayList<>(3);
 		Map<String, PropertyDescription> specProperties = componentSpec.getProperties();

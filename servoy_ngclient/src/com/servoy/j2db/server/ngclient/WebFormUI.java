@@ -21,7 +21,9 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.IApplication;
@@ -212,6 +214,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	{
 		// TODO This whole method content I think can be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
 		// except for initial filling of all properties from FormElement into WebComponent
+		IPropertyType< ? > type = propertySpec.getType();
 		if (propertySpec.isArray() && formElementProperty instanceof List && !(formElementProperty instanceof IComplexPropertyValue)) // if it's a special property type that handles directly arrays, it could be a different kind of object
 		{
 			List<Object> processedArray = new ArrayList<>();
@@ -219,9 +222,9 @@ public class WebFormUI extends Container implements IWebFormUI
 			for (Object arrayValue : fePropertyArray)
 			{
 				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, propertySpec, dal, component, componentNode, level, true);
-				switch (propertySpec.getType().getDefaultEnumValue())
+				switch (type.getName())
 				{
-					case dataprovider : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
+					case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
 					{
 						Debug.error("Array of dataprovider currently not supported dataprovider");
 						Object dataproviderID = propValue;
@@ -231,7 +234,7 @@ public class WebFormUI extends Container implements IWebFormUI
 						}
 						break;
 					}
-					case tagstring : // array of taggstring is not supported yet (DAL does not support arrays)
+					case "tagstring" : // array of taggstring is not supported yet (DAL does not support arrays)
 					{
 						Debug.error("Array of tagstring currently not supported dataprovider");
 						//bind tag expressions
@@ -258,9 +261,9 @@ public class WebFormUI extends Container implements IWebFormUI
 		{
 			Object propValue = initFormElementProperty(formElNodeForm, fe, formElementProperty, propertySpec, dal, component, componentNode, level, false);
 			String propName = propertySpec.getName();
-			switch (propertySpec.getType().getDefaultEnumValue())
+			switch (type.getName())
 			{
-				case dataprovider : // array of dataprovider is not supported yet (DAL does not support arrays)
+				case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)
 				{
 					Object dataproviderID = formElementProperty;
 					if (dataproviderID instanceof String)
@@ -270,7 +273,7 @@ public class WebFormUI extends Container implements IWebFormUI
 					}
 					break;
 				}
-				case tagstring : // array of taggstring is not supported yet (DAL does not support arrays)
+				case "tagstring" : // array of taggstring is not supported yet (DAL does not support arrays)
 				{
 					//bind tag expressions
 					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
@@ -281,7 +284,7 @@ public class WebFormUI extends Container implements IWebFormUI
 					}
 					break;
 				}
-				case valuelist : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
+				case "valuelist" : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
 					return;
 				default :
 					break;
@@ -318,29 +321,9 @@ public class WebFormUI extends Container implements IWebFormUI
 	{
 		// TODO This whole method I think should be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
 		Object ret = null;
-		switch (propertySpec.getType().getDefaultEnumValue())
+		switch (propertySpec.getType().getName())
 		{
-//			case dataprovider :
-//			{
-//				Object dataproviderID = formElementProperty;
-//				if (dataproviderID instanceof String)
-//				{
-//					return dataproviderID;
-//				}
-//				break;
-//			}
-//			case tagstring :
-//			{
-//				Object propValue = formElementProperty;
-//				//bind tag expressions
-//				//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
-//				if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
-//				{
-//					dal.addTaggedProperty(component, propName);
-//				}
-//				break;
-//			}
-			case format :
+			case "format" :
 			{
 				Object propValue = formElementProperty;
 				if (propValue instanceof String)
@@ -353,7 +336,7 @@ public class WebFormUI extends Container implements IWebFormUI
 				}
 				break;
 			}
-			case bean :
+			case "bean" :
 			{
 				Object propValue = formElementProperty;
 				if (propValue instanceof String)
@@ -362,18 +345,18 @@ public class WebFormUI extends Container implements IWebFormUI
 				}
 				break;
 			}
-			case valuelist : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
+			case "valuelist" : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
 				break;
 			default :
 			{
-				if (propertySpec.getType().getCustomJSONTypeDefinition() != null && formElementProperty instanceof Map &&
-					!(formElementProperty instanceof IComplexPropertyValue))
+				if ((propertySpec.getType() instanceof ICustomType) && ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition() != null &&
+					formElementProperty instanceof Map && !(formElementProperty instanceof IComplexPropertyValue))
 				{
 					// TODO Remove this when pure tree-like JSON properties which use complex types in leafs are operational (so no need for flattening them any more)
 					String innerLevelpropName = level + propertySpec.getName();
 					Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
 					Map<String, Object> newComponentNode = new HashMap<>();
-					PropertyDescription localPropertyType = propertySpec.getType().getCustomJSONTypeDefinition();
+					PropertyDescription localPropertyType = ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition();
 
 					for (String prop : props.keySet())
 					{
@@ -392,7 +375,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 		return ret;
 	}
-
 
 	public IDataAdapterList getDataAdapterList()
 	{
@@ -469,14 +451,14 @@ public class WebFormUI extends Container implements IWebFormUI
 		if ("size".equals(propertyName))
 		{
 			properties.put(propertyName, NGClientForJsonConverter.toJavaObject(propertyValue,
-				new PropertyDescription("size", IPropertyType.Default.dimension.getType()), new DataConverterContext(getApplication()),
+				new PropertyDescription("size", TypesRegistry.getType("dimension")), new DataConverterContext(getApplication()),
 				ConversionLocation.BROWSER_UPDATE, properties.get(propertyName)));
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IFormUI#getController()
 	 */
 	@Override
@@ -618,7 +600,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		for (WebComponent component : components.values())
 		{
 			WebFormComponent comp = (WebFormComponent)component;
-			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(IPropertyType.Default.tabseq.getType());
+			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("tabseq"));
 			for (PropertyDescription pd : tabSeqProps.values())
 			{
 				if (Utils.getAsInteger(comp.getInitialProperty(pd.getName())) >= 0)
@@ -672,7 +654,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setLocation(java.awt.Point)
 	 */
 	@Override
@@ -684,7 +666,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getLocation()
 	 */
 	@Override
@@ -696,7 +678,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setSize(java.awt.Dimension)
 	 */
 	@Override
@@ -708,7 +690,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getSize()
 	 */
 	@Override
@@ -720,7 +702,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setForeground(java.awt.Color)
 	 */
 	@Override
@@ -732,7 +714,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getForeground()
 	 */
 	@Override
@@ -744,7 +726,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setBackground(java.awt.Color)
 	 */
 	@Override
@@ -756,7 +738,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getBackground()
 	 */
 	@Override
@@ -768,7 +750,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setFont(java.awt.Font)
 	 */
 	@Override
@@ -780,7 +762,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getFont()
 	 */
 	@Override
@@ -792,7 +774,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setBorder(javax.swing.border.Border)
 	 */
 	@Override
@@ -804,7 +786,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getBorder()
 	 */
 	@Override
@@ -816,7 +798,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setName(java.lang.String)
 	 */
 	@Override
@@ -828,7 +810,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setOpaque(boolean)
 	 */
 	@Override
@@ -840,7 +822,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#isOpaque()
 	 */
 	@Override
@@ -852,7 +834,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setCursor(java.awt.Cursor)
 	 */
 	@Override
@@ -864,7 +846,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#setToolTipText(java.lang.String)
 	 */
 	@Override
@@ -876,7 +858,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
 	@Override
@@ -888,7 +870,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IComponent#getId()
 	 */
 	@Override
@@ -900,7 +882,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#showYesNoQuestionDialog(com.servoy.j2db.IApplication, java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -926,7 +908,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#printPreview(boolean, boolean, int, java.awt.print.PrinterJob)
 	 */
 	@Override
@@ -938,7 +920,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#print(boolean, boolean, boolean, java.awt.print.PrinterJob)
 	 */
 	@Override
@@ -950,7 +932,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#printXML(boolean)
 	 */
 	@Override
@@ -962,7 +944,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#showSortDialog(com.servoy.j2db.IApplication, java.lang.String)
 	 */
 	@Override
@@ -974,7 +956,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#getFormWidth()
 	 */
 	@Override
@@ -986,7 +968,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#getPartHeight(int)
 	 */
 	@Override
@@ -1026,7 +1008,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#changeFocusIfInvalid(java.util.List)
 	 */
 	@Override
@@ -1038,7 +1020,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormUI#prepareForSave(boolean)
 	 */
 	@Override
@@ -1050,7 +1032,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#start(com.servoy.j2db.IApplication)
 	 */
 	@Override
@@ -1062,7 +1044,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#stop()
 	 */
 	@Override
@@ -1074,7 +1056,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#editCellAt(int)
 	 */
 	@Override
@@ -1086,7 +1068,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#stopUIEditing(boolean)
 	 */
 	@Override
@@ -1098,7 +1080,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#isEditing()
 	 */
 	@Override
@@ -1110,7 +1092,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#requestFocus()
 	 */
 	@Override
@@ -1122,7 +1104,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#ensureIndexIsVisible(int)
 	 */
 	@Override
@@ -1134,7 +1116,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#setEditable(boolean)
 	 */
 	@Override
@@ -1146,7 +1128,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#getVisibleRect()
 	 */
 	@Override
@@ -1158,7 +1140,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#setVisibleRect(java.awt.Rectangle)
 	 */
 	@Override
@@ -1170,7 +1152,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#setRowBGColorScript(java.lang.String, java.util.List)
 	 */
 	@Override
@@ -1182,7 +1164,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorScript()
 	 */
 	@Override
@@ -1194,7 +1176,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorArgs()
 	 */
 	@Override
@@ -1216,8 +1198,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		for (WebComponent component : components.values())
 		{
 			WebFormComponent comp = (WebFormComponent)component;
-			Map<String, PropertyDescription> valuelistProps = comp.getFormElement().getWebComponentSpec().getProperties(
-				IPropertyType.Default.valuelist.getType());
+			Map<String, PropertyDescription> valuelistProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{
 				Object vl = comp.getProperty(vlProp.getName());

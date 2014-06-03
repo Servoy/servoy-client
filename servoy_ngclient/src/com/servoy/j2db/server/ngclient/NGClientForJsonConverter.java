@@ -17,16 +17,12 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Insets;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -38,18 +34,16 @@ import javax.swing.border.TitledBorder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.mozilla.javascript.NativeDate;
-import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IForJsonConverter;
 
-import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -58,14 +52,9 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -90,11 +79,6 @@ public class NGClientForJsonConverter implements IForJsonConverter
 		if (value instanceof NativeDate)
 		{
 			return ((NativeDate)value).unwrap();
-		}
-
-		if (value instanceof Color)
-		{
-			return PersistHelper.createColorString((Color)value);
 		}
 
 		if (value instanceof Form)
@@ -358,7 +342,7 @@ public class NGClientForJsonConverter implements IForJsonConverter
 	/**
 	 * Converts a JSON value / primitive (if jsonSource is DESIGN or BROWSER) or custom server Java object (if jsonSource is SERVER, assuming
 	 * that a custom complex type knows how to interpret thes custom server side set objects) to a Java value representing that property based on bean spec type.<br>
-	 * 
+	 *
 	 * @param oldJavaObject the object that currently represents this JSON's property
 	 * @param propertyValue can be a JSONObject or array or primitive. (so something deserialized from a JSON string)
 	 * @param component can be null in case for example return values are converted
@@ -373,24 +357,28 @@ public class NGClientForJsonConverter implements IForJsonConverter
 		{
 			IPropertyType type = componentSpecType.getType();
 
+			IComplexTypeImpl complexType = type instanceof IComplexTypeImpl ? (IComplexTypeImpl)type : null;
 			if (propertyValue instanceof IComplexPropertyValue)
 			{
 				// FormElement and WebComponent both do conversions on init so you end up
 				// being asked to convert an already converted value; leave it as it is then
 			}
-			else if (jsonSource == ConversionLocation.BROWSER_UPDATE && type.getJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
+			else if (complexType != null && jsonSource == ConversionLocation.BROWSER_UPDATE &&
+				complexType.getJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
 			{
-				propertyValue = type.getJSONToJavaPropertyConverter(componentSpecType.isArray()).jsonToJava(propertyValue,
+				propertyValue = complexType.getJSONToJavaPropertyConverter(componentSpecType.isArray()).jsonToJava(propertyValue,
 					(IComplexPropertyValue)oldJavaObject, componentSpecType.getConfig());
 			}
-			else if (jsonSource == ConversionLocation.DESIGN && type.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
+			else if (complexType != null && jsonSource == ConversionLocation.DESIGN &&
+				complexType.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
 			{
-				propertyValue = type.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()).designJSONToJava(propertyValue,
+				propertyValue = complexType.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()).designJSONToJava(propertyValue,
 					componentSpecType.getConfig());
 			}
-			else if (jsonSource == ConversionLocation.SERVER && type.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()) != null)
+			else if (complexType != null && jsonSource == ConversionLocation.SERVER &&
+				complexType.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()) != null)
 			{
-				propertyValue = type.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()).serverObjToJava(propertyValue,
+				propertyValue = complexType.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()).serverObjToJava(propertyValue,
 					componentSpecType.getConfig(), (IComplexPropertyValue)oldJavaObject);
 			}
 			else if (componentSpecType.isArray() && propertyValue instanceof JSONArray)
@@ -407,180 +395,142 @@ public class NGClientForJsonConverter implements IForJsonConverter
 			}
 			else
 			{
-				switch (type.getDefaultEnumValue())
-				{
-					case dimension :
-						if (propertyValue instanceof Object[])
-						{
-							return new Dimension(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-						}
-						if (propertyValue instanceof JSONObject)
-						{
-							return new Dimension(((JSONObject)propertyValue).getInt("width"), ((JSONObject)propertyValue).getInt("height"));
-						}
-						if (propertyValue instanceof NativeObject)
-						{
-							NativeObject value = (NativeObject)propertyValue;
-							return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
-						}
-						break;
-
-					case point :
-						if (propertyValue instanceof Object[])
-						{
-							return new Point(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-						}
-						if (propertyValue instanceof JSONObject)
-						{
-							return new Point(((JSONObject)propertyValue).getInt("x"), ((JSONObject)propertyValue).getInt("y"));
-						}
-						if (propertyValue instanceof NativeObject)
-						{
-							NativeObject value = (NativeObject)propertyValue;
-							return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
-						}
-						break;
-
-					case color :
-						if (propertyValue instanceof String)
-						{
-							return PersistHelper.createColor(propertyValue.toString());
-						}
-						break;
-
-					case format :
-						if (propertyValue instanceof String)
-						{
-							//todo recreate ComponentFormat object (it has quite a lot of dependencies , application,pesist  etc)
-							return propertyValue;
-						}
-						break;
-
-					case border :
-						if (propertyValue instanceof String)
-						{
-							return ComponentFactoryHelper.createBorder((String)propertyValue);
-						}
-						break;
-
-					case media :
-						Media media = null;
-						if (propertyValue instanceof Integer)
-						{
-							media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
-						}
-						else if (propertyValue instanceof String && ((String)propertyValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
-						{
-							media = converterContext.getSolution().getMedia(((String)propertyValue).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
-						}
-						if (media != null)
-						{
-							String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
-								media.getName();
-							Dimension imageSize = ImageLoader.getSize(media.getMediaData());
-							boolean paramsAdded = false;
-							if (imageSize != null)
-							{
-								paramsAdded = true;
-								url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
-							}
-							if (converterContext.getApplication() != null)
-							{
-								Solution sc = converterContext.getSolution().getSolutionCopy(false);
-								if (sc != null && sc.getMedia(media.getName()) != null)
-								{
-									if (paramsAdded) url += "&";
-									else url += "?";
-									url += "uuid=" + converterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
-								}
-							}
-							return url;
-						}
-						else
-						{
-							Debug.log("cannot convert media " + propertyValue);
-						}
-						break;
-					case formscope :
-						INGApplication app = converterContext.getApplication();
-						if (propertyValue instanceof String && app != null)
-						{
-							return app.getFormManager().getForm((String)propertyValue).getFormScope();
-						}
-						break;
-
-					default :
-					{
-						if (sourceValue instanceof JSONObject)
-						{
-							JSONObject jsonObject = (JSONObject)sourceValue;
-							PropertyDescription typeSpec = type.getCustomJSONTypeDefinition();
-							Map<String, Object> ret = new HashMap<String, Object>();
-							Map<String, Object> oldMap = (oldJavaObject != null && oldJavaObject instanceof Map) ? (Map<String, Object>)oldJavaObject : null;
-							for (Entry<String, PropertyDescription> entry : typeSpec.getProperties().entrySet())
-							{
-								String key = entry.getKey();
-								if (jsonObject.has(key))
-								{
-									ret.put(
-										key,
-										toJavaObject(jsonObject.opt(key), entry.getValue(), converterContext, jsonSource, oldMap != null ? oldMap.get(key)
-											: null));
-								}
-								else if (oldMap != null && oldMap.containsKey(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
-								{
-									ret.put(key, oldMap.get(key));
-								}
-							}
-							return ret;
-						}
-						break;
-					}
-				}
+				// TODO remove this, this should all now be done in the Types.
+//				switch (type.getDefaultEnumValue())
+//				{
+//					case dimension :
+//						if (propertyValue instanceof Object[])
+//						{
+//							return new Dimension(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
+//						}
+//						if (propertyValue instanceof JSONObject)
+//						{
+//							return new Dimension(((JSONObject)propertyValue).getInt("width"), ((JSONObject)propertyValue).getInt("height"));
+//						}
+//						if (propertyValue instanceof NativeObject)
+//						{
+//							NativeObject value = (NativeObject)propertyValue;
+//							return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
+//						}
+//						break;
+//
+//					case point :
+//						if (propertyValue instanceof Object[])
+//						{
+//							return new Point(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
+//						}
+//						if (propertyValue instanceof JSONObject)
+//						{
+//							return new Point(((JSONObject)propertyValue).getInt("x"), ((JSONObject)propertyValue).getInt("y"));
+//						}
+//						if (propertyValue instanceof NativeObject)
+//						{
+//							NativeObject value = (NativeObject)propertyValue;
+//							return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
+//						}
+//						break;
+//
+//					case color :
+//						if (propertyValue instanceof String)
+//						{
+//							return PersistHelper.createColor(propertyValue.toString());
+//						}
+//						break;
+//
+//					case format :
+//						if (propertyValue instanceof String)
+//						{
+//							//todo recreate ComponentFormat object (it has quite a lot of dependencies , application,pesist  etc)
+//							return propertyValue;
+//						}
+//						break;
+//
+//					case border :
+//						if (propertyValue instanceof String)
+//						{
+//							return ComponentFactoryHelper.createBorder((String)propertyValue);
+//						}
+//						break;
+//
+//					case media :
+//						Media media = null;
+//						if (propertyValue instanceof Integer)
+//						{
+//							media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
+//						}
+//						else if (propertyValue instanceof String && ((String)propertyValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+//						{
+//							media = converterContext.getSolution().getMedia(((String)propertyValue).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
+//						}
+//						if (media != null)
+//						{
+//							String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
+//								media.getName();
+//							Dimension imageSize = ImageLoader.getSize(media.getMediaData());
+//							boolean paramsAdded = false;
+//							if (imageSize != null)
+//							{
+//								paramsAdded = true;
+//								url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
+//							}
+//							if (converterContext.getApplication() != null)
+//							{
+//								Solution sc = converterContext.getSolution().getSolutionCopy(false);
+//								if (sc != null && sc.getMedia(media.getName()) != null)
+//								{
+//									if (paramsAdded) url += "&";
+//									else url += "?";
+//									url += "uuid=" + converterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
+//								}
+//							}
+//							return url;
+//						}
+//						else
+//						{
+//							Debug.log("cannot convert media " + propertyValue);
+//						}
+//						break;
+//					case formscope :
+//						INGApplication app = converterContext.getApplication();
+//						if (propertyValue instanceof String && app != null)
+//						{
+//							return app.getFormManager().getForm((String)propertyValue).getFormScope();
+//						}
+//						break;
+//
+//					default :
+//					{
+//						if (sourceValue instanceof JSONObject)
+//						{
+//							JSONObject jsonObject = (JSONObject)sourceValue;
+//							PropertyDescription typeSpec = ((ICustomType)type).getCustomJSONTypeDefinition();
+//							Map<String, Object> ret = new HashMap<String, Object>();
+//							Map<String, Object> oldMap = (oldJavaObject != null && oldJavaObject instanceof Map) ? (Map<String, Object>)oldJavaObject : null;
+//							for (Entry<String, PropertyDescription> entry : typeSpec.getProperties().entrySet())
+//							{
+//								String key = entry.getKey();
+//								if (jsonObject.has(key))
+//								{
+//									ret.put(
+//										key,
+//										toJavaObject(jsonObject.opt(key), entry.getValue(), converterContext, jsonSource, oldMap != null ? oldMap.get(key)
+//											: null));
+//								}
+//								else if (oldMap != null && oldMap.containsKey(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
+//								{
+//									ret.put(key, oldMap.get(key));
+//								}
+//							}
+//							return ret;
+//						}
+//						break;
+//					}
+//				}
 			}
 		}
 
 		return propertyValue;
 	}
 
-	public static Object toStringObject(Object propertyValue, IPropertyType propertyType)
-	{
-		if (propertyValue != null && propertyType != null)
-		{
-			switch (propertyType.getDefaultEnumValue())
-			{
-				case dimension :
-					if (propertyValue instanceof Dimension)
-					{
-						return PersistHelper.createDimensionString((Dimension)propertyValue);
-					}
-					break;
 
-				case point :
-					if (propertyValue instanceof Point)
-					{
-						return PersistHelper.createPointString((Point)propertyValue);
-					}
-					break;
-
-				case color :
-					if (propertyValue instanceof Color)
-					{
-						return PersistHelper.createColorString((Color)propertyValue);
-					}
-					break;
-
-				case form :
-					if (propertyValue instanceof Form)
-					{
-						return ((Form)propertyValue).getName();
-					}
-					break;
-
-				default :
-			}
-		}
-
-		return propertyValue;
-	}
 }

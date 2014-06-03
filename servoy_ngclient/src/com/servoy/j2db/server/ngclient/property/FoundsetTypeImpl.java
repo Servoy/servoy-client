@@ -17,27 +17,21 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import org.json.JSONObject;
 import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IDesignJSONToJavaPropertyConverter;
 import org.sablo.specification.property.IJSONToJavaPropertyConverter;
-import org.sablo.specification.property.IPropertyConfigurationParser;
 import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
 
 import com.servoy.j2db.util.Debug;
 
 /**
  * Implementation for the complex custom type "foundset".
- * 
+ *
  * @author acostescu
  */
 public class FoundsetTypeImpl implements IComplexTypeImpl<Object, FoundsetTypeValue>
 {
-
-	@Override
-	public IPropertyConfigurationParser<Object> getPropertyConfigurationParser()
-	{
-		return null;
-	}
 
 	@Override
 	public IJSONToJavaPropertyConverter<Object, FoundsetTypeValue> getJSONToJavaPropertyConverter(boolean isArray)
@@ -94,6 +88,24 @@ public class FoundsetTypeImpl implements IComplexTypeImpl<Object, FoundsetTypeVa
 			}
 
 		};
+	}
+
+	@Override
+	public String getName()
+	{
+		return "foundset";
+	}
+
+	@Override
+	public Object parseConfig(JSONObject config)
+	{
+		return config;
+	}
+
+	@Override
+	public FoundsetTypeValue defaultValue()
+	{
+		return null;
 	}
 
 }

@@ -38,6 +38,9 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DataproviderPropertyType;
+import org.sablo.specification.property.types.TagStringPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -50,6 +53,8 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
@@ -90,7 +95,7 @@ public final class FormElement implements IWebComponentInitializer
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 		Map<String, Object> map = legacyImpl.getConvertedProperties(context, specProperties);
 
-		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values 
+		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values
 		initProperties(specProperties, map, context);
 		adjustLocationRelativeToPart(context.getSolution(), map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
@@ -115,7 +120,7 @@ public final class FormElement implements IWebComponentInitializer
 			Debug.error("Error while parsing component design JSON", ex);
 		}
 
-		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values 
+		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values
 		initProperties(specProperties, map, context);
 		adjustLocationRelativeToPart(context.getSolution(), map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
@@ -280,23 +285,7 @@ public final class FormElement implements IWebComponentInitializer
 
 		if (propertyDescription != null)
 		{
-			switch (propertyDescription.getType().getDefaultEnumValue())
-			{
-				case bool :
-					return Boolean.FALSE;
-				case valuelist :
-				case bytenumber :
-				case doublenumber :
-				case floatnumber :
-				case intnumber :
-				case longnumber :
-				case shortnumber :
-					return Integer.valueOf(0);
-				case dimension :
-					return new Dimension(0, 0);
-				case point :
-					return new Point(0, 0);
-			}
+			return propertyDescription.getType().defaultValue();
 		}
 		return null;
 	}
@@ -381,7 +370,7 @@ public final class FormElement implements IWebComponentInitializer
 	{
 		List<String> valuelistProperties = new ArrayList<>();
 		WebComponentSpecification componentSpec = getWebComponentSpec();
-		Map<String, PropertyDescription> properties = componentSpec.getProperties(IPropertyType.Default.valuelist.getType());
+		Map<String, PropertyDescription> properties = componentSpec.getProperties(TypesRegistry.getType("valuelist"));
 
 		for (PropertyDescription pd : properties.values())
 		{
@@ -410,21 +399,17 @@ public final class FormElement implements IWebComponentInitializer
 		{
 			Object val = getProperty(pd.getName());
 			if (val == null) continue;
-			switch (pd.getType().getDefaultEnumValue())
+			IPropertyType type = pd.getType();
+			if (type instanceof DataproviderPropertyType || type instanceof FormatPropertyType || type instanceof ValueListPropertyType)
 			{
-			// dataprovider,formats,valuelist are always only pushed through the components
-				case dataprovider :
-				case format :
-				case valuelist :
-					continue;
-				case tagstring :
-					// tagstring if it has tags then it is data then it should be skipped.
-					if (((String)val).contains("%%")) continue;
-				default :
-					properties.put(pd.getName(), val);
-					break;
-
+				continue;
 			}
+			if (type instanceof TagStringPropertyType)
+			{
+				// tagstring if it has tags then it is data then it should be skipped.
+				if (((String)val).contains("%%")) continue;
+			}
+			properties.put(pd.getName(), val);
 		}
 
 		if (legacyImpl == null || !legacyImpl.isForm())

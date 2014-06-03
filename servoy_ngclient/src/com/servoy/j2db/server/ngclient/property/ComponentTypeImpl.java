@@ -21,14 +21,13 @@ import org.json.JSONObject;
 import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IDesignJSONToJavaPropertyConverter;
 import org.sablo.specification.property.IJSONToJavaPropertyConverter;
-import org.sablo.specification.property.IPropertyConfigurationParser;
 import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
 
 import com.servoy.j2db.util.Debug;
 
 /**
  * Implementation for the complex custom type "component". Can be used to nest components using properties.
- * 
+ *
  * @author acostescu
  */
 public class ComponentTypeImpl implements IComplexTypeImpl<ComponentTypeConfig, ComponentTypeValue>
@@ -45,19 +44,22 @@ public class ComponentTypeImpl implements IComplexTypeImpl<ComponentTypeConfig, 
 	public final static String FUNCTION_NAME_KEY = "functionName"; //$NON-NLS-1$
 
 	@Override
-	public IPropertyConfigurationParser<ComponentTypeConfig> getPropertyConfigurationParser()
+	public Object parseConfig(JSONObject config)
 	{
-		return new IPropertyConfigurationParser<ComponentTypeConfig>()
-		{
+		String tmp = config.optString("forFoundsetTypedProperty"); //$NON-NLS-1$
+		return tmp == null ? null : new ComponentTypeConfig(tmp);
+	}
 
-			@Override
-			public ComponentTypeConfig parseProperyConfiguration(JSONObject configObject)
-			{
-				String tmp = configObject.optString("forFoundsetTypedProperty"); //$NON-NLS-1$
-				return tmp == null ? null : new ComponentTypeConfig(tmp);
-			}
+	@Override
+	public ComponentTypeValue defaultValue()
+	{
+		return null;
+	}
 
-		};
+	@Override
+	public String getName()
+	{
+		return "component";
 	}
 
 	@Override

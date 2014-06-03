@@ -32,7 +32,8 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IComplexPropertyValue;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DataproviderPropertyType;
+import org.sablo.specification.property.types.TagStringPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.ComponentFactory;
@@ -45,7 +46,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Value used at runtime as component type value proxy for multiple interested parties (browser, designtime, scripting).
- * 
+ *
  * @author acostescu
  */
 public class ComponentTypeValue implements IComplexPropertyValue
@@ -161,13 +162,13 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	private Map<String, String> findDataLinks(FormElement formElement)
 	{
 		Map<String, String> m = new HashMap<>();
-		List<String> tagstrings = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), IPropertyType.Default.tagstring.getType());
+		List<String> tagstrings = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), TagStringPropertyType.INSTANCE);
 		for (String tagstringPropID : tagstrings)
 		{
 			m.put(tagstringPropID, (String)formElement.getProperty(tagstringPropID));
 		}
 
-		List<String> dataproviders = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), IPropertyType.Default.dataprovider.getType());
+		List<String> dataproviders = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 		for (String dataproviderID : dataproviders)
 		{
 			m.put(dataproviderID, (String)formElement.getProperty(dataproviderID));

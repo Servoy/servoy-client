@@ -15,7 +15,7 @@ import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IComplexPropertyValue;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -56,7 +56,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		}
 		if (fe.getWebComponentSpec(false) != null)
 		{
-			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(IPropertyType.Default.tabseq.getType());
+			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("tabseq"));
 			List<PropertyDescription> sortedList = new SortedList<PropertyDescription>(new Comparator<PropertyDescription>()
 			{
 
@@ -191,7 +191,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -202,7 +202,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -213,7 +213,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

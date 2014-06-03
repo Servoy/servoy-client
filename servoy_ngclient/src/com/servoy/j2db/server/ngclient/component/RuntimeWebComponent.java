@@ -29,8 +29,10 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
+import org.sablo.specification.property.types.DataproviderPropertyType;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -66,14 +68,14 @@ public class RuntimeWebComponent implements Scriptable
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (Entry<String, PropertyDescription> e : specs.entrySet())
 			{
-				IPropertyType type = e.getValue().getType();
-				if (type == IPropertyType.Default.dataprovider.getType())
+				IPropertyType< ? > type = e.getValue().getType();
+				if (type == DataproviderPropertyType.INSTANCE)
 				{
 					dataProviderProperties.add(e.getKey());
 				}
-				else
+				else if (type instanceof IComplexTypeImpl)
 				{
-					IServerObjToJavaPropertyConverter< ? , ? > javascriptToPropertyConverter = type.getServerObjectToJavaPropertyConverter(e.getValue().isArray());
+					IServerObjToJavaPropertyConverter< ? , ? > javascriptToPropertyConverter = ((IComplexTypeImpl)type).getServerObjectToJavaPropertyConverter(e.getValue().isArray());
 					if (javascriptToPropertyConverter != null)
 					{
 						// we have a custom property that is able to convert values for javascript

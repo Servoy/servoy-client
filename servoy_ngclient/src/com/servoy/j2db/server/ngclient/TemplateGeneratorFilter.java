@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -23,6 +24,14 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.server.ngclient.property.types.BeanPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormScopePropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MediaOptionsPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.FormWithInlineLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.IndexTemplateGenerator;
@@ -146,12 +155,21 @@ public class TemplateGeneratorFilter implements Filter
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
-		//register the session factory at the manager 
+		//register the session factory at the manager
 		WebsocketSessionManager.setWebsocketSessionFactory(WebsocketSessionFactory.get());
 
 		//when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
+			TypesRegistry.addType(RelationPropertyType.INSTANCE);
+			TypesRegistry.addType(MediaPropertyType.INSTANCE);
+			TypesRegistry.addType(BeanPropertyType.INSTANCE);
+			TypesRegistry.addType(FormPropertyType.INSTANCE);
+			TypesRegistry.addType(FormatPropertyType.INSTANCE);
+			TypesRegistry.addType(ValueListPropertyType.INSTANCE);
+			TypesRegistry.addType(FormScopePropertyType.INSTANCE);
+			TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
+
 			WebComponentSpecProvider.init(fc.getServletContext());
 		}
 	}

@@ -21,13 +21,17 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.types.BooleanPropertyType;
+import org.sablo.specification.property.types.DatePropertyType;
+import org.sablo.specification.property.types.IntPropertyType;
+import org.sablo.specification.property.types.StringPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 
 /**
  * @author jcompagner
- * 
+ *
  * TODO: include in jenkins automatic build
  *
  */
@@ -39,7 +43,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals("/test.js", spec.getDefinition());
 	}
 
@@ -49,7 +53,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', libraries:[],model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		String[] libs = spec.getLibraries();
 		Assert.assertEquals(0, libs.length);
 	}
@@ -60,7 +64,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', libraries:['/test.css'],model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		String[] libs = spec.getLibraries();
 		Assert.assertEquals(1, libs.length);
 		Assert.assertEquals(libs[0], "/test.css");
@@ -71,7 +75,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', libraries:['/test.css','/something.js'],model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		String[] libs = spec.getLibraries();
 		Assert.assertEquals(2, libs.length);
 		Assert.assertEquals(libs[0], "/test.css");
@@ -83,11 +87,11 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myvaluelist:{for:'mydataprovider' , type:'valuelist'}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myvaluelist");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.valuelist.getType());
+		Assert.assertTrue(pd.getType() == TypesRegistry.getType("valuelist"));
 		Assert.assertFalse(pd.isArray());
 
 		Assert.assertEquals("mydataprovider", pd.getConfig());
@@ -98,11 +102,11 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myformat:{for:'mydataprovider' , type:'format'}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myformat");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.format.getType());
+		Assert.assertTrue(pd.getType() == TypesRegistry.getType("format"));
 		Assert.assertFalse(pd.isArray());
 
 		Assert.assertEquals("mydataprovider", pd.getConfig());
@@ -113,11 +117,11 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'string'}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.string.getType());
+		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
 		Assert.assertFalse(pd.isArray());
 	}
 
@@ -126,23 +130,23 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'string',prop2:'boolean',prop3:'int',prop4:'date'}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(spec.getProperties().toString(), 4, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.string.getType());
+		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
 		Assert.assertFalse(pd.isArray());
 		pd = spec.getProperties().get("prop2");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.bool.getType());
+		Assert.assertTrue(pd.getType() == BooleanPropertyType.INSTANCE);
 		Assert.assertFalse(pd.isArray());
 		pd = spec.getProperties().get("prop3");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.intnumber.getType());
+		Assert.assertTrue(pd.getType() == IntPropertyType.INSTANCE);
 		Assert.assertFalse(pd.isArray());
 		pd = spec.getProperties().get("prop4");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.date.getType());
+		Assert.assertTrue(pd.getType() == DatePropertyType.INSTANCE);
 		Assert.assertFalse(pd.isArray());
 	}
 
@@ -151,11 +155,11 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'string[]'}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IPropertyType.Default.string.getType());
+		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
 		Assert.assertTrue(pd.isArray());
 	}
 
@@ -164,20 +168,20 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'string'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertNotNull(pd.getType().getCustomJSONTypeDefinition());
+		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
 		Assert.assertFalse(pd.isArray());
 
-		PropertyDescription wct = pd.getType().getCustomJSONTypeDefinition();
+		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == IPropertyType.Default.string.getType());
+		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
 		Assert.assertFalse(pd2.isArray());
 	}
 
@@ -186,20 +190,20 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertNotNull(pd.getType().getCustomJSONTypeDefinition());
+		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
 		Assert.assertTrue(pd.isArray());
 
-		PropertyDescription wct = pd.getType().getCustomJSONTypeDefinition();
+		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == IPropertyType.Default.string.getType());
+		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
 		Assert.assertFalse(pd2.isArray());
 
 	}
@@ -209,20 +213,20 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string[]'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertNotNull(pd.getType().getCustomJSONTypeDefinition());
+		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
 		Assert.assertTrue(pd.isArray());
 
-		PropertyDescription wct = pd.getType().getCustomJSONTypeDefinition();
+		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == IPropertyType.Default.string.getType());
+		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
 		Assert.assertTrue(pd2.isArray());
 
 	}
@@ -232,31 +236,31 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'mytype2'}},mytype2:{model:{typeproperty:'string'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertNotNull(pd.getType().getCustomJSONTypeDefinition());
+		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
 		Assert.assertNull(config);
 		Assert.assertFalse(pd.isArray());
 
-		PropertyDescription wct = pd.getType().getCustomJSONTypeDefinition();
+		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
 		Assert.assertNotNull(pd2);
-		Assert.assertNotNull(pd2.getType().getCustomJSONTypeDefinition());
+		Assert.assertNotNull(((ICustomType)pd2.getType()).getCustomJSONTypeDefinition());
 		Assert.assertFalse(pd2.isArray());
 
 		config = pd2.getConfig();
 		Assert.assertNull(config);
-		PropertyDescription wct2 = pd2.getType().getCustomJSONTypeDefinition();
+		PropertyDescription wct2 = ((ICustomType)pd2.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("mytype2", wct2.getName());
 		Assert.assertEquals(1, wct2.getProperties().size());
 		PropertyDescription pd3 = wct2.getProperty("typeproperty");
 		Assert.assertNotNull(pd3);
-		Assert.assertTrue(pd3.getType() == IPropertyType.Default.string.getType());
+		Assert.assertTrue(pd3.getType() == StringPropertyType.INSTANCE);
 		Assert.assertFalse(pd3.isArray());
 	}
 
@@ -264,14 +268,14 @@ public class WebComponentSpecTest
 	public void testNames() throws JSONException
 	{
 		String property = "name:'test',definition:'/test.js'";
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals("test", spec.getName());
 		Assert.assertEquals("test", spec.getDisplayName());
 		Assert.assertEquals("sample", spec.getPackageName());
 		Assert.assertEquals("sample:test", spec.getFullName());
 
 		property = "name:'test', displayName: 'A Test',definition:'/test.js'";
-		spec = WebComponentSpecification.parseSpec(property, "sample", WebComponentSpecProvider.readDefaultTypes(), "test.path");
+		spec = WebComponentSpecification.parseSpec(property, "sample");
 		Assert.assertEquals("test", spec.getName());
 		Assert.assertEquals("A Test", spec.getDisplayName());
 		Assert.assertEquals("sample", spec.getPackageName());

@@ -42,14 +42,23 @@ import org.sablo.specification.WebComponentPackage;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.CustomPropertyTypeResolver;
+import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.server.ngclient.property.ComponentTypeImpl;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeImpl;
+import com.servoy.j2db.server.ngclient.property.types.BeanPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormScopePropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MediaOptionsPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.startup.Activator;
 import com.servoy.j2db.util.Utils;
 
 /**
- * 
+ *
  * Filter that should only be there in a developer environment.
  * @author jcompagner
  */
@@ -72,6 +81,8 @@ public class ResourceProvider implements Filter
 
 	private static void initSpecProvider()
 	{
+		registerTypes();
+
 		ArrayList<IPackageReader> readers = new ArrayList<>(packageReaders);
 		Enumeration<URL> findEntries = Activator.getContext().getBundle().findEntries("/war/", "MANIFEST.MF", true);
 		while (findEntries.hasMoreElements())
@@ -85,12 +96,20 @@ public class ResourceProvider implements Filter
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException
 	{
-		registerComplexPropertyTypes();
 		initSpecProvider();
 	}
 
-	private void registerComplexPropertyTypes()
+	private static void registerTypes()
 	{
+		TypesRegistry.addType(RelationPropertyType.INSTANCE);
+		TypesRegistry.addType(MediaPropertyType.INSTANCE);
+		TypesRegistry.addType(BeanPropertyType.INSTANCE);
+		TypesRegistry.addType(FormPropertyType.INSTANCE);
+		TypesRegistry.addType(FormatPropertyType.INSTANCE);
+		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
+		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
+		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
+
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
 		CustomPropertyTypeResolver typeResolver = CustomPropertyTypeResolver.getInstance();
 		if (!typeResolver.hasTypeName("foundset")) //$NON-NLS-1$

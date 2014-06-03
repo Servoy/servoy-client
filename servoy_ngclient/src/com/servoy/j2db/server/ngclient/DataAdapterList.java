@@ -35,6 +35,7 @@ import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
@@ -398,7 +399,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		PropertyDescription propertyDescription = fe.getWebComponentSpec().getProperties().get(propertyName);
 		if (propertyDescription == null) propertyDescription = fe.getWebComponentSpec().getHandlers().get(propertyName);
-		return NGClientForJsonConverter.toStringObject(propertyValue, propertyDescription.getType());
+		return DesignConversion.toStringObject(propertyValue, propertyDescription.getType());
 	}
 
 	@Override
