@@ -49,6 +49,7 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IForJsonConverter;
 
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -58,9 +59,11 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -461,23 +464,43 @@ public class NGClientForJsonConverter implements IForJsonConverter
 						break;
 
 					case media :
+						Media media = null;
 						if (propertyValue instanceof Integer)
 						{
-							// special support for media type (that needs a FS to resolve the media)
-							Media media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
-							if (media != null)
+							media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
+						}
+						else if (propertyValue instanceof String && ((String)propertyValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+						{
+							media = converterContext.getSolution().getMedia(((String)propertyValue).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
+						}
+						if (media != null)
+						{
+							String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
+								media.getName();
+							Dimension imageSize = ImageLoader.getSize(media.getMediaData());
+							boolean paramsAdded = false;
+							if (imageSize != null)
 							{
-								return "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
-									media.getName();
+								paramsAdded = true;
+								url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
 							}
-							else
+							if (converterContext.getApplication() != null)
 							{
-								Debug.log("could not convert value: " + propertyValue + " to an media, media not found");
-								return "";
+								Solution sc = converterContext.getSolution().getSolutionCopy(false);
+								if (sc != null && sc.getMedia(media.getName()) != null)
+								{
+									if (paramsAdded) url += "&";
+									else url += "?";
+									url += "uuid=" + converterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
+								}
 							}
+							return url;
+						}
+						else
+						{
+							Debug.log("cannot convert media " + propertyValue);
 						}
 						break;
-
 					case formscope :
 						INGApplication app = converterContext.getApplication();
 						if (propertyValue instanceof String && app != null)

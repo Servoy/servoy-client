@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,18 +42,14 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeImpl;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Form element that is based on a persist.
@@ -157,40 +152,6 @@ class PersistBasedFormElementImpl
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_FONTTYPE : //PropertyType.font.getType
 					convPropertiesMap.put(pv, PersistHelper.createFont((String)val));
 					break;
-				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID :
-				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_IMAGEMEDIAID :
-				{
-					Media media = context.getSolution().getMedia(Utils.getAsInteger(val));
-					if (media != null)
-					{
-						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
-							media.getName();
-						Dimension imageSize = ImageLoader.getSize(media.getMediaData());
-						boolean paramsAdded = false;
-						if (imageSize != null)
-						{
-							paramsAdded = true;
-							url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
-						}
-						if (context.getApplication() != null)
-						{
-							Solution sc = context.getSolution().getSolutionCopy(false);
-							if (sc != null && sc.getMedia(media.getName()) != null)
-							{
-								if (paramsAdded) url += "&";
-								else url += "?";
-								url += "uuid=" + context.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
-							}
-						}
-						convPropertiesMap.put(pv, url);
-					}
-					else
-					{
-						Debug.log("media " + val + " not found for component: " + persist);
-					}
-					break;
-				}
-
 				default :
 					convPropertiesMap.put(pv, val);
 					break;
