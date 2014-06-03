@@ -83,6 +83,18 @@ public class FormWrapper
 		return "angular.module('servoyApp').controller";
 	}
 
+	public String getViewType()
+	{
+		switch (form.getView())
+		{
+			case IFormConstants.VIEW_TYPE_TABLE_LOCKED :
+			case IFormConstants.VIEW_TYPE_TABLE :
+				return "TABLE_VIEW";
+			default :
+				return "RECORD_VIEW";
+		}
+	}
+
 	public int getHeaderHeight()
 	{
 		if (form.hasPart(Part.HEADER))

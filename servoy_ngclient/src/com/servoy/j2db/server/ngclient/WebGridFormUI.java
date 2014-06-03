@@ -83,6 +83,9 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 	{
 		Map<String, Map<String, Object>> props = super.getAllComponentsProperties();
 		appendRows(props.get(""), getRows(-1, -1).rows);
+		selectionChanged = false;
+		allChanged = false;
+		rowChanges.clear();
 		return props;
 	}
 

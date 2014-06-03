@@ -177,15 +177,16 @@
 		}
 	}, false);
 	
+	/* set pageSize when grid is 'ready' . Then the pageSize watch will issue a 'requestdata' to the form service*/
+	var gridReady = $scope.$watch('grid${controllerName}.$gridScope.totalServerItems',function(newVal,oldVal){
+		//totalServerItems is set when grid is ready  
+		if(angular.isDefined(newVal)){
+		 $scope.grid${controllerName}.$gridScope.pagingOptions.pageSize = Math.ceil(($scope.grid${controllerName}.$gridScope.viewportDimHeight()-2)/(${rowHeight}+1)); //border is 1px`
+		 gridReady() // remove watch
+		}
+	})
 	var firstTime = true;
 	$scope.$watch('model..totalRows', function (newVal, oldVal) {	
-		if (angular.isUndefined(oldVal))
-		{
-			$scope.grid${controllerName}.$gridScope.pagingOptions.pageSize = Math.ceil(($scope.grid${controllerName}.$gridScope.viewportDimHeight()-2)/(${rowHeight}+1)); //border is 1px
-			$timeout(function() {
-				$scope.$apply();
-			});
-		}	
 		if (firstTime || newVal !== oldVal)
 		{
 			firstTime = false;
