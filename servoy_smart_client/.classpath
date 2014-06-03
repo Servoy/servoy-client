@@ -9,4 +9,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="var" path="WEBSTART"/>
 	<classpathentry kind="output" path="bin"/>
+    <classpathentry exported="true" kind="lib" path="lib/BrowserLauncher2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/l2fprod-common-outlookbar.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/MRJAdapter.jar"/>
 </classpath>
