@@ -146,11 +146,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected ClientState()
 	{
-		//security check:all subclasses should be signed by same certificateS, this way unsigned subclasses are impossible to run
-		if (!Utils.equalObjects(this.getClass().getSigners(), ClientState.class.getSigners()))
-		{
-			throw new IllegalStateException();
-		}
 		clientInfo = new ClientInfo();
 
 		// firing some form events needs to know the position of JSEvent argument
