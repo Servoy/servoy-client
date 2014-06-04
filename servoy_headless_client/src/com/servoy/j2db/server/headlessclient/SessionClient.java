@@ -127,7 +127,7 @@ import com.servoy.j2db.util.toolbar.Toolbar;
 
 /**
  * A client which can be used in a jsp page or inside the org.apache.wicket framework as webclient
- * 
+ *
  * @author jblok
  */
 public class SessionClient extends ClientState implements ISessionClient, HttpSessionActivationListener
@@ -309,7 +309,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	}
 
 	/**
-	 * We can define this here to allow all server based client to run every solution type, 
+	 * We can define this here to allow all server based client to run every solution type,
 	 * while WebClient as exception uses SolutionLoader logic to load a SOLUTION|WEB_CLIENT_ONLY
 	 */
 	@Override
@@ -340,7 +340,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IApplication#updateUI(int)
 	 */
 	public void updateUI(int time)
@@ -452,7 +452,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/**
 	 * This method sets the service provider to this if needed. Will return the previous provider that should be set back later.
-	 * 
+	 *
 	 * @return previously set service provider.
 	 */
 	protected IServiceProvider testThreadLocals()
@@ -754,6 +754,9 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			}
 			if (Session.exists() && Session.get() == wicket_session)
 			{
+				// make sure the 2 thread locals are just empty lists.
+				Session.get().getDirtyObjectsList().clear();
+				Session.get().getTouchedPages().clear();
 				Session.unset();
 			}
 			J2DBGlobals.setServiceProvider(prev);
@@ -829,7 +832,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 				if (!token.equals("foundset")) //$NON-NLS-1$
 				{
 					// todo why is this always also assigned to the datacontext?
-					// shouldnt the above if be: if (token.equals("foundset") && st.hasMoreTokes()) dataContext == st.nextToken(); 
+					// shouldnt the above if be: if (token.equals("foundset") && st.hasMoreTokes()) dataContext == st.nextToken();
 					// because now this data context will just be set to a form name if the contextName is just a form. (which in many cases it is defined like that)
 					dataContext = token;
 				}
@@ -1297,8 +1300,8 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		return executing.isLocked();
 	}
 
-	// invoke later can't add it to a runnable or something. It is not the same thing as invokelater on 
-	// swing utilities where it still happens on the event thread but a bit later which can't be done in a web client. 
+	// invoke later can't add it to a runnable or something. It is not the same thing as invokelater on
+	// swing utilities where it still happens on the event thread but a bit later which can't be done in a web client.
 	@Override
 	protected void doInvokeLater(Runnable r)
 	{
@@ -1338,7 +1341,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IApplication#getOSName()
 	 */
 	public String getClientOSName()
@@ -1613,7 +1616,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	}
 
 	/**
-	 * Overwrite this method with an empty definition if the derived client doens't want user properties reset at solution close. 
+	 * Overwrite this method with an empty definition if the derived client doens't want user properties reset at solution close.
 	 */
 	protected void reinitializeDefaultProperties()
 	{
@@ -1851,7 +1854,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
@@ -1861,7 +1864,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
