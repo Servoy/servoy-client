@@ -40,7 +40,6 @@ import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.IService;
 import org.sablo.websocket.IWebsocketEndpoint;
@@ -77,14 +76,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.BeanPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormScopePropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.MediaOptionsPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
@@ -112,14 +104,7 @@ public class PersistFieldInstanceTest
 	@Before
 	public void buildSolution() throws Exception
 	{
-		TypesRegistry.addType(RelationPropertyType.INSTANCE);
-		TypesRegistry.addType(MediaPropertyType.INSTANCE);
-		TypesRegistry.addType(BeanPropertyType.INSTANCE);
-		TypesRegistry.addType(FormPropertyType.INSTANCE);
-		TypesRegistry.addType(FormatPropertyType.INSTANCE);
-		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
-		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
-		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
+		Types.registerTypes();
 
 		File[] locations = new File[2];
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
@@ -346,7 +331,7 @@ public class PersistFieldInstanceTest
 
 				/*
 				 * (non-Javadoc)
-				 * 
+				 *
 				 * @see com.servoy.j2db.ClientState#createRepository()
 				 */
 				@Override
@@ -548,7 +533,7 @@ public class PersistFieldInstanceTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObjectMetaData(int, com.servoy.j2db.util.UUID, java.lang.String, int, int, int)
 		 */
 		@Override
@@ -561,7 +546,7 @@ public class PersistFieldInstanceTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObject(com.servoy.j2db.persistence.RootObjectMetaData)
 		 */
 		@Override

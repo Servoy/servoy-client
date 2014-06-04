@@ -30,14 +30,7 @@ import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
-import com.servoy.j2db.server.ngclient.property.types.BeanPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormScopePropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.MediaOptionsPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.Types;
 
 /**
  * @author jcompagner
@@ -52,14 +45,7 @@ public class WebComponentSpecTest
 	@Before
 	public void setup()
 	{
-		TypesRegistry.addType(RelationPropertyType.INSTANCE);
-		TypesRegistry.addType(MediaPropertyType.INSTANCE);
-		TypesRegistry.addType(BeanPropertyType.INSTANCE);
-		TypesRegistry.addType(FormPropertyType.INSTANCE);
-		TypesRegistry.addType(FormatPropertyType.INSTANCE);
-		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
-		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
-		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
+		Types.registerTypes();
 	}
 
 	@Test
