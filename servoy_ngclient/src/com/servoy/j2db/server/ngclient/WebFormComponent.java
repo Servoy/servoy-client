@@ -40,6 +40,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 	private final List<Pair<String, Integer>> calculatedTabSequence = new ArrayList<Pair<String, Integer>>();
 
 	protected IDataAdapterList dataAdapterList;
+	protected IDataConverterContext dataConverterContext;
 
 	// the next available tab sequence number (after this component and all its subtree)
 	protected int nextAvailableTabSequence;
@@ -49,6 +50,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		super(fe.getTypeName(), name);
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
+		this.dataConverterContext = new DataConverterContext(dataAdapterList.getApplication());
 
 		if (fe.getLabel() != null)
 		{
@@ -191,7 +193,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -202,7 +204,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -213,7 +215,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -323,5 +325,11 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 	public int getFormIndex(IWebFormUI form)
 	{
 		return visibleForms.containsKey(form) ? visibleForms.get(form).intValue() : -1;
+	}
+
+	@Override
+	protected Object getConverterContext()
+	{
+		return dataConverterContext;
 	}
 }

@@ -61,6 +61,7 @@ public class RuntimeLegacyComponent implements Scriptable
 		ScriptNameToSpecName.put("border", StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName());
 		ScriptNameToSpecName.put("font", StaticContentSpecLoader.PROPERTY_FONTTYPE.getPropertyName());
 		ScriptNameToSpecName.put("imageURL", StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID.getPropertyName());
+		ScriptNameToSpecName.put("rolloverImageURL", StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName());
 	}
 
 	public RuntimeLegacyComponent(WebFormComponent component)
