@@ -144,6 +144,7 @@ types: {
   		relationName: 'relation',
   		active: 'boolean',
   		foreground: 'color',
+  		disabled: 'boolean',
   		mnemonic: 'string'
   	}
   }

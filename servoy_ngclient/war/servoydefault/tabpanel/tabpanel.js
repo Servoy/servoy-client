@@ -86,7 +86,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
     		   promise.then(function(ok) {
     			   delete $scope.waitingForServerVisibility[formInWait];
     			   if (ok){
-    				   if(selectedTab != tab && $scope.handlers.onChangeMethodID)
+    				   if(selectedTab && selectedTab != tab && $scope.handlers.onChangeMethodID)
     				   {
     					   $scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab),event instanceof MouseEvent ? event : null);
     				   }   			

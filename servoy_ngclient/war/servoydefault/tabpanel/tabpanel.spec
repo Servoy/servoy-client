@@ -17,7 +17,7 @@ model:
         selectedTabColor : 'color', 
         size : {type:'dimension',  default: {width:300, height:300}}, 
         styleClass : { type:'styleclass', values:[]}, 
-        tabIndex : 'object', 
+        tabIndex : 'int', 
         tabOrientation : {type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}, 
         tabSeq : 'tabseq', 
         tabs : 'tab[]', 
@@ -112,6 +112,7 @@ types: {
   		relationName: 'relation',
   		active: 'boolean',
   		foreground: 'color',
+  		disabled: 'boolean',
   		mnemonic: 'string'
   	}
   }

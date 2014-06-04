@@ -186,6 +186,7 @@ class PersistBasedFormElementImpl
 		ArrayList<Map<String, Object>> tabList = new ArrayList<>();
 		// add the tabs.
 		Iterator<IPersist> tabs = ((TabPanel)persist).getTabs();
+		map.put("tabIndex", 1);
 		boolean active = true;
 		while (tabs.hasNext())
 		{
@@ -202,7 +203,7 @@ class PersistBasedFormElementImpl
 			// if solution model then this form can change..
 			Form form = context.getSolution().getForm(containsFormID);
 			tabMap.put("containsFormId", form.getName());
-
+			tabMap.put("disabled", false);
 			tabList.add(tabMap);
 			active = false;
 		}

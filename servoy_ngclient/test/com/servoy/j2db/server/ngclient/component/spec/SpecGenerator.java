@@ -538,7 +538,8 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "mediaoptions");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");
 		repoTypeMappingExceptions.put("tabs", "tab[]");
-
+		repoTypeMappingExceptions.put("tabIndex", "int");
+		
 		//internal properties (properties that should not be generated for any component)
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
