@@ -597,6 +597,19 @@ public class ScriptEngine implements IScriptSupport
 				userUidBefore = application.getClientInfo().getUserUid();
 			}
 			Context cx = Context.enter();
+			String methodName = f.getClassName();
+			if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
+			String scopeName = scope.getClassName();
+			if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+			if (scope instanceof FoundSet)
+			{
+				Scriptable parentScope = ((FoundSet)scope).getPrototype();
+				if (parentScope instanceof LazyCompilationScope)
+				{
+					scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+				}
+			}
+			methodName = scopeName + "." + methodName; //$NON-NLS-1$
 			try
 			{
 				if (application instanceof ISmartClientApplication)
@@ -621,19 +634,6 @@ public class ScriptEngine implements IScriptSupport
 					}
 				}
 
-				String methodName = f.getClassName();
-				if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-				String scopeName = scope.getClassName();
-				if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
-				if (scope instanceof FoundSet)
-				{
-					Scriptable parentScope = ((FoundSet)scope).getPrototype();
-					if (parentScope instanceof LazyCompilationScope)
-					{
-						scopeName = ((LazyCompilationScope)parentScope).getScopeName();
-					}
-				}
-				methodName = scopeName + "." + methodName; //$NON-NLS-1$
 
 				//run
 				if (!(application instanceof ISmartClientApplication))
@@ -646,11 +646,6 @@ public class ScriptEngine implements IScriptSupport
 				}
 
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
-
-				if (!(application instanceof ISmartClientApplication))
-				{
-					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName, 0);
-				}
 
 
 				if (retValue instanceof Wrapper)
@@ -675,6 +670,11 @@ public class ScriptEngine implements IScriptSupport
 			}
 			finally
 			{
+				if (!(application instanceof ISmartClientApplication))
+				{
+					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName, 0);
+				}
+
 				if (application instanceof ISmartClientApplication)
 				{
 					((ISmartClientApplication)application).setPaintTableImmediately(true);
