@@ -1024,6 +1024,7 @@ public class FormController extends BasicFormController
 						if (sliderDef != null)
 						{
 							fm.leaseFormPanel(sliderDef.getName());
+							currentFC.notifyVisible(true, invokeLaterRunnables);
 						}
 					}
 				}
@@ -1031,6 +1032,24 @@ public class FormController extends BasicFormController
 				{
 					FormController old_nav = navigatorSupport.setNavigator(null);
 					if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void hideNavigator(List<Runnable> invokeLaterRunnables)
+	{
+		if (fm != null && fm.getCurrentMainShowingFormController() == this)//safety for tabpanels (those cannot have a custom controller)
+		{
+			ISupportNavigator navigatorSupport = fm.getCurrentContainer();
+			if (navigatorSupport != null)
+			{
+				int form_id = form.getNavigatorID();
+				if (form_id > 0)
+				{
+					FormController currentFC = navigatorSupport.getNavigator();
+					if (currentFC != null) currentFC.notifyVisible(false, invokeLaterRunnables);
 				}
 			}
 		}

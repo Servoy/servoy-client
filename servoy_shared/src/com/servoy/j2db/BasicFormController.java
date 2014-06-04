@@ -284,6 +284,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	// TODO this one should i guess move to the basic
 	public abstract void showNavigator(List<Runnable> invokeLaterRunnables);
 
+	public abstract void hideNavigator(List<Runnable> invokeLaterRunnables);
+
 	protected abstract IView getViewComponent();
 
 	protected ControllerUndoManager getUndoManager()
@@ -379,7 +381,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 				//if the focus owner becomes invalid after hiding the form, the focus needs to be changed
 				getFormUI().changeFocusIfInvalid(invokeLaterRunnables);
 			}
-
+			hideNavigator(invokeLaterRunnables);
 			application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 
 			// if form is destroyed in onHide or editRecordStopped..
