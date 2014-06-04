@@ -86,9 +86,4 @@ public class ComponentResourcesExporter
 			}
 		}
 	}
-
-	public static void copyLibs(File libDir) throws IOException
-	{
-		copy(Activator.getContext().getBundle().getEntryPaths("/lib/"), libDir);
-	}
 }
