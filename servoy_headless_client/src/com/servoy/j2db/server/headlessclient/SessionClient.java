@@ -597,6 +597,9 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			}
 			if (Session.exists() && Session.get() == wicket_session)
 			{
+				// make sure the 2 thread locals are just empty lists.
+				Session.get().getDirtyObjectsList().clear();
+				Session.get().getTouchedPages().clear();
 				Session.unset();
 			}
 			J2DBGlobals.setServiceProvider(prev);
@@ -1225,7 +1228,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
@@ -1235,7 +1238,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
