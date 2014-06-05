@@ -37,7 +37,7 @@ import org.apache.wicket.util.value.IValueMap;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.DataConverterContext;
+import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.util.Debug;
 
@@ -52,7 +52,7 @@ public class FormWithInlineLayoutGenerator
 	 * @param fs
 	 * @param writer
 	 */
-	public static void generate(Form form, DataConverterContext context, PrintWriter writer)
+	public static void generate(Form form, ServoyDataConverterContext context, PrintWriter writer)
 	{
 		try
 		{

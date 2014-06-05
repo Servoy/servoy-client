@@ -38,8 +38,6 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.types.DataproviderPropertyType;
-import org.sablo.specification.property.types.TagStringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.JSONUtils;
@@ -53,7 +51,9 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
@@ -71,7 +71,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	private final PersistBasedFormElementImpl legacyImpl;
 	private final String uniqueIdWithinForm;
-	private IDataConverterContext dataConverterContext;
+	private IServoyDataConverterContext dataConverterContext;
 
 	public FormElement(Form form)
 	{
@@ -84,7 +84,7 @@ public final class FormElement implements IWebComponentInitializer
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
-	public FormElement(IFormElement persist, final IDataConverterContext context)
+	public FormElement(IFormElement persist, final IServoyDataConverterContext context)
 	{
 		this.dataConverterContext = context;
 		legacyImpl = new PersistBasedFormElementImpl(persist, this);
@@ -101,7 +101,7 @@ public final class FormElement implements IWebComponentInitializer
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
-	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, IDataConverterContext context)
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, IServoyDataConverterContext context)
 	{
 		this.dataConverterContext = context;
 		legacyImpl = null;
@@ -126,12 +126,12 @@ public final class FormElement implements IWebComponentInitializer
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
-	public IDataConverterContext getDataConverterContext()
+	public IServoyDataConverterContext getDataConverterContext()
 	{
 		return dataConverterContext;
 	}
 
-	void getConvertedJSONDefinitionProperties(IDataConverterContext context, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
+	void getConvertedJSONDefinitionProperties(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
 		Map<String, PropertyDescription> eventProperties, JSONObject jsonProperties) throws JSONException
 	{
 		Iterator keys = jsonProperties.keys();
@@ -160,7 +160,7 @@ public final class FormElement implements IWebComponentInitializer
 		return legacyImpl.getPersist();
 	}
 
-	private void initProperties(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IDataConverterContext context)
+	private void initProperties(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IServoyDataConverterContext context)
 	{
 		if (specProperties != null && map != null)
 		{

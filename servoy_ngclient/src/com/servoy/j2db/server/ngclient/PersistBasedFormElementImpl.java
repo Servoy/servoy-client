@@ -78,7 +78,7 @@ class PersistBasedFormElementImpl
 		return (Form)parent;
 	}
 
-	public Map<String, Object> getConvertedProperties(IDataConverterContext context, Map<String, PropertyDescription> specProperties)
+	public Map<String, Object> getConvertedProperties(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties)
 	{
 		if (persist instanceof Bean)
 		{
@@ -137,7 +137,7 @@ class PersistBasedFormElementImpl
 	 *
 	 * Initially only for border
 	 */
-	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, final IDataConverterContext context)
+	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, final IServoyDataConverterContext context)
 	{
 		Map<String, Object> convPropertiesMap = new HashMap<>();
 		for (String pv : propertiesMap.keySet())
@@ -181,7 +181,7 @@ class PersistBasedFormElementImpl
 		return ((AbstractBase)p).getPropertiesMap();
 	}
 
-	private void convertFromTabPanelToNGProperties(IFormElement persist, final IDataConverterContext context, Map<String, Object> map)
+	private void convertFromTabPanelToNGProperties(IFormElement persist, final IServoyDataConverterContext context, Map<String, Object> map)
 	{
 		ArrayList<Map<String, Object>> tabList = new ArrayList<>();
 		// add the tabs.
@@ -210,7 +210,7 @@ class PersistBasedFormElementImpl
 		map.put("tabs", tabList);
 	}
 
-	private void convertFromPortalToNGProperties(IFormElement portalPersist, final IDataConverterContext context, Map<String, Object> map,
+	private void convertFromPortalToNGProperties(IFormElement portalPersist, final IServoyDataConverterContext context, Map<String, Object> map,
 		Map<String, PropertyDescription> specProperties)
 	{
 		try

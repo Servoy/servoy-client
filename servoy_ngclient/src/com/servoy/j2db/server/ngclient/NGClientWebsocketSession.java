@@ -448,7 +448,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 				String view = (tableview ? "tableview" : "recordview");
-				new FormTemplateGenerator(new DataConverterContext(client), true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
+				new FormTemplateGenerator(new ServoyDataConverterContext(client), true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
 			}
 			if (client.isEventDispatchThread())
 			{
@@ -567,7 +567,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				call.put("viewIndex", Integer.valueOf(((WebGridFormUI)form.getFormUI()).getSelectedViewIndex()));
 			}
 			Object ret = super.invokeApi(receiver, apiFunction, arguments, call);
-			return NGClientForJsonConverter.toJavaObject(ret, apiFunction.getReturnType(), new DataConverterContext(getClient()),
+			return NGClientForJsonConverter.toJavaObject(ret, apiFunction.getReturnType(), new ServoyDataConverterContext(getClient()),
 				ConversionLocation.BROWSER_UPDATE, null); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException e)

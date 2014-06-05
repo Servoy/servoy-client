@@ -20,13 +20,15 @@ import java.awt.Dimension;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
 
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.ngclient.IDataConverterContext;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
@@ -103,45 +105,42 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 	 * @see org.sablo.specification.property.IWrapperType#wrap(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public MediaWrapper wrap(Object value, MediaWrapper previousValue, Object converterContext)
+	public MediaWrapper wrap(Object value, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
-		if (converterContext instanceof IDataConverterContext)
+		IServoyDataConverterContext servoyDataConverterContext = ((WebFormComponent)dataConverterContext.getWebComponent()).getDataConverterContext();
+		Media media = null;
+		if (value instanceof Integer)
 		{
-			IDataConverterContext dataConverterContext = (IDataConverterContext)converterContext;
-			Media media = null;
-			if (value instanceof Integer)
+			media = servoyDataConverterContext.getSolution().getMedia(((Integer)value).intValue());
+		}
+		else if (value instanceof String && ((String)value).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+		{
+			media = servoyDataConverterContext.getSolution().getMedia(((String)value).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
+		}
+		if (media != null)
+		{
+			String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" + media.getName();
+			Dimension imageSize = ImageLoader.getSize(media.getMediaData());
+			boolean paramsAdded = false;
+			if (imageSize != null)
 			{
-				media = dataConverterContext.getSolution().getMedia(((Integer)value).intValue());
+				paramsAdded = true;
+				url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
 			}
-			else if (value instanceof String && ((String)value).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+			if (servoyDataConverterContext.getApplication() != null)
 			{
-				media = dataConverterContext.getSolution().getMedia(((String)value).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
-			}
-			if (media != null)
-			{
-				String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" + media.getName();
-				Dimension imageSize = ImageLoader.getSize(media.getMediaData());
-				boolean paramsAdded = false;
-				if (imageSize != null)
+				Solution sc = servoyDataConverterContext.getSolution().getSolutionCopy(false);
+				if (sc != null && sc.getMedia(media.getName()) != null)
 				{
-					paramsAdded = true;
-					url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
+					if (paramsAdded) url += "&";
+					else url += "?";
+					url += "uuid=" + servoyDataConverterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
 				}
-				if (dataConverterContext.getApplication() != null)
-				{
-					Solution sc = dataConverterContext.getSolution().getSolutionCopy(false);
-					if (sc != null && sc.getMedia(media.getName()) != null)
-					{
-						if (paramsAdded) url += "&";
-						else url += "?";
-						url += "uuid=" + dataConverterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
-					}
-				}
-				return new MediaWrapper(value, url);
 			}
+			return new MediaWrapper(value, url);
 		}
 
-		Debug.log("cannot convert media " + value + " using converter context " + converterContext);
+		Debug.log("cannot convert media " + value + " using converter context " + servoyDataConverterContext);
 		return null;
 	}
 

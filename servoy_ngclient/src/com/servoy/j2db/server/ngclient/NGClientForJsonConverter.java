@@ -184,15 +184,6 @@ public class NGClientForJsonConverter implements IForJsonConverter
 			return writeBorderToJson((Border)value);
 		}
 
-		if (value instanceof byte[])
-		{
-			Map<String, Object> map = new HashMap<>();
-			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.getMediaInfo((byte[])value);
-			map.put("url", "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName());
-			map.put("contentType", mediaInfo.getContentType());
-			return map;
-		}
-
 		// default conversion
 		return value;
 	}
@@ -349,7 +340,7 @@ public class NGClientForJsonConverter implements IForJsonConverter
 	 * @param jsonSource hints about where the object to be converted originated from.
 	 * @return the corresponding Java object based on bean spec.
 	 */
-	public static Object toJavaObject(Object sourceValue, PropertyDescription componentSpecType, IDataConverterContext converterContext,
+	public static Object toJavaObject(Object sourceValue, PropertyDescription componentSpecType, IServoyDataConverterContext converterContext,
 		ConversionLocation jsonSource, Object oldJavaObject) throws JSONException
 	{
 		Object propertyValue = sourceValue;

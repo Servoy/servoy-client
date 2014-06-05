@@ -20,14 +20,11 @@ package com.servoy.j2db.server.ngclient;
 import com.servoy.j2db.FlattenedSolution;
 
 /**
- * Context for converter from client data (JSON) to back end data and from persist -> runtime type conversion
- * The FlattenedSolution can never be null, that one always should be given.
- * But the application can return null;
- *
+ * Context for data converters
+ * 
  * @author gboros
- *
  */
-public interface IDataConverterContext
+public interface IServoyDataConverterContext
 {
 	/**
 	 * Returns the FlattenedSolution for this context, never null.
@@ -40,4 +37,10 @@ public interface IDataConverterContext
 	 * @return
 	 */
 	INGApplication getApplication();
+
+	/**
+	 * Returns the IWebFormController object if there is a active form (can return null)
+	 * @return
+	 */
+	IWebFormController getForm();
 }

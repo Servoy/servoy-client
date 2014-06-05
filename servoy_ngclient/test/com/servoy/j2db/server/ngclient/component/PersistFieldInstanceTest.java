@@ -70,7 +70,7 @@ import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.DataConverterContext;
+import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
@@ -479,7 +479,7 @@ public class PersistFieldInstanceTest
 		field.setDisplayType(Field.TYPE_AHEAD);
 		field.setValuelistID(vl.getID());
 
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new DataConverterContext(client));
+		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		for (FormElement formElement : formElements)
 		{
@@ -503,7 +503,7 @@ public class PersistFieldInstanceTest
 		tabpanel.createNewTab("tab1", null, tabForm);
 		tabpanel.createNewTab("tab2", null, tabForm);
 
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new DataConverterContext(client));
+		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		for (FormElement formElement : formElements)
 		{

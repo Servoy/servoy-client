@@ -112,7 +112,7 @@ public class ComponentFactory
 	/**
 	 * @param iterator
 	 */
-	public static List<FormElement> getFormElements(Iterator<IPersist> iterator, IDataConverterContext context)
+	public static List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
 		if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue())
 		{
@@ -130,7 +130,7 @@ public class ComponentFactory
 		return lst;
 	}
 
-	public static FormElement getFormElement(IFormElement formElement, IDataConverterContext context)
+	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
 		if (context.getSolution().getSolutionCopy(false) != null) return new FormElement(formElement, context);

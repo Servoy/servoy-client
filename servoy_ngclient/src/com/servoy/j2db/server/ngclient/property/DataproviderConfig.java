@@ -13,29 +13,35 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
-package com.servoy.j2db.server.ngclient.property.types;
+package com.servoy.j2db.server.ngclient.property;
 
-import org.sablo.specification.property.types.TypesRegistry;
-
-/**
- * @author Johan
- *
- */
-public class Types
+public class DataproviderConfig
 {
-	public static void registerTypes()
+	private final String onDataChange;
+	private final String onDataChangeCallback;
+	private final boolean parseHtml;
+
+	public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml)
 	{
-		TypesRegistry.addType(RelationPropertyType.INSTANCE);
-		TypesRegistry.addType(MediaPropertyType.INSTANCE);
-		TypesRegistry.addType(BeanPropertyType.INSTANCE);
-		TypesRegistry.addType(FormPropertyType.INSTANCE);
-		TypesRegistry.addType(FormatPropertyType.INSTANCE);
-		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
-		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
-		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
-		TypesRegistry.addType(DataproviderPropertyType.INSTANCE);
-		TypesRegistry.addType(TagStringPropertyType.INSTANCE);
+		this.onDataChange = onDataChange;
+		this.onDataChangeCallback = onDataChangeCallback;
+		this.parseHtml = parseHtml;
+	}
+
+	public String getOnDataChange()
+	{
+		return onDataChange;
+	}
+
+	public String getOnDataChangeCallback()
+	{
+		return onDataChangeCallback;
+	}
+
+	public boolean hasParseHtml()
+	{
+		return parseHtml;
 	}
 }

@@ -108,8 +108,8 @@ public class TemplateGeneratorFilter implements Filter
 							{
 								((HttpServletResponse)servletResponse).setContentType("text/html");
 								PrintWriter w = servletResponse.getWriter();
-								FormWithInlineLayoutGenerator.generate(form, wsSession != null ? new DataConverterContext(wsSession.getClient())
-									: new DataConverterContext(fs), w);
+								FormWithInlineLayoutGenerator.generate(form, wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
+									: new ServoyDataConverterContext(fs), w);
 								w.flush();
 							}
 							else
@@ -117,7 +117,7 @@ public class TemplateGeneratorFilter implements Filter
 								String view = (tableview ? "tableview" : "recordview");
 								((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
 								PrintWriter w = servletResponse.getWriter();
-								new FormTemplateGenerator(wsSession != null ? new DataConverterContext(wsSession.getClient()) : new DataConverterContext(fs),
+								new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
 									false).generate(form, formName, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
 								w.flush();
 							}

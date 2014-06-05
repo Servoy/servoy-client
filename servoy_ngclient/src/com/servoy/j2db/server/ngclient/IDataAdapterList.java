@@ -75,6 +75,8 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 
 	INGApplication getApplication();
 
+	IWebFormController getForm();
+
 	void addRelatedForm(IWebFormController form, String relation);
 
 	void removeRelatedForm(IWebFormController form);

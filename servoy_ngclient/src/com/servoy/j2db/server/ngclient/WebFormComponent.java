@@ -325,9 +325,8 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 		return visibleForms.containsKey(form) ? visibleForms.get(form).intValue() : -1;
 	}
 
-	@Override
-	protected Object getConverterContext()
+	public IServoyDataConverterContext getDataConverterContext()
 	{
-		return new DataConverterContext(dataAdapterList.getApplication());
+		return new ServoyDataConverterContext(dataAdapterList.getForm());
 	}
 }

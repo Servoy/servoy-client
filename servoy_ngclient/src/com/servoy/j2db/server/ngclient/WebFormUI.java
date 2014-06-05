@@ -196,9 +196,9 @@ public class WebFormUI extends Container implements IWebFormUI
 		return counter;
 	}
 
-	public IDataConverterContext getDataConverterContext()
+	public IServoyDataConverterContext getDataConverterContext()
 	{
-		return new DataConverterContext(getApplication());
+		return new ServoyDataConverterContext(formController);
 	}
 
 	/**
@@ -451,7 +451,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		if ("size".equals(propertyName))
 		{
 			properties.put(propertyName, NGClientForJsonConverter.toJavaObject(propertyValue,
-				new PropertyDescription("size", TypesRegistry.getType("dimension")), new DataConverterContext(getApplication()),
+				new PropertyDescription("size", TypesRegistry.getType("dimension")), new ServoyDataConverterContext(formController),
 				ConversionLocation.BROWSER_UPDATE, properties.get(propertyName)));
 		}
 	}

@@ -33,8 +33,6 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.types.DataproviderPropertyType;
-import org.sablo.specification.property.types.TagStringPropertyType;
 import org.sablo.websocket.utils.JSONUtils.JSONWritable;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -47,6 +45,8 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -310,13 +310,13 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 					List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), TagStringPropertyType.INSTANCE);
 					for (String tagstringPropID : tagstrings)
 					{
-						cellProperties.put(tagstringPropID, wc.getProperty(tagstringPropID));
+						cellProperties.put(tagstringPropID, wc.getProperties().get(tagstringPropID));
 					}
 
 					List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 					for (String dataproviderID : dataproviders)
 					{
-						cellProperties.put(dataproviderID, wc.getProperty(dataproviderID));
+						cellProperties.put(dataproviderID, wc.getProperties().get(dataproviderID));
 					}
 					// add valuelists
 					Object valuelistObj;

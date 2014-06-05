@@ -20,24 +20,37 @@ package com.servoy.j2db.server.ngclient;
 import com.servoy.j2db.FlattenedSolution;
 
 /**
+ * Context for data converters
+ * The FlattenedSolution can never be null, that one always should be given.
+ * But the application and form can return null;
+ * 
  * @author Johan
- *
  */
-public class DataConverterContext implements IDataConverterContext
+public class ServoyDataConverterContext implements IServoyDataConverterContext
 {
 	private final FlattenedSolution flattenedSolution;
 	private final INGApplication application;
+	private final IWebFormController form;
 
-	public DataConverterContext(FlattenedSolution flattenedSolution)
+	public ServoyDataConverterContext(FlattenedSolution flattenedSolution)
 	{
 		this.flattenedSolution = flattenedSolution;
 		this.application = null;
+		this.form = null;
 	}
 
-	public DataConverterContext(INGApplication application)
+	public ServoyDataConverterContext(INGApplication application)
 	{
 		this.flattenedSolution = application.getFlattenedSolution();
 		this.application = application;
+		this.form = null;
+	}
+
+	public ServoyDataConverterContext(IWebFormController form)
+	{
+		this.form = form;
+		this.application = form.getApplication();
+		this.flattenedSolution = application.getFlattenedSolution();
 
 	}
 
@@ -53,4 +66,9 @@ public class DataConverterContext implements IDataConverterContext
 		return application;
 	}
 
+	@Override
+	public IWebFormController getForm()
+	{
+		return form;
+	}
 }

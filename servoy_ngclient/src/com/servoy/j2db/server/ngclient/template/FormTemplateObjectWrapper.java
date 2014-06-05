@@ -23,7 +23,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.IDataConverterContext;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateModel;
@@ -37,14 +37,14 @@ import freemarker.template.TemplateModelException;
  */
 public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements IFormElementValidator
 {
-	private final IDataConverterContext context;
+	private final IServoyDataConverterContext context;
 	private final boolean useControllerProvider;
 	private Form flattenedForm;
 
 	/**
 	 * @param fs
 	 */
-	public FormTemplateObjectWrapper(IDataConverterContext context, boolean useControllerProvider)
+	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider)
 	{
 		this.context = context;
 		this.useControllerProvider = useControllerProvider;

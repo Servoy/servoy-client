@@ -32,8 +32,6 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IComplexPropertyValue;
-import org.sablo.specification.property.types.DataproviderPropertyType;
-import org.sablo.specification.property.types.TagStringPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.ComponentFactory;
@@ -42,6 +40,8 @@ import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.util.Debug;
 
 /**

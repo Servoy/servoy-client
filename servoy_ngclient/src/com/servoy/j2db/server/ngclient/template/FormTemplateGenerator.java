@@ -37,7 +37,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.IDataConverterContext;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
@@ -58,7 +58,7 @@ public class FormTemplateGenerator
 {
 	private final Configuration cfg;
 
-	public FormTemplateGenerator(IDataConverterContext context, boolean useControllerProvider)
+	public FormTemplateGenerator(IServoyDataConverterContext context, boolean useControllerProvider)
 	{
 		cfg = new Configuration();
 

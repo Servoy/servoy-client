@@ -17,7 +17,6 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.property.DataproviderConfig;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
@@ -37,6 +36,7 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
+import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Pair;
@@ -70,6 +70,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public final INGApplication getApplication()
 	{
 		return formController.getApplication();
+	}
+
+	public final IWebFormController getForm()
+	{
+		return formController;
 	}
 
 	@Override
@@ -371,7 +376,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		Map<String, String> recordDataproviderMapping = beanToDataHolder.get(fe);
 		if (recordDataproviderMapping != null) dataproviderID = recordDataproviderMapping.get(propertyName);
 
-		boolean convertInlineScript = false;
 		if (dataproviderID != null)
 		{
 			if (findMode)
@@ -381,13 +385,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			// TODO should globals or formscope be checked for that variable? (currently the conversion will be done in the put(String,value) of the scope itself.
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
-
-			convertInlineScript = ((DataproviderConfig)fe.getWebComponentSpec().getProperty(propertyName).getConfig()).hasParseHtml();
 		}
-		if (HtmlUtils.startsWithHtml(propertyValue)) return HTMLTagsConverter.convert(propertyValue.toString(), getApplication().getSolutionName(),
-			formController.getName(), convertInlineScript);
-		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new DataConverterContext(
-			getApplication()), sourceOfValue, oldValue);
+		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new ServoyDataConverterContext(
+			getForm()), sourceOfValue, oldValue);
 	}
 
 	@Override

@@ -32,10 +32,10 @@ import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
-import org.sablo.specification.property.types.DataproviderPropertyType;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 
 /**
