@@ -1825,6 +1825,39 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		repaint();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.gui.FixedJTable#isEditable()
+	 */
+	@Override
+	public boolean isEditable()
+	{
+		boolean result = false;
+		if (rendererComponents != null)
+		{
+			for (Component element : rendererComponents)
+			{
+				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
+				{
+
+					if (!((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).isReadOnly()) return true;
+				}
+			}
+		}
+		if (editorComponents != null)
+		{
+			for (Component element : editorComponents)
+			{
+				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
+				{
+					if (!((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).isReadOnly()) return true;
+				}
+			}
+		}
+		return result;
+	}
+
 	@Override
 	public void tableChanged(TableModelEvent e)
 	{
