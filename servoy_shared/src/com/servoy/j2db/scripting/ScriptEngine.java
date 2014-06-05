@@ -670,14 +670,14 @@ public class ScriptEngine implements IScriptSupport
 			}
 			finally
 			{
-				if (!(application instanceof ISmartClientApplication))
-				{
-					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName, 0);
-				}
 
 				if (application instanceof ISmartClientApplication)
 				{
 					((ISmartClientApplication)application).setPaintTableImmediately(true);
+				}
+				else
+				{
+					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName, 0);
 				}
 				Context.exit();
 			}
