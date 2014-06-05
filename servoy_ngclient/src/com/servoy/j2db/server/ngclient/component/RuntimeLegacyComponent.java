@@ -37,9 +37,9 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Runtime component for legacy scripting methods from default Servoy components.
- * 
+ *
  * @author lvostinar
- *	
+ *
  */
 @SuppressWarnings("nls")
 public class RuntimeLegacyComponent implements Scriptable
@@ -187,6 +187,8 @@ public class RuntimeLegacyComponent implements Scriptable
 				value = !((Boolean)value).booleanValue();
 			}
 		}
+		// TODO the value should be converted right here to the right java value the component expects
+		// so the string representation of Color should be converted to a Color object.
 		component.setProperty(convertName(name), value, ConversionLocation.SERVER);
 	}
 
