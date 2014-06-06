@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,6 +35,7 @@ import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.ConversionLocation;
+import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.WebsocketEndpoint;
@@ -369,11 +369,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.BaseWebsocketSession#registerEndpoint(org.sablo.websocket.IWebsocketEndpoint)
-	 */
 	@Override
 	public void registerEndpoint(IWebsocketEndpoint endpoint)
 	{
@@ -381,11 +376,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		endpointForms.put(endpoint, new ConcurrentHashMap<String, String>());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.BaseWebsocketSession#deregisterEndpoint(org.sablo.websocket.IWebsocketEndpoint)
-	 */
 	@Override
 	public void deregisterEndpoint(IWebsocketEndpoint endpoint)
 	{
@@ -452,12 +442,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			if (client.isEventDispatchThread())
 			{
-				executeServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController",
+				getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
 					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
 			}
 			else
 			{
-				executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController",
+				getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
 					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
 			}
 		}
@@ -527,7 +517,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			try
 			{
 				proccessChanges = true;
-				sendChanges(WebsocketEndpoint.get().getAllComponentsChanges());
+				// TODO this should be changed, because if there are multiply endpoints then 1 endpoint will get the changes of a form (and flag everything as not changed)
+				// so the other end point will not see those changes if it would show the same form...
+				// i guess the session should have all the containers (like it has all the services) and then the endpoint should just cherry pick what it will send.
+				Map<String, Map<String, Map<String, Object>>> allFormChanges = WebsocketEndpoint.get().getAllComponentsChanges();
+				Map<String, Map<String, Object>> serviceChanges = getServiceChanges();
+				Map<String, Object> data = new HashMap<>(3);
+
+				if (!allFormChanges.isEmpty()) data.put("forms", allFormChanges);
+				if (!serviceChanges.isEmpty()) data.put("services", serviceChanges);
+				// TOOD see above comment, this should not send to the currently active endpoint, but to all endpoints
+				// so that any change from 1 endpoint request ends up in all the end points.
+				WebsocketEndpoint.get().sendMessage(data, true, getForJsonConverter());
 			}
 			catch (IOException e)
 			{
@@ -538,18 +539,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				proccessChanges = false;
 			}
 		}
-	}
-
-	public void sendChanges(Map<String, Map<String, Map<String, Object>>> properties) throws IOException
-	{
-		WebsocketEndpoint.get().sendMessage(properties.size() == 0 ? null : Collections.singletonMap("forms", properties), true, getForJsonConverter());
-	}
-
-	@Override
-	public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
-	{
-		super.executeAsyncServiceCall(serviceName, functionName, arguments);
-		valueChanged();
 	}
 
 	@Override
@@ -575,6 +564,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			Debug.error(e);
 		}
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
+	 */
+	@Override
+	protected IClientService createClientService(String name)
+	{
+		return new ServoyClientService(name, this);
 	}
 
 	@Override

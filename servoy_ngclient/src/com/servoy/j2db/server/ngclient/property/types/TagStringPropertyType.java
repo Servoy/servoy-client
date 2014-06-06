@@ -20,10 +20,12 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.websocket.IForJsonConverter;
+import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType.TagStringWrapper;
 import com.servoy.j2db.util.HtmlUtils;
 
@@ -53,58 +55,36 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		return Boolean.valueOf(json != null && json.optBoolean("hidetags"));
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IClassPropertyType#getTypeClass()
-	 */
 	@Override
 	public Class<TagStringWrapper> getTypeClass()
 	{
 		return TagStringWrapper.class;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IClassPropertyType#toJava(java.lang.Object, java.lang.Object)
-	 */
 	@Override
-	public TagStringWrapper toJava(Object newValue, TagStringWrapper previousValue)
+	public Object fromJSON(Object newValue, TagStringWrapper previousValue)
 	{
-		return new TagStringWrapper(newValue);
+		return newValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IClassPropertyType#toJSON(org.json.JSONWriter, java.lang.Object)
-	 */
 	@Override
-	public void toJSON(JSONWriter writer, TagStringWrapper object) throws JSONException
+	public void toJSON(JSONWriter writer, TagStringWrapper object, DataConversion clientConversion, IForJsonConverter forJsonConverter) throws JSONException
 	{
 		if (object != null) writer.value(object.getJsonValue());
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IPropertyType#defaultValue()
-	 */
 	@Override
 	public TagStringWrapper defaultValue()
 	{
 		return null;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IWrapperType#unwrap(java.lang.Object)
-	 */
 	@Override
 	public Object unwrap(TagStringWrapper value)
 	{
 		return value != null ? value.value : null;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IWrapperType#wrap(java.lang.Object, java.lang.Object, org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
 	public TagStringWrapper wrap(Object value, TagStringWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
@@ -134,7 +114,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 			{
 				if (HtmlUtils.startsWithHtml(value) && dataConverterContext != null)
 				{
-					IServoyDataConverterContext servoyDataConverterContext = ((WebFormComponent)dataConverterContext.getWebComponent()).getDataConverterContext();
+					IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
 					jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext.getApplication().getSolutionName(),
 						servoyDataConverterContext.getForm().getName(), false);
 				}

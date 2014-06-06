@@ -20,9 +20,9 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
-import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,9 +39,12 @@ import org.junit.Test;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.WebComponentPackage;
+import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IForJsonConverter;
-import org.sablo.websocket.IService;
+import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -80,6 +83,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.UUID;
 
@@ -90,6 +94,25 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class PersistFieldInstanceTest
 {
+	private static IPackageReader[] getReaders(File[] packages)
+	{
+		ArrayList<IPackageReader> readers = new ArrayList<>();
+		for (File f : packages)
+		{
+			if (f.exists())
+			{
+				if (f.isDirectory()) readers.add(new WebComponentPackage.DirPackageReader(f));
+				else readers.add(new WebComponentPackage.JarPackageReader(f));
+			}
+			else
+			{
+				Debug.error("A web component package location does not exist: " + f.getAbsolutePath()); //$NON-NLS-1$
+			}
+		}
+		return readers.toArray(new IPackageReader[readers.size()]);
+	}
+
+
 	IValidateName validator = new IValidateName()
 	{
 		@Override
@@ -110,7 +133,7 @@ public class PersistFieldInstanceTest
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		locations[0] = new File(f.getAbsoluteFile() + "/../war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 		locations[1] = new File(f.getAbsoluteFile() + "/../war/servoycomponents/");
-		new WebComponentSpecProvider(locations);
+		WebComponentSpecProvider.init(getReaders(locations));
 
 		final TestRepository tr = new TestRepository();
 		try
@@ -131,13 +154,6 @@ public class PersistFieldInstanceTest
 
 				@Override
 				public void valueChanged()
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void registerService(String name, IService service)
 				{
 					// TODO Auto-generated method stub
 
@@ -180,12 +196,6 @@ public class PersistFieldInstanceTest
 
 				@Override
 				public String getUuid()
-				{
-					return null;
-				}
-
-				@Override
-				public IService getService(String name)
 				{
 					return null;
 				}
@@ -245,20 +255,6 @@ public class PersistFieldInstanceTest
 				}
 
 				@Override
-				public Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
-				{
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				@Override
-				public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
 				public void deregisterEndpoint(IWebsocketEndpoint endpoint)
 				{
 					// TODO Auto-generated method stub
@@ -301,13 +297,6 @@ public class PersistFieldInstanceTest
 				}
 
 				@Override
-				public void sendChanges(Map<String, Map<String, Map<String, Object>>> formData) throws IOException
-				{
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
 				public INGApplication getClient()
 				{
 					return client;
@@ -326,12 +315,33 @@ public class PersistFieldInstanceTest
 					// TODO Auto-generated method stub
 
 				}
+
+				@Override
+				public void registerServerService(String name, IServerService service)
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public IServerService getServerService(String name)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IClientService getService(String name)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
 			})
 			{
 
 				/*
 				 * (non-Javadoc)
-				 *
+				 * 
 				 * @see com.servoy.j2db.ClientState#createRepository()
 				 */
 				@Override
@@ -533,7 +543,7 @@ public class PersistFieldInstanceTest
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObjectMetaData(int, com.servoy.j2db.util.UUID, java.lang.String, int, int, int)
 		 */
 		@Override
@@ -546,7 +556,7 @@ public class PersistFieldInstanceTest
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObject(com.servoy.j2db.persistence.RootObjectMetaData)
 		 */
 		@Override

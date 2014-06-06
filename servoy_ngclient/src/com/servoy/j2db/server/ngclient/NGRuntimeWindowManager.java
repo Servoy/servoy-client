@@ -20,7 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.sablo.websocket.IService;
+import org.sablo.websocket.IServerService;
 
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.persistence.Form;
@@ -33,7 +33,7 @@ import com.servoy.j2db.util.UUID;
  *
  */
 @SuppressWarnings("nls")
-public class NGRuntimeWindowManager extends RuntimeWindowManager implements IService
+public class NGRuntimeWindowManager extends RuntimeWindowManager implements IServerService
 {
 	public static final String WINDOW_SERVICE = "$windowService";
 
@@ -44,12 +44,12 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 	public NGRuntimeWindowManager(INGApplication application)
 	{
 		super(application);
-		application.getWebsocketSession().registerService(WINDOW_SERVICE, this);
+		application.getWebsocketSession().registerServerService(WINDOW_SERVICE, this);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, java.util.Map)
 	 */
 	@Override
@@ -105,7 +105,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.RuntimeWindowManager#getMainApplicationWindow()
 	 */
 	@Override
@@ -116,7 +116,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.RuntimeWindowManager#getWindow(java.lang.String)
 	 */
 	@Override
@@ -127,7 +127,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.RuntimeWindowManager#getCurrentWindow()
 	 */
 	@Override
@@ -138,20 +138,20 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.RuntimeWindowManager#createWindowInternal(java.lang.String, int, com.servoy.j2db.scripting.RuntimeWindow)
 	 */
 	@Override
 	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
-		((INGApplication)application).getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "create",
+		((INGApplication)application).getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("create",
 			new Object[] { windowName, String.valueOf(type) });
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.RuntimeWindowManager#getOrderedContainers()
 	 */
 	@Override

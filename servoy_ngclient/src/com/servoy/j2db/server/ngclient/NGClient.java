@@ -20,6 +20,8 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.IChangeListener;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -38,8 +40,11 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.WebCredentials;
@@ -94,9 +99,22 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
+	@Override
+	protected IExecutingEnviroment createScriptEngine()
+	{
+		IExecutingEnviroment scriptEngine = super.createScriptEngine();
+		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getWebServiceSpecifications();
+		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
+		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
+		{
+			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification));
+		}
+		return scriptEngine;
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
 	 */
 	@Override
@@ -108,7 +126,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
 	 */
 	@Override
@@ -123,7 +141,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		Object retValue;
 		try
 		{
-			retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getUtcOffsetsAndLocale", null);
+			retValue = this.getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUtcOffsetsAndLocale", null);
 		}
 		catch (IOException e)
 		{
@@ -282,7 +300,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -448,7 +466,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		try
 		{
-			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getScreenSize", null);
+			Object retValue = this.getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("getScreenSize", null);
 			if (retValue instanceof JSONObject)
 			{
 				int orientation = ((JSONObject)retValue).optInt("orientation", 0);
@@ -473,7 +491,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		try
 		{
-			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getLocation", null);
+			Object retValue = this.getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("getLocation", null);
 			if (retValue instanceof String)
 			{
 				String url = (String)retValue;
@@ -507,7 +525,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		try
 		{
-			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getUserAgentAndPlatform", null);
+			Object retValue = this.getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
 			if (retValue instanceof JSONObject)
 			{
 				String userAgent = ((JSONObject)retValue).optString("userAgent");
@@ -535,7 +553,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		try
 		{
-			Object retValue = this.getWebsocketSession().executeServiceCall(NGClient.APPLICATION_SERVICE, "getUserAgentAndPlatform", null);
+			Object retValue = this.getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
 			if (retValue instanceof JSONObject)
 			{
 				String platform = ((JSONObject)retValue).optString("platform");
@@ -620,7 +638,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		try
 		{
-			return (String)getWebsocketSession().executeServiceCall("$applicationService", "getUserProperty", new Object[] { name });
+			return (String)getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserProperty", new Object[] { name });
 		}
 		catch (IOException e)
 		{
@@ -634,7 +652,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		try
 		{
-			getWebsocketSession().executeServiceCall("$applicationService", "setUserProperty", new Object[] { name, value });
+			getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("setUserProperty", new Object[] { name, value });
 		}
 		catch (IOException e)
 		{
@@ -650,7 +668,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		JSONArray result;
 		try
 		{
-			result = (JSONArray)getWebsocketSession().executeServiceCall("$applicationService", "getUserPropertyNames", null);
+			result = (JSONArray)getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserPropertyNames", null);
 			String[] names = new String[result.length()];
 			for (int i = 0; i < names.length; i++)
 			{
@@ -674,7 +692,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		this.getWebsocketSession().executeAsyncServiceCall(NGClient.APPLICATION_SERVICE, "showUrl", new Object[] { url, target, target_options, timeout });
+		this.getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
+			new Object[] { url, target, target_options, timeout });
 		return true;
 	}
 
@@ -734,7 +753,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 						{
 							final URL url = (URL)adsInfo[0];
 							final int t = Utils.getAsInteger(adsInfo[3]);
-							getWebsocketSession().executeAsyncServiceCall(NGClient.APPLICATION_SERVICE, "showInfoPanel",
+							getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showInfoPanel",
 								new Object[] { url.toString(), w, h, t, getI18NMessage("servoy.button.close") });
 						}
 					}

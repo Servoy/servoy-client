@@ -22,9 +22,9 @@ import com.servoy.j2db.FlattenedSolution;
 /**
  * Context for data converters
  * The FlattenedSolution can never be null, that one always should be given.
- * But the application and form can return null;
- * 
- * @author Johan
+ * But the application and form can return null
+ *
+ * @author jcompagner
  */
 public class ServoyDataConverterContext implements IServoyDataConverterContext
 {

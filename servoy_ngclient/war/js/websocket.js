@@ -7,7 +7,7 @@ var webSocketModule = angular.module('webSocketModule', []);
  * Setup the $webSocket service.
  */
 webSocketModule.factory('$webSocket',
-		function($rootScope, $injector, $log, $q) {
+		function($rootScope, $injector, $log, $q,$services) {
 
 			var websocket = null
 
@@ -61,6 +61,10 @@ webSocketModule.factory('$webSocket',
 						}
 						delete deferredEvents[obj.cmsgid];
 					}
+					
+					 if (obj.msg && obj.msg.services) {
+						 $services.updateStates(obj.msg.services);
+			        }
 
 					if (obj.services) {
 						// services call
@@ -213,4 +217,30 @@ webSocketModule.factory('$webSocket',
 
 				convertClientObject : convertClientObject
 			};
+		}).factory("$services", function($rootScope){
+			// serviceName:{} service model
+			var serviceStates = {};
+			return {
+				getServiceState: function(serviceName) {
+					if (!serviceStates[serviceName]) serviceStates[serviceName] = {};
+		    		return serviceStates[serviceName];
+				},
+				updateStates: function(services) {
+					$rootScope.$apply(function() {
+		        		 for(var servicename in services) {
+		 		        	// current model
+		 		            var serviceState = serviceStates[servicename];
+		 		            if (!serviceState) {
+		 		            	serviceStates[servicename] = services[servicename];
+		 		            }
+		 		            else {
+		 		            	var serviceData = services[servicename];
+		 		            	for(var key in serviceData) {
+		 		            		serviceStates[servicename][key] = serviceData[key];
+		 		             	}
+		 		            }
+		        		 }
+		        	});
+				}
+			}
 		});

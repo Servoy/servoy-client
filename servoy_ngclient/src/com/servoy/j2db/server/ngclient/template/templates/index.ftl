@@ -50,6 +50,16 @@
 		<script src="js/servoy_app.js"></script>
 		<script src="js/jquery.maskedinput.js"></script>
 
+		<#list serviceReferences as serviceScript>
+			<script src="${serviceScript}"></script>
+		</#list>
+		<#list serviceCssReferences as serviceCss>
+			<link rel="stylesheet" href="${serviceCss}"/>
+		</#list>
+		<#list serviceJsReferences as serviceJs>
+			<script src="${serviceJs}"></script>
+		</#list>
+		
 		<#list componentReferences as componentScript>
 			<script src="${componentScript}"></script>
 		</#list>

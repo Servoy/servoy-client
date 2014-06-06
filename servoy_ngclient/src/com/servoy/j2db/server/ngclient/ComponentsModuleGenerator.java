@@ -25,12 +25,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 
 /**
  * @author jcompagner
- * 
+ *
  * generates the /js/servoy-components.js file that has the servoy components module declared with all the webcomponents modules
  *
  */
@@ -39,7 +40,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 {
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
@@ -48,7 +49,20 @@ public class ComponentsModuleGenerator extends HttpServlet
 		resp.setContentType("text/javascript");
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
 
-		WebComponentSpecification[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentSpecifications();
+		generateModules(sb, WebServiceSpecProvider.getInstance().getWebServiceSpecifications());
+		generateModules(sb, WebComponentSpecProvider.getInstance().getWebComponentSpecifications());
+		sb.setLength(sb.length() - 1);
+		sb.append("]);");
+		resp.setContentLength(sb.length());
+		resp.getWriter().write(sb.toString());
+	}
+
+	/**
+	 * @param sb
+	 * @param webComponentDescriptions
+	 */
+	protected void generateModules(StringBuilder sb, WebComponentSpecification[] webComponentDescriptions)
+	{
 		for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
 		{
 			String name = webComponentSpec.getName();
@@ -78,9 +92,5 @@ public class ComponentsModuleGenerator extends HttpServlet
 			sb.append('\'');
 			sb.append(',');
 		}
-		sb.setLength(sb.length() - 1);
-		sb.append("]);");
-		resp.setContentLength(sb.length());
-		resp.getWriter().write(sb.toString());
 	}
 }

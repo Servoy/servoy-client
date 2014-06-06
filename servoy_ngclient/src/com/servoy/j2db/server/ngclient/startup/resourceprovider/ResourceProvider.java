@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sablo.specification.WebComponentPackage;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.CustomPropertyTypeResolver;
 
 import com.servoy.j2db.server.ngclient.property.ComponentTypeImpl;
@@ -57,17 +58,30 @@ import com.servoy.j2db.util.Utils;
 @WebFilter(urlPatterns = { "/*" })
 public class ResourceProvider implements Filter
 {
-	private static final List<IPackageReader> packageReaders = new ArrayList<>();
+	private static final List<IPackageReader> componentReaders = new ArrayList<>();
+	private static final List<IPackageReader> serviceReaders = new ArrayList<>();
 
-	public static void addResources(Collection<IPackageReader> readers)
+	public static void addComponentResources(Collection<IPackageReader> readers)
 	{
-		packageReaders.addAll(readers);
+		componentReaders.addAll(readers);
 		initSpecProvider();
 	}
 
-	public static void removeResources(Collection<IPackageReader> readers)
+	public static void removeComponentResources(Collection<IPackageReader> readers)
 	{
-		packageReaders.removeAll(readers);
+		componentReaders.removeAll(readers);
+		initSpecProvider();
+	}
+
+	public static void addServiceResources(Collection<IPackageReader> readers)
+	{
+		serviceReaders.addAll(readers);
+		initSpecProvider();
+	}
+
+	public static void removeServiceResources(Collection<IPackageReader> readers)
+	{
+		serviceReaders.removeAll(readers);
 		initSpecProvider();
 	}
 
@@ -75,14 +89,24 @@ public class ResourceProvider implements Filter
 	{
 		registerTypes();
 
-		ArrayList<IPackageReader> readers = new ArrayList<>(packageReaders);
+		ArrayList<IPackageReader> componentPackages = new ArrayList<>(componentReaders);
+		ArrayList<IPackageReader> servicePackages = new ArrayList<>(serviceReaders);
 		Enumeration<URL> findEntries = Activator.getContext().getBundle().findEntries("/war/", "MANIFEST.MF", true);
 		while (findEntries.hasMoreElements())
 		{
-			readers.add(new URLPackageReader(findEntries.nextElement()));
+			URL url = findEntries.nextElement();
+			if (url.toExternalForm().contains("/services/"))
+			{
+				servicePackages.add(new URLPackageReader(url));
+			}
+			else
+			{
+				componentPackages.add(new URLPackageReader(url));
+			}
 		}
 
-		WebComponentSpecProvider.init(readers.toArray(new IPackageReader[readers.size()]));
+		WebComponentSpecProvider.init(componentPackages.toArray(new IPackageReader[componentPackages.size()]));
+		WebServiceSpecProvider.init(servicePackages.toArray(new IPackageReader[servicePackages.size()]));
 	}
 
 	@Override
@@ -123,7 +147,7 @@ public class ResourceProvider implements Filter
 				int index = pathInfo.indexOf('/', 1);
 				if (index > 1 && !pathInfo.substring(index).equals("/"))
 				{
-					for (IPackageReader reader : packageReaders)
+					for (IPackageReader reader : componentReaders)
 					{
 						url = reader.getUrlForPath(pathInfo.substring(index));
 						if (url != null) break;
@@ -199,7 +223,7 @@ public class ResourceProvider implements Filter
 			this.urlOfManifest = urlOfManifest;
 			String file = urlOfManifest.getFile();
 			int warIndex = file.indexOf("/war/");
-			int componentJarIndex = file.indexOf("/", warIndex + 5);
+			int componentJarIndex = file.indexOf("/META-INF", warIndex + 5);
 			packageName = file.substring(warIndex + 5, componentJarIndex);
 		}
 

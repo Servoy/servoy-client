@@ -22,13 +22,15 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.websocket.IForJsonConverter;
+import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
@@ -65,36 +67,24 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 		return MediaWrapper.class;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IClassPropertyType#toJava(java.lang.Object, java.lang.Object)
-	 */
 	@Override
-	public MediaWrapper toJava(Object newValue, MediaWrapper previousValue)
+	public Object fromJSON(Object newValue, MediaWrapper previousValue)
 	{
-		return null;
+		return newValue;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IClassPropertyType#toJSON(org.json.JSONWriter, java.lang.Object)
-	 */
 	@Override
-	public void toJSON(JSONWriter writer, MediaWrapper object) throws JSONException
+	public void toJSON(JSONWriter writer, MediaWrapper object, DataConversion clientConversion, IForJsonConverter forJsonConverter) throws JSONException
 	{
 		if (object != null) writer.value(object.mediaUrl);
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IPropertyType#defaultValue()
-	 */
 	@Override
 	public MediaWrapper defaultValue()
 	{
 		return null;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IWrapperType#unwrap(java.lang.Object)
-	 */
 	@Override
 	public Object unwrap(MediaWrapper value)
 	{
@@ -107,7 +97,7 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 	@Override
 	public MediaWrapper wrap(Object value, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
-		IServoyDataConverterContext servoyDataConverterContext = ((WebFormComponent)dataConverterContext.getWebComponent()).getDataConverterContext();
+		IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
 		Media media = null;
 		if (value instanceof Integer)
 		{

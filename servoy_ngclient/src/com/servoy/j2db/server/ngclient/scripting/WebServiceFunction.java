@@ -17,32 +17,42 @@
 
 package com.servoy.j2db.server.ngclient.scripting;
 
+import java.io.IOException;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.WebComponentApiDefinition;
-
-import com.servoy.j2db.server.ngclient.WebFormComponent;
+import org.sablo.websocket.IWebsocketSession;
 
 /**
- * Javascript function to call a client-side function in the web component api.
+ * Javascript function to call a client-side function in the web service api.
  *
- * @author rgansevles
+ * @author jcompagner
  *
  */
-public class WebComponentFunction extends WebBaseFunction
+public class WebServiceFunction extends WebBaseFunction
 {
-	private final WebFormComponent component;
+	private final IWebsocketSession session;
+	private final String serviceName;
 
-	public WebComponentFunction(WebFormComponent component, WebComponentApiDefinition definition)
+	public WebServiceFunction(IWebsocketSession session, WebComponentApiDefinition definition, String serviceName)
 	{
 		super(definition);
-		this.component = component;
+		this.session = session;
+		this.serviceName = serviceName;
 	}
 
 	@Override
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
 		// No unwrapping here so that javascript objects can also be sent to client
-		return component.invokeApi(definition, args);
+		try
+		{
+			return session.getService(serviceName).executeServiceCall(definition.getName(), args);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 }

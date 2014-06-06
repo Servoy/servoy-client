@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -156,6 +157,7 @@ public class TemplateGeneratorFilter implements Filter
 			Types.registerTypes();
 
 			WebComponentSpecProvider.init(fc.getServletContext());
+			WebServiceSpecProvider.init(fc.getServletContext());
 		}
 	}
 

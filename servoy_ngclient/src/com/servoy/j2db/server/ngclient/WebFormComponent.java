@@ -30,7 +30,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class WebFormComponent extends WebComponent implements ListDataListener
+public class WebFormComponent extends WebComponent implements ListDataListener, IContextProvider
 {
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final FormElement formElement;
@@ -191,7 +191,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -202,7 +202,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -213,7 +213,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

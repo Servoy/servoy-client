@@ -17,9 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.io.IOException;
-import java.util.Map;
-
 import org.sablo.IChangeListener;
 import org.sablo.websocket.IWebsocketSession;
 
@@ -53,11 +50,6 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
 
 	void solutionLoaded(Solution flattenedSolution);
-
-	/**
-	 * @param formData
-	 */
-	void sendChanges(Map<String, Map<String, Map<String, Object>>> formData) throws IOException;
 
 	/**
 	 * @param formName

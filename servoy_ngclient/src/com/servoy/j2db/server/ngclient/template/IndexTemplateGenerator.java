@@ -24,8 +24,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
@@ -83,7 +84,7 @@ public class IndexTemplateGenerator
 
 		/**
 		 * @param fs
-		 * @param contextPath 
+		 * @param contextPath
 		 */
 		public IndexTemplateObjectWrapper(FlattenedSolution fs, String contextPath)
 		{
@@ -169,6 +170,53 @@ public class IndexTemplateGenerator
 		{
 			List<String> references = new ArrayList<>();
 			WebComponentSpecification[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentSpecifications();
+			for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
+			{
+				String[] libraries = webComponentSpec.getLibraries();
+				for (String lib : libraries)
+				{
+					if (lib.toLowerCase().endsWith(".js"))
+					{
+						references.add(lib);
+					}
+				}
+			}
+			return references;
+		}
+
+		public Collection<String> getServiceReferences()
+		{
+			List<String> references = new ArrayList<>();
+			WebComponentSpecification[] webComponentDescriptions = WebServiceSpecProvider.getInstance().getWebServiceSpecifications();
+			for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
+			{
+				references.add(webComponentSpec.getDefinition());
+			}
+			return references;
+		}
+
+		public Collection<String> getServiceCssReferences()
+		{
+			List<String> references = new ArrayList<>();
+			WebComponentSpecification[] webComponentDescriptions = WebServiceSpecProvider.getInstance().getWebServiceSpecifications();
+			for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
+			{
+				String[] libraries = webComponentSpec.getLibraries();
+				for (String lib : libraries)
+				{
+					if (lib.toLowerCase().endsWith(".css"))
+					{
+						references.add(lib);
+					}
+				}
+			}
+			return references;
+		}
+
+		public Collection<String> getServiceJsReferences()
+		{
+			List<String> references = new ArrayList<>();
+			WebComponentSpecification[] webComponentDescriptions = WebServiceSpecProvider.getInstance().getWebServiceSpecifications();
 			for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
 			{
 				String[] libraries = webComponentSpec.getLibraries();

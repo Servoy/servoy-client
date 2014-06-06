@@ -21,7 +21,7 @@ import com.servoy.j2db.FlattenedSolution;
 
 /**
  * Context for data converters
- * 
+ *
  * @author gboros
  */
 public interface IServoyDataConverterContext
