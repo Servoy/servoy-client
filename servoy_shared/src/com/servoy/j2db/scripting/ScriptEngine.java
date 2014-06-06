@@ -64,6 +64,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TableNode;
+import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
@@ -245,6 +246,7 @@ public class ScriptEngine implements IScriptSupport
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SOLUTION_MODIFIER, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, solutionModifier,
 				new InstanceJavaMembers(tmpSolutionScope, JSSolutionModel.class)));
 			registerScriptObjectClass(JSSolutionModel.class);
+			toplevelScope.put("JSField", toplevelScope, new InstanceOfScope("JSField", JSField.class));
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_DATABASE_MANAGER, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsdbm,
 				new InstanceJavaMembers(tmpSolutionScope, JSDatabaseManager.class)));
 			registerScriptObjectClass(JSDatabaseManager.class);
