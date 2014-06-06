@@ -209,6 +209,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	 */
 	public boolean stopUIEditing(boolean looseFocus)
 	{
+		if (dataAdapterList != null) return dataAdapterList.stopUIEditing(looseFocus);
 		return true;
 	}
 

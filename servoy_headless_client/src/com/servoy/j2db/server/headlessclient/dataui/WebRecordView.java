@@ -20,12 +20,10 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.Rectangle;
 import java.util.List;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
-import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
 
@@ -97,11 +95,11 @@ public class WebRecordView extends WebMarkupContainer implements IView
 	 */
 	public boolean stopUIEditing(final boolean looseFocus)
 	{
-		Object hasInvalidValue = visitChildren(IDisplayData.class, new IVisitor()
+		Object hasInvalidValue = visitChildren(WebDataRenderer.class, new IVisitor<WebDataRenderer>()
 		{
-			public Object component(Component component)
+			public Object component(WebDataRenderer component)
 			{
-				if (!((IDisplayData)component).stopUIEditing(looseFocus))
+				if (!component.stopUIEditing(looseFocus))
 				{
 					return Boolean.TRUE;
 				}
