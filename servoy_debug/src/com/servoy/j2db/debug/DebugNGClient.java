@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.sablo.eventthread.WebsocketSessionEndpoints;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
@@ -31,11 +33,13 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.ILogLevel;
 
 /**
@@ -60,7 +64,14 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
-
+		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getWebServiceSpecifications();
+		PluginScope scope = (PluginScope)engine.getSolutionScope().get("plugins", engine.getSolutionScope());
+		scope.setLocked(false);
+		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
+		{
+			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification));
+		}
+		scope.setLocked(true);
 		if (designerCallback != null)
 		{
 			designerCallback.addScriptObjects(this, engine.getSolutionScope());
