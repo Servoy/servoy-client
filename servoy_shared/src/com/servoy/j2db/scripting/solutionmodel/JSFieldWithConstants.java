@@ -34,7 +34,7 @@ public class JSFieldWithConstants extends JSField implements IPrefixedConstantsO
 	@Override
 	public String getPrefix()
 	{
-		return JSFieldWithConstants.class.getSimpleName();
+		return JSField.class.getSimpleName();
 	}
 
 }
