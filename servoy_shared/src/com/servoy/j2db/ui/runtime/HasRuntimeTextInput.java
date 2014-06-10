@@ -31,7 +31,9 @@ public interface HasRuntimeTextInput
 {
 	/**
 	 * Gets or sets the number value (position) of the text caret (text "I" bar) in a field.
-	 *
+	 *  
+	 * NOTE: This does not work in Web Client.
+	 *  
 	 * @sample
 	 * //get the current caretposition
 	 * var caretPos = %%prefix%%%%elementName%%.caretPosition;
