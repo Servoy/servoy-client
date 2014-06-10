@@ -640,11 +640,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				// large foundset, query the columns in 1 go
 				QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
 				ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
+				ArrayList<String> distinctColumns = new ArrayList<String>(columnMap.size());
 				for (String dpname : dpnames)
 				{
 					Column column = columnMap.get(dpname);
-					if (column != null)
+					if (column != null && !distinctColumns.contains(dpname))
 					{
+						distinctColumns.add(dpname);
 						cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 					}
 				}
@@ -683,7 +685,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					{
 						Object[] row = new Object[dpnames.length];
 						Object[] dataseRow = dataSet.getRow(i); // may contain more data: pk columns for distinct-in-memory
-						int dr = 0;
 						for (int j = 0; j < dpnames.length; j++)
 						{
 							Column column = columnMap.get(dpnames[j]);
@@ -694,8 +695,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							}
 							else
 							{
-								row[j] = sheet.convertValueToObject(dataseRow[dr], sheet.getColumnIndex(dpnames[j]), columnConverterManager);
-								dr++;
+								row[j] = sheet.convertValueToObject(dataseRow[distinctColumns.indexOf(dpnames[j])], sheet.getColumnIndex(dpnames[j]),
+									columnConverterManager);
 							}
 						}
 						lst.add(row);
