@@ -448,6 +448,20 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	solutionTitle: "",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	styleSheetPath: undefined
+}).controller("LoginController", function($scope, $modalInstance, $servoyInternal, $rootScope, webStorage) {
+	$scope.model = {'remember' : true };
+	$scope.doLogin = function() {
+		var promise = $servoyInternal.callService("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
+		promise.then(function(ok) {
+			if(ok) {
+				if(ok.username) webStorage.local.add('servoy_username', ok.username);
+				if(ok.password) webStorage.local.add('servoy_password', ok.password);
+				$modalInstance.close(ok);
+			} else {
+				$scope.model.message = 'Invalid username or password, try again';
+			}
+    	})
+	}	
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope) {
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
@@ -458,11 +472,18 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			return $windowService.getFormUrl($solutionSettings.navigatorForm.templateURL);
 		}
 		return $solutionSettings.navigatorForm.templateURL;
-	}	
+	}
 	$rootScope.updatingFormUrl = '';
-	
-}).factory("$applicationService",['$window','$timeout','webStorage',function($window,$timeout,webStorage) {
-	
+}).factory("$applicationService",['$window','$timeout','webStorage','$modal', '$servoyInternal', function($window,$timeout,webStorage,$modal,$servoyInternal) {
+	var showDefaultLoginWindow = function() {
+		$modal.open({
+    	      templateUrl: '/templates/login.html',
+    	      controller: 'LoginController',
+    	      windowClass: 'login-window',
+    	      backdrop: 'static',
+    	      keyboard: false
+			});				
+		}
 	return {
 		getUserProperty: function(key) {
 			var json = webStorage.local.get("userProperties");
@@ -527,9 +548,22 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			infoPanel.style.width= w+"px";
 			document.body.appendChild(infoPanel);
 			setTimeout('document.getElementById(\"infoPanel\").style.display=\"none\"',t);
+		},
+		showDefaultLogin: function() {
+			if(webStorage.local.get('servoy_username') && webStorage.local.get('servoy_password')) {
+				var promise = $servoyInternal.callService("applicationServerService", "login", {'username' : webStorage.local.get('servoy_username'), 'password' : webStorage.local.get('servoy_password'), 'encrypted': true}, false);
+				promise.then(function(ok) {
+					if(!ok) {
+						webStorage.local.remove('servoy_username');
+						webStorage.local.remove('servoy_password');
+						showDefaultLoginWindow();
+					}
+		    	})				
+			} else {
+				showDefaultLoginWindow();
+			}		
 		}
 	}
-	
 }]).run(function($window, $servoyInternal) {
 	$window.executeInlineScript = function(formname, script, params) {
 		$servoyInternal.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)

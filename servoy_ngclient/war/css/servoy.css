@@ -57,3 +57,7 @@ label.svy-check-radio span{
 	max-width :5000px;
 	max-height:5000px;
 }
+
+.login-window .modal-dialog {
+	width: 300px;
+}

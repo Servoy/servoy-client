@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import org.sablo.IChangeListener;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.websocket.IServerService;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -52,13 +53,15 @@ import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RendererParentWrapper;
+import com.servoy.j2db.util.SecuritySupport;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 // TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
 // then we can extend that one.
-public class NGClient extends AbstractApplication implements INGApplication, IChangeListener
+public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService
 {
 	private static final long serialVersionUID = 1L;
 
@@ -71,12 +74,14 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	private Map<Object, Object> uiProperties;
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
+	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
 
 	public NGClient(INGClientWebsocketSession wsSession) throws Exception
 	{
 		super(new WebCredentials());
 
 		this.wsSession = wsSession;
+		getWebsocketSession().registerServerService(APPLICATION_SERVER_SERVICE, this);
 		settings = Settings.getInstance();
 		try
 		{
@@ -802,5 +807,57 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				((WebFormController)form).getFormUI().refreshValueList(valueList);
 			}
 		}
+	}
+
+	@Override
+	public void showDefaultLogin() throws ServoyException
+	{
+		try
+		{
+			getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeServiceCall("showDefaultLogin", null);
+		}
+		catch (IOException ex)
+		{
+			Debug.error(ex);
+		}
+	}
+
+	/*
+	 * @see org.sablo.websocket.IServerService#executeMethod(java.lang.String, org.json.JSONObject)
+	 */
+	@Override
+	public Object executeMethod(String methodName, JSONObject args) throws Exception
+	{
+		switch (methodName)
+		{
+			case "login" :
+				try
+				{
+					credentials.setUserName(args.optString("username"));
+					credentials.setPassword(args.optBoolean("encrypted") ? SecuritySupport.decrypt(Settings.getInstance(), args.optString("password"))
+						: args.optString("password"));
+					authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
+					if (getClientInfo().getUserUid() != null)
+					{
+						//loadSolution(getSolution().getName());
+						wsSession.onOpen(getSolution().getName());
+						if (args.optBoolean("remember"))
+						{
+							JSONObject r = new JSONObject();
+							r.put("username", credentials.getUserName());
+							r.put("password", SecuritySupport.encrypt(Settings.getInstance(), credentials.getPassword()));
+							return r;
+						}
+						else return Boolean.TRUE;
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+				return Boolean.FALSE;
+		}
+
+		return null;
 	}
 }
