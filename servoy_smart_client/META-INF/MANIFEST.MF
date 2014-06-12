@@ -37,4 +37,5 @@ Export-Package: com.l2fprod.common,
 Bundle-ClassPath: lib/BrowserLauncher2.jar,
  lib/l2fprod-common-outlookbar.jar,
  lib/MRJAdapter.jar,
+ lib/slf4j-jdk14.jar,
  .
