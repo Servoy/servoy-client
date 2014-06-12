@@ -23,6 +23,7 @@ import org.sablo.IChangeListener;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -119,7 +120,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
 	 */
 	@Override
@@ -131,7 +132,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
 	 */
 	@Override
@@ -305,7 +306,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -767,18 +768,34 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 		catch (final ApplicationException e)
 		{
-			//TODO
+			if (e.getErrorCode() == ServoyException.NO_LICENSE)
+			{
+				Map<String, Object> noLicense = new HashMap<>();
+				noLicense.put("noLicense", getLicenseAndMentenanceDetail());
+				WebsocketEndpoint.get().sendMessage(noLicense, true, NGClientForJsonConverter.INSTANCE);
+			}
+			else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
+			{
+				Map<String, Object> mentenance = new HashMap<>();
+				mentenance.put("maintenanceMode", getLicenseAndMentenanceDetail());
+				WebsocketEndpoint.get().sendMessage(mentenance, true, NGClientForJsonConverter.INSTANCE);
+			}
 			throw e;
-//			if (e.getErrorCode() == ServoyException.NO_LICENSE)
-//			{
-//				throw new RestartResponseException(ServoyServerToBusyPage.class);
-//			}
-//			else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
-//			{
-//				throw new RestartResponseException(ServoyServerInMaintenanceMode.class);
-//			}
 		}
 		return registered;
+	}
+
+	private Map<String, Object> getLicenseAndMentenanceDetail()
+	{
+		Map<String, Object> detail = new HashMap<>();
+		String url = Settings.getInstance().getProperty("servoy.webclient.pageexpired.url");
+		if (url != null)
+		{
+			detail.put("redirectUrl", url);
+			String redirectTimeout = Settings.getInstance().getProperty("servoy.webclient.pageexpired.redirectTimeout");
+			detail.put("redirectTimeout", Utils.getAsInteger(redirectTimeout));
+		}
+		return detail;
 	}
 
 	@Override

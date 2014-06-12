@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,7 +53,9 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 
@@ -158,6 +161,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					catch (RepositoryException e)
 					{
 						Debug.error("Failed to load the solution: " + solutionName, e);
+						sendInternalError(e);
 					}
 				}
 			});
@@ -165,6 +169,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		catch (Exception e)
 		{
 			Debug.error(e);
+			sendInternalError(e);
 		}
 		finally
 		{
@@ -205,6 +210,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						{
 							try
 							{
+								if (true) throw new JSONException("my bsohgosagosg");
 								JSONArray jsargs = obj.getJSONArray("args");
 								IWebFormUI form = client.getFormManager().getFormAndSetCurrentWindow(obj.getString("formname")).getFormUI();
 								WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
@@ -244,6 +250,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							catch (JSONException | IOException e)
 							{
 								Debug.error(e);
+								sendInternalError(e);
 							}
 						}
 					});
@@ -285,6 +292,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		catch (Exception e)
 		{
 			Debug.error(e);
+			sendInternalError(e);
 		}
 		finally
 		{
@@ -329,6 +337,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				catch (JSONException e)
 				{
 					Debug.error(e);
+					sendInternalError(e);
 				}
 			}
 		});
@@ -566,9 +575,35 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return null;
 	}
 
+	@Override
+	public void closeSession()
+	{
+		for (IWebsocketEndpoint endpoint : getRegisteredEnpoints())
+		{
+			Map<String, Object> sessionExpired = new HashMap<>();
+			Map<String, Object> detail = new HashMap<>();
+			String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
+			if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
+			sessionExpired.put("sessionExpired", detail);
+			//TODO this doesn't work : getService("$sesionService").executeAsyncServiceCall(...);  
+			//=> results in java.lang.IllegalStateException: no current websocket endpoint set
+			//							at org.sablo.websocket.WebsocketEndpoint.get(WebsocketEndpoint.java:72)
+			// because it was initiated from an exlipse thread and not as part of a client request
+			try
+			{
+				endpoint.sendMessage(sessionExpired, true, NGClientForJsonConverter.INSTANCE);
+			}
+			catch (IOException e)
+			{
+				Debug.log(e);
+			}
+		}
+		super.closeSession();
+	}
+
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
@@ -581,5 +616,23 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public IForJsonConverter getForJsonConverter()
 	{
 		return NGClientForJsonConverter.INSTANCE;
+	}
+
+	/**
+	 * Sets an internalServerError object on the client side which shows the internal server error page.
+	 * If it is run from the developer it also adds the stack trace
+	 * @param e
+	 */
+	public static void sendInternalError(Exception e)
+	{
+		Map<String, Object> internalError = new HashMap<>();
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		String stackTrace = sw.toString();
+		if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
+		String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
+		if (htmlView != null) internalError.put("viewUrl", htmlView);
+		WebsocketEndpoint.get().getWebsocketSession().getService("$sessionService").executeAsyncServiceCall("setInternalServerError",
+			new Object[] { internalError });
 	}
 }

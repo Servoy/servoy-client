@@ -31,7 +31,7 @@ module.exports = function(config){
     },
 
     frameworks: ['jasmine'],
-    browsers : ['PhantomJS'],
+    browsers : ['PhantomJS'],//
 
     /*plugins : [    <- not needed since karma loads by default all sibling plugins that start with karma-*
             'karma-junit-reporter',

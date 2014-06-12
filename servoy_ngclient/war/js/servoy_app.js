@@ -1,7 +1,7 @@
 var controllerProvider;
 angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
-}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket) {
+}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket,$sessionService) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
 	   // this holds the form model with all the data, per form is this the "synced" view of the the IFormUI on the server 
 	   // (3 way binding)
@@ -92,7 +92,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec(window.location.pathname)[1];
 	   $solutionSettings.windowName = webStorage.session.get("windowid");
 	   var wsSession = $webSocket.connect('client', webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
-       wsSession.onMessageObject = function (msg) {
+	   wsSession.onMessageObject = function (msg) {
 		   try {
 	        // data got back from the server
 	        if (msg.forms) {
@@ -186,7 +186,21 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        }
 	        if (msg.styleSheetPath) {
 	        	$solutionSettings.styleSheetPath = msg.styleSheetPath;
+	        }	   
+	        /**
+	         * TODO sesionExpired should not be called forom the protocol , 
+	         * it should be a direct call to a service (also check to see if  noLicense and maintenanceMode can be moved to a service)
+	         * */
+	        if(msg.noLicense){
+	        	$sessionService.setNoLicense(msg.noLicense)	        		
+	        }	       
+	        if(msg.maintenanceMode){
+	        	$sessionService.setMaintenanceMode(msg.maintenanceMode)    		
 	        }
+	        if(msg.sessionExpired){
+	        	$sessionService.expireSession(msg.sessionExpired)    		
+	        }
+	        /** end TODO*/
 	        if (msg.windowid) {
 	        	$solutionSettings.windowName = msg.windowid;
 	        	webStorage.session.add("windowid",msg.windowid);
@@ -448,20 +462,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	solutionTitle: "",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	styleSheetPath: undefined
-}).controller("LoginController", function($scope, $modalInstance, $servoyInternal, $rootScope, webStorage) {
-	$scope.model = {'remember' : true };
-	$scope.doLogin = function() {
-		var promise = $servoyInternal.callService("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
-		promise.then(function(ok) {
-			if(ok) {
-				if(ok.username) webStorage.local.add('servoy_username', ok.username);
-				if(ok.password) webStorage.local.add('servoy_password', ok.password);
-				$modalInstance.close(ok);
-			} else {
-				$scope.model.message = 'Invalid username or password, try again';
-			}
-    	})
-	}	
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope) {
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
@@ -472,16 +472,106 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			return $windowService.getFormUrl($solutionSettings.navigatorForm.templateURL);
 		}
 		return $solutionSettings.navigatorForm.templateURL;
-	}
+	}	
 	$rootScope.updatingFormUrl = '';
-}).factory("$applicationService",['$window','$timeout','webStorage','$modal', '$servoyInternal', function($window,$timeout,webStorage,$modal,$servoyInternal) {
+	
+	$scope.getSessionProblemView = function(){
+		if($solutionSettings.noLicense) return $solutionSettings.noLicense.viewUrl;
+		if($solutionSettings.maintenanceMode) return $solutionSettings.maintenanceMode.viewUrl;
+		if($solutionSettings.sessionExpired) return $solutionSettings.sessionExpired.viewUrl;
+		if($solutionSettings.internalServerError) return $solutionSettings.internalServerError.viewUrl;		
+		return null;
+	}
+}).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings,$timeout,$window) {
+	
+	$scope.redirectUrl = $solutionSettings.noLicense.redirectUrl;
+	
+	if($solutionSettings.noLicense.redirectTimeout >=0){
+		$timeout(function(){			
+			$window.location = $solutionSettings.noLicense.redirectUrl;
+		},$solutionSettings.noLicense.redirectTimeout*1000)
+	}
+}]).controller("SessionExpiredController",['$scope','$solutionSettings',function($scope, $solutionSettings) {
+	
+	$scope.redirectUrl = $solutionSettings.sessionExpired.redirectUrl;
+
+}])
+.controller("InternalServerErrorController",['$scope','$solutionSettings',function($scope, $solutionSettings) {
+	
+	$scope.error = $solutionSettings.internalServerError
+
+}])
+.controller("MaintenanceModeController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings,$timeout,$window) {
+	
+	$scope.redirectUrl = $solutionSettings.maintenanceMode.redirectUrl;
+	
+	if($solutionSettings.maintenanceMode.redirectTimeout >=0){
+		$timeout(function(){			
+			$window.location = $solutionSettings.maintenanceMode.redirectUrl;
+		},$solutionSettings.maintenanceMode.redirectTimeout*1000)
+	}
+}])
+.factory('$sessionService',['$solutionSettings','$window','$rootScope',function($solutionSettings,$window,$rootScope){
+	
+	return {
+		expireSession : function (sessionExpired){
+			$rootScope.$apply(function(){
+				var exp = { 
+			    	viewUrl: 'templates/sessionExpiredView.html',
+			    	redirectUrl : $window.location.href
+			    }
+			    if(sessionExpired.viewUrl)	exp.viewUrl= sessionExpired.viewUrl;
+			    
+			    $solutionSettings.sessionExpired = exp;
+			})
+		},
+		setNoLicense: function (noLicense){
+			$rootScope.$apply(function(){
+				var noLic = {
+						viewUrl : 'templates/serverTooBusyView.html',
+						redirectUrl : $window.location.href,
+						redirectTimeout : 0
+				}
+	        	if(noLicense.viewUrl) noLic.viewUrl = noLicense.viewUrl 
+	        	if(noLicense.redirectUrl) noLic.redirectUrl = noLicense.redirectUrl;
+	        	if(noLicense.redirectTimeout) noLic.redirectTimeout = noLicense.redirectTimeout;
+	        	
+	        	$solutionSettings.noLicense = noLic;
+			})
+		},
+		setMaintenanceMode: function (maintenanceMode){
+			$rootScope.$apply(function(){
+				var ment = {
+						viewUrl : 'templates/maintenanceView.html',
+						redirectUrl : $window.location.href,
+						redirectTimeout : 0
+				}
+	        	if(maintenanceMode.viewUrl) ment.viewUrl = mentenanceMode.viewUrl 
+	        	if(msg.maintenanceMode.redirectUrl)	ment.redirectUrl = maintenanceMode.redirectUrl;
+	        	if(msg.maintenanceMode.redirectTimeout)	ment.redirectTimeout = maintenanceMode.redirectTimeout;
+	
+	        	$solutionSettings.maintenanceMode = ment;
+			})
+		},
+		setInternalServerError: function(internalServerError){
+			$rootScope.$apply(function(){
+				var error = {viewUrl:'templates/serverInternalErrorView.html'}
+				if(internalServerError.viewUrl)  error.viewUrl = internalServerError.viewUrl;
+				if(internalServerError.stack) error.stack = internalServerError.stack;
+				
+				$solutionSettings.internalServerError = error;					
+			})
+		}
+	}
+}])
+.factory("$applicationService",['$window','$timeout','webStorage',function($window,$timeout,webStorage) {
 	var showDefaultLoginWindow = function() {
-		$modal.open({
-    	      templateUrl: '/templates/login.html',
-    	      controller: 'LoginController',
-    	      windowClass: 'login-window',
-    	      backdrop: 'static',
-    	      keyboard: false
+			$modal.open({
+        	  templateUrl: '/templates/login.html',
+         	  controller: 'LoginController',
+       	      windowClass: 'login-window',
+      	      backdrop: 'static',
+      	      keyboard: false
 			});				
 		}
 	return {
@@ -548,23 +638,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			infoPanel.style.width= w+"px";
 			document.body.appendChild(infoPanel);
 			setTimeout('document.getElementById(\"infoPanel\").style.display=\"none\"',t);
-		},
-		showDefaultLogin: function() {
-			if(webStorage.local.get('servoy_username') && webStorage.local.get('servoy_password')) {
-				var promise = $servoyInternal.callService("applicationServerService", "login", {'username' : webStorage.local.get('servoy_username'), 'password' : webStorage.local.get('servoy_password'), 'encrypted': true}, false);
-				promise.then(function(ok) {
-					if(!ok) {
-						webStorage.local.remove('servoy_username');
-						webStorage.local.remove('servoy_password');
-						showDefaultLoginWindow();
-					}
-		    	})				
-			} else {
-				showDefaultLoginWindow();
-			}		
 		}
 	}
-}]).run(function($window, $servoyInternal) {
+	
+}])
+.run(function($window, $servoyInternal) {
 	$window.executeInlineScript = function(formname, script, params) {
 		$servoyInternal.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)
 	}
