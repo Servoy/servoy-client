@@ -362,7 +362,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.apache.wicket.MarkupContainer#hasAssociatedMarkup()
 	 */
 	@Override
@@ -890,7 +890,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormUIInternal#isReadOnly()
 	 */
 	@Override
@@ -933,7 +933,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormUIInternal#touch()
 	 */
 	@Override
@@ -1591,10 +1591,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	public void setMainPage(MainPage mainPage)
 	{
-		if (this.mainPage != null && mainPage != this.mainPage)
-		{
-			this.mainPage.remove((IComponent)this);
-		}
 		this.mainPage = mainPage;
 	}
 
@@ -1943,7 +1939,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.apache.wicket.MarkupContainer#onRender(org.apache.wicket.markup.MarkupStream)
 	 */
 	@Override
