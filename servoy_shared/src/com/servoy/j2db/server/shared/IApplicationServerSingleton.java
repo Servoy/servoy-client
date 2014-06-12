@@ -58,6 +58,8 @@ public interface IApplicationServerSingleton
 
 	String getClientId();
 
+	ClassLoader getBaseClassLoader();
+
 	IDebugClientHandler getDebugClientHandler();
 
 	IPluginManagerInternal getPluginManager();

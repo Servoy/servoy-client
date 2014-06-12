@@ -55,16 +55,6 @@ public class LAFManager extends JarManager implements ILAFManager
 		lafThemes = new HashMap<String, String>();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ILAFManager#getClassLoader()
-	 */
-	public ClassLoader getClassLoader()
-	{
-		return _lafClassLoader;
-	}
-
 	/**
 	 * @see com.servoy.j2db.IBeanManager#flushCachedItems()
 	 */
