@@ -58,6 +58,10 @@ public interface IApplicationServerSingleton
 
 	String getClientId();
 
+	/**
+	 * Get the classloader for use by JarManager subclasses like plugin/bean/laf/dirver managers
+	 * @return
+	 */
 	ClassLoader getBaseClassLoader();
 
 	IDebugClientHandler getDebugClientHandler();
