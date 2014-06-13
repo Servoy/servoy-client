@@ -164,7 +164,7 @@ public class SpecTemplateModel
 				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" 
 				+ "  		foreground: 'color',\r\n"
 				+ "  		disabled: 'boolean',\r\n"
-				+ "  		imageMediaID: 'media',\r\n" 
+				+ "  		imageMediaID: 'string',\r\n" 
 				+ "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		if (name.equals("splitpane"))
@@ -174,7 +174,7 @@ public class SpecTemplateModel
 					+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" 
 					+ "  		foreground: 'color',\r\n"
 					+ "  		disabled: 'boolean',\r\n"
-					+ "  		imageMediaID: 'media',\r\n" 
+					+ "  		imageMediaID: 'string',\r\n" 
 					+ "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		return null;
