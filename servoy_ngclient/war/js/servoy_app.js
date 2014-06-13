@@ -511,6 +511,21 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		},$solutionSettings.maintenanceMode.redirectTimeout*1000)
 	}
 }])
+.controller("LoginController", function($scope, $modalInstance, $servoyInternal, $rootScope, webStorage) {
+	$scope.model = {'remember' : true };
+	$scope.doLogin = function() {
+		var promise = $servoyInternal.callService("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
+		promise.then(function(ok) {
+			if(ok) {
+				if(ok.username) webStorage.local.add('servoy_username', ok.username);
+				if(ok.password) webStorage.local.add('servoy_password', ok.password);
+				$modalInstance.close(ok);
+			} else {
+				$scope.model.message = 'Invalid username or password, try again';
+			}
+    	})
+	}	
+})
 .factory('$sessionService',['$solutionSettings','$window','$rootScope',function($solutionSettings,$window,$rootScope){
 	
 	return {
@@ -564,7 +579,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		}
 	}
 }])
-.factory("$applicationService",['$window','$timeout','webStorage',function($window,$timeout,webStorage) {
+.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$servoyInternal', function($window,$timeout,webStorage,$modal,$servoyInternal) {
 	var showDefaultLoginWindow = function() {
 			$modal.open({
         	  templateUrl: '/templates/login.html',
@@ -638,6 +653,20 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			infoPanel.style.width= w+"px";
 			document.body.appendChild(infoPanel);
 			setTimeout('document.getElementById(\"infoPanel\").style.display=\"none\"',t);
+		},
+		showDefaultLogin: function() {
+			if(webStorage.local.get('servoy_username') && webStorage.local.get('servoy_password')) {
+				var promise = $servoyInternal.callService("applicationServerService", "login", {'username' : webStorage.local.get('servoy_username'), 'password' : webStorage.local.get('servoy_password'), 'encrypted': true}, false);
+				promise.then(function(ok) {
+					if(!ok) {
+						webStorage.local.remove('servoy_username');
+						webStorage.local.remove('servoy_password');
+						showDefaultLoginWindow();
+					}
+		    	})				
+			} else {
+				showDefaultLoginWindow();
+			}		
 		}
 	}
 	

@@ -210,7 +210,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						{
 							try
 							{
-								if (true) throw new JSONException("my bsohgosagosg");
 								JSONArray jsargs = obj.getJSONArray("args");
 								IWebFormUI form = client.getFormManager().getFormAndSetCurrentWindow(obj.getString("formname")).getFormUI();
 								WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
