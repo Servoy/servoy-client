@@ -45,6 +45,10 @@ public class ComponentResourcesExporter
 		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir);
 	}
 
+	/**
+	 * Used in war export to create a components.properties file which is needed to load the components specs in war.
+	 * @return the locations of components folders relative to the war dir.
+	 */
 	public static String getComponentDirectoryNames()
 	{
 		StringBuilder locations = new StringBuilder();
@@ -52,12 +56,29 @@ public class ComponentResourcesExporter
 		while (paths.hasMoreElements())
 		{
 			String name = paths.nextElement().replace("war/", "");
-			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/"))
+			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/") && !name.equals("services/"))
 			{
 				locations.append("/" + name + ";");
 			}
 		}
 		locations.deleteCharAt(locations.length() - 1);
+		return locations.toString();
+	}
+
+	/**
+	 * Used in war export to create a services.properties file, which is needed to load services specs in the war.
+	 * @return the locations of services folders relative to the war dir.
+	 */
+	public static String getServicesDirectoryNames()
+	{
+		StringBuilder locations = new StringBuilder();
+		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/services");
+		while (paths.hasMoreElements())
+		{
+			String name = paths.nextElement().replace("war/", "");
+			locations.append("/" + name + ";");
+		}
+		if (locations.length() > 0) locations.deleteCharAt(locations.length() - 1);
 		return locations.toString();
 	}
 
