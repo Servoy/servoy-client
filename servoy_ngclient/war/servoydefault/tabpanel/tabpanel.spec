@@ -113,6 +113,7 @@ types: {
   		active: 'boolean',
   		foreground: 'color',
   		disabled: 'boolean',
+  		imageMediaID: 'media',
   		mnemonic: 'string'
   	}
   }

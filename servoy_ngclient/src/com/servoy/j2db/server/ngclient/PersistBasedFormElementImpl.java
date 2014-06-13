@@ -42,6 +42,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
@@ -204,6 +205,17 @@ class PersistBasedFormElementImpl
 			Form form = context.getSolution().getForm(containsFormID);
 			tabMap.put("containsFormId", form.getName());
 			tabMap.put("disabled", false);
+			tabMap.put("imageMediaID", "");
+			int tabMediaID = tab.getImageMediaID();
+			if (tabMediaID > 0)
+			{
+				Media tabMedia = context.getSolution().getMedia(tabMediaID);
+				if (tabMedia != null)
+				{
+					tabMap.put("imageMediaID", "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + context.getSolution().getName() + "/" +
+						tabMedia.getName());
+				}
+			}
 			tabList.add(tabMap);
 			active = false;
 		}
