@@ -64,6 +64,8 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TableNode;
+import com.servoy.j2db.scripting.solutionmodel.JSField;
+import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
@@ -341,7 +343,8 @@ public class ScriptEngine implements IScriptSupport
 					try
 					{
 						IPrefixedConstantsObject constants = (IPrefixedConstantsObject)element.newInstance();
-						toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element));
+						toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element.equals(JSFieldWithConstants.class)
+							? JSField.class : element));
 						if (scriptableAddition != null)
 						{
 							scriptableAddition.addVar(constants.getPrefix(), new NativeJavaClass(scriptableAddition, element));
