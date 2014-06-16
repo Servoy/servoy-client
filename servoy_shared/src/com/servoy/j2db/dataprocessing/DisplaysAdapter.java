@@ -43,6 +43,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
@@ -585,9 +586,13 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			if (displayData instanceof ISupportOnRender && displayData instanceof IScriptableProvider)
 			{
 				IScriptable so = ((IScriptableProvider)displayData).getScriptObject();
-				if (so instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
+				if (so instanceof AbstractRuntimeRendersupportComponent && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
 				{
-					((ISupportOnRender)displayData).fireOnRender(true);
+					String componentDataproviderID = ((AbstractRuntimeRendersupportComponent)so).getDataProviderID();
+					if (e.getName() != null && e.getName().equals(componentDataproviderID))
+					{
+						((ISupportOnRender)displayData).fireOnRender(true);
+					}
 				}
 			}
 		}
