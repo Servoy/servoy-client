@@ -343,14 +343,8 @@ public class ScriptEngine implements IScriptSupport
 					try
 					{
 						IPrefixedConstantsObject constants = (IPrefixedConstantsObject)element.newInstance();
-						if (element.equals(JSFieldWithConstants.class))
-						{
-							toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, JSField.class));
-						}
-						else
-						{
-							toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element));
-						}
+						toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element.equals(JSFieldWithConstants.class)
+							? JSField.class : element));
 						if (scriptableAddition != null)
 						{
 							scriptableAddition.addVar(constants.getPrefix(), new NativeJavaClass(scriptableAddition, element));
