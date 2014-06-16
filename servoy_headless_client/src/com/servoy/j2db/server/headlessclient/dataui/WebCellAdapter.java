@@ -37,6 +37,7 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -130,9 +131,14 @@ public class WebCellAdapter implements IDataAdapter
 							if (cell instanceof ISupportOnRender && cell instanceof IScriptableProvider)
 							{
 								IScriptable so = ((IScriptableProvider)cell).getScriptObject();
-								if (so instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
+								if (so instanceof AbstractRuntimeRendersupportComponent &&
+									((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
 								{
-									((ISupportOnRender)cell).fireOnRender(true);
+									String componentDataproviderID = ((AbstractRuntimeRendersupportComponent)so).getDataProviderID();
+									if (e.getName() != null && e.getName().equals(componentDataproviderID))
+									{
+										((ISupportOnRender)cell).fireOnRender(true);
+									}
 								}
 							}
 						}
