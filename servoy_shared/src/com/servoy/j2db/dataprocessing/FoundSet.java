@@ -1503,26 +1503,51 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return false;
 	}
 
+	private int lastReturnedRecordIndex = 0;
+
 	protected int getRecordIndex(Object[] pk)
 	{
 		IDataSet pks = pksAndRecords.getPks();
 		if (pk != null && pk.length != 0 && pks != null && pks.getColumnCount() == pk.length)
 		{
-			for (int r = 0; r < pks.getRowCount(); r++)
+			int rowCount = pks.getRowCount();
+			// we try to optimize this search assuming next index is located near the last one
+			int startIndex = Math.min(lastReturnedRecordIndex - 10, rowCount);
+			if (startIndex < 0) startIndex = 0;
+			for (int r = startIndex; r < rowCount; r++)
 			{
-				Object[] pkrow = pks.getRow(r);
-				if (pkrow != null)
+				int matchingIndex = getMatchingRecordIndex(pk, pks, r);
+				if (matchingIndex >= 0)
 				{
-					boolean match = pkrow.length == pk.length;
-					for (int c = 0; c < pkrow.length; c++)
-					{
-						match = match && Utils.equalObjects(pk[c], pkrow[c]);
-					}
-					if (match)
-					{
-						return r;
-					}
+					return matchingIndex;
 				}
+			}
+			for (int r = 0; r < startIndex; r++)
+			{
+				int matchingIndex = getMatchingRecordIndex(pk, pks, r);
+				if (matchingIndex >= 0)
+				{
+					return matchingIndex;
+				}
+			}
+		}
+		return -1;
+	}
+
+	private int getMatchingRecordIndex(Object[] pk, IDataSet pks, int r)
+	{
+		Object[] pkrow = pks.getRow(r);
+		if (pkrow != null)
+		{
+			boolean match = pkrow.length == pk.length;
+			for (int c = 0; c < pkrow.length; c++)
+			{
+				match = match && Utils.equalObjects(pk[c], pkrow[c]);
+			}
+			if (match)
+			{
+				lastReturnedRecordIndex = r;
+				return r;
 			}
 		}
 		return -1;
