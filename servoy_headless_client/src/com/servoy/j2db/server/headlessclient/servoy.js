@@ -2089,19 +2089,21 @@ if (typeof(Servoy.Utils) == "undefined")
 		
 		getSelectedText: function(id)
 		{
-		    var textarea = document.getElementById(id);
 		    var sel = null;
-			// code for IE
-		    if (document.selection) {
-				textarea.focus();
-				sel = document.selection.createRange().text;
+		    var textarea = document.getElementById(id);
+		    if(textarea) {
+				// code for IE
+			    if (document.selection) {
+					textarea.focus();
+					sel = document.selection.createRange().text;
+			    }
+			    else {
+					// code for Mozilla
+					var start = textarea.selectionStart;
+					var end = textarea.selectionEnd;
+					sel = textarea.value.substring(start, end);
+				}
 		    }
-		    else {
-				// code for Mozilla
-				var start = textarea.selectionStart;
-				var end = textarea.selectionEnd;
-				sel = textarea.value.substring(start, end);
-			}
 			return sel;
 		},
 		
@@ -2461,6 +2463,8 @@ if (typeof(Servoy.Validation) == "undefined")
 				{
 				   if (("0123456789").indexOf(obj.value.charAt(i)) != -1) counter++;
 				}
+				var selectedTxt = Servoy.Utils.getSelectedText(obj.id);
+				if(selectedTxt) counter = counter - selectedTxt.length; 
 				if (counter > mlength) return false;
 			}
 			
