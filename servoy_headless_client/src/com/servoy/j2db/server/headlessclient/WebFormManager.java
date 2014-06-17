@@ -112,9 +112,9 @@ public class WebFormManager extends FormManager
 	{
 		if (parentContainer instanceof MainPage)
 		{
-			return ((MainPage)parentContainer).getMainWebForm() != fp.getFormUI();
+			MainPage parent = ((WebForm)fp.getFormUI()).findParent(MainPage.class);
+			return parentContainer != parent;
 		}
-
 		return true;
 	}
 
