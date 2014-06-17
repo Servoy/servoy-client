@@ -141,7 +141,7 @@ public class TagResolver
 
 		if (value instanceof Date)
 		{
-			return new SimpleDateFormat(format.getDisplayFormat()).format(value);
+			return new SimpleDateFormat(format.getDisplayFormat(), locale).format(value);
 		}
 
 		if (value instanceof Number)
