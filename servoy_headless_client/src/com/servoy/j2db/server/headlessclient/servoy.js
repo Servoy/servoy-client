@@ -1864,7 +1864,10 @@ function showurl(url, timeout, onRootFrame, useIFrame, pageExpiredRedirect)
 function getPreferredTableSize(startElementId)
 {
 	var el = document.getElementById(startElementId);
-	if (el) return [el.clientWidth, el.clientHeight];
+	if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+		return [el.clientWidth, el.clientHeight];
+	}
+
     return null;
 }
 
