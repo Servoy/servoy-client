@@ -80,7 +80,7 @@
 	</head>
 	<body >
 		<div ng-if='!getSessionProblemView()'>
-			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="{'width':solutionSettings.navigatorForm.size.width+'px'}"
+			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="{'position':'absolute','top':'0px','left':'0px','bottom':'0px','width':solutionSettings.navigatorForm.size.width+'px'}"
 				ng-include="getNavigatorFormUrl()"></div>
 			<div ng-include="getMainFormUrl()" ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':solutionSettings.navigatorForm.size.width+'px'}"></div>
 			<div ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
