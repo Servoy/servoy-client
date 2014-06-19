@@ -89,7 +89,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormManager#getCachedFormController(java.lang.String)
 	 */
 	@Override
@@ -100,7 +100,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormManager#setFormReadOnly(java.lang.String, boolean)
 	 */
 	@Override
@@ -236,7 +236,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManager#getForm(java.lang.String)
 	 */
 	@Override
@@ -299,7 +299,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManagerInternal#clearLoginForm()
 	 */
 	@Override
@@ -310,7 +310,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManager#getCurrentForm()
 	 */
 	@Override
@@ -768,36 +768,40 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 			case "formvisibility" :
 			{
 				IWebFormController parentForm = null;
-				IWebFormController form = null;
+				IWebFormController controller = null;
+				String formName = args.optString("formname");
 				if (args.has("parentForm") && !args.isNull("parentForm"))
 				{
 					parentForm = getFormAndSetCurrentWindow(args.optString("parentForm"));
-					form = getForm(args.optString("formname"));
+					controller = getForm(formName);
 				}
 				else
 				{
-					form = getFormAndSetCurrentWindow(args.optString("formname"));
+					controller = getFormAndSetCurrentWindow(formName);
 				}
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				boolean isVisible = args.getBoolean("visible");
-				boolean ok = form.notifyVisible(isVisible, invokeLaterRunnables);
+				boolean ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
 				if (ok && parentForm != null)
 				{
 					WebFormComponent containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
 					if (containerComponent != null)
 					{
-						containerComponent.updateVisibleForm(form.getFormUI(), isVisible, args.optInt("formIndex"));
+						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 					}
 					if (args.has("relation") && !args.isNull("relation"))
 					{
 						String relation = args.getString("relation");
 						FoundSet parentFs = parentForm.getFormModel();
 						IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
-						form.loadRecords(selectedRecord.getRelatedFoundSet(relation));
-						parentForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation);
+						controller.loadRecords(selectedRecord.getRelatedFoundSet(relation));
+						parentForm.getFormUI().getDataAdapterList().addRelatedForm(controller, relation);
 					}
 				}
 				Utils.invokeLater(getApplication(), invokeLaterRunnables);
+				Form form = application.getFormManager().getPossibleForm(formName);
+				if (form != null) ((INGApplication)application).getWebsocketSession().touchForm(application.getFlattenedSolution().getFlattenedForm(form),
+					formName, true);
 				return Boolean.valueOf(ok);
 			}
 

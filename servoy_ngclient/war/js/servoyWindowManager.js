@@ -326,6 +326,12 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
 			});
 		},
+		touchForm: function(formName) {
+			var realFormUrl = formTemplateUrls[formName];
+			if (realFormUrl == null) {
+					formTemplateUrls[formName] = "";
+			}
+		},
  		getFormUrl: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
