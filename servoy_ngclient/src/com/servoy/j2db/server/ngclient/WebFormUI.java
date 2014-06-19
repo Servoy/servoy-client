@@ -515,21 +515,33 @@ public class WebFormUI extends Container implements IWebFormUI
 		propagatePropertyToAllComponents("readOnly", readOnly);
 	}
 
-	private void propagatePropertyToAllComponents(String property, Object value)
+	private void propagatePropertyToAllComponents(String property, boolean value)
 	{
-		ElementScope elementScope = getElementsScope();
-		if (elementScope != null)
+		if ("readOnly".equals(property))
 		{
-			Object[] components = elementScope.getValues();
-			if (components != null)
+			// special case, we have to set editable property for legacy components
+			List<FormElement> formElements = ComponentFactory.getFormElements(formController.getForm().getAllObjects(), getDataConverterContext());
+			for (FormElement fe : formElements)
 			{
-				for (Object component : components)
+				WebComponent component = components.get(fe.getName());
+				if (component != null)
 				{
-					if (component instanceof RuntimeWebComponent)
+					if (fe.isLegacy())
 					{
-						((RuntimeWebComponent)component).put(property, null, value);
+						component.setProperty("editable", !value, ConversionLocation.SERVER);
+					}
+					else
+					{
+						component.setProperty(property, value, ConversionLocation.SERVER);
 					}
 				}
+			}
+		}
+		else
+		{
+			for (WebComponent component : components.values())
+			{
+				component.setProperty(property, value, ConversionLocation.SERVER);
 			}
 		}
 	}
