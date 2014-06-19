@@ -328,9 +328,15 @@ public class ScriptNameValidator implements IValidateName
 	private Object testTableProviders(Table table, String next, int id, boolean isColumn, boolean isCalculation) throws RepositoryException
 	{
 		if (table == null) return null;
+		String dataProviderID = null;
 		for (AggregateVariable av : Utils.iterate(solutionRoot.getAggregateVariables(table, false)))
 		{
-			if (av.getDataProviderID().equals(next) && av.getID() != id)
+			dataProviderID = av.getDataProviderID();
+			if (dataProviderID == null)
+			{
+				Debug.warn("Aggregate variable with null dataProviderID/name found in table " + table.getDataSource());
+			}
+			else if (dataProviderID.equals(next) && av.getID() != id)
 			{
 				return av;
 			}
@@ -349,7 +355,12 @@ public class ScriptNameValidator implements IValidateName
 		{
 			for (ScriptCalculation sc : Utils.iterate(solutionRoot.getScriptCalculations(table, false)))
 			{
-				if (sc.getDataProviderID().equals(next) && sc.getID() != id)
+				dataProviderID = sc.getDataProviderID();
+				if (dataProviderID == null)
+				{
+					Debug.warn("Script calculation with null dataProviderID/name found in table " + table.getDataSource());
+				}
+				else if (dataProviderID.equals(next) && sc.getID() != id)
 				{
 					return sc;
 				}
