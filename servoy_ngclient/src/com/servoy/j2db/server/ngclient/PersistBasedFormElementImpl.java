@@ -205,15 +205,19 @@ class PersistBasedFormElementImpl
 			Form form = context.getSolution().getForm(containsFormID);
 			tabMap.put("containsFormId", form.getName());
 			tabMap.put("disabled", false);
-			tabMap.put("imageMediaID", "");
-			int tabMediaID = tab.getImageMediaID();
-			if (tabMediaID > 0)
+			int orient = ((TabPanel)persist).getTabOrientation();
+			if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL)
 			{
-				Media tabMedia = context.getSolution().getMedia(tabMediaID);
-				if (tabMedia != null)
+				tabMap.put("imageMediaID", "");
+				int tabMediaID = tab.getImageMediaID();
+				if (tabMediaID > 0)
 				{
-					tabMap.put("imageMediaID", "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + context.getSolution().getName() + "/" +
-						tabMedia.getName());
+					Media tabMedia = context.getSolution().getMedia(tabMediaID);
+					if (tabMedia != null)
+					{
+						tabMap.put("imageMediaID", "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + context.getSolution().getName() +
+							"/" + tabMedia.getName());
+					}
 				}
 			}
 			tabList.add(tabMap);

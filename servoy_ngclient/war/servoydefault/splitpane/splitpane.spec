@@ -145,7 +145,6 @@ types: {
   		active: 'boolean',
   		foreground: 'color',
   		disabled: 'boolean',
-  		imageMediaID: 'string',
   		mnemonic: 'string'
   	}
   }
