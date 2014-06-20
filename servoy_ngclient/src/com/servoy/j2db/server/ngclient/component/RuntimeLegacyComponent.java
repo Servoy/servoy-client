@@ -141,7 +141,7 @@ public class RuntimeLegacyComponent implements Scriptable
 	{
 		boolean validProperty = false; // to avoid new properties for legacy portals for example (relatedFoundset, childElements)...
 		Iterator<Element> it = StaticContentSpecLoader.getContentSpec().getPropertiesForObjectType(
-			component.getFormElement().getLegacyPersistIfAvailable().getTypeID());
+			component.getFormElement().getPersistIfAvailable().getTypeID());
 		while (it.hasNext())
 		{
 			if (convertName(name).equals(it.next().getName()))
@@ -357,9 +357,9 @@ public class RuntimeLegacyComponent implements Scriptable
 		@Override
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
-			if (propertyName.equals("absoluteFormLocationY") && component.getFormElement().getLegacyPersistIfAvailable() instanceof IFormElement) //$NON-NLS-1$
+			if (propertyName.equals("absoluteFormLocationY") && component.getFormElement().getPersistIfAvailable() instanceof IFormElement) //$NON-NLS-1$
 			{
-				return Integer.valueOf(((IFormElement)component.getFormElement().getLegacyPersistIfAvailable()).getLocation().y);
+				return Integer.valueOf(((IFormElement)component.getFormElement().getPersistIfAvailable()).getLocation().y);
 			}
 
 			if ("clientProperty".equals(propertyName) && args != null && args.length > 0)
@@ -368,9 +368,9 @@ public class RuntimeLegacyComponent implements Scriptable
 			}
 
 			if (propertyName.equals("designTimeProperty") && args != null && args.length > 0 &&
-				component.getFormElement().getLegacyPersistIfAvailable() instanceof AbstractBase)
+				component.getFormElement().getPersistIfAvailable() instanceof AbstractBase)
 			{
-				return Utils.parseJSExpression(((AbstractBase)component.getFormElement().getLegacyPersistIfAvailable()).getCustomDesignTimeProperty((String)args[0]));
+				return Utils.parseJSExpression(((AbstractBase)component.getFormElement().getPersistIfAvailable()).getCustomDesignTimeProperty((String)args[0]));
 			}
 
 			return scriptable.get(propertyName, null);

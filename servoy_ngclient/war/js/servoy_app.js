@@ -462,7 +462,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	solutionTitle: "",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	styleSheetPath: undefined
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage) {
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
 		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";

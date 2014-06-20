@@ -37,6 +37,8 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -106,6 +108,14 @@ public class WebFormUI extends Container implements IWebFormUI
 			}
 
 			WebFormComponent component = ComponentFactory.createComponent(getApplication(), dal, fe, this);
+			IPersist persist = fe.getPersistIfAvailable();
+			int access = 0;
+			if (persist != null)
+			{
+				// don't add the component to the form ui if component is not visible due to security settings
+				access = formController.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+				if (!((access & IRepository.VIEWABLE) != 0)) continue;
+			}
 			counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
 			add(component);
 
@@ -114,7 +124,8 @@ public class WebFormUI extends Container implements IWebFormUI
 				if (fe.getPropertyWithDefault(propName) == null || componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
 				fillProperties(fe.getForm(), fe, fe.getPropertyWithDefault(propName), componentSpec.getProperty(propName), dal, component, component, "");
 			}
-
+			// overwrite accessible			
+			if (persist != null && !((access & IRepository.ACCESSIBLE) != 0)) component.setProperty("enabled", false, ConversionLocation.SERVER);
 			for (String eventName : componentSpec.getHandlers().keySet())
 			{
 				Object eventValue = fe.getProperty(eventName);

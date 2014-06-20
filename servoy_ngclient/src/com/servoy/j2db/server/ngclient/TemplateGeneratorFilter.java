@@ -62,7 +62,7 @@ public class TemplateGeneratorFilter implements Filter
 				{
 					String solutionName = uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
 					FlattenedSolution fs = null;
-					String clientUUID = request.getParameter("uuid");
+					String clientUUID = request.getParameter("sessionId");
 					INGClientWebsocketSession wsSession = null;
 					if (clientUUID != null)
 					{
@@ -118,8 +118,9 @@ public class TemplateGeneratorFilter implements Filter
 								String view = (tableview ? "tableview" : "recordview");
 								((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
 								PrintWriter w = servletResponse.getWriter();
-								new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
-									false).generate(form, formName, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
+								new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
+									: new ServoyDataConverterContext(fs), false).generate(form, formName, "form_" + view + "_" + (html ? "html" : "js") +
+									".ftl", w);
 								w.flush();
 							}
 							return;

@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 
 /**
  * @author lvostinar
@@ -44,11 +45,13 @@ public class PartWrapper
 	private final Part part;
 	private final AbstractFormLayoutProvider layoutProvider;
 	private final Form context;
+	IServoyDataConverterContext converterContext;
 
-	public PartWrapper(Part part, Form context)
+	public PartWrapper(Part part, Form context, IServoyDataConverterContext converterContext)
 	{
 		this.part = part;
 		this.context = context;
+		this.converterContext = converterContext;
 		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)context.getAncestor(IRepository.SOLUTIONS), context, null);
 		layoutProvider.setDefaultNavigatorShift(0);
 	}
@@ -105,10 +108,18 @@ public class PartWrapper
 				Point location = ((BaseComponent)persist).getLocation();
 				if (startPos <= location.y && endPos > location.y)
 				{
-					baseComponents.add((BaseComponent)persist);
+					if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
 				}
 			}
 		}
 		return baseComponents;
+	}
+
+	public boolean isSecurityVisible(IPersist persist)
+	{
+		if (converterContext.getApplication() == null) return true;
+		int access = converterContext.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
+		return b_visible;
 	}
 }

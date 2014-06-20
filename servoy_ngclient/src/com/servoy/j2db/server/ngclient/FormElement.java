@@ -69,31 +69,31 @@ public final class FormElement implements IWebComponentInitializer
 	private Map<String, Object> propertyValues;
 	private final String componentType;
 
-	private final PersistBasedFormElementImpl legacyImpl;
+	private final PersistBasedFormElementImpl persistImpl;
 	private final String uniqueIdWithinForm;
 	private IServoyDataConverterContext dataConverterContext;
 
 	public FormElement(Form form)
 	{
 		this.form = form;
-		legacyImpl = new PersistBasedFormElementImpl(form, this);
+		persistImpl = new PersistBasedFormElementImpl(form, this);
 		componentType = null;
 		this.uniqueIdWithinForm = String.valueOf(form.getID());
 
-		Map<String, Object> map = legacyImpl.getFlattenedPropertiesMap();
+		Map<String, Object> map = persistImpl.getFlattenedPropertiesMap();
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
 	public FormElement(IFormElement persist, final IServoyDataConverterContext context)
 	{
 		this.dataConverterContext = context;
-		legacyImpl = new PersistBasedFormElementImpl(persist, this);
-		this.form = legacyImpl.getForm();
+		persistImpl = new PersistBasedFormElementImpl(persist, this);
+		this.form = persistImpl.getForm();
 		this.componentType = FormTemplateGenerator.getComponentTypeName(persist);
 		this.uniqueIdWithinForm = String.valueOf(persist.getID());
 
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
-		Map<String, Object> map = legacyImpl.getConvertedProperties(context, specProperties);
+		Map<String, Object> map = persistImpl.getConvertedProperties(context, specProperties);
 
 		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values
 		initProperties(specProperties, map, context);
@@ -104,7 +104,7 @@ public final class FormElement implements IWebComponentInitializer
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, IServoyDataConverterContext context)
 	{
 		this.dataConverterContext = context;
-		legacyImpl = null;
+		persistImpl = null;
 		this.form = form;
 		this.componentType = componentTypeString;
 		this.uniqueIdWithinForm = uniqueIdWithinForm;
@@ -155,9 +155,9 @@ public final class FormElement implements IWebComponentInitializer
 		}
 	}
 
-	public IPersist getLegacyPersistIfAvailable()
+	public IPersist getPersistIfAvailable()
 	{
-		return legacyImpl.getPersist();
+		return persistImpl.getPersist();
 	}
 
 	private void initProperties(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IServoyDataConverterContext context)
@@ -292,7 +292,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	public boolean isForm()
 	{
-		return legacyImpl != null && legacyImpl.isForm();
+		return persistImpl != null && persistImpl.isForm();
 	}
 
 	/**
@@ -315,7 +315,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	public boolean isLegacy()
 	{
-		return legacyImpl != null && legacyImpl.isLegacy();
+		return persistImpl != null && persistImpl.isLegacy();
 	}
 
 	public String getTagname()
@@ -412,7 +412,7 @@ public final class FormElement implements IWebComponentInitializer
 			properties.put(pd.getName(), val);
 		}
 
-		if (legacyImpl == null || !legacyImpl.isForm())
+		if (persistImpl == null || !persistImpl.isForm())
 		{
 			Map<String, Object> propertiesMap = new HashMap<>(propertyValues);
 			Dimension dim = getDesignSize();
@@ -442,13 +442,13 @@ public final class FormElement implements IWebComponentInitializer
 
 	Dimension getDesignSize()
 	{
-		if (legacyImpl != null && legacyImpl.getPersist() instanceof ISupportSize) return ((ISupportSize)legacyImpl.getPersist()).getSize();
+		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportSize) return ((ISupportSize)persistImpl.getPersist()).getSize();
 		return null;
 	}
 
 	Point getDesignLocation()
 	{
-		if (legacyImpl != null && legacyImpl.getPersist() instanceof ISupportBounds) return ((ISupportBounds)legacyImpl.getPersist()).getLocation();
+		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportBounds) return ((ISupportBounds)persistImpl.getPersist()).getLocation();
 		return null;
 	}
 

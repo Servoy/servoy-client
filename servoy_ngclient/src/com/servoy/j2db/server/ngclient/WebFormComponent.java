@@ -20,6 +20,8 @@ import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
@@ -172,9 +174,20 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 		return events.containsKey(eventType);
 	}
 
+	/**
+	 * Executes a handler on the component. If the component has accessible set to false in form security settings an error message is returned.
+	 * */
 	@Override
 	public Object executeEvent(String eventType, Object[] args)
 	{
+		// verify if component is accessible due to security options
+		IPersist persist = formElement.getPersistIfAvailable();
+		if (persist != null)
+		{
+			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+			if (!((access & IRepository.ACCESSIBLE) != 0)) return "Security error. Component is not accessible.";
+		}
+
 		Integer eventId = events.get(eventType);
 		if (eventId != null)
 		{
@@ -191,7 +204,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -202,7 +215,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -213,7 +226,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

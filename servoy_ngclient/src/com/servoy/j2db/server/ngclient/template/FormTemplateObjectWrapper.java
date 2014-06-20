@@ -57,12 +57,12 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		if (obj instanceof Form)
 		{
 			this.flattenedForm = context.getSolution().getFlattenedForm((Form)obj);
-			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, this);
+			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, this, context);
 		}
 		else if (obj instanceof Object[])
 		{
 			this.flattenedForm = context.getSolution().getFlattenedForm((Form)((Object[])obj)[0]);
-			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, this);
+			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, this, context);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
@@ -70,7 +70,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		}
 		else if (obj instanceof Part)
 		{
-			wrapped = new PartWrapper((Part)obj, flattenedForm);
+			wrapped = new PartWrapper((Part)obj, flattenedForm, context);
 		}
 		else if (obj instanceof IFormElement)
 		{
@@ -85,7 +85,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.template.IFormElementValidator#isSpecValid(com.servoy.j2db.persistence.BaseComponent)
 	 */
 	@Override

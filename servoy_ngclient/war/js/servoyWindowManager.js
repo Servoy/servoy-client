@@ -343,7 +343,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				// waiting for updateForm to come
 				return null;
 			}
-			return realFormUrl;
+			return realFormUrl+'?sessionId='+webStorage.session.get("sessionid");
 		},
 	}
 	

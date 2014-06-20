@@ -33,10 +33,12 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.util.Utils;
@@ -54,13 +56,16 @@ public class FormWrapper
 	private final boolean useControllerProvider;
 	private final String realName;
 	private final IFormElementValidator formElementValidator;
+	private final IServoyDataConverterContext context;
 
-	public FormWrapper(Form form, String realName, boolean useControllerProvider, IFormElementValidator formElementValidator)
+	public FormWrapper(Form form, String realName, boolean useControllerProvider, IFormElementValidator formElementValidator,
+		IServoyDataConverterContext context)
 	{
 		this.form = form;
 		this.realName = realName;
 		this.useControllerProvider = useControllerProvider;
 		this.formElementValidator = formElementValidator;
+		this.context = context;
 		isTableView = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 	}
 
@@ -191,7 +196,7 @@ public class FormWrapper
 			IPersist persist = it.next();
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{
-				baseComponents.add((BaseComponent)persist);
+				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
 			}
 		}
 		if (form.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
@@ -199,6 +204,14 @@ public class FormWrapper
 			baseComponents.add(DefaultNavigator.INSTANCE);
 		}
 		return baseComponents;
+	}
+
+	public boolean isSecurityVisible(IPersist persist)
+	{
+		if (context.getApplication() == null) return true;
+		int access = context.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
+		return b_visible;
 	}
 
 	public Collection<BaseComponent> getBodyComponents()
@@ -220,7 +233,7 @@ public class FormWrapper
 				Point location = ((BaseComponent)persist).getLocation();
 				if (startPos <= location.y && endPos >= location.y)
 				{
-					baseComponents.add((BaseComponent)persist);
+					if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
 				}
 			}
 		}
