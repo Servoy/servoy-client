@@ -43,17 +43,20 @@ public class Activator implements BundleActivator
 	public void start(BundleContext ctx) throws Exception
 	{
 		Activator.context = ctx;
-		final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
-		if (service != null)
+		if (ApplicationServerRegistry.getServiceRegistry() != null)
 		{
-			WebsocketSessionFactory.get().setClientCreator(new IClientCreator()
+			final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
+			if (service != null)
 			{
-				@Override
-				public NGClient createClient(INGClientWebsocketSession wsSession) throws Exception
+				WebsocketSessionFactory.get().setClientCreator(new IClientCreator()
 				{
-					return (NGClient)service.createDebugNGClient(wsSession);
-				}
-			});
+					@Override
+					public NGClient createClient(INGClientWebsocketSession wsSession) throws Exception
+					{
+						return (NGClient)service.createDebugNGClient(wsSession);
+					}
+				});
+			}
 		}
 	}
 
