@@ -161,7 +161,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		try
 		{
 			cx.setGeneratingDebug(lineNumber != -1);
-			if (lineNumber != -1 || Utils.getAsBoolean(System.getProperty("servoy.disableScriptCompile", "false"))) //flag should only be used in rich client //$NON-NLS-1$ //$NON-NLS-2$
+			if (lineNumber != -1 || Utils.getAsBoolean(System.getProperty(ScriptEngine.SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY, "false"))) //flag should only be used in rich client //$NON-NLS-1$ 
 			{
 				cx.setOptimizationLevel(-1);
 			}

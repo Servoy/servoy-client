@@ -104,8 +104,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class ScriptEngine implements IScriptSupport
 {
+	public static final String SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY = "servoy.disableScriptCompile"; //$NON-NLS-1$
 	public final static Pattern docStripper = Pattern.compile("\\A\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)?\\s*function\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)*\\s*([\\w\\$]+)"); //$NON-NLS-1$
-
 
 	private final static ContextFactory.Listener contextListener = new ContextFactory.Listener()
 	{
@@ -524,7 +524,7 @@ public class ScriptEngine implements IScriptSupport
 		}
 		try
 		{
-			if (Utils.getAsBoolean(System.getProperty("servoy.disableScriptCompile", "false"))) //flag should only be used in rich client
+			if (Utils.getAsBoolean(System.getProperty(SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY, "false"))) //flag should only be used in rich client
 			{
 				cx.setOptimizationLevel(-1);
 			}
