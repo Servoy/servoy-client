@@ -128,6 +128,7 @@ public class WebCellAdapter implements IDataAdapter
 									spc.setChanged();
 								}
 							}
+							// do fire on render on all components for record change
 							if (cell instanceof ISupportOnRender && cell instanceof IScriptableProvider)
 							{
 								IScriptable so = ((IScriptableProvider)cell).getScriptObject();
@@ -135,7 +136,7 @@ public class WebCellAdapter implements IDataAdapter
 									((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
 								{
 									String componentDataproviderID = ((AbstractRuntimeRendersupportComponent)so).getDataProviderID();
-									if (e.getName() != null && e.getName().equals(componentDataproviderID))
+									if (record != null || (e.getName() != null && e.getName().equals(componentDataproviderID)))
 									{
 										((ISupportOnRender)cell).fireOnRender(true);
 									}

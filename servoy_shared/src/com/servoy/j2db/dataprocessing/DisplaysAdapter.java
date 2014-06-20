@@ -580,7 +580,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 				adjusting = false;
 			}
 		}
-		// do fire on render on all components
+		// do fire on render on all components for record change
 		for (IDisplayData displayData : displays)
 		{
 			if (displayData instanceof ISupportOnRender && displayData instanceof IScriptableProvider)
@@ -589,7 +589,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 				if (so instanceof AbstractRuntimeRendersupportComponent && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
 				{
 					String componentDataproviderID = ((AbstractRuntimeRendersupportComponent)so).getDataProviderID();
-					if (e.getName() != null && e.getName().equals(componentDataproviderID))
+					if (e.getRecord() != null || (e.getName() != null && e.getName().equals(componentDataproviderID)))
 					{
 						((ISupportOnRender)displayData).fireOnRender(true);
 					}
