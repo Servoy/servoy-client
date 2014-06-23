@@ -36,6 +36,7 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -131,8 +132,8 @@ public final class FormElement implements IWebComponentInitializer
 		return dataConverterContext;
 	}
 
-	void getConvertedJSONDefinitionProperties(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
-		Map<String, PropertyDescription> eventProperties, JSONObject jsonProperties) throws JSONException
+	void getConvertedJSONDefinitionProperties(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties,
+		Map<String, Object> jsonMap, Map<String, PropertyDescription> eventProperties, JSONObject jsonProperties) throws JSONException
 	{
 		Iterator keys = jsonProperties.keys();
 		while (keys.hasNext())
@@ -170,7 +171,16 @@ public final class FormElement implements IWebComponentInitializer
 				{
 					try
 					{
-						map.put(pd.getName(), NGClientForJsonConverter.toJavaObject(pd.getDefaultValue(), pd, context, ConversionLocation.DESIGN, null));
+						Object defaultValue;
+						if (pd.getType() instanceof IClassPropertyType)
+						{
+							defaultValue = ((IClassPropertyType)pd.getType()).fromJSON(pd.getDefaultValue(), null);
+						}
+						else
+						{
+							defaultValue = NGClientForJsonConverter.toJavaObject(pd.getDefaultValue(), pd, context, ConversionLocation.DESIGN, null);
+						}
+						map.put(pd.getName(), defaultValue);
 					}
 					catch (JSONException e)
 					{
