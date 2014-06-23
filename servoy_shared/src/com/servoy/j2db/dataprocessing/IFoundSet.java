@@ -212,6 +212,30 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry, Itera
 	 */
 	public void setSelectedIndex(int selectedRow);
 
+	/**
+	 * Puts this foundset in multi-select or single-select mode. If this foundset is shown in a form, this call can be
+	 * ignored as the form decides the foundset's multiselect.
+	 * @param multiSelect sets multiselect mode if true and single select mode if false
+	 */
+	public void setMultiSelect(boolean multiSelect);
+
+	/**
+	 * Returns true if this foundset is in multiselect mode and false if it's in single-select mode.
+	 * @return true if this foundset is in multiselect mode and false if it's in single-select mode.
+	 */
+	public boolean isMultiSelect();
+
+	/**
+	 * Set the selected indexes of this foundset (in case multiselect is used).
+	 * @param indexes the indexes that will be selected in this foundset.
+	 */
+	public void setSelectedIndexes(int[] indexes);
+
+	/**
+	 * Returns the selected indexes of this foundset (in case multiselect is used).
+	 * @return the selected indexes of this foundset (in case multiselect is used).
+	 */
+	public int[] getSelectedIndexes();
 
 	/**
 	 * Makes a copy/clone of the foundset

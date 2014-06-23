@@ -596,4 +596,34 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	{
 		return null;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IFoundSet#setMultiSelect(boolean)
+	 */
+	@Override
+	public void setMultiSelect(boolean multiSelect)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isMultiSelect()
+	{
+		return false;
+	}
+
+	@Override
+	public void setSelectedIndexes(int[] indexes)
+	{
+		// ignore
+	}
+
+	@Override
+	public int[] getSelectedIndexes()
+	{
+		return new int[0];
+	}
 }
