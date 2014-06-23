@@ -108,7 +108,7 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 
 	<#list parts as part>
 		<#if (part.baseComponents)??>
-			<#list part.baseComponents as bc>
+			<#list part.baseComponents as bc><#-- TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes! -->
 				$scope.$watch("model.${bc.name}", wrapper('${bc.name}'), true);
 			</#list>
 		</#if>

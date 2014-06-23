@@ -30,8 +30,11 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class FoundsetTypeImpl implements IComplexTypeImpl<Object, FoundsetTypeValue>
 {
+
+	public final static String TYPE_ID = "foundset";
 
 	@Override
 	public IJSONToJavaPropertyConverter<Object, FoundsetTypeValue> getJSONToJavaPropertyConverter(boolean isArray)
@@ -82,7 +85,7 @@ public class FoundsetTypeImpl implements IComplexTypeImpl<Object, FoundsetTypeVa
 			}
 
 			@Override
-			public FoundsetTypeValue serverObjToJava(Object jsonValue, Object config, FoundsetTypeValue oldValue)
+			public FoundsetTypeValue serverObjToJava(Object serverObject, Object config, FoundsetTypeValue oldValue)
 			{
 				return oldValue;
 			}

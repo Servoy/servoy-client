@@ -467,11 +467,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ui.IFormUI#getController()
-	 */
 	@Override
 	public IWebFormController getController()
 	{

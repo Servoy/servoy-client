@@ -1,5 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,11 +20,13 @@ import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -45,8 +49,10 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 
 	// the next available tab sequence number (after this component and all its subtree)
 	protected int nextAvailableTabSequence;
+	protected PropertyChangeSupport propertyChangeSupport;
+	protected IWebFormUI parentForm;
 
-	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList, IWebFormUI parentForm)
+	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
 		super(fe.getTypeName(), name);
 		this.formElement = fe;
@@ -144,23 +150,43 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 			((LookupListModel)propertyValue).addListDataListener(this);
 		}
 
-		if (oldValue != null)
+		if (propertyValue instanceof IComplexPropertyValue && propertyValue != oldValue)
 		{
-			if (propertyValue instanceof IComplexPropertyValue && propertyValue != oldValue)
+			// TODO in the future we could allow changes to be pushed more granular (JSON subtrees), not only at root property level - as we already do this type of thing in many places
+			final String complexPropertyRoot = propertyName;
+			if (oldValue instanceof IComplexPropertyValue)
 			{
-				// TODO in the future we could allow changes to be pushed more granular (JSON subtrees), not only at root property level - as we already do this type of thing in many places
-				final String complexPropertyRoot = propertyName;
-				// a new complex property is linked to this component; initialize it
-				((IComplexPropertyValue)propertyValue).attachToComponent(new IChangeListener()
-				{
-					@Override
-					public void valueChanged()
-					{
-						flagPropertyChanged(complexPropertyRoot);
-						((IWebFormUI)getParent()).valueChanged();
-					}
-				}, this);
+				((IComplexPropertyValue)oldValue).detach();
 			}
+
+			// a new complex property is linked to this component; initialize it
+			((IComplexPropertyValue)propertyValue).attachToComponent(new IChangeListener()
+			{
+				@Override
+				public void valueChanged()
+				{
+					flagPropertyChanged(complexPropertyRoot);
+					((IWebFormUI)getParent()).valueChanged();
+				}
+			}, this);
+		}
+
+		if (propertyChangeSupport != null) propertyChangeSupport.firePropertyChange(propertyName, oldValue, propertyValue);
+	}
+
+	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener)
+	{
+		if (propertyChangeSupport == null) propertyChangeSupport = new PropertyChangeSupport(this);
+		if (propertyName == null) propertyChangeSupport.addPropertyChangeListener(listener);
+		else propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+	}
+
+	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener)
+	{
+		if (propertyChangeSupport != null)
+		{
+			if (propertyName == null) propertyChangeSupport.removePropertyChangeListener(listener);
+			else propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
 		}
 	}
 
@@ -342,4 +368,19 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 	{
 		return new ServoyDataConverterContext(dataAdapterList.getForm());
 	}
+
+	/**
+	 * Notifies this component that the record it displays has changed.
+	 * @return true if any property value changed due to the execution of this method, or false otherwise.
+	 */
+	public boolean pushRecord(IRecordInternal record)
+	{
+		boolean changed = false;
+		for (Object x : properties.values())
+		{
+			if (x instanceof IServoyAwarePropertyValue) changed = ((IServoyAwarePropertyValue)x).pushRecord(record) || changed;
+		}
+		return changed;
+	}
+
 }

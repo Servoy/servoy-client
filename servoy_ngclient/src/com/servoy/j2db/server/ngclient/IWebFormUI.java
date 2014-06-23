@@ -81,4 +81,6 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	void refreshValueList(IValueList valuelist);
 
+	@Override
+	public IWebFormController getController();
 }

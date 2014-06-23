@@ -1,19 +1,77 @@
 var controllerProvider;
 angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
-}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket,$sessionService) {
+}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket,$sessionService,$sabloConverters) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
 	   // this holds the form model with all the data, per form is this the "synced" view of the the IFormUI on the server 
 	   // (3 way binding)
 	   var formStates = {}; 
+	   var formStatesConversionInfo = {}; 
 	   
 	   var deferredProperties = {};
 	   var deferredformStates = {};
-	   var applyBeanData = function(beanModel, beanLayout, beanData, containerSize) {
-          	for(var key in beanData) {
-          		// also make location and size available in model
-          		beanModel[key] = beanData[key];
-          	}
+	   var sendChanges = function(now, prev, formname, beanname) {
+		   if (ignoreChanges) return false;
+		   // first build up a list of all the properties both have.
+		   var fulllist = getCombinedPropertyNames(now,prev);
+		   var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
+		   var changes = {}, prop;
+
+		   for (prop in fulllist) {
+			   var changed = false;
+			   if (!prev) {
+				   changed = true;
+			   }
+			   else if (prev[prop] !== now[prop]) {
+				   if (typeof now[prop] == "object") {
+					   if (isChanged(now[prop], prev[prop], conversionInfo ? conversionInfo[prop] : undefined)) {
+						   changed = true;
+					   }
+				   } else {
+					   changed = true;
+				   }
+			   }
+			   if (changed) {
+				   if (conversionInfo && conversionInfo[prop]) changes[prop] = $sabloConverters.convertFromClientToServer(now[prop], conversionInfo[prop], prev ? prev[prop] : undefined);
+				   else changes[prop] = $webSocket.convertClientObject(now[prop])
+			   }
+		   }
+		   if (changes.location || changes.size || changes.visible || changes.anchors) {
+			   var beanLayout = formStates[formname].layout[beanname];
+			   if(beanLayout) {
+				   applyBeanData(formname, beanname, formStates[formname].model[beanname], beanLayout, changes, formStates[formname].properties.designSize)	
+			   }
+		   }
+
+		   for (prop in changes) {
+			   wsSession.sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
+			   return;
+		   }
+	   };
+
+	   var applyBeanData = function(formName, beanName, beanModel, beanLayout, beanData, containerSize, newConversionInfo) {
+		   var currentConversionInfo;
+		   if (newConversionInfo) {
+			   if (!formStatesConversionInfo[formName]) formStatesConversionInfo[formName] = {};
+			   if (!formStatesConversionInfo[formName][beanName]) formStatesConversionInfo[formName][beanName] = {};
+			   
+           		currentConversionInfo = formStatesConversionInfo[formName][beanName];
+           		$sabloConverters.convertFromServerToClient(beanData, newConversionInfo, beanModel);
+		   }
+
+			for(var key in beanData) {
+				// remember conversion info for when it will be sent back to server - it might need special conversion as well
+				if (newConversionInfo && newConversionInfo[key]) {
+					currentConversionInfo[key] = newConversionInfo[key];
+					if (beanModel[key] !== beanData[key] && beanData[key] && beanData[key].setChangeNotifier) beanData[key].setChangeNotifier(function() {
+	           			var currentModel = formStates[formName][beanName];
+	           			sendChanges(currentModel, currentModel, formName, beanName);
+	           		});
+				}
+
+				// also make location and size available in model
+			   beanModel[key] = beanData[key];
+		   }
                 
           	//beanData.anchors means anchors changed or must be initialized
             if((beanData.anchors !== undefined) && containerSize) {
@@ -92,7 +150,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec(window.location.pathname)[1];
 	   $solutionSettings.windowName = webStorage.session.get("windowid");
 	   var wsSession = $webSocket.connect('client', webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
-	   wsSession.onMessageObject = function (msg) {
+	   wsSession.onMessageObject = function (msg, conversionInfo) {
 		   try {
 	        // data got back from the server
 	        if (msg.forms) {
@@ -108,8 +166,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            var layout = formState.layout;
 		            var newFormData = msg.forms[formname];
 		            var newFormProperties = newFormData['']; // f form properties
+		            var newFormConversionInfo = (conversionInfo && conversionInfo.forms && conversionInfo.forms[formname]) ? conversionInfo.forms[formname] : undefined;
 
 		            if(newFormProperties) {
+		            	if (newFormConversionInfo && newFormConversionInfo['']) $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
 		            	if (!formModel['']) formModel[''] = {};
 		            	for(var p in newFormProperties) {
 		            		formModel[''][p] = newFormProperties[p]; 
@@ -119,12 +179,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            for(var beanname in newFormData) {
 		            	// copy over the changes, skip for form properties (beanname empty)
 		            	if(beanname != ''){
-		            		if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined))
+			            	if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined))
 		            		{	
 		            		    //size or location were changed at runtime, we need to update components with anchors
 		            			newFormData[beanname].anchors = formModel[beanname].anchors;
 		            		}
-		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize);
+			            	
+		            		applyBeanData(formname, beanname, formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize, newFormConversionInfo ? newFormConversionInfo[beanname] : undefined);
 		            		for (var defProperty in deferredProperties) {
 		            			for(var key in newFormData[beanname]) {
 		            				if (defProperty == (formname + "_" + beanname + "_" + key)) {
@@ -143,6 +204,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        	});
 		        ignoreChanges = false;
 	        }
+	        
+         	if (conversionInfo && conversionInfo.call) $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call);
 	        if (msg.call) {
 	        	// {"call":{"form":"product","element":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}, // optionally "viewIndex":1 
 	        	// "{ conversions: {product: {datatextfield1: {0: "Date"}}} }
@@ -233,7 +296,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
     	   return fulllist;
 	    }
 	    
-	   var isChanged = function(now, prev) {
+	   var isChanged = function(now, prev, conversionInfo) {
+		   if ((typeof conversionInfo === 'string' || typeof conversionInfo === 'number') && now && now.isChanged) {
+			   return now.isChanged();
+		   }
+		   
 		   if (now && prev) {
 			   if (now instanceof Array) {
 				   if (prev instanceof Array) {
@@ -255,7 +322,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                     if(prop == "$$hashKey") continue; // ng repeat creates a child scope for each element in the array any scope has a $$hashKey property which must be ignored since it is not part of the model
 	    	    	if (prev[prop] !== now[prop]) {
 	    	    		if (typeof now[prop] == "object") {
-	    	    			if (isChanged(now[prop],prev[prop])) {
+	    	    			if (isChanged(now[prop],prev[prop], conversionInfo ? conversionInfo[prop] : undefined)) {
 	    	    				return true;
 	    	    			}
 	    	    		} else {
@@ -302,7 +369,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                     model[beanname] = {};
                     api[beanname] = {};
                     layout[beanname] = { position: 'absolute' }
-                    applyBeanData(model[beanname], layout[beanname], beanDatas[beanname], formProperties.designSize)
+                    applyBeanData(formName, beanname, model[beanname], layout[beanname], beanDatas[beanname], formProperties.designSize, beanDatas[beanname].conversions)
                 }
 
 	        state = formStates[formName] = { model: model, api: api, layout: layout,
@@ -370,37 +437,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	   wsSession.sendMessageObject(objToStringify);
 	       },
 
-	       sendChanges: function(now,prev,formname,beanname) {
-	    	   if (ignoreChanges) return false;
-	    	   // first build up a list of all the properties both have.
-	    	   var fulllist = getCombinedPropertyNames(now,prev);
-	    	    var changes = {}, prop;
-	    	    for (prop in fulllist) {
-	    	    	if (!prev) {
-	    	    		changes[prop] = $webSocket.convertClientObject(now[prop])
-	    	    	}
-	    	    	else if (prev[prop] !== now[prop]) {
-	    	    		if (typeof now[prop] == "object") {
-	    	    			if (isChanged(now[prop],prev[prop])) {
-	    	    				changes[prop] = $webSocket.convertClientObject(now[prop]);
-	    	    			}
-	    	    		} else {
-	    	               changes[prop] = $webSocket.convertClientObject(now[prop]);
-	    	    		}
-	    	        }
-	    	    }
-	    	    if (changes.location || changes.size || changes.visible || changes.anchors) {
-	    	    	var beanLayout = formStates[formname].layout[beanname];
-	    	    	if(beanLayout) {
-	    	    		applyBeanData(formStates[formname].model[beanname], beanLayout, changes, formStates[formname].properties.designSize)	
-	    	    	}
-	    	    }
-
-	    	    for (prop in changes) {
-	    	    	wsSession.sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
-	    	    	return;
-	    	    }
-	    	},
+	       sendChanges: sendChanges,
 
 			// for example components that use nested elements/components such as portal can give here the new value
 			// based on the way they feed the model to child components - so they can use other objects then server known models

@@ -17,8 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +35,7 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.ComponentFactory;
@@ -41,7 +45,6 @@ import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -49,23 +52,34 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class ComponentTypeValue implements IComplexPropertyValue
 {
 
-	private final Object designJSONValue;
-	private final ComponentTypeConfig config;
+	// START keys and values used in JSON
+	public final static String TYPE_NAME_KEY = "typeName";
+	public final static String DEFINITION_KEY = "definition";
+	public final static String API_CALL_TYPES_KEY = "apiCallTypes";
+	public final static String FUNCTION_NAME_KEY = "functionName";
 
-//	private IChangeListener changeMonitor;
+	public final static String CALL_ON_KEY = "callOn";
+	public final static int CALL_ON_SELECTED_RECORD = 0;
+	public final static int CALL_ON_ALL_RECORDS = 1;
+	// END keys and values used in JSON
+
+	protected final Object designJSONValue;
+	protected final ComponentTypeConfig config;
 
 	// these arrays represent the array of elements (it can be refactored into an array of a new custom class)
-	private FormElement[] elements;
-	private WebFormComponent[] childComponents;
-	private List<String>[] apisOnAll; // here are the api's that should be called on all records, not only selected one when called on a foundset linked component
-	private Map<String, String>[] dataLinks;
+	protected FormElement[] elements;
+	protected WebFormComponent[] childComponents;
+	protected List<String>[] apisOnAll; // here are the api's that should be called on all records, not only selected one when called on a foundset linked component
+	protected Map<String, String>[] dataLinks;
 
-	private boolean componentsAreCreated = false;
+	protected boolean componentsAreCreated = false;
 
-	private WebFormComponent component;
+	protected WebFormComponent component;
+	protected PropertyChangeListener forFoundsetListener;
 
 	// this class currently always works with arrays of Component values (see how it is instantiated)
 	public ComponentTypeValue(Object designJSONValue, ComponentTypeConfig config)
@@ -100,21 +114,24 @@ public class ComponentTypeValue implements IComplexPropertyValue
 				for (int i = 0; i < elements.length; i++)
 				{
 					JSONObject elementSpec = (JSONObject)arrayOfElementSpecs.get(i);
-					elements[i] = new FormElement((String)elementSpec.get(ComponentTypeImpl.TYPE_NAME_KEY),
-						(JSONObject)elementSpec.get(ComponentTypeImpl.DEFINITION_KEY), fe.getForm(),
+					elements[i] = new FormElement((String)elementSpec.get(TYPE_NAME_KEY), (JSONObject)elementSpec.get(DEFINITION_KEY), fe.getForm(),
 						fe.getName() + propertyName + "_" + i, fe.getDataConverterContext()); //$NON-NLS-1$
-					JSONArray callTypes = elementSpec.optJSONArray(ComponentTypeImpl.API_CALL_TYPES_KEY);
-					if (callTypes == null) apisOnAll[i] = findCallTypesInApiSpecDefinition(elements[i].getWebComponentSpec().getApiFunctions());
-					else
+
+					if (forFoundsetTypedPropertyName() != null)
 					{
-						apisOnAll[i] = new ArrayList<String>();
-						for (int j = 0; j < callTypes.length(); j++)
+						JSONArray callTypes = elementSpec.optJSONArray(API_CALL_TYPES_KEY);
+						if (callTypes == null) apisOnAll[i] = findCallTypesInApiSpecDefinition(elements[i].getWebComponentSpec().getApiFunctions());
+						else
 						{
-							JSONObject o = callTypes.getJSONObject(j);
-							if (o.getInt(ComponentTypeImpl.CALL_ON_KEY) == ComponentTypeImpl.CALL_ON_ALL_RECORDS) apisOnAll[i].add(o.getString(ComponentTypeImpl.FUNCTION_NAME_KEY));
+							apisOnAll[i] = new ArrayList<String>();
+							for (int j = 0; j < callTypes.length(); j++)
+							{
+								JSONObject o = callTypes.getJSONObject(j);
+								if (o.getInt(CALL_ON_KEY) == CALL_ON_ALL_RECORDS) apisOnAll[i].add(o.getString(FUNCTION_NAME_KEY));
+							}
 						}
-					}
-					dataLinks[i] = findDataLinks(elements[i]);
+						dataLinks[i] = findDataLinks(elements[i]);
+					} // else dataLinks and apisOnAll are not relevant
 				}
 			}
 			else elements = new FormElement[0];
@@ -129,13 +146,29 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	@Override
 	public void attachToComponent(IChangeListener monitor, WebComponent c)
 	{
-//		this.changeMonitor = monitor;
 		this.component = (WebFormComponent)c;
 
 		createComponentsIfNeededAndPossible();
+		if (forFoundsetTypedPropertyName() != null)
+		{
+			component.addPropertyChangeListener(forFoundsetTypedPropertyName(), forFoundsetListener = new PropertyChangeListener()
+			{
+				@Override
+				public void propertyChange(PropertyChangeEvent evt)
+				{
+					if (evt.getNewValue() != null) createComponentsIfNeededAndPossible();
+				}
+			});
+		}
 	}
 
-	private void createComponentsIfNeededAndPossible()
+	@Override
+	public void detach()
+	{
+		if (forFoundsetListener != null) component.removePropertyChangeListener(forFoundsetTypedPropertyName(), forFoundsetListener);
+	}
+
+	protected void createComponentsIfNeededAndPossible()
 	{
 		// this method should get called only after init() got called on all properties from this component (including this one)
 		// so now we should be able to find a potentially linked foundset property value
@@ -146,8 +179,9 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		if (foundsetPropName != null)
 		{
 			foundsetPropValue = (FoundsetTypeValue)component.getProperty(foundsetPropName);
-			if (foundsetPropValue == null) Debug.error("Cannot find linked foundset property '" + foundsetPropName + "' for an elements property."); //$NON-NLS-1$//$NON-NLS-2$
+			if (foundsetPropValue == null) return; // Cannot find linked foundset property; it is possible that that property was not yet attached to the component; we can wait for that to happen before creating components; see foundsetPropertyReady()
 		}
+
 		componentsAreCreated = true;
 
 		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : ((IWebFormUI)component.getParent()).getDataAdapterList());
@@ -157,16 +191,37 @@ public class ComponentTypeValue implements IComplexPropertyValue
 			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], (IWebFormUI)component.getParent());
 			((IWebFormUI)component.getParent()).contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
 		}
+
+		registerDataProvidersWithFoundset(foundsetPropValue);
 	}
 
-	private Map<String, String> findDataLinks(FormElement formElement)
+	/**
+	 * Let linked foundset property know which dataprovider/tagstrings it should send client-side.
+	 */
+	protected void registerDataProvidersWithFoundset(FoundsetTypeValue foundsetPropValue)
+	{
+		if (foundsetPropValue != null)
+		{
+			HashSet<String> allDataProviders = new HashSet<String>();
+			for (Map<String, String> dl : dataLinks)
+			{
+				allDataProviders.addAll(dl.values());
+			}
+			foundsetPropValue.includeDataProviders(allDataProviders);
+		}
+	}
+
+	protected Map<String, String> findDataLinks(FormElement formElement)
 	{
 		Map<String, String> m = new HashMap<>();
-		List<String> tagstrings = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), TagStringPropertyType.INSTANCE);
-		for (String tagstringPropID : tagstrings)
-		{
-			m.put(tagstringPropID, (String)formElement.getProperty(tagstringPropID));
-		}
+
+		// I guess tagstrings, valuelists, tab seq, ... must be implemented separately and provided as a viewport containing these values as part of 'components'
+		// property, not as part of foundset property
+//		List<String> tagstrings = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), TagStringPropertyType.INSTANCE);
+//		for (String tagstringPropID : tagstrings)
+//		{
+//			m.put(tagstringPropID, (String)formElement.getProperty(tagstringPropID));
+//		}
 
 		List<String> dataproviders = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 		for (String dataproviderID : dataproviders)
@@ -176,7 +231,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		return m.size() > 0 ? m : null;
 	}
 
-	private List<String> findCallTypesInApiSpecDefinition(Map<String, WebComponentApiDefinition> apis)
+	protected List<String> findCallTypesInApiSpecDefinition(Map<String, WebComponentApiDefinition> apis)
 	{
 		List<String> arr = null;
 		if (apis != null)
@@ -185,8 +240,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 			for (Entry<String, WebComponentApiDefinition> apiMethod : apis.entrySet())
 			{
 				JSONObject apiConfigOptions = apiMethod.getValue().getCustomConfigOptions();
-				if (apiConfigOptions != null &&
-					apiConfigOptions.optInt(ComponentTypeImpl.CALL_ON_KEY, ComponentTypeImpl.CALL_ON_SELECTED_RECORD) == ComponentTypeImpl.CALL_ON_ALL_RECORDS)
+				if (apiConfigOptions != null && apiConfigOptions.optInt(CALL_ON_KEY, CALL_ON_SELECTED_RECORD) == CALL_ON_ALL_RECORDS)
 				{
 					arr.add(apiMethod.getKey());
 				}
@@ -203,6 +257,9 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
 		createComponentsIfNeededAndPossible(); // currently we only support design-time elements (can be enhanced if needed)
+
+		// TODO conversion markers should never be null I think, but it did happen (due to JSONUtils.toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType); will create a case for that
+		if (conversionMarkers != null) conversionMarkers.convert(ComponentTypeImpl.TYPE_ID + IComplexTypeImpl.ARRAY); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		// create children of component as specified by this property
 		destinationJSON.array();
@@ -225,27 +282,31 @@ public class ComponentTypeValue implements IComplexPropertyValue
 				}
 				destinationJSON.endArray();
 
-				destinationJSON.key("forFoundset").object();
-				if (dataLinks != null)
+				if (forFoundsetTypedPropertyName() != null)
 				{
-					destinationJSON.key("dataLinks").array();
-					for (Entry<String, String> dl : dataLinks[i].entrySet())
+					destinationJSON.key("forFoundset").object();
+					if (dataLinks != null)
 					{
-						destinationJSON.object().key("propertyName").value(dl.getKey());
-						destinationJSON.key("dataprovider").value(dl.getValue()).endObject();
+						destinationJSON.key("dataLinks").array();
+						for (Entry<String, String> dl : dataLinks[i].entrySet())
+						{
+							destinationJSON.object().key("propertyName").value(dl.getKey());
+							destinationJSON.key("dataprovider").value(dl.getValue()).endObject();
+						}
+						destinationJSON.endArray();
 					}
-					destinationJSON.endArray();
-				}
-				if (apisOnAll[i] != null)
-				{
-					destinationJSON.key("apiCallTypes").array();
-					for (String methodName : apisOnAll[i])
+					if (apisOnAll[i] != null)
 					{
-						destinationJSON.object().key(methodName).value(ComponentTypeImpl.CALL_ON_ALL_RECORDS).endObject();
+						destinationJSON.key("apiCallTypes").array();
+						for (String methodName : apisOnAll[i])
+						{
+							destinationJSON.object().key(methodName).value(CALL_ON_ALL_RECORDS).endObject();
+						}
+						destinationJSON.endArray();
 					}
-					destinationJSON.endArray();
+					destinationJSON.endObject();
 				}
-				destinationJSON.endObject();
+
 				destinationJSON.endObject();
 			}
 		}
@@ -259,7 +320,11 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	{
 		// TODO if the components property type is not linked to a foundset then somehow the dataproviders/tagstring must also be sent when needed
 		// but if it is linked to a foundset those should only be sent through the foundset!
-		// TODO ac send component properties that changed
+		// TODO ac send only component properties that changed
+//		for (c : childComponents)
+//		{
+//			
+//		}
 		return toJSON(destinationJSON, conversionMarkers);
 	}
 

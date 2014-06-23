@@ -43,7 +43,7 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 	public DefaultNavigatorWebComponent(IDataAdapterList dataAdapterList)
 	{
 		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, new ServoyDataConverterContext(dataAdapterList.getForm())),
-			dataAdapterList, null);
+			dataAdapterList);
 	}
 
 

@@ -440,7 +440,7 @@ public final class FormElement implements IWebComponentInitializer
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.addObjectPropertiesToWriter(propertyWriter, properties, NGClientForJsonConverter.INSTANCE);
+			JSONUtils.writeDataWithConversions(propertyWriter, properties, NGClientForJsonConverter.INSTANCE, ConversionLocation.BROWSER);
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)

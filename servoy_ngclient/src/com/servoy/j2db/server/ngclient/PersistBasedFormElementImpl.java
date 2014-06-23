@@ -47,7 +47,8 @@ import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.server.ngclient.property.ComponentTypeImpl;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeValue;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
@@ -264,11 +265,22 @@ class PersistBasedFormElementImpl
 					// generate the NG definition of this persist and put it in there;
 					JSONStringer jsonWriter = new JSONStringer();
 					FormElement nfe = new FormElement((IFormElement)component, context);
-					JSONUtils.toJSONValue(jsonWriter, nfe.getProperties(), NGClientForJsonConverter.INSTANCE, ConversionLocation.DESIGN);
+					Map<String, Object> elementProperties = new HashMap<>(nfe.getProperties());
+
+					// remove the name of relation prefix from child dataproviders as it only stands in the way later on...
+					List<String> dataProviders = WebGridFormUI.getWebComponentPropertyType(nfe.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
+					String relationPrefix = portal.getRelationName() + '.';
+					for (String dpPropertyName : dataProviders)
+					{
+						String dp = (String)elementProperties.get(dpPropertyName);
+						if (dp.startsWith(relationPrefix)) elementProperties.put(dpPropertyName, dp.substring(relationPrefix.length())); // portal always prefixes comp. dataproviders with related fs name
+					}
+
+					JSONUtils.toDesignJSONValue(jsonWriter, elementProperties, NGClientForJsonConverter.INSTANCE);
 
 					componentJSON = new JSONObject();
-					componentJSON.put(ComponentTypeImpl.TYPE_NAME_KEY, nfe.getTypeName());
-					componentJSON.put(ComponentTypeImpl.DEFINITION_KEY, new JSONObject(jsonWriter.toString()));
+					componentJSON.put(ComponentTypeValue.TYPE_NAME_KEY, nfe.getTypeName());
+					componentJSON.put(ComponentTypeValue.DEFINITION_KEY, new JSONObject(jsonWriter.toString()));
 					componentJSONs.put(componentJSON);
 				}
 			}

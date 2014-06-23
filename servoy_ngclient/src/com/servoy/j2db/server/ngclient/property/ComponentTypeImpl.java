@@ -30,23 +30,16 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class ComponentTypeImpl implements IComplexTypeImpl<ComponentTypeConfig, ComponentTypeValue>
 {
 
-	public final static String TYPE_NAME_KEY = "typeName"; //$NON-NLS-1$
-	public final static String DEFINITION_KEY = "definition"; //$NON-NLS-1$
-	public final static String API_CALL_TYPES_KEY = "apiCallTypes"; //$NON-NLS-1$
-
-	public final static String CALL_ON_KEY = "callOn"; //$NON-NLS-1$
-	public final static int CALL_ON_SELECTED_RECORD = 0;
-	public final static int CALL_ON_ALL_RECORDS = 1;
-
-	public final static String FUNCTION_NAME_KEY = "functionName"; //$NON-NLS-1$
+	public static final String TYPE_ID = "component";
 
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
-		String tmp = config.optString("forFoundsetTypedProperty"); //$NON-NLS-1$
+		String tmp = config.optString("forFoundsetTypedProperty");
 		return tmp == null ? null : new ComponentTypeConfig(tmp);
 	}
 

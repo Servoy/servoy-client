@@ -8,111 +8,111 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
       },
       controller: function($scope, $element, $attrs) {
     	  // START TEST MODELS
-    	  var textFieldApi = {}; 
-    	  var preparedActionHandler = function(args, rowId) {
-				alert('clicked:\n  selected = ' + $scope.model.foundset.selectedRowIndexes
- 						+ '\n  Text field value (Row 2): ' + $scope.model.foundset.viewPort.rows[1].nameColumn
- 						+ '\n  Selected text in text field (for selected row): ' + $scope.model.elements[1].api.getSelectedText()
- 						+ '\n  Button 2 text: ' + $scope.model.elements[0].model.text);
-				alert('rowID received as argument for on action = ' + rowId);
- 				$scope.model.elements[0].model.text += ' ***';
- 				$scope.model.elements[1].api.requestFocus();
- 				$timeout(function() {
- 					$scope.model.elements[1].api.setSelection(1,3);
- 				}, 5000);
-    	  };
-    	  preparedActionHandler.selectRecordHandler = function(rowId) {
-  				return function () { return preparedActionHandler(arguments, rowId); }
-    	  }
-    	  
-    	  $scope.model = {
-    			  "location":{"x":10,"y":116},
-    			  "size":{"width":727,"height":335},
-    			  elements: [
-    			             	{
-    			             		componentDirectiveName: "svy-button",
-    			             		name: 'svy_1073741969',
-    			             		model: {
-    			             			"enabled":true,
-    			             			"text":"show dialog",
-    			             			"visible":true,
-    			             			"location":{"x":647,"y":264},
-    			             			"size":{"width":113,"height":20},
-    			             			"tabSeq":8,
-    			             			"name":"svy_1073741969",
-    			             			"titleText":"Some button"
-    			             		},
-    			             		handlers: {
-    			             			onActionMethodID: preparedActionHandler
-    			             		},
-    			             		api: {},
-    			             		apply: function(){}
-    			             	},
-    			             	{
-    			             		componentDirectiveName: "svy-textfield",
-    			             		name: 'datatextfield1c',
-    			             		model: {
-    			             			"enabled":true,
-    			             			"visible":true,
-    			             			"location":{"x":246,"y":4},
-    			             			"background":"#ff8000",
-    			             			"toolTipText":"This is the datatextfield tooltip",
-    			             			"editable":true,
-    			             			"size":{"width":100,"height":20},
-    			             			"tabSeq":1,
-    			             			"name":"datatextfield1c",
-    			             		},
-    			             		api: textFieldApi,
-    			             		apply: function(property, componentModel, rowId) {
-    			            			// $servoyInternal.pushDPChange("product", "datatextfield1c", property, componentModel, rowId);
-    			             			alert("Apply called with: (" + rowId + ", " + property + ", " + componentModel[property] + ")");
-    			            		},
-    			             		handlers: {},
-    			             		forFoundset: {
-    			             			dataLinks: [
-    			             			            { propertyName: "dataProviderID", dataprovider: "nameColumn" }
-    			             			],
-    			             			apiCallTypes: {
-    			             				setValueListItems: $foundsetConstants.CALL_ON_ALL_RECORDS_IF_TEMPLATE,
-    			             			}
-    			             		}
-    			             	}
-    			            ],
-    			  foundset: {
-    				  serverSize: 44,
-    				  viewPort: {
-    					  startIndex: 15,
-    					  size: 5,
-    					  rows: [
-    					         	{ _svyRowId: 'someRowIdHASH1', nameColumn: "Bubu" },
-    					         	{ _svyRowId: 'someRowIdHASH2', nameColumn: "Yogy" },
-    					         	{ _svyRowId: 'someRowIdHASH3', nameColumn: "Ranger" },
-    					         	{ _svyRowId: 'someRowIdHASH4', nameColumn: "Watcher" },
-    					         	{ _svyRowId: 'someRowIdHASH5', nameColumn: "Hatcher" }
-    					  ],
-    					  loadRecordsAsync: function(startIndex, size) {
-    						  alert('Load async requested: ' + startIndex + ', ' + size);
-    						  $scope.model.foundset.viewPort.startIndex = startIndex;
-    						  $scope.model.foundset.viewPort.rows =  [
-    						          					         	{ _svyRowId: 'someRowIdHASH6', nameColumn: "ABC Bubu" },
-    						        					         	{ _svyRowId: 'someRowIdHASH7', nameColumn: "ABC Yogy" },
-    						        					         	{ _svyRowId: 'someRowIdHASH8', nameColumn: "ABC Ranger" },
-    						        					         	{ _svyRowId: 'someRowIdHASH9', nameColumn: "ABC Watcher" },
-    						        					         	{ _svyRowId: 'someRowIdHASH10', nameColumn: "ABC Hatcher" }
-    						        					  ];
-    					  },
-    					  loadExtraRecords: function(negativeOrPositiveCount) {
-    						  // TODO implement
-    					  }
-    				  },
-    				  selectedRowIndexes: [16], // can be out of viewPort as well
-    				  multiSelect: false,
-    			  }
-    	  };
-    	  
-    	  $timeout(function() {
-    		  if (textFieldApi.requestFocus) textFieldApi.requestFocus();
-    	  }, 5000);
+//    	  var textFieldApi = {}; 
+//    	  var preparedActionHandler = function(args, rowId) {
+//				alert('clicked:\n  selected = ' + $scope.model.relatedFoundset.selectedRowIndexes
+// 						+ '\n  Text field value (Row 2): ' + $scope.model.relatedFoundset.viewPort.rows[1].nameColumn
+// 						+ '\n  Selected text in text field (for selected row): ' + $scope.model.childElements[1].api.getSelectedText()
+// 						+ '\n  Button 2 text: ' + $scope.model.childElements[0].model.text);
+//				alert('rowID received as argument for on action = ' + rowId);
+// 				$scope.model.childElements[0].model.text += ' ***';
+// 				$scope.model.childElements[1].api.requestFocus();
+// 				$timeout(function() {
+// 					$scope.model.childElements[1].api.setSelection(1,3);
+// 				}, 5000);
+//    	  };
+//    	  preparedActionHandler.selectRecordHandler = function(rowId) {
+//  				return function () { return preparedActionHandler(arguments, rowId); }
+//    	  }
+//    	  
+//    	  $scope.model = {
+//    			  "location":{"x":10,"y":116},
+//    			  "size":{"width":727,"height":335},
+//    			  childElements: [
+//    			             	{
+//    			             		componentDirectiveName: "svy-button",
+//    			             		name: 'svy_1073741969',
+//    			             		model: {
+//    			             			"enabled":true,
+//    			             			"text":"show dialog",
+//    			             			"visible":true,
+//    			             			"location":{"x":647,"y":264},
+//    			             			"size":{"width":113,"height":20},
+//    			             			"tabSeq":8,
+//    			             			"name":"svy_1073741969",
+//    			             			"text":"Some button"
+//    			             		},
+//    			             		handlers: {
+//    			             			onActionMethodID: preparedActionHandler
+//    			             		},
+//    			             		api: {},
+//    			             		apply: function(){}
+//    			             	},
+//    			             	{
+//    			             		componentDirectiveName: "svy-textfield",
+//    			             		name: 'datatextfield1c',
+//    			             		model: {
+//    			             			"enabled":true,
+//    			             			"visible":true,
+//    			             			"location":{"x":246,"y":4},
+//    			             			"background":"#ff8000",
+//    			             			"toolTipText":"This is the datatextfield tooltip",
+//    			             			"editable":true,
+//    			             			"size":{"width":100,"height":20},
+//    			             			"tabSeq":1,
+//    			             			"name":"datatextfield1c",
+//    			             		},
+//    			             		api: textFieldApi,
+//    			             		apply: function(property, componentModel, rowId) {
+//    			            			// $servoyInternal.pushDPChange("product", "datatextfield1c", property, componentModel, rowId);
+//    			             			alert("Apply called with: (" + rowId + ", " + property + ", " + componentModel[property] + ")");
+//    			            		},
+//    			             		handlers: {},
+//    			             		forFoundset: {
+//    			             			dataLinks: [
+//    			             			            { propertyName: "dataProviderID", dataprovider: "nameColumn" }
+//    			             			],
+//    			             			apiCallTypes: {
+//    			             				setValueListItems: $foundsetConstants.CALL_ON_ALL_RECORDS_IF_TEMPLATE,
+//    			             			}
+//    			             		}
+//    			             	}
+//    			            ],
+//    			  relatedFoundset: {
+//    				  serverSize: 44,
+//    				  viewPort: {
+//    					  startIndex: 15,
+//    					  size: 5,
+//    					  rows: [
+//    					         	{ _svyRowId: 'someRowIdHASH1', nameColumn: "Bubu" },
+//    					         	{ _svyRowId: 'someRowIdHASH2', nameColumn: "Yogy" },
+//    					         	{ _svyRowId: 'someRowIdHASH3', nameColumn: "Ranger" },
+//    					         	{ _svyRowId: 'someRowIdHASH4', nameColumn: "Watcher" },
+//    					         	{ _svyRowId: 'someRowIdHASH5', nameColumn: "Hatcher" }
+//    					  ],
+//    					  loadRecordsAsync: function(startIndex, size) {
+//    						  alert('Load async requested: ' + startIndex + ', ' + size);
+//    						  $scope.model.relatedFoundset.viewPort.startIndex = startIndex;
+//    						  $scope.model.relatedFoundset.viewPort.rows =  [
+//    						          					         	{ _svyRowId: 'someRowIdHASH6', nameColumn: "ABC Bubu" },
+//    						        					         	{ _svyRowId: 'someRowIdHASH7', nameColumn: "ABC Yogy" },
+//    						        					         	{ _svyRowId: 'someRowIdHASH8', nameColumn: "ABC Ranger" },
+//    						        					         	{ _svyRowId: 'someRowIdHASH9', nameColumn: "ABC Watcher" },
+//    						        					         	{ _svyRowId: 'someRowIdHASH10', nameColumn: "ABC Hatcher" }
+//    						        					  ];
+//    					  },
+//    					  loadExtraRecordsAsync: function(negativeOrPositiveCount) {
+//    						  // TODO implement
+//    					  }
+//    				  },
+//    				  selectedRowIndexes: [16], // can be out of viewPort as well
+//    				  multiSelect: false,
+//    			  }
+//    	  };
+//    	  
+//    	  $timeout(function() {
+//    		  if (textFieldApi.requestFocus) textFieldApi.requestFocus();
+//    	  }, 5000);
     	  // END TESTING MODELS
     	  
     	  var ROW_ID_COL_KEY = '_svyRowId';
@@ -126,8 +126,14 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  //                                  .cellApplyHandler - is the actual cell element apply handler cache
     	  var rowProxyObjects = {};
     	  
-    	  var foundset = $scope.model.foundset;
-    	  var elements = $scope.model.elements;
+    	  var foundset = $scope.model.relatedFoundset;
+    	  var elements = $scope.model.childElements;
+    	  $scope.$watch('model.relatedFoundset', function(newVal, oldVal) {
+    		  foundset = newVal;
+    	  });
+    	  $scope.$watch('model.childElements', function(newVal, oldVal) {
+    		  elements = $scope.model.childElements;
+    	  });
     	  
     	  $scope.pagingOptions = {
     			  pageSizes: [recordsPerPage, 50, 100, 200, 500, 1000],
@@ -142,7 +148,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  $scope.$watch('pagingOptions.currentPage', function(newVal, oldVal) {
     		  if (newVal !== oldVal) {
     			  // user requested another page; get it from server
-    			  foundset.viewPort.loadRecordsAsync((newVal - 1) * $scope.pagingOptions.pageSize, $scope.pagingOptions.pageSize);
+    			  foundset.loadRecordsAsync((newVal - 1) * $scope.pagingOptions.pageSize, $scope.pagingOptions.pageSize);
     			  // TODO show some loading feedback to the user until these records are received
     		  }
     	  });
@@ -151,19 +157,44 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  if (newVal !== oldVal) {
     			  // user requested another page size; get items from server (could be optimised I guess if page size is lower)
     			  var startIdx = $scope.pagingOptions.currentPage - 1;
-    			  foundset.viewPort.loadRecordsAsync(startIdx * oldVal, newVal);
+    			  foundset.loadRecordsAsync(startIdx * oldVal, newVal);
     			  $scope.pagingOptions.currentPage = Math.floor(startIdx / newVal + 1);
     			  // TODO show some loading feedback to the user until these records are received
+    		  }
+    	  });
+    	  
+    	  // startIndex can change serverSize if a record was deleted from before it; server viewport follows first record, not first index
+    	  $scope.$watch('model.relatedFoundset.viewPort.startIndex', function(newVal, oldVal) {
+    		  // TODO ac if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
+    		  
+        	  
+    	  });
+
+    	  // size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
+    	  $scope.$watch('model.relatedFoundset.viewPort.size', function(newVal, oldVal) {
+    		  // TODO ac if it was at the end of the foundset, less records available then $scope.pagingOptions.pageSize and new records appeared see if we need to get more
+        	  
+    	  });
+
+    	  $scope.$watch('model.relatedFoundset.serverSize', function(newVal, oldVal) {
+    		  if (newVal > 0 && foundset.viewPort.size === 0 && $scope.pagingOptions.pageSize > 0) {
+    			  // initial show
+    			  $scope.model.relatedFoundset.loadRecordsAsync(0, Math.min(newVal, $scope.pagingOptions.pageSize));
     		  }
     	  });
 
     	  var columnDefinitions = [];
     	  for (var idx in elements) {
     		  var el = elements[idx]; 
-    		  var columnTitle = el.model.titleText;
+    		  var columnTitle = el.model.text;
     		  if (!columnTitle) {
     			  // TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
-    			  if (el.forFoundset && el.forFoundset.dataLinks && el.forFoundset.dataLinks.length > 0) columnTitle = el.forFoundset.dataLinks[0].dataprovider;
+    			  if (el.forFoundset && el.forFoundset.dataLinks && el.forFoundset.dataLinks.length > 0) {
+    				  columnTitle = el.forFoundset.dataLinks[0].dataprovider;
+    				  if (columnTitle && columnTitle.contains('.')) {
+    					  columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
+    				  }
+    			  }
     			  if (!columnTitle) columnTitle = "";
     		  }
     		  columnDefinitions.push({
@@ -314,11 +345,12 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  }
 
     	  // bind foundset.selectedRowIndexes to what nggrid has to offer
-    	  var selectedItemsProxy = []; // keeps entire foundset row items from model.foundset.viewPort.rows
+    	  var selectedItemsProxy = []; // keeps entire foundset row items from model.relatedFoundset.viewPort.rows
     	  for (var rowIdx = 0;  rowIdx < foundset.viewPort.rows.length; rowIdx++) {
     		  if (isRowIndexSelected(viewPortToAbsolute(rowIdx))) selectedItemsProxy.push(foundset.viewPort.rows[rowIdx]);
     	  }
     	  function updateFoundsetSelectionFromGrid(newNGGridSelectedItems) {
+    		  if (selectedItemsProxy.length == 0 && $scope.model.relatedFoundset.serverSize > 0) return; // we shouldn't try to set no selection if there are records; it will be an invalid request as server doesn't allow that
 			  // update foundset object selection when it changes in ngGrid
     		  var tmpSelectedRowIdxs = {};
 			  for (var rowIdxInSelected = 0; rowIdxInSelected < newNGGridSelectedItems.length; rowIdxInSelected++) {
@@ -337,7 +369,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
 			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 		  }
     	  $scope.$watchCollection(function() { return selectedItemsProxy; }, updateFoundsetSelectionFromGrid);
-    	  $scope.$watchCollection('model.foundset.selectedRowIndexes', function(newFSSelectedItems) {
+    	  $scope.$watchCollection('model.relatedFoundset.selectedRowIndexes', function(newFSSelectedItems) {
 			  // update ngGrid selection when it changes in foundset
     		  var tmpSelectedRowIdxs = {};
 			  for (var rowIdxInSelected = 0; rowIdxInSelected < selectedItemsProxy.length; rowIdxInSelected++) {
@@ -355,14 +387,14 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
 		  });
 
     	  $scope.gridOptions = {
-    			  data: 'model.foundset.viewPort.rows',
+    			  data: 'model.relatedFoundset.viewPort.rows',
     			  enableCellSelection: true,
     			  enableRowSelection: true,
     			  selectedItems: selectedItemsProxy,
     			  multiSelect: foundset.multiSelect,
     			  enablePaging: true,
     			  showFooter: (getPageCount() > 1),
-    			  totalServerItems: 'model.foundset.serverSize',
+    			  totalServerItems: 'model.relatedFoundset.serverSize',
     			  pagingOptions: $scope.pagingOptions,
     			  primaryKey: ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
     			  columnDefs: columnDefinitions

@@ -7,7 +7,7 @@ var webSocketModule = angular.module('webSocketModule', []);
  * Setup the $webSocket service.
  */
 webSocketModule.factory('$webSocket',
-		function($rootScope, $injector, $log, $q,$services) {
+		function($rootScope, $injector, $log, $q, $services, $sabloConverters) {
 
 			var websocket = null
 
@@ -18,43 +18,28 @@ webSocketModule.factory('$webSocket',
 			}
 
 			var deferredEvents = {};
-
-			var convertServerObject = function(value, toType) {
-				if (toType == "Date") {
-					value = new Date(value);
-				}
-				return value;
-			}
-
-			var applyConversion = function(data, conversion) {
-				for ( var conKey in conversion) {
-					if (conversion[conKey] == "Date") {
-						data[conKey] = convertServerObject(data[conKey],
-								conversion[conKey]);
-					} else {
-						applyConversion(data[conKey], conversion[conKey]);
-					}
-				}
-			}
-
+			
 			var handleMessage = function(wsSession, message) {
 				var obj
 				var responseValue
 				try {
 					obj = JSON.parse(message.data);
-					if (obj.conversions) {
-						applyConversion(obj, obj.conversions)
-					}
 
 					// data got back from the server
 					if (obj.cmsgid) { // response to event
 						if (obj.exception) {
 							// something went wrong
+							if (obj.conversions && obj.conversions.exception) {
+								$sabloConverters.convertFromServerToClient(obj.exception, obj.conversions.exception)
+							}
 							$rootScope.$apply(function() {
 								deferredEvents[obj.cmsgid]
 										.reject(obj.exception);
 							})
 						} else {
+							if (obj.conversions && obj.conversions.ret) {
+								$sabloConverters.convertFromServerToClient(obj.ret, obj.conversions.ret)
+							}
 							$rootScope.$apply(function() {
 								deferredEvents[obj.cmsgid].resolve(obj.ret);
 							})
@@ -63,11 +48,14 @@ webSocketModule.factory('$webSocket',
 					}
 					
 					 if (obj.msg && obj.msg.services) {
-						 $services.updateStates(obj.msg.services);
+						 $services.updateStates(obj.msg.services, obj.conversions ? obj.conversions.services : undefined);
 			        }
 
 					if (obj.services) {
 						// services call
+						if (obj.conversions && obj.conversions.services) {
+							$sabloConverters.convertFromServerToClient(obj.services, obj.conversions.services)
+						}
 						for ( var index in obj.services) {
 							var service = obj.services[index];
 							var serviceInstance = $injector.get(service.name);
@@ -83,7 +71,7 @@ webSocketModule.factory('$webSocket',
 
 					// message
 					if (obj.msg && wsSession.onMessageObject) {
-						responseValue = wsSession.onMessageObject(obj.msg)
+						responseValue = wsSession.onMessageObject(obj.msg, obj.conversions ? obj.conversions.msg : undefined)
 					}
 
 				} catch (e) {
@@ -163,8 +151,8 @@ webSocketModule.factory('$webSocket',
 				}
 				// This one should be overwritten if you expect other messages
 				// then service calls
-				this.onMessageObject = function(msg) {
-					$log.error('Error: Received unexpected message: ' + msg);
+				this.onMessageObject = function(msg, conversionInfo) {
+					$log.error('Error: Received unexpected message: (-' + msg + '-,\n-' + conversionInfo + '-)');
 				}
 
 			};
@@ -217,25 +205,37 @@ webSocketModule.factory('$webSocket',
 
 				convertClientObject : convertClientObject
 			};
-		}).factory("$services", function($rootScope){
+		}).factory("$services", function($rootScope, $sabloConverters){
 			// serviceName:{} service model
 			var serviceStates = {};
+			var serviceStatesConversionInfo = {};
 			return {
 				getServiceState: function(serviceName) {
 					if (!serviceStates[serviceName]) serviceStates[serviceName] = {};
 		    		return serviceStates[serviceName];
 				},
-				updateStates: function(services) {
+				updateStates: function(services, conversionInfo) {
 					$rootScope.$apply(function() {
 		        		 for(var servicename in services) {
 		 		        	// current model
 		 		            var serviceState = serviceStates[servicename];
 		 		            if (!serviceState) {
+		 		            	if (conversionInfo && conversionInfo[servicename]) {
+	 		            			// convert all properties, remember type for when a client-server conversion will be needed
+									$sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename], serviceStates[servicename])
+		 		            		serviceStatesConversionInfo[servicename] = conversionInfo[servicename];
+		 		            	}
 		 		            	serviceStates[servicename] = services[servicename];
 		 		            }
 		 		            else {
 		 		            	var serviceData = services[servicename];
 		 		            	for(var key in serviceData) {
+		 		            		if (conversionInfo && conversionInfo[servicename] && conversionInfo[servicename][key]) {
+		 		            			// convert property, remember type for when a client-server conversion will be needed
+		 		            			if (!serviceStatesConversionInfo[servicename]) serviceStatesConversionInfo[servicename] = {};
+										$sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceStates[servicename][key])
+		 		            			serviceStatesConversionInfo[servicename][key] = conversionInfo[servicename][key];
+		 		            		}
 		 		            		serviceStates[servicename][key] = serviceData[key];
 		 		             	}
 		 		            }
@@ -243,4 +243,87 @@ webSocketModule.factory('$webSocket',
 		        	});
 				}
 			}
+		}).factory("$sabloConverters", function($log) {
+			/**
+			 * Custom property converters can be registered via this service method: $webSocket.registerCustomPropertyHandler(...)
+			 */
+			var customPropertyConverters = {};
+
+			var convertFromServerToClient = function(serverSentData, conversionInfo, currentClientData) {
+				if (typeof conversionInfo === 'string' || typeof conversionInfo === 'number') {
+					var customConverter = customPropertyConverters[conversionInfo];
+					if (customConverter) serverSentData = customConverter.fromServerToClient(serverSentData, currentClientData);
+					else { //converter not found - will not convert
+						$log.error("cannot find type converter (s->c) for: '" + conversionInfo + "'.");
+					}
+				} else if (conversionInfo) {
+					for (var conKey in conversionInfo) {
+						serverSentData[conKey] = convertFromServerToClient(serverSentData[conKey], conversionInfo[conKey], currentClientData ? currentClientData[conKey] : undefined);
+					}
+				}
+				return serverSentData;
+			};
+			
+			// converts from a client property JS value to a JSON that can be sent to the server using the appropriate registered handler
+			var convertFromClientToServer = function(newClientData, conversionInfo, oldClientData) {
+				if (typeof conversionInfo === 'string' || typeof conversionInfo === 'number') {
+					var customConverter = customPropertyConverters[conversionInfo];
+					if (customConverter) return customConverter.fromClientToServer(newClientData, oldClientData);
+					else { //converter not found - will not convert
+						$log.error("cannot find type converter (c->s) for: '" + conversionInfo + "'.");
+						return newClientData;
+					}
+				} else if (conversionInfo) {
+					var retVal = (Array.isArray ? Array.isArray(newClientData) : $.isArray(newClientData)) ? [] : {};
+					for (var conKey in conversionInfo) {
+						retVal[conKey] = convertFromClientToServer(newClientData[conKey], conversionInfo[conKey], oldClientData ? oldClientData[conKey] : undefined);
+					}
+					return retVal;
+				} else {
+					return newClientData;
+				}
+			};
+			
+			return {
+				
+				convertFromServerToClient: convertFromServerToClient,
+				
+				convertFromClientToServer: convertFromClientToServer,
+				
+				/**
+				 * Registers a custom client side property handler into the system. These handlers are useful
+				 * for custom property types that require some special handling when received through JSON from server-side
+				 * or for sending content updates back. (for example convert received JSON into a different JS object structure that will be used
+				 * by beans or just implement partial updates for more complex property contents)
+				 *  
+				 * @param customHandler an object with the following methods/fields:
+				 * {
+				 * 
+				 *				// Called when a JSON update is received from the server for a property
+				 *				// @param serverSentJSONValue the JSON value received from the server for the property
+				 *				// @param currentClientValue the JS value that is currently used for that property in the client; can be null/undefined if
+				 *				//        conversion happens for service API call parameters for example...
+				 *				// @return the new/updated client side property value; if this returned value is interested in triggering
+				 *				//         updates to server when something changes client side it must have these member functions:
+				 *				//				setChangeNotifier: function(changeNotifier) - where changeNotifier is a function that can be called when
+				 *				//                                                          the value needs to send updates to the server; this method will
+				 *				//                                                          not be called when value is a call parameter for example, but will
+				 *				//                                                          be called when set into a component's/service's property/model
+				 *				//              isChanged: function() - should return true if the value needs to send updates to server // TODO this could be kept track of internally
+				 * 				fromServerToClient: function (serverSentJSONValue, currentClientValue) { (...); return newClientValue; },
+				 * 
+				 *				// Converts from a client property JS value to a JSON that will be sent to the server.
+				 *				// @param newClientData the new JS client side property value
+				 *				// @param oldClientData the old JS JS client side property value; can be null/undefined if
+				 *				//        conversion happens for service API call parameters for example...
+				 *				// @return the JSON value to send to the server.
+				 *				fromClientToServer: function(newClientData, oldClientData) { (...); return sendToServerJSON; }
+				 * 
+				 * }
+				 */
+				registerCustomPropertyHandler : function(propertyTypeID, customHandler) {
+					customPropertyConverters[propertyTypeID] = customHandler;
+				}
+				
+			};
 		});

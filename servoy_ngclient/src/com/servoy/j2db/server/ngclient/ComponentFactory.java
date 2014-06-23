@@ -56,7 +56,7 @@ public class ComponentFactory
 		if (name != null)
 		{
 			// TODO ac anything to do here for custom special types?
-			WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList, formUI);
+			WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList);
 			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{

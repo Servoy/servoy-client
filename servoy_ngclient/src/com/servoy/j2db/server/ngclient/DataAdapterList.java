@@ -252,6 +252,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
+		// let complex properties of all web components know that the current record has changed
+		for (WebComponent comp : webComponents)
+		{
+			WebFormComponent wc = (WebFormComponent)comp;
+			changed = wc.pushRecord(record) || changed;
+		}
+
 
 		if (fireChangeEvent && changed)
 		{
