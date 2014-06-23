@@ -150,7 +150,14 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        	var formState = formStates[call.form];
 	        	if (call.viewIndex != undefined) {
 	        		var funcThis = formState.api[call.bean][call.viewIndex]; 
-	        		var func = funcThis[call.api];
+	        		if (funcThis)
+	        		{
+		        		var func = funcThis[call.api];
+	        		}
+	        		else
+	        		{
+	        			console.warn("cannot call " + call.api + " on " + call.bean + " because viewIndex "+ call.viewIndex +" api is not found")
+	        		}
 	        	}
 	        	else {
 	        		var funcThis = formState.api[call.bean];

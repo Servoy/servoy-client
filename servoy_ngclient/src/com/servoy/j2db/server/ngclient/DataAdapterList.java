@@ -38,7 +38,6 @@ import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Text;
@@ -265,7 +264,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void valueChanged(ModificationEvent e)
 	{
 		// TODO can this be only for the modification ?
-		pushRecordValues(true, true);
+		pushRecordValues(true, false);
 	}
 
 	public void pushChanges(WebFormComponent webComponent, String beanProperty)
