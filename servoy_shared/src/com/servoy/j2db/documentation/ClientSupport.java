@@ -29,12 +29,27 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  */
 public enum ClientSupport
 {
-	None(0), mc(1), wc(2), sc(4), mc_wc(mc.bits | wc.bits), mc_sc(mc.bits | sc.bits), wc_sc(wc.bits | sc.bits), mc_wc_sc(mc.bits | wc.bits | sc.bits);
+	None(0),
+	mc(1),
+	wc(2),
+	sc(4),
+	ng(8),
+	mc_wc(mc.bits | wc.bits),
+	mc_sc(mc.bits | sc.bits),
+	wc_sc(wc.bits | sc.bits),
+	ng_wc(ng.bits | wc.bits),
+	ng_sc(ng.bits | sc.bits),
+	ng_mc(ng.bits | mc.bits),
+	mc_wc_sc(mc.bits | wc.bits | sc.bits),
+	ng_wc_sc(ng.bits | wc.bits | sc.bits),
+	mc_ng_sc(mc.bits | ng.bits | sc.bits),
+	mc_wc_ng(mc.bits | wc.bits | ng.bits),
+	ng_mc_wc_sc(ng.bits | mc.bits | wc.bits | sc.bits);
 
 	private final int bits;
 
-	public static final ClientSupport Default = wc_sc;
-	public static final ClientSupport All = mc_wc_sc;
+	public static final ClientSupport Default = ng_wc_sc;
+	public static final ClientSupport All = ng_mc_wc_sc;
 
 	private ClientSupport(int bits)
 	{
@@ -45,7 +60,7 @@ public enum ClientSupport
 	{
 		if (s == null) return null;
 		if (s.length() == 0) return None;
-		return fromBits(bits(s, mc) | bits(s, wc) | bits(s, sc));
+		return fromBits(bits(s, ng) | bits(s, mc) | bits(s, wc) | bits(s, sc));
 	}
 
 	private static int bits(String s, ClientSupport supp)
@@ -65,7 +80,7 @@ public enum ClientSupport
 
 	public String toAttribute()
 	{
-		return append(append(append(new StringBuilder(), mc), wc), sc).toString();
+		return append(append(append(append(new StringBuilder(), ng), mc), wc), sc).toString();
 	}
 
 	private StringBuilder append(StringBuilder sb, ClientSupport supp)
@@ -109,13 +124,13 @@ public enum ClientSupport
 		return scp == null ? null : fromBits(bits & scp.bits);
 	}
 
-	public static ClientSupport create(boolean support_mc, boolean support_wc, boolean support_sc)
+	public static ClientSupport create(boolean support_ng, boolean support_mc, boolean support_wc, boolean support_sc)
 	{
-		return fromBits((support_mc ? mc.bits : 0) | (support_wc ? wc.bits : 0) | (support_sc ? sc.bits : 0));
+		return fromBits((support_ng ? ng.bits : 0) | (support_mc ? mc.bits : 0) | (support_wc ? wc.bits : 0) | (support_sc ? sc.bits : 0));
 	}
 
 	public static ClientSupport fromAnnotation(ServoyClientSupport csp)
 	{
-		return csp == null ? null : create(csp.mc(), csp.wc(), csp.sc());
+		return csp == null ? null : create(csp.ng(), csp.mc(), csp.wc(), csp.sc());
 	}
 }

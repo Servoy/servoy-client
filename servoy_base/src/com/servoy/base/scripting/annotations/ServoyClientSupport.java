@@ -47,4 +47,9 @@ public @interface ServoyClientSupport
 	 * Supported in web client
 	 */
 	boolean wc() default true;
+
+	/**
+	 * Supported in ng client
+	 */
+	boolean ng() default true;
 }
