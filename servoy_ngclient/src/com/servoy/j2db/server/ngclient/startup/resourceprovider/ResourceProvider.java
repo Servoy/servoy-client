@@ -43,7 +43,9 @@ import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.CustomPropertyTypeResolver;
+import org.sablo.websocket.WebsocketSessionManager;
 
+import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeImpl;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeImpl;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -87,6 +89,9 @@ public class ResourceProvider implements Filter
 
 	private static void initSpecProvider()
 	{
+		//register the session factory at the manager
+		WebsocketSessionManager.setWebsocketSessionFactory(WebsocketSessionFactory.get());
+
 		registerTypes();
 
 		ArrayList<IPackageReader> componentPackages = new ArrayList<>(componentReaders);
@@ -229,7 +234,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -240,7 +245,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -267,7 +272,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
