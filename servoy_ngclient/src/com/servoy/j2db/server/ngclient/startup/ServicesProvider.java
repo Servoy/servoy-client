@@ -8,7 +8,7 @@ import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.server.ngclient.ComponentsModuleGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
-import com.servoy.j2db.server.ngclient.TemplateGeneratorFilter;
+import com.servoy.j2db.server.ngclient.NGClientEntryFilter;
 import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
 
 
@@ -33,7 +33,7 @@ public class ServicesProvider implements IServicesProvider
 			HashSet<Class< ? >> set = new HashSet<Class< ? >>();
 			set.add(MediaResourcesServlet.class);
 			set.add(ComponentsModuleGenerator.class);
-			set.add(TemplateGeneratorFilter.class);
+			set.add(NGClientEntryFilter.class);
 			set.add(WebsocketEndpoint.class);
 			set.add(ResourceProvider.class);
 			return set;

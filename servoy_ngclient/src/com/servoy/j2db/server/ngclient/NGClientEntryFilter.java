@@ -41,9 +41,13 @@ import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
+/**
+ * Filter and entrypoint for webapp
+ * @author jcompagner
+ */
 @WebFilter(urlPatterns = { "/solutions/*" })
 @SuppressWarnings("nls")
-public class TemplateGeneratorFilter extends WebEntry
+public class NGClientEntryFilter extends WebEntry
 {
 	public static final String SOLUTIONS_PATH = "solutions/";
 	public static final String FORMS_PATH = "forms/";
