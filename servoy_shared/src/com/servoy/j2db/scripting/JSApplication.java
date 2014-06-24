@@ -2706,6 +2706,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @return Selected date or null if canceled
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public Date js_showCalendar()
 	{
 		return js_showCalendar(null, null);
@@ -2720,6 +2721,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Selected date or null if canceled
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public Date js_showCalendar(Date selectedDate)
 	{
 		return js_showCalendar(selectedDate, null);
@@ -2734,6 +2736,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Selected date or null if canceled
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public Date js_showCalendar(String dateFormat)
 	{
 		return js_showCalendar(null, dateFormat);
@@ -2749,6 +2752,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Selected date or null if canceled
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public Date js_showCalendar(Date selectedDate, String dateFormat)
 	{
 		if (application instanceof ISmartClientApplication)
@@ -2765,6 +2769,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @return selected color or null if canceled
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_showColorChooser()
 	{
 		return js_showColorChooser(null);
@@ -2779,6 +2784,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return selected color or null if canceled
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_showColorChooser(String colorString)
 	{
 		if (application instanceof ISmartClientApplication)
@@ -2798,6 +2804,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @return selected font
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_showFontChooser()
 	{
 		return js_showFontChooser(null);
@@ -2812,6 +2819,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return selected font
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_showFontChooser(String defaultFont)
 	{
 		if (application instanceof ISmartClientApplication)
@@ -2829,6 +2837,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @return selected I18N key or null if cancel is pressed
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_showI18NDialog()
 	{
 		return js_showI18NDialog(null, null);
@@ -2843,6 +2852,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @return selected I18N key or null if cancel is pressed
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_showI18NDialog(String keyToSelect)
 	{
 		return js_showI18NDialog(keyToSelect, null);
@@ -2859,6 +2869,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return selected I18N key or null if cancel is pressed
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_showI18NDialog(String keyToSelect, String languageToSelect)
 	{
 		if (application instanceof ISmartClientApplication)
@@ -2958,6 +2969,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @param enabled Boolean (true) if numpad enter should behave like focus next
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public void js_setNumpadEnterAsFocusNextEnabled(boolean enabled)
 	{
 		if (application instanceof ISmartClientApplication)
@@ -3003,6 +3015,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Boolean (true) is the last print preview did print, (false) otherwise
 	 */
+	@ServoyClientSupport(ng = false)
 	public boolean js_isLastPrintPreviewPrinted()
 	{
 		return didLastPrintPreviewPrint;

@@ -725,7 +725,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * If checked, authentication is required, and either a provided loginSolution or otherwise the default Servoy login mechanism will be used.
 	 * If default Servoy login mechanism is used, the "servoy.webclient.basic.authentication" setting on the Admin Page can be used to enable the use of the standard browser basic authentication.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public boolean getMustAuthenticate()
 	{
 		return getSolutionMetaData().getMustAuthenticate();
@@ -963,7 +963,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * The custom CSS used by the solution (a MEDIA lib entry). It can reference other media resources (even additional .css through relative '@import' statements).
 	 * For NGClient - this CSS will be available directly in the browser.
 	 */
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	public int getStyleSheetID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET).intValue();
@@ -1024,7 +1024,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 
 	 * NOTE: If the Login form is specified, then the firstForm is the first form that will load next after the loginForm.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public int getFirstFormID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID).intValue();
@@ -1058,7 +1058,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templateparam String arg startup argument part of the deeplink url with which the Client was started
 	 * @templateparam Object<Array<String>> queryParams all query parameters of the deeplink url with which the Client was started
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public int getOnOpenMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID).intValue();
@@ -1083,7 +1083,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The name of the login form that loads when a solution is deployed.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public int getLoginFormID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID).intValue();
@@ -1223,7 +1223,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile".
 	 * These constants are defined in SolutionMetaData class.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public int getSolutionType()
 	{
 		return getSolutionMetaData().getSolutionType();
@@ -1238,7 +1238,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The list of modules that have been added to a solution.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public String getModulesNames()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MODULESNAMES);
@@ -1258,6 +1258,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * right to left
 	 * locale specific
 	 */
+	@ServoyClientSupport(ng = false)
 	public int getTextOrientation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXTORIENTATION).intValue();

@@ -25,7 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author acostescu
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSUnit", scriptingName = "jsunit")
-@ServoyClientSupport(mc = true, sc = true, wc = true)
+@ServoyClientSupport(ng = true, mc = true, sc = true, wc = true)
 public class JSUnitAssertFunctions implements IReturnedTypesProvider
 {
 

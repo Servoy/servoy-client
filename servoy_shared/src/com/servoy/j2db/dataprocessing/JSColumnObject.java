@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
@@ -30,6 +31,7 @@ import com.servoy.j2db.persistence.IServer;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyClientSupport(ng = false, wc = true, sc = true)
 public class JSColumnObject extends JSColumn
 {
 	public JSColumnObject()

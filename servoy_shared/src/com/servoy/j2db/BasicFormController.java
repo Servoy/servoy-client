@@ -41,6 +41,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.api.IJSController;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
@@ -2518,6 +2519,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @throws ServoyException
 		 */
+		@ServoyClientSupport(ng = false)
 		public void js_show(JSWindow window) throws ServoyException
 		{
 			checkDestroyed();
@@ -3578,6 +3580,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @deprecated  As of release 5.0, replaced by {@link #showPrintPreview()}
 		 */
 		@Deprecated
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_printPreview(Object[] vargs) //obsolete,will not show in script editor
 		{
 			boolean printCurrentRecordOnly = false;
@@ -3655,6 +3658,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param printerJob print to plugin printer job, see pdf printer plugin for example (incase print is used from printpreview)
 		 * @param zoomFactor a specified number value from 10-400
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_showPrintPreview(boolean printCurrentRecordOnly, PrinterJob printerJob, int zoomFactor)
 		{
 			checkDestroyed();
@@ -3671,6 +3675,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * //%%prefix%%controller.print(true,false,plugins.pdf_output.getPDFPrinter('c:/temp/out.pdf'));
 		 *
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_print()
 		{
 			js_print(false, true, null);
@@ -3681,6 +3686,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @sampleas js_print()
 		 * @param printCurrentRecordOnly to print the current record only
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_print(boolean printCurrentRecordOnly)
 		{
 			js_print(printCurrentRecordOnly, true, null);
@@ -3692,6 +3698,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param printCurrentRecordOnly to print the current record only
 		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_print(boolean printCurrentRecordOnly, boolean showPrinterSelectDialog)
 		{
 			js_print(printCurrentRecordOnly, showPrinterSelectDialog, null);
@@ -3704,6 +3711,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)
 		 * @param printerJob print to plugin printer job, see pdf printer plugin for example
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_print(boolean printCurrentRecordOnly, boolean showPrinterSelectDialog, PrinterJob printerJob)
 		{
 			checkDestroyed();
@@ -3721,6 +3729,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @return the XML
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public String js_printXML()
 		{
 			return js_printXML(false);
@@ -3733,6 +3742,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param printCurrentRecordOnly to print the current record only
 		 * @return the XML
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public String js_printXML(boolean printCurrentRecordOnly)
 		{
 			checkDestroyed();
