@@ -24,7 +24,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @since 7.0
  *
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
 public interface IJSHistory
 {
 	public void back();

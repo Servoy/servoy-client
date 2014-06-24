@@ -25,7 +25,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author jcompagner
  *
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSUtils
 {
 	public String dateFormat(Date date, String format);

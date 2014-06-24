@@ -23,7 +23,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author jcompagner
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSApplication
 {
 	void output(Object output);
@@ -36,7 +36,7 @@ public interface IJSApplication
 
 	public int getApplicationType();
 
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	void setServerURL(String applicationServerURL);
 
 	String getServerURL();

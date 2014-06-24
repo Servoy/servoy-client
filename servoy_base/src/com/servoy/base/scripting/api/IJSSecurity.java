@@ -23,7 +23,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author lvostinar
  *
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSSecurity
 {
 	@ServoyClientSupport(mc = true, wc = false, sc = false)

@@ -29,7 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  *
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IBaseSolutionModel
 {
 
@@ -64,7 +64,7 @@ public interface IBaseSolutionModel
 	 * 
 	 * @return a new IBaseSMForm object
 	 */
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 	public IBaseSMForm newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height);
 
 	/**
@@ -94,7 +94,7 @@ public interface IBaseSolutionModel
 	 * 
 	 * @return a new ISMForm object
 	 */
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 	public IBaseSMForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height);
 
 	/**

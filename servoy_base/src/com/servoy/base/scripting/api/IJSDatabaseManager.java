@@ -23,7 +23,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author jcompagner
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSDatabaseManager
 {
 	/**
