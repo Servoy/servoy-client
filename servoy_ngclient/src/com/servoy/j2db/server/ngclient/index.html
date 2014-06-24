@@ -1,23 +1,6 @@
-<#--
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
-
- This program is free software; you can redistribute it and/or modify it under
- the terms of the GNU Affero General Public License as published by the Free
- Software Foundation; either version 3 of the License, or (at your option) any
- later version.
-
- This program is distributed in the hope that it will be useful, but WITHOUT
- ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
-
- You should have received a copy of the GNU Affero General Public License along
- with this program; if not, see http://www.gnu.org/licenses or write to the Free
- Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
--->
 <!DOCTYPE html>
 <html ng-app="servoyApp" ng-controller="MainController">
 	<head>
-		<base href="${context}/">
 		<title ng-bind="solutionSettings.solutionTitle"></title>
 		<!-- base 3th party libraries -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css"/>
@@ -37,7 +20,6 @@
 		<script src="js/bootstrap-window/js/WindowManager.js"></script>	<!-- see ^ -->
 		<script src="js/bindonce.js"></script>	
 		
-		
 		<!-- base servoy libraries -->
 		<link rel="stylesheet" href="css/servoy.css"/>
 		<script src="js/servoy.js"></script>
@@ -49,32 +31,6 @@
 		<script src="js/websocket.js"></script>
 		<script src="js/servoy_app.js"></script>
 		<script src="js/jquery.maskedinput.js"></script>
-
-		<#list serviceReferences as serviceScript>
-			<script src="${serviceScript}"></script>
-		</#list>
-		<#list serviceCssReferences as serviceCss>
-			<link rel="stylesheet" href="${serviceCss}"/>
-		</#list>
-		<#list serviceJsReferences as serviceJs>
-			<script src="${serviceJs}"></script>
-		</#list>
-		
-		<#list componentReferences as componentScript>
-			<script src="${componentScript}"></script>
-		</#list>
-		<#list componentCssReferences as componentCss>
-			<link rel="stylesheet" href="${componentCss}"/>
-		</#list>
-		<#list componentJsReferences as componentJs>
-			<script src="${componentJs}"></script>
-		</#list>
-		
-		<!-- -list of all the form controller scripts, maybe one solution so have all the controllers as once in 1 file -->
-		<#list formScriptReferences as formScript>
-			<script src="${formScript}"></script>
-		</#list>
-		
 
 		<link rel="stylesheet" ng-href='{{solutionSettings.styleSheetPath}}'/>
 	</head>
