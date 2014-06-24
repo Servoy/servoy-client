@@ -187,7 +187,7 @@ public class WebComponentSpecTest
 		Assert.assertFalse(pd.isArray());
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("mytype", wct.getName());
+		Assert.assertEquals("test.mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
@@ -209,7 +209,7 @@ public class WebComponentSpecTest
 		Assert.assertTrue(pd.isArray());
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("mytype", wct.getName());
+		Assert.assertEquals("test.mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
@@ -232,7 +232,7 @@ public class WebComponentSpecTest
 		Assert.assertTrue(pd.isArray());
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("mytype", wct.getName());
+		Assert.assertEquals("test.mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
@@ -256,7 +256,7 @@ public class WebComponentSpecTest
 		Assert.assertFalse(pd.isArray());
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("mytype", wct.getName());
+		Assert.assertEquals("test.mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
 		Assert.assertNotNull(pd2);
@@ -266,7 +266,7 @@ public class WebComponentSpecTest
 		config = pd2.getConfig();
 		Assert.assertNull(config);
 		PropertyDescription wct2 = ((ICustomType)pd2.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("mytype2", wct2.getName());
+		Assert.assertEquals("test.mytype2", wct2.getName());
 		Assert.assertEquals(1, wct2.getProperties().size());
 		PropertyDescription pd3 = wct2.getProperty("typeproperty");
 		Assert.assertNotNull(pd3);
