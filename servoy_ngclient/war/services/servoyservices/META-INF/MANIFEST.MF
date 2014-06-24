@@ -5,6 +5,9 @@ Created-By: 1.7.0_05-b06 (Oracle Corporation)
 Name: testservice/testservice.spec
 Web-Service: True
 
+Name: window/window.spec
+Web-Service: True
+
 Name: custom_properties/custom_properties.spec
 Web-Service: True
 
