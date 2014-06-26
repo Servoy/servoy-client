@@ -105,7 +105,7 @@ import com.servoy.j2db.util.Utils;
 public class ScriptEngine implements IScriptSupport
 {
 	public static final String SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY = "servoy.disableScriptCompile"; //$NON-NLS-1$
-	public final static Pattern docStripper = Pattern.compile("\\A\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)?\\s*function\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)*\\s*([\\w\\$]+)"); //$NON-NLS-1$
+	private final static Pattern docStripper = Pattern.compile("\\A\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)?\\s*function\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)*\\s*([\\w\\$]+)"); //$NON-NLS-1$
 
 	private final static ContextFactory.Listener contextListener = new ContextFactory.Listener()
 	{
@@ -561,11 +561,11 @@ public class ScriptEngine implements IScriptSupport
 		// dont return the calc function itself but still the value.
 		if (sp instanceof ScriptCalculation)
 		{
-			declaration = docStripper.matcher(declaration).replaceFirst("function $1_");
+			declaration = extractFunction(declaration, "function $1_");
 		}
 		else
 		{
-			declaration = docStripper.matcher(declaration).replaceFirst("function $1");
+			declaration = extractFunction(declaration, "function $1");
 		}
 
 		Function f = cx.compileFunction(scope, declaration, sourceName, sp.getLineNumberOffset(), null);
@@ -872,6 +872,15 @@ public class ScriptEngine implements IScriptSupport
 		{
 			return super.get(name, start);
 		}
+	}
+
+	public static String extractFunction(String declaration, String replacement)
+	{
+		if (declaration != null && declaration.indexOf("/**") >= 0)
+		{
+			declaration = declaration.substring(declaration.indexOf("/**"));
+		}
+		return docStripper.matcher(declaration).replaceFirst(replacement);
 	}
 
 }
