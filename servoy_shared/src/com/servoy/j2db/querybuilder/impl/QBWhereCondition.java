@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Where clause for a query, conditions can be added by name.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -74,8 +74,8 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.where.add("mycond", query.columns.orderdate.isNull)
-	 * 
-	 * @param name the name of the condition 
+	 *
+	 * @param name the name of the condition
 	 * @param condition the condition to add
 	 */
 	public QBWhereCondition js_add(String name, QBCondition condition)
@@ -107,7 +107,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 		{
 			return EMPTY_STRINGS;
 		}
-		return query.getConditionNames().toArray(EMPTY_STRINGS);
+		return query.getConditionNames();
 	}
 
 	/**

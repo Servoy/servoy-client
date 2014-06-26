@@ -17,8 +17,6 @@
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,15 +31,15 @@ import com.servoy.j2db.util.visitor.ObjectCountVisitor;
 
 /**
  * Query select statement.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 {
 
 	/**
-	 * 
+	 *
 	 */
 
 	private BaseQueryTable table;
@@ -54,6 +52,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	private ArrayList<IQuerySelectValue> groupBy;
 	private AndCondition having = null;
 	private int lockMode = LOCK_MODE_NONE;
+	private static final String[] EMPTY_STRINGS = new String[0];
 
 	private static final long serialVersionUID = 1L;
 
@@ -175,7 +174,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	/**
 	 * Add a condition that 'OR's with the existing condition.
-	 * 
+	 *
 	 * @param name condition name
 	 * @param c condition
 	 */
@@ -339,13 +338,13 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return conditions.get(name);
 	}
 
-	public Collection<String> getConditionNames()
+	public String[] getConditionNames()
 	{
 		if (conditions == null)
 		{
-			return Collections.emptySet();
+			return EMPTY_STRINGS;
 		}
-		return Collections.unmodifiableCollection(conditions.keySet());
+		return conditions.keySet().toArray(EMPTY_STRINGS);
 	}
 
 	public AndCondition getConditionClone(String name)
@@ -440,7 +439,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	/**
 	 * Is any condition set?
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean hasAnyCondition()
@@ -450,7 +449,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	/**
 	 * One condition to rule them all. Does not include having-conditions.
-	 * 
+	 *
 	 * @return
 	 */
 	public AndCondition getWhere()
@@ -499,7 +498,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	/**
 	 * All having-conditions combined.
-	 * 
+	 *
 	 * @return
 	 */
 	public AndCondition getHaving()
