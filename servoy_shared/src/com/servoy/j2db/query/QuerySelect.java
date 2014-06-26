@@ -31,16 +31,11 @@ import com.servoy.j2db.util.visitor.ObjectCountVisitor;
 
 /**
  * Query select statement.
- *
  * @author rgansevles
- *
  */
 public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 {
-
-	/**
-	 *
-	 */
+	private static final String[] EMPTY_STRINGS = new String[0];
 
 	private BaseQueryTable table;
 	private ArrayList<IQuerySelectValue> columns; // declare as ArrayList in stead of List -> must be sure that it is Serializable
@@ -52,7 +47,6 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	private ArrayList<IQuerySelectValue> groupBy;
 	private AndCondition having = null;
 	private int lockMode = LOCK_MODE_NONE;
-	private static final String[] EMPTY_STRINGS = new String[0];
 
 	private static final long serialVersionUID = 1L;
 

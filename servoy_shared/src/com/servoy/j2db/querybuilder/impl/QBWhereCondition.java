@@ -30,17 +30,13 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Where clause for a query, conditions can be added by name.
- *
  * @author rgansevles
- *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilderWhereCondition
 {
-	private static final String[] EMPTY_STRINGS = new String[] { };
-
+	private static final String[] EMPTY_STRINGS = new String[0];
 	private static final String CONDITION_ANONYMOUS = "<anonymous>"; // When no condition name is given
-
 
 	QBWhereCondition(QBSelect select)
 	{
