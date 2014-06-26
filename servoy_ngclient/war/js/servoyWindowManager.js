@@ -195,10 +195,14 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 			}
 			
 		},
-		show: function(name,arg) {	
+		show: function(name,form, title) {	
 			var instance = instances[name];
 			if (instance) {
-				instance.title = arg.title;
+				if(instance.bsWindowInstance){
+					// do nothing switchform will switch the form.
+					return;
+				} 
+				instance.title = title;
 				if(instance.storeBounds){
 					instance.size = storage.get(sol+name+'.storedBounds.size')
 					instance.location =  storage.get(sol+name+'.storedBounds.location')					
@@ -214,7 +218,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				},function(reason){
 					throw reason;
 				})
-				if(instance.form.name != arg.form) throw 'switchform should set the instances state before showing it'
+				if(instance.form.name != form) throw 'switchform should set the instances state before showing it'
 			}
 			else {
 				$log.error("Trying to show window with name: '" + name + "' which is not created.");

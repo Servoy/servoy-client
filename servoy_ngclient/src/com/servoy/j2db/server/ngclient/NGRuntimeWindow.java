@@ -68,7 +68,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#getContainerName()
 	 */
 	@Override
@@ -79,7 +79,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#getController()
 	 */
 	@Override
@@ -110,7 +110,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#setController(com.servoy.j2db.IFormController)
 	 */
 	@Override
@@ -129,7 +129,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicMainContainer#getHistory()
 	 */
 	@Override
@@ -141,7 +141,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
 	 */
 	@Override
@@ -155,7 +155,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#setLocation(int, int)
 	 */
 	@Override
@@ -181,7 +181,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getX()
 	 */
 	@Override
@@ -192,7 +192,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getY()
 	 */
 	@Override
@@ -203,7 +203,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#setSize(int, int)
 	 */
 	@Override
@@ -229,7 +229,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWidth()
 	 */
 	@Override
@@ -240,7 +240,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getHeight()
 	 */
 	@Override
@@ -346,7 +346,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#isVisible()
 	 */
 	@Override
@@ -357,7 +357,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#toFront()
 	 */
 	@Override
@@ -370,7 +370,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#toBack()
 	 */
 	@Override
@@ -382,7 +382,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWrappedObject()
 	 */
 	@Override
@@ -425,7 +425,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#hideUI()
 	 */
 	@Override
@@ -451,29 +451,28 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#doOldShow(java.lang.String, boolean, boolean)
 	 */
 	@Override
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
-		this.formName = formName;
 		IWebFormController controller = getApplication().getFormManager().getForm(formName);
 		if (controller != null)
 		{
+			getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+			this.formName = formName;
 			controller.getFormUI().setParentWindowName(getName());
+			//show panel as main
 			switchForm(controller);
 		}
-		getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
 
 		Map<String, Object> arguments = new HashMap<String, Object>();
 		Form form = getApplication().getFlattenedSolution().getForm(formName);
-		arguments.put("form", form.getName());
 		String titleArg = getTitle();
-		arguments.put("title", titleArg == null ? form.getName() : titleArg);
-
+		titleArg = titleArg == null ? form.getName() : titleArg;
 		getApplication().getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("show",
-			new Object[] { getName(), arguments });
+			new Object[] { getName(), form.getName(), titleArg });
 
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{

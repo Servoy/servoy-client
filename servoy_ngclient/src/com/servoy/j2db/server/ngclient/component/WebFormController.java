@@ -141,7 +141,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				{
 					if (currentNavigator != null)
 					{
-						currentNavigator.notifyVisible(true, invokeLaterRunnables);
+						currentNavigator.notifyVisible(false, invokeLaterRunnables);
 					}
 					Form navigator = application.getFlattenedSolution().getForm(form_id);
 					if (navigator != null)
@@ -165,24 +165,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables);
 			}
 			getApplication().getRuntimeWindowManager().getCurrentWindow().setNavigator(form_id);
-		}
-	}
-
-	@Override
-	public void hideNavigator(List<Runnable> invokeLaterRunnables)
-	{
-		if (getBasicFormManager() != null)
-		{
-			int navId = getForm().getNavigatorID();
-			if (navId > 0)
-			{
-				Form navigator = application.getFlattenedSolution().getForm(getForm().getNavigatorID());
-				IFormController navCtrlr = (IFormController)getBasicFormManager().getForm(navigator.getName());
-				if (navCtrlr != null)
-				{
-					navCtrlr.notifyVisible(false, invokeLaterRunnables);
-				}
-			}
 		}
 	}
 
