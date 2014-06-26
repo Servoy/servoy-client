@@ -141,6 +141,17 @@ public abstract class RuntimeWindowManager
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			ok = fp.notifyVisible(false, invokeLaterRunnables);
 			Utils.invokeLater(application, invokeLaterRunnables);
+			IApplication app = fp.getApplication();
+			if (app.getFormManager() != null)
+			{
+				int form_id = fp.getForm().getNavigatorID();
+				if (form_id > 0)
+				{
+					IFormController navigator = (IFormController)app.getFormManager().getForm(app.getFlattenedSolution().getForm(form_id).getName()).getFormUI().getController();
+					List<Runnable> invokeLaterRunnables2 = new ArrayList<Runnable>();
+					if (navigator != null) navigator.notifyVisible(false, invokeLaterRunnables2);
+				}
+			}
 		}
 		if (ok)
 		{
