@@ -692,7 +692,13 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			resizeScript.append("splitPanes['").append(splitId).append("']['leftMin'] = ").append(leftFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resizeScript.append("splitPanes['").append(splitId).append("']['rightMin'] = ").append(rightFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resizeScript.append("splitPanes['").append(splitId).append("']['callback'] = '").append(dividerUpdater.getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("}\n"); //$NON-NLS-1$			
+			resizeScript.append("}\n"); //$NON-NLS-1$		
+
+			// even the PageContributor may do the layout, it can happen that it is doing before
+			// we set the divider, as both the layout script & divider script are just added with wicket
+			// renderOnLoadJavascript, but we don't know the order they are added;
+			resizeScript.append("layoutEntirePage();\n"); //$NON-NLS-1$
+			resizeScript.append("Servoy.Resize.onWindowResize();\n"); //$NON-NLS-1$
 		}
 		return resizeScript.toString();
 	}
