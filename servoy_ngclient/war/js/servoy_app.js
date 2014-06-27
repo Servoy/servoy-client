@@ -267,9 +267,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        if(msg.maintenanceMode){
 	        	$sessionService.setMaintenanceMode(msg.maintenanceMode)    		
 	        }
-	        if(msg.sessionExpired){
-	        	$sessionService.expireSession(msg.sessionExpired)    		
-	        }
+	        
 	        /** end TODO*/
 	        if (msg.windowid) {
 	        	$solutionSettings.windowName = msg.windowid;

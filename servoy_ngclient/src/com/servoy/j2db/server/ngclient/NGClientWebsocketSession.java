@@ -577,26 +577,25 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void closeSession()
 	{
-		for (IWebsocketEndpoint endpoint : getRegisteredEnpoints())
+
+		client.invokeAndWait(new Runnable()
 		{
-			Map<String, Object> sessionExpired = new HashMap<>();
-			Map<String, Object> detail = new HashMap<>();
-			String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
-			if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
-			sessionExpired.put("sessionExpired", detail);
-			//TODO this doesn't work : getService("$sesionService").executeAsyncServiceCall(...);  
-			//=> results in java.lang.IllegalStateException: no current websocket endpoint set
-			//							at org.sablo.websocket.WebsocketEndpoint.get(WebsocketEndpoint.java:72)
-			// because it was initiated from an exlipse thread and not as part of a client request
-			try
+			@Override
+			public void run()
 			{
-				endpoint.sendMessage(sessionExpired, true, NGClientForJsonConverter.INSTANCE);
+				Map<String, Object> detail = new HashMap<>();
+				String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
+				if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
+				try
+				{
+					getService("$sessionService").executeServiceCall("expireSession", new Object[] { detail });
+				}
+				catch (IOException e)
+				{
+					Debug.log(e);
+				}
 			}
-			catch (IOException e)
-			{
-				Debug.log(e);
-			}
-		}
+		});
 		super.closeSession();
 	}
 

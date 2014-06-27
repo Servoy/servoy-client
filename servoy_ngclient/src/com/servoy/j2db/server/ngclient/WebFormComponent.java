@@ -211,7 +211,8 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 		if (persist != null)
 		{
 			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
-			if (!((access & IRepository.ACCESSIBLE) != 0)) return "Security error. Component is not accessible.";
+			if (!((access & IRepository.ACCESSIBLE) != 0)) throw new RuntimeException("Security error. Component '" + this.getProperty("name") +
+				"' is not accessible.");
 		}
 
 		Integer eventId = events.get(eventType);
