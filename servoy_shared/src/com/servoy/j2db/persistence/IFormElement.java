@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+
 
 /**
  * An element which can be placed on a form
@@ -23,8 +25,10 @@ package com.servoy.j2db.persistence;
  */
 public interface IFormElement extends ISupportBounds, ISupportName, ISupportUpdateableName, IPersist, ISupportExtendsID
 {
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setFormIndex(int arg);
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getFormIndex();
 
 

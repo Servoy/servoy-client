@@ -16,10 +16,13 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+
 
 /**
  * @author jblok
  */
+@ServoyClientSupport(ng = false, wc = true, sc = true)
 public interface ISupportPrinting
 {
 	/**

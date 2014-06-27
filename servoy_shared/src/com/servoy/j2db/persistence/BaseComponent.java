@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.servoy.base.persistence.IBaseComponent;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.UUID;
 
 
@@ -200,11 +201,13 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		return new java.awt.Rectangle(getLocation(), getSize()).contains(r);
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPrintable(boolean arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE, arg);
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getPrintable()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTABLE).booleanValue();
@@ -311,6 +314,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * height and width, based on its content and the content of neighboring 
 	 * components.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPrintSliding()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTSLIDING).intValue();
@@ -321,6 +325,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * 
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPrintSliding(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_PRINTSLIDING, i);
