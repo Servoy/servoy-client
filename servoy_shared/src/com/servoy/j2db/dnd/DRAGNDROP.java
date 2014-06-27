@@ -18,6 +18,7 @@ package com.servoy.j2db.dnd;
 
 import java.awt.dnd.DnDConstants;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
@@ -28,6 +29,7 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyClientSupport(ng = false, wc = true, sc = true)
 public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvider
 {
 	/**

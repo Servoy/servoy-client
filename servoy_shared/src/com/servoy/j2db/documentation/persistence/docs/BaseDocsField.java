@@ -62,11 +62,13 @@ public class BaseDocsField extends Field implements IComponentWithTitle, IBaseDo
 	 * 
 	 * The default value of this flag is "false", that is merging of data is disabled by default.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getTitleDisplaysTags()
 	{
 		return false;
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setTitleDisplaysTags(boolean arg)
 	{
 	}

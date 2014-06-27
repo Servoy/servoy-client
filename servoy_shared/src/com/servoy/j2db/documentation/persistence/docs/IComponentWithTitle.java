@@ -23,7 +23,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * Design time properties for components with Title text on mobile (for documentation - dummy interface).
  * @author acostescu
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IComponentWithTitle
 {
 

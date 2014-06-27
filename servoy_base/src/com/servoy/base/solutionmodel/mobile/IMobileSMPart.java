@@ -37,7 +37,7 @@ public interface IMobileSMPart extends IBaseSMPart
 	 * @sample
 	 * var stickyHeader = form.newPart(JSPart.STICKY_HEADER);
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public static final int STICKY_HEADER = TITLE_HEADER;
 
 
@@ -49,7 +49,7 @@ public interface IMobileSMPart extends IBaseSMPart
 	 * @sample
 	 * var stickyHeader = form.newPart(JSPart.STICKY_FOOTER);
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public static final int STICKY_FOOTER = TITLE_FOOTER;
 
 }

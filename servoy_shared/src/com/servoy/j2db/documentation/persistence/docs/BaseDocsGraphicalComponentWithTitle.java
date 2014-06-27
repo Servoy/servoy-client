@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+
 
 /**
  * Dummy class for use in the documentation generator.
@@ -38,11 +40,13 @@ public class BaseDocsGraphicalComponentWithTitle extends BaseDocsGraphicalCompon
 	{
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getTitleDisplaysTags()
 	{
 		return false;
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setTitleDisplaysTags(boolean arg)
 	{
 	}

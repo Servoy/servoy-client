@@ -2516,7 +2516,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @throws ServoyException
 		 */
-		@ServoyClientSupport(ng = false)
+		@ServoyClientSupport(ng = false, wc = true, sc = true)
 		public void js_show(JSWindow window) throws ServoyException
 		{
 			checkDestroyed();
