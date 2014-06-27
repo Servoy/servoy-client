@@ -415,6 +415,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 				case Types.TIMESTAMP :
 				case 11 : //date?? fix for 'odbc-bridge' and 'inet driver'  
+					if (obj instanceof org.mozilla.javascript.NativeDate)
+					{
+						return new Timestamp(((java.util.Date)((org.mozilla.javascript.NativeDate)obj).unwrap()).getTime());
+					}
 					if (obj instanceof java.util.Date)
 					{
 						return new Timestamp(((java.util.Date)obj).getTime());
