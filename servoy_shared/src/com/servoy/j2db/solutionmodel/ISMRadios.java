@@ -31,9 +31,10 @@ public interface ISMRadios extends IMobileSMRadios, ISMField
 	 * @sameas {@link com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()} 
 	 */
 	@Override
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
 	public String getStyleClass();
 
 	@Override
+	@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
 	public void setStyleClass(String arg);
 }

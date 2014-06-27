@@ -20,6 +20,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
@@ -40,6 +41,7 @@ public class JSRadios extends JSField implements ISMRadios
 
 	@Override
 	@JSGetter
+	@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
 	public boolean getHorizontal()
 	{
 		return IMobileProperties.RADIO_STYLE_HORIZONTAL.equals(getBaseComponent(false).getCustomMobileProperty(IMobileProperties.RADIO_STYLE.propertyName));
@@ -47,6 +49,7 @@ public class JSRadios extends JSField implements ISMRadios
 
 	@Override
 	@JSSetter
+	@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
 	public void setHorizontal(boolean horizontal)
 	{
 		getBaseComponent(true).putCustomMobileProperty(IMobileProperties.RADIO_STYLE.propertyName, horizontal ? IMobileProperties.RADIO_STYLE_HORIZONTAL : null);

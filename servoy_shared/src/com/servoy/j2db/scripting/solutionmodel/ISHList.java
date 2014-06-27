@@ -68,15 +68,19 @@ public interface ISHList extends IBaseSHList
 	public void setSubtextDataProviderID(String subtextDataProviderID);
 
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getDataIconType();
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setDataIconType(String iconType);
 
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getDataIconDataProviderID();
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setDataIconDataProviderID(String dataIconDataProviderID);
 
 	@JSGetter

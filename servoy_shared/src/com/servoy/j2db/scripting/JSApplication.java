@@ -378,6 +378,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @deprecated As of release 5.0, replaced by JSEvent functionality; event object is received as parameter to event method.
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String js_getMethodTriggerElementName()
 	{
 		Object src = getTriggerNames().src;
@@ -392,6 +393,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @deprecated As of release 5.0, replaced by JSEvent functionality; event object is received as parameter to event method.
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String js_getMethodTriggerFormName()
 	{
 		return getTriggerNames().formName;
@@ -580,6 +582,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param originalStyleName Name of the style to override
 	 * @param newStyleName Name of the new style
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_overrideStyle(String originalStyleName, String newStyleName)
 	{
 		ComponentFactory.overrideStyle(originalStyleName, newStyleName);
@@ -966,6 +969,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param name Name of the toolbar
 	 * @param visible Visibility of the toolbar 
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public void js_setToolbarVisible(String name, boolean visible)
 	{
 		if (application instanceof ISmartClientApplication)
@@ -1223,6 +1227,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param text New status text
 	 * @param tooltip Status tooltip text 
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setStatusText(String text, String tooltip)
 	{
 		application.setStatusText(text != null ? text : "", tooltip);//$NON-NLS-1$
@@ -1235,6 +1240,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param text New status text
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setStatusText(String text)
 	{
 		js_setStatusText(text, null);
@@ -1786,6 +1792,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample application.beep();
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public void js_beep()
 	{
 		if (application instanceof ISmartClientApplication)
@@ -1801,6 +1808,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param url URL of the sound file
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_playSound(final String url)
 	{
 		application.getScheduledExecutor().execute(new Runnable()
@@ -1968,6 +1976,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param string New content of the clipboard
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public void js_setClipboardContent(Object string)
 	{
 		if (application instanceof ISmartClientApplication && string instanceof String)
@@ -1983,6 +1992,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return The string from the clipboard
 	 */
+	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public String js_getClipboardString()
 	{
 		if (application instanceof ISmartClientApplication)
@@ -2042,6 +2052,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample application.undo();
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_undo()
 	{
 		AbstractAction cmd = (AbstractAction)application.getCmdManager().getRegisteredAction("cmdundo"); //$NON-NLS-1$
@@ -2056,6 +2067,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample application.redo();
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_redo()
 	{
 		AbstractAction cmd = (AbstractAction)application.getCmdManager().getRegisteredAction("cmdredo"); //$NON-NLS-1$
@@ -2907,7 +2919,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.updateUI(500);
 	 * //continue doing things
 	 */
-	@ServoyClientSupport(mc = false, sc = true, wc = false)
+	@ServoyClientSupport(ng = false, mc = false, sc = true, wc = false)
 	public void js_updateUI()
 	{
 		js_updateUI(100);
@@ -2920,7 +2932,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @param milliseconds How long the update should take in milliseconds
 	 */
-	@ServoyClientSupport(mc = false, sc = true, wc = false)
+	@ServoyClientSupport(ng = false, mc = false, sc = true, wc = false)
 	public void js_updateUI(int milliseconds)
 	{
 		application.updateUI(milliseconds < 100 ? 100 : milliseconds);
@@ -3015,7 +3027,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Boolean (true) is the last print preview did print, (false) otherwise
 	 */
-	@ServoyClientSupport(ng = false)
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean js_isLastPrintPreviewPrinted()
 	{
 		return didLastPrintPreviewPrint;
@@ -3436,6 +3448,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.setErrorCapture(true);
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setErrorCapture(boolean cap)
 	{
 		isCapturingErrors = cap;

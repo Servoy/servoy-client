@@ -31,6 +31,7 @@ import javax.swing.border.TitledBorder;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
@@ -263,6 +264,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	}
 
 	@JSFunction
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public JSList newListForm(String formName, String dataSource, String textDataProviderID)
 	{
 		return null; // mobile only
@@ -270,6 +272,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	@Override
 	@JSFunction
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public JSList getListForm(String name)
 	{
 		return null; // mobile only
@@ -277,6 +280,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	@Override
 	@JSFunction
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public JSList[] getListForms()
 	{
 		return null; // mobile only

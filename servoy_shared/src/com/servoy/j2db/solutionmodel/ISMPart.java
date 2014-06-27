@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMPart;
 
 /**
@@ -41,6 +42,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	 * body.allowBreakAcrossPageBounds = true;
 	 * body.discardRemainderAfterBreak = true;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getAllowBreakAcrossPageBounds();
 
 	/**
@@ -63,6 +65,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	 * @sampleas getAllowBreakAcrossPageBounds()
 	 * @see #getAllowBreakAcrossPageBounds()
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getDiscardRemainderAfterBreak();
 
 	/**
@@ -95,6 +98,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.pageBreakAfterOccurrence = 2;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPageBreakAfterOccurrence();
 
 	/**
@@ -105,6 +109,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	 * leadingSubsummary.groupbyDataProviderIDs = 'my_table_text';
 	 * leadingSubsummary.pageBreakBefore = true;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getPageBreakBefore();
 
 	/**

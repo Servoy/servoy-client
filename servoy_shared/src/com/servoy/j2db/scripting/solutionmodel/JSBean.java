@@ -126,6 +126,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	@Override
 	@Deprecated
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPrintSliding()
 	{
 		return super.getPrintSliding();

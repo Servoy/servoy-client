@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 
 
@@ -88,6 +89,7 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	 * slidingLabel.background = 'gray';
 	 * forms['printForm'].controller.showPrintPreview();
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPrintSliding();
 
 	/**
@@ -158,8 +160,10 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	 * fieldAbove.background = '#FF0000';
 	 * fieldAbove.formIndex = 20;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getFormIndex();
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setFormIndex(int arg);
 
 	/**
@@ -174,6 +178,7 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	 * notPrintedField.printable = false; // This field won't show up in print preview and won't be printed.
 	 * forms['printForm'].controller.showPrintPreview()
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getPrintable();
 
 	public void setBackground(String arg);
@@ -184,12 +189,14 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 
 	public void setForeground(String arg);
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPrintSliding(int i);
 
 	public void setTransparent(boolean arg);
 
 	public void setAnchors(int arg);
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPrintable(boolean arg);
 
 }

@@ -27,7 +27,7 @@ import com.servoy.base.scripting.solutionhelper.IBaseSHInsetList;
  * Interface for mobile client inset list manipulation.
  * @author acostescu
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface ISHInsetList extends IBaseSHInsetList, ISHList
 {
 

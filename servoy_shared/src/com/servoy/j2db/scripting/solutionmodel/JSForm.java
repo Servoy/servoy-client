@@ -32,6 +32,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.PersistUtils;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
@@ -2825,12 +2826,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS) 
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getDefaultPageFormat()
 	{
 		return form.getDefaultPageFormat();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setDefaultPageFormat(String string)
 	{
 		checkModification();
@@ -3015,12 +3018,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPaperPrintScale()
 	{
 		return form.getPaperPrintScale();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPaperPrintScale(int arg)
 	{
 		checkModification();
@@ -3039,6 +3044,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getOnRender()
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String js_getRowBGColorCalculation()
 	{
 		return form.getRowBGColorCalculation();
@@ -3150,12 +3156,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getStyleName()
 	{
 		return form.getStyleName();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setStyleName(String arg)
 	{
 		checkModification();
@@ -3296,12 +3304,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * if (myForm.selectionMode == JSForm.SELECTION_MODE_MULTI) myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getSelectionMode()
 	{
 		return form.getSelectionMode();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setSelectionMode(int arg)
 	{
 		checkModification();
@@ -3546,6 +3556,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @deprecated  As of release 4.1, replaced by setOnDuplicateRecordCmd(JSMethod).
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setOnDuplicateRecordCmdMethod(Object functionOrInteger)
 	{
 		checkModification();
@@ -3780,6 +3791,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @deprecated As of release 4.1, replaced by setOnPrintPreviewCmd(JSMethod).
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setOnPrintPreviewCmdMethod(Object functionOrInteger)
 	{
 		checkModification();
@@ -3806,6 +3818,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @deprecated As of release 4.1, replaced by setOnRecordEditStart(JSMethod).
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setOnRecordEditStartMethod(Object functionOrInteger)
 	{
 		checkModification();
@@ -4037,6 +4050,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	}
 
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setRowBGColorCalculation(String arg)
 	{
 		checkModification();
@@ -4276,12 +4290,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.onDrop = form.newMethod('function onDrop(event) { application.output("onDrop intercepted from " + event.getSource()); }');
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnDrag()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDrag(ISMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, method);
@@ -4293,6 +4309,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnDragEnd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
@@ -4310,12 +4327,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnDragOver()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDragOver(ISMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, method);
@@ -4327,12 +4346,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnDrop()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDrop(ISMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, method);
@@ -4346,12 +4367,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.onElementFocusLost = form.newMethod('function onElementFocusLost(event) { application.output("onElementFocusLost intercepted from " + event.getSource()); }');
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnElementFocusGained()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID);
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnElementFocusGained(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, method);
@@ -4548,12 +4571,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.onPrintPreviewCmd = form.newMethod('function onPrintPreviewCmd(event) { application.output("onPrintPreviewCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnPrintPreviewCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnPrintPreviewCmd(ISMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, method);
@@ -4725,12 +4750,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnResize()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID);
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnResize(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, method);
@@ -4743,12 +4770,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnRender()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnRender(ISMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);

@@ -908,6 +908,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * 
 	 */
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String js_getRowBGColorCalculation()
 	{
 		return getBaseComponent(false).getRowBGColorCalculation();
@@ -1054,6 +1055,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	@Deprecated
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_setRowBGColorCalculation(String arg)
 	{
 		getBaseComponent(true).setRowBGColorCalculation(arg);

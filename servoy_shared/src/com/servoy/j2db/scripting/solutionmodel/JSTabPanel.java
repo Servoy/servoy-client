@@ -268,12 +268,14 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * tabPanel.scrollTabs = true;
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getScrollTabs()
 	{
 		return getBaseComponent(false).getScrollTabs();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setScrollTabs(boolean arg)
 	{
 		getBaseComponent(true).setScrollTabs(arg);

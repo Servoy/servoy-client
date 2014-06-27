@@ -21,6 +21,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.PersistUtils;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.mobile.IMobileSMPart;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Part;
@@ -61,12 +62,14 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 * body.discardRemainderAfterBreak = true;
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getAllowBreakAcrossPageBounds()
 	{
 		return getBaseComponent(false).getAllowBreakAcrossPageBounds();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setAllowBreakAcrossPageBounds(boolean b)
 	{
 		getBaseComponent(true).setAllowBreakAcrossPageBounds(b);
@@ -154,12 +157,14 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 * body.pageBreakAfterOccurrence = 2;
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPageBreakAfterOccurrence()
 	{
 		return getBaseComponent(false).getPageBreakAfterOccurrence();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPageBreakAfterOccurrence(int i)
 	{
 		getBaseComponent(true).setPageBreakAfterOccurrence(i);
@@ -174,12 +179,14 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 * leadingSubsummary.pageBreakBefore = true;
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getPageBreakBefore()
 	{
 		return getBaseComponent(false).getPageBreakBefore();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPageBreakBefore(boolean b)
 	{
 		getBaseComponent(true).setPageBreakBefore(b);
@@ -221,12 +228,14 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 * trailingSubsummary.restartPageNumber = true;
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getRestartPageNumber()
 	{
 		return getBaseComponent(false).getRestartPageNumber();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setRestartPageNumber(boolean b)
 	{
 		getBaseComponent(true).setRestartPageNumber(b);

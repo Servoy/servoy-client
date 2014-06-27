@@ -24,6 +24,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -277,12 +278,14 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * fieldAbove.formIndex = 20;
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getFormIndex()
 	{
 		return getBaseComponent(false).getFormIndex();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setFormIndex(int arg)
 	{
 		getBaseComponent(true).setFormIndex(arg);
@@ -354,12 +357,14 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * forms['printForm'].controller.showPrintPreview()
 	 */
 	@JSGetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getPrintable()
 	{
 		return getBaseComponent(false).getPrintable();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPrintable(boolean arg)
 	{
 		getBaseComponent(true).setPrintable(arg);

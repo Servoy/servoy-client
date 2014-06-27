@@ -1516,6 +1516,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 	form.paperPrintScale = 100;
 	 * 
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPaperPrintScale();
 
 	/**
@@ -1569,6 +1570,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 	application.output("The name of the Servoy style that is being used on the form is " + aForm.styleName); 
 	 * 
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getStyleName();
 
 	/**
@@ -1620,6 +1622,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var myForm = solutionModel.getForm('my_form_name');
 	 * if (myForm.selectionMode == JSForm.SELECTION_MODE_MULTI) myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getSelectionMode();
 
 	/**
@@ -1671,6 +1674,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	public void setNavigator(Object navigator);
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPaperPrintScale(int arg);
 
 	public void setScrollbars(int i);
@@ -1679,6 +1683,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	public void setStyleClass(String arg);
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setStyleName(String arg);
 
 	public void setTitleText(String string);
@@ -1688,6 +1693,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	/**
 	 * @since 6.1
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setSelectionMode(int arg);
 
 	public void setNamedFoundSet(Object arg);
@@ -1752,6 +1758,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * form.onElementFocusGained = form.newMethod('function onElementFocusGained(event) { application.output("onElementFocusGained intercepted from " + event.getSource()); }');
 	 * form.onElementFocusLost = form.newMethod('function onElementFocusLost(event) { application.output("onElementFocusLost intercepted from " + event.getSource()); }');
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnElementFocusGained();
 
 	/**
@@ -1859,6 +1866,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sample
 	 * form.onPrintPreviewCmd = form.newMethod('function onPrintPreviewCmd(event) { application.output("onPrintPreviewCmd intercepted on " + event.getFormName()); }');
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnPrintPreviewCmd();
 
 	/**
@@ -1954,6 +1962,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sample
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnResize();
 
 	/**
@@ -1990,6 +1999,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	public void setOnPreviousRecordCmd(ISMMethod method);
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnPrintPreviewCmd(ISMMethod method);
 
 	public void setOnSearchCmd(ISMMethod method);
@@ -2020,6 +2030,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	public void setOnUnLoad(IBaseSMMethod method);
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnResize(IBaseSMMethod method);
 
 	/**
