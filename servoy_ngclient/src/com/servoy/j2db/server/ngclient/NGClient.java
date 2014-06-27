@@ -877,4 +877,5 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 		return null;
 	}
+
 }

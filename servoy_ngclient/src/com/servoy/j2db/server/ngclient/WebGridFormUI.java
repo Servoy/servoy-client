@@ -469,7 +469,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 		return nextAvailableTabSequence;
 	}
 
-	private static class RowData implements JSONWritable
+	public static class RowData implements JSONWritable
 	{
 		public static final int CHANGE = 0;
 		public static final int INSERT = 1;

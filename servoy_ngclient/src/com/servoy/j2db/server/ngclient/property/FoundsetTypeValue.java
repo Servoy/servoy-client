@@ -20,8 +20,12 @@ package com.servoy.j2db.server.ngclient.property;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,14 +38,14 @@ import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.j2db.dataprocessing.FoundSetEvent;
-import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
@@ -55,6 +59,8 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 {
 
 	// START keys and values used in JSON
+	public static final String UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
+
 	public static final String SERVER_SIZE = "serverSize";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	public static final String MULTI_SELECT = "multiSelect";
@@ -62,19 +68,22 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	public static final String START_INDEX = "startIndex";
 	public static final String SIZE = "size";
 	public static final String ROWS = "rows";
+	public static final String NO_OP = "noOP";
+
 	public static final String CONVERSIONS = "conversions";
 	// END keys and values used in JSON
 
-	protected FoundsetTypeViewport viewPort = new FoundsetTypeViewport();
+	protected FoundsetTypeViewport viewPort;
 	protected IFoundSetInternal foundset;
 	protected final Object designJSONValue;
 	protected WebFormComponent component;
-	protected IChangeListener changeMonitor;
 	protected Set<String> dataProviders = new HashSet<>();
 	protected String foundsetSelector;
-	protected IFoundSetEventListener foundsetEventListener;
 	protected IDataAdapterList dataAdapterList;
 	protected String propertyName;
+
+	protected FoundsetTypeChangeMonitor changeMonitor;
+	protected ListSelectionListener listSelectionListener;
 
 	public FoundsetTypeValue(Object designJSONValue, Object config)
 	{
@@ -87,13 +96,15 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	{
 		// nothing to do here; foundset is not initialized until it's attached to a component
 		this.propertyName = propertyName;
+		changeMonitor = new FoundsetTypeChangeMonitor(this);
+		viewPort = new FoundsetTypeViewport(changeMonitor);
 	}
 
 	@Override
-	public void attachToComponent(IChangeListener changeMonitor, WebComponent component)
+	public void attachToComponent(IChangeListener changeNotifier, WebComponent component)
 	{
 		this.component = (WebFormComponent)component;
-		this.changeMonitor = changeMonitor;
+		changeMonitor.setChangeNotifier(changeNotifier);
 
 		// get the foundset identifier, then the foundset itself
 //		foundset: {
@@ -171,92 +182,34 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 		if (newFoundset != foundset)
 		{
-			if (foundset != null) foundset.removeFoundSetEventListener(getFoundsetEventListener());
+			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 			foundset = newFoundset;
-			if (newFoundset != null) newFoundset.addFoundSetEventListener(getFoundsetEventListener());
-			changeMonitor.valueChanged(); // TODO this is a bit doubled here - return value changed + change monitor; can we drop one?
+			viewPort.setFoundset(foundset);
+			changeMonitor.newFoundsetInstance();
+			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
+
 			return true;
 		}
 		return false;
 	}
 
-	protected IFoundSetEventListener getFoundsetEventListener()
+	protected ListSelectionListener getListSelectionListener()
 	{
-		if (foundsetEventListener == null)
+		if (listSelectionListener == null)
 		{
-			foundsetEventListener = new IFoundSetEventListener()
+			listSelectionListener = new ListSelectionListener()
 			{
 				@Override
-				public void foundSetChanged(FoundSetEvent e)
+				public void valueChanged(ListSelectionEvent e)
 				{
-					// TODO ac Auto-generated method stub
-//					if (allChanged) return;
-//					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE || event.getType() == FoundSetEvent.FOUNDSET_INVALIDATED)
-//					{
-//						// fully changed push everything
-//						setAllChanged();
-//					}
-//					else if (event.getType() == FoundSetEvent.CONTENTS_CHANGED)
-//					{
-//						// partial change only push the changes.
-//						if (event.getChangeType() == FoundSetEvent.CHANGE_DELETE)
-//						{
-//							int startIdx = (currentPage - 1) * getPageSize();
-//							int endIdx = currentPage * getPageSize();
-//							if ((startIdx <= event.getFirstRow() && event.getFirstRow() < endIdx) ||
-//								(startIdx <= event.getLastRow() && event.getLastRow() < endIdx))
-//							{
-//								// delete already happened so foundset size is changed
-//
-//								// first row to be deleted inside current page
-//								int startRow = Math.max(startIdx, event.getFirstRow());
-//								// number of deletes from current page
-//								int numberOfDeletes = Math.min(event.getLastRow() + 1, endIdx) - startRow;
-//
-//								// we need to replace same amount of records in current page; append rows if available
-//								RowData data = getRows(Math.max(event.getLastRow() + 1, endIdx), Math.max(event.getLastRow() + 1, endIdx) + numberOfDeletes);
-//
-//								rowChanges.add(new RowData(data.rows, startRow - startIdx, startRow + numberOfDeletes - startIdx, RowData.DELETE));
-//							}
-//						}
-//						else if (event.getChangeType() == FoundSetEvent.CHANGE_INSERT)
-//						{
-//							int startIdx = (currentPage - 1) * getPageSize();
-//							int endIdx = currentPage * getPageSize();
-//							if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
-//							if ((startIdx <= event.getFirstRow() && event.getFirstRow() < endIdx) ||
-//								(startIdx <= event.getLastRow() && event.getLastRow() < endIdx))
-//							{
-//								int startRow = Math.max(startIdx, event.getFirstRow());
-//								// number of inserts from current page
-//								int numberOfInserts = Math.min(event.getLastRow() + 1, endIdx) - startRow;
-//
-//								// add records that fit current page
-//								RowData rows = getRows(startRow, startRow + numberOfInserts);
-//								rows.setType(RowData.INSERT);
-//								rowChanges.add(rows);
-//							}
-//						}
-//						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
-//						{
-//							if (currentFoundset != null && event.getFirstRow() == 0 && event.getLastRow() == currentFoundset.getSize() - 1)
-//							{
-//								// if all the rows were changed, do not add to rows as it could add same thing multiple times
-//								allChanged = true;
-//							}
-//							// get the rows that are changed.
-//							RowData rows = getRows(event.getFirstRow(), event.getLastRow() + 1);
-//							if (rows != RowData.EMPTY)
-//							{
-//								rowChanges.add(rows);
-//							}
-//						}
-//					}
-//					getApplication().getChangeListener().valueChanged();
+					if (!e.getValueIsAdjusting())
+					{
+						changeMonitor.selectionChanged();
+					}
 				}
 			};
 		}
-		return foundsetEventListener;
+		return listSelectionListener;
 	}
 
 	@Override
@@ -268,7 +221,8 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	@Override
 	public void detach()
 	{
-		if (foundset != null) foundset.removeFoundSetEventListener(getFoundsetEventListener());
+		viewPort.dispose();
+		if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 	}
 
 	@Override
@@ -279,21 +233,24 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 		destinationJSON.object();
 		destinationJSON.key(SERVER_SIZE).value(foundset != null ? foundset.getSize() : 0);
-		destinationJSON.key(SELECTED_ROW_INDEXES).array();
-		if (foundset != null)
-		{
-			for (int idx : foundset.getSelectedIndexes())
-			{
-				destinationJSON.value(idx);
-			}
-		}
-		destinationJSON.endArray();
-		destinationJSON.key(MULTI_SELECT).value(foundset != null ? foundset.isMultiSelect() : false);
+		destinationJSON.key(SELECTED_ROW_INDEXES);
+		addSelectedIndexes(destinationJSON);
+		destinationJSON.key(MULTI_SELECT).value(foundset != null ? foundset.isMultiSelect() : false); // TODO listener and granular changes for this as well?
 
 		// viewPort
-		destinationJSON.key(VIEW_PORT).object();
-		correctViewportBoundsIfNeeded();
-		destinationJSON.key(START_INDEX).value(viewPort.startIndex).key(SIZE).value(viewPort.size);
+		destinationJSON.key(VIEW_PORT);
+		addViewPort(destinationJSON);
+		// end viewPort
+
+		destinationJSON.endObject();
+		changeMonitor.clearChanges();
+		return destinationJSON;
+	}
+
+	protected void addViewPort(JSONWriter destinationJSON) throws JSONException
+	{
+		destinationJSON.object();
+		addViewPortBounds(destinationJSON);
 //		rows: [
 //	         	{ _svyRowId: 'someRowIdHASH1', nameColumn: "Bubu" },
 //	         	{ _svyRowId: 'someRowIdHASH2', nameColumn: "Yogy" },
@@ -307,21 +264,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 			for (int i = viewPort.startIndex + viewPort.size - 1; i >= viewPort.startIndex; i--)
 			{
-				rowsArray[i - viewPort.startIndex] = new HashMap<>();
-				// write viewport row contents
-				IRecordInternal record = foundset.getRecord(i);
-				rowsArray[i - viewPort.startIndex].put("_svyRowId", record.getPKHashKey() + "_" + i); // TODO do we really need the "i"?
-
-				Iterator<String> it = dataProviders.iterator();
-				while (it.hasNext())
-				{
-					String dataProvider = it.next();
-
-					// TODO currently we also send globals/form variables through foundset; in the future it should be enough to get it from the record only, not through DataAdapterList.getValueObject!
-					Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, getFormUI().getController().getFormScope(),
-						dataProvider);
-					rowsArray[i - viewPort.startIndex].put(dataProvider, value);
-				}
+				rowsArray[i - viewPort.startIndex] = getRowData(i);
 			}
 
 			// convert for websocket traffic (for example Date objects will turn into long)
@@ -333,20 +276,114 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 			destinationJSON.key(ROWS).array().endArray();
 		}
 		destinationJSON.endObject();
-		// end viewPort
+	}
 
-		destinationJSON.endObject();
-		return destinationJSON;
+	/**
+	 * Dumps selected indexes to JSON.
+	 */
+	protected void addSelectedIndexes(JSONWriter destinationJSON) throws JSONException
+	{
+		destinationJSON.array();
+		if (foundset != null)
+		{
+			for (int idx : foundset.getSelectedIndexes())
+			{
+				destinationJSON.value(idx);
+			}
+		}
+		destinationJSON.endArray();
+	}
+
+	protected void addViewPortBounds(JSONWriter destinationJSON) throws JSONException
+	{
+		destinationJSON.key(START_INDEX).value(viewPort.startIndex).key(SIZE).value(viewPort.size);
+
 	}
 
 	@Override
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
-		// TODO ac Auto-generated method stub
-//		if (changed)
-		return toJSON(destinationJSON, conversionMarkers);
-//		else destinationJSON.value(null);
-//		return destinationJSON;
+		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers);
+		else
+		{
+			if (conversionMarkers != null) conversionMarkers.convert(FoundsetTypeImpl.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+
+			boolean somethingChanged = false;
+			destinationJSON.object();
+			// change monitor already takes care not to report duplicates here (like whole viewport + viewport bounds)
+			if (changeMonitor.shouldSendFoundsetSize())
+			{
+				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(foundset != null ? foundset.getSize() : 0);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendSelectedIndexes())
+			{
+				destinationJSON.key(UPDATE_PREFIX + SELECTED_ROW_INDEXES);
+				addSelectedIndexes(destinationJSON);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendViewPortBounds())
+			{
+				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
+				addViewPortBounds(destinationJSON);
+				destinationJSON.endObject();
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendWholeViewPort())
+			{
+				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT);
+				addViewPort(destinationJSON);
+				somethingChanged = true;
+			}
+			List<RowData> viewPortChanges = changeMonitor.getViewPortChanges();
+			if (viewPortChanges.size() > 0)
+			{
+				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
+				Map<String, Object> changes = new HashMap<>();
+				Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
+				changes.put(UPDATE_PREFIX + ROWS, changesArray);
+
+				for (int i = viewPortChanges.size() - 1; i >= 0; i--)
+				{
+					changesArray[i] = viewPortChanges.get(i).toMap();
+				}
+
+				// convert for websocket traffic (for example Date objects will turn into long)
+				JSONUtils.writeDataWithConversions(destinationJSON, changes,
+					getFormUI().getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(), ConversionLocation.BROWSER_UPDATE);
+				destinationJSON.endObject();
+				somethingChanged = true;
+			}
+
+			if (!somethingChanged)
+			{
+				// no change yet we are still asked to send changes; we could send all or just nothing useful
+				destinationJSON.key(NO_OP).value(0);
+			}
+
+			destinationJSON.endObject();
+			changeMonitor.clearChanges();
+			return destinationJSON;
+		}
+	}
+
+	protected Map<String, Object> getRowData(int foundsetIndex)
+	{
+		Map<String, Object> data = new HashMap<>();
+		// write viewport row contents
+		IRecordInternal record = foundset.getRecord(foundsetIndex);
+		data.put("_svyRowId", record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
+
+		Iterator<String> it = dataProviders.iterator();
+		while (it.hasNext())
+		{
+			String dataProvider = it.next();
+
+			// TODO currently we also send globals/form variables through foundset; in the future it should be enough to get it from the record only, not through DataAdapterList.getValueObject!
+			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, getFormUI().getController().getFormScope(), dataProvider);
+			data.put(dataProvider, value);
+		}
+		return data;
 	}
 
 	@Override
@@ -375,36 +412,13 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 				if (update.has("newViewPort"))
 				{
 					JSONObject newViewport = update.getJSONObject("newViewPort");
-					int oldStartIndex = viewPort.startIndex;
-					int oldSize = viewPort.size;
-					viewPort.startIndex = newViewport.getInt(START_INDEX);
-					viewPort.size = newViewport.getInt(SIZE);
-					correctViewportBoundsIfNeeded();
-					if (oldStartIndex != viewPort.startIndex || oldSize != viewPort.size) changeMonitor.valueChanged();
+					viewPort.setBounds(newViewport.getInt(START_INDEX), newViewport.getInt(SIZE));
 				}
 			}
 		}
 		catch (JSONException e)
 		{
 			Debug.error("Error when getting browser updates for property (" + this.toString() + ")", e);
-		}
-	}
-
-	/**
-	 * If client requested invalid bounds or due to foundset changes the previous bounds
-	 * are no longer valid, correct them.
-	 */
-	protected void correctViewportBoundsIfNeeded()
-	{
-		if (foundset != null)
-		{
-			viewPort.startIndex = Math.max(0, Math.min(viewPort.startIndex, foundset.getSize() - 1));
-			viewPort.size = Math.max(0, Math.min(viewPort.size, foundset.getSize() - viewPort.startIndex));
-		}
-		else
-		{
-			viewPort.startIndex = 0;
-			viewPort.size = 0;
 		}
 	}
 
@@ -433,9 +447,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	 */
 	public void includeDataProviders(Set<String> dataProvidersToSend)
 	{
-		dataProviders.addAll(dataProvidersToSend);
-
-		if (changeMonitor != null && dataProvidersToSend.size() > 0) changeMonitor.valueChanged();
+		if (dataProviders.addAll(dataProvidersToSend)) changeMonitor.dataProvidersChanged();
 	}
 
 	@Override

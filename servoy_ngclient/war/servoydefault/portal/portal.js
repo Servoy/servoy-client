@@ -165,15 +165,16 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  
     	  // startIndex can change serverSize if a record was deleted from before it; server viewport follows first record, not first index
     	  $scope.$watch('model.relatedFoundset.viewPort.startIndex', function(newVal, oldVal) {
-    		  // TODO ac if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
-    		  
-        	  
+    		  // if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
+    		  $scope.pagingOptions.currentPage = foundset.viewPort.startIndex / $scope.pagingOptions.pageSize + 1;
     	  });
 
     	  // size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
     	  $scope.$watch('model.relatedFoundset.viewPort.size', function(newVal, oldVal) {
-    		  // TODO ac if it was at the end of the foundset, less records available then $scope.pagingOptions.pageSize and new records appeared see if we need to get more
-        	  
+    		  if (newVal < $scope.pagingOptions.pageSize && foundset.viewPort.startIndex + newVal < foundset.serverSize && $scope.pagingOptions.pageSize > 0) {
+    			  // for example when the for record changed, resulting in a related foundset change, viewPort will have to be requested again starting from 0 (it is set serverside to 0 - 0 as server doesn't know what we now need)
+    			  $scope.model.relatedFoundset.loadRecordsAsync(0, Math.min(foundset.serverSize - foundset.viewPort.startIndex, $scope.pagingOptions.pageSize));
+    		  }
     	  });
 
     	  $scope.$watch('model.relatedFoundset.serverSize', function(newVal, oldVal) {
@@ -371,18 +372,26 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  $scope.$watchCollection(function() { return selectedItemsProxy; }, updateFoundsetSelectionFromGrid);
     	  $scope.$watchCollection('model.relatedFoundset.selectedRowIndexes', function(newFSSelectedItems) {
 			  // update ngGrid selection when it changes in foundset
+    		  var changed = false;
     		  var tmpSelectedRowIdxs = {};
 			  for (var rowIdxInSelected = 0; rowIdxInSelected < selectedItemsProxy.length; rowIdxInSelected++) {
 				  var absRowIdx = rowIdToAbsoluteRowIndex(selectedItemsProxy[rowIdxInSelected][ROW_ID_COL_KEY]);
-				  if (newFSSelectedItems.indexOf(absRowIdx) < 0) selectedItemsProxy.splice(rowIdxInSelected, 1);
+				  if (newFSSelectedItems.indexOf(absRowIdx) < 0) {
+					  $scope.gridOptions.selectItem(rowIdxInSelected, false); // it seems nggrid doesn't really watch the selection array so we have to do this manually
+					  selectedItemsProxy.splice(rowIdxInSelected, 1);
+					  changed = true;
+				  }
 				  tmpSelectedRowIdxs['_' + absRowIdx] = true;
 			  }
 			  for (var rowIdxInSelected = 0; rowIdxInSelected < newFSSelectedItems.length; rowIdxInSelected++) {
 				  var rowIdx = newFSSelectedItems[rowIdxInSelected];
 				  if (isInViewPort(rowIdx) && !tmpSelectedRowIdxs['_' + rowIdx]) {
+//					  $scope.gridOptions.selectItem(...); // it seems nggrid doesn't really watch the selection array so we have to do this manually
 	    			  selectedItemsProxy.push(foundset.viewPort.rows[absoluteToViewPort(rowIdx)]);
+	    			  changed = true;
 				  }
 			  }
+			  if (changed) $scope.gridOptions.$gridScope.selectedItems = newValue;
 			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 		  });
 
@@ -399,6 +408,10 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  primaryKey: ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
     			  columnDefs: columnDefinitions
     	  };
+    	  $scope.$watch(function () { return getPageCount() > 1; }, function (newValue) {
+    		  $scope.gridOptions.$gridScope.showFooter = newValue;
+    		  $scope.gridOptions.$gridScope.enablePaging = newValue;
+    	  });
     	  
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
     		  return function() {

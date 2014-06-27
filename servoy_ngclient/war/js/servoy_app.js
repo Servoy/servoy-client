@@ -64,7 +64,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				if (newConversionInfo && newConversionInfo[key]) {
 					currentConversionInfo[key] = newConversionInfo[key];
 					if (beanModel[key] !== beanData[key] && beanData[key] && beanData[key].setChangeNotifier) beanData[key].setChangeNotifier(function() {
-	           			var currentModel = formStates[formName][beanName];
+	           			var currentModel = formStates[formName].model[beanName];
 	           			sendChanges(currentModel, currentModel, formName, beanName);
 	           		});
 				}
@@ -152,57 +152,60 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   var wsSession = $webSocket.connect('client', webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
 	   wsSession.onMessageObject = function (msg, conversionInfo) {
 		   try {
-	        // data got back from the server
-	        if (msg.forms) {
-		        ignoreChanges = true;
-	        	$rootScope.$apply(function() {
-		          for(var formname in msg.forms) {
-		        	// current model
-		            var formState = formStates[formname];
-		            // if the formState is on the server but not here anymore, skip it. 
-		            // this can happen with a refresh on the browser.
-		            if (!formState) continue;
-		            var formModel = formState.model;
-		            var layout = formState.layout;
-		            var newFormData = msg.forms[formname];
-		            var newFormProperties = newFormData['']; // f form properties
-		            var newFormConversionInfo = (conversionInfo && conversionInfo.forms && conversionInfo.forms[formname]) ? conversionInfo.forms[formname] : undefined;
+			   // data got back from the server
+			   if (msg.forms) {
+				   $rootScope.$apply(function() {
+					   ignoreChanges = true;
+					   try {
+						   for(var formname in msg.forms) {
+							   // current model
+							   var formState = formStates[formname];
+							   // if the formState is on the server but not here anymore, skip it. 
+							   // this can happen with a refresh on the browser.
+							   if (!formState) continue;
+							   var formModel = formState.model;
+							   var layout = formState.layout;
+							   var newFormData = msg.forms[formname];
+							   var newFormProperties = newFormData['']; // f form properties
+							   var newFormConversionInfo = (conversionInfo && conversionInfo.forms && conversionInfo.forms[formname]) ? conversionInfo.forms[formname] : undefined;
 
-		            if(newFormProperties) {
-		            	if (newFormConversionInfo && newFormConversionInfo['']) $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
-		            	if (!formModel['']) formModel[''] = {};
-		            	for(var p in newFormProperties) {
-		            		formModel[''][p] = newFormProperties[p]; 
-		    			} 
-		            }
+							   if(newFormProperties) {
+								   if (newFormConversionInfo && newFormConversionInfo['']) $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
+								   if (!formModel['']) formModel[''] = {};
+								   for(var p in newFormProperties) {
+									   formModel[''][p] = newFormProperties[p]; 
+								   } 
+							   }
 
-		            for(var beanname in newFormData) {
-		            	// copy over the changes, skip for form properties (beanname empty)
-		            	if(beanname != ''){
-			            	if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined))
-		            		{	
-		            		    //size or location were changed at runtime, we need to update components with anchors
-		            			newFormData[beanname].anchors = formModel[beanname].anchors;
-		            		}
-			            	
-		            		applyBeanData(formname, beanname, formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize, newFormConversionInfo ? newFormConversionInfo[beanname] : undefined);
-		            		for (var defProperty in deferredProperties) {
-		            			for(var key in newFormData[beanname]) {
-		            				if (defProperty == (formname + "_" + beanname + "_" + key)) {
-		            					deferredProperties[defProperty].resolve(newFormData[beanname][key]);
-			            				delete deferredProperties[defProperty];
-		            				}
-		            			}
-		            		} 
-		            	}
-		            }
-		            if(deferredformStates[formname]){
-			          deferredformStates[formname].resolve(formStates[formname])
-			          delete deferredformStates[formname]
-		            }
-		          }
-	        	});
-		        ignoreChanges = false;
+							   for(var beanname in newFormData) {
+								   // copy over the changes, skip for form properties (beanname empty)
+								   if(beanname != ''){
+									   if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined))
+									   {	
+										   //size or location were changed at runtime, we need to update components with anchors
+										   newFormData[beanname].anchors = formModel[beanname].anchors;
+									   }
+
+									   applyBeanData(formname, beanname, formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize, newFormConversionInfo ? newFormConversionInfo[beanname] : undefined);
+									   for (var defProperty in deferredProperties) {
+										   for(var key in newFormData[beanname]) {
+											   if (defProperty == (formname + "_" + beanname + "_" + key)) {
+												   deferredProperties[defProperty].resolve(newFormData[beanname][key]);
+												   delete deferredProperties[defProperty];
+											   }
+										   }
+									   } 
+								   }
+							   }
+							   if(deferredformStates[formname]){
+								   deferredformStates[formname].resolve(formStates[formname])
+								   delete deferredformStates[formname]
+							   }
+						   }
+					   } finally {
+						   ignoreChanges = false;
+					   }
+				   });
 	        }
 	        
          	if (conversionInfo && conversionInfo.call) $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call);

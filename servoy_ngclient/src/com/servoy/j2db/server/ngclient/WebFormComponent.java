@@ -166,7 +166,9 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 				public void valueChanged()
 				{
 					flagPropertyChanged(complexPropertyRoot);
-					((IWebFormUI)getParent()).valueChanged();
+					// this must have happened on the event thread, in which case, after each event is fired, a check for changes happen
+					// if it didn't happen on the event thread something is really wrong, cause then properties might change while
+					// they are being read at the same time by the event thread
 				}
 			}, this);
 		}
@@ -382,6 +384,16 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 			if (x instanceof IServoyAwarePropertyValue) changed = ((IServoyAwarePropertyValue)x).pushRecord(record) || changed;
 		}
 		return changed;
+	}
+
+	@Override
+	public void dispose()
+	{
+		for (Object p : getProperties().values())
+		{
+			if (p instanceof IComplexPropertyValue) ((IComplexPropertyValue)p).detach(); // clear any listeners/held resources
+		}
+		super.dispose();
 	}
 
 }

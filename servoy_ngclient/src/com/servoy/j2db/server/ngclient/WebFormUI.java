@@ -482,6 +482,10 @@ public class WebFormUI extends Container implements IWebFormUI
 	@Override
 	public void destroy()
 	{
+		for (WebComponent c : components.values())
+		{
+			c.dispose();
+		}
 		components.clear();
 	}
 
