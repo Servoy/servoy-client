@@ -666,6 +666,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			    		$window.open(url,target,targetOptions)
 			    	},timeout*1000)	    	
 		},
+		setStatusText:function(text){
+			$window.status = text;  	
+		},
 		getScreenSize:function() {
 			  if ($window.screen) {
 				  return{width: $window.screen.width, height: $window.screen.height, orientation:$window.orientation};

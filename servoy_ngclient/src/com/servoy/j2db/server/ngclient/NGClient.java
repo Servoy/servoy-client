@@ -704,6 +704,12 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
+	public void setStatusText(String text, String tooltip)
+	{
+		this.getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStatusText", new Object[] { text });
+	}
+
+	@Override
 	public NGRuntimeWindowManager getRuntimeWindowManager()
 	{
 		if (runtimeWindowManager == null)
