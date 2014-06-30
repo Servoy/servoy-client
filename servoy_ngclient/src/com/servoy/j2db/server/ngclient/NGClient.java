@@ -111,16 +111,18 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		IExecutingEnviroment scriptEngine = super.createScriptEngine();
 		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getWebServiceSpecifications();
 		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
+		scope.setLocked(false);
 		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
 		{
 			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification));
 		}
+		scope.setLocked(true);
 		return scriptEngine;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
 	 */
 	@Override
@@ -132,7 +134,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
 	 */
 	@Override
@@ -306,7 +308,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
