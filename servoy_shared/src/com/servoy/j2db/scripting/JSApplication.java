@@ -1221,13 +1221,15 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Set the status area value.
-	 *
+	 * 
+	 * NOTE: Most modern browsers do not support status bar and status text anymore. This method sets status property of the window using javascript.
+	 * 
 	 * @sample application.setStatusText('Your status text','Your status tooltip text');
 	 *
 	 * @param text New status text
 	 * @param tooltip Status tooltip text 
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public void js_setStatusText(String text, String tooltip)
 	{
 		application.setStatusText(text != null ? text : "", tooltip);//$NON-NLS-1$
@@ -1240,7 +1242,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param text New status text
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public void js_setStatusText(String text)
 	{
 		js_setStatusText(text, null);
