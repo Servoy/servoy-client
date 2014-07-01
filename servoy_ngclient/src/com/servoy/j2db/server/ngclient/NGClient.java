@@ -122,7 +122,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
 	 */
 	@Override
@@ -134,7 +134,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
 	 */
 	@Override
@@ -308,7 +308,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -752,6 +752,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		try
 		{
 			registered = super.registerClient(uc);
+			ApplicationServerRegistry.get().setServerProcess(getClientID());
 			if (!registered)
 			{
 				((NGClientWebsocketSession)wsSession).setClient(this);
