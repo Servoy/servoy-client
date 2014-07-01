@@ -1642,7 +1642,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			else if (!r.isUsableInSort())
 			{
-				reason = "relation '" + split[i] + "' not usable in sort";
+				if (!r.isValid()) reason = "relation '" + split[i] + "' not valid";
+				else if (r.isMultiServer()) reason = "relation '" + split[i] + "' is cross server, sorting is not supported";
+				else if (r.isGlobal()) reason = "relation '" + split[i] + "' is global, sorting is not supported";
+				else reason = "relation '" + split[i] + "' not usable in sort";
 			}
 			else if (!lastTable.equals(getTable(r.getPrimaryDataSource())))
 			{
