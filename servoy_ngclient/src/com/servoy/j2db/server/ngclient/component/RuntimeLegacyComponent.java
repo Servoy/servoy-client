@@ -126,6 +126,12 @@ public class RuntimeLegacyComponent implements Scriptable
 
 		if (!isLegacyProperty(name)) return Scriptable.NOT_FOUND;
 
+		if (component.isDesignOnlyProperty(name))
+		{
+			// cannot get design only properties
+			return Scriptable.NOT_FOUND;
+		}
+
 		Object value = convertValue(name, component.getConvertedPropertyWithDefault(convertName(name),
 			StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name), !needsValueConversion(name)));
 
@@ -187,9 +193,15 @@ public class RuntimeLegacyComponent implements Scriptable
 				value = !((Boolean)value).booleanValue();
 			}
 		}
+		name = convertName(name);
+		if (component.isDesignOnlyProperty(name))
+		{
+			// cannot set design only properties
+			return;
+		}
 		// TODO the value should be converted right here to the right java value the component expects
 		// so the string representation of Color should be converted to a Color object.
-		component.setProperty(convertName(name), value, ConversionLocation.SERVER);
+		component.setProperty(name, value, ConversionLocation.SERVER);
 	}
 
 	@Override

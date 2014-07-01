@@ -54,7 +54,7 @@ public class RuntimeWebComponent implements Scriptable
 	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
 	{
 		this.component = component;
-		this.specProperties = webComponentSpec == null ? null : webComponentSpec.getAllPropertiesNames();
+		this.specProperties = new HashSet<String>();
 		this.apiFunctions = new HashMap<String, WebComponentFunction>();
 		this.dataProviderProperties = new HashSet<>();
 		this.complexProperties = new HashMap<>();
@@ -69,6 +69,12 @@ public class RuntimeWebComponent implements Scriptable
 			for (Entry<String, PropertyDescription> e : specs.entrySet())
 			{
 				IPropertyType< ? > type = e.getValue().getType();
+				if (!component.isDesignOnlyProperty(e.getKey()))
+				{
+					// design properties cannot be accessed at runtime
+					// all handlers are design properties, all api is runtime 
+					specProperties.add(e.getKey());
+				}
 				if (type == DataproviderPropertyType.INSTANCE)
 				{
 					dataProviderProperties.add(e.getKey());

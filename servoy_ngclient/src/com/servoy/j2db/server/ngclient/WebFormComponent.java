@@ -396,4 +396,15 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 		super.dispose();
 	}
 
+	public boolean isDesignOnlyProperty(String propertyName)
+	{
+		PropertyDescription description = specification.getProperty(propertyName);
+		if (description != null)
+		{
+			return "design".equals(description.getScope());
+		}
+		return false;
+	}
+
+
 }
