@@ -39,15 +39,14 @@ angular.module('svyCalendar',['servoy']).directive('svyCalendar', function(dateF
         	var hasDate = true;
         	var hasTime = false;
         	if(format && format.display){
+        		dateFormat = format.display;
             	if(format.display.match(/.*y.*/gi) != null){
                     //contains years
             		if( format.display.match(/.*H+.*m+.*/gi) != null){
-            			dateFormat = "YYYY-MM-DD hh:mm a"    //use angularjs date filter formats to convert it to the required browser format
                         hasDate = true;
                         hasTime = true;
                     }
             	} else if(format.display.match(/.*H+.*m+.*/gi) != null){
-            		dateFormat ='hh:mm a'
             		hasDate = false;
             		hasTime = true;
             	}

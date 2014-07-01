@@ -242,7 +242,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			}else if(type == "TEXT"){
 				return data;
 			}else if(type == "DATETIME"){
-				//unformatting is handled by calendar widget
+				// some compatibility issues, see http://momentjs.com/docs/ and http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+				servoyFormat = servoyFormat.replaceAll('d','D');
+				servoyFormat = servoyFormat.replaceAll('y','Y');
+				// use moment.js from calendar component
+				return moment(data,servoyFormat).toDate();
 			}
 			return data;
 		}
@@ -307,7 +311,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			    	var format = null;
 			    	var type = svyFormat ? svyFormat.type: null;
 			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
-			    	if(element.is(":focus"))format = svyFormat.edit	    	 
+			    	if(element.is(":focus"))format = svyFormat.edit	
 			    	try{
 			      	  var data =  $formatterUtils.unformat(viewValue,format,type);
 			    	}catch(e){
