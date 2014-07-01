@@ -26,10 +26,10 @@ import java.util.List;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
@@ -99,7 +99,7 @@ public class PartWrapper
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		Iterator<IPersist> it = context.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		Iterator<IFormElement> it = context.getFormElementsSortedByFormIndex();
 		while (it.hasNext())
 		{
 			IPersist persist = it.next();
