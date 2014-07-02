@@ -31,6 +31,8 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
@@ -42,10 +44,10 @@ public class SecuritySupport
 //	public static void main(String[] args) throws Exception
 //	{
 //		Settings settings = Settings.getDefaultSettings(false, null);
-//		
+//
 //		//KeyStore ks = getKeyStore(settings);
 //		initKeyStoreAndPassphrase(settings);
-//		
+//
 //		Enumeration e = keyStore.aliases();
 //		if (e.hasMoreElements())
 //		{
@@ -53,7 +55,7 @@ public class SecuritySupport
 //			Key desKey = new SecretKeySpec(new DESedeKeySpec(keyStore.getKey(alias, passphrase).getEncoded()).getKey(),"DESede");
 //		    Cipher desCipher = Cipher.getInstance("DESede");
 //		    desCipher.init(Cipher.ENCRYPT_MODE, desKey);
-//		    
+//
 //		    //  Our cleartext
 //		    byte[] cleartext = "This is just an example".getBytes();
 //
@@ -67,7 +69,7 @@ public class SecuritySupport
 //
 //		    // Decrypt the ciphertext
 //		    byte[] cleartext1 = desCipher.doFinal(ciphertext);
-//		    
+//
 //		    System.out.println(new String(cleartext1) + " lenght "+cleartext1.length);
 //		    System.out.println(Utils.encodeBASE64(ciphertext));
 //		}
@@ -139,6 +141,15 @@ public class SecuritySupport
 	}
 
 	@SuppressWarnings("nls")
+	public static String encryptUrlSafe(Settings settings, String value) throws Exception
+	{
+		if (value == null) return value;
+		Cipher cipher = Cipher.getInstance("DESede");
+		cipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(settings));
+		return Base64.encodeBase64URLSafeString(cipher.doFinal(value.getBytes()));
+	}
+
+	@SuppressWarnings("nls")
 	private static void initKeyStoreAndPassphrase(Properties settings) throws Exception
 	{
 		if (keyStore == null)
@@ -193,7 +204,7 @@ public class SecuritySupport
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static void clearCryptKey()
 	{
