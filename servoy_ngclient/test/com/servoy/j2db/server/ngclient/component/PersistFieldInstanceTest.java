@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ScheduledExecutorService;
+
+import javax.servlet.http.HttpServlet;
 
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -50,9 +53,14 @@ import org.sablo.websocket.IWebsocketEndpoint;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ClientLogin;
 import com.servoy.j2db.Credentials;
+import com.servoy.j2db.IBeanManager;
+import com.servoy.j2db.IBeanManagerInternal;
+import com.servoy.j2db.IDebugClientHandler;
+import com.servoy.j2db.ILAFManagerInternal;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IClientHost;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.ChangeHandler;
@@ -60,10 +68,13 @@ import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnInfoManager;
+import com.servoy.j2db.persistence.IDeveloperRepository;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IRootObject;
+import com.servoy.j2db.persistence.IServerManagerInternal;
 import com.servoy.j2db.persistence.IValidateName;
+import com.servoy.j2db.persistence.IXMLExportI18NHelper;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
@@ -72,20 +83,35 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.plugins.IPluginManagerInternal;
+import com.servoy.j2db.plugins.IServerAccess;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.Types;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
+import com.servoy.j2db.server.shared.IApplicationServerSingleton;
+import com.servoy.j2db.server.shared.IBatchManager;
 import com.servoy.j2db.server.shared.IClientManager;
+import com.servoy.j2db.server.shared.IServerStatus;
+import com.servoy.j2db.server.shared.IUserManager;
+import com.servoy.j2db.server.shared.IWebClientSessionFactory;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
+import com.servoy.j2db.util.xmlxport.IXMLExporter;
+import com.servoy.j2db.util.xmlxport.IXMLImportEngine;
+import com.servoy.j2db.util.xmlxport.IXMLImportHandlerVersions11AndHigher;
+import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
+import com.servoy.j2db.util.xmlxport.RootObjectImportInfo;
+import com.servoy.j2db.util.xmlxport.VersionInfo;
 
 /**
  * @author jcompagner
@@ -149,6 +175,319 @@ public class PersistFieldInstanceTest
 			ValueList valuelist = solution.createNewValueList(validator, "test");
 			valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
 
+			ApplicationServerRegistry.setApplicationServerSingleton(new IApplicationServerSingleton()
+			{
+
+				@Override
+				public void shutDown() throws Exception
+				{
+				}
+
+				@Override
+				public void shutDown(int exitCode)
+				{
+				}
+
+				@Override
+				public void setWebServerPort(int port)
+				{
+				}
+
+				@Override
+				public void setServerProcess(String clientID)
+				{
+				}
+
+				@Override
+				public boolean isStarting()
+				{
+					return false;
+				}
+
+				@Override
+				public boolean isSolutionProtected(SolutionMetaData metadata)
+				{
+					return false;
+				}
+
+				@Override
+				public boolean isDeveloperStartup()
+				{
+					return false;
+				}
+
+				@Override
+				public boolean isClientRepositoryAccessAllowed()
+				{
+					return true;
+				}
+
+				@Override
+				public boolean isClientRepositoryAccessAllowed(String serverName)
+				{
+					return true;
+				}
+
+				@Override
+				public boolean hasDeveloperLicense()
+				{
+					return true;
+				}
+
+				@Override
+				public boolean hadIncompatibleExtensionsWhenStarted()
+				{
+					return false;
+				}
+
+				@Override
+				public Map<String, HttpServlet> getWebServices()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public int getWebServerPort()
+				{
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				@Override
+				public IWebClientSessionFactory getWebClientSessionFactory()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IUserManager getUserManager()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public int getUsedRMIRegistryPort()
+				{
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				@Override
+				public long getStartTime()
+				{
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				@Override
+				public String getServoyApplicationServerDirectory()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public <S> S getService(Class<S> reference)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IServerStatus getServerStatus()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IServerManagerInternal getServerManager()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IServerAccess getServerAccess()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IPluginManagerInternal getPluginManager()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IRepository getLocalRepository()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public ILAFManagerInternal getLafManager()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public ScheduledExecutorService getExecutor()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IDeveloperRepository getDeveloperRepository()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IDebugClientHandler getDebugClientHandler()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IDataServer getDataServer()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public String getClientId()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IBeanManagerInternal getBeanManager()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IBatchManager getBatchManager()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public ClassLoader getBaseClassLoader()
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void doNativeShutdown()
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public IXMLImportHandlerVersions11AndHigher createXMLInMemoryImportHandler(VersionInfo versionInfo, IDataServer dataServer, String cid,
+					IXMLImportUserChannel userChannel, AbstractRepository repository) throws RepositoryException
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IXMLImportEngine createXMLImportEngine(File file, AbstractRepository repository, IDataServer dataServer, String cid,
+					IXMLImportUserChannel userChannel) throws RepositoryException
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IXMLExporter createXMLExporter(AbstractRepository repository, IUserManager ssm, IXMLExportUserChannel userChannel,
+					Properties properties, IDataServer sqlEngine, String clientID, IXMLExportI18NHelper i18nHelper)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public IBeanManager createBeanManager(ClassLoader pluginClassloader)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public boolean checkSolutionProtection(RootObjectImportInfo rootObjectImportInfo) throws RepositoryException
+				{
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public boolean checkSolutionPassword(RootObjectImportInfo rootObjectImportInfo, String protectionPassword) throws RepositoryException
+				{
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public boolean checkRuntimeLicense(String companyName, String license)
+				{
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public boolean checkMobileLicense(String companyName, String license)
+				{
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public String checkDefaultServoyAuthorisation(Object userName, Object password)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void checkClientRepositoryAccess(String serverName) throws RepositoryException
+				{
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public String calculateProtectionPasswordOld(SolutionMetaData metadata, String hash1)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public String calculateProtectionPassword(SolutionMetaData metadata, String password)
+				{
+					// TODO Auto-generated method stub
+					return null;
+				}
+			});
 			client = new NGClient(new INGClientWebsocketSession()
 			{
 
