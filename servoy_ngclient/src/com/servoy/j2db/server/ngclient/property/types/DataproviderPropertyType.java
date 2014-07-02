@@ -147,8 +147,7 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 				else if (HtmlUtils.startsWithHtml(value) && dataConverterContext != null)
 				{
 					IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
-					jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext.getApplication().getSolutionName(),
-						servoyDataConverterContext.getForm().getName(),
+					jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext,
 						((DataproviderConfig)dataConverterContext.getPropertyDescription().getConfig()).hasParseHtml());
 				}
 				else

@@ -41,6 +41,7 @@ import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -50,6 +51,8 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.MimeTypes;
+import com.servoy.j2db.util.SecuritySupport;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -128,6 +131,21 @@ public class MediaResourcesServlet extends HttpServlet
 					break;
 			}
 		}
+		else if ("servoy_blobloader".equals(path))
+		{
+			String encrypted = req.getParameter("blob");
+			try
+			{
+				String decrypt = SecuritySupport.decrypt(Settings.getInstance(), encrypted);
+				String clientUUID = req.getParameter("uuid");
+				found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(clientUUID), decrypt),
+					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt));
+			}
+			catch (Exception e)
+			{
+				Debug.error("could not decrypt blobloader: " + encrypted);
+			}
+		}
 
 		if (!found) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
@@ -190,6 +208,29 @@ public class MediaResourcesServlet extends HttpServlet
 	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientUUID, String mediaName)
 		throws IOException
 	{
+		IApplication client = getClient(clientUUID);
+
+		if (client != null)
+		{
+			FlattenedSolution fs = client.getFlattenedSolution();
+			if (fs != null)
+			{
+				Media media = fs.getMedia(mediaName);
+				if (media != null)
+				{
+					return sendData(request, response, fs, media);
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param clientUUID
+	 * @return
+	 */
+	private IApplication getClient(String clientUUID)
+	{
 		// try to look it up as clientId. (solution model)
 		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
 
@@ -206,20 +247,7 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			client = wsSession.getClient();
 		}
-
-		if (client != null)
-		{
-			FlattenedSolution fs = client.getFlattenedSolution();
-			if (fs != null)
-			{
-				Media media = fs.getMedia(mediaName);
-				if (media != null)
-				{
-					return sendData(request, response, fs, media);
-				}
-			}
-		}
-		return false;
+		return client;
 	}
 
 	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName) throws IOException

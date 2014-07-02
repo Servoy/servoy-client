@@ -45,7 +45,7 @@ public class HTMLTagsConverter
 	private static final String mediaPrefix = "media://"; //$NON-NLS-1$
 	private static final String BROWSER_PARAM = "browser:"; //$NON-NLS-1$
 
-	public static String convert(String htmlContent, String solutionName, String formName, boolean convertInlineScript)
+	public static String convert(String htmlContent, IServoyDataConverterContext context, boolean convertInlineScript)
 	{
 		Document doc = Jsoup.parse(htmlContent);
 		Elements bodyElements = doc.body().getAllElements();
@@ -79,7 +79,7 @@ public class HTMLTagsConverter
 						String encryptedFormName = "";
 						try
 						{
-							encryptedFormName = SecuritySupport.encrypt(Settings.getInstance(), formName);
+							encryptedFormName = SecuritySupport.encrypt(Settings.getInstance(), context.getForm().getName());
 							script = SecuritySupport.encrypt(Settings.getInstance(), script);
 						}
 						catch (Exception ex)
@@ -93,7 +93,21 @@ public class HTMLTagsConverter
 					else if (replaceContent.startsWith(mediaPrefix))
 					{
 						String media = replaceContent.substring(mediaPrefix.length());
-						attr.setValue("/resources/fs/" + solutionName + media);
+						if (media.startsWith("/servoy_blobloader?"))
+						{
+							String blobpart = media.substring("servoy_blobloader?".length());
+							try
+							{
+								blobpart = SecuritySupport.encryptUrlSafe(Settings.getInstance(), blobpart);
+								attr.setValue("/resources/servoy_blobloader?blob=" + blobpart + "&uuid=" +
+									context.getApplication().getWebsocketSession().getUuid());
+							}
+							catch (Exception e1)
+							{
+								Debug.error("could not encrypt blobloaderpart: " + blobpart);
+							}
+						}
+						else attr.setValue("/resources/fs/" + context.getSolution().getName() + media);
 					}
 				}
 			}

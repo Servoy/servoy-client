@@ -115,8 +115,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 				if (HtmlUtils.startsWithHtml(value) && dataConverterContext != null)
 				{
 					IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
-					jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext.getApplication().getSolutionName(),
-						servoyDataConverterContext.getForm().getName(), false);
+					jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext, false);
 				}
 				else
 				{
