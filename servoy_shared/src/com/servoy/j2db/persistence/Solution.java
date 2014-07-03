@@ -1258,7 +1258,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * right to left
 	 * locale specific
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public int getTextOrientation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXTORIENTATION).intValue();
