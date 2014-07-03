@@ -9,7 +9,7 @@ model:
         enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 
-        horizontalAlignment : {type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: 2}, 
+        horizontalAlignment : {type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: -1}, 
         location : 'point', 
         readOnly : 'boolean', 
         selectedTabColor : 'color', 

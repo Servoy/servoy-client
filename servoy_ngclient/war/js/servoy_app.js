@@ -102,15 +102,49 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                 
                 if (anchoredLeft)
                 {
-                	if (beanLayout.left == undefined || runtimeChanges && beanModel.location.x != undefined) beanLayout.left =  beanModel.location.x + 'px';
+                	if ( $solutionSettings.ltrOrientation)
+            		{
+                		if (beanLayout.left == undefined || runtimeChanges && beanModel.location.x != undefined)
+                    	{	
+                    		beanLayout.left =  beanModel.location.x + 'px';
+                    	}
+            		}
+            		else
+            		{
+            			if (beanLayout.right == undefined || runtimeChanges && beanModel.location.x != undefined)
+                    	{	
+                    		beanLayout.right =  beanModel.location.x + 'px';
+                    	}
+            		}
                 }
-                else delete beanLayout.left;
+                else if ( $solutionSettings.ltrOrientation)
+        		{
+                	delete beanLayout.left;
+        		}
+        		else
+        		{
+        			delete beanLayout.right;
+        		}
                 
                 if (anchoredRight)
                 {
-                	if (beanLayout.right == undefined) beanLayout.right = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
+                	if ( $solutionSettings.ltrOrientation)
+            		{
+                		if (beanLayout.right == undefined) beanLayout.right = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
+            		}
+            		else
+            		{
+            			if (beanLayout.left == undefined) beanLayout.left = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
+            		}
                 }
-                else delete beanLayout.right;
+                else if ( $solutionSettings.ltrOrientation)
+        		{
+                	delete beanLayout.right;
+        		}
+        		else
+        		{
+        			delete beanLayout.left;
+        		}
                 
                 if (!anchoredLeft || !anchoredRight) beanLayout.width = beanModel.size.width + 'px';
                 else delete beanLayout.width;
@@ -121,7 +155,14 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
             {
             	if (beanModel.location)
             	{
-              		beanLayout.left = beanModel.location.x+'px';
+            		if ( $solutionSettings.ltrOrientation)
+            		{
+            			beanLayout.left = beanModel.location.x+'px';
+            		}
+            		else
+            		{
+            			beanLayout.right = beanModel.location.x+'px';
+            		}
               		beanLayout.top = beanModel.location.y+'px';
             	}
                     
@@ -506,7 +547,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	navigatorForm: {width:0},
 	solutionTitle: "",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
-	styleSheetPath: undefined
+	styleSheetPath: undefined,
+	ltrOrientation : true
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage) {
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
@@ -526,6 +568,21 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		if($solutionSettings.sessionExpired) return $solutionSettings.sessionExpired.viewUrl;
 		if($solutionSettings.internalServerError) return $solutionSettings.internalServerError.viewUrl;		
 		return null;
+	}
+	
+	$scope.getNavigatorStyle = function(ltrOrientation) {
+		var orientationVar = ltrOrientation ? 'left':'right';
+		var style = {'position':'absolute','top':'0px','bottom':'0px','width':$solutionSettings.navigatorForm.size.width+'px'}
+		style[orientationVar] = '0px';
+		return style;
+	}
+	$scope.getFormStyle = function(ltrOrientation) {
+		var orientationVar1 = ltrOrientation ? 'right':'left';
+		var orientationVar2 = ltrOrientation ? 'left':'right';
+		var style = {'position':'absolute','top':'0px','bottom':'0px'}
+		style[orientationVar1] = '0px';
+		style[orientationVar2] = $solutionSettings.navigatorForm.size.width+'px';
+		return style;
 	}
 }).controller("NoLicenseController",['$scope','$solutionSettings','$timeout','$window' ,function($scope, $solutionSettings,$timeout,$window) {
 	

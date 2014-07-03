@@ -530,7 +530,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName(), "{type: 'media', scope:'design'}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID.getPropertyName(), "media");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
-			"{type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: 2}");
+			"{type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: -1}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXTROTATION.getPropertyName(), "{type:'int', scope:'design', values:[0,90,180,270]}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABORIENTATION.getPropertyName(),
 			"{type:'int', scope:'design', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}");

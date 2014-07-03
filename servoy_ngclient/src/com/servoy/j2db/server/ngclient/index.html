@@ -34,11 +34,37 @@
 
 		<link rel="stylesheet" ng-href='{{solutionSettings.styleSheetPath}}'/>
 	</head>
-	<body >
+	<script type="text/javascript">
+		angular.module('servoyApp').run(function($solutionSettings){
+				var orientation = ##orientation##;
+				if (orientation == 2)
+				{
+					$solutionSettings.ltrOrientation = false;
+				}
+				else if (orientation == 3)
+				{
+					language = window.navigator.language?window.navigator.language:window.navigator.browserLanguage;
+					language = language.split('-')[0];
+					if (language == 'iw' || language == 'ar' ||language == 'fa' ||language == 'ur')
+					{
+						$solutionSettings.ltrOrientation = false;
+					}
+					else
+					{
+						$solutionSettings.ltrOrientation = true;
+					}
+				}
+				else
+				{
+					$solutionSettings.ltrOrientation = true;
+				}
+		});
+	</script>
+	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}">
 		<div ng-if='!getSessionProblemView()'>
-			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="{'position':'absolute','top':'0px','left':'0px','bottom':'0px','width':solutionSettings.navigatorForm.size.width+'px'}"
+			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
 				ng-include="getNavigatorFormUrl()"></div>
-			<div ng-include="getMainFormUrl()" ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':solutionSettings.navigatorForm.size.width+'px'}"></div>
+			<div ng-include="getMainFormUrl()" ng-style="getFormStyle(solutionSettings.ltrOrientation)"></div>
 			<div ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
 		</div>
 		<div ng-if='getSessionProblemView()' ng-include='getSessionProblemView()'>		  

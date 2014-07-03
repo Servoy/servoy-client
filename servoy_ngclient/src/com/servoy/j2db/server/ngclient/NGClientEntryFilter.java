@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.FilterChain;
@@ -205,6 +207,8 @@ public class NGClientEntryFilter extends WebEntry
 						{
 							//prepare for possible index.html lookup
 							jsContributions = getFormScriptReferences(fs);
+							variableSubstitution = new HashMap<String, String>();
+							variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
 						}
 					}
 				}
@@ -219,6 +223,7 @@ public class NGClientEntryFilter extends WebEntry
 		finally
 		{
 			jsContributions = null;//prevent leaks or state between requests
+			variableSubstitution = null;
 		}
 	}
 
@@ -228,6 +233,14 @@ public class NGClientEntryFilter extends WebEntry
 	protected Collection<String> getJSContributions()
 	{
 		return jsContributions;
+	}
+
+	private Map<String, String> variableSubstitution;
+
+	@Override
+	protected Map<String, String> getVariableSubstitution()
+	{
+		return variableSubstitution;
 	}
 
 	/**

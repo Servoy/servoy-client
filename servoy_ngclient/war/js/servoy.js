@@ -626,20 +626,23 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         restrict: 'A',
         link: function (scope, element, attrs) {  
         	var halign= $parse(attrs.svyHorizontalalignment)(scope);
-        	var style ={}
-        	if (halign == 0)
+        	if (halign != -1)
         	{
-        		 style['text-align'] = 'center';
+        		var style ={}
+            	if (halign == 0)
+            	{
+            		 style['text-align'] = 'center';
+            	}
+            	else if (halign == 4)
+            	{
+            		style['text-align'] = 'right';
+            	}
+            	else
+            	{
+            		style['text-align'] = 'left';
+            	}
+                element.css(style);
         	}
-        	else if (halign == 4)
-        	{
-        		style['text-align'] = 'right';
-        	}
-        	else
-        	{
-        		style['text-align'] = 'left';
-        	}
-            element.css(style);
          }
     }
 })
