@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -410,7 +411,8 @@ public final class FormElement implements IWebComponentInitializer
 			Object val = getProperty(pd.getName());
 			if (val == null) continue;
 			IPropertyType type = pd.getType();
-			if (type instanceof DataproviderPropertyType || type instanceof FormatPropertyType || type instanceof ValueListPropertyType)
+			if (type instanceof DataproviderPropertyType || type instanceof FormatPropertyType || type instanceof ValueListPropertyType ||
+				type instanceof MediaPropertyType)
 			{
 				continue;
 			}
