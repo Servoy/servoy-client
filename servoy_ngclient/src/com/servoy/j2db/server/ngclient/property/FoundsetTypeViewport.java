@@ -23,7 +23,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
 /**
  * Holds the client used viewport info for this foundset.
- * 
+ *
  * @author acostescu
  */
 public class FoundsetTypeViewport
@@ -103,8 +103,8 @@ public class FoundsetTypeViewport
 	{
 		if (foundset != null)
 		{
-			startIndex = Math.max(0, Math.min(startIndex, foundset.getSize() - 1));
 			size = Math.max(0, Math.min(size, foundset.getSize() - startIndex));
+			startIndex = Math.max(0, Math.min(startIndex, foundset.getSize() - 1));
 		}
 		else
 		{
@@ -154,7 +154,7 @@ public class FoundsetTypeViewport
 	/**
 	 * Slides the viewPort (startIndex) to higher or lower values and then corrects viewPort bounds (if they became invalid due to foundset changes).<br/>
 	 * Call this only when the viewPort data remains the same or when viewPort data will be updated through granular add/remove operations.
-	 * 
+	 *
 	 * @param delta can be a positive or negative value.
 	 */
 	public void slideAndCorrect(int delta)

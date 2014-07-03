@@ -35,26 +35,26 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 			} else {
 				// check for updates
 				var updates = false;
-				if (serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]) {
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SERVER_SIZE])) {
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
 					updates = true;
 				}
-				if (serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES]) {
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
 					updates = true;
 				}
-				if (serverJSONValue[UPDATE_PREFIX + VIEW_PORT]) {
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
 					updates = true;
 					var v = serverJSONValue[UPDATE_PREFIX + VIEW_PORT];
-					if (v[START_INDEX]) {
+					if (angular.isDefined(v[START_INDEX])) {
 						currentClientValue[VIEW_PORT][START_INDEX] = v[START_INDEX];
 					}
-					if (v[SIZE]) {
+					if (angular.isDefined(v[SIZE])) {
 						currentClientValue[VIEW_PORT][SIZE] = v[SIZE];
 					}
-					if (v[ROWS]) {
+					if (angular.isDefined(v[ROWS])) {
 						currentClientValue[VIEW_PORT][ROWS] = v[ROWS];
-					} else if (v[UPDATE_PREFIX + ROWS]) {
+					} else if (angular.isDefined(v[UPDATE_PREFIX + ROWS])) {
 						// partial row updates (remove/insert/update)
 						var rowUpdates = v[UPDATE_PREFIX + ROWS]; // array of
 						
@@ -68,15 +68,18 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 						// apply them one by one
 						var i;
 						var j;
+						var rows = currentClientValue[VIEW_PORT][ROWS];
 						for (i = 0; i < rowUpdates.length; i++) {
 							var rowUpdate = rowUpdates[i];
 							if (rowUpdate.type == CHANGE) {
-								for (j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++) currentClientValue[VIEW_PORT][ROWS][j] = rowUpdate.rows[j];
+								for (j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++) rows[j] = rowUpdate.rows[j];
 							} else if (rowUpdate.type == INSERT) {
-								for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) currentClientValue[VIEW_PORT][ROWS].splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
+								for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) rows.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
+								// insert might have made obsolete some records in cache; remove those
+								if (rows.length > currentClientValue[VIEW_PORT].size) rows.splice(currentClientValue[VIEW_PORT].size, rows.length - currentClientValue[VIEW_PORT].size);
 							} else if (rowUpdate.type == DELETE) {
-								currentClientValue[VIEW_PORT][ROWS].splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
-								for (j = 0; j < rowUpdate.rows.length; j++) currentClientValue[VIEW_PORT][ROWS].push(rowUpdate.rows[j]);
+								rows.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
+								for (j = 0; j < rowUpdate.rows.length; j++) rows.push(rowUpdate.rows[j]);
 							}
 						}
 					}

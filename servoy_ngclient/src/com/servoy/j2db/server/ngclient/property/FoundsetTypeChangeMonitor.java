@@ -27,7 +27,7 @@ import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
 
 /**
  * This class is responsible for keeping track of what changes need to be sent to the client (whole thing, selection changes, viewport idx/size change, row data changes...)
- * 
+ *
  * @author acostescu
  */
 public class FoundsetTypeChangeMonitor
@@ -78,7 +78,7 @@ public class FoundsetTypeChangeMonitor
 
 	/**
 	 * The foundset's size changed.
-	 * This doesn't notify changes as this is probably part of a larger check which could result in more changes. Notification must be handled by caller. 
+	 * This doesn't notify changes as this is probably part of a larger check which could result in more changes. Notification must be handled by caller.
 	 */
 	protected void foundSetSizeChanged()
 	{
@@ -91,8 +91,8 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * Called when the viewPort bounds need to be re-sent to client.<br/>
 	 * Only the bounds of the viewPort changed, data is the same; for example records were added/removed before startIndex of viewPort.<br/><br/>
-	 * 
-	 * This doesn't notify changes as this is probably part of a larger check which could result in more changes. Notification must be handled by caller. 
+	 *
+	 * This doesn't notify changes as this is probably part of a larger check which could result in more changes. Notification must be handled by caller.
 	 */
 	protected void viewPortBoundsOnlyChanged()
 	{
@@ -114,7 +114,7 @@ public class FoundsetTypeChangeMonitor
 			if (oldChangeFlags != changeFlags)
 			{
 				// clear all more granular changes as whole viewport will be sent
-				changeFlags = changeFlags & (~SEND_VIEWPORT_BOUNDS); // clear flag 
+				changeFlags = changeFlags & (~SEND_VIEWPORT_BOUNDS); // clear flag
 				viewPortChanges.clear();
 				notifyChange();
 			}
@@ -160,7 +160,7 @@ public class FoundsetTypeChangeMonitor
 	}
 
 	/**
-	 * Called when the dataProviders that this foundset type provides changed. 
+	 * Called when the dataProviders that this foundset type provides changed.
 	 */
 	public void dataProvidersChanged()
 	{
@@ -176,33 +176,33 @@ public class FoundsetTypeChangeMonitor
 		if (lastRow - firstRow >= 0) foundSetSizeChanged();
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
-			int viewPortEndIdx = viewPort.startIndex + viewPort.size - 1;
-			if (belongsToInterval(firstRow, viewPort.startIndex, viewPortEndIdx) || belongsToInterval(lastRow, viewPort.startIndex, viewPortEndIdx))
+			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
+
+			int slideBy;
+			if (firstRow < viewPort.getStartIndex())
+			{
+				// this will adjust the viewPort startIndex (and size if needed)
+				slideBy = firstRow - Math.min(viewPort.getStartIndex(), lastRow + 1);
+			}
+			else
+			{
+				// this will adjust the viewPort size if needed (not enough records to insert in the viewPort to replace deleted ones)
+				slideBy = 0;
+			}
+
+			if (belongsToInterval(firstRow, viewPort.getStartIndex(), viewPortEndIdx) || belongsToInterval(lastRow, viewPort.getStartIndex(), viewPortEndIdx))
 			{
 				// first row to be deleted inside current viewPort
-				int firstRowDeletedInViewport = Math.max(viewPort.startIndex, firstRow);
+				int firstRowDeletedInViewport = Math.max(viewPort.getStartIndex(), firstRow);
 				int lastRowDeletedInViewport = Math.min(viewPortEndIdx, lastRow);
-				int relativeFirstRow = firstRowDeletedInViewport - viewPort.startIndex;
+				int relativeFirstRow = firstRowDeletedInViewport - viewPort.getStartIndex();
 				// number of deletes from current viewPort
-				int relativeLastRow = lastRowDeletedInViewport - viewPort.startIndex;
+				int relativeLastRow = lastRowDeletedInViewport - viewPort.getStartIndex();
 				int numberOfDeletes = lastRowDeletedInViewport - firstRowDeletedInViewport + 1;
 
 				// adjust viewPort bounds if necessary
-				int slideBy;
-//				int oldViewPortStart = viewPort.startIndex;
-				int oldViewPortSize = viewPort.size;
-				if (firstRow < viewPort.startIndex)
-				{
-					// this will adjust the viewPort startIndex (and size if needed) 
-					slideBy = firstRow - viewPort.startIndex;
-				}
-				else
-				{
-					// this will adjust the viewPort size if needed (not enough records to insert in the viewPort to replace deleted ones) 
-					slideBy = 0;
-				}
-				viewPort.slideAndCorrect(slideBy);
-				viewPortEndIdx = viewPort.startIndex + viewPort.size - 1; // update
+//				int oldViewPortStart = viewPort.getStartIndex();
+				int oldViewPortSize = viewPort.getSize();
 
 				// TODO merge changes with previous ones without keeping any actual data (indexes kept in a way should be enough) - implementation started below
 //				// ok, viewPort bounds are updated; update existing recordChange data if needed; we are working here a lot with viewPort relative indexes (both client side and server side ones)
@@ -216,9 +216,9 @@ public class FoundsetTypeChangeMonitor
 //					{
 //						// record deleted before previous Add/Remove/Update operation; add before
 //						iterator.add(new RecordChangeDescriptor(RecordChangeDescriptor.Types.REMOVE_FROM_VIEWPORT, browserViewPortIdxDelta + toBeDeleted));
-//						if (toBeDeleted + browserViewPortIdxDelta >= viewPort.size)
+//						if (toBeDeleted + browserViewPortIdxDelta >= viewPort.getSize())
 //						{
-//							
+//
 //						}
 //						toBeDeleted++;
 //					}
@@ -243,14 +243,19 @@ public class FoundsetTypeChangeMonitor
 //					toBeDeleted++;
 //				}
 
-				// add new records if available
-				// TODO ac
+				viewPort.slideAndCorrect(slideBy);
+				viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1; // update
 
+				// add new records if available
 				// we need to replace same amount of records in current viewPort; append rows if available
-				List<Map<String, Object>> data = getRowData(viewPort.startIndex + oldViewPortSize - numberOfDeletes, viewPortEndIdx);
+				List<Map<String, Object>> data = getRowData(viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx);
 
 				viewPortChanges.add(new RowData(data, relativeFirstRow, relativeLastRow, RowData.DELETE));
 				viewPortRecordChangesUpdated = true;
+			}
+			else if (slideBy != 0)
+			{
+				viewPort.slideAndCorrect(slideBy);
 			}
 		}
 		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
@@ -264,17 +269,17 @@ public class FoundsetTypeChangeMonitor
 		if (lastRow - firstRow >= 0) foundSetSizeChanged();
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
-			int viewPortEndIdx = viewPort.startIndex + viewPort.size - 1;
-			if (viewPort.startIndex < firstRow && firstRow <= viewPortEndIdx)
+			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
+			if (viewPort.getStartIndex() < firstRow && firstRow <= viewPortEndIdx)
 			{
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 
 				// add records that were inserted in viewPort
 				List<Map<String, Object>> rowData = getRowData(firstRow, lastViewPortInsert);
-				viewPortChanges.add(new RowData(rowData, firstRow - viewPort.startIndex, lastViewPortInsert - viewPort.startIndex, RowData.INSERT));
+				viewPortChanges.add(new RowData(rowData, firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), RowData.INSERT));
 				viewPortRecordChangesUpdated = true;
 			}
-			else if (viewPort.startIndex >= firstRow)
+			else if (viewPort.getStartIndex() >= firstRow)
 			{
 				viewPort.slideAndCorrect(lastRow - firstRow + 1);
 			}
@@ -287,7 +292,7 @@ public class FoundsetTypeChangeMonitor
 	{
 		if (firstRow == 0 && lastRow == foundSetSize - 1)
 		{
-			if (viewPort.size > 0) viewPortCompletelyChanged();
+			if (viewPort.getSize() > 0) viewPortCompletelyChanged();
 		}
 		else
 		{
@@ -296,12 +301,13 @@ public class FoundsetTypeChangeMonitor
 			if (!shouldSendAll() && !shouldSendWholeViewPort())
 			{
 				// get the rows that are changed.
-				int firstViewPortIndex = Math.max(viewPort.startIndex, firstRow);
-				int lastViewPortIndex = Math.min(viewPort.startIndex + viewPort.size - 1, lastRow);
+				int firstViewPortIndex = Math.max(viewPort.getStartIndex(), firstRow);
+				int lastViewPortIndex = Math.min(viewPort.getStartIndex() + viewPort.getSize() - 1, lastRow);
 				if (firstViewPortIndex <= lastViewPortIndex)
 				{
 					List<Map<String, Object>> rowData = getRowData(firstViewPortIndex, lastViewPortIndex);
-					viewPortChanges.add(new RowData(rowData, firstViewPortIndex - viewPort.startIndex, lastViewPortIndex - viewPort.startIndex, RowData.CHANGE));
+					viewPortChanges.add(new RowData(rowData, firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
+						RowData.CHANGE));
 					viewPortRecordChangesUpdated = true;
 				}
 			}

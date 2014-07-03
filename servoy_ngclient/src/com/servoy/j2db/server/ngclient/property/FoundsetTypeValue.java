@@ -51,7 +51,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Value used at runtime as foundset type value proxy for multiple interested parties (browser, designtime, scripting).
- * 
+ *
  * @author acostescu
  */
 @SuppressWarnings("nls")
@@ -144,9 +144,9 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	 * 	<li>the component's foundset (as if in scripting you would say 'foundset') - if foundsetSelector is not specified at design time or null;</li>
 	 * 	<li>a new foundset based on the given datasource (as if you would do DatabaseManager.getFoundset(datasource) in scripting). Example: "db:/example_data/customers".</li>
 	 * </ul>
-	 * 
-	 * @param record the record this component is attached to; can be null. (form not linked to table or no records for example) 
-	 * 
+	 *
+	 * @param record the record this component is attached to; can be null. (form not linked to table or no records for example)
+	 *
 	 * @return true if the foundset was update, false otherwise.
 	 */
 	protected boolean updateFoundset(IRecordInternal record)
@@ -239,7 +239,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
-		addViewPort(destinationJSON);
+		addViewPort(destinationJSON, false);
 		// end viewPort
 
 		destinationJSON.endObject();
@@ -247,7 +247,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		return destinationJSON;
 	}
 
-	protected void addViewPort(JSONWriter destinationJSON) throws JSONException
+	protected void addViewPort(JSONWriter destinationJSON, boolean update) throws JSONException
 	{
 		destinationJSON.object();
 		addViewPortBounds(destinationJSON);
@@ -259,17 +259,18 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		if (foundset != null)
 		{
 			Map<String, Object> rows = new HashMap<>();
-			Map<String, Object>[] rowsArray = new Map[viewPort.size];
+			Map<String, Object>[] rowsArray = new Map[viewPort.getSize()];
 			rows.put(ROWS, rowsArray);
 
-			for (int i = viewPort.startIndex + viewPort.size - 1; i >= viewPort.startIndex; i--)
+			for (int i = viewPort.getStartIndex() + viewPort.getSize() - 1; i >= viewPort.getStartIndex(); i--)
 			{
-				rowsArray[i - viewPort.startIndex] = getRowData(i);
+				rowsArray[i - viewPort.getStartIndex()] = getRowData(i);
 			}
 
 			// convert for websocket traffic (for example Date objects will turn into long)
 			JSONUtils.writeDataWithConversions(destinationJSON, rows,
-				getFormUI().getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(), ConversionLocation.BROWSER_UPDATE);
+				getFormUI().getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(), update ? ConversionLocation.BROWSER_UPDATE
+					: ConversionLocation.BROWSER);
 		}
 		else
 		{
@@ -296,7 +297,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 	protected void addViewPortBounds(JSONWriter destinationJSON) throws JSONException
 	{
-		destinationJSON.key(START_INDEX).value(viewPort.startIndex).key(SIZE).value(viewPort.size);
+		destinationJSON.key(START_INDEX).value(viewPort.getStartIndex()).key(SIZE).value(viewPort.getSize());
 
 	}
 
@@ -322,37 +323,45 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 				addSelectedIndexes(destinationJSON);
 				somethingChanged = true;
 			}
-			if (changeMonitor.shouldSendViewPortBounds())
-			{
-				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
-				addViewPortBounds(destinationJSON);
-				destinationJSON.endObject();
-				somethingChanged = true;
-			}
 			if (changeMonitor.shouldSendWholeViewPort())
 			{
 				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT);
-				addViewPort(destinationJSON);
+				addViewPort(destinationJSON, true);
 				somethingChanged = true;
 			}
-			List<RowData> viewPortChanges = changeMonitor.getViewPortChanges();
-			if (viewPortChanges.size() > 0)
+			else
 			{
-				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
-				Map<String, Object> changes = new HashMap<>();
-				Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
-				changes.put(UPDATE_PREFIX + ROWS, changesArray);
-
-				for (int i = viewPortChanges.size() - 1; i >= 0; i--)
+				boolean viewPortUpdateAdded = false;
+				if (changeMonitor.shouldSendViewPortBounds())
 				{
-					changesArray[i] = viewPortChanges.get(i).toMap();
+					destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
+					viewPortUpdateAdded = true;
+					addViewPortBounds(destinationJSON);
+					somethingChanged = true;
 				}
+				List<RowData> viewPortChanges = changeMonitor.getViewPortChanges();
+				if (viewPortChanges.size() > 0)
+				{
+					if (!viewPortUpdateAdded)
+					{
+						destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
+						viewPortUpdateAdded = true;
+					}
+					Map<String, Object> changes = new HashMap<>();
+					Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
+					changes.put(UPDATE_PREFIX + ROWS, changesArray);
 
-				// convert for websocket traffic (for example Date objects will turn into long)
-				JSONUtils.writeDataWithConversions(destinationJSON, changes,
-					getFormUI().getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(), ConversionLocation.BROWSER_UPDATE);
-				destinationJSON.endObject();
-				somethingChanged = true;
+					for (int i = viewPortChanges.size() - 1; i >= 0; i--)
+					{
+						changesArray[i] = viewPortChanges.get(i).toMap();
+					}
+
+					// convert for websocket traffic (for example Date objects will turn into long)
+					JSONUtils.writeDataWithConversions(destinationJSON, changes,
+						getFormUI().getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(), ConversionLocation.BROWSER_UPDATE);
+					somethingChanged = true;
+				}
+				if (viewPortUpdateAdded) destinationJSON.endObject();
 			}
 
 			if (!somethingChanged)
