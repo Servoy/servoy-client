@@ -16,8 +16,8 @@
  */
 package com.servoy.j2db.scripting;
 
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Wrapper;
 
 /**
  * @author jcompagner
@@ -40,9 +40,14 @@ public class InstanceOfScope implements Scriptable
 	 */
 	public boolean hasInstance(Scriptable instance)
 	{
-		if (instance instanceof Wrapper)
+		if (instance instanceof NativeJavaObject)
 		{
-			Object unwrap = ((Wrapper)instance).unwrap();
+			Object unwrap = ((NativeJavaObject)instance).unwrap();
+			return cls.isInstance(unwrap);
+		}
+		else if (instance instanceof RecordingScriptable)
+		{
+			Object unwrap = ((RecordingScriptable)instance).unwrap();
 			return cls.isInstance(unwrap);
 		}
 		return cls.isInstance(instance);
