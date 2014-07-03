@@ -2520,7 +2520,11 @@ if (typeof(Servoy.Validation) == "undefined")
 						setTimeout(function(){
 							// we have null value and display format, select it so that it is erased when editing
 							// in some browsers doesn't work directly onfocus, execute with settimeout 
-							element.select();
+							if(element.setSelectionRange){
+								element.setSelectionRange(0, 9999);
+							}else{
+								element.select();
+							}							
 						 },0);
 					}
 				}
