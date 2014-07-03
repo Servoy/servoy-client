@@ -326,10 +326,15 @@
 						var pos = checkVal(true);
 						writeBuffer();
 						setTimeout(function() {
-							if (pos != filteredMask.length) {
-								input.caret(pos);
+							// patch, don't set the caret when it is not the focussed element anymore
+							// else it will take back the focus.
+							if(input.attr('id') == $(document.activeElement).attr('id'))
+							{
+								if (pos != filteredMask.length) {
+									input.caret(pos);
+								}
+								else input.caret(caret.begin);
 							}
-							else input.caret(caret.begin);
 						}, 0);
 					})
 					.bind("blur.mask", function() {
