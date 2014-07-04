@@ -21,6 +21,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import org.mozilla.javascript.Function;
+import org.sablo.WebComponent;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormController;
@@ -402,8 +403,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	protected FormAndComponent getJSApplicationNames(Object source, Function function, boolean useFormAsEventSourceEventually)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Object src = source;
+		if (src == null && useFormAsEventSourceEventually) src = formScope;
+		return new FormAndComponent(src, getName());
 	}
 
 	/*
@@ -414,14 +416,25 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	protected JSEvent getJSEvent(Object src)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		JSEvent event = new JSEvent();
+		event.setType(JSEvent.EventType.form);
+		event.setFormName(getName());
+		event.setSource(src);
+		event.setElementName(src instanceof WebComponent ? ((WebComponent)src).getName() : null);
+		return event;
 	}
 
 	@Override
 	public String toString()
 	{
-		return getName();
+		if (formModel != null)
+		{
+			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+		}
+		else
+		{
+			return "FormController[form: " + getName() + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$//$NON-NLS-2$
+		}
 	}
 
 	private WeakReference<IWebFormController> parentFormController;
