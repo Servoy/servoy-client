@@ -27,7 +27,7 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
  * @author rgansevles
  *
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IMobileSMHeader extends IMobileSMPart
 {
 	public boolean getSticky();

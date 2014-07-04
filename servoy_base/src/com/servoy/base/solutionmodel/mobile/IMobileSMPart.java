@@ -25,7 +25,7 @@ import com.servoy.base.solutionmodel.IBaseSMPart;
  * 
  * @author acostescu
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IMobileSMPart extends IBaseSMPart
 {
 
@@ -37,7 +37,6 @@ public interface IMobileSMPart extends IBaseSMPart
 	 * @sample
 	 * var stickyHeader = form.newPart(JSPart.STICKY_HEADER);
 	 */
-	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public static final int STICKY_HEADER = TITLE_HEADER;
 
 
@@ -49,7 +48,6 @@ public interface IMobileSMPart extends IBaseSMPart
 	 * @sample
 	 * var stickyHeader = form.newPart(JSPart.STICKY_FOOTER);
 	 */
-	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public static final int STICKY_FOOTER = TITLE_FOOTER;
 
 }

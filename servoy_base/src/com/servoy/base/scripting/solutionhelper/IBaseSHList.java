@@ -24,7 +24,7 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
  * Interface for mobile client inset list/list form manipulation.
  * @author acostescu
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IBaseSHList
 {
 	/**

@@ -31,7 +31,7 @@ import com.servoy.base.solutionmodel.IBaseSMVariable;
  * @author rgansevles
  *
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IMobileSMFooter extends IMobileSMPart
 {
 	public boolean getSticky();

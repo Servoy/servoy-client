@@ -30,7 +30,7 @@ import com.servoy.base.solutionmodel.IBaseSolutionModel;
  *
  * @since 7.2
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IMobileSolutionModel extends IBaseSolutionModel
 {
 

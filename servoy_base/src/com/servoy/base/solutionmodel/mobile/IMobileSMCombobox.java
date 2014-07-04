@@ -26,10 +26,10 @@ import com.servoy.base.solutionmodel.IBaseSMValueList;
  * 
  * @author rgansevles
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IMobileSMCombobox extends IMobileSMField
 {
 	@Override
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public IBaseSMValueList getValuelist();
 }

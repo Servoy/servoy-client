@@ -25,10 +25,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * 
  * @author rgansevles
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IMobileSMText extends IMobileSMField
 {
 	@Override
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public String getPlaceholderText();
 }

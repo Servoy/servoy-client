@@ -33,7 +33,7 @@ import com.servoy.base.solutionmodel.IBaseSMVariable;
  *
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface IMobileSMForm extends IBaseSMForm
 {
 
