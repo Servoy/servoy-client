@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
@@ -33,7 +32,6 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSTableObject")
-@ServoyClientSupport(ng = false, wc = true, sc = true)
 public class JSTableObject extends JSTable
 {
 	public JSTableObject(ITable table, IServer server)

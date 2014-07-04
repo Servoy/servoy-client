@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.scripting.info;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
@@ -23,6 +24,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyClientSupport(ng = false, wc = true, sc = false)
 public class WEBCONSTANTS implements IPrefixedConstantsObject
 {
 

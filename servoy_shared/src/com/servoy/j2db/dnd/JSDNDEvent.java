@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.JSBaseEvent;
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDNDEvent")
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 public class JSDNDEvent extends JSBaseEvent
 {
 	/**

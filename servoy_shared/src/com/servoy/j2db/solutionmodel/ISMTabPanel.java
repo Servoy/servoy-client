@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMTabPanel;
 import com.servoy.j2db.persistence.TabPanel;
@@ -206,6 +207,7 @@ public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * tabPanel.scrollTabs = true;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public boolean getScrollTabs();
 
 	/**
@@ -225,6 +227,7 @@ public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 	 */
 	public int getTabOrientation();
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setScrollTabs(boolean scrollTabs);
 
 	public void setTabOrientation(int orientation);

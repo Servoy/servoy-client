@@ -19,7 +19,6 @@ package com.servoy.j2db.dataprocessing;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerInternal;
@@ -34,7 +33,6 @@ import com.servoy.j2db.util.Debug;
  * @see IServer
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-@ServoyClientSupport(ng = false, wc = true, sc = true)
 public class JSServer
 {
 	private final IServer server;

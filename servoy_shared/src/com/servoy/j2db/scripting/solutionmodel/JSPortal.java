@@ -54,7 +54,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, IJavaScriptType, ISMPortal
 {
 	private final IApplication application;

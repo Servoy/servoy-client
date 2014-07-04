@@ -1229,7 +1229,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param text New status text
 	 * @param tooltip Status tooltip text 
 	 */
-	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 	public void js_setStatusText(String text, String tooltip)
 	{
 		application.setStatusText(text != null ? text : "", tooltip);//$NON-NLS-1$
@@ -1242,7 +1242,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param text New status text
 	 */
-	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 	public void js_setStatusText(String text)
 	{
 		js_setStatusText(text, null);
@@ -1255,6 +1255,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return All printer names
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String[] js_getPrinters()
 	{
 		DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PAGEABLE;

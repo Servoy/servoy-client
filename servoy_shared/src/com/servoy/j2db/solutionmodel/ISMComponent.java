@@ -160,10 +160,8 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	 * fieldAbove.background = '#FF0000';
 	 * fieldAbove.formIndex = 20;
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getFormIndex();
 
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setFormIndex(int arg);
 
 	/**

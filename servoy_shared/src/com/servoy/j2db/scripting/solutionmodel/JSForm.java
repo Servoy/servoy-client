@@ -4367,14 +4367,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.onElementFocusLost = form.newMethod('function onElementFocusLost(event) { application.output("onElementFocusLost intercepted from " + event.getSource()); }');
 	 */
 	@JSGetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnElementFocusGained()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID);
 	}
 
 	@JSSetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnElementFocusGained(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, method);

@@ -238,6 +238,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * 
 	 * @param arg the layout contents
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setLayoutGrid(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUTGRID, arg);
@@ -247,6 +248,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * Get the form layout grid.
 	 * @return the layout
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getLayoutGrid()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUTGRID);

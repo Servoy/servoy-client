@@ -38,7 +38,7 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
  * @author lvostinar
  * @since 6.0
  */
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implements IRuntimeRectangle
 {
 	public RuntimeRectangle(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)

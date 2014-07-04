@@ -28,7 +28,7 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
  * Interface for mobile client inset list/list form manipulation.
  * @author acostescu
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 public interface ISHList extends IBaseSHList
 {
 	@JSGetter
@@ -68,19 +68,15 @@ public interface ISHList extends IBaseSHList
 	public void setSubtextDataProviderID(String subtextDataProviderID);
 
 	@JSGetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getDataIconType();
 
 	@JSSetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setDataIconType(String iconType);
 
 	@JSGetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getDataIconDataProviderID();
 
 	@JSSetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setDataIconDataProviderID(String dataIconDataProviderID);
 
 	@JSGetter

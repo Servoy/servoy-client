@@ -174,7 +174,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 
 	@Override
 	@JSGetter
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public String getInnerHTML()
 	{
 		return getBaseComponent(false).getBeanXML();
@@ -182,7 +182,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 
 	@Override
 	@JSSetter
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public void setInnerHTML(String innerHTML)
 	{
 		getBaseComponent(true).setBeanXML(innerHTML);

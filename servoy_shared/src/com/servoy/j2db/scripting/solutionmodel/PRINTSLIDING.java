@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMPrintSliding;
@@ -25,7 +24,6 @@ import com.servoy.j2db.solutionmodel.ISMPrintSliding;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-@ServoyClientSupport(ng = false, wc = true, sc = true)
 public class PRINTSLIDING implements ISMPrintSliding, IPrefixedConstantsObject
 {
 

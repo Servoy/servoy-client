@@ -278,14 +278,12 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * fieldAbove.formIndex = 20;
 	 */
 	@JSGetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getFormIndex()
 	{
 		return getBaseComponent(false).getFormIndex();
 	}
 
 	@JSSetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setFormIndex(int arg)
 	{
 		getBaseComponent(true).setFormIndex(arg);

@@ -1758,7 +1758,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * form.onElementFocusGained = form.newMethod('function onElementFocusGained(event) { application.output("onElementFocusGained intercepted from " + event.getSource()); }');
 	 * form.onElementFocusLost = form.newMethod('function onElementFocusLost(event) { application.output("onElementFocusLost intercepted from " + event.getSource()); }');
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnElementFocusGained();
 
 	/**

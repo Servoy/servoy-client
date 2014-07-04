@@ -19,12 +19,15 @@ package com.servoy.j2db.solutionmodel;
 
 import java.awt.print.PageFormat;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+
 /**
  * Constants for page orientation (printing). 
  * 
  * @since 7.0
  * @author acostescu
  */
+@ServoyClientSupport(ng = false, wc = true, sc = true)
 public interface ISMPageOrientation
 {
 

@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.persistence.ISupportPrintSliding;
 
 /**
@@ -25,6 +26,7 @@ import com.servoy.j2db.persistence.ISupportPrintSliding;
  * @since 7.0
  * @author acostescu
  */
+@ServoyClientSupport(ng = false, wc = true, sc = true)
 public interface ISMPrintSliding
 {
 
