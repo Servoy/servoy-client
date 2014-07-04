@@ -11,14 +11,14 @@ api:
 {
  	 createShortcut: {
             returns: 'boolean',
-            parameters:[{'shortcut':'string'},{'method':'callback'},{'contextFilter':'string','optional':'true'},{'arguments':'object []','optional':'true'}]
+            parameters:[{'shortcut':'string'},{'callback':'function'},{'contextFilter':'string','optional':'true'},{'arguments':'object []','optional':'true'}]
         },
      removeShortcut: {
             returns: 'boolean',
             parameters:[{'shortcut':'string'},{'contextFilter':'string','optional':'true'}]
         },
      showFormPopup: {
-            parameters:[{'component':'component'},{'form':'form'},{'scope':'scope'},{'dataProviderID':'string'},{'width':'int','optional':'true'},{'height':'int','optional':'true'}]
+            parameters:[{'component':'component'},{'form':'form'},{'scope':'object'},{'dataProviderID':'string'},{'width':'int','optional':'true'},{'height':'int','optional':'true'}]
         },
      closeFormPopup: {
      		parameters:[{'retval':'object'}]
