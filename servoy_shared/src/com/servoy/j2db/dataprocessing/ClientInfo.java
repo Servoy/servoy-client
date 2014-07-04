@@ -65,10 +65,10 @@ public final class ClientInfo implements Serializable
 	// normal transient fields, not terracotta transient; so these are clustered with terracotta
 	// we could optimise clustering by making it so that servers this client does not belong to will not use or have access to these ever-changing timestamps (terracotta transient)
 	private transient long loginTimestamp = 0;
-	private transient long openSolutionTimestamp = 0;
 	private transient long idleTimestamp = 0;
 	private transient String[] groups;
 
+	private long openSolutionTimestamp = 0;
 	private int solutionReleaseNumber = -1;
 	private int openSolutionId = -1;
 	private List<String> infos = new ArrayList<String>();//to make it possible for developer to give a client a meaning full name/description in the admin page
