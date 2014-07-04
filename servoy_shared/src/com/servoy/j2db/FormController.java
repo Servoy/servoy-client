@@ -86,7 +86,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Representation of a form
- * 
+ *
  * @author jblok, jcompagner
  */
 public class FormController extends BasicFormController
@@ -460,7 +460,7 @@ public class FormController extends BasicFormController
 					Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
-			//apply bgcolor to renderer				
+			//apply bgcolor to renderer
 			if (bgColor != null)
 			{
 				dr.setBackground(bgColor);
@@ -812,14 +812,6 @@ public class FormController extends BasicFormController
 		return notifyVisible;
 	}
 
-	public void notifyResized()
-	{
-		if (form.getOnResizeMethodID() > 0)
-		{
-			executeOnResize();
-		}
-	}
-
 	/*
 	 * _____________________________________________________________ The methods below belong to this class
 	 */
@@ -1137,7 +1129,7 @@ public class FormController extends BasicFormController
 	/**
 	 * @param src
 	 * @param function
-	 * @param useFormAsEventSourceEventually 
+	 * @param useFormAsEventSourceEventually
 	 */
 	@Override
 	protected FormAndComponent getJSApplicationNames(Object source, Function function, boolean useFormAsEventSourceEventually)
@@ -1168,7 +1160,7 @@ public class FormController extends BasicFormController
 					}
 					if (container != getFormUI())
 					{
-						// if not then this is not the trigger element for this form. 
+						// if not then this is not the trigger element for this form.
 						src = null;
 					}
 				}
@@ -1197,7 +1189,7 @@ public class FormController extends BasicFormController
 					if (name == null || name.length() == 0)
 					{
 						name = ComponentFactory.WEB_ID_PREFIX + System.currentTimeMillis();
-						// Check Web components always have a name! Because name can't be set 
+						// Check Web components always have a name! Because name can't be set
 						((IComponent)src).setName(name);
 					}
 					try
@@ -1224,14 +1216,6 @@ public class FormController extends BasicFormController
 
 	//	private static int isExecuting = 0;
 	//	private static LinkedList executeStack = new LinkedList();
-
-	private void executeOnResize()
-	{
-		if (isFormVisible())
-		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, null, null, true, true);
-		}
-	}
 
 	private Map<String, Object[]> hmChildrenJavaMembers;
 
@@ -1379,7 +1363,7 @@ public class FormController extends BasicFormController
 
 
 	/**
-	 * 
+	 *
 	 */
 	public void touch()
 	{

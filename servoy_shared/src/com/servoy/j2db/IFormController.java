@@ -57,7 +57,7 @@ public interface IFormController extends IForm
 	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables);
 
 	/**
-	 * 
+	 *
 	 */
 	void destroy();
 
@@ -72,7 +72,7 @@ public interface IFormController extends IForm
 	boolean isFormVisible();
 
 	/**
-	 * 
+	 *
 	 */
 	void init();
 
@@ -83,6 +83,7 @@ public interface IFormController extends IForm
 
 	public void executeOnLoadMethod();
 
+	public void notifyResized();
 
 	/**
 	 * @param cmd
@@ -120,7 +121,7 @@ public interface IFormController extends IForm
 	boolean loadAllRecordsImpl(boolean b) throws ServoyException;
 
 	/**
-	 * 
+	 *
 	 */
 	void refreshView();
 

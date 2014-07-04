@@ -294,6 +294,23 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	public abstract IBasicFormUI getFormUI();
 
+
+	public void notifyResized()
+	{
+		if (form.getOnResizeMethodID() > 0)
+		{
+			executeOnResize();
+		}
+	}
+
+	private void executeOnResize()
+	{
+		if (isFormVisible())
+		{
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, null, null, true, true);
+		}
+	}
+
 	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
 	{
@@ -521,7 +538,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			}
 
 			// TODO better navigator support for webclient
-			// TODO check for ngclient if this is really needed, ngclient server ui doesn't know the navigator at all at this time 
+			// TODO check for ngclient if this is really needed, ngclient server ui doesn't know the navigator at all at this time
 			if (application.getFormManager() instanceof FormManager)
 			{
 				FormController navigator = ((FormManager)application.getFormManager()).getCurrentContainer().getNavigator();
@@ -800,7 +817,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 			if (id <= 0 && ScopesUtils.isVariableScope(name))
 			{
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$ 
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$
 			}
 			else
 			{
@@ -812,9 +829,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	/**
 	 * call a scriptMethod (== function)
-	 * 
+	 *
 	 * @param cmd be the the id from the method or the name
-	 * @param methodKey 
+	 * @param methodKey
 	 */
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
 		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception
@@ -925,7 +942,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		catch (Exception ex)
 		{
 //			this.requestFocus();
-			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
+			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
