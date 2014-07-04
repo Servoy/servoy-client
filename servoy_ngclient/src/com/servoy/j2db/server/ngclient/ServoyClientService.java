@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.websocket.impl.ClientService;
 
 /**
@@ -32,9 +33,9 @@ public class ServoyClientService extends ClientService implements IContextProvid
 	/**
 	 * @param serviceName
 	 */
-	public ServoyClientService(String serviceName, INGClientWebsocketSession session)
+	public ServoyClientService(String serviceName, WebComponentSpecification spec, INGClientWebsocketSession session)
 	{
-		super(serviceName);
+		super(serviceName, spec);
 		this.session = session;
 	}
 
@@ -46,7 +47,7 @@ public class ServoyClientService extends ClientService implements IContextProvid
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.impl.ClientService#executeAsyncServiceCall(java.lang.String, java.lang.Object[])
 	 */
 	@Override

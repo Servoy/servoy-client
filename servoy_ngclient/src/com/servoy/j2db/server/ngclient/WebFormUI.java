@@ -55,6 +55,17 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class WebFormUI extends Container implements IWebFormUI
 {
+	private static final class FormSpecification extends WebComponentSpecification
+	{
+		private FormSpecification()
+		{
+			super("form_spec", "", "", "", null);
+			putProperty("size", new PropertyDescription("size", TypesRegistry.getType("dimension")));
+		}
+	}
+
+	private static final WebComponentSpecification FORM_SPEC = new FormSpecification();
+
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final IWebFormController formController;
 
@@ -69,7 +80,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	public WebFormUI(IWebFormController formController)
 	{
-		super(formController.getName());
+		super(formController.getName(), FORM_SPEC);
 		this.formController = formController;
 		init();
 	}

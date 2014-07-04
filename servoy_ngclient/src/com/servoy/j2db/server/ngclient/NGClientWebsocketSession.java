@@ -34,6 +34,8 @@ import org.json.JSONStringer;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IClientService;
@@ -603,13 +605,15 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
 	protected IClientService createClientService(String name)
 	{
-		return new ServoyClientService(name, this);
+		WebComponentSpecification spec = WebServiceSpecProvider.getInstance().getWebServiceSpecification(name);
+		if (spec == null) spec = new WebComponentSpecification(name, "", name, "", null);
+		return new ServoyClientService(name, spec, this);
 	}
 
 	@Override
