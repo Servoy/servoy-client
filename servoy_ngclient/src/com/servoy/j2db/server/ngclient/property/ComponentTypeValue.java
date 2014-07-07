@@ -36,7 +36,9 @@ import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IComplexTypeImpl;
+import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -80,6 +82,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 
 	protected WebFormComponent component;
 	protected PropertyChangeListener forFoundsetListener;
+	private IChangeListener monitor;
 
 	// this class currently always works with arrays of Component values (see how it is instantiated)
 	public ComponentTypeValue(Object designJSONValue, ComponentTypeConfig config)
@@ -146,7 +149,9 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	@Override
 	public void attachToComponent(IChangeListener monitor, WebComponent c)
 	{
+		componentsAreCreated = false;
 		this.component = (WebFormComponent)c;
+		this.monitor = monitor;
 
 		createComponentsIfNeededAndPossible();
 		if (forFoundsetTypedPropertyName() != null)
@@ -189,6 +194,14 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		for (int i = 0; i < elements.length; i++)
 		{
 			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], (IWebFormUI)component.getParent());
+			childComponents[i].addPropertyChangeListener(null, new PropertyChangeListener()
+			{
+				@Override
+				public void propertyChange(PropertyChangeEvent evt)
+				{
+					monitor.valueChanged();
+				}
+			});
 			((IWebFormUI)component.getParent()).contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
 		}
 
@@ -321,11 +334,30 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		// TODO if the components property type is not linked to a foundset then somehow the dataproviders/tagstring must also be sent when needed
 		// but if it is linked to a foundset those should only be sent through the foundset!
 		// TODO ac send only component properties that changed
-//		for (c : childComponents)
-//		{
-//			
-//		}
-		return toJSON(destinationJSON, conversionMarkers);
+		if (childComponents != null)
+		{
+			Map<String, Map<String, Object>> componentChanges = new HashMap<String, Map<String, Object>>();
+			for (WebFormComponent childComponent : childComponents)
+			{
+				if (childComponent != null)
+				{
+					Map<String, Object> changes = childComponent.getChanges();
+					if (changes.size() > 0)
+					{
+						componentChanges.put(childComponent.getName(), changes);
+					}
+				}
+			}
+			if (componentChanges.size() > 0)
+			{
+				destinationJSON.object();
+				JSONUtils.writeDataWithConversions(destinationJSON, componentChanges,
+					((IWebFormUI)component.getParent()).getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(),
+					ConversionLocation.BROWSER_UPDATE);
+				destinationJSON.endObject();
+			}
+		}
+		return destinationJSON;
 	}
 
 	@Override

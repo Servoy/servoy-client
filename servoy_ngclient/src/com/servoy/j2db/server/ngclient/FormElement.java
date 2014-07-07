@@ -154,6 +154,10 @@ public final class FormElement implements IWebComponentInitializer
 				jsonMap.put(key, NGClientForJsonConverter.toJavaObject(jsonProperties.get(key), pd, context, ConversionLocation.DESIGN, null));
 				//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
 			}
+			else if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(key))
+			{
+				jsonMap.put(key, jsonProperties.get(key));
+			}
 		}
 	}
 

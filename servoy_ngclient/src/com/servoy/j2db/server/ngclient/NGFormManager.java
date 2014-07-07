@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
+import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.WebsocketEndpoint;
 
@@ -739,7 +740,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				try
 				{
 					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : Collections.singletonMap("forms", formData), true,
-						websocketSession.getForJsonConverter());
+						websocketSession.getForJsonConverter(), ConversionLocation.BROWSER);
 				}
 				catch (IOException e)
 				{
