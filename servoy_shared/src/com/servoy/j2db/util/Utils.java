@@ -81,6 +81,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeError;
 import org.mozilla.javascript.NativeJavaMethod;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
@@ -1331,6 +1332,10 @@ public final class Utils
 			if (o instanceof UUID)
 			{
 				return (UUID)o;
+			}
+			if (o instanceof NativeJavaObject)
+			{
+				return getAsUUID(((NativeJavaObject)o).unwrap(), throwOnException);
 			}
 		}
 		catch (RuntimeException e)
