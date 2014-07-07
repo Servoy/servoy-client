@@ -2055,7 +2055,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample application.undo();
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void js_undo()
 	{
 		AbstractAction cmd = (AbstractAction)application.getCmdManager().getRegisteredAction("cmdundo"); //$NON-NLS-1$
@@ -2070,7 +2070,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample application.redo();
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public void js_redo()
 	{
 		AbstractAction cmd = (AbstractAction)application.getCmdManager().getRegisteredAction("cmdredo"); //$NON-NLS-1$

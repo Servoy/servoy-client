@@ -4748,7 +4748,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public JSMethod getOnResize()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID);

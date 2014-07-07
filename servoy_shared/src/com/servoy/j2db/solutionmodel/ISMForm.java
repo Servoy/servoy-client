@@ -1725,6 +1725,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * form.onDragOver = form.newMethod('function onDragOver(event) { application.output("onDragOver intercepted from " + event.getSource()); }');
 	 * form.onDrop = form.newMethod('function onDrop(event) { application.output("onDrop intercepted from " + event.getSource()); }');
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnDrag();
 
 	/**
@@ -1733,6 +1734,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sampleas getOnDrag()
 	 * @see #getOnDrag()
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnDragEnd();
 
 	/**
@@ -1741,6 +1743,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sampleas getOnDrag()
 	 * @see #getOnDrag()
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnDragOver();
 
 	/**
@@ -1749,6 +1752,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sampleas getOnDrag()
 	 * @see #getOnDrag()
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnDrop();
 
 	/**
@@ -1961,7 +1965,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sample
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnResize();
 
 	/**
@@ -1970,6 +1973,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sample
 	 * form.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnRender();
 
 	public void setOnDeleteAllRecordsCmd(ISMMethod method);
