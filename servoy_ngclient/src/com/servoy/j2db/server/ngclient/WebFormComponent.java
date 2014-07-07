@@ -51,6 +51,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 	protected int nextAvailableTabSequence;
 	protected PropertyChangeSupport propertyChangeSupport;
 	protected IWebFormUI parentForm;
+	protected ComponentContext componentContext;
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
@@ -102,6 +103,22 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 	public FormElement getFormElement()
 	{
 		return formElement;
+	}
+
+	/**
+	 * @param componentContext the componentContext to set
+	 */
+	public void setComponentContext(ComponentContext componentContext)
+	{
+		this.componentContext = componentContext;
+	}
+
+	/**
+	 * @return the componentContext
+	 */
+	public ComponentContext getComponentContext()
+	{
+		return componentContext;
 	}
 
 	public Object getConvertedPropertyWithDefault(String propertyName, boolean designValue, boolean convertValue)
@@ -393,6 +410,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 		{
 			if (p instanceof IComplexPropertyValue) ((IComplexPropertyValue)p).detach(); // clear any listeners/held resources
 		}
+		propertyChangeSupport = null;
 		super.dispose();
 	}
 

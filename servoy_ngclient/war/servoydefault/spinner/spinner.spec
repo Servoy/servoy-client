@@ -41,8 +41,7 @@ api:
             parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         },
         setValueListItems: {
-            parameters:[{'value':'object'}],
-            callOn: 1
+            parameters:[{'value':'object'}]
         }
 }
  

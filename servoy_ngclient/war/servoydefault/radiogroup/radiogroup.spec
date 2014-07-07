@@ -53,8 +53,7 @@ api:
             parameters:[{'x':'int'},{'y':'int'}]
         },
         setValueListItems: {
-            parameters:[{'value':'object'}],
-            callOn: 1
+            parameters:[{'value':'object'}]
         }
 }
  

@@ -13,7 +13,7 @@ types: {
 
 	callType: {
 		functionName: 'string',
-		callOn: {type: 'int', values: [{ALL_RECORDS_IF_TEMPLATE: 0}, {ONE_SELECTED_RECORD_IF_TEMPLATE: 1}], default: 0}, 
+		callOn: {type: 'int', values: [{ONE_SELECTED_RECORD_IF_TEMPLATE: 0}, {ALL_RECORDS_IF_TEMPLATE: 1}], default: 0}, 
 	}
 
 }

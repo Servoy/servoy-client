@@ -51,8 +51,7 @@ api:
 
         },
         setValueListItems: {
-            parameters:[{'value':'object'}],
-            callOn: 1
+            parameters:[{'value':'object'}]
         }
 }
  

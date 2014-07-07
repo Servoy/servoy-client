@@ -266,6 +266,12 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        			console.warn("cannot call " + call.api + " on " + call.bean + " because viewIndex "+ call.viewIndex +" api is not found")
 	        		}
 	        	}
+	        	else if (call.parentComponentName != undefined)
+	        	{
+	        		// handle nested components
+	        		var funcThis = formState.model[call.parentComponentName][call.parentComponentProperty][call.parentComponentIndex].api;
+	        		var func = funcThis[call.api];
+	        	}
 	        	else {
 	        		var funcThis = formState.api[call.bean];
 	        		var func = funcThis[call.api];

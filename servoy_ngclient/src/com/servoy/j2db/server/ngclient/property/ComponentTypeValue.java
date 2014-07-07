@@ -40,6 +40,7 @@ import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
@@ -83,6 +84,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	protected WebFormComponent component;
 	protected PropertyChangeListener forFoundsetListener;
 	private IChangeListener monitor;
+	private String propertyName;
 
 	// this class currently always works with arrays of Component values (see how it is instantiated)
 	public ComponentTypeValue(Object designJSONValue, ComponentTypeConfig config)
@@ -100,7 +102,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	public void initialize(IWebComponentInitializer formElement, String propertyName, Object defaultValue)
 	{
 		FormElement fe = (FormElement)formElement;
-
+		this.propertyName = propertyName;
 		// if this elements propety uses a forFoundsetTypedProperty, we don't know at this point if that property is initialized or not
 		// so search for it later, when we really need to create components; fow not just parse what we can
 		try
@@ -153,6 +155,16 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		this.component = (WebFormComponent)c;
 		this.monitor = monitor;
 
+		if (elements != null)
+		{
+			for (int i = 0; i < elements.length; i++)
+			{
+				if (childComponents[i] != null)
+				{
+					childComponents[i].dispose();
+				}
+			}
+		}
 		createComponentsIfNeededAndPossible();
 		if (forFoundsetTypedPropertyName() != null)
 		{
@@ -202,6 +214,8 @@ public class ComponentTypeValue implements IComplexPropertyValue
 					monitor.valueChanged();
 				}
 			});
+			childComponents[i].setParent(component.getParent());
+			childComponents[i].setComponentContext(new ComponentContext(component.getName(), propertyName, i));
 			((IWebFormUI)component.getParent()).contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
 		}
 

@@ -565,6 +565,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				call.put("viewIndex", Integer.valueOf(((WebGridFormUI)form.getFormUI()).getSelectedViewIndex()));
 			}
+			if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
+			{
+				ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
+				call.put("parentComponentName", componentContext.getParentComponentName());
+				call.put("parentComponentProperty", componentContext.getParentComponentProperty());
+				call.put("parentComponentIndex", componentContext.getParentComponentIndex());
+			}
 			Object ret = super.invokeApi(receiver, apiFunction, arguments, call);
 			return NGClientForJsonConverter.toJavaObject(ret, apiFunction.getReturnType(), new ServoyDataConverterContext(getClient()),
 				ConversionLocation.BROWSER_UPDATE, null); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
@@ -605,7 +612,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
