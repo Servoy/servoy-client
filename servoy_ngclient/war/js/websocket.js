@@ -7,7 +7,7 @@ var webSocketModule = angular.module('webSocketModule', []);
  * Setup the $webSocket service.
  */
 webSocketModule.factory('$webSocket',
-		function($rootScope, $injector, $log, $q, $services, $sabloConverters) {
+		function($rootScope, $injector, $log, $q, $services, $sabloConverters,$sabloUtils) {
 
 			var websocket = null
 
@@ -84,7 +84,7 @@ webSocketModule.factory('$webSocket',
 							smsgid : obj.smsgid
 						}
 						if (responseValue != undefined) {
-							response.ret = convertClientObject(responseValue);
+							response.ret = $sabloUtils.convertClientObject(responseValue);
 						}
 						sendMessageObject(response);
 					}
@@ -120,13 +120,6 @@ webSocketModule.factory('$webSocket',
 				{
 					return sendDeferredMessage(cmd)
 				}
-			}
-
-			var convertClientObject = function(value) {
-				if (value instanceof Date) {
-					value = value.getTime();
-				}
-				return value;
 			}
 
 			var WebsocketSession = function() {
@@ -199,19 +192,62 @@ webSocketModule.factory('$webSocket',
 					websocket.onmessage = function(message) {
 						handleMessage(wsSession, message)
 					}
+					
+					// todo should we just merge $websocket and $services into $sablo that just has all
+					// the public api of sablo (like connect, conversions, services)
+					$services.setSession(wsSession);
 
 					return wsSession
 				},
-
-				convertClientObject : convertClientObject
 			};
-		}).factory("$services", function($rootScope, $sabloConverters){
+		}).factory("$services", function($rootScope, $sabloConverters, $sabloUtils){
 			// serviceName:{} service model
-			var serviceStates = {};
+			var serviceStates = $rootScope.$new(true);
 			var serviceStatesConversionInfo = {};
+			var watches = {}
+			var wsSession = null;
+			var sendServiceChanges = function(now, prev, servicename) {
+				   // first build up a list of all the properties both have.
+				   var fulllist = $sabloUtils.getCombinedPropertyNames(now,prev);
+				   var conversionInfo = serviceStatesConversionInfo[servicename];
+				   var changes = {}, prop;
+
+				   for (prop in fulllist) {
+					   var changed = false;
+					   if (!prev) {
+						   changed = true;
+					   }
+					   else if (prev[prop] !== now[prop]) {
+						   if (typeof now[prop] == "object") {
+							   if ($sabloUtils.isChanged(now[prop], prev[prop], conversionInfo ? conversionInfo[prop] : undefined)) {
+								   changed = true;
+							   }
+						   } else {
+							   changed = true;
+						   }
+					   }
+					   if (changed) {
+						   if (conversionInfo && conversionInfo[prop]) changes[prop] = $sabloConverters.convertFromClientToServer(now[prop], conversionInfo[prop], prev ? prev[prop] : undefined);
+						   else changes[prop] = $sabloUtils.convertClientObject(now[prop])
+					   }
+				   }
+				   for (prop in changes) {
+					   wsSession.sendMessageObject({servicedatapush:servicename,changes:changes})
+					   return;
+				   }
+			};
+			var watch = function(servicename) {
+			   return function(newVal, oldVal) {
+					   if (newVal === oldVal) return;
+					   sendServiceChanges(newVal,oldVal,servicename)
+			   }
+			};
 			return {
 				getServiceState: function(serviceName) {
-					if (!serviceStates[serviceName]) serviceStates[serviceName] = {};
+					if (!serviceStates[serviceName]) {
+						serviceStates[serviceName] = {};
+						watches[serviceName] = serviceStates.$watch(serviceName,watch(serviceName),true);
+					}
 		    		return serviceStates[serviceName];
 				},
 				updateStates: function(services, conversionInfo) {
@@ -229,6 +265,8 @@ webSocketModule.factory('$webSocket',
 		 		            }
 		 		            else {
 		 		            	var serviceData = services[servicename];
+		 		            	// unregister the watch.
+		 		            	watches[servicename]();
 		 		            	for(var key in serviceData) {
 		 		            		if (conversionInfo && conversionInfo[servicename] && conversionInfo[servicename][key]) {
 		 		            			// convert property, remember type for when a client-server conversion will be needed
@@ -239,8 +277,13 @@ webSocketModule.factory('$webSocket',
 		 		            		serviceStates[servicename][key] = serviceData[key];
 		 		             	}
 		 		            }
+		 		            // register a new watch
+		 		            watches[servicename] = serviceStates.$watch(servicename,watch(servicename),true);
 		        		 }
 		        	});
+				},
+				setSession: function(session) {
+					wsSession = session;
 				}
 			}
 		}).factory("$sabloConverters", function($log) {
@@ -326,4 +369,70 @@ webSocketModule.factory('$webSocket',
 				}
 				
 			};
+		}).factory("$sabloUtils", function($log) { 
+			 var getCombinedPropertyNames = function(now,prev) {
+			       var fulllist = {}
+		    	   if (prev) {
+			    	   var prevNames = Object.getOwnPropertyNames(prev);
+			    	   for(var i=0;i<prevNames.length;i++) {
+			    		   fulllist[prevNames[i]] = true;
+			    	   }
+		    	   }
+		    	   if (now) {
+			    	   var nowNames = Object.getOwnPropertyNames(now);
+			    	   for(var i=0;i<nowNames.length;i++) {
+			    		   fulllist[nowNames[i]] = true;
+			    	   }
+		    	   }
+		    	   return fulllist;
+			    }
+			 
+			var isChanged = function(now, prev, conversionInfo) {
+				   if ((typeof conversionInfo === 'string' || typeof conversionInfo === 'number') && now && now.isChanged) {
+					   return now.isChanged();
+				   }
+				   
+				   if (now && prev) {
+					   if (now instanceof Array) {
+						   if (prev instanceof Array) {
+							   if (now.length != prev.length) return true;
+						   } else {
+							   return true;
+						   }
+					   }
+					   if (now instanceof Date) {
+						   if (prev instanceof Date) {
+							   return now.getTime() != prev.getTime();
+						   }
+						   return true;
+					   }
+					   if (now instanceof Object && !(prev instanceof Object)) return true;
+					   // first build up a list of all the properties both have.
+			    	   var fulllist = getCombinedPropertyNames(now,prev);
+			    	    for (var prop in fulllist) {
+		                    if(prop == "$$hashKey") continue; // ng repeat creates a child scope for each element in the array any scope has a $$hashKey property which must be ignored since it is not part of the model
+			    	    	if (prev[prop] !== now[prop]) {
+			    	    		if (typeof now[prop] == "object") {
+			    	    			if (isChanged(now[prop],prev[prop], conversionInfo ? conversionInfo[prop] : undefined)) {
+			    	    				return true;
+			    	    			}
+			    	    		} else {
+			    	               return true;
+			    	    		}
+			    	        }
+			    	    }
+			    	    return false;
+				   }
+				   return true;
+			   }
+			return {
+				isChanged: isChanged,
+				getCombinedPropertyNames: getCombinedPropertyNames,
+				convertClientObject : function(value) {
+					if (value instanceof Date) {
+						value = value.getTime();
+					}
+					return value;
+				},
+			}
 		});

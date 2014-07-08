@@ -4,6 +4,7 @@ angular.module('testservice',['servoy'])
 	return {
 		talk: function() {
 			alert("talk: " + state.text);
+			state.text = "something else"
 		}
 	}
 })

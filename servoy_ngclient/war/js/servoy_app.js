@@ -1,7 +1,7 @@
 var controllerProvider;
 angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
-}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket,$sessionService,$sabloConverters) {
+}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket,$sessionService,$sabloConverters,$sabloUtils) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
 	   // this holds the form model with all the data, per form is this the "synced" view of the the IFormUI on the server 
 	   // (3 way binding)
@@ -13,7 +13,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   var sendChanges = function(now, prev, formname, beanname) {
 		   if (ignoreChanges) return false;
 		   // first build up a list of all the properties both have.
-		   var fulllist = getCombinedPropertyNames(now,prev);
+		   var fulllist = $sabloUtils.getCombinedPropertyNames(now,prev);
 		   var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
 		   var changes = {}, prop;
 
@@ -24,7 +24,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   }
 			   else if (prev[prop] !== now[prop]) {
 				   if (typeof now[prop] == "object") {
-					   if (isChanged(now[prop], prev[prop], conversionInfo ? conversionInfo[prop] : undefined)) {
+					   if ($sabloUtils.isChanged(now[prop], prev[prop], conversionInfo ? conversionInfo[prop] : undefined)) {
 						   changed = true;
 					   }
 				   } else {
@@ -33,7 +33,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   }
 			   if (changed) {
 				   if (conversionInfo && conversionInfo[prop]) changes[prop] = $sabloConverters.convertFromClientToServer(now[prop], conversionInfo[prop], prev ? prev[prop] : undefined);
-				   else changes[prop] = $webSocket.convertClientObject(now[prop])
+				   else changes[prop] = $sabloUtils.convertClientObject(now[prop])
 			   }
 		   }
 		   if (changes.location || changes.size || changes.visible || changes.anchors) {
@@ -327,62 +327,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   ignoreChanges = false;
 		   }
 	    };
-	    var getCombinedPropertyNames = function(now,prev) {
-	       var fulllist = {}
-    	   if (prev) {
-	    	   var prevNames = Object.getOwnPropertyNames(prev);
-	    	   for(var i=0;i<prevNames.length;i++) {
-	    		   fulllist[prevNames[i]] = true;
-	    	   }
-    	   }
-    	   if (now) {
-	    	   var nowNames = Object.getOwnPropertyNames(now);
-	    	   for(var i=0;i<nowNames.length;i++) {
-	    		   fulllist[nowNames[i]] = true;
-	    	   }
-    	   }
-    	   return fulllist;
-	    }
 	    
-	   var isChanged = function(now, prev, conversionInfo) {
-		   if ((typeof conversionInfo === 'string' || typeof conversionInfo === 'number') && now && now.isChanged) {
-			   return now.isChanged();
-		   }
-		   
-		   if (now && prev) {
-			   if (now instanceof Array) {
-				   if (prev instanceof Array) {
-					   if (now.length != prev.length) return true;
-				   } else {
-					   return true;
-				   }
-			   }
-			   if (now instanceof Date) {
-				   if (prev instanceof Date) {
-					   return now.getTime() != prev.getTime();
-				   }
-				   return true;
-			   }
-			   if (now instanceof Object && !(prev instanceof Object)) return true;
-			   // first build up a list of all the properties both have.
-	    	   var fulllist = getCombinedPropertyNames(now,prev);
-	    	    for (var prop in fulllist) {
-                    if(prop == "$$hashKey") continue; // ng repeat creates a child scope for each element in the array any scope has a $$hashKey property which must be ignored since it is not part of the model
-	    	    	if (prev[prop] !== now[prop]) {
-	    	    		if (typeof now[prop] == "object") {
-	    	    			if (isChanged(now[prop],prev[prop], conversionInfo ? conversionInfo[prop] : undefined)) {
-	    	    				return true;
-	    	    			}
-	    	    		} else {
-	    	               return true;
-	    	    		}
-	    	        }
-	    	    }
-	    	    return false;
-		   }
-		   return true;
-	   }
-	   
 	   return {
 		   getFormState: function(name){ 
 			   var defered = null
@@ -486,7 +431,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	       },
 
 	       sendChanges: sendChanges,
-
+	       
 			// for example components that use nested elements/components such as portal can give here the new value
 			// based on the way they feed the model to child components - so they can use other objects then server known models
 	    	pushDPChange: function(formname, beanname, property, componentModel, rowId) {
@@ -494,7 +439,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 
 	    		if (componentModel) {
 	    			// probably a nested component (inside another component); the component might even be linked to a different foundset
-	    			changes[property] = $webSocket.convertClientObject(componentModel[property]);
+	    			changes[property] = $sabloUtils.convertClientObject(componentModel[property]);
 	    			if (rowId){
 	    				changes.rowId = rowId;
 	    			} else if (componentModel.rowId) {
@@ -502,7 +447,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					}
 	    		} else {
 	    			// default model, simple direct form child component
-	    			changes[property] = $webSocket.convertClientObject(formStates[formname].model[beanname][property]);
+	    			changes[property] = $sabloUtils.convertClientObject(formStates[formname].model[beanname][property]);
 	    		}
 
 	    		wsSession.sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
