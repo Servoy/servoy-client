@@ -24,8 +24,20 @@ package com.servoy.j2db.persistence;
  */
 public interface IFormElement extends ISupportBounds, ISupportName, ISupportUpdateableName, IPersist, ISupportExtendsID
 {
+	/**
+	 * Sets the z-index of the form element. If two elements overlap,
+	 * then the form element with higher Z index is displayed above
+	 * the element with lower Z index.
+	 * @param arg
+	 */
 	public void setFormIndex(int arg);
 
+	/**
+	 * Returns the z-index of the form element. If two elements overlap,
+	 * then the element with higher Z index is displayed above
+	 * the form element with lower Z index.
+	 * @return
+	 */
 	public int getFormIndex();
 
 
