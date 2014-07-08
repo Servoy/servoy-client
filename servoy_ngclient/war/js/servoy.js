@@ -38,9 +38,6 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).value("$foundsetConstants", {
-    CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
-    CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 }).factory("$utils",function($rootScope,$scrollbarConstants) {
 	
 	// internal function

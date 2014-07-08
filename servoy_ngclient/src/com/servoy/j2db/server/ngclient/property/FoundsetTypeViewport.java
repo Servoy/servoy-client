@@ -81,6 +81,34 @@ public class FoundsetTypeViewport
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortCompletelyChanged();
 	}
 
+
+	/**
+	 * Extends the viewport - useful for sending more records to client without re-sending the whole viewport.
+	 *
+	 * @param positiveOrNegativeRecordNo the number of records to extend the viewPort with. A positive value
+	 * will append records at the end of the viewPort and a negative one will prepend (add to the beginning).
+	 */
+	public void loadExtraRecords(int positiveOrNegativeRecordNo)
+	{
+		int oldStartIndex = this.startIndex;
+		int oldSize = this.size;
+
+		correctViewportBoundsIfNeededInternal();
+		if (positiveOrNegativeRecordNo >= 0)
+		{
+			this.size += positiveOrNegativeRecordNo;
+			changeMonitor.recordsInserted(this.startIndex + oldSize, this.startIndex + this.size - 1, this, true);
+		}
+		else
+		{
+			this.startIndex += positiveOrNegativeRecordNo;
+			changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
+		}
+
+
+		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
+	}
+
 //
 //	/**
 //	 * If client requested invalid bounds or due to foundset changes the previous bounds
@@ -133,7 +161,7 @@ public class FoundsetTypeViewport
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_INSERT)
 						{
-							changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this);
+							changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this, false); // true - slide if first so that viewPort follows the first record
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
 						{

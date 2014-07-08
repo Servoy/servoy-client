@@ -55,7 +55,7 @@ import com.servoy.j2db.util.PersistHelper;
 
 /**
  * Form element that is based on a persist.
- * 
+ *
  * @author acostescu
  */
 class PersistBasedFormElementImpl
@@ -273,7 +273,7 @@ class PersistBasedFormElementImpl
 					for (String dpPropertyName : dataProviders)
 					{
 						String dp = (String)elementProperties.get(dpPropertyName);
-						if (dp.startsWith(relationPrefix)) elementProperties.put(dpPropertyName, dp.substring(relationPrefix.length())); // portal always prefixes comp. dataproviders with related fs name
+						if (dp != null && dp.startsWith(relationPrefix)) elementProperties.put(dpPropertyName, dp.substring(relationPrefix.length())); // portal always prefixes comp. dataproviders with related fs name
 					}
 
 					JSONUtils.toDesignJSONValue(jsonWriter, elementProperties, NGClientForJsonConverter.INSTANCE);

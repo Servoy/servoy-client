@@ -261,16 +261,25 @@ public class FoundsetTypeChangeMonitor
 		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
 	}
 
-	public void recordsInserted(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
+	/**
+	 * Deals with new records being inserted into the foundset.
+	 * @param firstRow the first row of the insertion.
+	 * @param lastRow the last row of the insertion.
+	 * @param viewPort the current viewPort.
+	 * @param viewPortExpandOnly if false, and records were inserted exactly at the viewPort start index, it will just slide the viewport;
+	 * if false, and records were requested for (so not actually inserted in the foundset, just a viewportExpand is happening) exactly
+	 * at the viewPort start index, it will actually insert the new records in the view port.
+	 */
+	public void recordsInserted(int firstRow, int lastRow, FoundsetTypeViewport viewPort, boolean viewPortExpandOnly)
 	{
 		int oldChangeFlags = changeFlags;
 		boolean viewPortRecordChangesUpdated = false;
 
-		if (lastRow - firstRow >= 0) foundSetSizeChanged();
+		if (!viewPortExpandOnly && lastRow - firstRow >= 0) foundSetSizeChanged();
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
 			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
-			if (viewPort.getStartIndex() < firstRow && firstRow <= viewPortEndIdx)
+			if (viewPort.getStartIndex() < (firstRow + (viewPortExpandOnly ? 1 : 0)) && firstRow <= viewPortEndIdx)
 			{
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 

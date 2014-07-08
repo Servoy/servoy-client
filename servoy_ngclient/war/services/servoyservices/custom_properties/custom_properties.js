@@ -1,4 +1,6 @@
-angular.module('custom_properties', ['webSocketModule']).run(function ($sabloConverters) {
+angular.module('custom_properties', ['webSocketModule'])
+// Date type -----------------------------------------------
+.run(function ($sabloConverters) {
 	$sabloConverters.registerCustomPropertyHandler('Date', {
 		fromServerToClient: function (serverJSONValue, currentClientValue) {
 			return new Date(serverJSONValue);
@@ -8,8 +10,14 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 			return newClientData.getTime();
 		}
 	});
-
+})
+// Foundset type -------------------------------------------
+.value("$foundsetTypeConstants", {
+	ROW_ID_COL_KEY: '_svyRowId'
+})
+.run(function ($sabloConverters, $rootScope, $foundsetTypeConstants) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
+	var CONVERSIONS = "conversions"; // data conversion info
 
 	var SERVER_SIZE = "serverSize";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
@@ -24,7 +32,51 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 	var DELETE = 2;
 	
 	var NO_OP = "noOP";
+	
+	function addDataWatchesToRows(foundsetValue) {
+		var i;
+		for (i = foundsetValue.viewPort.rows.length - 1; i >= 0; i--) {
+			var unwatchRowFuncs = []; 
+			newValue.__unwatchData[foundsetValue.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY]] = unwatchRowFuncs;
+			var dataprovider;
+			for (dataprovider in foundsetValue.viewPort.rows[i]) {
+				if (dataprovider !== $foundsetTypeConstants.ROW_ID_COL_KEY) unwatchRowFuncs.push(
+						$rootScope.$watch(function() { return foundsetValue.viewPort.rows[i][dataprovider]; }, function (newData, oldData) {
+							if (newData !== oldData) {
+								var changed = false;
+//								if (newValue.__ignoreSelectedChange) {
+//									if (newValue.__ignoreSelectedChange.length == newSel.length) {
+//										var i;
+//										for (i = 0; i < newValue.__ignoreSelectedChange.length; i++)
+//											if (newValue.__ignoreSelectedChange[i] !== newSel[i]) { changed = true; break; }
+//									} else changed = true;
+//									newValue.__ignoreSelectedChange = null;
+//								} else changed = true;
+//
+//								if (changed) {
+//									if (!newValue.requests) newValue.requests = [];
+//									newValue.requests.push({newClientSelection: newSel});
+//									if (newValue.changeNotifier) newValue.changeNotifier();
+//								}
+							}
+						})
+				);
+			}
+		}
+	};
 
+	function removeDataWatchesFromRows(foundsetValue) {
+		if (foundsetValue.__unwatchData) {
+			var pk;
+			for (pk in foundsetValue.__unwatchData) {
+				var i;
+				for (i = foundsetValue.__unwatchData[pk].length - 1; i >= 0; i--)
+					foundsetValue.__unwatchData[pk][i]();
+			}
+			delete foundsetValue.__unwatchData;
+		}
+	};
+	
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
 		fromServerToClient: function (serverJSONValue, currentClientValue) {
 			var newValue = currentClientValue;
@@ -41,6 +93,7 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
+					currentClientValue.__ignoreSelectedChange = currentClientValue[SELECTED_ROW_INDEXES]; // don't send back to server selection that came from server
 					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
@@ -54,9 +107,11 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 					}
 					if (angular.isDefined(v[ROWS])) {
 						currentClientValue[VIEW_PORT][ROWS] = v[ROWS];
+						if (v[CONVERSIONS]) $sabloConverters.convertFromServerToClient(currentClientValue[VIEW_PORT][ROWS], v[CONVERSIONS][ROWS]);
 					} else if (angular.isDefined(v[UPDATE_PREFIX + ROWS])) {
 						// partial row updates (remove/insert/update)
 						var rowUpdates = v[UPDATE_PREFIX + ROWS]; // array of
+						if (v[CONVERSIONS]) $sabloConverters.convertFromServerToClient(v[UPDATE_PREFIX + ROWS], v[CONVERSIONS][UPDATE_PREFIX + ROWS]);
 						
 						// {
 						//   "rows": rowData, // array again
@@ -72,7 +127,7 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 						for (i = 0; i < rowUpdates.length; i++) {
 							var rowUpdate = rowUpdates[i];
 							if (rowUpdate.type == CHANGE) {
-								for (j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++) rows[j] = rowUpdate.rows[j];
+								for (j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++) rows[j] = rowUpdate.rows[j - rowUpdate.startIndex];
 							} else if (rowUpdate.type == INSERT) {
 								for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) rows.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
 								// insert might have made obsolete some records in cache; remove those
@@ -87,34 +142,79 @@ angular.module('custom_properties', ['webSocketModule']).run(function ($sabloCon
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && serverJSONValue[NO_OP] !== 0) {
 					newValue = serverJSONValue; // not updates - so whole thing received
+					if (newValue[VIEW_PORT][CONVERSIONS]) $sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS]);
 					// initialize the property value; make it 'smart'
 					newValue.loadRecordsAsync = function(startIndex, size) {
-						this.viewPortChange = {startIndex : startIndex, size : size};
+						if (!this.requests) this.requests = [];
+						this.requests.push({newViewPort: {startIndex : startIndex, size : size}});
 						if (this.changeNotifier) this.changeNotifier();
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount) {
-						// TODO ac
+						if (!this.requests) this.requests = [];
+						this.requests.push({loadExtraRecords: negativeOrPositiveCount});
+						if (this.changeNotifier) this.changeNotifier();
 					};
 					newValue.setChangeNotifier = function(changeNotifier) {
 						this.changeNotifier = changeNotifier; 
 					}
-					newValue.isChanged = function() { return this.viewPortChange != null; }
+					newValue.isChanged = function() { return this.requests && (this.requests.length > 0); }
+					
+					newValue.__ignoreSelectedChange = newValue[SELECTED_ROW_INDEXES]; // ignore initial watch change
+					// watch for client selection changes and send them to server
+					newValue.__unwatchSelection = $rootScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
+						var changed = false;
+						if (newValue.__ignoreSelectedChange) {
+							if (newValue.__ignoreSelectedChange.length == newSel.length) {
+								var i;
+								for (i = 0; i < newValue.__ignoreSelectedChange.length; i++)
+									if (newValue.__ignoreSelectedChange[i] !== newSel[i]) { changed = true; break; }
+							} else changed = true;
+							newValue.__ignoreSelectedChange = null;
+						} else changed = true;
+
+						if (changed) {
+							if (!newValue.requests) newValue.requests = [];
+							newValue.requests.push({newClientSelection: newSel});
+							if (newValue.changeNotifier) newValue.changeNotifier();
+						}
+					});
+					
+					// watch for client dataProvider changes and send them to server
+					newValue.__unwatchData = {}; // { rowPk: [unwatchDataProvider1Func, ...], ... }
+					addDataWatchesToRows(newValue);
 				}
+				
 			}				 
+			if (angular.isDefined(currentClientValue) && newValue != currentClientValue) {
+				// the client side object will change completely, and the old one probably has watches defined...
+				// unregister those
+				
+				if (currentClientValue.__unwatchSelection) {
+					currentClientValue.__unwatchSelection();
+					delete currentClientValue.__unwatchSelection;
+				}
+				removeDataWatchesFromRows(currentClientValue);
+			}
 				
 			return newValue;
 		},
 
 		fromClientToServer: function(newClientData, oldClientData) {
-			if (newClientData && newClientData.viewPortChange) {
-				var tmp = newClientData.viewPortChange;
-				newClientData.viewPortChange = null;
-				return {newViewPort: tmp};
+			if (newClientData && newClientData.isChanged()) {
+				var tmp = newClientData.requests;
+				newClientData.requests = null;
+				return tmp;
 			}
-			return {};
+			return [];
 		}
 	});
-	
+})	
+// Component type ------------------------------------------
+.value("$componentTypeConstants", {
+    CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
+    CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
+})
+.run(function ($sabloConverters) {
 	$sabloConverters.registerCustomPropertyHandler('component[]', {
 		fromServerToClient: function (serverJSONValue, currentClientValue) {
 			if (serverJSONValue) {

@@ -17,15 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,7 +81,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	protected String propertyName;
 
 	protected FoundsetTypeChangeMonitor changeMonitor;
-	protected ListSelectionListener listSelectionListener;
+	protected FoundsetPropertySelectionListener listSelectionListener;
 
 	public FoundsetTypeValue(Object designJSONValue, Object config)
 	{
@@ -193,21 +191,11 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		return false;
 	}
 
-	protected ListSelectionListener getListSelectionListener()
+	protected FoundsetPropertySelectionListener getListSelectionListener()
 	{
 		if (listSelectionListener == null)
 		{
-			listSelectionListener = new ListSelectionListener()
-			{
-				@Override
-				public void valueChanged(ListSelectionEvent e)
-				{
-					if (!e.getValueIsAdjusting())
-					{
-						changeMonitor.selectionChanged();
-					}
-				}
-			};
+			listSelectionListener = new FoundsetPropertySelectionListener(changeMonitor);
 		}
 		return listSelectionListener;
 	}
@@ -414,14 +402,51 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		// TODO ac Auto-generated method stub
 		try
 		{
-			if (jsonValue instanceof JSONObject)
+			if (jsonValue instanceof JSONArray)
 			{
-				JSONObject update = (JSONObject)jsonValue;
-				// {newViewPort: {startIndex : startIndex, size : size}}
-				if (update.has("newViewPort"))
+				JSONArray arr = (JSONArray)jsonValue;
+				for (int i = 0; i < arr.length(); i++)
 				{
-					JSONObject newViewport = update.getJSONObject("newViewPort");
-					viewPort.setBounds(newViewport.getInt(START_INDEX), newViewport.getInt(SIZE));
+					JSONObject update = (JSONObject)arr.get(i);
+					// {newViewPort: {startIndex : startIndex, size : size}}
+					if (update.has("newViewPort"))
+					{
+						JSONObject newViewport = update.getJSONObject("newViewPort");
+						viewPort.setBounds(newViewport.getInt(START_INDEX), newViewport.getInt(SIZE));
+					}
+					// {loadExtraRecords: negativeOrPositiveCount}
+					else if (update.has("loadExtraRecords"))
+					{
+						viewPort.loadExtraRecords(update.getInt("loadExtraRecords"));
+					}
+					// {newClientSelection: newSelectedIndexesArray}
+					else if (update.has("newClientSelection"))
+					{
+						JSONArray jsonSelectedIndexes = update.getJSONArray("newClientSelection");
+						int[] newSelectedIndexes = new int[jsonSelectedIndexes.length()];
+						for (int j = newSelectedIndexes.length - 1; j >= 0; j--)
+						{
+							newSelectedIndexes[j] = jsonSelectedIndexes.getInt(j);
+						}
+
+						// this !Arrays.equals check in conjunction with pause()/resume() is needed to avoid an effect on the client that server always sends back changed selection in which case
+						// if the user quickly changes selection multiple times and the connection is slow, selection will jump all over
+						// the place until it stabilizes correctly
+						getListSelectionListener().pause();
+						try
+						{
+							foundset.setSelectedIndexes(newSelectedIndexes);
+						}
+						finally
+						{
+							getListSelectionListener().resume();
+							// if server denies the new selection as invalid and doesn't change selection, send it to the client so that it doesn't keep invalid selection
+							if (!Arrays.equals(foundset.getSelectedIndexes(), newSelectedIndexes))
+							{
+								changeMonitor.selectionChanged();
+							}
+						}
+					}
 				}
 			}
 		}

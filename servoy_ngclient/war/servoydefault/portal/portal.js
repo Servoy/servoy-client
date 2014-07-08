@@ -1,4 +1,4 @@
-angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$foundsetConstants', '$timeout', function($utils, $foundsetConstants, /*timeout can be removed if it was only used for testing*/ $timeout) {  
+angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', function($utils, $foundsetTypeConstants, $componentTypeConstants, /*timeout can be removed if it was only used for testing*/ $timeout) {  
     return {
       restrict: 'E',
       scope: {
@@ -73,7 +73,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
 //    			             			            { propertyName: "dataProviderID", dataprovider: "nameColumn" }
 //    			             			],
 //    			             			apiCallTypes: {
-//    			             				setValueListItems: $foundsetConstants.CALL_ON_ALL_RECORDS_IF_TEMPLATE,
+//    			             				setValueListItems: $componentTypeConstants.CALL_ON_ALL_RECORDS_IF_TEMPLATE,
 //    			             			}
 //    			             		}
 //    			             	}
@@ -115,7 +115,6 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
 //    	  }, 5000);
     	  // END TESTING MODELS
     	  
-    	  var ROW_ID_COL_KEY = '_svyRowId';
     	  var recordsPerPage = 5; // TODO make this dynamic based on available display area!
     	  
     	  // TODO clear entries in this cache when the foundset records change (don't keep obsolete pks in there!)
@@ -157,7 +156,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  return currentPage;
     	  };
     	  
-    	  function getPageCount() {
+    	  function updatePageCount() {
     		  var count = Math.ceil(foundset.serverSize / $scope.pagingOptions.pageSize);
 
     		  // for example if you have 5 per page, viewPort startIndex 5, size 5 (so page 2), foundset size 1000
@@ -171,9 +170,15 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  var wouldBeRecordsOnLastPage = foundset.serverSize % $scope.pagingOptions.pageSize;
     			  if (wouldBeRecordsOnLastPage == 0) wouldBeRecordsOnLastPage = $scope.pagingOptions.pageSize;
     			  if (emptySpaceOnPreviousPage + wouldBeRecordsOnLastPage > $scope.pagingOptions.pageSize) count++;
+    			  else emptySpaceOnPreviousPage = 0;
     		  }
-
-    		  return count;
+    		  
+    		  var multiPage = (count > 1);
+    		  if ($scope.gridOptions) {
+    			  $scope.gridOptions.$gridScope.showFooter = multiPage;
+    			  $scope.gridOptions.$gridScope.enablePaging = multiPage;
+    		  }
+    		  $scope.artificialServerSize = foundset.serverSize + emptySpaceOnPreviousPage;
     	  }
     	  
     	  $scope.$watch('pagingOptions.currentPage', function(newVal, oldVal) {
@@ -191,6 +196,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  var startIdx = $scope.pagingOptions.currentPage - 1;
     			  foundset.loadRecordsAsync(startIdx * oldVal, newVal);
     			  $scope.pagingOptions.currentPage = Math.floor(startIdx / newVal + 1);
+    			  updatePageCount();
     			  // TODO show some loading feedback to the user until these records are received
     		  }
     	  });
@@ -199,6 +205,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  $scope.$watch('model.relatedFoundset.viewPort.startIndex', function(newVal, oldVal) {
     		  // if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
     		  $scope.pagingOptions.currentPage = getCurrentPage();
+    		  updatePageCount();
     	  });
 
     	  // size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
@@ -216,7 +223,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  if (newVal > 0 && foundset.viewPort.size === 0 && $scope.pagingOptions.pageSize > 0) {
     			  // initial new foundset show
     			  $scope.model.relatedFoundset.loadRecordsAsync(0, Math.min(newVal, $scope.pagingOptions.pageSize));
-    		  } else if (foundset.viewPort.startIndex + foundset.viewPort.size < newVal) $scope.model.relatedFoundset.loadRecordsAsync(foundset.viewPort.startIndex, Math.min(newVal - foundset.viewPort.startIndex, $scope.pagingOptions.pageSize));
+    		  } else if (foundset.viewPort.startIndex + foundset.viewPort.size < newVal && foundset.viewPort.size - foundset.viewPort.startIndex < $scope.pagingOptions.pageSize) $scope.model.relatedFoundset.loadExtraRecordsAsync(Math.min(newVal - foundset.viewPort.startIndex - foundset.viewPort.size, $scope.pagingOptions.pageSize));
+    		  updatePageCount();
     	  });
     	  
     	  $scope.$watchCollection('model.relatedFoundset.viewPort.rows', function() {
@@ -233,7 +241,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  // TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
     			  if (el.forFoundset && el.forFoundset.dataLinks && el.forFoundset.dataLinks.length > 0) {
     				  columnTitle = el.forFoundset.dataLinks[0].dataprovider;
-    				  if (columnTitle && columnTitle.contains('.')) {
+    				  if (columnTitle && columnTitle.indexOf('.') >= 0) {
     					  columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
     				  }
     			  }
@@ -259,7 +267,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  
     	  function rowIdToViewportRelativeRowIndex(rowId) {
     		  for (var i = foundset.viewPort.rows.length - 1; i >= 0; i--)
-    			  if (foundset.viewPort.rows[i][ROW_ID_COL_KEY] === rowId) return i;
+    			  if (foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY] === rowId) return i;
     		  return -1;
     	  }
 
@@ -285,7 +293,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  
     	  // merges foundset record dataprovider/tagstring properties into the element's model
     	  $scope.getMergedCellModel = function(ngGridRow, elementIndex) {
-    		  var cellProxies = getOrCreateElementProxies(ngGridRow.getProperty(ROW_ID_COL_KEY), elementIndex);
+    		  var cellProxies = getOrCreateElementProxies(ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY), elementIndex);
     		  var cellModel = cellProxies.mergedCellModel;
     			  
     		  if (!cellModel) {
@@ -328,7 +336,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  var retValForSelectedCell;
     			  var callOnOneSelectedCellOnly = true;
     			  if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.apiCallTypes) {
-    				  callOnOneSelectedCellOnly = (elements[elementIndex].forFoundset.apiCallTypes[apiFunctionName] != $foundsetConstants.CALL_ON_ONE_SELECTED_ROW);
+    				  callOnOneSelectedCellOnly = (elements[elementIndex].forFoundset.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
     			  }
     			  
 				  // so if callOnOneSelectedCellOnly is true, then it will be called only once for one of the selected rows;
@@ -355,12 +363,12 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  // so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
     	  // it will execute on all cells
     	  $scope.cellApiWrapper = function(ngGridRow, elementIndex) {
-    		  var cellProxies = getOrCreateElementProxies(ngGridRow.getProperty(ROW_ID_COL_KEY), elementIndex);
+    		  var cellProxies = getOrCreateElementProxies(ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY), elementIndex);
 
     		  if (!cellProxies.cellApi) {
         		  var columnApi = elements[elementIndex].api;
         		  cellProxies.cellApi = {}; // new cell API object
-        		  $scope.$watchCollection(function() { return cellProxies.cellApi; }, function(newCellAPI, oldCellAPI) {
+        		  $scope.$watchCollection(function() { return cellProxies.cellApi; }, function(newCellAPI) {
         			  // update column API object with new cell available methods
         			  for (var p in newCellAPI) {
         				  if (!columnApi[p]) columnApi[p] = linkAPIToAllCellsInColumn(p, elementIndex);
@@ -374,7 +382,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  }
 
     	  $scope.cellApplyHandlerWrapper = function(ngGridRow, elementIndex) {
-    		  var rowId = ngGridRow.getProperty(ROW_ID_COL_KEY);
+    		  var rowId = ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY);
     		  var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
     		  if (!cellProxies.cellApplyHandler) {
@@ -400,7 +408,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
 			  // update foundset object selection when it changes in ngGrid
     		  var tmpSelectedRowIdxs = {};
 			  for (var idx = 0; idx < newNGGridSelectedItems.length; idx++) {
-				  var absRowIdx = rowIdToAbsoluteRowIndex(newNGGridSelectedItems[idx][ROW_ID_COL_KEY]);
+				  var absRowIdx = rowIdToAbsoluteRowIndex(newNGGridSelectedItems[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]);
 				  if (!isRowIndexSelected(absRowIdx)) foundset.selectedRowIndexes.push(absRowIdx);
 				  tmpSelectedRowIdxs['_' + absRowIdx] = true;
 			  }
@@ -420,7 +428,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  
     		  var tmpSelectedRowIdxs = {};
 			  for (var idx = 0; idx < selectedItemsProxy.length; idx++) {
-				  var absRowIdx = rowIdToAbsoluteRowIndex(selectedItemsProxy[idx][ROW_ID_COL_KEY]);
+				  var absRowIdx = rowIdToAbsoluteRowIndex(selectedItemsProxy[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]);
 				  if (absRowIdx >= 0) {
 					  if (newFSSelectedItems.indexOf(absRowIdx) < 0) {
 						  $scope.gridOptions.selectItem(absoluteToViewPort(absRowIdx), false); // it seems nggrid doesn't really watch the selection array so we have to do this manually
@@ -439,6 +447,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  $scope.$watchCollection(function() { return selectedItemsProxy; }, updateFoundsetSelectionFromGrid);
     	  $scope.$watchCollection('model.relatedFoundset.selectedRowIndexes', updateGridSelectionFromFoundset);
 
+    	  updatePageCount();
     	  $scope.gridOptions = {
     			  data: 'model.relatedFoundset.viewPort.rows',
     			  enableCellSelection: true,
@@ -447,15 +456,11 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  multiSelect: foundset.multiSelect,
     			  enablePaging: true,
     			  showFooter: true, // will be changed by watches later; at first it needs to be true to show later
-    			  totalServerItems: 'model.relatedFoundset.serverSize',
+    			  totalServerItems: 'artificialServerSize', // we sometimes fake a page for the sake of following the first selected record with viewport - so we can't use real size here; see updatePageCount()
     			  pagingOptions: $scope.pagingOptions,
-    			  primaryKey: ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
+    			  primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
     			  columnDefs: columnDefinitions
     	  };
-    	  $scope.$watch(function () { return getPageCount() > 1; }, function (newValue) {
-    		  $scope.gridOptions.$gridScope.showFooter = newValue;
-    		  $scope.gridOptions.$gridScope.enablePaging = newValue;
-    	  });
     	  
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
     		  return function() {
@@ -468,7 +473,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  // each handler at column level gets it's rowId from the cell's wrapper handler below (to
     	  // make sure that the foundset's selection is correct server-side when cell handler triggers)
     	  $scope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
-    		  var rowId = ngGridRow.getProperty(ROW_ID_COL_KEY);
+    		  var rowId = ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY);
     		  var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
     		  if (!cellProxies.cellHandlers) {
