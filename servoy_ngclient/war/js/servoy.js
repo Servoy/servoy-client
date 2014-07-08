@@ -457,8 +457,8 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	    					}
 	    					else
 	    					{
-	    						imgWidth = newVal.width;
-	    						imgHeight = newVal.height;
+	    						imgWidth = componentSize.width;
+	    						imgHeight = componentSize.height;
 	    					}
 	    				}        			  
 	  					else if ((mediaOptions & 2) == 2) // reduce
@@ -480,8 +480,8 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
    							}
    							else
    							{
-   	    						imgWidth = newVal.width;
-   	    						imgHeight = newVal.height;
+	    						imgWidth = componentSize.width;
+	    						imgHeight = componentSize.height;
    							}
    						}
    						else if (widthChange > 1.01)
@@ -493,7 +493,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
    							}
    							else
    							{
-   								imgHight = newVal.height;
+	    						imgHeight = componentSize.height;
    							}
    						}
    						else if (heightChange > 1.01)
@@ -505,7 +505,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
    							}
    							else
    							{
-   								imgWidth = newVal.width;
+	    						imgWidth = componentSize.width;
    							}
    						}
    					}
@@ -528,8 +528,8 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
    							}
    							else
    							{
-   	    						imgWidth = newVal.width;
-   	    						imgHight = newVal.height;
+	    						imgWidth = componentSize.width;
+	    						imgHeight = componentSize.height;
    							}
    						}
    						else if (widthChange < 0.99)
@@ -541,7 +541,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
    							}
    							else
    							{
-   								imgHight = newVal.height;
+	    						imgHeight = componentSize.height;
    							}
    						}
    						else if (heightChange < 0.99)
@@ -553,7 +553,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
    							}
    							else
    							{
-   								imgWidth = newVal.width;
+	    						imgWidth = componentSize.width;
    							}
    						}
    					}
@@ -796,6 +796,19 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		}
 		return false
 	}	
+}).directive('svyFormload',  function ($timeout, $servoyInternal) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	var formname = scope.formname;
+			$timeout(function() {
+				// notify that the form has been loaded
+				// NOTE: this call cannot be make as a service call, as a service call may
+				// already be blocked and waiting for the formload event
+				$servoyInternal.sendRequest({cmd:'formloaded',formname:formname})
+			},0);
+        }
+      }
 })
 .directive("svyComponentWrapper", ['$compile', function ($compile) {
 		return {
@@ -841,4 +854,3 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		}
 	}
 }])
-

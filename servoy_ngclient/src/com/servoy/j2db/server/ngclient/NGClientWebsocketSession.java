@@ -57,6 +57,7 @@ import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -75,7 +76,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private final AtomicInteger handlingEvent = new AtomicInteger(0);
 
-	private final ConcurrentMap<IWebsocketEndpoint, ConcurrentMap<String, String>> endpointForms = new ConcurrentHashMap<>();
+	private final ConcurrentMap<IWebsocketEndpoint, ConcurrentMap<String, Pair<String, Boolean>>> endpointForms = new ConcurrentHashMap<>();
 	private boolean proccessChanges;
 
 	public NGClientWebsocketSession(String uuid)
@@ -288,6 +289,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 					break;
 				}
+				case "formloaded" :
+					formCreated(obj.getString("formname"));
+					break;
 			}
 		}
 		catch (Exception e)
@@ -371,10 +375,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void formCreated(String formName)
 	{
-		ConcurrentMap<String, String> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
-		String formUrl = formsOnClient.get(formName);
+		ConcurrentMap<String, Pair<String, Boolean>> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
+		String formUrl = formsOnClient.get(formName).getLeft();
 		synchronized (formUrl)
 		{
+			formsOnClient.get(formName).setRight(Boolean.TRUE);
 			formUrl.notifyAll();
 		}
 	}
@@ -383,7 +388,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void registerEndpoint(IWebsocketEndpoint endpoint)
 	{
 		super.registerEndpoint(endpoint);
-		endpointForms.put(endpoint, new ConcurrentHashMap<String, String>());
+		endpointForms.put(endpoint, new ConcurrentHashMap<String, Pair<String, Boolean>>());
 	}
 
 	@Override
@@ -397,16 +402,25 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void touchForm(Form form, String realInstanceName, boolean async)
 	{
 		if (form == null) return;
-		ConcurrentMap<String, String> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
+		ConcurrentMap<String, Pair<String, Boolean>> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
 		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + formName + ".html";
-		if (formsOnClient.putIfAbsent(formName, formUrl) == null)
+		if (formsOnClient.putIfAbsent(formName, new Pair<String, Boolean>(formUrl, Boolean.FALSE)) == null)
 		{
 			// form is not yet on the client, send over the controller
 			updateController(form, formName, formUrl, !async);
-			if (!async)
+		}
+		else
+		{
+			formUrl = formsOnClient.get(formName).getLeft();
+		}
+
+		// if sync wait until we got response from client as it is loaded
+		if (!async)
+		{
+			synchronized (formUrl)
 			{
-				synchronized (formUrl)
+				if (!formsOnClient.get(formName).getRight().booleanValue())
 				{
 					try
 					{

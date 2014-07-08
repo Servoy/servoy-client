@@ -725,7 +725,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 			case "requestdata" :
 			{
 				final String formName = args.optString("formname");
-				websocketSession.formCreated(formName);
 
 				IWebFormUI form = getFormAndSetCurrentWindow(formName).getFormUI();
 				if (form instanceof WebGridFormUI)

@@ -87,7 +87,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                 
                 if (anchoredTop)
                 {
-                	if (beanLayout.top == undefined || runtimeChanges && beanModel.location.y != undefined) beanLayout.top = beanModel.location.y + 'px';
+                	if (beanLayout.top == undefined || runtimeChanges && beanModel.location != undefined) beanLayout.top = beanModel.location.y + 'px';
                 }
                 else delete beanLayout.top;
                 
@@ -104,14 +104,14 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
                 {
                 	if ( $solutionSettings.ltrOrientation)
             		{
-                		if (beanLayout.left == undefined || runtimeChanges && beanModel.location.x != undefined)
+                		if (beanLayout.left == undefined || runtimeChanges && beanModel.location != undefined)
                     	{	
                     		beanLayout.left =  beanModel.location.x + 'px';
                     	}
             		}
             		else
             		{
-            			if (beanLayout.right == undefined || runtimeChanges && beanModel.location.x != undefined)
+            			if (beanLayout.right == undefined || runtimeChanges && beanModel.location != undefined)
                     	{	
                     		beanLayout.right =  beanModel.location.x + 'px';
                     	}
