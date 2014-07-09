@@ -126,7 +126,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 		Object value = null;
 		if (!designValue && properties.containsKey(propertyName))
 		{
-			value = properties.get(propertyName);
+			value = getProperty(propertyName);
 		}
 		else
 		{
