@@ -234,7 +234,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  });
 
     	  var columnDefinitions = [];
-    	  for (var idx in elements) {
+    	  for (var idx =0;idx<elements.length;idx++) {
     		  var el = elements[idx]; 
     		  var columnTitle = el.model.text;
     		  if (!columnTitle) {

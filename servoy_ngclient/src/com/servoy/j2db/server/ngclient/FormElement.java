@@ -163,7 +163,11 @@ public final class FormElement implements IWebComponentInitializer
 
 	public IPersist getPersistIfAvailable()
 	{
-		return persistImpl.getPersist();
+		if (persistImpl != null)
+		{
+			return persistImpl.getPersist();
+		}
+		return null;
 	}
 
 	private void initProperties(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IServoyDataConverterContext context)

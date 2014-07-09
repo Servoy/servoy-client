@@ -185,19 +185,27 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		if (forFoundsetListener != null) component.removePropertyChangeListener(forFoundsetTypedPropertyName(), forFoundsetListener);
 	}
 
+	private FoundsetTypeValue getFoundsetValue()
+	{
+		if (component != null)
+		{
+			String foundsetPropName = forFoundsetTypedPropertyName();
+			if (foundsetPropName != null)
+			{
+				return (FoundsetTypeValue)component.getProperty(foundsetPropName);
+			}
+		}
+		return null;
+	}
+
 	protected void createComponentsIfNeededAndPossible()
 	{
 		// this method should get called only after init() got called on all properties from this component (including this one)
 		// so now we should be able to find a potentially linked foundset property value
 		if (componentsAreCreated || component == null || elements == null) return;
 
-		FoundsetTypeValue foundsetPropValue = null;
-		String foundsetPropName = forFoundsetTypedPropertyName();
-		if (foundsetPropName != null)
-		{
-			foundsetPropValue = (FoundsetTypeValue)component.getProperty(foundsetPropName);
-			if (foundsetPropValue == null) return; // Cannot find linked foundset property; it is possible that that property was not yet attached to the component; we can wait for that to happen before creating components; see foundsetPropertyReady()
-		}
+		FoundsetTypeValue foundsetPropValue = getFoundsetValue();
+		if (foundsetPropValue == null) return; // Cannot find linked foundset property; it is possible that that property was not yet attached to the component; we can wait for that to happen before creating components; see foundsetPropertyReady()
 
 		componentsAreCreated = true;
 
@@ -217,6 +225,14 @@ public class ComponentTypeValue implements IComplexPropertyValue
 			childComponents[i].setParent(component.getParent());
 			childComponents[i].setComponentContext(new ComponentContext(component.getName(), propertyName, i));
 			((IWebFormUI)component.getParent()).contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
+			for (String handler : childComponents[i].getFormElement().getHandlers())
+			{
+				Object value = childComponents[i].getFormElement().getProperty(handler);
+				if (value != null)
+				{
+					childComponents[i].add(handler, (Integer)value);
+				}
+			}
 		}
 
 		registerDataProvidersWithFoundset(foundsetPropValue);
@@ -302,12 +318,16 @@ public class ComponentTypeValue implements IComplexPropertyValue
 				destinationJSON.key("name").value(fe.getName());
 				destinationJSON.key("model");
 				fe.propertiesAsJSON(destinationJSON); // full to json always uses design values
-				destinationJSON.key("handlers").array();
+				destinationJSON.key("handlers").object();
 				for (String handleMethodName : fe.getHandlers())
 				{
-					destinationJSON.value(handleMethodName);
+					destinationJSON.key(handleMethodName);
+					JSONObject handlerInfo = new JSONObject();
+					handlerInfo.put("formName", fe.getForm().getName());
+					handlerInfo.put("beanName", fe.getName());
+					destinationJSON.value(handlerInfo);
 				}
-				destinationJSON.endArray();
+				destinationJSON.endObject();
 
 				if (forFoundsetTypedPropertyName() != null)
 				{
@@ -389,7 +409,52 @@ public class ComponentTypeValue implements IComplexPropertyValue
 
 	public void browserUpdatesReceived(Object jsonValue)
 	{
-		// TODO ac when some properties change reflect it for scripting?
-	}
+		if (childComponents == null) return;
 
+		if (jsonValue instanceof JSONArray)
+		{
+			try
+			{
+				JSONArray arr = (JSONArray)jsonValue;
+				for (int i = 0; i < arr.length(); i++)
+				{
+					JSONObject update = (JSONObject)arr.get(i);
+					if (update.has("eventType"))
+					{
+						if (update.has("rowId"))
+						{
+							String rowId = update.getString("rowId");
+							FoundsetTypeValue foundsetValue = getFoundsetValue();
+							if (foundsetValue != null)
+							{
+								foundsetValue.setEditingRowByPkHash(rowId);
+							}
+						}
+						String eventType = update.getString("eventType");
+						String beanName = update.getString("beanName");
+						JSONArray jsargs = update.getJSONArray("args");
+						Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
+						for (int j = 0; jsargs != null && j < jsargs.length(); j++)
+						{
+							args[j] = jsargs.get(j);
+						}
+
+						for (WebFormComponent component : childComponents)
+						{
+							if (beanName.equals(component.getName()))
+							{
+								component.executeEvent(eventType, args);
+								break;
+							}
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+
+	}
 }

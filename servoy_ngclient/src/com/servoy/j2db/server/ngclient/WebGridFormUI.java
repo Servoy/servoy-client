@@ -150,7 +150,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 	 * @param pkHashAndIndex
 	 * @return
 	 */
-	public boolean setEditingRowByPkHash(String pkHashAndIndex)
+	public static boolean setEditingRowByPkHash(IFoundSetInternal currentFoundset, String pkHashAndIndex)
 	{
 		int index = pkHashAndIndex.lastIndexOf("_");
 		int recordIndex = Integer.parseInt(pkHashAndIndex.substring(index + 1));
@@ -160,6 +160,11 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 			Math.min(recordIndex + 5, currentFoundset.getSize())) != -1;
 		else currentFoundset.setSelectedIndex(recordIndex);
 		return true;
+	}
+
+	public boolean setEditingRowByPkHash(String pkHashAndIndex)
+	{
+		return setEditingRowByPkHash(currentFoundset, pkHashAndIndex);
 	}
 
 	public int getSelectedViewIndex()

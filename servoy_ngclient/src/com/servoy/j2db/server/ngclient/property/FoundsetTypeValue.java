@@ -43,6 +43,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -102,6 +103,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	public void attachToComponent(IChangeListener changeNotifier, WebComponent component)
 	{
 		this.component = (WebFormComponent)component;
+		dataAdapterList = null;
 		changeMonitor.setChangeNotifier(changeNotifier);
 
 		// get the foundset identifier, then the foundset itself
@@ -482,6 +484,11 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	public void includeDataProviders(Set<String> dataProvidersToSend)
 	{
 		if (dataProviders.addAll(dataProvidersToSend)) changeMonitor.dataProvidersChanged();
+	}
+
+	public boolean setEditingRowByPkHash(String pkHashAndIndex)
+	{
+		return WebGridFormUI.setEditingRowByPkHash(foundset, pkHashAndIndex);
 	}
 
 	@Override

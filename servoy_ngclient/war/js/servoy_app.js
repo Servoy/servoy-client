@@ -1,7 +1,7 @@
 var controllerProvider;
 angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
-}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket,$sessionService,$sabloConverters,$sabloUtils) {
+}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket,$sessionService,$sabloConverters,$sabloUtils,$utils) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
 	   // this holds the form model with all the data, per form is this the "synced" view of the the IFormUI on the server 
 	   // (3 way binding)
@@ -20,6 +20,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   for (prop in fulllist) {
 			   var changed = false;
 			   if (!prev) {
+				   changed = true;
+			   }
+			   else if (now[prop] && now[prop].isChanged && now[prop].isChanged())
+			   {
 				   changed = true;
 			   }
 			   else if (prev[prop] !== now[prop]) {
@@ -385,36 +389,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	              on: function(beanname,eventName,property,args,rowId) {
 	                  // this is onaction, onfocuslost which is really configured in the html so it really 
 	                  // is something that goes to the server
-	            	  var newargs = []
-	            	  for (var i in args) {
-	            		  var arg = args[i]
-						  if (arg && arg.originalEvent) arg = arg.originalEvent;
- 	                      if(arg  instanceof MouseEvent ||arg  instanceof KeyboardEvent){
-	                    	var $event = arg;
-	                    	var eventObj = {}
-	                        var modifiers = 0;
-	                        if($event.shiftKey) modifiers = modifiers||$swingModifiers.SHIFT_DOWN_MASK;
-	                        if($event.metaKey) modifiers = modifiers||$swingModifiers.META_DOWN_MASK;
-	                        if($event.altKey) modifiers = modifiers|| $swingModifiers.ALT_DOWN_MASK;
-	                        if($event.ctrlKey) modifiers = modifiers || $swingModifiers.CTRL_DOWN_MASK;
-	                          
-	                        eventObj.type = 'event'; 
-	                        eventObj.eventName = eventName; 
-	                        eventObj.modifiers = modifiers;
-	                        eventObj.timestamp = $event.timeStamp;
-	                        eventObj.x= $event.pageX;
-	                        eventObj.y= $event.pageY;
-	                        arg = eventObj
-	                      }
- 	                      else if (arg instanceof Event || arg instanceof $.Event) {
-							var eventObj = {}
-	                        eventObj.type = 'event'; 
-	                        eventObj.eventName = eventName; 
-							eventObj.timestamp = arg.timeStamp;
-							arg = eventObj
- 	                      }
-	                      newargs.push(arg)
-	            	  }
+	            	  var newargs = $utils.getEventArgs(args,eventName);
 	            	  var data = {}
 	            	  if (property) {
 	            		  data[property] = formStates[formName].model[beanname][property];

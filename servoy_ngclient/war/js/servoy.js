@@ -147,6 +147,40 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			        scope.$watch(toWatchA, function (newValue, oldValue, scope) { if (newValue !== oldValue) b[propertyNameB] = a[propertyNameA] }, useObjectEquality),
 			        scope.$watch(toWatchB, function (newValue, oldValue, scope) { if (newValue !== oldValue) a[propertyNameA] = b[propertyNameB] }, useObjectEquality)
 			];
+		},
+		getEventArgs : function(args,eventName)
+		{
+			var newargs = []
+			for (var i in args) {
+				var arg = args[i]
+				if (arg && arg.originalEvent) arg = arg.originalEvent;
+				if(arg  instanceof MouseEvent ||arg  instanceof KeyboardEvent){
+					var $event = arg;
+					var eventObj = {}
+					var modifiers = 0;
+					if($event.shiftKey) modifiers = modifiers||$swingModifiers.SHIFT_DOWN_MASK;
+					if($event.metaKey) modifiers = modifiers||$swingModifiers.META_DOWN_MASK;
+					if($event.altKey) modifiers = modifiers|| $swingModifiers.ALT_DOWN_MASK;
+					if($event.ctrlKey) modifiers = modifiers || $swingModifiers.CTRL_DOWN_MASK;
+
+					eventObj.type = 'event'; 
+					eventObj.eventName = eventName; 
+					eventObj.modifiers = modifiers;
+					eventObj.timestamp = $event.timeStamp;
+					eventObj.x= $event.pageX;
+					eventObj.y= $event.pageY;
+					arg = eventObj
+				}
+				else if (arg instanceof Event || arg instanceof $.Event) {
+					var eventObj = {}
+					eventObj.type = 'event'; 
+					eventObj.eventName = eventName; 
+					eventObj.timestamp = arg.timeStamp;
+					arg = eventObj
+				}
+				newargs.push(arg)
+			}
+			return newargs;
 		}
 	}
 }).directive('ngOnChange', function($parse){
