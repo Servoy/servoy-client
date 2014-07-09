@@ -34,6 +34,7 @@ import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -97,6 +98,10 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 	@Override
 	public MediaWrapper wrap(Object value, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
+		if (previousValue != null && Utils.equalObjects(value, previousValue.mediaUrl))
+		{
+			return previousValue;
+		}
 		IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
 		Media media = null;
 		if (value instanceof Integer)
