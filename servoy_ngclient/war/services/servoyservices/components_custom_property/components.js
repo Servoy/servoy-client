@@ -6,21 +6,24 @@ angular.module('components_custom_property', ['webSocketModule'])
 })
 .run(function ($sabloConverters,$utils) {
 	$sabloConverters.registerCustomPropertyHandler('component[]', {
-		notifier : null,
 		fromServerToClient: function (serverJSONValue, currentClientValue) {
 			if (serverJSONValue) {
 				newValue = serverJSONValue;
+				var internalState = newValue[$sabloConverters.INTERNAL_IMPL] = {};
 				var executeHandler = function(name,type,event,row) {
-					if (!newValue.requests) newValue.requests = [];
+					if (!internalState.requests) internalState.requests = [];
 					var newargs = $utils.getEventArgs(event,type);
-					newValue.requests.push({beanName: name, eventType: type,args:newargs, rowId : row});
-					if (notifier) notifier();
+					internalState.requests.push({beanName: name, eventType: type,args:newargs, rowId : row});
+					if (internalState.notifier) internalState.notifier();
 				};
-				newValue.setChangeNotifier = function(changeNotifier) {
-					notifier = changeNotifier; 
-				}
-				newValue.isChanged = function() { return newValue.requests && (newValue.requests.length > 0); }
 				
+				// implement what $sabloConverters need to make this work
+				internalState.setChangeNotifier = function(changeNotifier) {
+					internalState.notifier = changeNotifier; 
+				}
+				internalState.isChanged = function() { return internalState.requests && (internalState.requests.length > 0); }
+
+				// private impl
 				for (var c in serverJSONValue) {
 					if (!serverJSONValue[c].api) serverJSONValue[c].api = {};
 					if (serverJSONValue[c].handlers)
@@ -46,10 +49,13 @@ angular.module('components_custom_property', ['webSocketModule'])
 		},
 
 		fromClientToServer: function(newClientData, oldClientData) {
-			if (newClientData && newClientData.isChanged()) {
-				var tmp = newClientData.requests;
-				newClientData.requests = null;
-				return tmp;
+			if (newClientData) {
+				var internalState = newClientData[$sabloConverters.INTERNAL_IMPL];
+				if (internalState.isChanged()) {
+					var tmp = internalState.requests;
+					internalState.requests = null;
+					return tmp;
+				}
 			}
 			return [];
 		}

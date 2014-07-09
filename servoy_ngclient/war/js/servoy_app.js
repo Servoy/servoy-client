@@ -22,7 +22,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   if (!prev) {
 				   changed = true;
 			   }
-			   else if (now[prop] && now[prop].isChanged && now[prop].isChanged())
+			   else if (now[prop] && now[prop][$sabloConverters.INTERNAL_IMPL] && now[prop][$sabloConverters.INTERNAL_IMPL].isChanged && now[prop][$sabloConverters.INTERNAL_IMPL].isChanged())
 			   {
 				   changed = true;
 			   }
@@ -54,139 +54,142 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   };
 
 	   var applyBeanData = function(formName, beanName, beanModel, beanLayout, beanData, containerSize, newConversionInfo) {
+		   var currentConversionInfo;
 		   if (newConversionInfo) {
 			   if (!formStatesConversionInfo[formName]) formStatesConversionInfo[formName] = {};
 			   if (!formStatesConversionInfo[formName][beanName]) formStatesConversionInfo[formName][beanName] = {};
-			   
-           	    formStatesConversionInfo[formName][beanName] = newConversionInfo;
-		   }
-		   if( formStatesConversionInfo[formName] && formStatesConversionInfo[formName][beanName]){
-			   $sabloConverters.convertFromServerToClient(beanData, formStatesConversionInfo[formName][beanName], beanModel);   
-		   }		   
-			for(var key in beanData) {
-				// remember conversion info for when it will be sent back to server - it might need special conversion as well
-				if (newConversionInfo && newConversionInfo[key]) {
-					if (beanModel[key] !== beanData[key] && beanData[key] && beanData[key].setChangeNotifier) beanData[key].setChangeNotifier(function() {
-	           			var currentModel = formStates[formName].model[beanName];
-	           			sendChanges(currentModel, currentModel, formName, beanName);
-	           		});
-				}
 
-				// also make location and size available in model
+			   // currentConversionInfo/formStatesConversionInfo[formName][beanName] will be granularly updated below
+			   // (to not drop other property conversion info when only one property is being applied granularly to the bean
+			   currentConversionInfo = formStatesConversionInfo[formName][beanName];
+			   $sabloConverters.convertFromServerToClient(beanData, newConversionInfo, beanModel);
+		   }
+
+		   for(var key in beanData) {
+			   // remember conversion info for when it will be sent back to server - it might need special conversion as well
+			   if (newConversionInfo && newConversionInfo[key]) {
+				   currentConversionInfo[key] = newConversionInfo[key];
+				   if (beanModel[key] !== beanData[key] && beanData[key] && beanData[key][$sabloConverters.INTERNAL_IMPL] && beanData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) beanData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(function() {
+					   var currentModel = formStates[formName].model[beanName];
+					   sendChanges(currentModel, currentModel, formName, beanName);
+				   });
+			   }
+
+			   // also make location and size available in model
 			   beanModel[key] = beanData[key];
 		   }
-                
-          	//beanData.anchors means anchors changed or must be initialized
-            if((beanData.anchors !== undefined) && containerSize) {
-                var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
-                var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
-                var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
-                var anchoredLeft = (beanModel.anchors & $anchorConstants.WEST) != 0; //west
-                
-                var runtimeChanges = beanData.size != undefined || beanData.location != undefined;
-                
-                if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
-                if (!anchoredTop && !anchoredBottom) anchoredTop = true;
-                
-                if (anchoredTop)
-                {
-                	if (beanLayout.top == undefined || runtimeChanges && beanModel.location != undefined) beanLayout.top = beanModel.location.y + 'px';
-                }
-                else delete beanLayout.top;
-                
-                if (anchoredBottom)
-                {
-                	if (beanLayout.bottom == undefined)	 beanLayout.bottom = (containerSize.height - beanModel.location.y - beanModel.size.height - beanModel.offsetY) + "px";
-                }
-                else delete beanLayout.bottom;
-                
-                if (!anchoredTop || !anchoredBottom) beanLayout.height = beanModel.size.height + 'px';
-                else delete beanLayout.height;
-                
-                if (anchoredLeft)
-                {
-                	if ( $solutionSettings.ltrOrientation)
-            		{
-                		if (beanLayout.left == undefined || runtimeChanges && beanModel.location != undefined)
-                    	{	
-                    		beanLayout.left =  beanModel.location.x + 'px';
-                    	}
-            		}
-            		else
-            		{
-            			if (beanLayout.right == undefined || runtimeChanges && beanModel.location != undefined)
-                    	{	
-                    		beanLayout.right =  beanModel.location.x + 'px';
-                    	}
-            		}
-                }
-                else if ( $solutionSettings.ltrOrientation)
-        		{
-                	delete beanLayout.left;
-        		}
-        		else
-        		{
-        			delete beanLayout.right;
-        		}
-                
-                if (anchoredRight)
-                {
-                	if ( $solutionSettings.ltrOrientation)
-            		{
-                		if (beanLayout.right == undefined) beanLayout.right = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
-            		}
-            		else
-            		{
-            			if (beanLayout.left == undefined) beanLayout.left = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
-            		}
-                }
-                else if ( $solutionSettings.ltrOrientation)
-        		{
-                	delete beanLayout.right;
-        		}
-        		else
-        		{
-        			delete beanLayout.left;
-        		}
-                
-                if (!anchoredLeft || !anchoredRight) beanLayout.width = beanModel.size.width + 'px';
-                else delete beanLayout.width;
-            }
-            
-            //we set the following properties iff the bean doesn't have anchors
-            if (beanModel.anchors == undefined)
-            {
-            	if (beanModel.location)
-            	{
-            		if ( $solutionSettings.ltrOrientation)
-            		{
-            			beanLayout.left = beanModel.location.x+'px';
-            		}
-            		else
-            		{
-            			beanLayout.right = beanModel.location.x+'px';
-            		}
-              		beanLayout.top = beanModel.location.y+'px';
-            	}
-                    
-            	if (beanModel.size)
-            	{
-              		beanLayout.width = beanModel.size.width+'px';
-              		beanLayout.height = beanModel.size.height+'px';
-            	}
-            }
-            
-            if (beanModel.visible != undefined)
-	   		{
-	   			if (beanModel.visible == false)
-      			{
-      				beanLayout.display = 'none';
-      			}
-      			else
-      			{
-      				delete beanLayout.display;
-      			}
-	   		}
+
+		   //beanData.anchors means anchors changed or must be initialized
+		   if((beanData.anchors !== undefined) && containerSize) {
+			   var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
+			   var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
+			   var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
+			   var anchoredLeft = (beanModel.anchors & $anchorConstants.WEST) != 0; //west
+
+			   var runtimeChanges = beanData.size != undefined || beanData.location != undefined;
+
+			   if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
+			   if (!anchoredTop && !anchoredBottom) anchoredTop = true;
+
+			   if (anchoredTop)
+			   {
+				   if (beanLayout.top == undefined || runtimeChanges && beanModel.location != undefined) beanLayout.top = beanModel.location.y + 'px';
+			   }
+			   else delete beanLayout.top;
+
+			   if (anchoredBottom)
+			   {
+				   if (beanLayout.bottom == undefined)	 beanLayout.bottom = (containerSize.height - beanModel.location.y - beanModel.size.height - beanModel.offsetY) + "px";
+			   }
+			   else delete beanLayout.bottom;
+
+			   if (!anchoredTop || !anchoredBottom) beanLayout.height = beanModel.size.height + 'px';
+			   else delete beanLayout.height;
+
+			   if (anchoredLeft)
+			   {
+				   if ( $solutionSettings.ltrOrientation)
+				   {
+					   if (beanLayout.left == undefined || runtimeChanges && beanModel.location != undefined)
+					   {	
+						   beanLayout.left =  beanModel.location.x + 'px';
+					   }
+				   }
+				   else
+				   {
+					   if (beanLayout.right == undefined || runtimeChanges && beanModel.location != undefined)
+					   {	
+						   beanLayout.right =  beanModel.location.x + 'px';
+					   }
+				   }
+			   }
+			   else if ( $solutionSettings.ltrOrientation)
+			   {
+				   delete beanLayout.left;
+			   }
+			   else
+			   {
+				   delete beanLayout.right;
+			   }
+
+			   if (anchoredRight)
+			   {
+				   if ( $solutionSettings.ltrOrientation)
+				   {
+					   if (beanLayout.right == undefined) beanLayout.right = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
+				   }
+				   else
+				   {
+					   if (beanLayout.left == undefined) beanLayout.left = (containerSize.width - beanModel.location.x - beanModel.size.width) + "px";
+				   }
+			   }
+			   else if ( $solutionSettings.ltrOrientation)
+			   {
+				   delete beanLayout.right;
+			   }
+			   else
+			   {
+				   delete beanLayout.left;
+			   }
+
+			   if (!anchoredLeft || !anchoredRight) beanLayout.width = beanModel.size.width + 'px';
+			   else delete beanLayout.width;
+		   }
+
+		   //we set the following properties iff the bean doesn't have anchors
+		   if (beanModel.anchors == undefined)
+		   {
+			   if (beanModel.location)
+			   {
+				   if ( $solutionSettings.ltrOrientation)
+				   {
+					   beanLayout.left = beanModel.location.x+'px';
+				   }
+				   else
+				   {
+					   beanLayout.right = beanModel.location.x+'px';
+				   }
+				   beanLayout.top = beanModel.location.y+'px';
+			   }
+
+			   if (beanModel.size)
+			   {
+				   beanLayout.width = beanModel.size.width+'px';
+				   beanLayout.height = beanModel.size.height+'px';
+			   }
+		   }
+
+		   if (beanModel.visible != undefined)
+		   {
+			   if (beanModel.visible == false)
+			   {
+				   beanLayout.display = 'none';
+			   }
+			   else
+			   {
+				   delete beanLayout.display;
+			   }
+		   }
 	   }
 		   
 	   // maybe do this with defer ($q)

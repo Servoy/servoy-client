@@ -329,6 +329,11 @@ webSocketModule.factory('$webSocket',
 			
 			return {
 				
+				/**
+				 * In a custom property value, the val[$sabloConverters.INTERNAL_IMPL] is to be used for internal state/impl details only - not to be accessed by components
+				 */
+				INTERNAL_IMPL: '__internalState',
+				
 				convertFromServerToClient: convertFromServerToClient,
 				
 				convertFromClientToServer: convertFromClientToServer,
@@ -347,7 +352,7 @@ webSocketModule.factory('$webSocket',
 				 *				// @param currentClientValue the JS value that is currently used for that property in the client; can be null/undefined if
 				 *				//        conversion happens for service API call parameters for example...
 				 *				// @return the new/updated client side property value; if this returned value is interested in triggering
-				 *				//         updates to server when something changes client side it must have these member functions:
+				 *				//         updates to server when something changes client side it must have these member functions in this[$sabloConverters.INTERNAL_IMPL]:
 				 *				//				setChangeNotifier: function(changeNotifier) - where changeNotifier is a function that can be called when
 				 *				//                                                          the value needs to send updates to the server; this method will
 				 *				//                                                          not be called when value is a call parameter for example, but will

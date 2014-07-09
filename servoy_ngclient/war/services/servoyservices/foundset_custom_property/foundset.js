@@ -23,16 +23,17 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	
 	function addDataWatchesToRows(foundsetValue) {
 		var i;
+		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
 		for (i = foundsetValue.viewPort.rows.length - 1; i >= 0; i--) {
 			var unwatchRowFuncs = []; 
-			foundsetValue.__unwatchData[foundsetValue.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY]] = unwatchRowFuncs;
+			internalState.unwatchData[foundsetValue.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY]] = unwatchRowFuncs;
 			var dataprovider;
 			for (dataprovider in foundsetValue.viewPort.rows[i]) {
 				if (dataprovider !== $foundsetTypeConstants.ROW_ID_COL_KEY) unwatchRowFuncs.push(
 						$rootScope.$watch(function() { return foundsetValue.viewPort.rows[i][dataprovider]; }, function (newData, oldData) {
 							if (newData !== oldData) {
 								var changed = false;
-								
+								var cellIgnoreChangeValue = foundsetValue.viewPort
 //								if (foundsetValue.__ignoreSelectedChange) {
 //									if (foundsetValue.__ignoreSelectedChange.length == newSel.length) {
 //										var i;
@@ -55,14 +56,15 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	};
 
 	function removeDataWatchesFromRows(foundsetValue) {
-		if (foundsetValue.__unwatchData) {
+		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
+		if (internalState.unwatchData) {
 			var pk;
-			for (pk in foundsetValue.__unwatchData) {
+			for (pk in internalState.unwatchData) {
 				var i;
-				for (i = foundsetValue.__unwatchData[pk].length - 1; i >= 0; i--)
-					foundsetValue.__unwatchData[pk][i]();
+				for (i = internalState.unwatchData[pk].length - 1; i >= 0; i--)
+					internalState.unwatchData[pk][i]();
 			}
-			delete foundsetValue.__unwatchData;
+			delete internalState.unwatchData;
 		}
 	};
 	
@@ -82,7 +84,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
-					currentClientValue.__ignoreSelectedChange = currentClientValue[SELECTED_ROW_INDEXES]; // don't send back to server selection that came from server
+					currentClientValue[$sabloConverters.INTERNAL_IMPL].ignoreSelectedChangeValue = currentClientValue[SELECTED_ROW_INDEXES]; // don't send back to server selection that came from server
 					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
@@ -131,68 +133,80 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && serverJSONValue[NO_OP] !== 0) {
 					newValue = serverJSONValue; // not updates - so whole thing received
+					var internalState = newValue[$sabloConverters.INTERNAL_IMPL] = {}; // internal state and $sabloConverters interface
+					
+					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
 					if (newValue[VIEW_PORT][CONVERSIONS]) $sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS]);
-					// initialize the property value; make it 'smart'
+					
+					// PUBLIC API to components; initialize the property value; make it 'smart'
 					newValue.loadRecordsAsync = function(startIndex, size) {
-						if (!this.requests) this.requests = [];
-						this.requests.push({newViewPort: {startIndex : startIndex, size : size}});
-						if (this.changeNotifier) this.changeNotifier();
+						if (!internalState.requests) internalState.requests = [];
+						internalState.requests.push({newViewPort: {startIndex : startIndex, size : size}});
+						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount) {
-						if (!this.requests) this.requests = [];
-						this.requests.push({loadExtraRecords: negativeOrPositiveCount});
-						if (this.changeNotifier) this.changeNotifier();
+						if (!internalState.requests) internalState.requests = [];
+						internalState.requests.push({loadExtraRecords: negativeOrPositiveCount});
+						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
-					newValue.setChangeNotifier = function(changeNotifier) {
-						this.changeNotifier = changeNotifier; 
-					}
-					newValue.isChanged = function() { return this.requests && (this.requests.length > 0); }
 					
-					newValue.__ignoreSelectedChange = newValue[SELECTED_ROW_INDEXES]; // ignore initial watch change
+					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
+					// $sabloConverters setup
+					internalState.setChangeNotifier = function(changeNotifier) {
+						internalState.changeNotifier = changeNotifier; 
+					}
+					internalState.isChanged = function() { return internalState.requests && (internalState.requests.length > 0); }
+					
+					// private state/impl
+
 					// watch for client selection changes and send them to server
-					newValue.__unwatchSelection = $rootScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
+					internalState.ignoreSelectedChangeValue = newValue[SELECTED_ROW_INDEXES]; // ignore initial watch change
+					internalState.unwatchSelection = $rootScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
 						var changed = false;
-						if (newValue.__ignoreSelectedChange) {
-							if (newValue.__ignoreSelectedChange.length == newSel.length) {
+						if (internalState.ignoreSelectedChangeValue) {
+							if (internalState.ignoreSelectedChangeValue.length == newSel.length) {
 								var i;
-								for (i = 0; i < newValue.__ignoreSelectedChange.length; i++)
-									if (newValue.__ignoreSelectedChange[i] !== newSel[i]) { changed = true; break; }
+								for (i = 0; i < internalState.ignoreSelectedChangeValue.length; i++)
+									if (internalState.ignoreSelectedChangeValue[i] !== newSel[i]) { changed = true; break; }
 							} else changed = true;
-							newValue.__ignoreSelectedChange = null;
+							internalState.ignoreSelectedChangeValue = null;
 						} else changed = true;
 
 						if (changed) {
-							if (!newValue.requests) newValue.requests = [];
-							newValue.requests.push({newClientSelection: newSel});
-							if (newValue.changeNotifier) newValue.changeNotifier();
+							if (!internalState.requests) internalState.requests = [];
+							internalState.requests.push({newClientSelection: newSel});
+							if (internalState.changeNotifier) internalState.changeNotifier();
 						}
 					});
 					
 					// watch for client dataProvider changes and send them to server
-					newValue.__unwatchData = {}; // { rowPk: [unwatchDataProvider1Func, ...], ... }
+					internalState.unwatchData = {}; // { rowPk: [unwatchDataProvider1Func, ...], ... }
 					addDataWatchesToRows(newValue);
 				}
 				
-			}				 
+			}		 
 			if (angular.isDefined(currentClientValue) && newValue != currentClientValue) {
 				// the client side object will change completely, and the old one probably has watches defined...
 				// unregister those
 				
-				if (currentClientValue.__unwatchSelection) {
-					currentClientValue.__unwatchSelection();
-					delete currentClientValue.__unwatchSelection;
+				if (currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection) {
+					currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection();
+					delete currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection;
 				}
 				removeDataWatchesFromRows(currentClientValue);
 			}
-				
+
 			return newValue;
 		},
 
 		fromClientToServer: function(newClientData, oldClientData) {
-			if (newClientData && newClientData.isChanged()) {
-				var tmp = newClientData.requests;
-				newClientData.requests = null;
-				return tmp;
+			if (newClientData) {
+				var newDataInternalState = newClientData[$sabloConverters.INTERNAL_IMPL];
+				if (newDataInternalState.isChanged()) {
+					var tmp = newDataInternalState.requests;
+					delete newDataInternalState.requests;
+					return tmp;
+				}
 			}
 			return [];
 		}
