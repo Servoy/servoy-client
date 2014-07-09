@@ -199,9 +199,10 @@ public class RuntimeLegacyComponent implements Scriptable
 			// cannot set design only properties
 			return;
 		}
-		// TODO the value should be converted right here to the right java value the component expects
-		// so the string representation of Color should be converted to a Color object.
-		component.setProperty(name, value, ConversionLocation.SERVER);
+
+		Object val = RhinoConversion.convert(value, component.getFormElement().getWebComponentSpec().getProperty(name),
+			component.getFormElement().getDataConverterContext());
+		component.setProperty(name, val, ConversionLocation.SERVER);
 	}
 
 	@Override

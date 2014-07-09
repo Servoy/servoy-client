@@ -178,7 +178,8 @@ public class RuntimeWebComponent implements Scriptable
 		}
 		if (specProperties != null && specProperties.contains(name))
 		{
-			component.setProperty(name, value, ConversionLocation.SERVER);
+			Object val = RhinoConversion.convert(value, component.getFormElement().getWebComponentSpec().getProperty(name), component.getDataConverterContext());
+			component.setProperty(name, val, ConversionLocation.SERVER);
 		}
 		else if (prototypeScope != null)
 		{
