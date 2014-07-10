@@ -306,6 +306,12 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
+	@Override
+	protected int getSolutionTypeFilter()
+	{
+		return super.getSolutionTypeFilter() | SolutionMetaData.NG_CLIENT_ONLY;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
