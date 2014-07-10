@@ -28,6 +28,7 @@ import org.sablo.WebComponent;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
@@ -91,6 +92,19 @@ public class EventExecutor
 					event.setType(eventType);
 					event.setFormName(formController.getName());
 					event.setElementName(component.getName());
+					FormScope formScope = formController.getFormScope();
+					if (formScope != null)
+					{
+						ElementScope elementsScope = (ElementScope)formScope.get("elements", null);
+						if (elementsScope != null)
+						{
+							Object scriptableElement = elementsScope.get(component.getName(), null);
+							if (scriptableElement != null && scriptableElement != Scriptable.NOT_FOUND)
+							{
+								event.setSource(scriptableElement);
+							}
+						}
+					}
 					try
 					{
 						event.setTimestamp(new Timestamp(json.getLong("timestamp")));
