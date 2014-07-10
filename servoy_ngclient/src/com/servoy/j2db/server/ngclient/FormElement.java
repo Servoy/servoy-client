@@ -412,6 +412,19 @@ public final class FormElement implements IWebComponentInitializer
 	public JSONWriter propertiesAsJSON(JSONWriter writer) throws JSONException
 	{
 		Map<String, Object> properties = new HashMap<>();
+
+		if (persistImpl == null || !persistImpl.isForm())
+		{
+			Map<String, Object> propertiesMap = new HashMap<>(propertyValues);
+			Dimension dim = getDesignSize();
+			properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
+			Integer anchor = (Integer)propertiesMap.get(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
+			if (anchor != null)
+			{
+				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
+			}
+		}
+
 		WebComponentSpecification componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (PropertyDescription pd : propDescription.values())
@@ -430,18 +443,6 @@ public final class FormElement implements IWebComponentInitializer
 				if (((String)val).contains("%%")) continue;
 			}
 			properties.put(pd.getName(), val);
-		}
-
-		if (persistImpl == null || !persistImpl.isForm())
-		{
-			Map<String, Object> propertiesMap = new HashMap<>(propertyValues);
-			Dimension dim = getDesignSize();
-			properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
-			Integer anchor = (Integer)propertiesMap.get(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
-			if (anchor != null)
-			{
-				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
-			}
 		}
 
 		if (propertyValues.containsKey("offsetY")) properties.put("offsetY", propertyValues.get("offsetY"));

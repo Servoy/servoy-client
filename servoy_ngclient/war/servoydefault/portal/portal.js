@@ -114,9 +114,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
 //    		  if (textFieldApi.requestFocus) textFieldApi.requestFocus();
 //    	  }, 5000);
     	  // END TESTING MODELS
-    	  
-    	  var recordsPerPage = 5; // TODO make this dynamic based on available display area!
-    	  
+   	  
     	  // TODO clear entries in this cache when the foundset records change (don't keep obsolete pks in there!)
     	  // rowProxyObjects[pk][elementIndex].
     	  //                                  .mergedCellModel  - is the actual cell element svyModel cache
@@ -135,9 +133,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  });
     	  
     	  $scope.pagingOptions = {
-    			  pageSizes: [recordsPerPage, 50, 100, 200, 500, 1000],
-    			  pageSize: recordsPerPage,
-    			  currentPage: Math.floor(foundset.viewPort.startIndex / recordsPerPage + 1),
+    			  pageSize: 1,
+    			  currentPage: 1
     	  };
     	  
     	  function getCurrentPage() {
@@ -232,10 +229,13 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  // allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
     		  $scope.$evalAsync(function () { updateGridSelectionFromFoundset(); });
     	  });
-
+    	  
+    	  var rowTemplate = ''
     	  var columnDefinitions = [];
     	  for (var idx =0;idx<elements.length;idx++) {
     		  var el = elements[idx]; 
+    		  var elX = el.model.location.x - $scope.model.location.x;
+    		  var elY = el.model.location.y - $scope.model.location.y;
     		  var columnTitle = el.model.text;
     		  if (!columnTitle) {
     			  // TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
@@ -247,9 +247,29 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  }
     			  if (!columnTitle) columnTitle = "";
     		  }
+
+    		  var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getMergedCellModel(row, ' + idx + ')" svy-api="cellApiWrapper(row, ' + idx + ')" svy-handlers="cellHandlerWrapper(row, ' + idx + ')" svy-apply="cellApplyHandlerWrapper(row, ' + idx + ')"/>' 
+    		  if($scope.model.multiLine) {
+    			  if($scope.rowHeight == undefined || $scope.rowHeight < elY + el.model.size.height) {
+    				  $scope.rowHeight = elY + el.model.size.height;
+    			  }
+    			  rowTemplate = rowTemplate + '<div style="position:absolute;left:' + elX + 'px;top:' + elY + 'px;width:' + el.model.size.width + 'px;height:' + el.model.size.height + 'px;">' + cellTemplate + '</div>';
+    		  }
+    		  else {
+    			  if($scope.rowHeight == undefined || $scope.rowHeigth < el.model.size.height) {
+    				  $scope.rowHeight = el.model.size.height;
+    			  }
+        		  columnDefinitions.push({
+        			  displayName: columnTitle,
+        			  cellTemplate: cellTemplate 
+        		  });  
+    		  }
+    	  }
+    	  
+    	  if($scope.model.multiLine) {
     		  columnDefinitions.push({
-    			  displayName: columnTitle,
-    			  cellTemplate: '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getMergedCellModel(row, ' + idx + ')" svy-api="cellApiWrapper(row, ' + idx + ')" svy-handlers="cellHandlerWrapper(row, ' + idx + ')" svy-apply="cellApplyHandlerWrapper(row, ' + idx + ')"/>'
+    			  width: '100%',
+    			  cellTemplate: rowTemplate 
     		  });
     	  }
     	  
@@ -459,9 +479,11 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  totalServerItems: 'artificialServerSize', // we sometimes fake a page for the sake of following the first selected record with viewport - so we can't use real size here; see updatePageCount()
     			  pagingOptions: $scope.pagingOptions,
     			  primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
-    			  columnDefs: columnDefinitions
+    			  columnDefs: columnDefinitions,
+    			  headerRowHeight: $scope.model.multiLine ? 0 : 32,
+    			  rowHeight: $scope.rowHeight
     	  };
-    	  
+
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
     		  return function() {
     			  $scope.gridOptions.selectItem(rowIdToViewportRelativeRowIndex(rowId), true); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
@@ -486,6 +508,11 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  }
     		  return cellProxies.cellHandlers;
     	  }
+      },
+      link: function (scope, element, attrs) {
+    	  var viewportHeight = element.find('.svyPortalGridStyle').scope().viewportDimHeight();
+    	  scope.pagingOptions.pageSize = Math.floor(viewportHeight / scope.rowHeight);
+    	  scope.pagingOptions.pageSizes = [scope.pagingOptions.pageSize];
       },
       templateUrl: 'servoydefault/portal/portal.html',
       replace: true
