@@ -122,10 +122,13 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		getEventHandler: function($parse,scope,svyEventHandler)
 		{
 			var functionReferenceString = svyEventHandler;
-			var index = functionReferenceString.indexOf('(');
-			if (index != -1) functionReferenceString = functionReferenceString.substring(0,index);
-			if( scope.$eval(functionReferenceString) ) {
-			   return $parse(svyEventHandler);
+			if (functionReferenceString)
+			{
+				var index = functionReferenceString.indexOf('(');
+				if (index != -1) functionReferenceString = functionReferenceString.substring(0,index);
+				if( scope.$eval(functionReferenceString) ) {
+				   return $parse(svyEventHandler);
+				}
 			}
 			return null;
 		},
