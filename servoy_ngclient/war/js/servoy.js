@@ -119,20 +119,29 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			
 					return style;
 		},
-		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction) {
-		    var functionReferenceString = svyEventHandler;
+		getEventHandler: function($parse,scope,svyEventHandler)
+		{
+			var functionReferenceString = svyEventHandler;
 			var index = functionReferenceString.indexOf('(');
 			if (index != -1) functionReferenceString = functionReferenceString.substring(0,index);
 			if( scope.$eval(functionReferenceString) ) {
-			   var fn = $parse(svyEventHandler);
-     		   element.on(domEvent, function(event) {
-     		   	   if (!filterFunction || filterFunction(event)) {
-	              		scope.$apply(function() {
-	               		 fn(scope, {$event:event});
-	              		});
-	              	}
-	            });
-    		}
+			   return $parse(svyEventHandler);
+			}
+			return null;
+		},
+		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction) {
+			var fn = this.getEventHandler($parse,scope,svyEventHandler)
+			if (fn)
+			{
+				element.on(domEvent, function(event) {
+					if (!filterFunction || filterFunction(event)) {
+						scope.$apply(function() {
+							fn(scope, {$event:event});
+						});
+						return false;
+					}
+				}); 
+			}
 		},
 		testEnterKey: function(e) 
 		{
@@ -296,7 +305,31 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-        	$utils.attachEventHandler($parse,element,scope,attrs.svyClick,'click');
+        	var dblClickFunction = $utils.getEventHandler($parse,scope,attrs.svyDblclick)
+        	if (dblClickFunction)
+        	{
+        		// special handling when double click is also present
+        		var fn = $utils.getEventHandler($parse,scope,attrs.svyClick)
+        		element.on('click', function(event) {
+        			if(element.timerID){
+        				clearTimeout(element.timerID);
+        				element.timerID=null;
+        				//double click, do nothing
+        			}
+        			else{
+        				element.timerID=setTimeout(function(){
+        					element.timerID=null;
+        					scope.$apply(function() {
+        						fn(scope, {$event:event});
+        					});
+        				},250)}
+        			return false;
+        		}); 
+        	}
+        	else
+        	{
+        		$utils.attachEventHandler($parse,element,scope,attrs.svyClick,'click');
+        	}
         }
       };
 }).directive('svyDblclick',  function ($parse,$utils) {
