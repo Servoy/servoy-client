@@ -11,7 +11,7 @@ angular.module('signaturefield',['servoy']).directive('signaturefield', function
                    drawOnly : true,
                    lineColour : "#fff",
                     onDrawEnd: function() {
-                     var api = $('.sigPad').signaturePad();
+                     var api = $element.signaturePad();
                   	 $scope.$apply(function () {
                   		 $scope.model.signatureValue = api.getSignatureString();
                   	 });
@@ -20,22 +20,22 @@ angular.module('signaturefield',['servoy']).directive('signaturefield', function
                };
                
                $scope.$watch('model.signatureValue', function() {
-                   if($scope.model.signatureValue) $('.sigPad').signaturePad(options).regenerate($scope.model.signatureValue);
+                   if($scope.model.signatureValue) $element.signaturePad(options).regenerate($scope.model.signatureValue);
                })
                
                $scope.$watch(function() {
                     return $element.find('canvas').attr('width');
                }, function() {
-                    if($scope.model.signatureValue) $('.sigPad').signaturePad(options).regenerate($scope.model.signatureValue);
+                    if($scope.model.signatureValue) $element.signaturePad(options).regenerate($scope.model.signatureValue);
                })
 
                $scope.$watch(function() {
                     return $element.find('canvas').attr('height');
                }, function() {
-                    if($scope.model.signatureValue) $('.sigPad').signaturePad(options).regenerate($scope.model.signatureValue);
+                    if($scope.model.signatureValue) $element.signaturePad(options).regenerate($scope.model.signatureValue);
                })
                
-               $('.sigPad').signaturePad(options);
+               $element.signaturePad(options);
                
                $scope.clear = function() {
                		$scope.model.signatureValue = null;
