@@ -1,4 +1,5 @@
-angular.module('svyTypeahead',['servoy']).directive('svyTypeahead', function($timeout) {  
+angular.module('svyTypeahead',['servoy'])
+.directive('svyTypeahead',['$timeout','formatFilterFilter', function($timeout,formatFilter) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -13,7 +14,14 @@ angular.module('svyTypeahead',['servoy']).directive('svyTypeahead', function($ti
     	  $scope.findMode = false;
           var timeoutPromise = null;
           var lastAppliedDataProviderID = null;
-
+          
+         $scope.formatLabel = function (model){
+        	  var displayFormat = undefined;
+     		  var type = undefined;
+     		  if($scope.model.format && $scope.model.format.display) displayFormat = $scope.model.format.display;
+     		  if($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;	          		
+     		  return formatFilter(model, displayFormat ,type);        	 
+         }
           $scope.doSvyApply = function (){
             // only the last ngBlur should take effect
            if(timeoutPromise) $timeout.cancel(timeoutPromise); 
@@ -60,7 +68,7 @@ angular.module('svyTypeahead',['servoy']).directive('svyTypeahead', function($ti
       templateUrl: 'servoydefault/typeahead/typeahead.html',
       replace: true
     };
-  })
+  }])
 
   
   
