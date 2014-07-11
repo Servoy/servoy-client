@@ -11,34 +11,34 @@ angular.module('signaturefield',['servoy']).directive('signaturefield', function
                    drawOnly : true,
                    lineColour : "#fff",
                     onDrawEnd: function() {
-                     var api = $element.signaturePad();
                   	 $scope.$apply(function () {
-                  		 $scope.model.signatureValue = api.getSignatureString();
+                  		 $scope.model.signatureValue = $scope.signatureApi.getSignatureString();
                   	 });
                   	 $scope.svyApply('signatureValue');
                    }
                };
                
                $scope.$watch('model.signatureValue', function() {
-                   if($scope.model.signatureValue) $element.signaturePad(options).regenerate($scope.model.signatureValue);
+                   if($scope.model.signatureValue) $scope.signatureApi.regenerate($scope.model.signatureValue);
+                   else $scope.signatureApi.clearCanvas();
                })
                
                $scope.$watch(function() {
                     return $element.find('canvas').attr('width');
                }, function() {
-                    if($scope.model.signatureValue) $element.signaturePad(options).regenerate($scope.model.signatureValue);
+                    if($scope.model.signatureValue) $scope.signatureApi.regenerate($scope.model.signatureValue);
                })
 
                $scope.$watch(function() {
                     return $element.find('canvas').attr('height');
                }, function() {
-                    if($scope.model.signatureValue) $element.signaturePad(options).regenerate($scope.model.signatureValue);
+                    if($scope.model.signatureValue) $scope.signatureApi.regenerate($scope.model.signatureValue);
                })
                
-               $element.signaturePad(options);
+               $scope.signatureApi = $element.signaturePad(options);
                
                $scope.clear = function() {
-               		$scope.model.signatureValue = null;
+            	   $scope.model.signatureValue = null;
                }
            },
            replace: true
