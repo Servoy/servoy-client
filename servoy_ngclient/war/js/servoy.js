@@ -67,6 +67,44 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	     return code==keyCode;
 	}
 	
+	// expression for angular scope.$watch that can watch 1 item multiple levels deep in an object
+	function getInDepthWatchExpression(parentObj, propertyNameOrArrayOfNestedNames) {
+		var expression;
+		if ($.isArray(propertyNameOrArrayOfNestedNames)) {
+			expression = function() {
+				var r = parentObj;
+				var i = 0;
+				while (i < propertyNameOrArrayOfNestedNames.length && angular.isDefined(r)) {
+					r = r[propertyNameOrArrayOfNestedNames[i]];
+					i++;
+				}
+				return r;
+			}
+		}
+		else expression = function() { return parentObj[propertyNameOrArrayOfNestedNames] };
+
+		return expression;
+	};
+	
+	function getInDepthSetter(parentObj, propertyNameOrArrayOfNestedNames) {
+		var setterFunc;
+		if ($.isArray(propertyNameOrArrayOfNestedNames)) {
+			setterFunc = function(newValue) {
+				var r = parentObj;
+				var i = 0;
+				while (i < propertyNameOrArrayOfNestedNames.length - 1 && angular.isDefined(r)) {
+					r = r[propertyNameOrArrayOfNestedNames[i]];
+					i++;
+				}
+				if (angular.isDefined(r)) r[propertyNameOrArrayOfNestedNames[propertyNameOrArrayOfNestedNames.length - 1]] = newValue;
+				// else auto-create path?
+			}
+		}
+		else setterFunc = function(newValue) { parentObj[propertyNameOrArrayOfNestedNames] = newValue };
+
+		return setterFunc;
+	};
+	
 	return{
 		
 		/** this function can be used in filters .It accepts a string jsonpath the property to test for null. 
@@ -151,13 +189,19 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			return testKeyPressed(e,13);
 		},
 		bindTwoWayObjectProperty : function (a, propertyNameA, b, propertyNameB, useObjectEquality, scope) {
-			var toWatchA = (scope ? "a." + propertyNameA : function() { return a[propertyNameA] });
-			var toWatchB = (scope ? "b." + propertyNameB : function() { return b[propertyNameB] });
+			var toWatchA = getInDepthWatchExpression(a, propertyNameA);
+			var toWatchB = getInDepthWatchExpression(b, propertyNameB);
+			var setA = getInDepthSetter(a, propertyNameA);
+			var setB = getInDepthSetter(b, propertyNameB);
 
 			if (!scope) scope = $rootScope;
 			return [
-			        scope.$watch(toWatchA, function (newValue, oldValue, scope) { if (newValue !== oldValue) b[propertyNameB] = a[propertyNameA] }, useObjectEquality),
-			        scope.$watch(toWatchB, function (newValue, oldValue, scope) { if (newValue !== oldValue) a[propertyNameA] = b[propertyNameB] }, useObjectEquality)
+			        scope.$watch(toWatchA, function (newValue, oldValue, scope) {
+			        	if (newValue !== oldValue) setB(newValue);
+			        }, useObjectEquality),
+			        scope.$watch(toWatchB, function (newValue, oldValue, scope) {
+			        	if (newValue !== oldValue) setA(newValue);
+			        }, useObjectEquality)
 			];
 		},
 		getEventArgs : function(args,eventName)

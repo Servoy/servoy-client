@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,13 +33,20 @@ import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
+import org.sablo.specification.property.IClassPropertyType;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
+import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -46,7 +54,9 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Value used at runtime as foundset type value proxy for multiple interested parties (browser, designtime, scripting).
@@ -56,6 +66,12 @@ import com.servoy.j2db.util.ServoyException;
 @SuppressWarnings("nls")
 public class FoundsetTypeValue implements IServoyAwarePropertyValue
 {
+
+	/**
+	 * Column that is always automatically sent for each record in a foundset's viewport. It's value
+	 * uniquely identifies that record.
+	 */
+	public static final String ROW_ID_COL_KEY = "_svyRowId";
 
 	// START keys and values used in JSON
 	public static final String UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
@@ -371,7 +387,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		Map<String, Object> data = new HashMap<>();
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
-		data.put("_svyRowId", record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
+		data.put(ROW_ID_COL_KEY, record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
 
 		Iterator<String> it = dataProviders.iterator();
 		while (it.hasNext())
@@ -446,6 +462,90 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 							if (!Arrays.equals(foundset.getSelectedIndexes(), newSelectedIndexes))
 							{
 								changeMonitor.selectionChanged();
+							}
+						}
+					}
+					else if (update.has("dataChanged"))
+					{
+						// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
+						JSONObject dataChangeJSON = (JSONObject)update.get("dataChanged");
+						String rowIDValue = dataChangeJSON.getString(ROW_ID_COL_KEY);
+						String dataProviderName = dataChangeJSON.getString("dp");
+						Object value = dataChangeJSON.get("value");
+
+						if (foundset != null)
+						{
+							Pair<String, Integer> splitHashAndIndex = WebGridFormUI.splitPKHashAndIndex(rowIDValue);
+							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+
+							if (recordIndex != -1)
+							{
+								IRecordInternal record = foundset.getRecord(recordIndex);
+								// convert Dates where it's needed
+
+								int type = foundset.getTable().getColumnType(dataProviderName); // this should be enough for when only foundset dataproviders are used
+								boolean isColumn = false;
+
+								if (type == 0)
+								{
+									// not found
+									// TODO when we stop sending globals/form variables - when they are implemented in the 'component' complex property
+									// we should only look at foundset table column types; remove the whole FormAndTableDataproviderLookup thing
+									FormAndTableDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(
+										getFormUI().getDataConverterContext().getApplication().getFlattenedSolution(), getFormUI().getController().getForm(),
+										foundset.getTable());
+									IDataProvider dp = null;
+									try
+									{
+										dp = dpLookup.getDataProvider(dataProviderName);
+									}
+									catch (RepositoryException e)
+									{
+										Debug.error(e);
+									}
+									if (dp != null) type = dp.getDataProviderType();
+								}
+								else isColumn = true;
+
+								if (type == IColumnTypes.DATETIME)
+								{
+									IPropertyType< ? > sabloType = TypesRegistry.getType("date");
+									value = ((IClassPropertyType<Date, Date>)sabloType).fromJSON(value, null);
+								}
+
+								viewPort.pauseRowUpdateListener(splitHashAndIndex.getLeft());
+								try
+								{
+									if (isColumn)
+									{
+										record.startEditing(); // we could have used here JS put but that method is not in the interface
+										record.setValue(dataProviderName, value);
+									}
+									else
+									{
+										// TODO currently we also send globals/form variables through foundset;
+										// in the future it should be enough to set it in the record only!
+										// not through DataAdapterList
+										com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, getFormUI().getController().getFormScope(),
+											dataProviderName, value);
+									}
+								}
+								finally
+								{
+									viewPort.resumeRowUpdateListener();
+									// if server denies the new selection as invalid and doesn't change selection, send it to the client so that it doesn't keep invalid selection
+									// TODO use here record directly instead of dataAdapterList when we no longer work with variables, just foundset data in this property (when that is implemented in components property)
+									if (!Utils.equalObjects(com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record,
+										getFormUI().getController().getFormScope(), dataProviderName), value))
+									{
+										changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort);
+									}
+								}
+							}
+							else
+							{
+								Debug.error("Cannot set foundset record (" + rowIDValue + ") dataprovider '" + dataProviderName + "' to value '" + value +
+									". Record not found.");
 							}
 						}
 					}

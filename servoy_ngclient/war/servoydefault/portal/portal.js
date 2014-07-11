@@ -175,7 +175,10 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  $scope.gridOptions.$gridScope.showFooter = multiPage;
     			  $scope.gridOptions.$gridScope.enablePaging = multiPage;
     		  }
-    		  $scope.artificialServerSize = foundset.serverSize + emptySpaceOnPreviousPage;
+    		  // TODO this artificialServerSize does make page count show well, but it obviously breaks total size
+    		  // so it's disabled for now...
+//    		  $scope.artificialServerSize = foundset.serverSize + emptySpaceOnPreviousPage;
+    		  $scope.artificialServerSize = foundset.serverSize;
     	  }
     	  
     	  $scope.$watch('pagingOptions.currentPage', function(newVal, oldVal) {
@@ -220,7 +223,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  if (newVal > 0 && foundset.viewPort.size === 0 && $scope.pagingOptions.pageSize > 0) {
     			  // initial new foundset show
     			  $scope.model.relatedFoundset.loadRecordsAsync(0, Math.min(newVal, $scope.pagingOptions.pageSize));
-    		  } else if (foundset.viewPort.startIndex + foundset.viewPort.size < newVal && foundset.viewPort.size - foundset.viewPort.startIndex < $scope.pagingOptions.pageSize) $scope.model.relatedFoundset.loadExtraRecordsAsync(Math.min(newVal - foundset.viewPort.startIndex - foundset.viewPort.size, $scope.pagingOptions.pageSize));
+    		  } else if (foundset.viewPort.startIndex + foundset.viewPort.size < newVal && foundset.viewPort.size < $scope.pagingOptions.pageSize) $scope.model.relatedFoundset.loadExtraRecordsAsync(Math.min(newVal - foundset.viewPort.startIndex - foundset.viewPort.size, $scope.pagingOptions.pageSize - foundset.viewPort.size));
     		  updatePageCount();
     	  });
     	  
@@ -315,6 +318,11 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  $scope.getMergedCellModel = function(ngGridRow, elementIndex) {
     		  var cellProxies = getOrCreateElementProxies(ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY), elementIndex);
     		  var cellModel = cellProxies.mergedCellModel;
+    		  
+    		  // TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
+    		  cellProxies.rowEntity = ngGridRow.entity; // so that 2 way bindings below work even if the instance of
+    		  // 'ngGridRow.entity' changes (for example a 'CHANGE' row update from server could do that)
+    		  // instance from the one that was when the cached proxy for that pkHash got created
     			  
     		  if (!cellModel) {
         		  var element = elements[elementIndex];
@@ -332,7 +340,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     					  var dataprovider = element.forFoundset.dataLinks[i].dataprovider;
     					  cellData[propertyName] = ngGridRow.getProperty(dataprovider);
     					  // 2 way data link between element separate properties from foundset and the merged cell model
-    					  $utils.bindTwoWayObjectProperty(cellData, propertyName, ngGridRow.entity, dataprovider); // TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
+    					  $utils.bindTwoWayObjectProperty(cellData, propertyName, cellProxies, ["rowEntity", dataprovider]);
     				  }
     			  }
     			  

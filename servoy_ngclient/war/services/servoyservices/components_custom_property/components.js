@@ -43,6 +43,11 @@ angular.module('components_custom_property', ['webSocketModule'])
 							})(key,handler.beanName);
 						}
 					}
+					serverJSONValue[c].apply =  function(property, componentModel, rowId) {
+						// TODO when dataproviders will get sent through components; right now it goes through foundset
+        				// $servoyInternal.pushDPChange("product", "datatextfield1c", property, componentModel, rowId);
+						// alert("Apply called with: (" + rowId + ", " + property + ", " + componentModel[property] + ")");
+					};
 				}
 			}
 			return serverJSONValue;

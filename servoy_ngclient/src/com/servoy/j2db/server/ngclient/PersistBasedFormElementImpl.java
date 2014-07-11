@@ -256,14 +256,11 @@ class PersistBasedFormElementImpl
 //				(...)
 //			},
 			JSONArray componentJSONs = new JSONArray();
-			JSONObject componentJSON;
 			List<IPersist> components = ComponentFactory.sortElementsOnPositionAndGroup(portal.getAllObjectsAsList());
 			for (IPersist component : components)
 			{
 				if (component instanceof IFormElement)
 				{
-					// generate the NG definition of this persist and put it in there;
-					JSONStringer jsonWriter = new JSONStringer();
 					FormElement nfe = new FormElement((IFormElement)component, context);
 					Map<String, Object> elementProperties = new HashMap<>(nfe.getProperties());
 
@@ -276,12 +273,7 @@ class PersistBasedFormElementImpl
 						if (dp != null && dp.startsWith(relationPrefix)) elementProperties.put(dpPropertyName, dp.substring(relationPrefix.length())); // portal always prefixes comp. dataproviders with related fs name
 					}
 
-					JSONUtils.toDesignJSONValue(jsonWriter, elementProperties, NGClientForJsonConverter.INSTANCE);
-
-					componentJSON = new JSONObject();
-					componentJSON.put(ComponentTypeValue.TYPE_NAME_KEY, nfe.getTypeName());
-					componentJSON.put(ComponentTypeValue.DEFINITION_KEY, new JSONObject(jsonWriter.toString()));
-					componentJSONs.put(componentJSON);
+					componentJSONs.put(getPureSabloJSONForFormElement(nfe, elementProperties));
 				}
 			}
 
@@ -307,6 +299,27 @@ class PersistBasedFormElementImpl
 			Debug.error(e);
 			return;
 		}
+	}
+
+	/**
+	 * Can also be used during debug to generate nice JSON for standard persist components - so replace them
+	 * with a pure JSON designer definition (turn default components into real beans); tried this with a whole portal...
+	 */
+	public static String getPureSabloJSONForFormElementAsString(FormElement nfe, Map<String, Object> elementProperties) throws JSONException
+	{
+		// generate the NG definition of this persist and put it in there;
+		JSONStringer jsonWriter = new JSONStringer();
+		jsonWriter.object();
+		jsonWriter.key(ComponentTypeValue.TYPE_NAME_KEY).value(nfe.getTypeName());
+		jsonWriter.key(ComponentTypeValue.DEFINITION_KEY);
+		JSONUtils.toDesignJSONValue(jsonWriter, elementProperties != null ? elementProperties : nfe.getProperties(), NGClientForJsonConverter.INSTANCE);
+		jsonWriter.endObject();
+		return jsonWriter.toString();
+	}
+
+	public static JSONObject getPureSabloJSONForFormElement(FormElement nfe, Map<String, Object> elementProperties) throws JSONException
+	{
+		return new JSONObject(getPureSabloJSONForFormElementAsString(nfe, elementProperties));
 	}
 
 	public boolean isLegacy()

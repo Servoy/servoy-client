@@ -97,7 +97,7 @@ public final class FormElement implements IWebComponentInitializer
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 		Map<String, Object> map = persistImpl.getConvertedProperties(context, specProperties);
 
-		propertyValues = map; // temporary - can be needed when initProperties initialises complex property type values
+		propertyValues = map; // temporary - can be needed when initProperties initializes complex property type values
 		initProperties(specProperties, map, context);
 		adjustLocationRelativeToPart(context.getSolution(), map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
@@ -475,7 +475,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

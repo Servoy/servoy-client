@@ -34,6 +34,7 @@ public class FoundsetTypeViewport
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected IFoundSetInternal foundset;
 	protected IFoundSetEventListener foundsetEventListener;
+	private String ignoreUpdateOnPkHash;
 
 	/**
 	 * Creates a new viewport object.
@@ -165,7 +166,10 @@ public class FoundsetTypeViewport
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
 						{
-							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this);
+							// ignore update if that update was triggered by change from the browser through the foundset property
+							if (ignoreUpdateOnPkHash == null || event.getFirstRow() != event.getLastRow() ||
+								!foundset.getRecord(event.getFirstRow()).getPKHashKey().equals(ignoreUpdateOnPkHash)) changeMonitor.recordsUpdated(
+								event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this);
 						}
 					}
 				}
@@ -194,6 +198,22 @@ public class FoundsetTypeViewport
 		correctViewportBoundsIfNeededInternal();
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
+	}
+
+	/**
+	 * Ignores update record events for the record with given pkHash.
+	 */
+	public void pauseRowUpdateListener(String pkHash)
+	{
+		this.ignoreUpdateOnPkHash = pkHash;
+	}
+
+	/**
+	 * Resumes listening normally to row updates.
+	 */
+	public void resumeRowUpdateListener()
+	{
+		this.ignoreUpdateOnPkHash = null;
 	}
 
 }
