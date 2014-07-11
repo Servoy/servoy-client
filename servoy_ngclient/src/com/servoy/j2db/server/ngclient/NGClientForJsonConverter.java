@@ -99,17 +99,7 @@ public class NGClientForJsonConverter implements IForJsonConverter
 		// complex values: use map or list
 		if (value instanceof IValueList)
 		{
-			IValueList list = (IValueList)value;
-			List<Map<String, Object>> array = new ArrayList<>(list.getSize());
-			for (int i = 0; i < list.getSize(); i++)
-			{
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("realValue", list.getRealElementAt(i));
-				Object displayValue = list.getElementAt(i);
-				map.put("displayValue", displayValue != null ? displayValue : "");
-				array.add(map);
-			}
-			return array;
+			// it is handled in ValueListPropertyType toJson
 		}
 
 		if (value instanceof JSDataSet || value instanceof IDataSet)

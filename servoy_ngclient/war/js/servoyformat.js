@@ -218,22 +218,20 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 
 		return ret 
 	}
-	function formatInternal(data,servoyFormat,type){
-		if((!servoyFormat) || (!type) || (!data) ) return data;
-		if(type == "NUMBER"){
-			 return formatNumbers(data,servoyFormat);
-		}else if(type == "TEXT"){
-			return formatText(data,servoyFormat);
-		}else if(type == "DATETIME"){
-			return formatDate(data,servoyFormat);
-		}
-		
-		return data;
-		
-	}
+
 	return{
 		
-		format : formatInternal ,
+		format : function (data,servoyFormat,type){
+			if((!servoyFormat) || (!type) || (!data) ) return data;
+			if(type == "NUMBER"){
+				 return formatNumbers(data,servoyFormat);
+			}else if(type == "TEXT"){
+				return formatText(data,servoyFormat);
+			}else if(type == "DATETIME"){
+				return formatDate(data,servoyFormat);
+			}			
+			return data;			
+		},
 		
 		unformat : function(data ,servoyFormat,type){
 			if((!servoyFormat)||(!type) || (!data) ) return data;
@@ -255,6 +253,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 	  return function(input,servoyFormat,type) {
 		  var ret = input;
 		  try{
+			  // TODO apply servoy default formatting from properties file here
+			  if(input instanceof Date && !servoyFormat) {
+				  servoyFormat = 'MM/dd/yyyy hh:mm aa';
+				  type = 'DATETIME';
+			  }
 			  ret = $formatterUtils.format(input,servoyFormat,type);
 		  }catch(e){
 			  console.log(e);

@@ -9,8 +9,10 @@ angular.module('svyListbox',['servoy']).directive('svyListbox', function($parse)
 		},
 		require: 'ngModel',
 		compile: function(tElement, tAttrs) {
+			var isMultiSelect = true;
 			if ($parse(tAttrs.svyModel)(angular.element(tElement).scope()).multiselectListbox != true)
 			{
+				false;
 				tElement.removeAttr("multiple");
 			}
 			return function($scope, $element, $attrs, ngModel) {
@@ -22,8 +24,13 @@ angular.module('svyListbox',['servoy']).directive('svyListbox', function($parse)
 						$scope.convertModel = null;
 					}
 					else
-					{
-						$scope.convertModel = $scope.model.dataProviderID.split('\n'); 
+					{	
+						// TODO needs to be automatic
+						if(isMultiSelect){
+							$scope.convertModel = ($scope.model.dataProviderID+'').split('\n');	
+						}else{
+							$scope.convertModel = [$scope.model.dataProviderID]
+						}
 					}
 				})
 				$scope.$watch('convertModel', function() {
@@ -35,7 +42,11 @@ angular.module('svyListbox',['servoy']).directive('svyListbox', function($parse)
 					}
 					else
 					{
-						newValue = $scope.convertModel.join('\n'); 
+						if(isMultiSelect){
+							newValue = $scope.convertModel.join('\n');	
+						}else{
+							newValue = $scope.convertModel[0];	
+						}						 
 					}
 					if (oldValue != newValue)
 					{

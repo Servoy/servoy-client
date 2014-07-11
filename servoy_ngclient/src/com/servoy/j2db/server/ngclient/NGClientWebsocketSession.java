@@ -280,6 +280,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					else if (property instanceof LookupListModel)
 					{
 						lstModel = (LookupListModel)property;
+						// set the valuelistID property as changed on every letter typing
+						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 
 					if (lstModel != null)
@@ -552,7 +554,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				if (!serviceChanges.isEmpty()) data.put("services", serviceChanges);
 				// TOOD see above comment, this should not send to the currently active endpoint, but to all endpoints
 				// so that any change from 1 endpoint request ends up in all the end points.
-				WebsocketEndpoint.get().sendMessage(data, true, getForJsonConverter());
+				WebsocketEndpoint.get().sendMessage(data, true, getForJsonConverter(), ConversionLocation.BROWSER);
 			}
 			catch (IOException e)
 			{

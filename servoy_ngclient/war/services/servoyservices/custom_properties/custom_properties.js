@@ -7,7 +7,9 @@ angular.module('custom_properties', ['webSocketModule'])
 		},
 		
 		fromClientToServer: function(newClientData, oldClientData) {
-			return newClientData != null ? newClientData.getTime() : newClientData;
+			  if(!newClientData) return null;
+			  if(typeof newClientData == 'string') newClientData = new Date(newClientData);
+			return newClientData.getTime();
 		}
 	});
 })

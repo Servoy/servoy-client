@@ -587,8 +587,12 @@ public class SpecGenerator
 		perComponentInternalProperties.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
 		perComponentInternalProperties.put("htmlarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
 		perComponentInternalProperties.put("imagemedia", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
-		perComponentInternalProperties.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
 		perComponentInternalProperties.put("textarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("checkbox", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
+		perComponentInternalProperties.put("radio", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
+		perComponentInternalProperties.put("radiogroup", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
+		perComponentInternalProperties.put("checkgroup", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
 		
 		serverSideApi.add("getAbsoluteFormLocationY");
 		serverSideApi.add("getClientProperty");

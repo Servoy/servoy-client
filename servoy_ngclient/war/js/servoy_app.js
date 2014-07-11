@@ -54,19 +54,18 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   };
 
 	   var applyBeanData = function(formName, beanName, beanModel, beanLayout, beanData, containerSize, newConversionInfo) {
-		   var currentConversionInfo;
 		   if (newConversionInfo) {
 			   if (!formStatesConversionInfo[formName]) formStatesConversionInfo[formName] = {};
 			   if (!formStatesConversionInfo[formName][beanName]) formStatesConversionInfo[formName][beanName] = {};
 			   
-           		currentConversionInfo = formStatesConversionInfo[formName][beanName];
-           		$sabloConverters.convertFromServerToClient(beanData, newConversionInfo, beanModel);
+           	    formStatesConversionInfo[formName][beanName] = newConversionInfo;
 		   }
-
+		   if( formStatesConversionInfo[formName] && formStatesConversionInfo[formName][beanName]){
+			   $sabloConverters.convertFromServerToClient(beanData, formStatesConversionInfo[formName][beanName], beanModel);   
+		   }		   
 			for(var key in beanData) {
 				// remember conversion info for when it will be sent back to server - it might need special conversion as well
 				if (newConversionInfo && newConversionInfo[key]) {
-					currentConversionInfo[key] = newConversionInfo[key];
 					if (beanModel[key] !== beanData[key] && beanData[key] && beanData[key].setChangeNotifier) beanData[key].setChangeNotifier(function() {
 	           			var currentModel = formStates[formName].model[beanName];
 	           			sendChanges(currentModel, currentModel, formName, beanName);
@@ -414,17 +413,20 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 
 	    		if (componentModel) {
 	    			// probably a nested component (inside another component); the component might even be linked to a different foundset
-	    			changes[property] = $sabloUtils.convertClientObject(componentModel[property]);
+	    			//changes[property] = $sabloUtils.convertClientObject(componentModel[property]);
 	    			if (rowId){
 	    				changes.rowId = rowId;
 	    			} else if (componentModel.rowId) {
 	    				changes.rowId = componentModel.rowId;
 					}
-	    		} else {
-	    			// default model, simple direct form child component
-	    			changes[property] = $sabloUtils.convertClientObject(formStates[formname].model[beanname][property]);
 	    		}
-
+	    		// default model, simple direct form child component
+		    	var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
+	    		if (conversionInfo && conversionInfo[property]){
+	    			changes[property] = $sabloConverters.convertFromClientToServer(formStates[formname].model[beanname][property], conversionInfo[property], undefined);
+	    		}else{
+	    			changes[property] = formStates[formname].model[beanname][property]
+	    		}
 	    		wsSession.sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
 	    	},
 

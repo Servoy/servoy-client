@@ -1,4 +1,4 @@
-angular.module('svySpinner',['servoy']).directive('svySpinner', function($utils) {  
+angular.module('svySpinner',['servoy']).directive('svySpinner',['$utils','formatFilterFilter', function($utils,formatFilter) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -95,9 +95,13 @@ angular.module('svySpinner',['servoy']).directive('svySpinner', function($utils)
 	          for(var i = 0; i < $scope.model.valuelistID.length; i++)
 	          {
 	          	  var item = $scope.model.valuelistID[i];
-	          	  if(item.realValue && $scope.model.dataProviderID == item.realValue)
+	          	  if(item && item.realValue && $scope.model.dataProviderID == item.realValue)
 	          	  {
-	          		  return item.displayValue;
+	          		  var displayFormat = undefined;
+	          		  var type = undefined;
+	          		  if($scope.model.format && $scope.model.format.display) displayFormat = $scope.model.format.display;
+	          		  if($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;	          		
+	          		  return formatFilter(item.displayValue, displayFormat ,type);
 	          		  $scope.counter = i;
 	          	  }
 	          }
@@ -120,4 +124,4 @@ angular.module('svySpinner',['servoy']).directive('svySpinner', function($utils)
       templateUrl: 'servoydefault/spinner/spinner.html',
       replace: true
     };
-})
+}])

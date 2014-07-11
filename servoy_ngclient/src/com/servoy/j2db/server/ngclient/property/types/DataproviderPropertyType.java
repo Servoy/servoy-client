@@ -15,6 +15,7 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import org.json.JSONException;
@@ -83,6 +84,22 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 	@Override
 	public Object fromJSON(Object newValue, DataproviderWrapper previousValue)
 	{
+		/** TODO if the dataprovider is of type date it has to apply date converter 
+		   it should do(after andrei finishes his case SVY-6608 ) something like :
+		    // get type from DataProviderLookup
+		    if (type == IColumnTypes.DATETIME)
+		    {
+		     IPropertyType< ? > sabloType = TypesRegistry.getType("date");
+		     value = ((IClassPropertyType<Date, Date>)sabloType).fromJSON(value, null);
+		    }
+		 **/
+		if (previousValue != null)
+		{
+			if (previousValue.value instanceof Date)
+			{
+				return new Date((long)newValue);
+			}
+		}
 		return newValue;
 	}
 
