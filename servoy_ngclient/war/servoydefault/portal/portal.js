@@ -133,6 +133,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  });
     	  
     	  $scope.pagingOptions = {
+    			  pageSizes: [1, 5, 10, 20, 50, 100, 200, 500, 1000],
     			  pageSize: 1,
     			  currentPage: 1
     	  };
@@ -480,6 +481,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  data: 'model.relatedFoundset.viewPort.rows',
     			  enableCellSelection: true,
     			  enableRowSelection: true,
+    			  enableColumnResize: true,
     			  selectedItems: selectedItemsProxy,
     			  multiSelect: foundset.multiSelect,
     			  enablePaging: true,
@@ -518,9 +520,11 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  }
       },
       link: function (scope, element, attrs) {
-    	  var viewportHeight = element.find('.svyPortalGridStyle').scope().viewportDimHeight();
-    	  scope.pagingOptions.pageSize = Math.floor(viewportHeight / scope.rowHeight);
-    	  scope.pagingOptions.pageSizes = [scope.pagingOptions.pageSize];
+    	  var sc = element.find('.svyPortalGridStyle').scope();
+    	  scope.$watch(function() { return sc.viewportDimHeight() }, function(newViewportHeight) {
+    		  scope.pagingOptions.pageSize = Math.max(Math.floor(newViewportHeight / scope.rowHeight), 1);
+    		  scope.pagingOptions.pageSizes = [scope.pagingOptions.pageSize]; // TODO can we make it scoll if we allow clients to change page size manually to other values as well?
+    	  });
       },
       templateUrl: 'servoydefault/portal/portal.html',
       replace: true
