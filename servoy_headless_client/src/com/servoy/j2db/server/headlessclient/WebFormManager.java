@@ -47,8 +47,8 @@ import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A {@link FormManager} implementation that is used in the webclient. 
- * 
+ * A {@link FormManager} implementation that is used in the webclient.
+ *
  * @author jcompagner
  */
 public class WebFormManager extends FormManager
@@ -71,7 +71,7 @@ public class WebFormManager extends FormManager
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.FormManager#makeSolutionSettings(com.servoy.j2db.persistence.Solution)
 	 */
 	@Override
@@ -81,7 +81,7 @@ public class WebFormManager extends FormManager
 		if (getCurrentContainer() instanceof MainPage)
 		{
 			// store the minimum version of the current main container loading
-			// this new solution. So that it can't go past it again when using 
+			// this new solution. So that it can't go past it again when using
 			// the back button in the browser
 			((MainPage)getCurrentContainer()).storeMinVersion();
 		}
@@ -112,8 +112,7 @@ public class WebFormManager extends FormManager
 	{
 		if (parentContainer instanceof MainPage)
 		{
-			MainPage parent = ((WebForm)fp.getFormUI()).findParent(MainPage.class);
-			return parentContainer != parent;
+			return ((MainPage)parentContainer).getController() != fp;
 		}
 		return true;
 	}
@@ -144,7 +143,7 @@ public class WebFormManager extends FormManager
 	@Override
 	protected boolean isShowingPrintPreview()
 	{
-		// Web Printing doesn't have to show the forms, it prints to PDF,t hat code sits in 
+		// Web Printing doesn't have to show the forms, it prints to PDF,t hat code sits in
 		// WebForm.print(boolean showDialogs, boolean printCurrentRecordOnly, boolean showPrinterSelectDialog, PrinterJob printerJob)
 		return false;
 	}
@@ -152,7 +151,7 @@ public class WebFormManager extends FormManager
 	@Override
 	protected FormController removePreview()
 	{
-		// Web Printing doesn't have to show the forms, it prints to PDF,t hat code sits in 
+		// Web Printing doesn't have to show the forms, it prints to PDF,t hat code sits in
 		// WebForm.print(boolean showDialogs, boolean printCurrentRecordOnly, boolean showPrinterSelectDialog, PrinterJob printerJob)
 		return null;
 	}
@@ -161,7 +160,7 @@ public class WebFormManager extends FormManager
 	@Override
 	public void showPreview(FormController afp, IFoundSetInternal foundset, int zoomFactor, PrinterJob printJob)
 	{
-		// Web Printing doesn't have to show the forms, it prints to PDF,t hat code sits in 
+		// Web Printing doesn't have to show the forms, it prints to PDF,t hat code sits in
 		// WebForm.print(boolean showDialogs, boolean printCurrentRecordOnly, boolean showPrinterSelectDialog, PrinterJob printerJob)
 	}
 
@@ -372,14 +371,14 @@ public class WebFormManager extends FormManager
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.FormManager#destroySolutionSettings()
 	 */
 	@Override
 	protected void destroySolutionSettings()
 	{
 		super.destroySolutionSettings();
-		if (RequestCycle.get() != null) Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses. 
+		if (RequestCycle.get() != null) Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses.
 	}
 
 }
