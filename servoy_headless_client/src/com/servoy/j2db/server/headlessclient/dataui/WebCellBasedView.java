@@ -3014,6 +3014,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
 		}
 		super.onBeforeRender();
+		if (isScrollMode())
+		{
+			IRequestTarget rt = RequestCycle.get().getRequestTarget();
+			if (rt instanceof AjaxRequestTarget)
+			{
+				scrollViewPort((AjaxRequestTarget)rt);
+			}
+		}
 	}
 
 	public Object[] getComponents()
