@@ -19,7 +19,7 @@ package com.servoy.base.scripting.api;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
- * 
+ *
  * @author jcompagner
  * @since 7.0
  */
@@ -30,38 +30,39 @@ public interface IJSRecord
 
 	/**
 	 * Returns true or false if the record is being edited or not.
+	 * This does not have the mean that it has changes, the record is just in edit mode, accepting changes.
 	 *
-	 * @sample 
+	 * @sample
 	 * var isEditing = foundset.getSelectedRecord().isEditing() // also foundset.getRecord can be used
-	 * 
+	 *
 	 * @return a boolean when in edit.
 	 */
 	public boolean isEditing();
 
 	/**
 	 * Returns true if the current record is a new record or false otherwise.
-	 * 
+	 *
 	 * @sample
-	 * var isNew = foundset.getSelectedRecord().isNew(); 
-	 * 
-	 * @return true if the current record is a new record, false otherwise; 
+	 * var isNew = foundset.getSelectedRecord().isNew();
+	 *
+	 * @return true if the current record is a new record, false otherwise;
 	 */
 	public boolean isNew();
 
 	/**
 	 * Returns an array with the primary key values of the record.
 	 *
-	 * @sample 
+	 * @sample
 	 * var pks = foundset.getSelectedRecord().getPKs() // also foundset.getRecord can be used
-	 * 
+	 *
 	 * @return an Array with the pk values.
 	 */
 	public Object[] getPKs();
 
 	/**
 	 * Reverts the in memory outstanding (not saved) changes of the record.
-	 * 
-	 * 
+	 *
+	 *
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.revertChanges();
@@ -71,8 +72,8 @@ public interface IJSRecord
 	/**
 	 * Returns a JSDataSet with outstanding (not saved) changed data of this record.
 	 * column1 is the column name, colum2 is the old data and column3 is the new data.
-	 * 
-	 * NOTE: To return an array of records with outstanding changed data, see the function databaseManager.getEditedRecords(). 
+	 *
+	 * NOTE: To return an array of records with outstanding changed data, see the function databaseManager.getEditedRecords().
 	 *
 	 * @sample
 	 * /** @type {JSDataSet} *&#47;
@@ -81,17 +82,17 @@ public interface IJSRecord
 	 * {
 	 * 	application.output(dataset.getValue(i,1) +' '+ dataset.getValue(i,2) +' '+ dataset.getValue(i,3));
 	 * }
-	 * 
+	 *
 	 * @return a JSDataSet with the changed data of this record.
 	 */
 //	public IJSDataSet getChangedData();
 
 	/**
 	 * Returns true if the current record has outstanding/changed data.
-	 * 
+	 *
 	 * @sample
 	 * var hasChanged = record.hasChangedData();
-	 * 
+	 *
 	 * @return true if the current record has outstanding/changed data.
 	 */
 //	public boolean hasChangedData();
@@ -101,7 +102,7 @@ public interface IJSRecord
 	 *
 	 * @sample
 	 * var exception = record.exception;
-	 * 
+	 *
 	 * @return The occurred exception.
 	 */
 //	public Exception getException();
@@ -111,7 +112,7 @@ public interface IJSRecord
 	 *
 	 * @sample
 	 * var ds = record.getDataSource();
-	 * 
+	 *
 	 * @return The datasource string of this record.
 	 */
 	public String getDataSource();
@@ -122,7 +123,7 @@ public interface IJSRecord
 	 *
 	 * @sample
 	 * var parent = record.foundset;
-	 * 
+	 *
 	 * @return The parent foundset of the record.
 	 */
 	public IJSFoundSet getFoundset();
