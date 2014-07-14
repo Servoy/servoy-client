@@ -516,9 +516,19 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	};
 
+	private boolean blockEventExecution;
+
+	boolean blockEventExecution(boolean block)
+	{
+		boolean prev = this.blockEventExecution;
+		this.blockEventExecution = block;
+		return prev;
+	}
+
 	@SuppressWarnings("nls")
 	public void executeEvents()
 	{
+		if (blockEventExecution) return;
 		List<Runnable> runnables = null;
 		// This can get called during constructor, if an exception is thrown from super(), through shutdown(),
 		// so the events array may be not initialized yet.
@@ -1084,8 +1094,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 		userRequestProperties.clear();
 		// just to make sure that on the end of the request there are really no more events waiting.
@@ -1163,5 +1172,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	protected void reinitializeDefaultProperties()
 	{
 	}
+
 
 }
