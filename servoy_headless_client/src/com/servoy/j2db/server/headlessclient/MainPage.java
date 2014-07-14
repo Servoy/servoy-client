@@ -246,12 +246,22 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	@Override
 	public Page getVersion(int versionNumber)
 	{
-		// don't let the page version number go past the minimum that is set.
-		if (versionNumber != -1 && minimumVersionNumber != -1 && versionNumber < minimumVersionNumber)
+		final WebClient wc = WebClientSession.get() != null ? WebClientSession.get().getWebClient() : null;
+		boolean prev = false;
+		try
 		{
-			return super.getVersion(minimumVersionNumber);
+			if (wc != null) prev = wc.blockEventExecution(true);
+			// don't let the page version number go past the minimum that is set.
+			if (versionNumber != -1 && minimumVersionNumber != -1 && versionNumber < minimumVersionNumber)
+			{
+				return super.getVersion(minimumVersionNumber);
+			}
+			return super.getVersion(versionNumber);
 		}
-		return super.getVersion(versionNumber);
+		finally
+		{
+			if (wc != null) wc.blockEventExecution(prev);
+		}
 	}
 
 	int minimumVersionNumber = -1;
@@ -260,7 +270,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 
 	/**
-	 * 
+	 *
 	 */
 	public void storeMinVersion()
 	{
@@ -544,7 +554,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 		if (useAJAX)
 		{
-			add(new TriggerUpdateAjaxBehavior()); // for when another page needs to trigger an ajax update on this page using js (see media upload) 
+			add(new TriggerUpdateAjaxBehavior()); // for when another page needs to trigger an ajax update on this page using js (see media upload)
 
 			divDialogRepeater = new RepeatingView(DIV_DIALOG_REPEATER_ID);
 			divDialogsParent.add(divDialogRepeater);
@@ -689,8 +699,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 							{
 								// if the form is visible and it will be now removed from the mainpage
 								// then call notifyVisble false on it to let the form know it will hide
-								// we can't do much if that is blocked by an onhide here. 
-								// (could be triggered by a browser back button) 
+								// we can't do much if that is blocked by an onhide here.
+								// (could be triggered by a browser back button)
 								if (formUI.getController().isFormVisible())
 								{
 									List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
@@ -713,7 +723,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				super.onBeforeRender();
 				// now first initialize all the tabs so that data from
 				// tab x doesn't change anymore (so that it could alter data in tab y)
-				// don't know if this still does anything because we need to do it 
+				// don't know if this still does anything because we need to do it
 				// in the onBeforeRender of WebTabPanel itself, else tableviews don't have there models yet..
 				visitChildren(WebTabPanel.class, new IVisitor<WebTabPanel>()
 				{
@@ -867,7 +877,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (getController() != null)
 		{
 
-			boolean webAnchorsEnabled = Utils.getAsBoolean(getController().getApplication().getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$ 
+			boolean webAnchorsEnabled = Utils.getAsBoolean(getController().getApplication().getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 			if (webAnchorsEnabled)
 			{
 				// test if there is a form in design
@@ -944,7 +954,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	/**
 	 * Specifies if the main page is running in an additional iframe of the main window.
-	 * 
+	 *
 	 * @return true if the main page is in an additional window, false otherwise
 	 */
 	public boolean isShowingInDialog()
@@ -954,7 +964,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	/**
 	 * Specifies if the main page is running in the main window.
-	 * 
+	 *
 	 * @return true if the main page is in the main window, false otherwise
 	 */
 	public boolean isShowingInWindow()
@@ -1822,7 +1832,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				if (FormManager.FULL_SCREEN.equals(r2))
 				{
 					// get the size of the browser window (that will contain the div window)
-					bounds = new Rectangle(0, 0, getWidth(), getHeight() - 45); // it is a bit too high, why? Because windowBounds is size of what the div should occupy, while modalWindow.setInitialHeight() is only applied to the contents (without frame)  
+					bounds = new Rectangle(0, 0, getWidth(), getHeight() - 45); // it is a bit too high, why? Because windowBounds is size of what the div should occupy, while modalWindow.setInitialHeight() is only applied to the contents (without frame)
 				}
 				divDialog.setInitialHeight(bounds.height);
 				divDialog.setInitialWidth(bounds.width);
@@ -1974,7 +1984,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public Component getAndResetToFocusComponent()
 	{
@@ -1996,7 +2006,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	/**
 	 * Says whether or not the focus component should be set to null for the ajax request target if no other component is to be focused
 	 * (getAndResetToFocusComponent() returns null).
-	 * 
+	 *
 	 * @return true if the focus component should be set to null for the ajax request target if no other component is to be focused
 	 *         (getAndResetToFocusComponent() returns null).
 	 */
@@ -2363,7 +2373,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		RequestCycle rc = RequestCycle.get();
 		if (rc == null) return null; // can't find the page that generated this request
 		Page tmp = rc.getResponsePage();
-		if (!(tmp instanceof MainPage)) return null; // can't find the page that generated this request 
+		if (!(tmp instanceof MainPage)) return null; // can't find the page that generated this request
 
 		return (MainPage)tmp;
 	}
@@ -2456,7 +2466,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		if (isShowingInDialog() && callingContainer != null)
 		{
-			// it's showing in a div dialog 
+			// it's showing in a div dialog
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			return divDialog != null ? divDialog.getX() : 0;
 		}
@@ -2467,7 +2477,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		if (isShowingInDialog() && callingContainer != null)
 		{
-			// it's showing in a div dialog 
+			// it's showing in a div dialog
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			return divDialog != null ? divDialog.getY() : 0;
 		}
@@ -2478,7 +2488,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		if (isShowingInDialog() && callingContainer != null)
 		{
-			// it's showing in a div dialog 
+			// it's showing in a div dialog
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null) return divDialog.getWidth();
 		}
@@ -2492,7 +2502,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		if (isShowingInDialog() && callingContainer != null)
 		{
-			// it's showing in a div dialog 
+			// it's showing in a div dialog
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null) return divDialog.getHeight();
 		}
@@ -2641,7 +2651,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					jsCall += "layoutEntirePage();"; //$NON-NLS-1$
 				}
 			}
-			jsCall += "Servoy.Resize.onWindowResize();};"; //$NON-NLS-1$ 
+			jsCall += "Servoy.Resize.onWindowResize();};"; //$NON-NLS-1$
 			response.renderOnLoadJavascript(jsCall);
 		}
 	}
@@ -2676,7 +2686,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			String jsCall = "if ('onorientationchange' in window){"; //$NON-NLS-1$
 			jsCall += "Servoy.Resize.orientationCallback='" + getCallbackUrl() + "';"; //$NON-NLS-1$ //$NON-NLS-2$
 			jsCall += "window.onorientationchange = function() {"; //$NON-NLS-1$
-			jsCall += "Servoy.Resize.onOrientationChange ();};};"; //$NON-NLS-1$ 
+			jsCall += "Servoy.Resize.onOrientationChange ();};};"; //$NON-NLS-1$
 			response.renderOnLoadJavascript(jsCall);
 		}
 	}

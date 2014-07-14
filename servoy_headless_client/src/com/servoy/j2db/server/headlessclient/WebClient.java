@@ -80,7 +80,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A client which uses the org.apache.wicket framework to render a GUI in a web browser
- * 
+ *
  * @author jcompagner
  */
 public class WebClient extends SessionClient implements IWebClientApplication
@@ -319,7 +319,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		WebRequest webRequest = ((WebRequestCycle)RequestCycle.get()).getWebRequest();
 
 		// calculate the base path (servlet path)
-		// it can be /path/ or /context/path/ or even just / if it is virtual hosted so try to get it from the url. 
+		// it can be /path/ or /context/path/ or even just / if it is virtual hosted so try to get it from the url.
 		String url = webRequest.getHttpServletRequest().getRequestURL().toString();
 		// first try to get to the first / of the root path, strip off http://domain:port
 		int index = url.indexOf("//");
@@ -516,9 +516,19 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	};
 
+	private boolean blockEventExecution;
+
+	boolean blockEventExecution(boolean block)
+	{
+		boolean prev = this.blockEventExecution;
+		this.blockEventExecution = block;
+		return prev;
+	}
+
 	@SuppressWarnings("nls")
 	public void executeEvents()
 	{
+		if (blockEventExecution) return;
 		List<Runnable> runnables = null;
 		// This can get called during constructor, if an exception is thrown from super(), through shutdown(),
 		// so the events array may be not initialized yet.
@@ -664,7 +674,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		shuttingDown = true;
 		try
 		{
-			// first just execute all events that are waiting, but only when we are in request cycle 
+			// first just execute all events that are waiting, but only when we are in request cycle
 			if (RequestCycle.get() != null) executeEvents();
 
 			super.shutDown(force);
@@ -1084,8 +1094,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 		userRequestProperties.clear();
 		// just to make sure that on the end of the request there are really no more events waiting.
@@ -1136,7 +1145,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	private IEventDispatcher<WicketEvent> executor;
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("nls")
 	public final synchronized IEventDispatcher<WicketEvent> getEventDispatcher()
@@ -1163,5 +1172,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	protected void reinitializeDefaultProperties()
 	{
 	}
+
 
 }
