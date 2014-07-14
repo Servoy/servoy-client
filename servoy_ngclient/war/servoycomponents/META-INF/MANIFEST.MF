@@ -16,3 +16,7 @@ Web-Component: True
 
 Name: slider/slider.spec
 Web-Component: True
+
+Name: colorthefoundset/colorthefoundset.spec
+Web-Component: True
+

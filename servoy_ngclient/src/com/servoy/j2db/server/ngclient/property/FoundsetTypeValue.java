@@ -170,7 +170,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		IFoundSetInternal newFoundset = null;
 		if (record != null)
 		{
-			if (foundsetSelector == null)
+			if ("".equals(foundsetSelector))
 			{
 				newFoundset = record.getParentFoundSet();
 			}
