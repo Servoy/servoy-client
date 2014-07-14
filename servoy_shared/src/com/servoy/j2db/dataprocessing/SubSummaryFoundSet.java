@@ -36,7 +36,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * This class is used by printing to handle subsum results and convert those to states, which can be rendered to the screen or paper
- * 
+ *
  * @author jblok
  */
 public class SubSummaryFoundSet implements IFoundSetInternal
@@ -345,7 +345,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 
 	/**
 	 * Sets the selectedRow.
-	 * 
+	 *
 	 * @param selectedRow The selectedRow to set
 	 */
 	public void setSelectedIndex(int selectedRow)
@@ -354,7 +354,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	}
 
 	@Override
-	public int setSelectedIndex(String pkHash, int hintStart)
+	public int getRecordIndex(String pkHash, int hintStart)
 	{
 		// ignore
 		return -1;
@@ -476,7 +476,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public void doAggregatesLookup()
 		{
@@ -599,7 +599,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IFoundSet#setMultiSelect(boolean)
 	 */
 	@Override

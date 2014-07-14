@@ -26,7 +26,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * The foundset interface
- * 
+ *
  * @author jblok
  */
 public interface IFoundSetInternal extends IFoundSet, IFireCollectable
@@ -78,15 +78,10 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public boolean hadMoreRows();
 
-	/**
-	 * @param record
-	 */
 	public void deleteRecord(Record record) throws ServoyException;
 
 	public IRecordInternal getRecord(Object[] pk);
 
-	/**
-	 * @param pkHash
-	 */
-	public int setSelectedIndex(String pkHash, int hintStart);
+	public int getRecordIndex(String pkHash, int hintStart);
+
 }

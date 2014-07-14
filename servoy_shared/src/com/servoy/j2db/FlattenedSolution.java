@@ -796,7 +796,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/*
 	 * Get a flattened form from this flattened solution.
-	 *
+	 * 
 	 * <p>When the form does not have a parent, the form itself is returned
 	 */
 	public Form getFlattenedForm(IPersist persist)
@@ -1498,59 +1498,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		flushFlattenedFormCache();
 	}
 
-	class FormAndTableDataProviderLookup implements IDataProviderLookup
-	{
-		private Map<String, IDataProvider> formProviders = null; //cache for recurring lookup
-
-		private final Table tableDisplay; // may be null
-
-		private final Form form;
-
-		FormAndTableDataProviderLookup(Form form, Table td)
-		{
-			this.form = form;
-			tableDisplay = td;
-			formProviders = Collections.synchronizedMap(new HashMap<String, IDataProvider>());
-		}
-
-		public IDataProvider getDataProvider(String id) throws RepositoryException
-		{
-			if (id == null) return null;
-			IDataProvider retval = getGlobalDataProvider(id);
-			if (retval == null)
-			{
-				retval = formProviders.get(id);
-				if (retval != null)
-				{
-					return retval;
-				}
-
-				retval = getDataProviderForTable(getTable(), id);
-				if (retval != null)
-				{
-					formProviders.put(id, retval);
-				}
-				else
-				{
-					retval = form.getScriptVariable(id);
-					if (retval != null)
-					{
-						formProviders.put(id, retval);
-					}
-				}
-			}
-			return retval;
-		}
-
-		/**
-		 * get the table (may be null)
-		 */
-		public Table getTable() throws RepositoryException
-		{
-			return tableDisplay;
-		}
-	}
-
 	private Map<IPersist, IDataProviderLookup> dataProviderLookups;
 
 	public synchronized void flushDataProviderLookups(final IPersist p)
@@ -1597,7 +1544,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				{
 					Debug.error(e);
 				}
-				retval = new FormAndTableDataProviderLookup((Form)p, (Table)t);
+				retval = new FormAndTableDataProviderLookup(this, (Form)p, t);
 			}
 			else if (p instanceof Portal)
 			{
@@ -1615,7 +1562,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				{
 					Debug.error(e);
 				}
-				retval = new FormAndTableDataProviderLookup((Form)p.getParent(), t);
+				retval = new FormAndTableDataProviderLookup(this, (Form)p.getParent(), t);
 			}
 			else
 			//solution

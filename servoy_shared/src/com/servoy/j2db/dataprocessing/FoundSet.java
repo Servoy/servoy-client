@@ -5123,15 +5123,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public abstract int[] getSelectedIndexes();
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#setSelectedIndex(java.lang.String)
-	 */
 	@Override
-	public int setSelectedIndex(String pkHash, int hintStart)
+	public int getRecordIndex(String pkHash, int startHint)
 	{
+		int hintStart = Math.min(startHint + 5, getSize());
+
 		SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().getCachedRecords();
 		PKDataSet pks = getPksAndRecords().getPks();
 		int start = (hintStart < 0 || hintStart > pks.getRowCount()) ? 0 : hintStart;
@@ -5144,7 +5140,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
 			if (pkHash.equals(recordPkHash))
 			{
-				setSelectedIndex(i);
 				return i;
 			}
 		}
@@ -5156,7 +5151,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
 			if (pkHash.equals(recordPkHash))
 			{
-				setSelectedIndex(i);
 				return i;
 			}
 		}
