@@ -61,6 +61,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		this.formController = formController;
 		this.executor = new EventExecutor(formController);
+
+		//add listener for var changes
+		if (formController != null) // can happen for a design component
+		{
+			formController.getFormScope().getModificationSubject().addModificationListener(this);
+			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
+		}
 	}
 
 	/**

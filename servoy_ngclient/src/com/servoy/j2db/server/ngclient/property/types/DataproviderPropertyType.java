@@ -175,5 +175,13 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 
 			return jsonValue;
 		}
+
+		@Override
+		public boolean equals(Object o)
+		{
+			if (value == null) return ((o instanceof DataproviderWrapper) && (((DataproviderWrapper)o).value == null));
+			if (o instanceof DataproviderWrapper) return value.equals(((DataproviderWrapper)o).value);
+			return false;
+		}
 	}
 }
