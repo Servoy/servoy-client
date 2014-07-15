@@ -536,10 +536,13 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 			case Form.NAVIGATOR_IGNORE :
 			{
-				String prevForm = history.getFormName(history.getIndex());
-				if (prevForm != null && !formName.equals(prevForm))
+				if (history.getIndex() > 0)
 				{
-					return getNavigatorProperties(getApplication().getFormManager().getForm(prevForm));
+					String prevForm = history.getFormName(history.getIndex());
+					if (prevForm != null && !formName.equals(prevForm))
+					{
+						return getNavigatorProperties(getApplication().getFormManager().getForm(prevForm));
+					}
 				}
 				break;
 			}
