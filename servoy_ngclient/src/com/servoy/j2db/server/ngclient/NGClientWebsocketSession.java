@@ -554,7 +554,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				if (!serviceChanges.isEmpty()) data.put("services", serviceChanges);
 				// TOOD see above comment, this should not send to the currently active endpoint, but to all endpoints
 				// so that any change from 1 endpoint request ends up in all the end points.
-				WebsocketEndpoint.get().sendMessage(data, true, getForJsonConverter(), ConversionLocation.BROWSER);
+				WebsocketEndpoint.get().sendMessage(data, true, getForJsonConverter());
 			}
 			catch (IOException e)
 			{
@@ -628,7 +628,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
