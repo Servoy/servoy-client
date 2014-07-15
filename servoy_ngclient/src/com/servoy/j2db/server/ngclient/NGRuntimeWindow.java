@@ -118,6 +118,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		if (form != null)
 		{
+			if (formName != null) history.add(formName);
 			this.formName = form.getName();
 			switchForm((WebFormController)form);
 		}
@@ -461,6 +462,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		if (controller != null)
 		{
 			getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+			if (this.formName != null) history.add(this.formName);
 			this.formName = formName;
 			controller.getFormUI().setParentWindowName(getName());
 			//show panel as main
@@ -494,9 +496,23 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		mainForm.put("size", size);
 		mainForm.put("name", currentForm.getName());
 
+		Map<String, Object> navigatorForm = getNavigatorProperties(currentForm);
+		getApplication().getWebsocketSession().touchForm(currentForm.getForm(), null, true);
+		getApplication().getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("switchForm",
+			new Object[] { getName(), mainForm, navigatorForm });
+		sendTitle(title);
+	}
+
+	/**
+	 * Get the navigator properties based on the navigatorID of the form.
+	 * @param formController
+	 * @return a map which contains navigator properties such as templateURL, size.
+	 */
+	private Map<String, Object> getNavigatorProperties(IWebFormController formController)
+	{
 		Map<String, Object> navigatorForm = new HashMap<String, Object>();
-		int navigatorId = currentForm.getForm().getNavigatorID();
-		if (currentForm.getFormUI() instanceof WebGridFormUI && navigatorId == Form.NAVIGATOR_DEFAULT)
+		int navigatorId = formController.getForm().getNavigatorID();
+		if (formController.getFormUI() instanceof WebGridFormUI && navigatorId == Form.NAVIGATOR_DEFAULT)
 		{
 			navigatorId = Form.NAVIGATOR_NONE;
 		}
@@ -520,7 +536,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 			case Form.NAVIGATOR_IGNORE :
 			{
-				// just leave what it is now.
+				String prevForm = history.getFormName(history.getIndex());
+				if (prevForm != null && !formName.equals(prevForm))
+				{
+					return getNavigatorProperties(getApplication().getFormManager().getForm(prevForm));
+				}
 				break;
 			}
 			default :
@@ -538,10 +558,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 			}
 		}
-		getApplication().getWebsocketSession().touchForm(currentForm.getForm(), null, true);
-		getApplication().getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("switchForm",
-			new Object[] { getName(), mainForm, navigatorForm });
-		sendTitle(title);
+		return navigatorForm;
 	}
 
 	@Override
