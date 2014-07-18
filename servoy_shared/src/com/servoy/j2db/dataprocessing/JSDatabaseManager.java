@@ -96,6 +96,7 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.ScriptVariableScope;
+import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.scripting.info.SQL_ACTION_TYPES;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -1405,6 +1406,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return the foundset count
 	 */
+	@JSSignature(arguments = { FoundSet.class })
 	public int js_getFoundSetCount(Object foundset) throws ServoyException
 	{
 		checkAuthorized();
@@ -1481,6 +1483,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return The JSFoundsetUpdater for the specified JSFoundset.
 	 */
+	@JSSignature(arguments = { FoundSet.class })
 	public JSFoundSetUpdater js_getFoundSetUpdater(Object foundset) throws ServoyException
 	{
 		checkAuthorized();

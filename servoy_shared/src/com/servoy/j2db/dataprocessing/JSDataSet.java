@@ -632,8 +632,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
-	 * Create a data source from the data set with specified name and using specified types.
+	 * Create a datasource from the data set with specified name and using specified types.
 	 *
+	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
+	 * When the client exits all datasources used by that client are removed automatically.
+	 * 
+	 * Most resources used by the datasource can be released by deleting all records:
+	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
+
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
@@ -644,11 +650,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
 	 * var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
 	 *
-	 * @param name data source name
+	 * @param name datasource name
 	 * 
 	 * @param types array of types as defined in JSColumn
 	 * 
-	 * @return String uri reference to the created data source.
+	 * @return String uri reference to the created datasource.
 	 */
 	public String js_createDataSource(String name, Object types) throws ServoyException
 	{
@@ -656,7 +662,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
-	 * Create a data source from the data set with specified name and using specified types, add .
+	 * Create a datasource from the data set with specified name and using specified types.
+	 * 
+	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
+	 * When the client exits all datasources used by that client are removed automatically.
+	 * 
+	 * Most resources used by the datasource can be released by deleting all records:
+	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
 	 *
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
@@ -668,13 +680,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
 	 * var uri2 = ds2.createDataSource('mydata2', null, ['customerid']); // types are inferred from query result, use customerid as pk
 	 *
-	 * @param name data source name
+	 * @param name datasource name
 	 * 
 	 * @param types array of types as defined in JSColumn, when null types are inferred from the query result
 	 * 
 	 * @param pkNames array of pk names, when null a hidden pk-column will be added
 	 * 
-	 * @return String uri reference to the created data source.
+	 * @return String uri reference to the created datasource.
 	 */
 	public String js_createDataSource(String name, Object types, String[] pkNames) throws ServoyException
 	{
@@ -713,9 +725,15 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
-	 * Create a data source from the data set with specified name and using specified types.
+	 * Create a datasource from the data set with specified name and using specified types.
 	 * The types are inferred from the data if possible.
 	 *
+	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
+	 * When the client exits all datasources used by that client are removed automatically.
+	 * 
+	 * Most resources used by the datasource can be released by deleting all records:
+	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
+	 *   
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
@@ -726,9 +744,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
 	 * var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
 	 *
-	 * @param name data source name
+	 * @param name datasource name
 	 * 
-	 * @return String uri reference to the created data source.
+	 * @return String uri reference to the created datasource.
 	 */
 	public String js_createDataSource(String name) throws ServoyException
 	{
