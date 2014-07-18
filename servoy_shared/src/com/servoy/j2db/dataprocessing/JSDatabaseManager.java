@@ -1105,7 +1105,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		try
 		{
 			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name,
-				new QueryCustomSelect(sql_query, arguments), max_returned_rows, types, pkNames);
+				new QueryCustomSelect(sql_query, arguments), false, max_returned_rows, types, pkNames);
 		}
 		catch (ServoyException e)
 		{
@@ -1114,8 +1114,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_createDataSourceByQuery(String, QBSelect, Number, int[])
-	 * @sampleas js_createDataSourceByQuery(String, QBSelect, Number, int[])
+	 * @clonedesc js_createDataSourceByQuery(String, QBSelect, Boolean, Number, int[], String[])
+	 * @sampleas js_createDataSourceByQuery(String, QBSelect, Boolean, Number, int[], String[])
 	 *
 	 * @param name data source name
 	 * @param query The query builder to be executed.
@@ -1125,7 +1125,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows) throws ServoyException
 	{
-		return js_createDataSourceByQuery(name, query, max_returned_rows, null);
+		return js_createDataSourceByQuery(name, query, Boolean.TRUE, max_returned_rows, null, null);
 	}
 
 	/**
@@ -1161,7 +1161,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows, int[] types) throws ServoyException
 	{
-		return js_createDataSourceByQuery(name, query, max_returned_rows, types, null);
+		return js_createDataSourceByQuery(name, query, Boolean.TRUE, max_returned_rows, types, null);
 	}
 
 	/**
@@ -1198,6 +1198,43 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows, int[] types, String[] pkNames) throws ServoyException
 	{
+		return js_createDataSourceByQuery(name, query, Boolean.TRUE, max_returned_rows, types, pkNames);
+	}
+
+	/**
+	 * Performs a query and saves the result in a datasource.
+	 * Will throw an exception if anything went wrong when executing the query.
+	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
+	 *
+	 * @sample
+	 * // select customer data for order 1234
+	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
+	 * var q = databaseManager.createSelect("db:/example_data/customers");
+	 * q.result.add(q.columns.customer_id).add(q.columns.city).add(q.columns.country);
+	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, true, 999, null, ['customer_id']);
+	 * //var uri = databaseManager.createDataSourceByQuery('mydata', q, true, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT], ['customer_id']);
+	 *
+	 * // the uri can be used to create a form using solution model
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600);
+	 * myForm.newTextField('city', 140, 20, 140,20);
+	 *
+	 * // the uri can be used to acces a foundset directly
+	 * var fs = databaseManager.getFoundSet(uri);
+	 * fs.loadAllRecords();
+	 *
+	 * @param name Data source name
+	 * @param query The query builder to be executed.
+	 * @param useTableFilters use table filters (default true).
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 * @param types The column types, when null the types are inferred from the query.
+	 * @param pkNames array of pk names, when null a hidden pk-column will be added
+	 *
+	 * @return datasource containing the results of the query or null if the parameters are wrong.
+	 */
+	public String js_createDataSourceByQuery(String name, QBSelect query, Boolean useTableFilters, Number max_returned_rows, int[] types, String[] pkNames)
+		throws ServoyException
+	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		checkAuthorized();
 
@@ -1214,7 +1251,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, _max_returned_rows, types, pkNames);
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select,
+				!Boolean.FALSE.equals(useTableFilters), _max_returned_rows, types, pkNames);
 		}
 		catch (ServoyException e)
 		{
@@ -1278,7 +1316,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		try
 		{
 			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name, new QueryCustomSelect(
-				sql_query, arguments), _max_returned_rows));
+				sql_query, arguments), false, _max_returned_rows));
 		}
 		catch (ServoyException e)
 		{
@@ -1329,6 +1367,38 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public JSDataSet js_getDataSetByQuery(QBSelect query, Number max_returned_rows) throws ServoyException
 	{
+		return js_getDataSetByQuery(query, Boolean.TRUE, max_returned_rows);
+	}
+
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * @sample
+	 * // use the query froma foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * var ds = databaseManager.getDataSetByQuery(q, true, maxReturnedRows);
+	 *
+	 * // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
+	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
+	 * var query = databaseManager.createSelect('db:/example_data/book_nodes').result.addPk().root
+	 * query.where.add(query.columns.parent_id.eq(111))
+	 * 	.add(query.or
+	 * 	.add(query.columns.note_date.isNull)
+	 * 	.add(query.columns.note_date.gt(new Date())))
+	 * databaseManager.getDataSetByQuery(q, true, max_returned_rows)
+	 *
+	 * @param query QBSelect query.
+	 * @param useTableFilters use table filters (default true).
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	public JSDataSet js_getDataSetByQuery(QBSelect query, Boolean useTableFilters, Number max_returned_rows) throws ServoyException
+	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		checkAuthorized();
 
@@ -1345,7 +1415,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(serverName, select, _max_returned_rows));
+			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(serverName, select,
+				!Boolean.FALSE.equals(useTableFilters), _max_returned_rows));
 		}
 		catch (ServoyException e)
 		{

@@ -1071,15 +1071,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		if (dataprovider == null || operator == null) return null;
 
-		dataprovider = dataprovider.trim();
-
 		int op = RelationItem.getValidOperator(operator.trim(), IBaseSQLCondition.ALL_DEFINED_OPERATORS, IBaseSQLCondition.ALL_MODIFIERS);
 		if (op == -1)
 		{
 			return null;
 		}
 
-		return createTableFilter(name, serverName, table, dataprovider, op, value);
+		return createTableFilter(name, serverName, table, dataprovider.trim(), op, value);
 	}
 
 	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, int operator, Object val) throws ServoyException
@@ -2055,7 +2053,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return serverName;
 	}
 
-	public IDataSet getDataSetByQuery(String serverName, ISQLSelect sqlSelect, int maxNumberOfRowsToRetrieve) throws ServoyException
+	public IDataSet getDataSetByQuery(String serverName, ISQLSelect sqlSelect, boolean includeFilters, int maxNumberOfRowsToRetrieve) throws ServoyException
 	{
 		IDataServer ds = application.getDataServer();
 		String transaction_id = getTransactionID(serverName);
@@ -2063,7 +2061,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		try
 		{
 			long time = System.currentTimeMillis();
-			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect, 0, maxNumberOfRowsToRetrieve);
+			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect, includeFilters
+				? getTableFilterParams(serverName, sqlSelect) : null, 0, maxNumberOfRowsToRetrieve);
 			if (Debug.tracing())
 			{
 				Debug.trace("Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -2076,8 +2075,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return set;
 	}
 
-	public String createDataSourceFromQuery(String name, String serverName, ISQLSelect sqlSelect, int maxNumberOfRowsToRetrieve, int[] types, String[] pkNames)
-		throws ServoyException
+	public String createDataSourceFromQuery(String name, String serverName, ISQLSelect sqlSelect, boolean useTableFilters, int maxNumberOfRowsToRetrieve,
+		int[] types, String[] pkNames) throws ServoyException
 	{
 		if (name == null)
 		{
@@ -2113,9 +2112,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 
 			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
-				getTableFilterParams(serverName, sqlSelect), false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource,
-				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
-				targetTid, types, pkNames);
+				useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY,
+				dataSource, table == null ? IServer.INMEM_SERVER : table.getServerName(),
+				table == null ? null : table.getName() /* create temp table when null */, targetTid, types, pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
@@ -2607,6 +2606,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException
 	{
+		return getDataSetByQuery(query, true, max_returned_rows);
+	}
+
+	public IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows) throws ServoyException
+	{
 		if (!application.haveRepositoryAccess())
 		{
 			// no access to repository yet, have to log in first
@@ -2620,6 +2624,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (serverName == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND,
 			new Object[] { select.getDataSource() }));
 
-		return getDataSetByQuery(serverName, select.build(), max_returned_rows);
+		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows);
 	}
 }
