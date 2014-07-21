@@ -106,6 +106,7 @@ class PersistBasedFormElementImpl
 			{
 				Map<String, Object> defaultProperties = new HashMap<String, Object>();
 				defaultProperties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), ((Bean)persist).getSize());
+				defaultProperties.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), ((Bean)persist).getName());
 				defaultProperties.put("error", "Bean not supported in NGClient: " + persist);
 				return defaultProperties;
 			}

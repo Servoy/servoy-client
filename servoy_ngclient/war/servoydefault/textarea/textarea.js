@@ -20,9 +20,7 @@ angular.module('svyTextarea',['servoy']).directive('svyTextarea', function($apif
     	 $scope.api.requestFocus = function() { 
     		  $element[0].focus()
     	 },
-    	 $scope.api.getSelectedText = $apifunctions.getSelectedText($element[0]);
-    	 $scope.api.setSelection = $apifunctions.setSelection($element[0]);
-    	 
+
 
          $scope.api.setScroll = function(x, y) {
         	 $element.scrollLeft(x);
@@ -36,6 +34,11 @@ angular.module('svyTextarea',['servoy']).directive('svyTextarea', function($apif
          $scope.api.getScrollY = function() {
         	 return $element.scrollTop();
          }
+         
+    	 $scope.api.getSelectedText = $apifunctions.getSelectedText($element[0]);
+    	 $scope.api.setSelection = $apifunctions.setSelection($element[0]);
+    	 $scope.api.replaceSelectedText = $apifunctions.replaceSelectedText($element[0]);
+    	 $scope.api.selectAll = $apifunctions.selectAll($element[0]);
          
          // special method that servoy calls when this component goes into find mode.
       	 $scope.api.setFindMode = function(findMode, editable) {

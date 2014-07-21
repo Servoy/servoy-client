@@ -828,6 +828,25 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	    		return elem.value.substr(elem.selectionStart, elem.selectionEnd - elem.selectionStart);
 	    	}
 	    },
+	    selectAll: function (elem){
+	    	return function(){
+	    			elem.select();
+	    	}
+	    },
+	    replaceSelectedText:  function (elem){
+	    	return function(s) {
+	    			 if (typeof elem.selectionStart != 'undefined') {
+	    			 var startPos = elem.selectionStart;
+		    		 var endPos = elem.selectionEnd;
+		    		 var beginning = elem.value.substring(0, startPos);
+		    		 var end = elem.value.substring(endPos);
+		    		 elem.value = beginning + s + end;
+		    		 elem.selectionStart = startPos;
+		    		 elem.selectionEnd = startPos + s.length;
+		    		 elem.focus();
+	    		 }
+	    	 }
+	    },
 	    setSelection: function (elem){
 	    	return function(start, end) { 
 	    		 if (elem.createTextRange) {
