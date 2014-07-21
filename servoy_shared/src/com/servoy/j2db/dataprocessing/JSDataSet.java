@@ -634,6 +634,12 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	/**
 	 * Create a data source from the data set with specified name and using specified types.
 	 *
+	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
+	 * When the client exits, all datasources used by that client are removed automatically.
+	 * 
+	 * Most resources used by the datasource can be released by deleting all records:
+	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
+
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
@@ -656,7 +662,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
-	 * Create a data source from the data set with specified name and using specified types, add .
+	 * Create a datasource from the data set with specified name and using specified types.
+	 * 
+	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
+	 * When the client exits, all datasources used by that client are removed automatically.
+	 * 
+	 * Most resources used by the datasource can be released by deleting all records:
+	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
 	 *
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
@@ -716,6 +728,12 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * Create a data source from the data set with specified name and using specified types.
 	 * The types are inferred from the data if possible.
 	 *
+	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
+	 * When the client exits, all datasources used by that client are removed automatically.
+	 * 
+	 * Most resources used by the datasource can be released by deleting all records:
+	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
+	 *   
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
