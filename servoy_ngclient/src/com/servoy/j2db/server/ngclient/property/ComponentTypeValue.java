@@ -22,6 +22,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -68,6 +69,8 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	public final static String CALL_ON_KEY = "callOn";
 	public final static int CALL_ON_SELECTED_RECORD = 0;
 	public final static int CALL_ON_ALL_RECORDS = 1;
+
+	protected static final String PROPERTY_UPDATES = "propertyUpdates";
 	// END keys and values used in JSON
 
 	protected final Object designJSONValue;
@@ -365,25 +368,29 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	@Override
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
+		if (conversionMarkers != null) conversionMarkers.convert(ComponentTypeImpl.TYPE_ID + IComplexTypeImpl.ARRAY); // so that the client knows it must use the custom client side JS for what JSON it gets
+
 		// TODO if the components property type is not linked to a foundset then somehow the dataproviders/tagstring must also be sent when needed
 		// but if it is linked to a foundset those should only be sent through the foundset!
-		// TODO ac send only component properties that changed
+		destinationJSON.object();
 		if (childComponents != null)
 		{
 			Map<String, Map<String, Object>> componentChanges = new HashMap<String, Map<String, Object>>();
-			for (WebFormComponent childComponent : childComponents)
+			for (int i = childComponents.length - 1; i >= 0; i--)
 			{
+				WebFormComponent childComponent = childComponents[i];
 				if (childComponent != null)
 				{
 					Map<String, Object> changes = childComponent.getChanges();
 					if (changes.size() > 0)
 					{
-						componentChanges.put(childComponent.getName(), changes);
+						componentChanges.put(String.valueOf(i), changes);
 					}
 				}
 			}
 			if (componentChanges.size() > 0)
 			{
+				destinationJSON.key(PROPERTY_UPDATES);
 				destinationJSON.object();
 				JSONUtils.writeDataWithConversions(destinationJSON, componentChanges,
 					((IWebFormUI)component.getParent()).getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(),
@@ -391,6 +398,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 				destinationJSON.endObject();
 			}
 		}
+		destinationJSON.endObject();
 		return destinationJSON;
 	}
 
@@ -419,33 +427,61 @@ public class ComponentTypeValue implements IComplexPropertyValue
 				for (int i = 0; i < arr.length(); i++)
 				{
 					JSONObject update = (JSONObject)arr.get(i);
-					if (update.has("eventType"))
+					if (update.has("handlerExec"))
 					{
-						if (update.has("rowId"))
+						// { handlerExec: {
+						// 		beanName: ...,
+						// 		eventType: ...,
+						// 		args: ...,
+						// 		rowId : ...
+						// }});
+						update = update.getJSONObject("handlerExec");
+						if (update.has("eventType"))
 						{
-							String rowId = update.getString("rowId");
-							FoundsetTypeValue foundsetValue = getFoundsetValue();
-							if (foundsetValue != null)
+							if (update.has("rowId"))
 							{
-								foundsetValue.setEditingRowByPkHash(rowId);
+								String rowId = update.getString("rowId");
+								FoundsetTypeValue foundsetValue = getFoundsetValue();
+								if (foundsetValue != null)
+								{
+									foundsetValue.setEditingRowByPkHash(rowId);
+								}
 							}
-						}
-						String eventType = update.getString("eventType");
-						String beanName = update.getString("beanName");
-						JSONArray jsargs = update.getJSONArray("args");
-						Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
-						for (int j = 0; jsargs != null && j < jsargs.length(); j++)
-						{
-							args[j] = jsargs.get(j);
-						}
+							String eventType = update.getString("eventType");
+							String beanName = update.getString("beanName");
+							JSONArray jsargs = update.getJSONArray("args");
+							Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
+							for (int j = 0; jsargs != null && j < jsargs.length(); j++)
+							{
+								args[j] = jsargs.get(j);
+							}
 
-						for (WebFormComponent component : childComponents)
-						{
-							if (beanName.equals(component.getName()))
+							for (WebFormComponent c : childComponents)
 							{
-								component.executeEvent(eventType, args);
-								break;
+								if (beanName.equals(c.getName()))
+								{
+									c.executeEvent(eventType, args);
+									break;
+								}
 							}
+						}
+					}
+					else if (update.has("propertyChanges"))
+					{
+						// { propertyChanges : {
+						//	 	beanIndex: ...,
+						// 		changes: ...
+						// }}
+						update = update.getJSONObject("propertyChanges");
+						WebFormComponent c = childComponents[update.getInt("beanIndex")];
+						JSONObject changes = update.getJSONObject("changes");
+
+						Iterator<String> keys = changes.keys();
+						while (keys.hasNext())
+						{
+							String key = keys.next();
+							Object object = changes.get(key);
+							c.putBrowserProperty(key, object);
 						}
 					}
 				}

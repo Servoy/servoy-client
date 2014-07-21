@@ -248,7 +248,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && serverJSONValue[NO_OP] !== 0) {
 					newValue = serverJSONValue; // not updates - so whole thing received
-					var internalState = newValue[$sabloConverters.INTERNAL_IMPL] = {}; // internal state and $sabloConverters interface
+					$sabloConverters.prepareInternalState(newValue);
+					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
 					internalState.requests = [];
 					
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
@@ -305,7 +306,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				
 			}		 
-			if (angular.isDefined(currentClientValue) && newValue != currentClientValue) {
+			if (angular.isDefined(currentClientValue) && newValue !== currentClientValue) {
 				// the client side object will change completely, and the old one probably has watches defined...
 				// unregister those
 				

@@ -236,7 +236,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  
     	  var rowTemplate = ''
     	  var columnDefinitions = [];
-    	  for (var idx =0;idx<elements.length;idx++) {
+    	  for (var idx = 0; idx < elements.length; idx++) {
     		  var el = elements[idx]; 
     		  var elX = el.model.location.x - $scope.model.location.x;
     		  var elY = el.model.location.y - $scope.model.location.y;
@@ -328,10 +328,40 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  if (!cellModel) {
         		  var element = elements[elementIndex];
 
-        		  function CellData() {
-    			  }
-    			  CellData.prototype = element.model;
-    			  var cellData = new CellData();
+        		  var key;
+    			  var cellData = {};
+    			  
+    			  // some properties that have default values might only be sent later to client;
+    			  // if that happens, we need to then bind them two-way as well
+    			  cellProxies.unwatchProperty = {};
+
+    			  function updateTwoWayBindings(listWithProperties) {
+    				  var k;
+    				  for (k in listWithProperties) {
+    					  if (!cellProxies.unwatchProperty[k]) {
+    						  // skip this for special - row-by-row changing properties; it is handled separately later in code
+    						  var skip = false;
+    						  if (elements[elementIndex].forFoundset) {
+    							  for (var i in elements[elementIndex].forFoundset.dataLinks) {
+    								  skip = (elements[elementIndex].forFoundset.dataLinks[i].propertyName == k);
+    								  if (skip) break;
+    							  }
+    						  }
+
+    						  if (!skip) {
+    							  // 2 way data link between element model and the merged cell model
+    							  // it is a bit strange here as 1 element model will be 2 way bound to N cell models
+    							  cellProxies.unwatchProperty[k] = $utils.bindTwoWayObjectProperty(cellData, k, elements[elementIndex].model, k);
+    							  
+    							  // copy initial values
+    							  if (angular.isUndefined(cellData[k])) cellData[k] = elements[elementIndex].model[k];
+    							  else if (angular.isUndefined(elements[elementIndex].model[k])) elements[elementIndex].model[k] = cellData[k];
+    						  }
+    					  } 
+    				  }
+    			  };
+    			  $scope.$watchCollection(function() { return elements[elementIndex].model; }, updateTwoWayBindings);
+    			  $scope.$watchCollection(function() { return cellData; }, updateTwoWayBindings);
     			  
     			  // properties like tagstring and dataprovider are not set directly on the component but are more linked to the current record
     			  // so we will take these from the foundset record and apply them to child elements
@@ -343,12 +373,6 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     					  // 2 way data link between element separate properties from foundset and the merged cell model
     					  $utils.bindTwoWayObjectProperty(cellData, propertyName, cellProxies, ["rowEntity", dataprovider]);
     				  }
-    			  }
-    			  
-    			  for (var p in element.model) {
-    				  // 2 way data link between element model and the merged cell model
-    				  // it is a bit strange here as 1 element model will be 2 way bound to N cell models
-        			  $utils.bindTwoWayObjectProperty(cellData, p, element.model, p);
     			  }
     			  
     			  cellProxies.mergedCellModel = cellModel = cellData;

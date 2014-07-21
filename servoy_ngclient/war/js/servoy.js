@@ -188,7 +188,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		{
 			return testKeyPressed(e,13);
 		},
-		bindTwoWayObjectProperty : function (a, propertyNameA, b, propertyNameB, useObjectEquality, scope) {
+		bindTwoWayObjectProperty: function (a, propertyNameA, b, propertyNameB, useObjectEquality, scope) {
 			var toWatchA = getInDepthWatchExpression(a, propertyNameA);
 			var toWatchB = getInDepthWatchExpression(b, propertyNameB);
 			var setA = getInDepthSetter(a, propertyNameA);
@@ -204,7 +204,50 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			        }, useObjectEquality)
 			];
 		},
-		getEventArgs : function(args,eventName)
+		
+		/**
+		 * Receives variable arguments. First is the object obj and the others (for example a, b, c) are used
+		 * to return obj[a][b][c] making sure if for example b is not there it returns undefined instead of
+		 * throwing an exception.
+		 */
+		getInDepthProperty: function() {
+			if (arguments.length == 0) return undefined;
+			
+			var ret = arguments[0];
+			var i;
+			for (i = 1; (i < arguments.length) && (ret !== undefined && ret !== null); i++) ret = ret[arguments[i]];
+			if (i < arguments.length) ret = undefined;
+			
+			return ret;
+			
+			if (!formStatesConversionInfo[formName]) formStatesConversionInfo[formName] = {};
+			if (!formStatesConversionInfo[formName][beanName]) formStatesConversionInfo[formName][beanName] = {};
+		},
+
+		/**
+		 * Receives variable arguments. First is the object obj and the others (for example a, b, c) are used to
+		 * return obj[a][b][c] making sure that if any does not exist or is null (for example b) it will be set to {}.
+		 */
+		getOrCreateInDepthProperty: function() {
+			if (arguments.length == 0) return undefined;
+			
+			var ret = arguments[0];
+			if (ret == undefined || ret === null || arguments.length == 1) return ret;
+			var p;
+			var i;
+			for (i = 1; i < arguments.length; i++) {
+				p = ret;
+				ret = ret[arguments[i]];
+				if (ret === undefined || ret === null) {
+					ret = {};
+					p[arguments[i]] = ret;
+				}
+			}
+			
+			return ret;
+		},
+
+		getEventArgs: function(args,eventName)
 		{
 			var newargs = []
 			for (var i in args) {

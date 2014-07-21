@@ -7,7 +7,7 @@ var webSocketModule = angular.module('webSocketModule', []);
  * Setup the $webSocket service.
  */
 webSocketModule.factory('$webSocket',
-		function($rootScope, $injector, $log, $q, $services, $sabloConverters,$sabloUtils) {
+		function($rootScope, $injector, $log, $q, $services, $sabloConverters, $sabloUtils) {
 
 			var websocket = null
 
@@ -334,6 +334,18 @@ webSocketModule.factory('$webSocket',
 				 */
 				INTERNAL_IMPL: '__internalState',
 				
+				prepareInternalState: function(propertyValue) {
+					if (Object.defineProperty) {
+						// try to avoid unwanted iteration/non-intended interference over the private property state
+						Object.defineProperty(propertyValue, this.INTERNAL_IMPL, {
+							configurable: false,
+							enumerable: false,
+							writable: false,
+							value: {}
+						});
+					} else propertyValue[$sabloConverters.INTERNAL_IMPL] = {};
+				},
+				
 				convertFromServerToClient: convertFromServerToClient,
 				
 				convertFromClientToServer: convertFromClientToServer,
@@ -374,7 +386,7 @@ webSocketModule.factory('$webSocket',
 				}
 				
 			};
-		}).factory("$sabloUtils", function($log) { 
+		}).factory("$sabloUtils", function($log, $sabloConverters) { 
 			 var getCombinedPropertyNames = function(now,prev) {
 			       var fulllist = {}
 		    	   if (prev) {
@@ -393,8 +405,8 @@ webSocketModule.factory('$webSocket',
 			    }
 			 
 			var isChanged = function(now, prev, conversionInfo) {
-				   if ((typeof conversionInfo === 'string' || typeof conversionInfo === 'number') && now && now.isChanged) {
-					   return now.isChanged();
+				   if ((typeof conversionInfo === 'string' || typeof conversionInfo === 'number') && now && now[$sabloConverters.INTERNAL_IMPL] && now[$sabloConverters.INTERNAL_IMPL].isChanged) {
+					   return now[$sabloConverters.INTERNAL_IMPL].isChanged();
 				   }
 				   
 				   if (now && prev) {
