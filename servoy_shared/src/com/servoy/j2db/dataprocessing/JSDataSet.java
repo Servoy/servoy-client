@@ -635,7 +635,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * Create a datasource from the data set with specified name and using specified types.
 	 *
 	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
-	 * When the client exits all datasources used by that client are removed automatically.
+	 * When the client exits, all datasources used by that client are removed automatically.
 	 * 
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
@@ -665,7 +665,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * Create a datasource from the data set with specified name and using specified types.
 	 * 
 	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
-	 * When the client exits all datasources used by that client are removed automatically.
+	 * When the client exits, all datasources used by that client are removed automatically.
 	 * 
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
@@ -729,7 +729,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * The types are inferred from the data if possible.
 	 *
 	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
-	 * When the client exits all datasources used by that client are removed automatically.
+	 * When the client exits, all datasources used by that client are removed automatically.
 	 * 
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
