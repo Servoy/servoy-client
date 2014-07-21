@@ -118,7 +118,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		if (form != null)
 		{
-			if (formName != null) history.add(formName);
 			this.formName = form.getName();
 			switchForm((WebFormController)form);
 		}
@@ -462,7 +461,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		if (controller != null)
 		{
 			getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
-			if (this.formName != null) history.add(this.formName);
 			this.formName = formName;
 			controller.getFormUI().setParentWindowName(getName());
 			//show panel as main
