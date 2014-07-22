@@ -40,6 +40,7 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
+import com.servoy.j2db.server.ngclient.WebListFormUI;
 
 /**
  * @author lvostinar
@@ -54,8 +55,19 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	public WebFormController(INGApplication application, Form form, String name)
 	{
 		super(application, form, name);
-		if (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED) formUI = new WebGridFormUI(this);
-		else formUI = new WebFormUI(this);
+		switch (form.getView())
+		{
+			case IFormConstants.VIEW_TYPE_TABLE :
+			case IFormConstants.VIEW_TYPE_TABLE_LOCKED :
+				formUI = new WebGridFormUI(this);
+				break;
+			case IFormConstants.VIEW_TYPE_LIST :
+			case IFormConstants.VIEW_TYPE_LIST_LOCKED :
+				formUI = new WebListFormUI(this);
+				break;
+			default :
+				formUI = new WebFormUI(this);
+		}
 	}
 
 	/*
