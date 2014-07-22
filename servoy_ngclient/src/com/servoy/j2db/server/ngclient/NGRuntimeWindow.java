@@ -512,7 +512,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		Map<String, Object> navigatorForm = new HashMap<String, Object>();
 		int navigatorId = formController.getForm().getNavigatorID();
-		if (formController.getFormUI() instanceof WebGridFormUI && navigatorId == Form.NAVIGATOR_DEFAULT)
+		if ((formController.getFormUI() instanceof WebGridFormUI || formController.getFormUI() instanceof WebListFormUI) &&
+			navigatorId == Form.NAVIGATOR_DEFAULT)
 		{
 			navigatorId = Form.NAVIGATOR_NONE;
 		}

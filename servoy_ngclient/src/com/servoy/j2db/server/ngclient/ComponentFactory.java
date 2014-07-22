@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +26,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -37,9 +42,14 @@ import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -133,11 +143,16 @@ public class ComponentFactory
 	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (context.getSolution().getSolutionCopy(false) != null) return new FormElement(formElement, context);
+		if (context.getSolution().getSolutionCopy(false) != null)
+		{
+			if (formElement instanceof ListViewPortal) return createListViewPortalFormElement((ListViewPortal)formElement, context);
+			else return new FormElement(formElement, context);
+		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
 		{
-			persistWrapper = new FormElement(formElement, context);
+			if (formElement instanceof ListViewPortal) persistWrapper = createListViewPortalFormElement((ListViewPortal)formElement, context);
+			else persistWrapper = new FormElement(formElement, context);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{
@@ -145,6 +160,69 @@ public class ComponentFactory
 			}
 		}
 		return persistWrapper;
+	}
+
+	private static FormElement createListViewPortalFormElement(ListViewPortal listViewPortal, IServoyDataConverterContext context)
+	{
+		Form form = listViewPortal.getForm();
+		Part bodyPart = null;
+		for (Part prt : Utils.iterate(form.getParts()))
+		{
+			if (prt.getPartType() == Part.BODY)
+			{
+				bodyPart = prt;
+				break;
+			}
+		}
+		if (bodyPart != null)
+		{
+			try
+			{
+				JSONArray componentJSONs = new JSONArray();
+
+				int startPos = form.getPartStartYPos(bodyPart.getID());
+				int endPos = bodyPart.getHeight();
+				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				while (it.hasNext())
+				{
+					IPersist persist = it.next();
+					if (persist instanceof IFormElement)
+					{
+						Point location = ((IFormElement)persist).getLocation();
+						if (startPos <= location.y && endPos >= location.y)
+						{
+							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, context);
+							componentJSONs.put(PersistBasedFormElementImpl.getPureSabloJSONForFormElement(fe, null));
+						}
+					}
+				}
+
+				String name = "svy_lvp_" + form.getName();
+
+				JSONObject portal = new JSONObject();
+				portal.put("name", name);
+				portal.put("multiLine", true);
+				portal.put("rowHeight", bodyPart.getHeight());
+				portal.put("anchors", IAnchorConstants.ALL);
+				portal.put("location", new Point(0, 0));
+				portal.put("size", new Dimension(form.getWidth(), bodyPart.getHeight()));
+				portal.put("visible", listViewPortal.getVisible());
+				portal.put("enabled", listViewPortal.getEnabled());
+				portal.put("childElements", componentJSONs);
+
+				JSONObject relatedFoundset = new JSONObject();
+				relatedFoundset.put("foundsetSelector", "");
+				portal.put("relatedFoundset", relatedFoundset);
+
+				return new FormElement("svy-portal", portal, form, name, context);
+			}
+			catch (JSONException ex)
+			{
+				Debug.error("Cannot create list view portal component", ex);
+			}
+		}
+
+		return null;
 	}
 
 	public static String getMarkupId(String formName, String elementName)
