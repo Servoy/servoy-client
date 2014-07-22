@@ -24,7 +24,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
@@ -50,21 +54,53 @@ public class RuntimeWebComponent implements Scriptable
 	private final Set<String> specProperties;
 	private final Set<String> dataProviderProperties;
 	private final Map<String, IServerObjToJavaPropertyConverter< ? , ? >> complexProperties;
-	private final Map<String, WebComponentFunction> apiFunctions;
+	private final Map<String, Function> apiFunctions;
 
 	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
 	{
 		this.component = component;
 		this.specProperties = new HashSet<String>();
-		this.apiFunctions = new HashMap<String, WebComponentFunction>();
+		this.apiFunctions = new HashMap<String, Function>();
 		this.dataProviderProperties = new HashSet<>();
 		this.complexProperties = new HashMap<>();
 
+		String serverScript = webComponentSpec.getServerScript();
+		Scriptable apiObject = null;
+		if (serverScript != null)
+		{
+			Context context = Context.enter();
+			try
+			{
+				Script script = context.compileString(serverScript, webComponentSpec.getName(), 0, null);
+				ScriptableObject topLevel = context.initStandardObjects();
+				Scriptable scopeObject = context.newObject(topLevel);
+				apiObject = context.newObject(topLevel);
+				apiObject.setPrototype(this);
+				scopeObject.put("api", scopeObject, apiObject);
+				scopeObject.put("model", scopeObject, this);
+				topLevel.put("$scope", topLevel, scopeObject);
+				script.exec(context, topLevel);
+			}
+			finally
+			{
+				Context.exit();
+			}
+		}
 		if (webComponentSpec != null)
 		{
 			for (WebComponentApiDefinition def : webComponentSpec.getApiFunctions().values())
 			{
-				apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
+				Function func = null;
+				if (apiObject != null)
+				{
+					Object serverSideFunction = apiObject.get(def.getName(), apiObject);
+					if (serverSideFunction instanceof Function)
+					{
+						func = (Function)serverSideFunction;
+					}
+				}
+				if (func != null) apiFunctions.put(def.getName(), func);
+				else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (Entry<String, PropertyDescription> e : specs.entrySet())
@@ -73,7 +109,7 @@ public class RuntimeWebComponent implements Scriptable
 				if (!component.isDesignOnlyProperty(e.getKey()))
 				{
 					// design properties cannot be accessed at runtime
-					// all handlers are design properties, all api is runtime 
+					// all handlers are design properties, all api is runtime
 					specProperties.add(e.getKey());
 				}
 				if (type == DataproviderPropertyType.INSTANCE)
@@ -133,7 +169,7 @@ public class RuntimeWebComponent implements Scriptable
 			if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
 			{
 				// call getter
-				WebComponentFunction propertyGetter = apiFunctions.get("get" + uName);
+				Function propertyGetter = apiFunctions.get("get" + uName);
 				return propertyGetter.call(null, null, null, null);
 			}
 		}
@@ -199,7 +235,7 @@ public class RuntimeWebComponent implements Scriptable
 					if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
 					{
 						// call setter
-						WebComponentFunction propertySetter = apiFunctions.get("set" + uName);
+						Function propertySetter = apiFunctions.get("set" + uName);
 						propertySetter.call(null, null, null, new Object[] { value });
 						return;
 					}

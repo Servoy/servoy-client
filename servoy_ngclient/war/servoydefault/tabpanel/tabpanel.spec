@@ -1,6 +1,7 @@
 name: 'svy-tabpanel',
 displayName: 'Tab panel',
 definition: 'servoydefault/tabpanel/tabpanel.js',
+serverscript: 'servoydefault/tabpanel/tabpanel_server.js',
 libraries: ['servoydefault/tabpanel/accordionpanel.css'],
 model:
 {
