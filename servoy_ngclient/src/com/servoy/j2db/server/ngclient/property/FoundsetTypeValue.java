@@ -103,7 +103,6 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	public FoundsetTypeValue(Object designJSONValue, Object config)
 	{
 		this.designJSONValue = designJSONValue; // maybe we should parse it and not keep it as JSON (it can be reconstructed afterwards from parseed content if needed)
-		// TODO ac Auto-generated constructor stub
 	}
 
 	@Override
@@ -417,7 +416,6 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	public void browserUpdatesReceived(Object jsonValue)
 	{
 		if (foundset == null) return;
-		// TODO ac Auto-generated method stub
 		try
 		{
 			if (jsonValue instanceof JSONArray)

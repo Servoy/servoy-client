@@ -107,8 +107,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		int counter = 0;
 		for (FormElement fe : formElements)
 		{
-			// do something similar for child elements (so properties of type 'components' which contain componentSpecs in them)
-			// TODO ac doSomethingSimilarAndRemoveComment();
+			// TODO do something similar for child elements (so properties of type 'components' which contain componentSpecs in them)
 
 			WebComponentSpecification componentSpec = fe.getWebComponentSpec(false);
 			if (componentSpec == null)
@@ -459,7 +458,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	private ElementScope initElementScope(IFormController controller)
 	{
-		// TODO ac addChildElementsHereAsWell();
 		FormScope formScope = controller.getFormScope();
 		ElementScope elementsScope = new ElementScope(formScope);
 		formScope.putWithoutFireChange("elements", elementsScope); //$NON-NLS-1$

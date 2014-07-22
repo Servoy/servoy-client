@@ -229,7 +229,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  });
     	  
     	  $scope.$watchCollection('model.relatedFoundset.viewPort.rows', function() {
-    		  // TODO ac check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding watches (we have to keep somewhere references to the removal functions when we register row watches)
+    		  // TODO check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding watches (we have to keep somewhere references to the removal functions when we register row watches)
     		  // allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
     		  $scope.$evalAsync(function () { updateGridSelectionFromFoundset(); });
     	  });
