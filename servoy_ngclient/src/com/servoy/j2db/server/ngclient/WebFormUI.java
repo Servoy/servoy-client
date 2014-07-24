@@ -261,7 +261,7 @@ public class WebFormUI extends Container implements IWebFormUI
 						//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
 						if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%")) || ((String)propValue).startsWith("i18n:"))
 						{
-							dal.addTaggedProperty(component, level + propertySpec.getName());
+							dal.addTaggedProperty(component, level + propertySpec.getName(), (String)propValue);
 						}
 						break;
 					}
@@ -299,7 +299,7 @@ public class WebFormUI extends Container implements IWebFormUI
 					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
 					if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%")) || ((String)propValue).startsWith("i18n:"))
 					{
-						dal.addTaggedProperty(component, level + propName);
+						dal.addTaggedProperty(component, level + propName, (String)propValue);
 						return;
 					}
 					break;

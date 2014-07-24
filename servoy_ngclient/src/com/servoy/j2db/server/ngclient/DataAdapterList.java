@@ -34,6 +34,9 @@ import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
@@ -45,8 +48,7 @@ import com.servoy.j2db.util.Text;
 
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
-	/**componentPropertiesWithTagExpression : keeps track of properties with tags from a bean (properties of type 'tagstring') */
-	private final Map<WebFormComponent, List<String>> componentPropertiesWithTagExpression = new HashMap<>();
+	private final Map<String, Map<WebFormComponent, List<String>>> dataProviderToComponentWithTags = new HashMap<>();
 	private final Map<String, List<Pair<WebFormComponent, String>>> recordDataproviderToComponent = new HashMap<>();
 	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
 	private final IWebFormController formController;
@@ -57,17 +59,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private boolean findMode;
 	private boolean settingRecord;
 
+	private boolean isFormScopeListener;
+	private boolean isGlobalScopeListener;
+
 	public DataAdapterList(IWebFormController formController)
 	{
 		this.formController = formController;
 		this.executor = new EventExecutor(formController);
-
-		//add listener for var changes
-		if (formController != null) // can happen for a design component
-		{
-			formController.getFormScope().getModificationSubject().addModificationListener(this);
-			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
-		}
 	}
 
 	/**
@@ -126,6 +124,20 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		relatedForms.remove(form);
 	}
 
+	private void setupModificationListener(String dataprovider)
+	{
+		if (!isFormScopeListener && isFormDataprovider(dataprovider))
+		{
+			formController.getFormScope().getModificationSubject().addModificationListener(this);
+			isFormScopeListener = true;
+		}
+		else if (!isGlobalScopeListener && isGlobalDataprovider(dataprovider))
+		{
+			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
+			isGlobalScopeListener = true;
+		}
+	}
+
 	public void add(WebFormComponent component, String recordDataProvider, String beanDataProvider)
 	{
 		List<Pair<WebFormComponent, String>> list = recordDataproviderToComponent.get(recordDataProvider);
@@ -143,17 +155,34 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			beanToDataHolder.put(component.getFormElement(), map);
 		}
 		map.put(beanDataProvider, recordDataProvider);
+		if (formController != null) setupModificationListener(recordDataProvider);
 	}
 
-	public void addTaggedProperty(WebFormComponent component, String beanTaggedProperty)
+	public void addTaggedProperty(final WebFormComponent component, final String beanTaggedProperty, String propertyValue)
 	{
-		List<String> props = componentPropertiesWithTagExpression.get(component);
-		if (props == null)
+		Text.processTags(propertyValue, new ITagResolver()
 		{
-			props = new ArrayList<>();
-			componentPropertiesWithTagExpression.put(component, props);
-		}
-		props.add(beanTaggedProperty);
+			@Override
+			public String getStringValue(String name)
+			{
+				Map<WebFormComponent, List<String>> map = dataProviderToComponentWithTags.get(name);
+				if (map == null)
+				{
+					map = new HashMap<WebFormComponent, List<String>>();
+					dataProviderToComponentWithTags.put(name, map);
+				}
+
+				List<String> props = map.get(component);
+				if (props == null)
+				{
+					props = new ArrayList<>();
+					map.put(component, props);
+				}
+				props.add(beanTaggedProperty);
+				if (formController != null) setupModificationListener(name);
+				return name;
+			}
+		});
 	}
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)
@@ -176,7 +205,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			this.record = (IRecordInternal)record;
 			if (this.record != null)
 			{
-				pushRecordValues(fireChangeEvent, false);
+				pushChangedValues(null, fireChangeEvent, false);
 				this.record.addModificationListener(this);
 			}
 
@@ -199,42 +228,45 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return record;
 	}
 
-	private void pushRecordValues(boolean fireChangeEvent, boolean fireOnDataChange)
+	private boolean updateRecordDataprovider(String dataprovider, List<Pair<WebFormComponent, String>> components, boolean fireOnDataChange)
 	{
 		boolean changed = false;
-		for (Entry<String, List<Pair<WebFormComponent, String>>> entry : recordDataproviderToComponent.entrySet())
+		Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), dataprovider);
+		Object oldValue;
+		boolean isPropertyChanged;
+		WebFormComponent wc;
+		String property;
+		String onDataChange, onDataChangeCallback;
+		for (Pair<WebFormComponent, String> pair : components)
 		{
-			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), entry.getKey());
-			Object oldValue;
-			boolean isPropertyChanged;
-			WebFormComponent wc;
-			String property;
-			String onDataChange, onDataChangeCallback;
-			for (Pair<WebFormComponent, String> pair : entry.getValue())
+			wc = pair.getLeft();
+			property = pair.getRight();
+			oldValue = wc.getProperty(property);
+			isPropertyChanged = wc.setProperty(property, value, ConversionLocation.SERVER);
+			onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
+			if (fireOnDataChange && onDataChange != null && wc.hasEvent(onDataChange) && isPropertyChanged)
 			{
-				wc = pair.getLeft();
-				property = pair.getRight();
-				oldValue = wc.getProperty(property);
-				isPropertyChanged = wc.setProperty(property, value, ConversionLocation.SERVER);
-				onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
-				if (fireOnDataChange && onDataChange != null && wc.hasEvent(onDataChange) && isPropertyChanged)
+				JSONObject event = EventExecutor.createEvent(onDataChange);
+				Object returnValue = wc.executeEvent(onDataChange, new Object[] { oldValue, value, event });
+				onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
+				if (onDataChangeCallback != null)
 				{
-					JSONObject event = EventExecutor.createEvent(onDataChange);
-					Object returnValue = wc.executeEvent(onDataChange, new Object[] { oldValue, value, event });
-					onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
-					if (onDataChangeCallback != null)
-					{
-						wc.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
-					}
+					wc.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
 				}
-				changed = isPropertyChanged || changed;
 			}
+			changed = isPropertyChanged || changed;
 		}
 
-		//evaluate tagged properties
-		for (WebFormComponent component : componentPropertiesWithTagExpression.keySet())
+		return changed;
+	}
+
+	private boolean updateTagValue(Map<WebFormComponent, List<String>> components)
+	{
+		boolean changed = false;
+		for (Map.Entry<WebFormComponent, List<String>> entry : components.entrySet())
 		{
-			for (String taggedProp : componentPropertiesWithTagExpression.get(component))
+			WebFormComponent component = entry.getKey();
+			for (String taggedProp : entry.getValue())
 			{
 				String initialPropValue = (String)component.getInitialProperty(taggedProp);
 				String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
@@ -242,43 +274,101 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
-		// valuelist update
-		Collection<WebComponent> webComponents = formController.getFormUI().getComponents();
-		// TODO how to handle nested components through custom component[] property types for example? - those are not listed in formUI
-		Object valuelist;
-		for (WebComponent comp : webComponents)
+		return changed;
+	}
+
+	private boolean isFormDataprovider(String dataprovider)
+	{
+		if (dataprovider == null) return false;
+		FormScope fs = formController.getFormScope();
+		return fs.has(dataprovider, fs);
+	}
+
+	private boolean isGlobalDataprovider(String dataprovider)
+	{
+		if (dataprovider == null) return false;
+		ScopesScope ss = formController.getApplication().getScriptEngine().getScopesScope();
+		Pair<String, String> scope = ScopesUtils.getVariableScope(dataprovider);
+		if (scope.getLeft() != null)
 		{
-			WebFormComponent wc = (WebFormComponent)comp;
-			for (String valuelistProperty : wc.getFormElement().getValuelistProperties())
+			GlobalScope gs = ss.getGlobalScope(scope.getLeft());
+			return gs != null && gs.has(scope.getRight(), gs);
+		}
+
+		return false;
+	}
+
+	private void pushChangedValues(String dataProvider, boolean fireChangeEvent, boolean fireOnDataChange)
+	{
+		boolean changed = false;
+		boolean isFormDP = isFormDataprovider(dataProvider);
+		boolean isGlobalDP = isGlobalDataprovider(dataProvider);
+
+		if (dataProvider == null)
+		{
+			for (Entry<String, List<Pair<WebFormComponent, String>>> entry : recordDataproviderToComponent.entrySet())
 			{
-				if ((valuelist = wc.getProperty(valuelistProperty)) instanceof IValueList)
-				{
-					((IValueList)valuelist).fill(record);
-					changed = true;
-				}
+				changed = updateRecordDataprovider(entry.getKey(), entry.getValue(), fireOnDataChange) || changed;
+			}
+
+			for (Entry<String, Map<WebFormComponent, List<String>>> entry : dataProviderToComponentWithTags.entrySet())
+			{
+				changed = updateTagValue(entry.getValue()) || changed;
+			}
+		}
+		else
+		{
+			if (recordDataproviderToComponent.containsKey(dataProvider))
+			{
+				changed = updateRecordDataprovider(dataProvider, recordDataproviderToComponent.get(dataProvider), fireOnDataChange);
+			}
+
+			if ((isFormDP || isGlobalDP) && dataProviderToComponentWithTags.containsKey(dataProvider))
+			{
+				changed = updateTagValue(dataProviderToComponentWithTags.get(dataProvider)) || changed;
 			}
 		}
 
-		// let complex properties of all web components know that the current record has changed
-		for (WebComponent comp : webComponents)
+		if (!isFormDP && !isGlobalDP)
 		{
-			WebFormComponent wc = (WebFormComponent)comp;
-			changed = wc.pushRecord(record) || changed;
-		}
+			// valuelist update
+			Collection<WebComponent> webComponents = formController.getFormUI().getComponents();
+			// TODO how to handle nested components through custom component[] property types for example? - those are not listed in formUI
+			Object valuelist;
+			for (WebComponent comp : webComponents)
+			{
+				WebFormComponent wc = (WebFormComponent)comp;
+				for (String valuelistProperty : wc.getFormElement().getValuelistProperties())
+				{
+					if ((valuelist = wc.getProperty(valuelistProperty)) instanceof IValueList)
+					{
+						((IValueList)valuelist).fill(record);
+						changed = true;
+					}
+				}
+			}
 
+			// let complex properties of all web components know that the current record has changed
+			for (WebComponent comp : webComponents)
+			{
+				WebFormComponent wc = (WebFormComponent)comp;
+				changed = wc.pushRecord(record) || changed;
+			}
+		}
 
 		if (fireChangeEvent && changed)
 		{
 			getApplication().getChangeListener().valueChanged();
 		}
-
 	}
 
 	@Override
 	public void valueChanged(ModificationEvent e)
 	{
-		// TODO can this be only for the modification ?
-		pushRecordValues(true, false);
+		if (getForm().isFormVisible())
+		{
+			pushChangedValues(e.getName(), true, false);
+		}
 	}
 
 	public void pushChanges(WebFormComponent webComponent, String beanProperty)
