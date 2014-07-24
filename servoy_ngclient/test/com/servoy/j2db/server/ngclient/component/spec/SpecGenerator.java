@@ -584,15 +584,19 @@ public class SpecGenerator
 				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()), (StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 		perComponentInternalProperties.put("splitpane", new ArrayList<>(Arrays.asList("tabIndex")));
-		perComponentInternalProperties.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
 		perComponentInternalProperties.put("htmlarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
 		perComponentInternalProperties.put("imagemedia", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
-		perComponentInternalProperties.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
+		perComponentInternalProperties.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
 		perComponentInternalProperties.put("textarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
-		perComponentInternalProperties.put("checkbox", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
-		perComponentInternalProperties.put("radio", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
+		perComponentInternalProperties.put("check", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
+		perComponentInternalProperties.put("radio", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
 		perComponentInternalProperties.put("radiogroup", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
 		perComponentInternalProperties.put("checkgroup", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
+		perComponentInternalProperties.put("textfield", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
+		perComponentInternalProperties.put("combobox", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
+		perComponentInternalProperties.put("spinner", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
+		perComponentInternalProperties.put("typeahead", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
 		
 		serverSideApi.add("getAbsoluteFormLocationY");
 		serverSideApi.add("getClientProperty");

@@ -16,7 +16,6 @@ model:
         location : 'point', 
         margin : {type:'dimension', scope:'design'}, 
         placeholderText : 'tagstring', 
-        scrollbars : {type:'int', scope:'design'}, 
         size : {type:'dimension',  default: {width:140, height:20}}, 
         styleClass : { type:'styleclass', scope:'design', values:[]}, 
         tabSeq : {type:'tabseq', scope:'design'}, 
