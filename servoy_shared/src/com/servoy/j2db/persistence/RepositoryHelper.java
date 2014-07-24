@@ -588,6 +588,13 @@ public class RepositoryHelper
 			return false;
 		}
 
+		if (name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
+			(displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR || displayType == Field.COMBOBOX || displayType == Field.PASSWORD ||
+				displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
+		{
+			return false;
+		}
+
 		if ("selectOnEnter".equals(name) && (displayType == Field.CHECKS || displayType == Field.RADIOS)) //$NON-NLS-1$
 		{
 			return false;
