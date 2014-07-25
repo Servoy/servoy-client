@@ -1028,6 +1028,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be disregarded.
+	 * 
+	 * A datasource can be reused if the data has the same signature (column names and types).
+	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
 	 * @sample
 	 * var query = 'select address, city, country  from customers';
@@ -1063,6 +1066,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be disregarded.
+	 * 
+	 * A datasource can be reused if the data has the same signature (column names and types).
+	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
 	 * @sample
 	 * var query = 'select customer_id, address, city, country  from customers';
@@ -1134,6 +1140,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be taken into account.
+	 * 
+	 * A datasource can be reused if the data has the same signature (column names and types).
+	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
 	 * @sample
 	 * // select customer data for order 1234
@@ -1170,6 +1179,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be taken into account.
+	 * 
+	 * A datasource can be reused if the data has the same signature (column names and types).
+	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
 	 * @sample
 	 * // select customer data for order 1234
@@ -1205,6 +1217,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Performs a query and saves the result in a datasource.
 	 * Will throw an exception if anything went wrong when executing the query.
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
+	 * 
+	 * A datasource can be reused if the data has the same signature (column names and types).
+	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
 	 * @sample
 	 * // select customer data for order 1234

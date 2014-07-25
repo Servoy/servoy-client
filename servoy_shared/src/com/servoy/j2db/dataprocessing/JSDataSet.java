@@ -639,7 +639,10 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
-
+	 *   
+	 * A datasource can be reused if the data has the same signature (column names and types).
+	 * A new createDataSource() call will clear the datasource contents from a previous call and insert the current data.
+	 *   
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
