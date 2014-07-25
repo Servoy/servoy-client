@@ -538,7 +538,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void valueChanged()
 	{
 		// if there is an incoming message or an NGEvent running on event thread, postpone sending until it's done; else push it.
-		if (!proccessChanges && WebsocketEndpoint.get().hasSession() && client != null && handlingEvent.get() == 0)
+		if (!proccessChanges && WebsocketEndpoint.exists() && WebsocketEndpoint.get().hasSession() && client != null && handlingEvent.get() == 0)
 		{
 			try
 			{
