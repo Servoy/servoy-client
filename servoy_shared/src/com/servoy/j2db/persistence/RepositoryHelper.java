@@ -318,9 +318,16 @@ public class RepositoryHelper
 	}
 
 	@SuppressWarnings("nls")
-	public static boolean forceHideInDocs(String name, Class< ? > persistClass)
+	public static boolean forceHideInDocs(String name, Class< ? > persistClass, int displayType)
 	{
 		if (persistClass.equals(TableNode.class) && name.equals("dataSource"))
+		{
+			return true;
+		}
+		if (persistClass.equals(Field.class) &&
+			name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
+			(displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR || displayType == Field.COMBOBOX || displayType == Field.PASSWORD ||
+				displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
 		{
 			return true;
 		}
