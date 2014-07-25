@@ -15,7 +15,6 @@ model:
         location : 'point', 
         margin : {type:'dimension', scope:'design'}, 
         placeholderText : 'tagstring', 
-        scrollbars : {type:'int', scope:'design'}, 
         selectOnEnter : {type:'boolean', scope:'design'}, 
         size : {type:'dimension',  default: {width:140, height:20}}, 
         styleClass : { type:'styleclass', scope:'design', values:['form-control', 'input-sm', 'svy-padding-xs']}, 

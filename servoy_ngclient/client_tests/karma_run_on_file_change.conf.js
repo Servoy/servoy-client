@@ -12,6 +12,7 @@ module.exports = function(config){
     ],
 
     exclude : [
+	'../war/servoydefault/tabpanel/tabpanel_server.js'
       /*'app/lib/angular/angular-loader.js',
       'app/lib/angular/*.min.js',
       'app/lib/angular/angular-scenario.js'*/

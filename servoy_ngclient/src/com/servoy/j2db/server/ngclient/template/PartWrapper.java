@@ -19,11 +19,13 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
@@ -35,6 +37,7 @@ import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.ListViewPortal;
 
 /**
  * @author lvostinar
@@ -91,11 +94,19 @@ public class PartWrapper
 
 	public Collection<BaseComponent> getBaseComponents()
 	{
-		if (part.getPartType() == Part.BODY && (context.getView() == FormController.LOCKED_TABLE_VIEW || context.getView() == FormController.TABLE_VIEW))
+		if (part.getPartType() == Part.BODY)
 		{
-			// special case, no components return
-			return null;
+			switch (context.getView())
+			{
+				case FormController.TABLE_VIEW :
+				case FormController.LOCKED_TABLE_VIEW :
+					return null;
+				case IForm.LIST_VIEW :
+				case FormController.LOCKED_LIST_VIEW :
+					return Arrays.asList(new BaseComponent[] { new ListViewPortal(context) });
+			}
 		}
+
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();

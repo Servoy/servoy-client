@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.ListViewPortal;
 import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.util.Utils;
@@ -54,6 +55,7 @@ public class FormWrapper
 {
 	private final Form form;
 	private final boolean isTableView;
+	private final boolean isListView;
 	private final boolean useControllerProvider;
 	private final String realName;
 	private final IFormElementValidator formElementValidator;
@@ -68,6 +70,7 @@ public class FormWrapper
 		this.formElementValidator = formElementValidator;
 		this.context = context;
 		isTableView = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
+		isListView = form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED;
 	}
 
 	public String getControllerName()
@@ -191,14 +194,26 @@ public class FormWrapper
 	public Collection<BaseComponent> getBaseComponents()
 	{
 		List<BaseComponent> baseComponents = new ArrayList<>();
+
+		Collection<BaseComponent> excludedComponents = null;
+
+		if (isListView)
+		{
+			excludedComponents = getBodyComponents();
+		}
+
 		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		while (it.hasNext())
 		{
 			IPersist persist = it.next();
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{
-				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
+				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add((BaseComponent)persist);
 			}
+		}
+		if (isListView)
+		{
+			baseComponents.add(new ListViewPortal(form));
 		}
 		if (form.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{

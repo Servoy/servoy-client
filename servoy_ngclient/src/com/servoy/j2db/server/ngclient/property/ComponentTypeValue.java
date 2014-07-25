@@ -94,7 +94,6 @@ public class ComponentTypeValue implements IComplexPropertyValue
 	{
 		this.config = config;
 		this.designJSONValue = designJSONValue;
-		// TODO ac Auto-generated constructor stub
 	}
 
 	public String forFoundsetTypedPropertyName()
@@ -295,8 +294,6 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		}
 		return arr;
 	}
-
-	// TODO ac somewhere - link it with the foundset property...
 
 	@Override
 	@SuppressWarnings("nls")

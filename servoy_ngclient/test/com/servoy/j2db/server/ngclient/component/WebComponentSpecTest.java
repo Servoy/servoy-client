@@ -53,7 +53,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals("/test.js", spec.getDefinition());
 	}
 
@@ -63,7 +63,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', libraries:[],model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		String[] libs = spec.getLibraries();
 		Assert.assertEquals(0, libs.length);
 	}
@@ -74,7 +74,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', libraries:['/test.css'],model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		String[] libs = spec.getLibraries();
 		Assert.assertEquals(1, libs.length);
 		Assert.assertEquals(libs[0], "/test.css");
@@ -85,7 +85,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', libraries:['/test.css','/something.js'],model: {}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		String[] libs = spec.getLibraries();
 		Assert.assertEquals(2, libs.length);
 		Assert.assertEquals(libs[0], "/test.css");
@@ -97,7 +97,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myvaluelist:{for:'mydataprovider' , type:'valuelist'}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myvaluelist");
 		Assert.assertNotNull(pd);
@@ -112,7 +112,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myformat:{for:'mydataprovider' , type:'format'}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myformat");
 		Assert.assertNotNull(pd);
@@ -127,7 +127,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'string'}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
@@ -140,7 +140,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'string',prop2:'boolean',prop3:'int',prop4:'date'}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(spec.getProperties().toString(), 4, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
@@ -165,7 +165,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'string[]'}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
@@ -178,7 +178,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'string'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
@@ -200,7 +200,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
@@ -223,7 +223,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string[]'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
@@ -246,7 +246,7 @@ public class WebComponentSpecTest
 	{
 		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'mytype2'}},mytype2:{model:{typeproperty:'string'}}}";
 
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
@@ -278,14 +278,14 @@ public class WebComponentSpecTest
 	public void testNames() throws JSONException
 	{
 		String property = "name:'test',definition:'/test.js'";
-		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample");
+		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals("test", spec.getName());
 		Assert.assertEquals("test", spec.getDisplayName());
 		Assert.assertEquals("sample", spec.getPackageName());
 		Assert.assertEquals("sample:test", spec.getFullName());
 
 		property = "name:'test', displayName: 'A Test',definition:'/test.js'";
-		spec = WebComponentSpecification.parseSpec(property, "sample");
+		spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals("test", spec.getName());
 		Assert.assertEquals("A Test", spec.getDisplayName());
 		Assert.assertEquals("sample", spec.getPackageName());

@@ -229,11 +229,11 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  });
     	  
     	  $scope.$watchCollection('model.relatedFoundset.viewPort.rows', function() {
-    		  // TODO ac check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding watches (we have to keep somewhere references to the removal functions when we register row watches)
+    		  // TODO check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding watches (we have to keep somewhere references to the removal functions when we register row watches)
     		  // allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
     		  $scope.$evalAsync(function () { updateGridSelectionFromFoundset(); });
     	  });
-    	  
+ 
     	  var rowTemplate = ''
     	  var columnDefinitions = [];
     	  for (var idx = 0; idx < elements.length; idx++) {
@@ -254,8 +254,9 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
 
     		  var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getMergedCellModel(row, ' + idx + ')" svy-api="cellApiWrapper(row, ' + idx + ')" svy-handlers="cellHandlerWrapper(row, ' + idx + ')" svy-apply="cellApplyHandlerWrapper(row, ' + idx + ')"/>' 
     		  if($scope.model.multiLine) {
-    			  if($scope.rowHeight == undefined || $scope.rowHeight < elY + el.model.size.height) {
-    				  $scope.rowHeight = elY + el.model.size.height;
+    			  $scope.rowHeight = $scope.model.rowHeight; 
+    			  if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
+    				  $scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
     			  }
     			  rowTemplate = rowTemplate + '<div style="position:absolute;left:' + elX + 'px;top:' + elY + 'px;width:' + el.model.size.width + 'px;height:' + el.model.size.height + 'px;">' + cellTemplate + '</div>';
     		  }

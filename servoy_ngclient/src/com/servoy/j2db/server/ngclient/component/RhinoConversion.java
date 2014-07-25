@@ -19,13 +19,17 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.mozilla.javascript.NativeObject;
 import org.sablo.specification.PropertyDescription;
 
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
@@ -144,9 +148,22 @@ public class RhinoConversion
 					return app.getFormManager().getForm((String)propertyValue).getFormScope();
 				}
 				break;
-
 			default :
 		}
+		if (propertyValue instanceof NativeObject)
+		{
+			Map<String, Object> map = new HashMap<>();
+			NativeObject no = (NativeObject)propertyValue;
+			Object[] ids = no.getIds();
+			for (Object id2 : ids)
+			{
+				String id = (String)id2;
+				map.put(id, convert(no.get(id), pd.getProperty(id), converterContext));
+			}
+			return map;
+		}
+		if (propertyValue instanceof FormScope) return ((FormScope)propertyValue).getFormController().getName();
+		else if (propertyValue instanceof IFormController) return ((IFormController)propertyValue).getName();
 		return propertyValue;
 	}
 }

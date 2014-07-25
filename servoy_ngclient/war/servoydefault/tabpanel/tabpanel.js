@@ -15,7 +15,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
              var scrollHeight = 15;
              $scope.viewportStyle = {height: ($scope.model.size.height - ($scope.model.tabs.length - 1) * groupHeaderHeight - activeGroupHeaderHeight - scrollHeight) + "px"};
         }
-        var selectedTab;
         $scope.bgstyle = {}
         $scope.waitingForServerVisibility = {}
         
@@ -50,18 +49,18 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        $scope.getActiveTab = function() {
     	   for(var i=0;i<$scope.model.tabs.length;i++) {
     		   if ($scope.model.tabs[i].active) {
-    			   if (selectedTab != $scope.model.tabs[i])
+    			   if ($scope.model.selectedTab != $scope.model.tabs[i])
     			   {
     			   	$scope.select($scope.model.tabs[i]);
     			   } 
     			   break;
     		   }
     	   }
-    	   return selectedTab?$scope.svyServoyapi.getFormUrl(selectedTab.containsFormId):"";
+    	   return $scope.model.selectedTab?$scope.svyServoyapi.getFormUrl($scope.model.selectedTab.containsFormId):"";
        }
        
        $scope.getSelectedTab = function() {
-    	   return selectedTab;
+    	   return $scope.model.selectedTab;
        }
        
        $scope.getTabAt = function(index) {
@@ -71,7 +70,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        }
        
        $scope.getForm = function(tab) {
-       	if (selectedTab && tab.containsFormId == selectedTab.containsFormId) {
+       	if ($scope.model.selectedTab && tab.containsFormId == $scope.model.selectedTab.containsFormId) {
        		return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
        	}
        	return "";
@@ -86,12 +85,12 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
     		   promise.then(function(ok) {
     			   delete $scope.waitingForServerVisibility[formInWait];
     			   if (ok){
-    				   if(selectedTab && selectedTab != tab && $scope.handlers.onChangeMethodID)
+    				   if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
     				   {
-    					   $scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab),event instanceof MouseEvent ? event : null);
+    					   $scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event instanceof MouseEvent ? event : null);
     				   }   			
-    				   selectedTab = tab;
-    				   $scope.model.tabIndex = $scope.getTabIndex(selectedTab);
+    				   $scope.model.selectedTab = tab;
+    				   $scope.model.tabIndex = $scope.getTabIndex($scope.model.selectedTab);
     			   } else {
     				   // will this ever happen?
     			   }
@@ -111,14 +110,14 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        }
 
        $scope.select = function(tab) {
-    	if ((tab != undefined && selectedTab != undefined && tab.containsFormId == selectedTab.containsFormId) || (tab == selectedTab)) return;
+    	if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId) || (tab == $scope.model.selectedTab)) return;
     	var selectEvent = $window.event ? $window.event : null;
-        if (selectedTab) {
-        	if (!$scope.waitingForServerVisibility[selectedTab.containsFormId])
+        if ($scope.model.selectedTab) {
+        	if (!$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
         	{
-        		var formInWait = selectedTab.containsFormId;
+        		var formInWait = $scope.model.selectedTab.containsFormId;
         		$scope.waitingForServerVisibility[formInWait] = true;
-        		var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
+        		var promise =  $scope.svyServoyapi.setFormVisibility($scope.model.selectedTab.containsFormId,false);
         		promise.then(function(ok) {
         			delete $scope.waitingForServerVisibility[formInWait];
         			if (ok) {
@@ -126,7 +125,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
         			}
         			else {
         				tab.active = false;
-        				selectedTab.active = true;
+        				$scope.model.selectedTab.active = true;
         			}
         		})
         	}
