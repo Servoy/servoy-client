@@ -33,6 +33,8 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.AggregatedPropertyType;
+import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils.JSONWritable;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -81,10 +83,10 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 	}
 
 	@Override
-	public Map<String, Map<String, Object>> getAllComponentsProperties()
+	public TypedData<Map<String, Map<String, Object>>> getAllComponentsProperties()
 	{
-		Map<String, Map<String, Object>> props = super.getAllComponentsProperties();
-		appendRows(props.get(""), getRows(-1, -1).rows);
+		TypedData<Map<String, Map<String, Object>>> props = super.getAllComponentsProperties();
+		appendRows(props.content.get(""), getRows(-1, -1).rows.content);
 		selectionChanged = false;
 		allChanged = false;
 		rowChanges.clear();
@@ -93,14 +95,14 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 
 	@Override
 	@SuppressWarnings("nls")
-	public Map<String, Map<String, Object>> getAllComponentsChanges()
+	public TypedData<Map<String, Map<String, Object>>> getAllComponentsChanges()
 	{
-		Map<String, Map<String, Object>> props = super.getAllComponentsChanges();
+		Map<String, Map<String, Object>> props = super.getAllComponentsChanges().content; // we might need to use contentType in the future as well
 		if (allChanged)
 		{
 			try
 			{
-				List<Map<String, Object>> rows = getRows(-1, -1).rows;
+				List<Map<String, Object>> rows = getRows(-1, -1).rows.content;
 				if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
 				appendRows(props.get(""), rows);
 			}
@@ -126,7 +128,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 		selectionChanged = false;
 		allChanged = false;
 		rowChanges.clear();
-		return props;
+		return new TypedData<Map<String, Map<String, Object>>>(props, null);
 	}
 
 	private void appendRows(Map<String, Object> props, List<Map<String, Object>> rows)
@@ -332,13 +334,13 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 					List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), TagStringPropertyType.INSTANCE);
 					for (String tagstringPropID : tagstrings)
 					{
-						cellProperties.put(tagstringPropID, wc.getProperties().get(tagstringPropID));
+						cellProperties.put(tagstringPropID, wc.getRawProperties().get(tagstringPropID));
 					}
 
 					List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 					for (String dataproviderID : dataproviders)
 					{
-						cellProperties.put(dataproviderID, wc.getProperties().get(dataproviderID));
+						cellProperties.put(dataproviderID, wc.getRawProperties().get(dataproviderID));
 					}
 					// add valuelists
 					Object valuelistObj;
@@ -369,7 +371,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 				rows.add(rowProperties);
 			}
 			dataAdapterList.setRecord(currentFoundset.getRecord(currentFoundset.getSelectedIndex()), false);
-			return new RowData(rows, startIdx - foundsetStartRow, endIdx - foundsetStartRow);
+			return new RowData(new TypedData<List<Map<String, Object>>>(rows, null), startIdx - foundsetStartRow, endIdx - foundsetStartRow);
 		}
 		finally
 		{
@@ -498,7 +500,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 		public static final int DELETE = 2;
 
 		private static final RowData EMPTY = new RowData();
-		private final List<Map<String, Object>> rows;
+		private final TypedData<List<Map<String, Object>>> rows;
 		private final int startIndex;
 		private final int endIndex;
 
@@ -512,17 +514,12 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 			type = -1;
 		}
 
-		/**
-		 * @param rows
-		 * @param i
-		 * @param j
-		 */
-		public RowData(List<Map<String, Object>> rows, int startIndex, int endIndex)
+		public RowData(TypedData<List<Map<String, Object>>> rows, int startIndex, int endIndex)
 		{
 			this(rows, startIndex, endIndex, CHANGE);
 		}
 
-		public RowData(List<Map<String, Object>> rows, int startIndex, int endIndex, int type)
+		public RowData(TypedData<List<Map<String, Object>>> rows, int startIndex, int endIndex, int type)
 		{
 			this.rows = rows;
 			this.startIndex = startIndex;
@@ -538,14 +535,22 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 			this.type = type;
 		}
 
-		public Map<String, Object> toMap()
+		public TypedData<Map<String, Object>> toMap()
 		{
+			PropertyDescription rowType = null;
+
 			Map<String, Object> retValue = new HashMap<>();
-			retValue.put("rows", rows);
+			retValue.put("rows", rows.content);
+			if (rows.contentType != null)
+			{
+				rowType = AggregatedPropertyType.newAggregatedProperty();
+				rowType.putProperty("rows", rows.contentType);
+			}
 			retValue.put("startIndex", Integer.valueOf(startIndex));
 			retValue.put("endIndex", Integer.valueOf(endIndex));
 			retValue.put("type", Integer.valueOf(type));
-			return retValue;
+
+			return new TypedData<Map<String, Object>>(retValue, rowType);
 		}
 	}
 

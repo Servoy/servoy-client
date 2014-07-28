@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient;
 
 import org.json.JSONException;
-import org.sablo.websocket.ConversionLocation;
 
 /**
  * Converter from client data (JSON) to backend data
@@ -28,8 +27,7 @@ import org.sablo.websocket.ConversionLocation;
  */
 public interface IDataConverter
 {
-	Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue, ConversionLocation sourceOfValue, Object oldValue)
-		throws JSONException;
+	Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue) throws JSONException;
 
 	Object convertFromJavaObjectToString(FormElement fe, String propertyName, Object propertyValue);
 }

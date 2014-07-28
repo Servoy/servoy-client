@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
-import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
@@ -56,21 +55,16 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	}
 
 	@Override
-	public Class<TagStringWrapper> getTypeClass()
+	public TagStringWrapper fromJSON(Object newValue, TagStringWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
-		return TagStringWrapper.class;
+		return wrap(newValue, previousValue, dataConverterContext);
 	}
 
 	@Override
-	public Object fromJSON(Object newValue, TagStringWrapper previousValue)
-	{
-		return newValue;
-	}
-
-	@Override
-	public void toJSON(JSONWriter writer, TagStringWrapper object, DataConversion clientConversion, IForJsonConverter forJsonConverter) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, TagStringWrapper object, DataConversion clientConversion) throws JSONException
 	{
 		if (object != null) writer.value(object.getJsonValue());
+		return writer;
 	}
 
 	@Override

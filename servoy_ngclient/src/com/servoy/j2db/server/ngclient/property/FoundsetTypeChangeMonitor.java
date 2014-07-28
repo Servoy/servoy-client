@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.sablo.IChangeListener;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.types.AggregatedPropertyType;
+import org.sablo.websocket.TypedData;
 
 import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
 
@@ -54,7 +57,6 @@ public class FoundsetTypeChangeMonitor
 
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
-//	protected LinkedList<RecordChangeDescriptor> viewPortChanges = new LinkedList<>();
 	protected List<RowData> viewPortChanges = new ArrayList<>();
 	protected FoundsetTypeValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
 
@@ -248,9 +250,8 @@ public class FoundsetTypeChangeMonitor
 
 				// add new records if available
 				// we need to replace same amount of records in current viewPort; append rows if available
-				List<Map<String, Object>> data = getRowData(viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx);
-
-				viewPortChanges.add(new RowData(data, relativeFirstRow, relativeLastRow, RowData.DELETE));
+				viewPortChanges.add(new RowData(getRowData(viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx), relativeFirstRow,
+					relativeLastRow, RowData.DELETE));
 				viewPortRecordChangesUpdated = true;
 			}
 			else if (slideBy != 0)
@@ -284,8 +285,8 @@ public class FoundsetTypeChangeMonitor
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 
 				// add records that were inserted in viewPort
-				List<Map<String, Object>> rowData = getRowData(firstRow, lastViewPortInsert);
-				viewPortChanges.add(new RowData(rowData, firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), RowData.INSERT));
+				viewPortChanges.add(new RowData(getRowData(firstRow, lastViewPortInsert), firstRow - viewPort.getStartIndex(), lastViewPortInsert -
+					viewPort.getStartIndex(), RowData.INSERT));
 				viewPortRecordChangesUpdated = true;
 			}
 			else if (viewPort.getStartIndex() >= firstRow)
@@ -314,9 +315,8 @@ public class FoundsetTypeChangeMonitor
 				int lastViewPortIndex = Math.min(viewPort.getStartIndex() + viewPort.getSize() - 1, lastRow);
 				if (firstViewPortIndex <= lastViewPortIndex)
 				{
-					List<Map<String, Object>> rowData = getRowData(firstViewPortIndex, lastViewPortIndex);
-					viewPortChanges.add(new RowData(rowData, firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-						RowData.CHANGE));
+					viewPortChanges.add(new RowData(getRowData(firstViewPortIndex, lastViewPortIndex), firstViewPortIndex - viewPort.getStartIndex(),
+						lastViewPortIndex - viewPort.getStartIndex(), RowData.CHANGE));
 					viewPortRecordChangesUpdated = true;
 				}
 			}
@@ -329,14 +329,18 @@ public class FoundsetTypeChangeMonitor
 		return intervalStartInclusive <= x && x <= intervalEndInclusive;
 	}
 
-	protected List<Map<String, Object>> getRowData(int startIndex, int endIndex)
+	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex)
 	{
 		List<Map<String, Object>> rows = new ArrayList<>();
+		PropertyDescription rowTypes = AggregatedPropertyType.newAggregatedProperty();
 		for (int i = startIndex; i <= endIndex; i++)
 		{
-			rows.add(propertyValue.getRowData(i));
+			TypedData<Map<String, Object>> tmp = propertyValue.getRowData(i);
+			rows.add(tmp.content);
+			if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
 		}
-		return rows;
+		if (!rowTypes.hasChildProperties()) rowTypes = null;
+		return new TypedData<>(rows, rowTypes);
 	}
 
 	public boolean shouldSendAll()

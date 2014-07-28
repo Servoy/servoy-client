@@ -52,7 +52,7 @@ api:
             parameters:[{'x':'int'},{'y':'int'}]
         },
         setValueListItems: {
-            parameters:[{'value':'object'}]
+            parameters:[{'value':'dataset'}]
         }
 }
  

@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
-import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -76,15 +75,9 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 	}
 
 	@Override
-	public Class<DataproviderWrapper> getTypeClass()
+	public DataproviderWrapper fromJSON(Object newValue, DataproviderWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
-		return DataproviderWrapper.class;
-	}
-
-	@Override
-	public Object fromJSON(Object newValue, DataproviderWrapper previousValue)
-	{
-		/** TODO if the dataprovider is of type date it has to apply date converter 
+		/** TODO if the dataprovider is of type date it has to apply date converter
 		   it should do(after andrei finishes his case SVY-6608 ) something like :
 		    // get type from DataProviderLookup
 		    if (type == IColumnTypes.DATETIME)
@@ -92,24 +85,27 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 		     IPropertyType< ? > sabloType = TypesRegistry.getType("date");
 		     value = ((IClassPropertyType<Date, Date>)sabloType).fromJSON(value, null);
 		    }
+		    or use a sablo utility method that does this if available
 		 **/
 		if (previousValue != null)
 		{
 			if (previousValue.value instanceof Date)
 			{
-				return new Date((long)newValue);
+				return wrap(new Date((long)newValue), previousValue, dataConverterContext);
 			}
 		}
-		return newValue;
+		return wrap(newValue, previousValue, dataConverterContext); // the same types as we would expect from java come from JSON as well here, so du usual wrap
 	}
 
 	@Override
-	public void toJSON(JSONWriter writer, DataproviderWrapper object, DataConversion clientConversion, IForJsonConverter forJsonConverter) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, DataproviderWrapper object, DataConversion clientConversion) throws JSONException
 	{
 		if (object != null)
 		{
-			JSONUtils.toJSONValue(writer, object.getJsonValue(), clientConversion, forJsonConverter, null);
+			// TODO use type info instead of null for jsonValue, depending on the type the dataprovider is linked to
+			JSONUtils.toJSONValue(writer, object.getJsonValue(), null, clientConversion, null);
 		}
+		return writer;
 	}
 
 	@Override
@@ -150,7 +146,7 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 			this.dataConverterContext = dataConverterContext;
 		}
 
-		Object getJsonValue()
+		Object getJsonValue() // TODO this should return a TypedData instead
 		{
 			if (jsonValue == null)
 			{

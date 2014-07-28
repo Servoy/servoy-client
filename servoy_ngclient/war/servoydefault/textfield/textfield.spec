@@ -50,7 +50,7 @@ api:
 
         },
         setValueListItems: {
-            parameters:[{'value':'object'}]
+            parameters:[{'value':'dataset'}]
         }
 }
  

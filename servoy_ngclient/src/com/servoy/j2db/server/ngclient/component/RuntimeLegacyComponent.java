@@ -200,7 +200,7 @@ public class RuntimeLegacyComponent implements Scriptable
 			return;
 		}
 
-		Object val = RhinoConversion.convert(value, component.getFormElement().getWebComponentSpec().getProperty(name),
+		Object val = RhinoConversion.convert(value, component.getProperty(name), component.getFormElement().getWebComponentSpec().getProperty(name),
 			component.getFormElement().getDataConverterContext());
 		component.setProperty(name, val, ConversionLocation.SERVER);
 	}

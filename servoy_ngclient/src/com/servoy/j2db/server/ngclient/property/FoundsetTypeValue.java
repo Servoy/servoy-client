@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,29 +29,29 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.Container;
 import org.sablo.IChangeListener;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
-import org.sablo.specification.property.IClassPropertyType;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.ConversionLocation;
+import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
-import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.persistence.IDataProvider;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
@@ -264,18 +263,25 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		if (foundset != null)
 		{
 			Map<String, Object> rows = new HashMap<>();
+			PropertyDescription rowTypes = null;
 			Map<String, Object>[] rowsArray = new Map[viewPort.getSize()];
 			rows.put(ROWS, rowsArray);
 
+			PropertyDescription rowArrayTypes = AggregatedPropertyType.newAggregatedProperty();
 			for (int i = viewPort.getStartIndex() + viewPort.getSize() - 1; i >= viewPort.getStartIndex(); i--)
 			{
-				rowsArray[i - viewPort.getStartIndex()] = getRowData(i);
+				TypedData<Map<String, Object>> rowTypedData = getRowData(i);
+				rowsArray[i - viewPort.getStartIndex()] = rowTypedData.content;
+				if (rowTypedData.contentType != null) rowArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
 			}
 
+			if (rowArrayTypes.hasChildProperties())
+			{
+				rowTypes = AggregatedPropertyType.newAggregatedProperty();
+				rowTypes.putProperty(ROWS, rowArrayTypes);
+			}
 			// convert for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeDataWithConversions(destinationJSON, rows,
-				getFormUI().getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(), update ? ConversionLocation.BROWSER_UPDATE
-					: ConversionLocation.BROWSER);
+			JSONUtils.writeDataWithConversions(destinationJSON, rows, rowTypes, update ? ConversionLocation.BROWSER_UPDATE : ConversionLocation.BROWSER);
 		}
 		else
 		{
@@ -353,17 +359,27 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 						viewPortUpdateAdded = true;
 					}
 					Map<String, Object> changes = new HashMap<>();
+					PropertyDescription changeTypes = null;
 					Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
+
 					changes.put(UPDATE_PREFIX + ROWS, changesArray);
 
+					PropertyDescription changeArrayTypes = AggregatedPropertyType.newAggregatedProperty();
 					for (int i = viewPortChanges.size() - 1; i >= 0; i--)
 					{
-						changesArray[i] = viewPortChanges.get(i).toMap();
+						TypedData<Map<String, Object>> rowTypedData = viewPortChanges.get(i).toMap();
+						changesArray[i] = rowTypedData.content;
+						if (rowTypedData.contentType != null) changeArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
+					}
+
+					if (changeArrayTypes.hasChildProperties())
+					{
+						changeTypes = AggregatedPropertyType.newAggregatedProperty();
+						changeTypes.putProperty(UPDATE_PREFIX + ROWS, changeArrayTypes);
 					}
 
 					// convert for websocket traffic (for example Date objects will turn into long)
-					JSONUtils.writeDataWithConversions(destinationJSON, changes,
-						getFormUI().getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(), ConversionLocation.BROWSER_UPDATE);
+					JSONUtils.writeDataWithConversions(destinationJSON, changes, changeTypes, ConversionLocation.BROWSER_UPDATE);
 					somethingChanged = true;
 				}
 				if (viewPortUpdateAdded) destinationJSON.endObject();
@@ -381,9 +397,11 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		}
 	}
 
-	protected Map<String, Object> getRowData(int foundsetIndex)
+	protected TypedData<Map<String, Object>> getRowData(int foundsetIndex)
 	{
 		Map<String, Object> data = new HashMap<>();
+		PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
+
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
 		data.put(ROW_ID_COL_KEY, record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
@@ -396,8 +414,17 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 			// TODO currently we also send globals/form variables through foundset; in the future it should be enough to get it from the record only, not through DataAdapterList.getValueObject!
 			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, getFormUI().getController().getFormScope(), dataProvider);
 			data.put(dataProvider, value);
+			IPropertyType< ? > pt = NGUtils.getDataProviderPropertyType(dataProvider, foundset.getTable());
+			if (pt == null) pt = NGUtils.getDataProviderPropertyType(dataProvider,
+				getFormUI().getDataConverterContext().getApplication().getFlattenedSolution(), getFormUI().getController().getForm(), foundset.getTable()); // TODO remove this when component[] properly implements it's dataproviders - when there's no need for foundset to send over globals/form variables
+			if (pt != null)
+			{
+				dataTypes.putProperty(dataProvider, new PropertyDescription("", pt));
+			}
 		}
-		return data;
+		if (!dataTypes.hasChildProperties()) dataTypes = null;
+
+		return new TypedData<Map<String, Object>>(data, dataTypes);
 	}
 
 	@Override
@@ -481,40 +508,23 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 								IRecordInternal record = foundset.getRecord(recordIndex);
 								// convert Dates where it's needed
 
-								int type = foundset.getTable().getColumnType(dataProviderName); // this should be enough for when only foundset dataproviders are used
-								boolean isColumn = false;
-
-								if (type == 0)
+								IPropertyType< ? > type = NGUtils.getDataProviderPropertyType(dataProviderName, foundset.getTable()); // this should be enough for when only foundset dataproviders are used
+								if (type == null)
 								{
-									// not found
-									// TODO when we stop sending globals/form variables - when they are implemented in the 'component' complex property
-									// we should only look at foundset table column types; remove the whole FormAndTableDataproviderLookup thing
-									FormAndTableDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(
+									type = NGUtils.getDataProviderPropertyType(dataProviderName,
 										getFormUI().getDataConverterContext().getApplication().getFlattenedSolution(), getFormUI().getController().getForm(),
 										foundset.getTable());
-									IDataProvider dp = null;
-									try
-									{
-										dp = dpLookup.getDataProvider(dataProviderName);
-									}
-									catch (RepositoryException e)
-									{
-										Debug.error(e);
-									}
-									if (dp != null) type = dp.getDataProviderType();
 								}
-								else isColumn = true;
 
-								if (type == IColumnTypes.DATETIME)
+								if (type instanceof IConvertedPropertyType< ? >)
 								{
-									IPropertyType< ? > sabloType = TypesRegistry.getType("date");
-									value = ((IClassPropertyType<Date, Date>)sabloType).fromJSON(value, null);
+									value = ((IConvertedPropertyType< ? >)type).fromJSON(value, null, null);
 								}
 
 								viewPort.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 								try
 								{
-									if (isColumn)
+									if (foundset.getTable().getColumnType(dataProviderName) != 0)
 									{
 										record.startEditing(); // we could have used here JS put but that method is not in the interface
 										record.setValue(dataProviderName, value);
@@ -570,9 +580,14 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		return dataAdapterList;
 	}
 
-	private IWebFormUI getFormUI()
+	protected IWebFormUI getFormUI()
 	{
-		return (IWebFormUI)component.getParent();
+		Container fui = component.getParent();
+		while (fui != null && (!(fui instanceof IWebFormUI)))
+		{
+			fui = fui.getParent();
+		}
+		return (IWebFormUI)fui;
 	}
 
 	/**

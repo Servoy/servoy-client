@@ -32,8 +32,11 @@ import java.util.concurrent.ConcurrentMap;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.BasicFormManager;
@@ -90,7 +93,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormManager#getCachedFormController(java.lang.String)
 	 */
 	@Override
@@ -101,7 +104,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormManager#setFormReadOnly(java.lang.String, boolean)
 	 */
 	@Override
@@ -237,7 +240,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormManager#getForm(java.lang.String)
 	 */
 	@Override
@@ -300,7 +303,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormManagerInternal#clearLoginForm()
 	 */
 	@Override
@@ -311,7 +314,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormManager#getCurrentForm()
 	 */
 	@Override
@@ -323,7 +326,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormManagerInternal#getCurrentMainShowingFormController()
 	 */
 	@Override
@@ -334,7 +337,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IManager#init()
 	 */
 	@Override
@@ -346,7 +349,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IManager#flushCachedItems()
 	 */
 	@Override
@@ -358,7 +361,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
 	@Override
@@ -411,7 +414,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInMainPanel(java.lang.String)
 	 */
 	@Override
@@ -422,7 +425,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInContainer(java.lang.String, com.servoy.j2db.IBasicMainContainer, java.lang.String, boolean,
 	 * java.lang.String)
 	 */
@@ -555,7 +558,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInCurrentContainer(java.lang.String)
 	 */
 	@Override
@@ -566,7 +569,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInDialog(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, boolean, boolean,
 	 * java.lang.String)
 	 */
@@ -603,7 +606,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInFrame(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, java.lang.String)
 	 */
 	@Override
@@ -637,7 +640,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#getCurrentContainer()
 	 */
 	@Override
@@ -648,7 +651,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#getHistory(com.servoy.j2db.IBasicMainContainer)
 	 */
 	@Override
@@ -672,7 +675,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#getMainContainer(java.lang.String)
 	 */
 	@Override
@@ -683,7 +686,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#isCurrentTheMainContainer()
 	 */
 	@Override
@@ -696,7 +699,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, org.json.JSONObject)
 	 */
 	@Override
@@ -736,13 +739,23 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 					if (args.has("currentPage")) grid.setCurrentPage(args.optInt("currentPage"));
 					if (args.has("pageSize")) grid.setPageSize(args.optInt("pageSize"));
 				}
-				Map<String, Map<String, Object>> properties = form.getAllComponentsProperties();
+				TypedData<Map<String, Map<String, Object>>> properties = form.getAllComponentsProperties();
 				Map<String, Map<String, Map<String, Object>>> formData = new HashMap<String, Map<String, Map<String, Object>>>();
-				formData.put(formName, properties);
+				PropertyDescription formsDataTypes = null;
+
+				formData.put(formName, properties.content);
+				PropertyDescription formDataTypes;
+				if (properties.contentType != null)
+				{
+					formDataTypes = AggregatedPropertyType.newAggregatedProperty();
+					formDataTypes.putProperty(formName, properties.contentType);
+					formsDataTypes = AggregatedPropertyType.newAggregatedProperty();
+					formsDataTypes.putProperty("forms", formDataTypes);
+				}
 				try
 				{
-					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : Collections.singletonMap("forms", formData), true,
-						websocketSession.getForJsonConverter(), ConversionLocation.BROWSER);
+					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : Collections.singletonMap("forms", formData), formsDataTypes, true,
+						ConversionLocation.BROWSER);
 				}
 				catch (IOException e)
 				{

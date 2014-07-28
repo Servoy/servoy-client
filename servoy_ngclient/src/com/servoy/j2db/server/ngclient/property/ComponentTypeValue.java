@@ -31,13 +31,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.Container;
 import org.sablo.IChangeListener;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IComplexTypeImpl;
+import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.ConversionLocation;
+import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -211,11 +215,11 @@ public class ComponentTypeValue implements IComplexPropertyValue
 
 		componentsAreCreated = true;
 
-		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : ((IWebFormUI)component.getParent()).getDataAdapterList());
+		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : getFormUI().getDataAdapterList());
 
 		for (int i = 0; i < elements.length; i++)
 		{
-			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], (IWebFormUI)component.getParent());
+			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], getFormUI());
 			childComponents[i].addPropertyChangeListener(null, new PropertyChangeListener()
 			{
 				@Override
@@ -226,7 +230,7 @@ public class ComponentTypeValue implements IComplexPropertyValue
 			});
 			childComponents[i].setParent(component.getParent());
 			childComponents[i].setComponentContext(new ComponentContext(component.getName(), propertyName, i));
-			((IWebFormUI)component.getParent()).contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
+			getFormUI().contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
 			for (String handler : childComponents[i].getFormElement().getHandlers())
 			{
 				Object value = childComponents[i].getFormElement().getProperty(handler);
@@ -238,6 +242,16 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		}
 
 		registerDataProvidersWithFoundset(foundsetPropValue);
+	}
+
+	protected IWebFormUI getFormUI()
+	{
+		Container fui = component.getParent();
+		while (fui != null && (!(fui instanceof IWebFormUI)))
+		{
+			fui = fui.getParent();
+		}
+		return (IWebFormUI)fui;
 	}
 
 	/**
@@ -373,25 +387,26 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		if (childComponents != null)
 		{
 			Map<String, Map<String, Object>> componentChanges = new HashMap<String, Map<String, Object>>();
+			PropertyDescription componentChangesTypes = AggregatedPropertyType.newAggregatedProperty();
 			for (int i = childComponents.length - 1; i >= 0; i--)
 			{
 				WebFormComponent childComponent = childComponents[i];
 				if (childComponent != null)
 				{
-					Map<String, Object> changes = childComponent.getChanges();
-					if (changes.size() > 0)
+					TypedData<Map<String, Object>> changes = childComponent.getChanges();
+					if (changes.content.size() > 0)
 					{
-						componentChanges.put(String.valueOf(i), changes);
+						componentChanges.put(String.valueOf(i), changes.content);
+						componentChangesTypes.putProperty(String.valueOf(i), changes.contentType);
 					}
 				}
 			}
 			if (componentChanges.size() > 0)
 			{
+				if (!componentChangesTypes.hasChildProperties()) componentChangesTypes = null;
 				destinationJSON.key(PROPERTY_UPDATES);
 				destinationJSON.object();
-				JSONUtils.writeDataWithConversions(destinationJSON, componentChanges,
-					((IWebFormUI)component.getParent()).getDataConverterContext().getApplication().getWebsocketSession().getForJsonConverter(),
-					ConversionLocation.BROWSER_UPDATE);
+				JSONUtils.writeDataWithConversions(destinationJSON, componentChanges, componentChangesTypes, ConversionLocation.BROWSER_UPDATE);
 				destinationJSON.endObject();
 			}
 		}
@@ -435,30 +450,38 @@ public class ComponentTypeValue implements IComplexPropertyValue
 						update = update.getJSONObject("handlerExec");
 						if (update.has("eventType"))
 						{
+							boolean selectionOk = true;
 							if (update.has("rowId"))
 							{
 								String rowId = update.getString("rowId");
 								FoundsetTypeValue foundsetValue = getFoundsetValue();
 								if (foundsetValue != null)
 								{
-									foundsetValue.setEditingRowByPkHash(rowId);
+									if (!foundsetValue.setEditingRowByPkHash(rowId))
+									{
+										Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
+										selectionOk = false;
+									}
 								}
 							}
-							String eventType = update.getString("eventType");
-							String beanName = update.getString("beanName");
-							JSONArray jsargs = update.getJSONArray("args");
-							Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
-							for (int j = 0; jsargs != null && j < jsargs.length(); j++)
+							if (selectionOk)
 							{
-								args[j] = jsargs.get(j);
-							}
-
-							for (WebFormComponent c : childComponents)
-							{
-								if (beanName.equals(c.getName()))
+								String eventType = update.getString("eventType");
+								String beanName = update.getString("beanName");
+								JSONArray jsargs = update.getJSONArray("args");
+								Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
+								for (int j = 0; jsargs != null && j < jsargs.length(); j++)
 								{
-									c.executeEvent(eventType, args);
-									break;
+									args[j] = jsargs.get(j);
+								}
+
+								for (WebFormComponent c : childComponents)
+								{
+									if (beanName.equals(c.getName()))
+									{
+										c.executeEvent(eventType, args); // TODO
+										break;
+									}
 								}
 							}
 						}

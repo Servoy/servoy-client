@@ -41,7 +41,6 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.ListViewPortal;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.util.Utils;
 
@@ -264,7 +263,7 @@ public class FormWrapper
 		properties.put("designSize", form.getSize());
 		removeUnneededFormProperties(properties);
 
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, NGClientForJsonConverter.INSTANCE, ConversionLocation.BROWSER).endObject().toString();
+		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, ConversionLocation.BROWSER).endObject().toString(); // null types as we don't have a spec file for forms
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

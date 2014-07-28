@@ -79,7 +79,7 @@ public class WebServiceScriptable implements Scriptable
 	{
 		WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null) return true;
-		return application.getWebsocketSession().getService(serviceSpecification.getName()).getProperties().containsKey(name);
+		return application.getWebsocketSession().getService(serviceSpecification.getName()).getProperties().content.containsKey(name);
 	}
 
 	@Override

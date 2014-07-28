@@ -17,308 +17,24 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.awt.Insets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.MatteBorder;
-import javax.swing.border.TitledBorder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.mozilla.javascript.NativeDate;
-import org.mozilla.javascript.Undefined;
-import org.mozilla.javascript.UniqueTag;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.ConversionLocation;
-import org.sablo.websocket.IForJsonConverter;
-
-import com.servoy.j2db.component.ComponentFormat;
-import com.servoy.j2db.dataprocessing.IDataSet;
-import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.LookupListModel;
-import com.servoy.j2db.dataprocessing.RelatedFoundSet;
-import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.gui.RoundedBorder;
-import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * @author rgansevles
  *
  */
 @SuppressWarnings("nls")
-public class NGClientForJsonConverter implements IForJsonConverter
+public class NGClientForJsonConverter
 {
-	public static NGClientForJsonConverter INSTANCE = new NGClientForJsonConverter();
-
-	@Override
-	public Object convertForJson(Object value)
-	{
-		// convert simple values to json values
-		if (value == UniqueTag.NOT_FOUND || value == Undefined.instance)
-		{
-			return null;
-		}
-
-		if (value instanceof NativeDate)
-		{
-			return ((NativeDate)value).unwrap();
-		}
-
-		if (value instanceof Form)
-		{
-			return ((Form)value).getName();
-		}
-
-		if (value instanceof FormScope)
-		{
-			return ((FormScope)value).getFormController().getName();
-		}
-
-		if (value instanceof RelatedFoundSet)
-		{
-			return ((RelatedFoundSet)value).getRelationName();
-		}
-
-		// complex values: use map or list
-		if (value instanceof IValueList)
-		{
-			// it is handled in ValueListPropertyType toJson
-		}
-
-		if (value instanceof JSDataSet || value instanceof IDataSet)
-		{
-			IDataSet set = null;
-			if (value instanceof JSDataSet)
-			{
-				set = ((JSDataSet)value).getDataSet();
-			}
-			else
-			{
-				set = (IDataSet)value;
-			}
-			List<List<Object>> array = new ArrayList<>(set.getRowCount());
-			if (set.getColumnCount() >= 1)
-			{
-				for (int i = 0; i < set.getRowCount(); i++)
-				{
-					Object[] row = set.getRow(i);
-					array.add(Arrays.asList(row));
-				}
-			}
-			return array;
-		}
-		if (value instanceof LookupListModel)
-		{
-			LookupListModel list = (LookupListModel)value;
-			List<Map<String, Object>> array = new ArrayList<>(list.getSize());
-			for (int i = 0; i < list.getSize(); i++)
-			{
-				Map<String, Object> map = new HashMap<>();
-				map.put("realValue", list.getRealElementAt(i));
-				map.put("displayValue", list.getElementAt(i));
-				array.add(map);
-			}
-			return array;
-		}
-
-		if (value instanceof ComponentFormat)
-		{
-			ComponentFormat format = (ComponentFormat)value;
-			Map<String, Object> map = new HashMap<>();
-			String type = Column.getDisplayTypeString(format.uiType);
-			if (type.equals("INTEGER")) type = "NUMBER";
-			map.put("type", type);
-
-			boolean isMask = format.parsedFormat.isMask();
-			String mask = format.parsedFormat.getEditFormat();
-			if (isMask && type.equals("DATETIME"))
-			{
-				mask = format.parsedFormat.getDateMask();
-			}
-			else if (format.parsedFormat.getDisplayFormat() != null && type.equals("TEXT"))
-			{
-				isMask = true;
-				mask = format.parsedFormat.getDisplayFormat();
-			}
-			String placeHolder = null;
-			if (format.parsedFormat.getPlaceHolderString() != null) placeHolder = format.parsedFormat.getPlaceHolderString();
-			else if (format.parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(format.parsedFormat.getPlaceHolderCharacter());
-			map.put("isMask", Boolean.valueOf(isMask));
-			map.put("edit", mask);
-			map.put("placeHolder", placeHolder);
-			map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());
-			map.put("display", format.parsedFormat.getDisplayFormat());
-
-			return map;
-		}
-
-		if (value instanceof Border)
-		{
-			return writeBorderToJson((Border)value);
-		}
-
-		// default conversion
-		return value;
-	}
-
-	private Map<String, Object> writeBorderToJson(Border value)
-	{
-		Map<String, Object> map = new HashMap<>();
-		if (value instanceof SpecialMatteBorder)
-		{
-			SpecialMatteBorder border = (SpecialMatteBorder)value;
-			map.put("type", ((border instanceof RoundedBorder) ? ComponentFactoryHelper.ROUNDED_BORDER : ComponentFactoryHelper.SPECIAL_MATTE_BORDER));
-			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
-
-			borderStyle.put("borderTopWidth", border.getTop() + "px");
-			borderStyle.put("borderRightWidth", border.getRight() + "px");
-			borderStyle.put("borderBottomWidth", border.getBottom() + "px");
-			borderStyle.put("borderLeftWidth", border.getLeft() + "px");
-			borderStyle.put("borderTopColor", border.getTopColor());
-			borderStyle.put("borderRightColor", border.getRightColor());
-			borderStyle.put("borderBottomColor", border.getBottomColor());
-			borderStyle.put("borderLeftColor", border.getLeftColor());
-
-			if (border instanceof RoundedBorder)
-			{
-				float[] radius = ((RoundedBorder)border).getRadius();
-				borderStyle.put("borderRadius", radius[0] + "px " + radius[2] + "px " + radius[4] + "px " + radius[6] + "px /" + radius[1] + "px " + radius[3] +
-					"px " + radius[5] + "px " + radius[7] + "px");
-				String styles[] = ((RoundedBorder)border).getBorderStyles();
-				borderStyle.put("borderStyle", styles[0] + " " + styles[1] + " " + styles[2] + " " + styles[3] + " ");
-			}
-			else
-			{
-				borderStyle.put("borderRadius", border.getRoundingRadius() + "px"); //$NON-NLS-1$
-				//retval += "," + SpecialMatteBorder.createDashString(border.getDashPattern()); //$NON-NLS-1$
-				if (border.getDashPattern() != null)
-				{
-					borderStyle.put("borderStyle", "dashed");
-				}
-				else
-				{
-					borderStyle.put("borderStyle", "solid");
-				}
-			}
-		}
-		else if (value instanceof EtchedBorder)
-		{
-			EtchedBorder border = (EtchedBorder)value;
-			map.put("type", ComponentFactoryHelper.ETCHED_BORDER);
-			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
-			String hi = PersistHelper.createColorString(border.getHighlightColor());
-			String sh = PersistHelper.createColorString(border.getShadowColor());
-			if (border.getEtchType() != EtchedBorder.RAISED)
-			{
-				String tmp = hi;
-				hi = sh;
-				sh = tmp;
-			}
-			borderStyle.put("borderColor", hi + " " + sh + " " + sh + " " + hi);
-			borderStyle.put("borderStyle", border.getEtchType() == EtchedBorder.RAISED ? "ridge" : "groove");
-			borderStyle.put("borderWidth", "2px");
-		}
-		else if (value instanceof BevelBorder)
-		{
-			BevelBorder border = (BevelBorder)value;
-			map.put("type", ComponentFactoryHelper.BEVEL_BORDER);
-			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
-			borderStyle.put("borderStyle", border.getBevelType() == BevelBorder.RAISED ? "outset" : "inset");
-
-			String hiOut = PersistHelper.createColorString(border.getHighlightOuterColor());
-			String hiin = PersistHelper.createColorString(border.getHighlightInnerColor());
-			String shOut = PersistHelper.createColorString(border.getShadowOuterColor());
-			String shIn = PersistHelper.createColorString(border.getShadowInnerColor());
-			if (border.getBevelType() == BevelBorder.LOWERED)
-			{
-				String temp = hiOut; // swap 1-3
-				hiOut = shOut;
-				shOut = temp;
-				temp = hiin; // swap 2-4
-				hiin = shIn;
-				shIn = temp;
-			}
-			borderStyle.put("borderColor", hiOut + " " + shOut + " " + shIn + " " + hiin);
-			borderStyle.put("borderWidth", "2px");
-		}
-		else if (value instanceof LineBorder)
-		{
-			LineBorder border = (LineBorder)value;
-			map.put("type", ComponentFactoryHelper.LINE_BORDER);
-			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
-			int thick = border.getThickness();
-			borderStyle.put("borderColor", border.getLineColor());
-			borderStyle.put("borderStyle", "solid");
-			borderStyle.put("borderWidth", thick + "px");
-		}
-		else if (value instanceof MatteBorder)
-		{
-			MatteBorder border = (MatteBorder)value;
-			map.put("type", ComponentFactoryHelper.MATTE_BORDER);
-			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
-			Insets in = border.getBorderInsets();
-			borderStyle.put("borderWidth", in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
-			borderStyle.put("borderColor", border.getMatteColor());
-			borderStyle.put("borderStyle", "solid");
-		}
-		else if (value instanceof EmptyBorder)
-		{
-			EmptyBorder border = (EmptyBorder)value;
-			map.put("type", ComponentFactoryHelper.EMPTY_BORDER);
-			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
-			Insets in = border.getBorderInsets();
-			borderStyle.put("borderWidth", in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
-			borderStyle.put("borderColor", "rgba(0,0,0,0)");
-		}
-		else if (value instanceof TitledBorder)
-		{
-			TitledBorder border = (TitledBorder)value;
-			map.put("type", ComponentFactoryHelper.TITLED_BORDER);
-			map.put("title", border.getTitle());
-
-			map.put("font", border.getTitleFont());
-			map.put("color", border.getTitleColor());
-			int just = border.getTitleJustification();
-			String titleJust = "left";
-			switch (just)
-			{
-				case TitledBorder.LEFT :
-					titleJust = "left";
-					break;
-				case TitledBorder.RIGHT :
-					titleJust = "right";
-					break;
-				case TitledBorder.CENTER :
-					titleJust = "center";
-					break;
-			}
-			map.put("titleJustiffication", titleJust);
-		}
-		return map;
-	}
 
 	/**
 	 * Converts a JSON value / primitive (if jsonSource is DESIGN or BROWSER) or custom server Java object (if jsonSource is SERVER, assuming
@@ -344,23 +60,13 @@ public class NGClientForJsonConverter implements IForJsonConverter
 				// FormElement and WebComponent both do conversions on init so you end up
 				// being asked to convert an already converted value; leave it as it is then
 			}
-			else if (complexType != null && jsonSource == ConversionLocation.BROWSER_UPDATE &&
-				complexType.getJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
-			{
-				propertyValue = complexType.getJSONToJavaPropertyConverter(componentSpecType.isArray()).jsonToJava(propertyValue,
-					(IComplexPropertyValue)oldJavaObject, componentSpecType.getConfig());
-			}
+			// ConversionLocation.BROWSER_UPDATE is now handled directly in sablo BaseWebObject
+			// ConversionLocation.SERVER is now handled directly in RhinoConverter
 			else if (complexType != null && jsonSource == ConversionLocation.DESIGN &&
 				complexType.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()) != null)
 			{
 				propertyValue = complexType.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()).designJSONToJava(propertyValue,
 					componentSpecType.getConfig());
-			}
-			else if (complexType != null && jsonSource == ConversionLocation.SERVER &&
-				complexType.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()) != null)
-			{
-				propertyValue = complexType.getServerObjectToJavaPropertyConverter(componentSpecType.isArray()).serverObjToJava(propertyValue,
-					componentSpecType.getConfig(), (IComplexPropertyValue)oldJavaObject);
 			}
 			else if (componentSpecType.isArray() && propertyValue instanceof JSONArray)
 			{

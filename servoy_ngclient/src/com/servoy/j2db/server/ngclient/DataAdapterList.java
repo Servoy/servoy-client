@@ -39,6 +39,7 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -84,7 +85,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
-		return executor.executeEvent(webComponent, event, eventId, args);
+		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
+		return RhinoConversion.convert(jsRetVal, null, null, null);
 	}
 
 //	@Override
@@ -471,8 +473,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-	public Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue, ConversionLocation sourceOfValue, Object oldValue)
-		throws JSONException
+	public Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue) throws JSONException
 	{
 		if (propertyValue == JSONObject.NULL) return null;
 		String dataproviderID = null;
@@ -489,8 +490,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
 		}
-		return NGClientForJsonConverter.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), new ServoyDataConverterContext(
-			getForm()), sourceOfValue, oldValue);
+		return propertyValue;
 	}
 
 	@Override

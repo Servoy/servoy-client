@@ -22,7 +22,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
-import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -59,25 +58,17 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 		return json;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IClassPropertyType#getTypeClass()
-	 */
 	@Override
-	public Class<MediaWrapper> getTypeClass()
+	public MediaWrapper fromJSON(Object newValue, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
-		return MediaWrapper.class;
+		return wrap(newValue, previousValue, dataConverterContext);
 	}
 
 	@Override
-	public Object fromJSON(Object newValue, MediaWrapper previousValue)
-	{
-		return newValue;
-	}
-
-	@Override
-	public void toJSON(JSONWriter writer, MediaWrapper object, DataConversion clientConversion, IForJsonConverter forJsonConverter) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, MediaWrapper object, DataConversion clientConversion) throws JSONException
 	{
 		if (object != null) writer.value(object.mediaUrl);
+		return writer;
 	}
 
 	@Override

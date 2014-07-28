@@ -27,6 +27,8 @@ public class Types
 {
 	public static void registerTypes()
 	{
+		TypesRegistry.addType(BorderPropertyType.INSTANCE);
+		TypesRegistry.addType(DatasetPropertyType.INSTANCE);
 		TypesRegistry.addType(RelationPropertyType.INSTANCE);
 		TypesRegistry.addType(MediaPropertyType.INSTANCE);
 		TypesRegistry.addType(BeanPropertyType.INSTANCE);

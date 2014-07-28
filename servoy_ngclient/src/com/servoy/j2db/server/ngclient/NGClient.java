@@ -787,13 +787,13 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				Map<String, Object> noLicense = new HashMap<>();
 				noLicense.put("noLicense", getLicenseAndMentenanceDetail());
-				WebsocketEndpoint.get().sendMessage(noLicense, true, NGClientForJsonConverter.INSTANCE);
+				WebsocketEndpoint.get().sendMessage(noLicense, null, true);
 			}
 			else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
 			{
 				Map<String, Object> mentenance = new HashMap<>();
 				mentenance.put("maintenanceMode", getLicenseAndMentenanceDetail());
-				WebsocketEndpoint.get().sendMessage(mentenance, true, NGClientForJsonConverter.INSTANCE);
+				WebsocketEndpoint.get().sendMessage(mentenance, null, true);
 			}
 			throw e;
 		}

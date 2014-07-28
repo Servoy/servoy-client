@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
-import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
@@ -56,11 +55,9 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 		return "valuelist";
 	}
 
-
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-
 		if (json != null && json.has("for"))
 		{
 			try
@@ -75,60 +72,32 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 		return "";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IClassPropertyType#getTypeClass()
-	 */
 	@Override
-	public Class<ValueListPropertyWrapper> getTypeClass()
-	{
-		return ValueListPropertyWrapper.class;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IClassPropertyType#fromJSON(java.lang.Object, java.lang.Object)
-	 */
-	@Override
-	public Object fromJSON(Object newValue, ValueListPropertyWrapper previousValue)
+	public ValueListPropertyWrapper fromJSON(Object newValue, ValueListPropertyWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
 		if (previousValue != null)
 		{
 			return previousValue;
 		}
-		return newValue;
+		return wrap(newValue, previousValue, dataConverterContext); // TODO I think this is not supported actually; so it could return null instead
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IClassPropertyType#toJSON(org.json.JSONWriter, java.lang.Object, org.sablo.websocket.utils.DataConversion,
-	 * org.sablo.websocket.IForJsonConverter)
-	 */
 	@Override
-	public void toJSON(JSONWriter writer, ValueListPropertyWrapper object, DataConversion clientConversion, IForJsonConverter forJsonConverter)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, ValueListPropertyWrapper object, DataConversion clientConversion) throws JSONException
 	{
 		if (object != null)
 		{
-			JSONUtils.toJSONValue(writer, object.getJsonValue(), clientConversion, forJsonConverter, null);
+			// TODO we should have type info here to send instead of null for real/display values
+			JSONUtils.toJSONValue(writer, object.getJsonValue(), null, clientConversion, null);
 		}
+		return writer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IPropertyType#defaultValue()
-	 */
 	@Override
 	public ValueListPropertyWrapper defaultValue()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	@Override
 	public Object unwrap(ValueListPropertyWrapper value)
@@ -139,7 +108,7 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 	@Override
 	public ValueListPropertyWrapper wrap(Object value, ValueListPropertyWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
-		//first time it creates the wrapper then , it will always be a Wrapper (skips if statement)
+		// first time it creates the wrapper then, it will always be a Wrapper (skips if statement)
 		if (value instanceof ValueListPropertyWrapper) return (ValueListPropertyWrapper)value;
 		if (value instanceof LookupListModel)
 		{
@@ -165,7 +134,7 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 			this.dataConverterContext = dataConverterContext;
 		}
 
-		Object getJsonValue()
+		Object getJsonValue() // TODO this should return TypedData<List<Map<String, Object>>> instead
 		{
 			if (value instanceof IValueList)
 			{

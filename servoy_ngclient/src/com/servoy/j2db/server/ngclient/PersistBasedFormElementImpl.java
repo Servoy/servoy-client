@@ -313,7 +313,19 @@ class PersistBasedFormElementImpl
 		jsonWriter.object();
 		jsonWriter.key(ComponentTypeValue.TYPE_NAME_KEY).value(nfe.getTypeName());
 		jsonWriter.key(ComponentTypeValue.DEFINITION_KEY);
-		JSONUtils.toDesignJSONValue(jsonWriter, elementProperties != null ? elementProperties : nfe.getProperties(), NGClientForJsonConverter.INSTANCE);
+
+		// get types for conversion
+		Map<String, Object> properties = (elementProperties != null ? elementProperties : nfe.getProperties());
+//		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
+//		for (Entry<String, Object> p : properties.entrySet())
+//		{
+//			PropertyDescription t = nfe.getWebComponentSpec().getProperty(p.getKey());
+//			if (t != null) propertyTypes.putProperty(p.getKey(), t);
+//		}
+//		if (!propertyTypes.hasChildProperties()) propertyTypes = null;
+
+
+		JSONUtils.toDesignJSONValue(jsonWriter, properties, null /* propertyTypes */); // don't use types here! they aren't converted
 		jsonWriter.endObject();
 		return jsonWriter.toString();
 	}

@@ -40,7 +40,7 @@ api:
             parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         },
         setValueListItems: {
-            parameters:[{'value':'object'}]
+            parameters:[{'value':'dataset'}]
         }
 }
  

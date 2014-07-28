@@ -22,11 +22,18 @@ import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.UniqueTag;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IComplexTypeImpl;
+import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.MediaURLStreamHandler;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.FormScope;
@@ -53,7 +60,49 @@ public class RhinoConversion
 	 *  dimension, point, color, format, border, media, formscope;
 	 *  the same value otherwise
 	 */
-	public static Object convert(Object propertyValue, PropertyDescription pd, IServoyDataConverterContext converterContext)
+	public static Object convert(Object propertyValue, Object oldValue, PropertyDescription pd, IServoyDataConverterContext converterContext)
+	{
+		if (pd != null && pd.getType() instanceof IComplexTypeImpl)
+		{
+			IServerObjToJavaPropertyConverter val = ((IComplexTypeImpl)pd.getType()).getServerObjectToJavaPropertyConverter(pd.isArray());
+			if (val != null)
+			{
+				return val.serverObjToJava(propertyValue, pd.getConfig(), (IComplexPropertyValue)oldValue);
+			}
+		}
+
+		// convert simple values to json values
+		if (propertyValue == UniqueTag.NOT_FOUND || propertyValue == Undefined.instance)
+		{
+			return null;
+		}
+
+		if (propertyValue instanceof NativeDate)
+		{
+			return ((NativeDate)propertyValue).unwrap();
+		}
+		if (propertyValue instanceof NativeObject)
+		{
+			Map<String, Object> map = new HashMap<>();
+			NativeObject no = (NativeObject)propertyValue;
+			Object[] ids = no.getIds();
+			for (Object id2 : ids)
+			{
+				String id = (String)id2;
+				map.put(id, convert(no.get(id), pd.getProperty(id), converterContext));
+			}
+			return map;
+		}
+		if (propertyValue instanceof FormScope) return ((FormScope)propertyValue).getFormController().getName();
+		if (propertyValue instanceof IFormController) return ((IFormController)propertyValue).getName();
+
+		if (propertyValue instanceof JSDataSet)
+		{
+			return ((JSDataSet)propertyValue).getDataSet();
+		}
+
+		// TODO this code should actually be part of the NGClient (so not Sablo) type implementation code! IComplexPropertyImpl already have something for this
+		if (pd != null)
 	{
 		switch (pd.getType().getName())
 		{
@@ -116,7 +165,8 @@ public class RhinoConversion
 				}
 				if (media != null)
 				{
-					String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" + media.getName();
+						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
+							media.getName();
 					Dimension imageSize = ImageLoader.getSize(media.getMediaData());
 					boolean paramsAdded = false;
 					if (imageSize != null)
@@ -150,20 +200,6 @@ public class RhinoConversion
 				break;
 			default :
 		}
-		if (propertyValue instanceof NativeObject)
-		{
-			Map<String, Object> map = new HashMap<>();
-			NativeObject no = (NativeObject)propertyValue;
-			Object[] ids = no.getIds();
-			for (Object id2 : ids)
-			{
-				String id = (String)id2;
-				map.put(id, convert(no.get(id), pd.getProperty(id), converterContext));
-			}
-			return map;
-		}
-		if (propertyValue instanceof FormScope) return ((FormScope)propertyValue).getFormController().getName();
-		else if (propertyValue instanceof IFormController) return ((IFormController)propertyValue).getName();
 		return propertyValue;
 	}
 }

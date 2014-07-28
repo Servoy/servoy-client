@@ -25,6 +25,7 @@ import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
+import org.sablo.websocket.TypedData;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
@@ -429,7 +430,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
-	public Map<String, Map<String, Object>> getAllComponentsProperties()
+	public TypedData<Map<String, Map<String, Object>>> getAllComponentsProperties()
 	{
 		try
 		{
@@ -443,7 +444,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
-	public Map<String, Map<String, Object>> getAllComponentsChanges()
+	public TypedData<Map<String, Map<String, Object>>> getAllComponentsChanges()
 	{
 		try
 		{

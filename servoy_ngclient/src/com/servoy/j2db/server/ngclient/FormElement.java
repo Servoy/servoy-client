@@ -36,6 +36,7 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
@@ -183,7 +184,8 @@ public final class FormElement implements IWebComponentInitializer
 						Object defaultValue;
 						if (pd.getType() instanceof IClassPropertyType)
 						{
-							defaultValue = ((IClassPropertyType)pd.getType()).fromJSON(pd.getDefaultValue(), null);
+							// TODO this is wrong I think - it's design JSON while fromJSON currently is for browser update/set usage
+							defaultValue = ((IClassPropertyType)pd.getType()).fromJSON(pd.getDefaultValue(), null, new DataConverterContext(pd, null));
 						}
 						else
 						{
@@ -447,11 +449,20 @@ public final class FormElement implements IWebComponentInitializer
 
 		if (propertyValues.containsKey("offsetY")) properties.put("offsetY", propertyValues.get("offsetY"));
 
+//		// get types for conversion
+//		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
+//		for (Entry<String, Object> p : properties.entrySet())
+//		{
+//			PropertyDescription t = getWebComponentSpec().getProperty(p.getKey());
+//			if (t != null) propertyTypes.putProperty(p.getKey(), t);
+//		}
+//		if (!propertyTypes.hasChildProperties()) propertyTypes = null;
+//
 		JSONWriter propertyWriter = (writer != null ? writer : new JSONStringer());
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.writeDataWithConversions(propertyWriter, properties, NGClientForJsonConverter.INSTANCE, ConversionLocation.BROWSER);
+			JSONUtils.writeDataWithConversions(propertyWriter, properties, null/* propertyTypes */, ConversionLocation.BROWSER); // don't use property types here as they aren't yet converted...
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)

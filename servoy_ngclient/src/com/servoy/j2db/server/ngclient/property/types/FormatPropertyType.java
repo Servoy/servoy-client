@@ -15,11 +15,22 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.property.types.DefaultPropertyType;
+import org.json.JSONWriter;
+import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.websocket.ConversionLocation;
+import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.persistence.Column;
 
 /**
  * TODO is format really mapped on a special object (like ParsedFormat)
@@ -27,22 +38,26 @@ import org.slf4j.LoggerFactory;
  * @author jcompagner
  *
  */
-public class FormatPropertyType extends DefaultPropertyType<String> {
+public class FormatPropertyType implements IConvertedPropertyType<ComponentFormat>
+{
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
-	
+
 	public static final FormatPropertyType INSTANCE = new FormatPropertyType();
-	
-	private FormatPropertyType() {
+
+	private FormatPropertyType()
+	{
 	}
-	
+
 	@Override
-	public String getName() {
+	public String getName()
+	{
 		return "format";
 	}
 
 	@Override
-	public Object parseConfig(JSONObject json) {
+	public Object parseConfig(JSONObject json)
+	{
 
 		if (json != null && json.has("for"))
 		{
@@ -52,9 +67,55 @@ public class FormatPropertyType extends DefaultPropertyType<String> {
 			}
 			catch (JSONException e)
 			{
-				log.error("JSONException",e);
+				log.error("JSONException", e);
 			}
 		}
 		return "";
+	}
+
+	@Override
+	public ComponentFormat defaultValue()
+	{
+		return null;
+	}
+
+	@Override
+	public ComponentFormat fromJSON(Object newValue, ComponentFormat previousValue, IDataConverterContext dataConverterContext)
+	{
+		// ?
+		return null;
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, ComponentFormat format, DataConversion clientConversion) throws JSONException
+	{
+		if (format == null) return writer.value(null);
+
+		Map<String, Object> map = new HashMap<>();
+		String type = Column.getDisplayTypeString(format.uiType);
+		if (type.equals("INTEGER")) type = "NUMBER";
+		map.put("type", type);
+
+		boolean isMask = format.parsedFormat.isMask();
+		String mask = format.parsedFormat.getEditFormat();
+		if (isMask && type.equals("DATETIME"))
+		{
+			mask = format.parsedFormat.getDateMask();
+		}
+		else if (format.parsedFormat.getDisplayFormat() != null && type.equals("TEXT"))
+		{
+			isMask = true;
+			mask = format.parsedFormat.getDisplayFormat();
+		}
+		String placeHolder = null;
+		if (format.parsedFormat.getPlaceHolderString() != null) placeHolder = format.parsedFormat.getPlaceHolderString();
+		else if (format.parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(format.parsedFormat.getPlaceHolderCharacter());
+		map.put("isMask", Boolean.valueOf(isMask));
+		map.put("edit", mask);
+		map.put("placeHolder", placeHolder);
+		map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());
+		map.put("display", format.parsedFormat.getDisplayFormat());
+
+		return JSONUtils.toJSONValue(writer, map, null, clientConversion, ConversionLocation.BROWSER);
 	}
 }

@@ -23,6 +23,7 @@ import java.util.Map;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.websocket.TypedData;
 
 import com.servoy.j2db.IBasicFormUI;
 import com.servoy.j2db.IView;
@@ -35,30 +36,14 @@ import com.servoy.j2db.dataprocessing.IValueList;
 public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 {
 
-	/**
-	 * @return
-	 */
-	Map<String, Map<String, Object>> getAllComponentsProperties();
+	TypedData<Map<String, Map<String, Object>>> getAllComponentsProperties();
 
-	/**
-	 * @param string
-	 * @return
-	 */
 	WebFormComponent getWebComponent(String name);
 
-	/**
-	 * @return
-	 */
 	Collection<WebComponent> getComponents();
 
-	/**
-	 * @return
-	 */
 	IDataAdapterList getDataAdapterList();
 
-	/**
-	 * 
-	 */
 	void init();
 
 	boolean isReadOnly();

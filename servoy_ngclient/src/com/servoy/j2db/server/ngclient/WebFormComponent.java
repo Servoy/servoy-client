@@ -143,8 +143,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 	@Override
 	protected Object convertPropertyValue(String propertyName, Object oldValue, Object propertyValue, ConversionLocation sourceOfValue) throws JSONException
 	{
-		return (dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue, sourceOfValue, oldValue)
-			: propertyValue);
+		return (dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue) : propertyValue);
 	}
 
 	@Override
@@ -406,7 +405,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 	@Override
 	public void dispose()
 	{
-		for (Object p : getProperties().values())
+		for (Object p : getRawProperties().values())
 		{
 			if (p instanceof IComplexPropertyValue) ((IComplexPropertyValue)p).detach(); // clear any listeners/held resources
 		}

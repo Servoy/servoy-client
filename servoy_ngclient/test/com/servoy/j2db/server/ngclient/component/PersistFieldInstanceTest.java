@@ -41,12 +41,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentPackage;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.websocket.IClientService;
-import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWebsocketEndpoint;
 
@@ -520,7 +520,7 @@ public class PersistFieldInstanceTest
 				}
 
 				@Override
-				public Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments)
+				public Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes)
 				{
 					// TODO Auto-generated method stub
 					return null;
@@ -544,13 +544,6 @@ public class PersistFieldInstanceTest
 				{
 					// TODO Auto-generated method stub
 					return Collections.emptyList();
-				}
-
-				@Override
-				public IForJsonConverter getForJsonConverter()
-				{
-					// TODO Auto-generated method stub
-					return null;
 				}
 
 				@Override

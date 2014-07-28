@@ -15,13 +15,19 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.property.IPropertyType;
+import org.json.JSONWriter;
+import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.websocket.utils.DataConversion;
+
+import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 
 /**
  * @author jcompagner
  */
-public class RelationPropertyType implements IPropertyType<String>
+public class RelationPropertyType implements IConvertedPropertyType<RelatedFoundSet>
 {
 	public static RelationPropertyType INSTANCE = new RelationPropertyType();
 
@@ -42,8 +48,21 @@ public class RelationPropertyType implements IPropertyType<String>
 	}
 
 	@Override
-	public String defaultValue()
+	public RelatedFoundSet defaultValue()
 	{
 		return null;
+	}
+
+	@Override
+	public RelatedFoundSet fromJSON(Object newValue, RelatedFoundSet previousValue, IDataConverterContext dataConverterContext)
+	{
+		// ?
+		return null;
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, RelatedFoundSet rfs, DataConversion clientConversion) throws JSONException
+	{
+		return writer.value(rfs != null ? rfs.getRelationName() : null);
 	}
 }

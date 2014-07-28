@@ -235,9 +235,16 @@ public class SpecGenerator
 					Node function = functionList.item(i);
 					if (function.getAttributes().getNamedItem("clientSupport").getTextContent().contains("wc"))
 					{
+
+						String functionName = function.getAttributes().getNamedItem("name").getTextContent();
+						if (overriddenClientSideApi.containsKey(functionName))
+						{
+							specModel.getApis().add(overriddenClientSideApi.get(functionName)); // could be extended to check if it already exists, or to handle overloading
+						}
+						else
+						{
 						Node returnNode = (Node)returnTypeExpr.evaluate(function, XPathConstants.NODE);
 						String returnType = specSpecTypeFromDoc(returnNode.getAttributes().getNamedItem("typecode").getTextContent());
-						String functionName = function.getAttributes().getNamedItem("name").getTextContent();
 						List<String> parameterNames = new ArrayList<>();
 						List<String> parameterTypes = new ArrayList<>();
 						List<String> optionalParams = new ArrayList<>();
@@ -316,6 +323,7 @@ public class SpecGenerator
 				}
 			}
 		}
+		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
@@ -380,6 +388,7 @@ public class SpecGenerator
 	private static final Map<String, List<String>> perComponentExceptions = new HashMap<>();
 	private static final Map<String, List<String>> perComponentInternalProperties = new HashMap<>();
 	private static final List<String> serverSideApi = new ArrayList<>();
+	private static final Map<String, ApiMethod> overriddenClientSideApi = new HashMap<>();
 	private static final Map<String, List<String>> metaDataForApi = new HashMap<String, List<String>>();
 	static
 	{
@@ -613,6 +622,8 @@ public class SpecGenerator
 		serverSideApi.add("putClientProperty");
 		serverSideApi.add("setLocation");
 		serverSideApi.add("setSize");
+
+		overriddenClientSideApi.put("setValueListItems", getApiMethod("getDividerLocation", "void",  Arrays.asList(new String[] { "value" }), Arrays.asList(new String[] { "dataset" }), null));
 
 		final String callOnAll = "callOn: 1"; // ALL_RECORDS_IF_TEMPLATE; see globalServoyCustomTypes.spec 
 		//metaDataForApi.put("setValueListItems", Arrays.asList(new String[] { callOnAll }));

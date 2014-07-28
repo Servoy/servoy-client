@@ -33,14 +33,16 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IClientService;
-import org.sablo.websocket.IForJsonConverter;
 import org.sablo.websocket.IWebsocketEndpoint;
+import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -245,8 +247,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								}
 								if (obj.has("cmsgid")) // client wants response
 								{
-									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), error == null ? result : error, error == null,
-										getForJsonConverter());
+									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), error == null ? result : error, null, error == null);
 								}
 							}
 							catch (JSONException | IOException e)
@@ -543,18 +544,27 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			try
 			{
 				proccessChanges = true;
-				// TODO this should be changed, because if there are multiply endpoints then 1 endpoint will get the changes of a form (and flag everything as not changed)
+				// TODO this should be changed, because if there are multiple end-points then 1 end-point will get the changes of a form (and flag everything as not changed)
 				// so the other end point will not see those changes if it would show the same form...
 				// i guess the session should have all the containers (like it has all the services) and then the endpoint should just cherry pick what it will send.
-				Map<String, Map<String, Map<String, Object>>> allFormChanges = WebsocketEndpoint.get().getAllComponentsChanges();
-				Map<String, Map<String, Object>> serviceChanges = getServiceChanges();
+				TypedData<Map<String, Map<String, Map<String, Object>>>> allFormChanges = WebsocketEndpoint.get().getAllComponentsChanges();
+				TypedData<Map<String, Map<String, Object>>> serviceChanges = getServiceChanges();
 				Map<String, Object> data = new HashMap<>(3);
+				PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
 
-				if (!allFormChanges.isEmpty()) data.put("forms", allFormChanges);
-				if (!serviceChanges.isEmpty()) data.put("services", serviceChanges);
-				// TOOD see above comment, this should not send to the currently active endpoint, but to all endpoints
-				// so that any change from 1 endpoint request ends up in all the end points.
-				WebsocketEndpoint.get().sendMessage(data, true, getForJsonConverter()); // uses ConversionLocation.BROWSER_UPDATE
+				if (!allFormChanges.content.isEmpty())
+				{
+					data.put("forms", allFormChanges.content);
+					if (allFormChanges.contentType != null) dataTypes.putProperty("forms", allFormChanges.contentType);
+				}
+				if (!serviceChanges.content.isEmpty())
+				{
+					data.put("services", serviceChanges.content);
+					if (serviceChanges.contentType != null) dataTypes.putProperty("services", serviceChanges.contentType);
+				}
+				// TOOD see above comment, this should not send to the currently active end-point, but to all end-points
+				// so that any change from 1 end-point request ends up in all the end points.
+				WebsocketEndpoint.get().sendMessage(data, dataTypes, true); // uses ConversionLocation.BROWSER_UPDATE
 			}
 			catch (IOException e)
 			{
@@ -568,35 +578,26 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	protected Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, Map<String, Object> callContributions)
+	protected Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
+		Map<String, Object> callContributions)
 	{
-		try
-		{
-			Map<String, Object> call = new HashMap<>();
-			if (callContributions != null) call.putAll(callContributions);
+		Map<String, Object> call = new HashMap<>();
+		if (callContributions != null) call.putAll(callContributions);
 
-			IWebFormController form = client.getFormManager().getForm(receiver.getParent().getName());
-			touchForm(form.getForm(), form.getName(), false);
-			if (form.getFormUI() instanceof WebGridFormUI)
-			{
-				call.put("viewIndex", Integer.valueOf(((WebGridFormUI)form.getFormUI()).getSelectedViewIndex()));
-			}
-			if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
-			{
-				ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
-				call.put("parentComponentName", componentContext.getParentComponentName());
-				call.put("parentComponentProperty", componentContext.getParentComponentProperty());
-				call.put("parentComponentIndex", componentContext.getParentComponentIndex());
-			}
-			Object ret = super.invokeApi(receiver, apiFunction, arguments, call);
-			return NGClientForJsonConverter.toJavaObject(ret, apiFunction.getReturnType(), new ServoyDataConverterContext(getClient()),
-				ConversionLocation.BROWSER_UPDATE, null); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
-		}
-		catch (JSONException e)
+		IWebFormController form = client.getFormManager().getForm(receiver.getParent().getName());
+		touchForm(form.getForm(), form.getName(), false);
+		if (form.getFormUI() instanceof WebGridFormUI)
 		{
-			Debug.error(e);
+			call.put("viewIndex", Integer.valueOf(((WebGridFormUI)form.getFormUI()).getSelectedViewIndex()));
 		}
-		return null;
+		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
+		{
+			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
+			call.put("parentComponentName", componentContext.getParentComponentName());
+			call.put("parentComponentProperty", componentContext.getParentComponentProperty());
+			call.put("parentComponentIndex", componentContext.getParentComponentIndex());
+		}
+		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
 	}
 
 	@Override
@@ -628,7 +629,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
@@ -637,12 +638,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		WebComponentSpecification spec = WebServiceSpecProvider.getInstance().getWebServiceSpecification(name);
 		if (spec == null) spec = new WebComponentSpecification(name, "", name, "", null);
 		return new ServoyClientService(name, spec, this);
-	}
-
-	@Override
-	public IForJsonConverter getForJsonConverter()
-	{
-		return NGClientForJsonConverter.INSTANCE;
 	}
 
 	/**
