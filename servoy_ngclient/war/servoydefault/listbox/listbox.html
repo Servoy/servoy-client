@@ -8,6 +8,7 @@
 		svy-tabseq='model.tabSeq'
 		ng-style="style"
 		svy-font='model.fontType'
+		svy-change='handlers.onActionMethodID($event)'
 		ng-model="convertModel"
 		ng-disabled="model.enabled == false || model.editable == false"
 		svy-tooltip='model.toolTipText'

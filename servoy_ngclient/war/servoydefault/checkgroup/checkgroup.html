@@ -15,6 +15,7 @@
      <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
            ng-disabled="model.enabled == false || model.editable == false"
            svy-tabseq='model.tabSeq'
+           svy-click='handlers.onActionMethodID($event)'
            />
      <span ng-bind='item.displayValue'></span>
   </label>
