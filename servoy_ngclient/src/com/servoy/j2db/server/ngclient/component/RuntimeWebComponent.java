@@ -461,7 +461,7 @@ public class RuntimeWebComponent implements Scriptable
 			Object mapValue = getValue();
 			if (mapValue instanceof Map)
 			{
-				((Map)mapValue).put(name, RhinoConversion.convert(value, propertyDescription.getProperty(name), converterContext));
+				((Map)mapValue).put(name, RhinoConversion.convert(value, ((Map)mapValue).get(name), propertyDescription.getProperty(name), converterContext));
 				markAsChanged();
 			}
 		}
@@ -485,7 +485,8 @@ public class RuntimeWebComponent implements Scriptable
 			Object arrayValue = getValue();
 			if (arrayValue instanceof Object[])
 			{
-				Object val = RhinoConversion.convert(value, propertyDescription.asArrayElement(), converterContext);
+				Object val = RhinoConversion.convert(value, ((Object[])arrayValue).length > index ? ((Object[])arrayValue)[index] : null,
+					propertyDescription.asArrayElement(), converterContext);
 				if (((Object[])arrayValue).length > index)
 				{
 					((Object[])arrayValue)[index] = val;

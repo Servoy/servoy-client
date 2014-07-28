@@ -84,12 +84,13 @@ public class RhinoConversion
 		if (propertyValue instanceof NativeObject)
 		{
 			Map<String, Object> map = new HashMap<>();
+			Map oldMap = (oldValue instanceof Map) ? (Map)oldValue : null;
 			NativeObject no = (NativeObject)propertyValue;
 			Object[] ids = no.getIds();
 			for (Object id2 : ids)
 			{
 				String id = (String)id2;
-				map.put(id, convert(no.get(id), pd.getProperty(id), converterContext));
+				map.put(id, convert(no.get(id), oldMap != null ? oldMap.get(id) : null, pd.getProperty(id), converterContext));
 			}
 			return map;
 		}
@@ -103,102 +104,103 @@ public class RhinoConversion
 
 		// TODO this code should actually be part of the NGClient (so not Sablo) type implementation code! IComplexPropertyImpl already have something for this
 		if (pd != null)
-	{
-		switch (pd.getType().getName())
 		{
-			case "dimension" :
-				if (propertyValue instanceof Object[])
-				{
-					return new Dimension(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-				}
-				if (propertyValue instanceof NativeObject)
-				{
-					NativeObject value = (NativeObject)propertyValue;
-					return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
-				}
-				break;
+			switch (pd.getType().getName())
+			{
+				case "dimension" :
+					if (propertyValue instanceof Object[])
+					{
+						return new Dimension(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
+					}
+					if (propertyValue instanceof NativeObject)
+					{
+						NativeObject value = (NativeObject)propertyValue;
+						return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
+					}
+					break;
 
-			case "point" :
-				if (propertyValue instanceof Object[])
-				{
-					return new Point(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-				}
-				if (propertyValue instanceof NativeObject)
-				{
-					NativeObject value = (NativeObject)propertyValue;
-					return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
-				}
-				break;
+				case "point" :
+					if (propertyValue instanceof Object[])
+					{
+						return new Point(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
+					}
+					if (propertyValue instanceof NativeObject)
+					{
+						NativeObject value = (NativeObject)propertyValue;
+						return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
+					}
+					break;
 
-			case "color" :
-				if (propertyValue instanceof String)
-				{
-					return PersistHelper.createColor(propertyValue.toString());
-				}
-				break;
+				case "color" :
+					if (propertyValue instanceof String)
+					{
+						return PersistHelper.createColor(propertyValue.toString());
+					}
+					break;
 
-			case "format" :
-				if (propertyValue instanceof String)
-				{
-					//todo recreate ComponentFormat object (it has quite a lot of dependencies , application,pesist  etc)
-					return propertyValue;
-				}
-				break;
+				case "format" :
+					if (propertyValue instanceof String)
+					{
+						//todo recreate ComponentFormat object (it has quite a lot of dependencies , application,pesist  etc)
+						return propertyValue;
+					}
+					break;
 
-			case "border" :
-				if (propertyValue instanceof String)
-				{
-					return ComponentFactoryHelper.createBorder((String)propertyValue);
-				}
-				break;
+				case "border" :
+					if (propertyValue instanceof String)
+					{
+						return ComponentFactoryHelper.createBorder((String)propertyValue);
+					}
+					break;
 
 
-			case "media" :
-				Media media = null;
-				if (propertyValue instanceof Integer)
-				{
-					media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
-				}
-				else if (propertyValue instanceof String && ((String)propertyValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
-				{
-					media = converterContext.getSolution().getMedia(((String)propertyValue).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
-				}
-				if (media != null)
-				{
+				case "media" :
+					Media media = null;
+					if (propertyValue instanceof Integer)
+					{
+						media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
+					}
+					else if (propertyValue instanceof String && ((String)propertyValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+					{
+						media = converterContext.getSolution().getMedia(((String)propertyValue).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
+					}
+					if (media != null)
+					{
 						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
 							media.getName();
-					Dimension imageSize = ImageLoader.getSize(media.getMediaData());
-					boolean paramsAdded = false;
-					if (imageSize != null)
-					{
-						paramsAdded = true;
-						url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
-					}
-					if (converterContext.getApplication() != null)
-					{
-						Solution sc = converterContext.getSolution().getSolutionCopy(false);
-						if (sc != null && sc.getMedia(media.getName()) != null)
+						Dimension imageSize = ImageLoader.getSize(media.getMediaData());
+						boolean paramsAdded = false;
+						if (imageSize != null)
 						{
-							if (paramsAdded) url += "&";
-							else url += "?";
-							url += "uuid=" + converterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
+							paramsAdded = true;
+							url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
 						}
+						if (converterContext.getApplication() != null)
+						{
+							Solution sc = converterContext.getSolution().getSolutionCopy(false);
+							if (sc != null && sc.getMedia(media.getName()) != null)
+							{
+								if (paramsAdded) url += "&";
+								else url += "?";
+								url += "uuid=" + converterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
+							}
+						}
+						return url;
 					}
-					return url;
-				}
-				else
-				{
-					Debug.log("cannot convert media " + propertyValue);
-				}
-				break;
-			case "formscope" :
-				INGApplication app = converterContext.getApplication();
-				if (propertyValue instanceof String && app != null)
-				{
-					return app.getFormManager().getForm((String)propertyValue).getFormScope();
-				}
-				break;
-			default :
+					else
+					{
+						Debug.log("cannot convert media " + propertyValue);
+					}
+					break;
+				case "formscope" :
+					INGApplication app = converterContext.getApplication();
+					if (propertyValue instanceof String && app != null)
+					{
+						return app.getFormManager().getForm((String)propertyValue).getFormScope();
+					}
+					break;
+				default :
+			}
 		}
 		return propertyValue;
 	}
