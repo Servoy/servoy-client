@@ -171,10 +171,10 @@ public class DebugNGClient extends NGClient implements IDebugClient
 				((WebFormUI)controller.getFormUI()).init();
 			}
 			WebsocketSessionEndpoints allendpoints = new WebsocketSessionEndpoints(getWebsocketSession());
-			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null);
+			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null, null);
 			try
 			{
-				allendpoints.sendMessage(null, true, getWebsocketSession().getForJsonConverter());
+				allendpoints.sendMessage(null, null, true);
 			}
 			catch (IOException e)
 			{
