@@ -25,6 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
 
@@ -79,6 +80,25 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	{
 		return application.getFoundSetManager().getFoundSet(datasource);
 	}
+
+	/**
+	 * Get the column names of a datasource.
+	 * 
+	 * @return String[] column names
+	 */
+	public String[] js_getColumnNames()
+	{
+		try
+		{
+			return application.getFoundSetManager().getTable(datasource).getColumnNames();
+		}
+		catch (RepositoryException e)
+		{
+			Debug.log(e);
+		}
+		return null;
+	}
+
 
 	/**
 	 *  Create a query builder for a data source.
