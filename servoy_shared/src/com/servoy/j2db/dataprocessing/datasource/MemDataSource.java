@@ -25,7 +25,6 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.DefaultJavaScope;
-import com.servoy.j2db.util.DataSourceUtils;
 
 /**
  * In scripting: <pre>datasources.mem</pre>
@@ -52,10 +51,7 @@ public class MemDataSource extends DefaultJavaScope
 	{
 		for (String name : application.getFoundSetManager().getInMemDataSourceNames())
 		{
-			if (!has(name, this))
-			{
-				put(name, this, new JSDataSource(application, DataSourceUtils.createInmemDataSource(name)));
-			}
+			put(name, this, new JSDataSource(application, name));
 		}
 
 		return true;
