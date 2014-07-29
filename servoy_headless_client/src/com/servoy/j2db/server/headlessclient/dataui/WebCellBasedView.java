@@ -3019,7 +3019,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			IRequestTarget rt = RequestCycle.get().getRequestTarget();
 			if (rt instanceof AjaxRequestTarget)
 			{
-				scrollViewPort((AjaxRequestTarget)rt);
+				scrollViewPort((AjaxRequestTarget)rt, false);
 			}
 		}
 	}
@@ -5201,11 +5201,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	public void scrollViewPort(AjaxRequestTarget target)
+	public void scrollViewPort(AjaxRequestTarget target, boolean appendMissingRows)
 	{
 		if (selectionChanged && !isScrollFirstShow)
 		{
-			scrollBehavior.scrollViewPort(target);
+			scrollBehavior.scrollViewPort(target, appendMissingRows);
 			selectionChanged = false;
 		}
 	}
@@ -5330,7 +5330,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is active then it loads records until the selection and scrolls to that position
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
 		 */
-		public void scrollViewPort(AjaxRequestTarget target)
+		public void scrollViewPort(AjaxRequestTarget target, boolean appendMissingRows)
 		{
 
 			Collection<ListItem< ? >> newRows = null;
@@ -5413,25 +5413,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (rowsBuffer != null)
 			{
-				hasTopBuffer = table.getStartIndex() > 0;
-				hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
-
 				StringBuffer sb = new StringBuffer();
-				sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
-				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
-				sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
-				sb.append(newRowsCount).append(","); //$NON-NLS-1$
-				sb.append(rowsToRemove).append(","); //$NON-NLS-1$
-				sb.append(1).append(", "); //$NON-NLS-1$
-				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
-				sb.append(hasBottomBuffer).append(",");
-				sb.append(!isKeepLoadedRowsInScrollMode).append(");");
-
-				if (rowsBuffer[0].length() > 0)
+				if (appendMissingRows)
 				{
-					sb.append('\n').append(rowsBuffer[0]);
+					hasTopBuffer = table.getStartIndex() > 0;
+					hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+
+					sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
+					sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
+					sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
+					sb.append(newRowsCount).append(","); //$NON-NLS-1$
+					sb.append(rowsToRemove).append(","); //$NON-NLS-1$
+					sb.append(1).append(", "); //$NON-NLS-1$
+					sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
+					sb.append(hasBottomBuffer).append(",");
+					sb.append(!isKeepLoadedRowsInScrollMode).append(");");
+
+					if (rowsBuffer[0].length() > 0)
+					{
+						sb.append('\n').append(rowsBuffer[0]);
+					}
 				}
-				//sb.append("$('#" + table.get(selectedIndex).getMarkupId() + "')[0].scrollIntoView(true);");
 
 				sb.append("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "');");
 				target.appendJavascript(sb.toString());

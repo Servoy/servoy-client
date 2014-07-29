@@ -887,7 +887,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				String rowSelectionScript, columnResizeScript;
 				for (final WebCellBasedView wcbv : tableViewsToRender)
 				{
-					if (wcbv.isScrollMode()) wcbv.scrollViewPort(target);
+					if (wcbv.isScrollMode()) wcbv.scrollViewPort(target, true);
 					wcbv.updateRowSelection(target);
 					List<Integer> changedIds = tableViewsWithChangedRowIds.get(wcbv);
 					List<Integer> selectedIndexesChanged = wcbv.getIndexToUpdate(false);
