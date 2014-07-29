@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
@@ -396,7 +397,7 @@ public class WebEventExecutor extends BaseEventExecutor
 
 	public void onEvent(EventType type, AjaxRequestTarget target, Component comp, int webModifiers, Point mouseLocation)
 	{
-		onEvent(type, target, comp, webModifiers, mouseLocation,null);
+		onEvent(type, target, comp, webModifiers, mouseLocation, null);
 	}
 
 	public void onEvent(final EventType type, final AjaxRequestTarget target, final Component comp, final int webModifiers, final Point mouseLocation,
@@ -781,6 +782,21 @@ public class WebEventExecutor extends BaseEventExecutor
 						if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isValueChanged())
 						{
 							valueChangedIds.add(component.getMarkupId());
+							if (component instanceof MarkupContainer)
+							{
+								((MarkupContainer)component).visitChildren(IDisplayData.class, new IVisitor<Component>()
+								{
+									public Object component(Component comp)
+									{
+										// labels/buttons that don't display data are not changed
+										if (!(comp instanceof ILabel))
+										{
+											valueChangedIds.add(comp.getMarkupId());
+										}
+										return CONTINUE_TRAVERSAL;
+									}
+								});
+							}
 						}
 						if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
 						{
