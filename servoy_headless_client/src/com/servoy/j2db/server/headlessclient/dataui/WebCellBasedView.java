@@ -2757,7 +2757,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						if ((comp instanceof IDisplayData) || !(comp instanceof ILabel))
 						{
 							// labels/buttons that don't display data are not changed
-							((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
+							((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setValueChanged();
 						}
 						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
@@ -2775,7 +2775,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		else
 		{
-			if (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows())) getStylePropertyChanges().setChanged();
+			if (!isScrollMode() || !(scrollBehavior != null && scrollBehavior.isGettingRows())) getStylePropertyChanges().setValueChanged();
 		}
 
 		// We try to detect when a sort has been done on the foundset, and we update the arrows in the header accordingly.
