@@ -38,7 +38,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils",function($rootScope,$scrollbarConstants) {
+}).factory("$utils",function($rootScope,$scrollbarConstants,$swingModifiers) {
 	
 	// internal function
 	function getPropByStringPath(o, s) {
