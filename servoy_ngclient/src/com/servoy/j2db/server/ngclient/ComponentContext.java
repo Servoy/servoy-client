@@ -24,7 +24,6 @@ package com.servoy.j2db.server.ngclient;
  */
 public class ComponentContext
 {
-	private final String parentComponentName;
 	private final String parentComponentProperty;
 	private final int parentComponentIndex;
 
@@ -33,19 +32,10 @@ public class ComponentContext
 	 * @param parentComponentProperty
 	 * @param parentComponentIndex
 	 */
-	public ComponentContext(String parentComponentName, String parentComponentProperty, int parentComponentIndex)
+	public ComponentContext(String parentComponentProperty, int parentComponentIndex)
 	{
-		this.parentComponentName = parentComponentName;
 		this.parentComponentProperty = parentComponentProperty;
 		this.parentComponentIndex = parentComponentIndex;
-	}
-
-	/**
-	 * @return the parentComponentName
-	 */
-	public String getParentComponentName()
-	{
-		return parentComponentName;
 	}
 
 	/**

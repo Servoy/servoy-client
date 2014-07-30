@@ -31,7 +31,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.sablo.Container;
 import org.sablo.IChangeListener;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
@@ -214,12 +213,12 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		if (foundsetPropValue == null) return; // Cannot find linked foundset property; it is possible that that property was not yet attached to the component; we can wait for that to happen before creating components; see foundsetPropertyReady()
 
 		componentsAreCreated = true;
-
-		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : getFormUI().getDataAdapterList());
+		IWebFormUI formUI = component.findParent(IWebFormUI.class);
+		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
 
 		for (int i = 0; i < elements.length; i++)
 		{
-			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], getFormUI());
+			childComponents[i] = ComponentFactory.createComponent(dal.getApplication(), dal, elements[i], formUI);
 			childComponents[i].addPropertyChangeListener(null, new PropertyChangeListener()
 			{
 				@Override
@@ -228,9 +227,9 @@ public class ComponentTypeValue implements IComplexPropertyValue
 					monitor.valueChanged();
 				}
 			});
-			childComponents[i].setParent(component.getParent());
-			childComponents[i].setComponentContext(new ComponentContext(component.getName(), propertyName, i));
-			getFormUI().contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
+			component.add(childComponents[i]);
+			childComponents[i].setComponentContext(new ComponentContext(propertyName, i));
+			formUI.contributeComponentToElementsScope(elements[i], elements[i].getWebComponentSpec(), childComponents[i]);
 			for (String handler : childComponents[i].getFormElement().getHandlers())
 			{
 				Object value = childComponents[i].getFormElement().getProperty(handler);
@@ -242,16 +241,6 @@ public class ComponentTypeValue implements IComplexPropertyValue
 		}
 
 		registerDataProvidersWithFoundset(foundsetPropValue);
-	}
-
-	protected IWebFormUI getFormUI()
-	{
-		Container fui = component.getParent();
-		while (fui != null && (!(fui instanceof IWebFormUI)))
-		{
-			fui = fui.getParent();
-		}
-		return (IWebFormUI)fui;
 	}
 
 	/**

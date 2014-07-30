@@ -670,7 +670,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 		else if (parentContainerOrWindowName instanceof WebFormComponent)
 		{
-			return ((WebFormUI)((WebFormComponent)parentContainerOrWindowName).getParent()).getParentWindowName();
+			return ((WebFormComponent)parentContainerOrWindowName).findParent(IWebFormUI.class).getParentWindowName();
 		}
 		return null;
 	}
@@ -940,7 +940,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 		if (parentContainerOrWindowName instanceof WebFormComponent && ((WebFormComponent)parentContainerOrWindowName).getParent() != null)
 		{
-			return ((WebFormUI)((WebFormComponent)parentContainerOrWindowName).getParent()).getContainerName();
+			return ((WebFormComponent)parentContainerOrWindowName).findParent(IWebFormUI.class).getContainerName();
 		}
 		return null;
 	}
@@ -1030,7 +1030,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		{
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
-			currentForm = (WebFormUI)currentComponent.getParent();
+			currentForm = currentComponent.findParent(WebFormUI.class);
 			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
 				index + 1) });
 			currentContainer = currentForm.getParentContainer();

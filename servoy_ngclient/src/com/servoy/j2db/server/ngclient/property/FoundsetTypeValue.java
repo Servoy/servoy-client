@@ -29,7 +29,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.sablo.Container;
 import org.sablo.IChangeListener;
 import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
@@ -186,7 +185,8 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		{
 			try
 			{
-				newFoundset = (IFoundSetInternal)getFormUI().getDataConverterContext().getApplication().getFoundSetManager().getFoundSet(foundsetSelector);
+				newFoundset = (IFoundSetInternal)component.findParent(IWebFormUI.class).getDataConverterContext().getApplication().getFoundSetManager().getFoundSet(
+					foundsetSelector);
 			}
 			catch (ServoyException e)
 			{
@@ -405,18 +405,18 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
 		data.put(ROW_ID_COL_KEY, record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
-
+		IWebFormUI formUI = component.findParent(IWebFormUI.class);
 		Iterator<String> it = dataProviders.iterator();
 		while (it.hasNext())
 		{
 			String dataProvider = it.next();
 
 			// TODO currently we also send globals/form variables through foundset; in the future it should be enough to get it from the record only, not through DataAdapterList.getValueObject!
-			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, getFormUI().getController().getFormScope(), dataProvider);
+			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, formUI.getController().getFormScope(), dataProvider);
 			data.put(dataProvider, value);
 			IPropertyType< ? > pt = NGUtils.getDataProviderPropertyType(dataProvider, foundset.getTable());
-			if (pt == null) pt = NGUtils.getDataProviderPropertyType(dataProvider,
-				getFormUI().getDataConverterContext().getApplication().getFlattenedSolution(), getFormUI().getController().getForm(), foundset.getTable()); // TODO remove this when component[] properly implements it's dataproviders - when there's no need for foundset to send over globals/form variables
+			if (pt == null) pt = NGUtils.getDataProviderPropertyType(dataProvider, formUI.getDataConverterContext().getApplication().getFlattenedSolution(),
+				formUI.getController().getForm(), foundset.getTable()); // TODO remove this when component[] properly implements it's dataproviders - when there's no need for foundset to send over globals/form variables
 			if (pt != null)
 			{
 				dataTypes.putProperty(dataProvider, new PropertyDescription("", pt));
@@ -505,6 +505,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 							if (recordIndex != -1)
 							{
+								IWebFormUI formUI = component.findParent(IWebFormUI.class);
 								IRecordInternal record = foundset.getRecord(recordIndex);
 								// convert Dates where it's needed
 
@@ -512,7 +513,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 								if (type == null)
 								{
 									type = NGUtils.getDataProviderPropertyType(dataProviderName,
-										getFormUI().getDataConverterContext().getApplication().getFlattenedSolution(), getFormUI().getController().getForm(),
+										formUI.getDataConverterContext().getApplication().getFlattenedSolution(), formUI.getController().getForm(),
 										foundset.getTable());
 								}
 
@@ -534,7 +535,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 										// TODO currently we also send globals/form variables through foundset;
 										// in the future it should be enough to set it in the record only!
 										// not through DataAdapterList
-										com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, getFormUI().getController().getFormScope(),
+										com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formUI.getController().getFormScope(),
 											dataProviderName, value);
 									}
 								}
@@ -544,7 +545,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 									// if server denies the new selection as invalid and doesn't change selection, send it to the client so that it doesn't keep invalid selection
 									// TODO use here record directly instead of dataAdapterList when we no longer work with variables, just foundset data in this property (when that is implemented in components property)
 									if (!Utils.equalObjects(com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record,
-										getFormUI().getController().getFormScope(), dataProviderName), value))
+										formUI.getController().getFormScope(), dataProviderName), value))
 									{
 										changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort);
 									}
@@ -575,19 +576,9 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		// this method gets called by linked component type property/properties
 		if (dataAdapterList == null)
 		{
-			dataAdapterList = new DataAdapterList(getFormUI().getController());
+			dataAdapterList = new DataAdapterList(component.findParent(IWebFormUI.class).getController());
 		}
 		return dataAdapterList;
-	}
-
-	protected IWebFormUI getFormUI()
-	{
-		Container fui = component.getParent();
-		while (fui != null && (!(fui instanceof IWebFormUI)))
-		{
-			fui = fui.getParent();
-		}
-		return (IWebFormUI)fui;
 	}
 
 	/**

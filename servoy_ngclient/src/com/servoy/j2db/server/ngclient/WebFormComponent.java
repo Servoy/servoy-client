@@ -13,9 +13,10 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
+import org.sablo.Container;
 import org.sablo.IChangeListener;
-import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
@@ -36,7 +37,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class WebFormComponent extends WebComponent implements ListDataListener, IContextProvider
+public class WebFormComponent extends Container implements ListDataListener, IContextProvider
 {
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final FormElement formElement;
@@ -55,7 +56,7 @@ public class WebFormComponent extends WebComponent implements ListDataListener, 
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
-		super(fe.getTypeName(), name);
+		super(name, WebComponentSpecProvider.getInstance().getWebComponentSpecification(fe.getTypeName()));
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 

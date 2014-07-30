@@ -584,7 +584,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		Map<String, Object> call = new HashMap<>();
 		if (callContributions != null) call.putAll(callContributions);
 
-		IWebFormController form = client.getFormManager().getForm(receiver.getParent().getName());
+		IWebFormController form = client.getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
 		touchForm(form.getForm(), form.getName(), false);
 		if (form.getFormUI() instanceof WebGridFormUI)
 		{
@@ -593,7 +593,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
-			call.put("parentComponentName", componentContext.getParentComponentName());
+			call.put("parentComponentName", receiver.getParent().getName());
 			call.put("parentComponentProperty", componentContext.getParentComponentProperty());
 			call.put("parentComponentIndex", componentContext.getParentComponentIndex());
 		}
@@ -629,7 +629,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
