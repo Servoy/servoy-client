@@ -40,7 +40,7 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 	<#if viewType == "RECORD_VIEW">
 		// send the special request initial data for this form 
 		// this can also make the form (IFormUI instance) on the server if that is not already done
-		$servoyInternal.callService('formService', 'requestdata', {formname:'${name}'},true)
+		$servoyInternal.callService('formService', 'initialrequestdata', {formname:'${name}'},true)
 	</#if>
 	$scope.model = formState.model;
 	$scope.api = formState.api;
@@ -100,20 +100,28 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 	formState.handlers = $scope.handlers;
 	
 	var wrapper = function(beanName) {
+		var initializing = true
 		return function(newvalue,oldvalue) {
-			if(oldvalue === newvalue) return;
-			$servoyInternal.sendChanges(newvalue,oldvalue, "${name}", beanName);
+			if (initializing) {
+    			$timeout(function() { initializing = false; });
+  			} else {
+				if(oldvalue === newvalue) return;
+				$servoyInternal.sendChanges(newvalue,oldvalue, "${name}", beanName);
+			}
 		}
 	}
 
-	<#list parts as part>
-		<#if (part.baseComponents)??>
-			<#list part.baseComponents as bc><#-- TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes! -->
-				$scope.$watch("model.${bc.name}", wrapper('${bc.name}'), true);
-			</#list>
-		</#if>
-	</#list>
-
+	$scope.addWatches = function () {
+		<#list parts as part>
+			<#if (part.baseComponents)??>
+				<#list part.baseComponents as bc><#-- TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes! -->
+					$scope.$watch("model.${bc.name}", wrapper('${bc.name}'), true);
+				</#list>
+			</#if>
+		</#list>
+	}
+	
+	formState.addWatches = $scope.addWatches;
 <@form_js_body/> 
 });
 </#macro>

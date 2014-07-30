@@ -259,6 +259,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 								   deferredformStates[formname].resolve(formStates[formname])
 								   delete deferredformStates[formname]
 							   }
+							   
+							   if (msg.initialdatarequest)
+							   		formState.addWatches();
 						   }
 					   } finally {
 						   ignoreChanges = false;
