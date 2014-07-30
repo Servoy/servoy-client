@@ -26,7 +26,10 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
 
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
+import com.servoy.base.scripting.api.IJSEvent;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
@@ -89,7 +92,7 @@ public class EventExecutor
 				{
 					JSONObject json = (JSONObject)args[i];
 					JSEvent event = new JSEvent();
-					event.setType(eventType);
+					event.setType(getEventType(eventType));
 					event.setFormName(formController.getName());
 					event.setElementName(component.getName());
 					FormScope formScope = formController.getFormScope();
@@ -128,6 +131,40 @@ public class EventExecutor
 		{
 			formController.getApplication().reportJSError(ex.getMessage(), ex);
 			return null;
+		}
+	}
+
+	/**
+	 * Get the event type based on the methodID property.
+	 * @param methodID
+	 * @return 
+	 */
+	private String getEventType(String methodID)
+	{
+		switch (methodID)
+		{
+			case IContentSpecConstantsBase.PROPERTY_ONACTIONMETHODID :
+				return IJSEvent.ACTION;
+			case IContentSpecConstants.PROPERTY_ONDOUBLECLICKMETHODID :
+				return IJSEvent.DOUBLECLICK;
+			case IContentSpecConstants.PROPERTY_ONRIGHTCLICKMETHODID :
+				return IJSEvent.RIGHTCLICK;
+			case IContentSpecConstants.PROPERTY_ONDATACHANGEMETHODID :
+				return IJSEvent.DATACHANGE;
+			case IContentSpecConstants.PROPERTY_ONFOCUSGAINEDMETHODID :
+				return IJSEvent.FOCUSGAINED;
+			case IContentSpecConstants.PROPERTY_ONFOCUSLOSTMETHODID :
+				return IJSEvent.FOCUSLOST;
+			case IContentSpecConstants.PROPERTY_ONDRAGMETHODID :
+				return JSEvent.EventType.onDrag.toString();
+			case IContentSpecConstants.PROPERTY_ONDRAGENDMETHODID :
+				return JSEvent.EventType.onDragEnd.toString();
+			case IContentSpecConstants.PROPERTY_ONDRAGOVERMETHODID :
+				return JSEvent.EventType.onDragOver.toString();
+			case IContentSpecConstants.PROPERTY_ONDROPMETHODID :
+				return JSEvent.EventType.onDrop.toString();
+			default :
+				return methodID;
 		}
 	}
 
