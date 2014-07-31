@@ -112,26 +112,20 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 		if (value instanceof ValueListPropertyWrapper) return (ValueListPropertyWrapper)value;
 		if (value instanceof LookupListModel)
 		{
-			return new ValueListPropertyWrapper(value, dataConverterContext);
+			return new ValueListPropertyWrapper(value);
 		}
-		return new ValueListPropertyWrapper(value, dataConverterContext);
+		return new ValueListPropertyWrapper(value);
 	}
 
 	class ValueListPropertyWrapper
 	{
+
 		final Object value;
-		IDataConverterContext dataConverterContext;
 		Object jsonValue;
 
 		ValueListPropertyWrapper(Object value)
 		{
-			this(value, null);
-		}
-
-		ValueListPropertyWrapper(Object value, IDataConverterContext dataConverterContext)
-		{
 			this.value = value;
-			this.dataConverterContext = dataConverterContext;
 		}
 
 		Object getJsonValue() // TODO this should return TypedData<List<Map<String, Object>>> instead

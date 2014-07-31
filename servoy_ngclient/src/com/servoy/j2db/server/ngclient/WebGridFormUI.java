@@ -86,7 +86,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 	public TypedData<Map<String, Map<String, Object>>> getAllComponentsProperties()
 	{
 		TypedData<Map<String, Map<String, Object>>> props = super.getAllComponentsProperties();
-		appendRows(props.content.get(""), getRows(-1, -1).rows.content);
+		appendRows(props, "", getRows(-1, -1).rows);
 		selectionChanged = false;
 		allChanged = false;
 		rowChanges.clear();
@@ -97,14 +97,19 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 	@SuppressWarnings("nls")
 	public TypedData<Map<String, Map<String, Object>>> getAllComponentsChanges()
 	{
-		Map<String, Map<String, Object>> props = super.getAllComponentsChanges().content; // we might need to use contentType in the future as well
+		TypedData<Map<String, Map<String, Object>>> props = super.getAllComponentsChanges(); // we might need to use contentType in the future as well
 		if (allChanged)
 		{
 			try
 			{
-				List<Map<String, Object>> rows = getRows(-1, -1).rows.content;
-				if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
-				appendRows(props.get(""), rows);
+				TypedData<List<Map<String, Object>>> rows = getRows(-1, -1).rows;
+				if (!props.content.containsKey(""))
+				{
+					props.content.put("", new HashMap<String, Object>());
+					props.contentType.putProperty("", AggregatedPropertyType.newAggregatedProperty());
+				}
+				appendRows(props, "", rows);
+				if (!props.contentType.getProperty("").hasChildProperties()) props.contentType.putProperty("", null);
 			}
 			catch (Exception e)
 			{
@@ -113,33 +118,60 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 		}
 		else if (rowChanges.size() > 0)
 		{
-			if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
-			Map<String, Object> rowProps = props.get("");
-			rowProps.put("updatedRows", new ArrayList<RowData>(rowChanges));
+			if (!props.content.containsKey(""))
+			{
+				props.content.put("", new HashMap<String, Object>());
+				props.contentType.putProperty("", AggregatedPropertyType.newAggregatedProperty());
+			}
+			Map<String, Object> rowProps = props.content.get("");
+			PropertyDescription rowTypes = props.contentType.getProperty("");
+			ArrayList<Map<String, Object>> rowData = new ArrayList<>(rowChanges.size());
+			PropertyDescription rowDataTypes = AggregatedPropertyType.newAggregatedProperty();
+			for (RowData rowChange : rowChanges)
+			{
+				TypedData<Map<String, Object>> change = rowChange.toMap();
+				rowData.add(change.content);
+				if (change.contentType != null) rowDataTypes.putProperty(String.valueOf(rowData.size() - 1), change.contentType);
+			}
+			rowProps.put("updatedRows", rowData);
+			if (rowDataTypes != null) rowTypes.putProperty("updatedRows", rowDataTypes);
 			rowProps.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
 			rowProps.put("selectedIndex", Integer.toString(getController().getFoundSet().getSelectedIndex()));
+			if (!rowTypes.hasChildProperties()) props.contentType.putProperty("", null);
 		}
 		else if (selectionChanged)
 		{
-			if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
-			Map<String, Object> rowProps = props.get("");
+			if (!props.content.containsKey("")) props.content.put("", new HashMap<String, Object>());
+			Map<String, Object> rowProps = props.content.get("");
 			rowProps.put("selectedIndex", Integer.toString(getController().getFoundSet().getSelectedIndex()));
 		}
 		selectionChanged = false;
 		allChanged = false;
 		rowChanges.clear();
-		return new TypedData<Map<String, Map<String, Object>>>(props, null);
+		return props;
 	}
 
-	private void appendRows(Map<String, Object> props, List<Map<String, Object>> rows)
+	private void appendRows(TypedData<Map<String, Map<String, Object>>> props, String propsChild, TypedData<List<Map<String, Object>>> rows)
 	{
+		Map<String, Object> map = props.content.get(propsChild);
+		if (props.contentType == null) props.contentType = AggregatedPropertyType.newAggregatedProperty();
+		PropertyDescription mapTypes = props.contentType.getProperty(propsChild);
+		if (mapTypes == null)
+		{
+			mapTypes = AggregatedPropertyType.newAggregatedProperty();
+			props.contentType.putProperty(propsChild, mapTypes);
+		}
+
 		if (rows != null)
 		{
-			props.put("rows", rows);
-			props.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
-			props.put("currentPage", Integer.valueOf(currentPage));
-			props.put("selectedIndex", Integer.toString(getController().getFoundSet().getSelectedIndex()));
+			map.put("rows", rows.content);
+			if (rows.contentType != null) mapTypes.putProperty("rows", rows.contentType);
+			map.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
+			map.put("currentPage", Integer.valueOf(currentPage));
+			map.put("selectedIndex", Integer.toString(getController().getFoundSet().getSelectedIndex()));
 		}
+		if (!mapTypes.hasChildProperties()) props.contentType.putProperty(propsChild, null);
+		if (!props.contentType.hasChildProperties()) props.contentType = null;
 	}
 
 	public void setCurrentPage(int currentPage)
@@ -301,6 +333,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 		{
 			getController().setRendering(true);
 			List<Map<String, Object>> rows = new ArrayList<>();
+			PropertyDescription rowsTypes = AggregatedPropertyType.newAggregatedProperty();
+
 			int startIdx = (currentPage - 1) * getPageSize();
 			int endIdx = currentPage * getPageSize();
 			if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
@@ -324,6 +358,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 				IRecordInternal record = currentFoundset.getRecord(i);
 				dataAdapterList.setRecord(record, false);
 				Map<String, Object> rowProperties = new HashMap<String, Object>();
+				PropertyDescription rowT = AggregatedPropertyType.newAggregatedProperty();
+
 				rowProperties.put("_svyRowId", record.getPKHashKey() + "_" + i);
 				for (WebFormComponent wc : bodyComponents)
 				{
@@ -331,16 +367,19 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 					//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
 					// namepanel2 has a nested property which is a dataproviderID
 					Map<String, Object> cellProperties = new HashMap<>();
+					PropertyDescription cellTypes = AggregatedPropertyType.newAggregatedProperty();
 					List<String> tagstrings = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), TagStringPropertyType.INSTANCE);
 					for (String tagstringPropID : tagstrings)
 					{
 						cellProperties.put(tagstringPropID, wc.getRawProperties().get(tagstringPropID));
+						cellTypes.putProperty(tagstringPropID, wc.getFormElement().getWebComponentSpec().getProperty(tagstringPropID));
 					}
 
 					List<String> dataproviders = getWebComponentPropertyType(wc.getFormElement().getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 					for (String dataproviderID : dataproviders)
 					{
 						cellProperties.put(dataproviderID, wc.getRawProperties().get(dataproviderID));
+						cellTypes.putProperty(dataproviderID, wc.getFormElement().getWebComponentSpec().getProperty(dataproviderID));
 					}
 					// add valuelists
 					Object valuelistObj;
@@ -355,12 +394,14 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 								valuelist.getFallbackValueList() != null)
 
 							cellProperties.put(valuelistProperty, new ValuelistWrapper(valuelist, record));
+							cellTypes.putProperty(valuelistProperty, wc.getFormElement().getWebComponentSpec().getProperty(valuelistProperty));
 						}
 					}
 
 					cellProperties.put("svy_cn", wc.getName());
 					// execute onrender.
 					rowProperties.put(wc.getName(), cellProperties);
+					if (cellTypes.hasChildProperties()) rowT.putProperty(wc.getName(), cellTypes);
 				}
 				List<TabSequencePropertyWithComponent> tabSeqComponents = getTabSeqComponents();
 				for (TabSequencePropertyWithComponent propertyWithComponent : tabSeqComponents)
@@ -369,9 +410,10 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 					if (cellProperties != null) cellProperties.put(propertyWithComponent.getProperty(), currentIndex++);
 				}
 				rows.add(rowProperties);
+				if (rowT.hasChildProperties()) rowsTypes.putProperty(String.valueOf(rows.size() - 1), rowT);
 			}
 			dataAdapterList.setRecord(currentFoundset.getRecord(currentFoundset.getSelectedIndex()), false);
-			return new RowData(new TypedData<List<Map<String, Object>>>(rows, null), startIdx - foundsetStartRow, endIdx - foundsetStartRow);
+			return new RowData(new TypedData<List<Map<String, Object>>>(rows, rowsTypes), startIdx - foundsetStartRow, endIdx - foundsetStartRow);
 		}
 		finally
 		{

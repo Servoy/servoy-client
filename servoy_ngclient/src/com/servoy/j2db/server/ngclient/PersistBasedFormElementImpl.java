@@ -23,12 +23,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -87,10 +89,13 @@ class PersistBasedFormElementImpl
 			String customJSONString = ((Bean)persist).getBeanXML();
 			if (customJSONString != null)
 			{
-				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), context);
+				// convert from persist design-time value (which might be non-json) to the expected value
+				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), context, specProperties);
+
 				jsonMap.remove(StaticContentSpecLoader.PROPERTY_BEANXML); // this is handled separately as NG component definition
 				try
 				{
+					// add beanXML (which is actually a JSON string here) defined properties to the map
 					JSONObject jsonProperties = new JSONObject(customJSONString);
 					formElement.getConvertedJSONDefinitionProperties(context, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(),
 						jsonProperties);
@@ -113,14 +118,14 @@ class PersistBasedFormElementImpl
 		}
 		else if (persist instanceof AbstractBase)
 		{
-			Map<String, Object> map = getConvertedPropertiesMap(getFlattenedPropertiesMap(), context);
+			Map<String, Object> map = getConvertedPropertiesMap(getFlattenedPropertiesMap(), context, specProperties);
 			if (persist instanceof Field && ((Field)persist).getDisplayType() == Field.MULTISELECT_LISTBOX)
 			{
 				map.put("multiselectListbox", Boolean.TRUE);
 			}
 			else if (persist instanceof TabPanel)
 			{
-				convertFromTabPanelToNGProperties((IFormElement)persist, context, map);
+				convertFromTabPanelToNGProperties((IFormElement)persist, context, map, specProperties);
 			}
 			else if (persist instanceof Portal)
 			{
@@ -139,26 +144,39 @@ class PersistBasedFormElementImpl
 	 * Converts string representation to high level Class representation of properties
 	 *
 	 * Initially only for border
+	 * @param specProperties
 	 */
-	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, final IServoyDataConverterContext context)
+	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, final IServoyDataConverterContext context,
+		Map<String, PropertyDescription> specProperties)
 	{
+		// it is a bit strange here as from Persist we get
+		// 1. primitive values (some of which might need no conversion and some of which in NG client world need to be wrapped - for example TagStringPropertyType)
+		// 2. actual values (like Color) - that might need no conversion or might need to be wrapped
+		// 3. (serialized to String) values like borders (see ComponentFactoryHelper.createBorder()) that need to be converted to actual values and maybe then wrapped if needed for NG
+		// but then we need to set in the NG FormElement properties map only actual values that can be serialized back to JSON (for form template generation)
 		Map<String, Object> convPropertiesMap = new HashMap<>();
 		for (String pv : propertiesMap.keySet())
 		{
 			Object val = propertiesMap.get(pv);
 			if (val == null) continue;
+			// the ones in this switch are converted from
 			switch (pv)
 			{
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_BORDERTYPE : //PropertyType.border.getType
-					convPropertiesMap.put(pv, ComponentFactoryHelper.createBorder((String)val));
+					val = ComponentFactoryHelper.createBorder((String)val);
 					break;
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_FONTTYPE : //PropertyType.font.getType
-					convPropertiesMap.put(pv, PersistHelper.createFont((String)val));
+					val = PersistHelper.createFont((String)val);
 					break;
 				default :
-					convPropertiesMap.put(pv, val);
+					// use default
 					break;
 			}
+
+			// see if it needs wrapping/further conversion
+			val = NGClientForJsonConverter.toJavaObject(val, specProperties.get(pv), context, ConversionLocation.DESIGN, null, false);
+
+			convPropertiesMap.put(pv, val);
 		}
 
 		return convPropertiesMap;
@@ -184,41 +202,48 @@ class PersistBasedFormElementImpl
 		return ((AbstractBase)p).getPropertiesMap();
 	}
 
-	private void convertFromTabPanelToNGProperties(IFormElement persist, final IServoyDataConverterContext context, Map<String, Object> map)
+	private void putAndConvertProperty(String propName, Object val, Map<String, Object> map, final IServoyDataConverterContext context, PropertyDescription desc)
+	{
+		map.put(propName, NGClientForJsonConverter.toJavaObject(val, desc, context, ConversionLocation.DESIGN, null, true));
+	}
+
+	private void convertFromTabPanelToNGProperties(IFormElement persist, final IServoyDataConverterContext context, Map<String, Object> map,
+		Map<String, PropertyDescription> specProperties)
 	{
 		ArrayList<Map<String, Object>> tabList = new ArrayList<>();
 		// add the tabs.
 		Iterator<IPersist> tabs = ((TabPanel)persist).getTabs();
-		map.put("tabIndex", 1);
+		putAndConvertProperty("tabIndex", 1, map, context, specProperties.get("tabIndex"));
+		PropertyDescription tabSpecProperties = specProperties.get("tabs");
 		boolean active = true;
 		while (tabs.hasNext())
 		{
 			Map<String, Object> tabMap = new HashMap<>();
 			Tab tab = (Tab)tabs.next();
-			tabMap.put("text", tab.getText());
-			tabMap.put("relationName", tab.getRelationName());
-			tabMap.put("active", Boolean.valueOf(active));
-			tabMap.put("foreground", tab.getForeground());
-			tabMap.put("name", tab.getName());
-			tabMap.put("mnemonic", tab.getMnemonic());
+			putAndConvertProperty("text", tab.getText(), tabMap, context, tabSpecProperties.getProperty("text"));
+			putAndConvertProperty("relationName", tab.getRelationName(), tabMap, context, tabSpecProperties.getProperty("relationName"));
+			putAndConvertProperty("active", Boolean.valueOf(active), tabMap, context, tabSpecProperties.getProperty("active"));
+			putAndConvertProperty("foreground", tab.getForeground(), tabMap, context, tabSpecProperties.getProperty("foreground"));
+			putAndConvertProperty("name", tab.getName(), tabMap, context, tabSpecProperties.getProperty("name"));
+			putAndConvertProperty("mnemonic", tab.getMnemonic(), tabMap, context, tabSpecProperties.getProperty("mnemonic"));
 			int containsFormID = tab.getContainsFormID();
 			// TODO should this be resolved way later on?
 			// if solution model then this form can change..
 			Form form = context.getSolution().getForm(containsFormID);
-			tabMap.put("containsFormId", form.getName());
-			tabMap.put("disabled", false);
+			putAndConvertProperty("containsFormId", form.getName(), tabMap, context, tabSpecProperties.getProperty("containsFormId"));
+			putAndConvertProperty("disabled", false, tabMap, context, tabSpecProperties.getProperty("disabled"));
 			int orient = ((TabPanel)persist).getTabOrientation();
 			if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL)
 			{
-				tabMap.put("imageMediaID", "");
+				putAndConvertProperty("imageMediaID", "", tabMap, context, tabSpecProperties.getProperty("imageMediaID"));
 				int tabMediaID = tab.getImageMediaID();
 				if (tabMediaID > 0)
 				{
 					Media tabMedia = context.getSolution().getMedia(tabMediaID);
 					if (tabMedia != null)
 					{
-						tabMap.put("imageMediaID", "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + context.getSolution().getName() +
-							"/" + tabMedia.getName());
+						putAndConvertProperty("imageMediaID", "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" +
+							context.getSolution().getName() + "/" + tabMedia.getName(), tabMap, context, tabSpecProperties.getProperty("imageMediaID"));
 					}
 				}
 			}
@@ -248,7 +273,7 @@ class PersistBasedFormElementImpl
 			}
 			else
 			{
-				map.put("relatedFoundset", NGClientForJsonConverter.toJavaObject(relatedFoundset, pd, context, ConversionLocation.DESIGN, null));
+				map.put("relatedFoundset", NGClientForJsonConverter.toJavaObject(relatedFoundset, pd, context, ConversionLocation.DESIGN, null, true));
 			}
 
 //			components: 'component[]',
@@ -263,15 +288,17 @@ class PersistBasedFormElementImpl
 				if (component instanceof IFormElement)
 				{
 					FormElement nfe = new FormElement((IFormElement)component, context);
-					Map<String, Object> elementProperties = new HashMap<>(nfe.getProperties());
 
 					// remove the name of relation prefix from child dataproviders as it only stands in the way later on...
 					List<String> dataProviders = WebGridFormUI.getWebComponentPropertyType(nfe.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 					String relationPrefix = portal.getRelationName() + '.';
+					Map<String, Object> elementProperties = new HashMap<>(nfe.getProperties());
 					for (String dpPropertyName : dataProviders)
 					{
-						String dp = (String)elementProperties.get(dpPropertyName);
-						if (dp != null && dp.startsWith(relationPrefix)) elementProperties.put(dpPropertyName, dp.substring(relationPrefix.length())); // portal always prefixes comp. dataproviders with related fs name
+						String dp = (String)nfe.getProperty(dpPropertyName);
+						if (dp != null && dp.startsWith(relationPrefix)) elementProperties.put(dpPropertyName, NGClientForJsonConverter.toJavaObject(
+							dp.substring(relationPrefix.length()), nfe.getWebComponentSpec().getProperty(dpPropertyName), context, ConversionLocation.DESIGN,
+							null, true)); // portal always prefixes comp. dataproviders with related fs name
 					}
 
 					componentJSONs.put(getPureSabloJSONForFormElement(nfe, elementProperties));
@@ -287,7 +314,7 @@ class PersistBasedFormElementImpl
 			}
 			else
 			{
-				map.put("childElements", NGClientForJsonConverter.toJavaObject(componentJSONs, pd, context, ConversionLocation.DESIGN, null));
+				map.put("childElements", NGClientForJsonConverter.toJavaObject(componentJSONs, pd, context, ConversionLocation.DESIGN, null, true));
 			}
 		}
 		catch (IllegalArgumentException e)
@@ -316,16 +343,15 @@ class PersistBasedFormElementImpl
 
 		// get types for conversion
 		Map<String, Object> properties = (elementProperties != null ? elementProperties : nfe.getProperties());
-//		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
-//		for (Entry<String, Object> p : properties.entrySet())
-//		{
-//			PropertyDescription t = nfe.getWebComponentSpec().getProperty(p.getKey());
-//			if (t != null) propertyTypes.putProperty(p.getKey(), t);
-//		}
-//		if (!propertyTypes.hasChildProperties()) propertyTypes = null;
+		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
+		for (Entry<String, Object> p : properties.entrySet())
+		{
+			PropertyDescription t = nfe.getWebComponentSpec().getProperty(p.getKey());
+			if (t != null) propertyTypes.putProperty(p.getKey(), t);
+		}
+		if (!propertyTypes.hasChildProperties()) propertyTypes = null;
 
-
-		JSONUtils.toDesignJSONValue(jsonWriter, properties, null /* propertyTypes */); // don't use types here! they aren't converted
+		JSONUtils.toDesignJSONValue(jsonWriter, properties, /* null */propertyTypes); // don't use types here! they aren't converted
 		jsonWriter.endObject();
 		return jsonWriter.toString();
 	}

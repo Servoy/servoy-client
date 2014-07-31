@@ -23,8 +23,8 @@ import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
-import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType.TagStringWrapper;
 import com.servoy.j2db.util.HtmlUtils;
 
@@ -88,7 +88,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	class TagStringWrapper
 	{
 		final Object value;
-		IDataConverterContext dataConverterContext;
+		IServoyDataConverterContext dataConverterContext;
 		Object jsonValue;
 
 		TagStringWrapper(Object value)
@@ -99,17 +99,26 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		TagStringWrapper(Object value, IDataConverterContext dataConverterContext)
 		{
 			this.value = value;
-			this.dataConverterContext = dataConverterContext;
+			this.dataConverterContext = NGClientForJsonConverter.getServoyConverterContext(dataConverterContext);
 		}
 
 		Object getJsonValue()
 		{
 			if (jsonValue == null)
 			{
-				if (HtmlUtils.startsWithHtml(value) && dataConverterContext != null)
+				if (HtmlUtils.startsWithHtml(value))
 				{
-					IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
-					jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext, false);
+					if (dataConverterContext != null && dataConverterContext.getSolution() != null && dataConverterContext.getApplication() != null)
+					{
+						jsonValue = HTMLTagsConverter.convert(value.toString(), dataConverterContext, false);
+					}
+					else
+					{
+						// TODO - it could still return "value" if we know HTMLTagsConverter.convert() would not want to touch that (so simple HTML)
+						// design-time wrap (used by FormElement); no component available
+						// return empty value as we don't want to expose the actual design-time stuff that would normally get encrypted by HTMLTagsConverter.convert() or is not yet valid (blobloader without an application instance for example).
+						return "<html></html>";
+					}
 				}
 				else
 				{

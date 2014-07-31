@@ -21,15 +21,16 @@ import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
-import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType.DataproviderWrapper;
 import com.servoy.j2db.util.HtmlUtils;
@@ -132,18 +133,15 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 	class DataproviderWrapper
 	{
 		final Object value;
-		IDataConverterContext dataConverterContext;
+		IServoyDataConverterContext dataConverterContext;
 		Object jsonValue;
-
-		DataproviderWrapper(Object value)
-		{
-			this(value, null);
-		}
+		PropertyDescription propertyDescription;
 
 		DataproviderWrapper(Object value, IDataConverterContext dataConverterContext)
 		{
 			this.value = value;
-			this.dataConverterContext = dataConverterContext;
+			this.dataConverterContext = NGClientForJsonConverter.getServoyConverterContext(dataConverterContext);
+			this.propertyDescription = dataConverterContext.getPropertyDescription();
 		}
 
 		Object getJsonValue() // TODO this should return a TypedData instead
@@ -157,11 +155,21 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 					((HashMap<String, Object>)jsonValue).put("url", "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName());
 					((HashMap<String, Object>)jsonValue).put("contentType", mediaInfo.getContentType());
 				}
-				else if (HtmlUtils.startsWithHtml(value) && dataConverterContext != null)
+				else if (HtmlUtils.startsWithHtml(value))
 				{
-					IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
-					jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext,
-						((DataproviderConfig)dataConverterContext.getPropertyDescription().getConfig()).hasParseHtml());
+					if (dataConverterContext != null && dataConverterContext.getForm() != null && dataConverterContext.getSolution() != null &&
+						dataConverterContext.getApplication() != null)
+					{
+						jsonValue = HTMLTagsConverter.convert(value.toString(), dataConverterContext,
+							((DataproviderConfig)propertyDescription.getConfig()).hasParseHtml());
+					}
+					else
+					{
+						// TODO - it could still return "value" if we know HTMLTagsConverter.convert() would not want to touch that (so simple HTML)
+						// design-time wrap (used by FormElement); no component available
+						// return empty value as we don't want to expose the actual design-time stuff that would normally get encrypted by HTMLTagsConverter.convert() or is not yet valid (blobloader without an application instance for example).
+						return "<html></html>";
+					}
 				}
 				else
 				{

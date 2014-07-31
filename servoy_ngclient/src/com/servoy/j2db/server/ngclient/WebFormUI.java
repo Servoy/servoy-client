@@ -300,7 +300,7 @@ public class WebFormUI extends Container implements IWebFormUI
 				{
 					//bind tag expressions
 					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
-					if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%")) || ((String)propValue).startsWith("i18n:"))
+					if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%") || ((String)propValue).startsWith("i18n:")))
 					{
 						dal.addTaggedProperty(component, level + propName, (String)propValue);
 						return;
@@ -319,8 +319,6 @@ public class WebFormUI extends Container implements IWebFormUI
 	/**
 	 * TEMPORARY FUNCTION until we move to nested web component tree , with each node having semantics (PropertyType)
 	 *  Webcomponent will be a tree
-	 * @param propertySpec
-	 * @param component
 	 */
 	private void putInComponentNode(Object componentNode, String propName, Object propValue, PropertyDescription propertySpec, WebFormComponent component)
 	{
@@ -360,7 +358,7 @@ public class WebFormUI extends Container implements IWebFormUI
 				if (propValue instanceof String)
 				{
 					// get dataproviderId
-					String dataproviderId = (String)fe.getProperties().get(propertySpec.getConfig());
+					String dataproviderId = (String)fe.getProperty((String)propertySpec.getConfig());
 					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
 						getApplication().getFlattenedSolution().getDataproviderLookup(getApplication().getFoundSetManager(), formElNodeForm), getApplication());
 					ret = format;

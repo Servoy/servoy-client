@@ -27,9 +27,9 @@ import org.sablo.websocket.utils.DataConversion;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
@@ -93,7 +93,7 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 		{
 			return previousValue;
 		}
-		IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
+		IServoyDataConverterContext servoyDataConverterContext = NGClientForJsonConverter.getServoyConverterContext(dataConverterContext);
 		Media media = null;
 		if (value instanceof Integer)
 		{

@@ -22,11 +22,17 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IComplexTypeImpl;
+import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.ConversionLocation;
+
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author rgansevles
@@ -47,7 +53,7 @@ public class NGClientForJsonConverter
 	 * @return the corresponding Java object based on bean spec.
 	 */
 	public static Object toJavaObject(Object sourceValue, PropertyDescription componentSpecType, IServoyDataConverterContext converterContext,
-		ConversionLocation jsonSource, Object oldJavaObject) throws JSONException
+		ConversionLocation jsonSource, Object oldJavaObject, boolean isJSONValue)
 	{
 		Object propertyValue = sourceValue;
 		if (sourceValue != null && componentSpecType != null)
@@ -68,6 +74,17 @@ public class NGClientForJsonConverter
 				propertyValue = complexType.getDesignJSONToJavaPropertyConverter(componentSpecType.isArray()).designJSONToJava(propertyValue,
 					componentSpecType.getConfig());
 			}
+			else if (isJSONValue && type instanceof IConvertedPropertyType && jsonSource == ConversionLocation.DESIGN && !componentSpecType.isArray())
+			{
+				// for example tagString comes from persists as a String, but it's actually a wrapped property; and later on we want to to a "toJSON" on it
+				propertyValue = ((IConvertedPropertyType)type).fromJSON(propertyValue, oldJavaObject, new DesignDataConverterContext(componentSpecType,
+					converterContext));
+			}
+			else if (!isJSONValue && type instanceof IWrapperType && jsonSource == ConversionLocation.DESIGN && !componentSpecType.isArray())
+			{
+				// for example tagString comes from persists as a String, but it's actually a wrapped property; and later on we want to to a "toJSON" on it
+				propertyValue = ((IWrapperType)type).wrap(propertyValue, oldJavaObject, new DesignDataConverterContext(componentSpecType, converterContext));
+			}
 			else if (componentSpecType.isArray() && propertyValue instanceof JSONArray)
 			{
 				JSONArray arr = ((JSONArray)propertyValue);
@@ -75,14 +92,66 @@ public class NGClientForJsonConverter
 				List<Object> list = new ArrayList<>();
 				for (int i = 0; i < arr.length(); i++)
 				{
-					list.add(toJavaObject(arr.get(i), componentSpecType.asArrayElement(), converterContext, jsonSource, (oldList != null && oldList.size() > i)
-						? oldList.get(i) : null));
+					try
+					{
+						list.add(toJavaObject(arr.get(i), componentSpecType.asArrayElement(), converterContext, jsonSource,
+							(oldList != null && oldList.size() > i) ? oldList.get(i) : null, isJSONValue));
+					}
+					catch (JSONException e)
+					{
+						list.add(null);
+						Debug.error(e);
+					}
 				}
 				return list;
 			}
 		}
 
 		return propertyValue;
+	}
+
+	public static class DesignDataConverterContext implements IDataConverterContext
+	{
+
+		protected PropertyDescription componentSpecType;
+		private final IServoyDataConverterContext converterContext;
+
+		public DesignDataConverterContext(PropertyDescription componentSpecType, IServoyDataConverterContext converterContext)
+		{
+			this.componentSpecType = componentSpecType;
+			this.converterContext = converterContext;
+		}
+
+		public IServoyDataConverterContext getConverterContext()
+		{
+			return converterContext;
+		}
+
+		@Override
+		public PropertyDescription getPropertyDescription()
+		{
+			return componentSpecType;
+		}
+
+		@Override
+		public BaseWebObject getWebObject()
+		{
+			return null;
+		}
+
+	}
+
+	public static IServoyDataConverterContext getServoyConverterContext(IDataConverterContext dataConverterContext)
+	{
+		if (dataConverterContext instanceof DesignDataConverterContext)
+		{
+			return ((DesignDataConverterContext)dataConverterContext).getConverterContext();
+		}
+		else
+		{
+			return dataConverterContext != null && dataConverterContext.getWebObject() != null
+				? ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext() : null;
+		}
 	}
 
 

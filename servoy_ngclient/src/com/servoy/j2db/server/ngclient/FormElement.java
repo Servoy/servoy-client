@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -40,6 +41,8 @@ import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.JSONUtils;
@@ -152,7 +155,7 @@ public final class FormElement implements IWebComponentInitializer
 			{
 				// TODO where the handle PropertyType.form properties? (see tabpanel below)
 				// toJavaObject should accept application because it is needed for format
-				jsonMap.put(key, NGClientForJsonConverter.toJavaObject(jsonProperties.get(key), pd, context, ConversionLocation.DESIGN, null));
+				jsonMap.put(key, NGClientForJsonConverter.toJavaObject(jsonProperties.get(key), pd, context, ConversionLocation.DESIGN, null, true));
 				//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
 			}
 			else if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(key))
@@ -179,24 +182,17 @@ public final class FormElement implements IWebComponentInitializer
 			{
 				if (pd.getDefaultValue() != null && !map.containsKey(pd.getName()))
 				{
-					try
+					Object defaultValue;
+					if (pd.getType() instanceof IClassPropertyType)
 					{
-						Object defaultValue;
-						if (pd.getType() instanceof IClassPropertyType)
-						{
-							// TODO this is wrong I think - it's design JSON while fromJSON currently is for browser update/set usage
-							defaultValue = ((IClassPropertyType)pd.getType()).fromJSON(pd.getDefaultValue(), null, new DataConverterContext(pd, null));
-						}
-						else
-						{
-							defaultValue = NGClientForJsonConverter.toJavaObject(pd.getDefaultValue(), pd, context, ConversionLocation.DESIGN, null);
-						}
-						map.put(pd.getName(), defaultValue);
+						// TODO this is wrong I think - it's design JSON while fromJSON currently is for browser update/set usage
+						defaultValue = ((IClassPropertyType)pd.getType()).fromJSON(pd.getDefaultValue(), null, new DataConverterContext(pd, null));
 					}
-					catch (JSONException e)
+					else
 					{
-						Debug.error("Error while parsing/loading default value for property: " + pd.getName() + ". Value: " + pd.getDefaultValue(), e);
+						defaultValue = NGClientForJsonConverter.toJavaObject(pd.getDefaultValue(), pd, context, ConversionLocation.DESIGN, null, true);
 					}
+					map.put(pd.getName(), defaultValue);
 				}
 				else
 				{
@@ -277,11 +273,28 @@ public final class FormElement implements IWebComponentInitializer
 		return name;
 	}
 
-	public Object getProperty(String name)
+	public Object getWrappedProperty(String name)
 	{
 		return propertyValues.get(name);
 	}
 
+	public Object getProperty(String name)
+	{
+		return getJavaValue(propertyValues.get(name), getWebComponentSpec().getProperties().get(name));
+	}
+
+	protected Object getJavaValue(Object value, PropertyDescription propertyDescription)
+	{
+		if (propertyDescription != null && !propertyDescription.isArray() && propertyDescription.getType() instanceof IWrapperType)
+		{
+			return ((IWrapperType)propertyDescription.getType()).unwrap(value);
+		}
+		return value;
+	}
+
+	/**
+	 * This should return the java object representation of the value (so not JSON and not wrapped stuff).
+	 */
 	public Object getPropertyWithDefault(String name)
 	{
 		// TODO remove this delegation when going with tree structure , this is needed for DataAdapterList which 'thinks' everything is flat
@@ -291,6 +304,7 @@ public final class FormElement implements IWebComponentInitializer
 			return ((Map)getProperty(split[0])).get(split[1]);
 		}// end toRemove
 
+		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(name);
 		if (propertyValues.containsKey(name))
 		{
 			return getProperty(name);
@@ -302,11 +316,9 @@ public final class FormElement implements IWebComponentInitializer
 			return Integer.valueOf(-1);
 		}
 
-		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(name);
-
 		if (propertyDescription != null)
 		{
-			return propertyDescription.getType().defaultValue();
+			return getJavaValue(propertyDescription.getType().defaultValue(), propertyDescription);
 		}
 		return null;
 	}
@@ -432,7 +444,7 @@ public final class FormElement implements IWebComponentInitializer
 				// tagstring if it has tags then it is data then it should be skipped.
 				if (((String)val).contains("%%")) continue;
 			}
-			properties.put(pd.getName(), val);
+			properties.put(pd.getName(), getWrappedProperty(pd.getName()));
 		}
 
 		if (persistImpl == null || !persistImpl.isForm())
@@ -450,19 +462,19 @@ public final class FormElement implements IWebComponentInitializer
 		if (propertyValues.containsKey("offsetY")) properties.put("offsetY", propertyValues.get("offsetY"));
 
 //		// get types for conversion
-//		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
-//		for (Entry<String, Object> p : properties.entrySet())
-//		{
-//			PropertyDescription t = getWebComponentSpec().getProperty(p.getKey());
-//			if (t != null) propertyTypes.putProperty(p.getKey(), t);
-//		}
-//		if (!propertyTypes.hasChildProperties()) propertyTypes = null;
-//
+		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
+		for (Entry<String, Object> p : properties.entrySet())
+		{
+			PropertyDescription t = getWebComponentSpec().getProperty(p.getKey());
+			if (t != null) propertyTypes.putProperty(p.getKey(), t);
+		}
+		if (!propertyTypes.hasChildProperties()) propertyTypes = null;
+
 		JSONWriter propertyWriter = (writer != null ? writer : new JSONStringer());
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.writeDataWithConversions(propertyWriter, properties, null/* propertyTypes */, ConversionLocation.BROWSER); // don't use property types here as they aren't yet converted...
+			JSONUtils.writeDataWithConversions(propertyWriter, properties, /* null */propertyTypes, ConversionLocation.BROWSER); // don't use property types here as they aren't yet converted...
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)
@@ -486,7 +498,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
