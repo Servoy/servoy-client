@@ -103,13 +103,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 			try
 			{
 				TypedData<List<Map<String, Object>>> rows = getRows(-1, -1).rows;
-				if (!props.content.containsKey(""))
-				{
-					props.content.put("", new HashMap<String, Object>());
-					props.contentType.putProperty("", AggregatedPropertyType.newAggregatedProperty());
-				}
+				if (!props.content.containsKey("")) props.content.put("", new HashMap<String, Object>());
 				appendRows(props, "", rows);
-				if (!props.contentType.getProperty("").hasChildProperties()) props.contentType.putProperty("", null);
 			}
 			catch (Exception e)
 			{
@@ -121,12 +116,14 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 			if (!props.content.containsKey(""))
 			{
 				props.content.put("", new HashMap<String, Object>());
+				if (props.contentType == null) props.contentType = AggregatedPropertyType.newAggregatedProperty();
 				props.contentType.putProperty("", AggregatedPropertyType.newAggregatedProperty());
 			}
 			Map<String, Object> rowProps = props.content.get("");
 			PropertyDescription rowTypes = props.contentType.getProperty("");
 			ArrayList<Map<String, Object>> rowData = new ArrayList<>(rowChanges.size());
 			PropertyDescription rowDataTypes = AggregatedPropertyType.newAggregatedProperty();
+
 			for (RowData rowChange : rowChanges)
 			{
 				TypedData<Map<String, Object>> change = rowChange.toMap();
@@ -138,6 +135,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener, 
 			rowProps.put("totalRows", Integer.toString(getController().getFoundSet().getSize()));
 			rowProps.put("selectedIndex", Integer.toString(getController().getFoundSet().getSelectedIndex()));
 			if (!rowTypes.hasChildProperties()) props.contentType.putProperty("", null);
+			if (!props.contentType.hasChildProperties()) props.contentType = null;
 		}
 		else if (selectionChanged)
 		{
