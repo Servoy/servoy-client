@@ -15,21 +15,14 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONWriter;
-import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.websocket.utils.DataConversion;
-
-import com.servoy.j2db.persistence.Form;
+import org.sablo.specification.property.IPropertyType;
 
 /**
  * @author jcompagner
  */
-public class FormPropertyType implements IConvertedPropertyType<Form>
+public class FormPropertyType implements IPropertyType<String>
 {
-
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 
 	private FormPropertyType()
@@ -49,22 +42,8 @@ public class FormPropertyType implements IConvertedPropertyType<Form>
 	}
 
 	@Override
-	public Form defaultValue()
+	public String defaultValue()
 	{
 		return null;
 	}
-
-	@Override
-	public Form fromJSON(Object newValue, Form previousValue, IDataConverterContext dataConverterContext)
-	{
-		// ?
-		return null;
-	}
-
-	@Override
-	public JSONWriter toJSON(JSONWriter writer, Form form, DataConversion clientConversion) throws JSONException
-	{
-		return writer.value(form != null ? form.getName() : null);
-	}
-
 }
