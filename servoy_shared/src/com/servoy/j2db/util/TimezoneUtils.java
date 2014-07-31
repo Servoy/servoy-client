@@ -52,6 +52,12 @@ public class TimezoneUtils
 		destination.set(Calendar.SECOND, source.get(Calendar.SECOND));
 		destination.set(Calendar.MILLISECOND, source.get(Calendar.MILLISECOND));
 
+		if (Debug.tracing())
+		{
+			Debug.trace("converting date: " + date + " to " + destination.getTimeInMillis() + " source timezone:" + sourceTimeZone + " dest: " +
+				destinationTimeZone);
+		}
+
 		return destination.getTimeInMillis();
 	}
 
