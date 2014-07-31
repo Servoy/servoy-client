@@ -20,9 +20,11 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.TypedData;
@@ -275,7 +277,7 @@ public class WebFormUI extends Container implements IWebFormUI
 			}
 			if (processedArray.size() > 0)
 			{
-				putInComponentNode(componentNode, propertySpec.getName(), processedArray);
+				putInComponentNode(componentNode, propertySpec.getName(), processedArray, propertySpec, component);
 			}
 		}
 		else
@@ -310,16 +312,19 @@ public class WebFormUI extends Container implements IWebFormUI
 				default :
 					break;
 			}
-			if (propValue != null) putInComponentNode(componentNode, propName, propValue); //TODO
+			if (propValue != null) putInComponentNode(componentNode, propName, propValue, propertySpec, component); //TODO
 		}
 	}
 
 	/**
 	 * TEMPORARY FUNCTION until we move to nested web component tree , with each node having semantics (PropertyType)
 	 *  Webcomponent will be a tree
+	 * @param propertySpec
+	 * @param component
 	 */
-	private void putInComponentNode(Object componentNode, String propName, Object propValue)
+	private void putInComponentNode(Object componentNode, String propName, Object propValue, PropertyDescription propertySpec, WebFormComponent component)
 	{
+		// TODO should this just a a property.property.property = value called to WebFormComponent?
 		if (componentNode instanceof WebFormComponent)
 		{
 			// TODO this will convert a second time (the first conversion was done in FormElement; is this really needed? cause
@@ -328,6 +333,11 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 		else
 		{
+			// now we need to convert it ourselfs. because this map will be internal to the WebFormComponent so has to have wrapper values.
+			if (propertySpec != null && propertySpec.getType() instanceof IWrapperType< ? , ? >)
+			{
+				propValue = ((IWrapperType)propertySpec.getType()).wrap(propValue, null, new DataConverterContext(propertySpec, component));
+			}
 			((Map)componentNode).put(propName, propValue);
 		}
 	}

@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -32,10 +33,12 @@ import org.mozilla.javascript.ScriptableObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
+import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -150,7 +153,7 @@ public class RuntimeWebComponent implements Scriptable
 				}
 			}
 			Object value = component.getConvertedPropertyWithDefault(name, dataProviderProperties.contains(name), true);
-			if (value instanceof Map || value instanceof Object[])
+			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
 			{
 				return new MapOrArrayWrapper(component, name, dataProviderProperties.contains(name),
 					component.getFormElement().getWebComponentSpec().getProperty(name), component.getDataConverterContext());
@@ -359,6 +362,12 @@ public class RuntimeWebComponent implements Scriptable
 			this.design = false;
 		}
 
+		private WebFormComponent getWebFormComponent()
+		{
+			if (parentValue instanceof WebFormComponent) return (WebFormComponent)parentValue;
+			return ((MapOrArrayWrapper)parentValue).getWebFormComponent();
+		}
+
 		private Object getValue()
 		{
 			if (parentValue instanceof WebFormComponent)
@@ -389,6 +398,10 @@ public class RuntimeWebComponent implements Scriptable
 			{
 				return Integer.valueOf(((Object[])value).length);
 			}
+			else if (value instanceof List && name.equals("length"))
+			{
+				return Integer.valueOf(((List< ? >)value).size());
+			}
 			return null;
 		}
 
@@ -398,7 +411,7 @@ public class RuntimeWebComponent implements Scriptable
 			Object value = get(name);
 
 			PropertyDescription propDesc = propertyDescription.getProperty(name);
-			if (value instanceof Map || value instanceof Object[])
+			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
 			{
 				return new MapOrArrayWrapper(this, name, propDesc, converterContext);
 			}
@@ -415,6 +428,13 @@ public class RuntimeWebComponent implements Scriptable
 					return ((Object[])value)[index];
 				}
 			}
+			else if (value instanceof List< ? >)
+			{
+				if (((List< ? >)value).size() > index)
+				{
+					return ((List< ? >)value).get(index);
+				}
+			}
 			return null;
 		}
 
@@ -422,7 +442,7 @@ public class RuntimeWebComponent implements Scriptable
 		public Object get(int index, Scriptable start)
 		{
 			Object value = get(index);
-			if (value instanceof Map || value instanceof Object[])
+			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
 			{
 				return new MapOrArrayWrapper(this, index, propertyDescription.asArrayElement(), converterContext);
 			}
@@ -448,6 +468,10 @@ public class RuntimeWebComponent implements Scriptable
 			{
 				return ((Object[])value).length > index;
 			}
+			else if (value instanceof List< ? >)
+			{
+				return ((List< ? >)value).size() > index;
+			}
 			else if (value instanceof MapOrArrayWrapper)
 			{
 				return ((MapOrArrayWrapper)value).has(index, start);
@@ -461,9 +485,30 @@ public class RuntimeWebComponent implements Scriptable
 			Object mapValue = getValue();
 			if (mapValue instanceof Map)
 			{
-				((Map)mapValue).put(name, RhinoConversion.convert(value, ((Map)mapValue).get(name), propertyDescription.getProperty(name), converterContext));
+				Object convertedValue = convertValue(value, propertyDescription.getProperty(name), ((Map)mapValue).get(name));
+				((Map)mapValue).put(name, convertedValue);
 				markAsChanged();
 			}
+		}
+
+		/**
+		 * @param value
+		 * @param propertyDesc
+		 * @param oldValue
+		 * @return
+		 */
+		private Object convertValue(Object value, PropertyDescription propertyDesc, Object oldValue)
+		{
+			// first convert the rhino value to a java value.
+			Object convertedValue = RhinoConversion.convert(value, oldValue, propertyDesc, converterContext);
+			// now convert it to an internal WebObject value (so it must be wrapped)
+			// TODO should this be done in BaseWebObject itself? So set the property with dots?
+			if (propertyDesc != null && propertyDesc.getType() instanceof IWrapperType< ? , ? >)
+			{
+				IWrapperType type = (IWrapperType)propertyDesc.getType();
+				convertedValue = type.wrap(convertedValue, oldValue, new DataConverterContext(propertyDesc, getWebFormComponent()));
+			}
+			return convertedValue;
 		}
 
 		private void markAsChanged()
@@ -485,8 +530,8 @@ public class RuntimeWebComponent implements Scriptable
 			Object arrayValue = getValue();
 			if (arrayValue instanceof Object[])
 			{
-				Object val = RhinoConversion.convert(value, ((Object[])arrayValue).length > index ? ((Object[])arrayValue)[index] : null,
-					propertyDescription.asArrayElement(), converterContext);
+				Object val = convertValue(value, propertyDescription.asArrayElement(), ((Object[])arrayValue).length > index ? ((Object[])arrayValue)[index]
+					: null);
 				if (((Object[])arrayValue).length > index)
 				{
 					((Object[])arrayValue)[index] = val;
@@ -518,7 +563,17 @@ public class RuntimeWebComponent implements Scriptable
 					}
 				}
 			}
-
+			else if (arrayValue instanceof List< ? >)
+			{
+				List<Object> lst = (List<Object>)arrayValue;
+				Object val = convertValue(value, propertyDescription.asArrayElement(), lst.size() > index ? lst.get(index) : null);
+				while (lst.size() <= index)
+				{
+					lst.add(null);
+				}
+				lst.set(index, val);
+				markAsChanged();
+			}
 		}
 
 		@Override
@@ -540,6 +595,10 @@ public class RuntimeWebComponent implements Scriptable
 			{
 				((Object[])value)[index] = null;
 				markAsChanged();
+			}
+			else if (value instanceof List< ? >)
+			{
+				((List< ? >)value).set(index, null);
 			}
 		}
 
@@ -575,9 +634,12 @@ public class RuntimeWebComponent implements Scriptable
 			{
 				return ((Map)value).keySet().toArray(new Object[0]);
 			}
-			else if (value instanceof Object[])
+			else if (value instanceof Object[] || value instanceof List< ? >)
 			{
-				Object[] result = new Object[((Object[])value).length];
+				int length = 0;
+				if (value instanceof Object[]) length = ((Object[])value).length;
+				else length = ((List< ? >)value).size();
+				Object[] result = new Object[length];
 				int i = result.length;
 				while (--i >= 0)
 					result[i] = Integer.valueOf(i);
