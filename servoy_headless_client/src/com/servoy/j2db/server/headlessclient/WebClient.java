@@ -226,6 +226,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (timeZone == null && Session.exists())
 		{
 			WebClientSession webClientSession = ((WebClientSession)Session.get());
+			// TODO do some better guessing? See ClientProperties.getTimeZone()
 			timeZone = ((WebClientInfo)webClientSession.getClientInfo()).getProperties().getTimeZone();
 		}
 		return super.getTimeZone();
