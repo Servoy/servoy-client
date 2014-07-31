@@ -157,6 +157,18 @@ public class ResourceProvider implements Filter
 						url = reader.getUrlForPath(pathInfo.substring(index));
 						if (url != null) break;
 					}
+					if (url == null)
+					{
+						index = pathInfo.indexOf('/', index + 1);
+						if (index > 1)
+						{
+							for (IPackageReader reader : serviceReaders)
+							{
+								url = reader.getUrlForPath(pathInfo.substring(index));
+								if (url != null) break;
+							}
+						}
+					}
 				}
 			}
 			if (url != null)
