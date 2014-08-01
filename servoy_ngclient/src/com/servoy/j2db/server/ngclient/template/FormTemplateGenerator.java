@@ -32,6 +32,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
@@ -166,6 +167,10 @@ public class FormTemplateGenerator
 			if (persist instanceof Portal)
 			{
 				return "svy-portal";
+			}
+			if (persist instanceof RectShape)
+			{
+				return "svy-rectangle";
 			}
 		}
 		return "svy-errorbean";

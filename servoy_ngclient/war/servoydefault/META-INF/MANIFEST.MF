@@ -68,3 +68,6 @@ Web-Component: True
 
 Name: spinner/spinner.spec
 Web-Component: True
+
+Name: rectangle/rectangle.spec
+Web-Component: True

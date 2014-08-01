@@ -483,7 +483,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         			  element.css('border','')
         			  element.css(newVal.borderStyle)
         		  }
-        	  })
+        	  }, true)
 
         }
       };
