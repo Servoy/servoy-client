@@ -859,6 +859,10 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			{
 				element.css('cursor','pointer');
 			}
+			else
+			{
+				element.css('cursor','default');
+			}
 		}
 	};
 })
