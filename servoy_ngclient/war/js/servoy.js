@@ -170,15 +170,24 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			}
 			return null;
 		},
-		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction) {
+		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction,timeout) {
 			var fn = this.getEventHandler($parse,scope,svyEventHandler)
 			if (fn)
 			{
 				element.on(domEvent, function(event) {
 					if (!filterFunction || filterFunction(event)) {
-						scope.$apply(function() {
-							fn(scope, {$event:event});
-						});
+						if (timeout)
+						{
+							setTimeout(function(){scope.$apply(function() {
+								fn(scope, {$event:event});
+							});},timeout);
+						}
+						else
+						{
+							scope.$apply(function() {
+								fn(scope, {$event:event});
+							});
+						}
 						return false;
 					}
 				}); 
@@ -391,6 +400,15 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         	$utils.attachEventHandler($parse,element,scope,attrs.svyEnter,'keydown', $utils.testEnterKey);
         }
       };
+}).directive('svyChange',  function ($parse,$utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	// timeout needed for angular to update model first
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyChange,'change',null,100);
+        }
+      };
+
 }).directive('svyClick',  function ($parse,$utils) {
     return {
         restrict: 'A',
