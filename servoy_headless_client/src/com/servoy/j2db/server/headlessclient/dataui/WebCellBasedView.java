@@ -5207,6 +5207,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			scrollBehavior.scrollViewPort(target, appendMissingRows);
 			selectionChanged = false;
+			nrUpdatedListItems = 0;
 		}
 	}
 
@@ -5317,6 +5318,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 
 					target.appendJavascript(sb.toString());
+					nrUpdatedListItems = 0;
 				}
 				else target.appendJavascript("Servoy.TableView.isAppendingRows = false;"); //$NON-NLS-1$
 			}
