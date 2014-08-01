@@ -1333,7 +1333,7 @@ public class SQLGenerator
 	{
 		if (value != null)
 		{
-			String lc = value.toLowerCase();
+			String lc = value.toLowerCase().trim();
 			return lc.startsWith("select") || lc.startsWith("with"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return false;
