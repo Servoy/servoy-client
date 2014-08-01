@@ -516,7 +516,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
     			  columnDefs: columnDefinitions,
     			  headerRowHeight: $scope.model.multiLine ? 0 : 32,
-    			  rowHeight: $scope.rowHeight
+    			  rowHeight: $scope.rowHeight?$scope.rowHeight:20
     	  };
 
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
