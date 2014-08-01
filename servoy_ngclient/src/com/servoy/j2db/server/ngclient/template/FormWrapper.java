@@ -158,7 +158,7 @@ public class FormWrapper
 			}
 		}
 
-		return rowHeight;
+		return rowHeight == 0?20:rowHeight;
 	}
 
 	private Part getBodyPart()
