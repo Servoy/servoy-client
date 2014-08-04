@@ -461,7 +461,7 @@ public final class FormElement implements IWebComponentInitializer
 
 		if (propertyValues.containsKey("offsetY")) properties.put("offsetY", propertyValues.get("offsetY"));
 
-//		// get types for conversion
+		// get types for conversion
 		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
 		for (Entry<String, Object> p : properties.entrySet())
 		{
@@ -498,7 +498,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

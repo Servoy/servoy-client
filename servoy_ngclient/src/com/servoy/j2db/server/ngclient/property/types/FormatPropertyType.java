@@ -38,7 +38,7 @@ import com.servoy.j2db.persistence.Column;
  * @author jcompagner
  *
  */
-public class FormatPropertyType implements IConvertedPropertyType<ComponentFormat>
+public class FormatPropertyType implements IConvertedPropertyType<Object>/* <ComponentFormat> */
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -74,22 +74,27 @@ public class FormatPropertyType implements IConvertedPropertyType<ComponentForma
 	}
 
 	@Override
-	public ComponentFormat defaultValue()
+	public Object/* ComponentFormat */defaultValue()
 	{
 		return null;
 	}
 
 	@Override
-	public ComponentFormat fromJSON(Object newValue, ComponentFormat previousValue, IDataConverterContext dataConverterContext)
+	public Object/* ComponentFormat */fromJSON(Object newValue, Object/* ComponentFormat */previousValue, IDataConverterContext dataConverterContext)
 	{
+		// TODO remove when these types are design-aware and we know exactly how to deal with FormElement values (a refactor is to be done soon)
+		return newValue;
+
 		// ?
-		return null;
+//		return null;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, ComponentFormat format, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, Object/* ComponentFormat */formatValue, DataConversion clientConversion) throws JSONException
 	{
-		if (format == null) return writer.value(null);
+		ComponentFormat format;
+		if (formatValue == null || formatValue instanceof String) return writer.value(null);
+		format = (ComponentFormat)formatValue;
 
 		Map<String, Object> map = new HashMap<>();
 		String type = Column.getDisplayTypeString(format.uiType);

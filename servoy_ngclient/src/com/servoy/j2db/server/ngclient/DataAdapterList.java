@@ -409,8 +409,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void startEdit(WebFormComponent webComponent, String property)
 	{
-		Object dataProvider = beanToDataHolder.get(webComponent.getFormElement()).get(property);
-		if (dataProvider != null && !ScopesUtils.isVariableScope(dataProvider.toString()))
+		String dataProvider = beanToDataHolder.get(webComponent.getFormElement()).get(property);
+		if (dataProvider != null && !ScopesUtils.isVariableScope(dataProvider))
 		{
 			record.startEditing();
 		}
