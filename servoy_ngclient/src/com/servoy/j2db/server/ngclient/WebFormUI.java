@@ -29,7 +29,9 @@ import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.TypedData;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
@@ -210,7 +212,8 @@ public class WebFormUI extends Container implements IWebFormUI
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
 			elementsScope.put(fe.getName(), formController.getFormScope(), runtimeComponent);
 			elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
-			if (fe.isLegacy())
+			if (fe.isLegacy() ||
+				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW) && fe.getTypeName().startsWith("svy-")))
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
