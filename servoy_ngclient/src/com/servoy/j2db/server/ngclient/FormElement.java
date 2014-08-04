@@ -40,6 +40,8 @@ import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IComplexPropertyValue;
+import org.sablo.specification.property.IComplexTypeImpl;
+import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
@@ -285,9 +287,39 @@ public final class FormElement implements IWebComponentInitializer
 
 	protected Object getJavaValue(Object value, PropertyDescription propertyDescription)
 	{
-		if (propertyDescription != null && !propertyDescription.isArray() && propertyDescription.getType() instanceof IWrapperType)
+		if (propertyDescription != null)
 		{
-			return ((IWrapperType)propertyDescription.getType()).unwrap(value);
+			if (!propertyDescription.isArray() && propertyDescription.getType() instanceof IWrapperType)
+			{
+				return ((IWrapperType)propertyDescription.getType()).unwrap(value);
+			}
+			// TODO the following code either needs to be removed completely when refactoring FormElement for design-aware types
+			// or it should be moved to ICustomType
+			else if (propertyDescription.isArray() && value instanceof List)
+			{
+				List arr = ((List)value);
+				List<Object> list = new ArrayList<>();
+				for (int i = 0; i < arr.size(); i++)
+				{
+					list.add(getJavaValue(arr.get(i), propertyDescription.asArrayElement()));
+				}
+				return list;
+			}
+			else if ((propertyDescription.getType() instanceof ICustomType) &&
+				((ICustomType)propertyDescription.getType()).getCustomJSONTypeDefinition() != null && value instanceof Map &&
+				!(propertyDescription.getType() instanceof IComplexTypeImpl))
+			{
+				Map<String, Object> props = ((Map)value);
+				Map<String, Object> newProps = new HashMap<>();
+				PropertyDescription localPropertyType = ((ICustomType)propertyDescription.getType()).getCustomJSONTypeDefinition();
+
+				for (String prop : props.keySet())
+				{
+					PropertyDescription localPropertyDescription = localPropertyType.getProperty(prop);
+					newProps.put(prop, getJavaValue(props.get(prop), localPropertyDescription));
+				}
+				return newProps;
+			}
 		}
 		return value;
 	}
@@ -498,7 +530,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

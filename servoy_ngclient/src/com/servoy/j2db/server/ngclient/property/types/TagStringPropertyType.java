@@ -120,6 +120,10 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 						return "<html></html>";
 					}
 				}
+//				else if (value == Scriptable.NOT_FOUND)
+//				{
+//					return null; // this should not happen I think... it should get intercepted before being set to "value"; it happened if the table didn't have a column that was used as dataprovider
+//				}
 				else
 				{
 					jsonValue = value;

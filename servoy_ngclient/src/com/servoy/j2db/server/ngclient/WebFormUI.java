@@ -247,7 +247,8 @@ public class WebFormUI extends Container implements IWebFormUI
 			List<Object> fePropertyArray = (List<Object>)formElementProperty;
 			for (Object arrayValue : fePropertyArray)
 			{
-				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, propertySpec, dal, component, componentNode, level, true);
+				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, propertySpec.asArrayElement(), dal, component, componentNode, level,
+					true);
 				switch (type.getName())
 				{
 					case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
