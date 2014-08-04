@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -204,8 +203,14 @@ public class ComponentFactory
 				portal.put("multiLine", true);
 				portal.put("rowHeight", bodyPart.getHeight());
 				portal.put("anchors", IAnchorConstants.ALL);
-				portal.put("location", new Point(0, 0));
-				portal.put("size", new Dimension(form.getWidth(), bodyPart.getHeight()));
+				JSONObject location = new JSONObject();
+				location.put("x", 0);
+				location.put("y", 0);
+				portal.put("location", location);
+				JSONObject size = new JSONObject();
+				size.put("width", form.getWidth());
+				size.put("height", bodyPart.getHeight());
+				portal.put("size", size);
 				portal.put("visible", listViewPortal.getVisible());
 				portal.put("enabled", listViewPortal.getEnabled());
 				portal.put("childElements", componentJSONs);
