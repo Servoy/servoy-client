@@ -234,6 +234,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  $scope.$evalAsync(function () { updateGridSelectionFromFoundset(); });
     	  });
  
+    	  $scope.rowHeight = $scope.model.rowHeight;
+    	  
     	  var rowTemplate = ''
     	  var columnDefinitions = [];
     	  for (var idx = 0; idx < elements.length; idx++) {
@@ -253,8 +255,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  }
 
     		  var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getMergedCellModel(row, ' + idx + ')" svy-api="cellApiWrapper(row, ' + idx + ')" svy-handlers="cellHandlerWrapper(row, ' + idx + ')" svy-apply="cellApplyHandlerWrapper(row, ' + idx + ')"/>' 
-    		  if($scope.model.multiLine) {
-    			  $scope.rowHeight = $scope.model.rowHeight; 
+    		  if($scope.model.multiLine) { 
     			  if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
     				  $scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
     			  }
