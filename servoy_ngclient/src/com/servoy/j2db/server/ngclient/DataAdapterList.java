@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
@@ -100,9 +101,32 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 //	}
 
 	@Override
-	public Object executeInlineScript(String script, JSONObject args)
+	public Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs)
 	{
 		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args);
+		if (appendingArgs != null && decryptedScript.endsWith("()"))
+		{
+			decryptedScript = decryptedScript.substring(0, decryptedScript.length() - 1);
+			for (int i = 0; i < appendingArgs.length(); i++)
+			{
+				try
+				{
+					decryptedScript += appendingArgs.get(i);
+				}
+				catch (JSONException e)
+				{
+					Debug.error(e);
+				}
+				if (i < appendingArgs.length() - 1)
+				{
+					decryptedScript += ",";
+				}
+				else
+				{
+					decryptedScript += ")";
+				}
+			}
+		}
 		return decryptedScript != null ? formController.eval(decryptedScript) : null;
 	}
 

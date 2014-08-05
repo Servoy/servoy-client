@@ -718,9 +718,17 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 			{
 				try
 				{
-					String formName = SecuritySupport.decrypt(Settings.getInstance(), args.optString("formname"));
+					String formName = args.optString("formname", null);
+					if (formName == null)
+					{
+						formName = getCurrentForm().getName();
+					}
+					else
+					{
+						formName = SecuritySupport.decrypt(Settings.getInstance(), formName);
+					}
 					IWebFormUI form = getFormAndSetCurrentWindow(formName).getFormUI();
-					form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"));
+					form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"), args.optJSONArray("params"));
 				}
 				catch (Exception ex)
 				{

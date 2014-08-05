@@ -248,7 +248,7 @@
 			// first get on the same level as the paint events.
 			$timeout(function() {
 				if ($scope.model[''].rows.length == 0) {
-					// this will be after the paint events.		
+					// this will be after the paint events.
 		    		$scope.model[''].rows = tmpRows;
 		    	}
 			},10);

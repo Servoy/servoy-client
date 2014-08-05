@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.eventthread;
 
 import org.sablo.eventthread.Event;
+import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.server.ngclient.INGApplication;
 
@@ -42,7 +43,7 @@ public class NGEvent extends Event
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.eventthread.Event#beforeExecute()
 	 */
 	@Override
@@ -50,11 +51,12 @@ public class NGEvent extends Event
 	{
 		client.getWebsocketSession().startHandlingEvent();
 		previous = client.getRuntimeWindowManager().getCurrentWindowName();
+		client.getRuntimeWindowManager().setCurrentWindowName(WebsocketEndpoint.get().getWindowId());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.eventthread.Event#afterExecute()
 	 */
 	@Override

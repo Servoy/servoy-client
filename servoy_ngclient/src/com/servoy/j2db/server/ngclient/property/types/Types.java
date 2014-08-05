@@ -39,5 +39,6 @@ public class Types
 		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
 		TypesRegistry.addType(DataproviderPropertyType.INSTANCE);
 		TypesRegistry.addType(TagStringPropertyType.INSTANCE);
+		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
 	}
 }

@@ -1,7 +1,7 @@
 name: 'window',
 displayName: 'Servoy Window plugin',
 definition: 'services/servoyservices/window/window.js',
-libraries: [],
+libraries: ['services/servoyservices/window/shortcut.js'],
 model:
 {
  	shortcuts : 'shortcut[]',
@@ -33,7 +33,7 @@ types: {
   shortcut: {
   	model: {
   		shortcut: 'string',
-  		method: 'string',
+  		callback: 'function',
   		contextFilter: 'string',
   		arguments: 'object[]',
   	}

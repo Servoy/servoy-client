@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
 
@@ -51,10 +52,11 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 
 	/**
 	 * @param script
-	 * @param args
+	 * @param args args to replace in script
+	 * @param appendingArgs args to append in script execution
 	 * @return
 	 */
-	Object executeInlineScript(String script, JSONObject args);
+	Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs);
 
 	/**
 	 * @param record
