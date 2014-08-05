@@ -100,14 +100,9 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 	formState.handlers = $scope.handlers;
 	
 	var wrapper = function(beanName) {
-		var initializing = true
 		return function(newvalue,oldvalue) {
-			if (initializing) {
-    			$timeout(function() { initializing = false; });
-  			} else {
 				if(oldvalue === newvalue) return;
 				$servoyInternal.sendChanges(newvalue,oldvalue, "${name}", beanName);
-			}
 		}
 	}
 
