@@ -261,7 +261,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private int currentScrollTop;
 	private int currentScrollLeft;
 	private int topPhHeight;
-	private int scrollableHeaderHeight = -1;
+	private int scrollableHeaderHeight;
 	public boolean selectionChanged = false;
 
 	private boolean isLeftToRightOrientation;
@@ -288,12 +288,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				top = "0"; //$NON-NLS-1$
 			}
 
-			StringBuffer tbodyStyle = new StringBuffer("var tbodyTop=").append(top).append(";if(tbodyTop != null && tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			StringBuffer tbodyStyle = new StringBuffer("var tbodyTop=").append(top).append(";if(tbodyTop != null) { if(tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
-			if (scrollableHeaderHeight == -1) tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();"); //$NON-NLS-1$//$NON-NLS-2$
-			tbodyStyle.append("if(tbodyTop != null) wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);"); //$NON-NLS-1$ //$NON-NLS-2$
+			tbodyStyle.append("wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);}"); //$NON-NLS-1$ //$NON-NLS-2$
 
-			response.renderOnLoadJavascript(tbodyStyle.toString());
+			response.renderOnDomReadyJavascript(tbodyStyle.toString());
+
+			StringBuffer onLoadtBodyCheck = new StringBuffer("var tbodyTop=").append(top).append(";if((tbodyTop != null) && ((tbodyTop + 'px') != $('#").append(tableContainerBody.getMarkupId()).append("').css('top'))) { alert('needs update'); if(tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
+			onLoadtBodyCheck.append("wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);}"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			response.renderOnLoadJavascript(onLoadtBodyCheck.toString());
 		}
 
 		/*
@@ -1953,7 +1958,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					//if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer()) scrollPadding = 0;
 					//else scrollPadding = SCROLLBAR_SIZE;
 					return scrollBarDefinitionToOverflowAttribute(scrollbars, isScrollMode(), true, currentData == null || currentData.getSize() == 0) +
-						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; " + (scrollableHeaderHeight == -1 ? "display:none;" : "top:" + scrollableHeaderHeight + "px;") + " padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; top:" + scrollableHeaderHeight + "px; padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				}
 			}));
 			tableContainerBody.add(new SimpleAttributeModifier("class", "rowsContainerBody")); //$NON-NLS-1$ //$NON-NLS-2$
