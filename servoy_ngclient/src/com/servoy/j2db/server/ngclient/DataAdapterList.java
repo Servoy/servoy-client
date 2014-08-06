@@ -50,6 +50,7 @@ import com.servoy.j2db.util.Text;
 
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
+	private final Map<WebFormComponent, List<String>> componentPropertiesWithI18N = new HashMap<>();
 	private final Map<String, Map<WebFormComponent, List<String>>> dataProviderToComponentWithTags = new HashMap<>();
 	private final Map<String, List<Pair<WebFormComponent, String>>> recordDataproviderToComponent = new HashMap<>();
 	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
@@ -186,7 +187,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addTaggedProperty(final WebFormComponent component, final String beanTaggedProperty, String propertyValue)
 	{
-		Text.processTags(propertyValue, new ITagResolver()
+		if (propertyValue.startsWith("i18n:"))
+		{
+			// TODO really store this like this so that it is pushed all the time?
+			// or should we just directly store it and have no support for constant changes?
+			List<String> props = componentPropertiesWithI18N.get(component);
+			if (props == null)
+			{
+				props = new ArrayList<>();
+				componentPropertiesWithI18N.put(component, props);
+			}
+			props.add(beanTaggedProperty);
+		}
+		else Text.processTags(propertyValue, new ITagResolver()
 		{
 			@Override
 			public String getStringValue(String name)
@@ -258,26 +271,24 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		boolean changed = false;
 		Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), dataprovider);
-		Object oldValue;
-		boolean isPropertyChanged;
-		WebFormComponent wc;
-		String property;
-		String onDataChange, onDataChangeCallback;
 		for (Pair<WebFormComponent, String> pair : components)
 		{
-			wc = pair.getLeft();
-			property = pair.getRight();
-			oldValue = wc.getProperty(property);
-			isPropertyChanged = wc.setProperty(property, value, ConversionLocation.SERVER);
-			onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
-			if (fireOnDataChange && onDataChange != null && wc.hasEvent(onDataChange) && isPropertyChanged)
+			WebFormComponent wc = pair.getLeft();
+			String property = pair.getRight();
+			Object oldValue = wc.getProperty(property);
+			boolean isPropertyChanged = wc.setProperty(property, value, ConversionLocation.SERVER);
+			if (isPropertyChanged && fireOnDataChange)
 			{
-				JSONObject event = EventExecutor.createEvent(onDataChange);
-				Object returnValue = wc.executeEvent(onDataChange, new Object[] { oldValue, value, event });
-				onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
-				if (onDataChangeCallback != null)
+				String onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
+				if (onDataChange != null && wc.hasEvent(onDataChange))
 				{
-					wc.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
+					JSONObject event = EventExecutor.createEvent(onDataChange);
+					Object returnValue = wc.executeEvent(onDataChange, new Object[] { oldValue, value, event });
+					String onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
+					if (onDataChangeCallback != null)
+					{
+						wc.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
+					}
 				}
 			}
 			if (!fireChange)
@@ -350,6 +361,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			for (Entry<String, Map<WebFormComponent, List<String>>> entry : dataProviderToComponentWithTags.entrySet())
 			{
 				changed = updateTagValue(entry.getValue(), fireChangeEvent) || changed;
+			}
+			// TODO not check only record change? But only on language change?
+			for (WebFormComponent component : componentPropertiesWithI18N.keySet())
+			{
+				for (String taggedProp : componentPropertiesWithI18N.get(component))
+				{
+					String initialPropValue = (String)component.getInitialProperty(taggedProp);
+					String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
+					changed = component.setProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
+				}
 			}
 		}
 		else
