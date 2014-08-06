@@ -80,10 +80,10 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 				return $servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:visibility,parentForm:$scope.formname,bean:beanname,relation:relationname,formIndex:formIndex})
 			},
 			setFormEnabled: function(formname, enabled) {
-				return $servoyInternal.callService('formService', 'formenabled', {formname:formname,enabled:enabled})
+				$servoyInternal.callService('formService', 'formenabled', {formname:formname,enabled:enabled},true)
 			},
 			setFormReadOnly: function(formname, readOnly) {
-				return $servoyInternal.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly})
+				$servoyInternal.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly},true)
 			},
 			getFormUrl: function(formUrl) {
 				return $windowService.getFormUrl(formUrl);

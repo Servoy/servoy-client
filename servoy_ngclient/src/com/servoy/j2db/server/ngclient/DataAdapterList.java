@@ -254,7 +254,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return record;
 	}
 
-	private boolean updateRecordDataprovider(String dataprovider, List<Pair<WebFormComponent, String>> components, boolean fireOnDataChange)
+	private boolean updateRecordDataprovider(String dataprovider, List<Pair<WebFormComponent, String>> components, boolean fireOnDataChange, boolean fireChange)
 	{
 		boolean changed = false;
 		Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), dataprovider);
@@ -280,13 +280,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					wc.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
 				}
 			}
+			if (!fireChange)
+			{
+				// this component is currently rendering so clear all the changes
+				wc.clearChanges();
+			}
 			changed = isPropertyChanged || changed;
 		}
 
 		return changed;
 	}
 
-	private boolean updateTagValue(Map<WebFormComponent, List<String>> components)
+	private boolean updateTagValue(Map<WebFormComponent, List<String>> components, boolean fireChange)
 	{
 		boolean changed = false;
 		for (Map.Entry<WebFormComponent, List<String>> entry : components.entrySet())
@@ -297,6 +302,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				String initialPropValue = (String)component.getInitialProperty(taggedProp);
 				String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
 				changed = component.setProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
+			}
+			if (!fireChange)
+			{
+				// this component is currently rendering so clear all the changes
+				component.clearChanges();
 			}
 		}
 
@@ -334,24 +344,24 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			for (Entry<String, List<Pair<WebFormComponent, String>>> entry : recordDataproviderToComponent.entrySet())
 			{
-				changed = updateRecordDataprovider(entry.getKey(), entry.getValue(), fireOnDataChange) || changed;
+				changed = updateRecordDataprovider(entry.getKey(), entry.getValue(), fireOnDataChange, fireChangeEvent) || changed;
 			}
 
 			for (Entry<String, Map<WebFormComponent, List<String>>> entry : dataProviderToComponentWithTags.entrySet())
 			{
-				changed = updateTagValue(entry.getValue()) || changed;
+				changed = updateTagValue(entry.getValue(), fireChangeEvent) || changed;
 			}
 		}
 		else
 		{
 			if (recordDataproviderToComponent.containsKey(dataProvider))
 			{
-				changed = updateRecordDataprovider(dataProvider, recordDataproviderToComponent.get(dataProvider), fireOnDataChange);
+				changed = updateRecordDataprovider(dataProvider, recordDataproviderToComponent.get(dataProvider), fireOnDataChange, fireChangeEvent);
 			}
 
 			if ((isFormDP || isGlobalDP) && dataProviderToComponentWithTags.containsKey(dataProvider))
 			{
-				changed = updateTagValue(dataProviderToComponentWithTags.get(dataProvider)) || changed;
+				changed = updateTagValue(dataProviderToComponentWithTags.get(dataProvider), fireChangeEvent) || changed;
 			}
 		}
 
