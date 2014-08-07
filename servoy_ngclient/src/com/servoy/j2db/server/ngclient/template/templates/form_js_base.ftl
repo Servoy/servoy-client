@@ -20,17 +20,17 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 
 	var beans = {
 	<#list baseComponents as bc>
-		${bc.name}: ${bc.propertiesString}<#if bc_has_next>,</#if>
+		'${bc.name}': ${bc.propertiesString}<#if bc_has_next>,</#if>
 	</#list>
 	}
 
 	<#list baseComponents as bc>
 		<#list bc.valuelistProperties as vlprop>
-	beans.${bc.name}.${vlprop}_filter = function(filterString) {
+	beans['${bc.name}'].${vlprop}_filter = function(filterString) {
 		if (filterString) {
 			return $servoyInternal.filterList('${name}','${bc.name}','${vlprop}',filterString);
 		}
-		return $scope.model.${bc.name}.${vlprop}
+		return $scope.model['${bc.name}'].${vlprop}
 	}
 	    </#list>
 	</#list>
@@ -93,7 +93,7 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 
 	$scope.handlers = {
 	<#list baseComponents as bc>
-		${bc.name}: {"svy_apply":getApply('${bc.name}'),"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
+		'${bc.name}': {"svy_apply":getApply('${bc.name}'),"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
 	</#list>
 	}
 	
