@@ -38,6 +38,7 @@ public class SpecTemplateModel
 	public static final int REPLACE = 2;
 
 	private final String name;
+	private final String serverScript;
 	private final String displayName;
 	private final Class< ? > apiInterface;
 	private final String[] libraries;
@@ -48,16 +49,23 @@ public class SpecTemplateModel
 
 	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface, String[] libaries)
 	{
+		this(name, displayName, repositoryType, apiInterface, libaries, null);
+	}
+
+	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript)
+	{
 		this.name = name;
 		this.displayName = displayName;
 		this.apiInterface = apiInterface;
 		this.repositoryType = repositoryType;
 		this.libraries = libaries;
+		this.serverScript = serverScript;
 	}
 
-	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface, String[] libaries, ApiMethod[] extraApiMethods)
+	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript,
+		ApiMethod[] extraApiMethods)
 	{
-		this(name, displayName, repositoryType, apiInterface, libaries);
+		this(name, displayName, repositoryType, apiInterface, libaries, serverScript);
 		apis.addAll(Arrays.asList(extraApiMethods));
 	}
 
@@ -74,6 +82,11 @@ public class SpecTemplateModel
 	public int getRepositoryType()
 	{
 		return repositoryType;
+	}
+
+	public String getServerScript()
+	{
+		return serverScript;
 	}
 
 	public Class< ? > getApiInterface()
@@ -161,19 +174,14 @@ public class SpecTemplateModel
 		if (name.equals("tabpanel"))
 		{
 			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
-				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" 
-				+ "  		foreground: 'color',\r\n"
-				+ "  		disabled: 'boolean',\r\n"
-				+ "  		imageMediaID: 'string',\r\n" 
-				+ "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
+				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: 'color',\r\n"
+				+ "  		disabled: 'boolean',\r\n" + "  		imageMediaID: 'string',\r\n" + "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		if (name.equals("splitpane"))
 		{
 			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
-					+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" 
-					+ "  		foreground: 'color',\r\n"
-					+ "  		disabled: 'boolean',\r\n"
-					+ "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
+				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: 'color',\r\n"
+				+ "  		disabled: 'boolean',\r\n" + "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		return null;
 	}

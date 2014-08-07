@@ -15,7 +15,7 @@ model:
         imageMediaID : 'media', 
         labelFor : 'bean', 
         location : 'point', 
-        margin : {type:'dimension', scope:'design'}, 
+        margin : {type:'insets', scope:'design'}, 
         mediaOptions : {type:'mediaoptions', scope:'design'}, 
         mnemonic : 'string', 
         rolloverCursor : {type:'int', scope:'design'}, 

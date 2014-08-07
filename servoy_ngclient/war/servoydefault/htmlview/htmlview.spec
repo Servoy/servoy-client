@@ -12,7 +12,7 @@ model:
         foreground : 'color', 
         horizontalAlignment : {type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: -1}, 
         location : 'point', 
-        margin : {type:'dimension', scope:'design'}, 
+        margin : {type:'insets', scope:'design'}, 
         scrollbars : {type:'int', scope:'design'}, 
         size : {type:'dimension',  default: {width:140, height:140}}, 
         styleClass : { type:'styleclass', scope:'design', values:[]}, 

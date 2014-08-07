@@ -14,7 +14,7 @@ model:
         horizontalAlignment : {type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}], default: 0}, 
         imageMediaID : 'media', 
         location : 'point', 
-        margin : {type:'dimension', scope:'design'}, 
+        margin : {type:'insets', scope:'design'}, 
         mediaOptions : {type:'mediaoptions', scope:'design'}, 
         mnemonic : 'string', 
         rolloverCursor : {type:'int', scope:'design'}, 

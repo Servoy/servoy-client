@@ -106,7 +106,7 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("typeahead", "TypeAhead ", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,
-			new String[] { "servoydefault/tabpanel/accordionpanel.css" }));
+			new String[] { "servoydefault/tabpanel/accordionpanel.css" },"servoydefault/tabpanel/tabpanel_server.js"));
 		specTemplateList.add(new SpecTemplateModel("password", "Password field", IRepository.FIELDS, IRuntimePassword.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area", IRepository.FIELDS, IRuntimeHtmlArea.class,
 			new String[] { "servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "servoydefault/htmlarea/lib/ui-tinymce.js" }));
@@ -121,6 +121,7 @@ public class SpecGenerator
 			IRepository.TABPANELS,
 			com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
 			new String[] { "servoydefault/splitpane/bg-splitter/js/splitter.js", "servoydefault/splitpane/bg-splitter/css/style.css" },
+			null,
 			// @formatter:off
 			new ApiMethod[] {
 				getApiMethod("getDividerLocation", "double", null, null, null),
@@ -245,86 +246,86 @@ public class SpecGenerator
 						}
 						else
 						{
-						Node returnNode = (Node)returnTypeExpr.evaluate(function, XPathConstants.NODE);
-						String returnType = specSpecTypeFromDoc(returnNode.getAttributes().getNamedItem("typecode").getTextContent());
-						List<String> parameterNames = new ArrayList<>();
-						List<String> parameterTypes = new ArrayList<>();
-						List<String> optionalParams = new ArrayList<>();
+							Node returnNode = (Node)returnTypeExpr.evaluate(function, XPathConstants.NODE);
+							String returnType = specSpecTypeFromDoc(returnNode.getAttributes().getNamedItem("typecode").getTextContent());
+							List<String> parameterNames = new ArrayList<>();
+							List<String> parameterTypes = new ArrayList<>();
+							List<String> optionalParams = new ArrayList<>();
 
-						// read argumentTypes and parameter nodes
-						NodeList argumentTypesNodes = (NodeList)argumentTypesExpr.evaluate(function, XPathConstants.NODESET);
-						NodeList parametersNamesNodes = (NodeList)parametersExpr.evaluate(function, XPathConstants.NODESET);
-						for (int j = 0; j < argumentTypesNodes.getLength() || j < parametersNamesNodes.getLength(); j++)
-						{
-							Node argType = j > argumentTypesNodes.getLength() ? null : argumentTypesNodes.item(j);
-							Node param = j > parametersNamesNodes.getLength() ? null : parametersNamesNodes.item(j);
+							// read argumentTypes and parameter nodes
+							NodeList argumentTypesNodes = (NodeList)argumentTypesExpr.evaluate(function, XPathConstants.NODESET);
+							NodeList parametersNamesNodes = (NodeList)parametersExpr.evaluate(function, XPathConstants.NODESET);
+							for (int j = 0; j < argumentTypesNodes.getLength() || j < parametersNamesNodes.getLength(); j++)
+							{
+								Node argType = j > argumentTypesNodes.getLength() ? null : argumentTypesNodes.item(j);
+								Node param = j > parametersNamesNodes.getLength() ? null : parametersNamesNodes.item(j);
 
-							// --- read parameter type
-							if (argType != null)
-							{
-								parameterTypes.add(specSpecTypeFromDoc(argType.getAttributes().getNamedItem("typecode").getTextContent()));
-							}
-							else if (param != null)
-							{
-								Node node = param.getAttributes().getNamedItem("typecode");
-								if (node != null)
+								// --- read parameter type
+								if (argType != null)
 								{
-									parameterTypes.add(specSpecTypeFromDoc(node.getTextContent()));
+									parameterTypes.add(specSpecTypeFromDoc(argType.getAttributes().getNamedItem("typecode").getTextContent()));
+								}
+								else if (param != null)
+								{
+									Node node = param.getAttributes().getNamedItem("typecode");
+									if (node != null)
+									{
+										parameterTypes.add(specSpecTypeFromDoc(node.getTextContent()));
+									}
+									else
+									{
+										parameterTypes.add(specSpecTypeFromDoc("object"));
+									}
+								}
+
+								// read parameter name , and add optional if present
+								if (param == null)
+								{
+									parameterNames.add("unnamed_" + j);
 								}
 								else
 								{
-									parameterTypes.add(specSpecTypeFromDoc("object"));
-								}
-							}
-
-							// read parameter name , and add optional if present  
-							if (param == null)
-							{
-								parameterNames.add("unnamed_" + j);
-							}
-							else
-							{
-								String paramName = param.getAttributes().getNamedItem("name").getTextContent();
-								Node node = param.getAttributes().getNamedItem("optional");
-								if (node != null && "true".equals(node.getTextContent()))
-								{
-									optionalParams.add(paramName);
-								}
-								parameterNames.add(paramName);
-							}
-						}
-						//if there is already added a method with more parameters that it skip it .
-						boolean addNewApi = true;
-						ApiMethod apiToRemove = null;
-						for (ApiMethod api : specModel.getApis())
-						{
-							if (api.getName().equals(functionName))
-							{
-								if (api.getParameters().size() > parameterNames.size())
-								{
-									// method already exists with larger number of parameters
-									addNewApi = false;
-									break;
-								}
-								else if (api.getParameters().size() < parameterNames.size())
-								{
-									//if a method already exists with fewer number of parameters force the rest of new parameters as optional
-									for (int ii = api.getParameters().size(); ii < parameterNames.size(); ii++)
+									String paramName = param.getAttributes().getNamedItem("name").getTextContent();
+									Node node = param.getAttributes().getNamedItem("optional");
+									if (node != null && "true".equals(node.getTextContent()))
 									{
-										optionalParams.add(parameterNames.get(ii));
+										optionalParams.add(paramName);
 									}
-									apiToRemove = api;
-									break;
+									parameterNames.add(paramName);
 								}
 							}
+							//if there is already added a method with more parameters that it skip it .
+							boolean addNewApi = true;
+							ApiMethod apiToRemove = null;
+							for (ApiMethod api : specModel.getApis())
+							{
+								if (api.getName().equals(functionName))
+								{
+									if (api.getParameters().size() > parameterNames.size())
+									{
+										// method already exists with larger number of parameters
+										addNewApi = false;
+										break;
+									}
+									else if (api.getParameters().size() < parameterNames.size())
+									{
+										//if a method already exists with fewer number of parameters force the rest of new parameters as optional
+										for (int ii = api.getParameters().size(); ii < parameterNames.size(); ii++)
+										{
+											optionalParams.add(parameterNames.get(ii));
+										}
+										apiToRemove = api;
+										break;
+									}
+								}
+							}
+							if (apiToRemove != null) specModel.getApis().remove(apiToRemove);
+							if (addNewApi && !serverSideApi.contains(functionName)) specModel.getApis().add(
+								new ApiMethod(functionName, returnType, parameterNames, parameterTypes, optionalParams, metaDataForApi.get(functionName)));
 						}
-						if (apiToRemove != null) specModel.getApis().remove(apiToRemove);
-						if (addNewApi && !serverSideApi.contains(functionName)) specModel.getApis().add(
-							new ApiMethod(functionName, returnType, parameterNames, parameterTypes, optionalParams, metaDataForApi.get(functionName)));
 					}
 				}
 			}
-		}
 		}
 		catch (Exception e)
 		{
@@ -550,11 +551,11 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");
 		repoTypeMappingExceptions.put("tabs", "tab[]");
 		repoTypeMappingExceptions.put("tabIndex", "int");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{type:'dimension', scope:'design'}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{type:'insets', scope:'design'}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR.getPropertyName(), "{type:'int', scope:'design'}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(), "{type:'int', scope:'design'}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName(), "{type:'boolean', scope:'design'}");
-		
+
 		//internal properties (properties that should not be generated for any component)
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
@@ -577,7 +578,7 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_PRINTABLE.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SCROLLTABS.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_CLOSEONTABS.getPropertyName());
-		
+
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
 		perComponentExceptions.put(
 			"label",
@@ -608,7 +609,7 @@ public class SpecGenerator
 		perComponentInternalProperties.put("combobox", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
 		perComponentInternalProperties.put("spinner", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
 		perComponentInternalProperties.put("typeahead", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		
+
 		serverSideApi.add("getAbsoluteFormLocationY");
 		serverSideApi.add("getClientProperty");
 		serverSideApi.add("getDataProviderID");
@@ -625,9 +626,9 @@ public class SpecGenerator
 		serverSideApi.add("setLocation");
 		serverSideApi.add("setSize");
 
-		overriddenClientSideApi.put("setValueListItems", getApiMethod("getDividerLocation", "void",  Arrays.asList(new String[] { "value" }), Arrays.asList(new String[] { "dataset" }), null));
+		overriddenClientSideApi.put("setValueListItems", getApiMethod("setValueListItems", "void",  Arrays.asList(new String[] { "value" }), Arrays.asList(new String[] { "dataset" }), null));
 
-		final String callOnAll = "callOn: 1"; // ALL_RECORDS_IF_TEMPLATE; see globalServoyCustomTypes.spec 
+		final String callOnAll = "callOn: 1"; // ALL_RECORDS_IF_TEMPLATE; see globalServoyCustomTypes.spec
 		//metaDataForApi.put("setValueListItems", Arrays.asList(new String[] { callOnAll }));
 	}
 

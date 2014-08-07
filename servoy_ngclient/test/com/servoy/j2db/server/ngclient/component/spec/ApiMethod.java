@@ -65,9 +65,9 @@ public class ApiMethod
 		return returnType;
 	}
 
-	public String isOpitionalParameter(String name)
+	public String isOptionalParameter(String name)
 	{
-		return String.valueOf(optionalParameters.contains(name));
+		return optionalParameters != null ? String.valueOf(optionalParameters.contains(name)) : "false";
 	}
 
 	public List<Pair<String, String>> getParameters()

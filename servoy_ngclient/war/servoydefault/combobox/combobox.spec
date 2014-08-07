@@ -14,7 +14,7 @@ model:
         format : {for:'dataProviderID' , type:'format'}, 
         horizontalAlignment : {type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: -1}, 
         location : 'point', 
-        margin : {type:'dimension', scope:'design'}, 
+        margin : {type:'insets', scope:'design'}, 
         placeholderText : 'tagstring', 
         size : {type:'dimension',  default: {width:140, height:20}}, 
         styleClass : { type:'styleclass', scope:'design', values:['form-control', 'input-sm', 'svy-padding-xs', 'select2-container-svy-xs']}, 
