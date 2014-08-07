@@ -77,6 +77,11 @@ public class FormWrapper
 		return realName == null ? form.getName() : realName.replace('-', '_');
 	}
 
+	public String getFormCls()
+	{
+		return form.getStyleClass();
+	}
+
 	public String getName()
 	{
 		return realName == null ? form.getName() : realName;
@@ -158,7 +163,7 @@ public class FormWrapper
 			}
 		}
 
-		return rowHeight == 0?20:rowHeight;
+		return rowHeight == 0 ? 20 : rowHeight;
 	}
 
 	private Part getBodyPart()
