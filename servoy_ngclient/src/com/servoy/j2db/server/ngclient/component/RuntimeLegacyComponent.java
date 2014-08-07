@@ -28,9 +28,12 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.websocket.ConversionLocation;
 
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Utils;
@@ -378,6 +381,18 @@ public class RuntimeLegacyComponent implements Scriptable
 			if ("clientProperty".equals(propertyName) && args != null && args.length > 0)
 			{
 				return getClientProperty(args[0]);
+			}
+
+			if ("name".equals(propertyName))
+			{
+				IPersist persist = component.getFormElement().getPersistIfAvailable();
+				if (persist instanceof ISupportName)
+				{
+					String jsName = ((ISupportName)persist).getName();
+					if (jsName != null && jsName.startsWith(ComponentFactory.WEB_ID_PREFIX)) jsName = null;
+					return jsName;
+				}
+				return null;
 			}
 
 			if (propertyName.equals("designTimeProperty") && args != null && args.length > 0 &&
