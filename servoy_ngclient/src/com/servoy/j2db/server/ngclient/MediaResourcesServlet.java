@@ -188,11 +188,17 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			Debug.error(e);
 		}
-
-		Media media = fs.getMedia(mediaName);
-		if (media != null)
+		try
 		{
-			return sendData(request, response, fs, media);
+			Media media = fs.getMedia(mediaName);
+			if (media != null)
+			{
+				return sendData(request, response, fs, media);
+			}
+		}
+		finally
+		{
+			fs.close(null);
 		}
 		return false;
 	}

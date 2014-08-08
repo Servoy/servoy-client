@@ -107,43 +107,6 @@ public class NGClientEntryFilter extends WebEntry
 		return formScripts;
 	}
 
-	/**
-	 * Get or create the flattened solution object
-	 * @param solutionName
-	 * @param wsSession
-	 * @return the flattened solution
-	 * @throws IOException
-	 */
-	private FlattenedSolution getOrCreateFlattendSolution(String solutionName, INGClientWebsocketSession wsSession) throws IOException
-	{
-		FlattenedSolution fs = null;
-		if (wsSession != null)
-		{
-			fs = wsSession.getClient().getFlattenedSolution();
-		}
-		if (fs == null)
-		{
-			try
-			{
-				IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-				fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(solutionName,
-					IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
-				{
-					@Override
-					public IRepository getRepository()
-					{
-						return ApplicationServerRegistry.get().getLocalRepository();
-					}
-				});
-			}
-			catch (RepositoryException e)
-			{
-				Debug.error(e);
-			}
-		}
-		return fs;
-	}
-
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
 	{
@@ -167,48 +130,81 @@ public class NGClientEntryFilter extends WebEntry
 					{
 						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
 					}
+					FlattenedSolution fs = null;
+					boolean closeFS = false;
+					if (wsSession != null)
+					{
+						fs = wsSession.getClient().getFlattenedSolution();
+					}
+					if (fs == null)
+					{
+						try
+						{
+							closeFS = true;
+							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+							fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
+								solutionName, IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
+							{
+								@Override
+								public IRepository getRepository()
+								{
+									return ApplicationServerRegistry.get().getLocalRepository();
+								}
+							});
+						}
+						catch (RepositoryException e)
+						{
+							Debug.error(e);
+						}
+					}
 
-					FlattenedSolution fs = getOrCreateFlattendSolution(solutionName, wsSession);
 					if (fs != null)
 					{
-						String formName = getFormNameFromURI(uri);
-						if (formName != null)
+						try
 						{
-							Form f = fs.getForm(formName);
-							if (f == null && wsSession != null) f = wsSession.getClient().getFormManager().getPossibleForm(formName);
-							Form form = (f != null ? fs.getFlattenedForm(f) : null);
-							if (form != null)
+							String formName = getFormNameFromURI(uri);
+							if (formName != null)
 							{
-								if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
-									fs.getLastModifiedTime() / 1000 * 1000)) return;
+								Form f = fs.getForm(formName);
+								if (f == null && wsSession != null) f = wsSession.getClient().getFormManager().getPossibleForm(formName);
+								Form form = (f != null ? fs.getFlattenedForm(f) : null);
+								if (form != null)
+								{
+									if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
+										fs.getLastModifiedTime() / 1000 * 1000)) return;
 
-								boolean html = uri.endsWith(".html");
-								boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
-								PrintWriter w = servletResponse.getWriter();
-								if (!tableview && html && form.getLayoutGrid() != null)
-								{
-									((HttpServletResponse)servletResponse).setContentType("text/html");
-									FormWithInlineLayoutGenerator.generate(form, wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
-										: new ServoyDataConverterContext(fs), w);
+									boolean html = uri.endsWith(".html");
+									boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
+									PrintWriter w = servletResponse.getWriter();
+									if (!tableview && html && form.getLayoutGrid() != null)
+									{
+										((HttpServletResponse)servletResponse).setContentType("text/html");
+										FormWithInlineLayoutGenerator.generate(form, wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
+											: new ServoyDataConverterContext(fs), w);
+									}
+									else
+									{
+										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
+										String view = (tableview ? "tableview" : "recordview");
+										new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
+											: new ServoyDataConverterContext(fs), false).generate(form, formName, "form_" + view + "_" +
+											(html ? "html" : "js") + ".ftl", w);
+									}
+									w.flush();
+									return;
 								}
-								else
-								{
-									((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
-									String view = (tableview ? "tableview" : "recordview");
-									new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
-										: new ServoyDataConverterContext(fs), false).generate(form, formName, "form_" + view + "_" + (html ? "html" : "js") +
-										".ftl", w);
-								}
-								w.flush();
-								return;
+							}
+							else
+							{
+								//prepare for possible index.html lookup
+								jsContributions = getFormScriptReferences(fs);
+								variableSubstitution = new HashMap<String, String>();
+								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
 							}
 						}
-						else
+						finally
 						{
-							//prepare for possible index.html lookup
-							jsContributions = getFormScriptReferences(fs);
-							variableSubstitution = new HashMap<String, String>();
-							variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
+							if (closeFS) fs.close(null);
 						}
 					}
 				}
