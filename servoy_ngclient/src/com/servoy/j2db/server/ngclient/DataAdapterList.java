@@ -456,7 +456,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
-					webComponent.invokeApi(onDataChangeCallback, new Object[] { event, returnValue });
+					WebComponentApiDefinition call = new WebComponentApiDefinition(onDataChangeCallback);
+					call.addParameter(new PropertyDescription("event", new PropertyType("object")));
+					call.addParameter(new PropertyDescription("returnValue", new PropertyType("object")));
+					webComponent.invokeApi(call, new Object[] { event, returnValue });
 				}
 			}
 		}
