@@ -1238,7 +1238,22 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	{
 		if (!((ChangesRecorder)scriptable.getChangesRecorder()).isChanged())
 		{
-			if (paneChanged[0] || paneChanged[1])
+			final boolean[] needToUpdateTarget = { true };
+			visitParents(IProviderStylePropertyChanges.class, new IVisitor<Component>()
+			{
+				@Override
+				public Object component(Component component)
+				{
+					if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
+					{
+						needToUpdateTarget[0] = false;
+						return IVisitor.STOP_TRAVERSAL;
+					}
+					return IVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
+
+			if (needToUpdateTarget[0] && (paneChanged[0] || paneChanged[1]))
 			{
 				if (paneChanged[0] && paneChanged[1])
 				{
@@ -1258,7 +1273,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		paneChanged[0] = false;
 		paneChanged[1] = false;
 	}
-
 
 	@Override
 	public void uiRecreated()
