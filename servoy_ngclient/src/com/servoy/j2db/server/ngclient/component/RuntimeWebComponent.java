@@ -499,6 +499,53 @@ public class RuntimeWebComponent implements Scriptable
 				((Map)mapValue).put(name, convertedValue);
 				markAsChanged();
 			}
+			else if ("length".equals(name))
+			{
+				int length = ((Number)value).intValue();
+				if (mapValue instanceof List)
+				{
+					List lst = (List)mapValue;
+					if (length == 0) lst.clear();
+					else
+					{
+						while (lst.size() != length)
+						{
+							lst.remove(lst.size() - 1);
+						}
+					}
+					markAsChanged();
+				}
+				else if (mapValue instanceof Object[])
+				{
+					Object[] newArray = null;
+					if (length == 0) newArray = new Object[0];
+					else
+					{
+						newArray = new Object[length];
+						System.arraycopy(mapValue, 0, newArray, 0, newArray.length);
+					}
+					// store the new array in the parent.
+					if (parentValue instanceof Scriptable)
+					{
+						if (indexProperty != -1)
+						{
+							((Scriptable)parentValue).put(indexProperty, (Scriptable)parentValue, newArray);
+						}
+						else
+						{
+							((Scriptable)parentValue).put(property, (Scriptable)parentValue, newArray);
+						}
+						markAsChanged();
+					}
+					else
+					{
+
+						((WebFormComponent)parentValue).setProperty(property, newArray, ConversionLocation.SERVER);
+					}
+
+				}
+
+			}
 		}
 
 		/**
