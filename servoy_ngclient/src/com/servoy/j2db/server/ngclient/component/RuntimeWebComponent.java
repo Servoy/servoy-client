@@ -41,10 +41,12 @@ import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.ConversionLocation;
 
+import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author lvostinar
@@ -83,6 +85,10 @@ public class RuntimeWebComponent implements Scriptable
 				scopeObject.put("model", scopeObject, this);
 				topLevel.put("$scope", topLevel, scopeObject);
 				script.exec(context, topLevel);
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
 			}
 			finally
 			{
@@ -177,6 +183,10 @@ public class RuntimeWebComponent implements Scriptable
 			}
 		}
 
+		if ("markupId".equals(name))
+		{
+			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
+		}
 		return Scriptable.NOT_FOUND;
 	}
 

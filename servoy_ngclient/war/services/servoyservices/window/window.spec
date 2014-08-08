@@ -1,11 +1,14 @@
 name: 'window',
 displayName: 'Servoy Window plugin',
 definition: 'services/servoyservices/window/window.js',
-libraries: ['services/servoyservices/window/shortcut.js'],
+serverscript: 'services/servoyservices/window/window_server.js',
+libraries: ['services/servoyservices/window/shortcut.js','services/servoyservices/window/yahoo-dom-event.js','services/servoyservices/window/container_core-min.js','services/servoyservices/window/fonts-min.css','services/servoyservices/window/menu-min.js','services/servoyservices/window/menu.css','services/servoyservices/window/servoy-menu.css'],
 model:
 {
  	shortcuts : 'shortcut[]',
- 	popupform: 'popupform' 
+ 	popupform: 'popupform',
+ 	popupMenus : 'popup[]',
+ 	popupMenuShowCommand : 'popupMenuShowCommand' 
 },
 api:
 {
@@ -40,7 +43,7 @@ types: {
   },
   popupform: {
   	model: {
-  		visible: boolean,
+  		visible: 'boolean',
   		componentLocation: 'string',
   		form: 'string',
   		scope: 'string',
@@ -49,25 +52,37 @@ types: {
   		height: 'int'
   	}
   },
-  checkbox: {
-  	model: {
-  	}
+  popupMenuShowCommand:{
+	  model: {
+		popupName: 'string',
+		elementId: 'string',
+		x: 'int',
+		y: 'int'
+	}
   },
-  radiobutton: {
-  	model: {
-  	}
-  },
-   menuitem: {
-  	model: {
-  	}
-  },
-  menu: {
-  	model: {
-  	}
+  menuitem: {
+	model: {
+	  	text: 'string',
+	  	callback: 'function',
+	  	name: 'string',
+	  	align: 'int',
+	  	enabled: 'boolean',
+	  	visible: 'boolean',
+	  	icon: 'media',
+	  	mnemonic: 'string',
+	  	backgroundColor: 'string',
+	  	foregroundColor: 'string',
+	  	selected: 'boolean',
+	  	accelarator: 'string',
+	  	args: 'object[]',
+	  	cssClass: 'string'
+	}
   },
   popup: {
   	model: {
+  		name: 'string',
+  		items: 'menuitem[]'
   	}
-  },
+  }
 }
 

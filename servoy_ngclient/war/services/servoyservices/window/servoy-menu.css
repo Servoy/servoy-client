@@ -1,0 +1,42 @@
+.yuimenu .yuimenuitemlabel {
+	padding:2px 12px;
+}
+
+.yuimenu .yuimenubaritemlabel {
+	padding:2px 12px;
+}
+
+.visible .yuimenuitemlabel .submenuindicator {
+    margin:-.9em -8px 4px auto;
+}
+
+.yuimenu ul {
+	padding:5px 0;
+}
+
+.yuimenuitem-hassubmenu {
+	background-image:url('menuindicator.png');
+	background-position:right center;
+	background-repeat:no-repeat;
+}
+
+.img_checkbox {
+	background-image: url('checkbox.png');
+	background-repeat: no-repeat; 	
+	width: 16px;
+	height: 16px;
+}
+
+.img_radio_on {
+	background-image: url('radio_on.png');
+	background-repeat: no-repeat; 	
+	width: 16px;
+	height: 16px;	
+}
+
+.img_radio_off {
+	background-image: url('radio_off.png');
+	background-repeat: no-repeat; 	
+	width: 16px;
+	height: 16px;	
+}

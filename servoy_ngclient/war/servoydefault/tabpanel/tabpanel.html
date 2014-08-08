@@ -1,4 +1,4 @@
-<tabset  ng-class="model.styleClass">
+<tabset  ng-class="model.styleClass" id="{{model.markupId}}">
     <tab ng-repeat="tab in model.tabs"
     	 active="tab.active" select="select(tab)" disabled="tab.disabled" >
       <tab-heading  svy-mnemonic='tab.mnemonic'>

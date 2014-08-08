@@ -60,10 +60,8 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 
-		if (fe.getLabel() != null)
-		{
-			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
-		}
+		properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
+
 		if (fe.getWebComponentSpec(false) != null)
 		{
 			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("tabseq"));

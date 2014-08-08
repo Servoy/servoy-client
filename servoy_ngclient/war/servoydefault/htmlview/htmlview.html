@@ -5,7 +5,8 @@
 	 ng-style="style"
      svy-margin='model.margin' 
      svy-font='model.fontType'
-     svy-tooltip="model.toolTipText">
+     svy-tooltip="model.toolTipText"
+     id="{{model.markupId}}">
 <span  ng-style="bgstyle" 
 	   ng-bind-html='(model.dataProviderID == null && model.text || model.dataProviderID )| htmlFilter'
 	   svy-tabseq='model.tabSeq'

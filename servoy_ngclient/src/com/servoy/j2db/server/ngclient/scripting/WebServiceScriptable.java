@@ -17,13 +17,18 @@
 
 package com.servoy.j2db.server.ngclient.scripting;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.component.DesignConversion;
+import com.servoy.j2db.util.Debug;
 
 /**
  * A {@link Scriptable} for wrapping a client side service.
@@ -37,6 +42,7 @@ public class WebServiceScriptable implements Scriptable
 	private final WebComponentSpecification serviceSpecification;
 	private Scriptable prototype;
 	private Scriptable parent;
+	private Scriptable apiObject;
 
 	/**
 	 * @param ngClient
@@ -46,6 +52,30 @@ public class WebServiceScriptable implements Scriptable
 	{
 		this.application = application;
 		this.serviceSpecification = serviceSpecification;
+		String serverScript = serviceSpecification.getServerScript();
+		if (serverScript != null)
+		{
+			Context context = Context.enter();
+			try
+			{
+				Script script = context.compileString(serverScript, serviceSpecification.getName(), 0, null);
+				ScriptableObject topLevel = context.initStandardObjects();
+				Scriptable scopeObject = context.newObject(topLevel);
+				apiObject = context.newObject(topLevel);
+				scopeObject.put("api", scopeObject, apiObject);
+				scopeObject.put("model", scopeObject, this);
+				topLevel.put("$scope", topLevel, scopeObject);
+				script.exec(context, topLevel);
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+			finally
+			{
+				Context.exit();
+			}
+		}
 	}
 
 	@Override
@@ -58,6 +88,14 @@ public class WebServiceScriptable implements Scriptable
 	public Object get(String name, Scriptable start)
 	{
 		WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		if (apiFunction != null && apiObject != null)
+		{
+			Object serverSideFunction = apiObject.get(apiFunction.getName(), apiObject);
+			if (serverSideFunction instanceof Function)
+			{
+				return serverSideFunction;
+			}
+		}
 		if (apiFunction != null)
 		{
 			return new WebServiceFunction(application.getWebsocketSession(), apiFunction, serviceSpecification.getName());
