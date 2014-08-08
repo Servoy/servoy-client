@@ -272,7 +272,7 @@ public final class FormElement implements IWebComponentInitializer
 		{
 			name = "svy_" + uniqueIdWithinForm;
 		}
-		return name;
+		return name.replace('-', '_');
 	}
 
 	public Object getWrappedProperty(String name)
@@ -530,7 +530,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
