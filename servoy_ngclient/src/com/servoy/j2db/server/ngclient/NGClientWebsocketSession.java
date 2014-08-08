@@ -425,6 +425,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				if (!formsOnClient.get(formName).getRight().booleanValue())
 				{
+					// really send the changes
+					sendChanges();
 					try
 					{
 						formUrl.wait(); // wait for the 'formloaded' event from client
@@ -462,7 +464,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			else
 			{
-				realUrl = realUrl + "&sessionId=" + getUuid();
+				realUrl = realUrl + "?sessionId=" + getUuid();
 			}
 			StringWriter sw = new StringWriter(512);
 			if (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
@@ -545,39 +547,47 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		// if there is an incoming message or an NGEvent running on event thread, postpone sending until it's done; else push it.
 		if (!proccessChanges && WebsocketEndpoint.exists() && WebsocketEndpoint.get().hasSession() && client != null && handlingEvent.get() == 0)
 		{
-			try
-			{
-				proccessChanges = true;
-				// TODO this should be changed, because if there are multiple end-points then 1 end-point will get the changes of a form (and flag everything as not changed)
-				// so the other end point will not see those changes if it would show the same form...
-				// i guess the session should have all the containers (like it has all the services) and then the endpoint should just cherry pick what it will send.
-				TypedData<Map<String, Map<String, Map<String, Object>>>> allFormChanges = WebsocketEndpoint.get().getAllComponentsChanges();
-				TypedData<Map<String, Map<String, Object>>> serviceChanges = getServiceChanges();
-				Map<String, Object> data = new HashMap<>(3);
-				PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
+			sendChanges();
+		}
+	}
 
-				if (!allFormChanges.content.isEmpty())
-				{
-					data.put("forms", allFormChanges.content);
-					if (allFormChanges.contentType != null) dataTypes.putProperty("forms", allFormChanges.contentType);
-				}
-				if (!serviceChanges.content.isEmpty())
-				{
-					data.put("services", serviceChanges.content);
-					if (serviceChanges.contentType != null) dataTypes.putProperty("services", serviceChanges.contentType);
-				}
-				// TOOD see above comment, this should not send to the currently active end-point, but to all end-points
-				// so that any change from 1 end-point request ends up in all the end points.
-				WebsocketEndpoint.get().sendMessage(data, dataTypes, true); // uses ConversionLocation.BROWSER_UPDATE
-			}
-			catch (IOException e)
+	/**
+	 *
+	 */
+	private void sendChanges()
+	{
+		try
+		{
+			proccessChanges = true;
+			// TODO this should be changed, because if there are multiple end-points then 1 end-point will get the changes of a form (and flag everything as not changed)
+			// so the other end point will not see those changes if it would show the same form...
+			// i guess the session should have all the containers (like it has all the services) and then the endpoint should just cherry pick what it will send.
+			TypedData<Map<String, Map<String, Map<String, Object>>>> allFormChanges = WebsocketEndpoint.get().getAllComponentsChanges();
+			TypedData<Map<String, Map<String, Object>>> serviceChanges = getServiceChanges();
+			Map<String, Object> data = new HashMap<>(3);
+			PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
+
+			if (!allFormChanges.content.isEmpty())
 			{
-				Debug.error(e);
+				data.put("forms", allFormChanges.content);
+				if (allFormChanges.contentType != null) dataTypes.putProperty("forms", allFormChanges.contentType);
 			}
-			finally
+			if (!serviceChanges.content.isEmpty())
 			{
-				proccessChanges = false;
+				data.put("services", serviceChanges.content);
+				if (serviceChanges.contentType != null) dataTypes.putProperty("services", serviceChanges.contentType);
 			}
+			// TOOD see above comment, this should not send to the currently active end-point, but to all end-points
+			// so that any change from 1 end-point request ends up in all the end points.
+			WebsocketEndpoint.get().sendMessage(data, dataTypes, true); // uses ConversionLocation.BROWSER_UPDATE
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		finally
+		{
+			proccessChanges = false;
 		}
 	}
 
