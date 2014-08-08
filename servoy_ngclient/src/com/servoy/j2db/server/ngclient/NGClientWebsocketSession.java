@@ -453,12 +453,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			boolean copy = false;
 			if (sc != null && sc.getChild(form.getUUID()) != null)
 			{
-				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + getUuid();
+				realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getUuid();
 				copy = true;
 			}
 			else if (!form.getName().endsWith(realFormName))
 			{
-				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + getUuid();
+				realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getUuid();
+			}
+			else
+			{
+				realUrl = realUrl + "&sessionId=" + getUuid();
 			}
 			StringWriter sw = new StringWriter(512);
 			if (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
