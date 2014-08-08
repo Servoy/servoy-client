@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.awt.Point;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,13 +30,17 @@ import org.sablo.WebComponent;
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IContentSpecConstants;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 
 /**
@@ -119,6 +124,19 @@ public class EventExecutor
 						Debug.error(ex);
 					}
 					args[i] = event;
+				}
+			}
+		}
+
+		if (component instanceof WebFormComponent)
+		{
+			IPersist persist = ((WebFormComponent)component).getFormElement().getPersistIfAvailable();
+			if (persist instanceof AbstractBase)
+			{
+				List<Object> instanceMethodArguments = ((AbstractBase)persist).getInstanceMethodArguments(eventType);
+				if (instanceMethodArguments != null && instanceMethodArguments.size() > 0)
+				{
+					args = Utils.arrayMerge(args, instanceMethodArguments.toArray());
 				}
 			}
 		}
