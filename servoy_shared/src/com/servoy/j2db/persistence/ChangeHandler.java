@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.servoy.j2db.util.Debug;
@@ -35,7 +36,7 @@ public class ChangeHandler
 	public ChangeHandler(IPersistFactory factory)
 	{
 		this.factory = factory;
-		persistListeners = new ArrayList<IPersistListener>();
+		persistListeners = Collections.synchronizedList(new ArrayList<IPersistListener>());
 	}
 
 	void setRootObject(AbstractRootObject rootObject)
@@ -156,7 +157,7 @@ public class ChangeHandler
 
 	public void clearAllPersistListeners()
 	{
-		persistListeners = new ArrayList<IPersistListener>();
+		persistListeners.clear();
 	}
 
 	public void rootObjectIsFlushed()
