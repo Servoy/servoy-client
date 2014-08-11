@@ -203,6 +203,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_BORDERTYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_BORDERTYPE);
 	public static final TypedProperty<String> PROPERTY_COMMENT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_COMMENT);
 	public static final TypedProperty<String> PROPERTY_CONTENT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CONTENT);
+	public static final TypedProperty<String> PROPERTY_CSSCLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CSSCLASS);
 	public static final TypedProperty<String> PROPERTY_CSSTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CSSTEXT);
 	public static final TypedProperty<String> PROPERTY_CUSTOMPROPERTIES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CUSTOMPROPERTIES);
 	public static final TypedProperty<String> PROPERTY_CUSTOMVALUES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CUSTOMVALUES);
@@ -216,6 +217,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_DECLARATION = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DECLARATION);
 	public static final TypedProperty<String> PROPERTY_DEFAULTPAGEFORMAT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DEFAULTPAGEFORMAT);
 	public static final TypedProperty<String> PROPERTY_DEFAULTVALUE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DEFAULTVALUE);
+	public static final TypedProperty<String> PROPERTY_ELEMENTID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ELEMENTID);
 	public static final TypedProperty<String> PROPERTY_FONTTYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FONTTYPE);
 	public static final TypedProperty<String> PROPERTY_FOREIGNCOLUMNNAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FOREIGNCOLUMNNAME);
 	public static final TypedProperty<String> PROPERTY_FOREIGNDATASOURCE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FOREIGNDATASOURCE);
@@ -244,6 +246,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_STYLESHEET = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_STYLESHEET);
 	public static final TypedProperty<String> PROPERTY_STYLECLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLECLASS);
 	public static final TypedProperty<String> PROPERTY_STYLENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLENAME);
+	public static final TypedProperty<String> PROPERTY_STYLE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLE);
+	public static final TypedProperty<String> PROPERTY_TAGTYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TAGTYPE);
 	public static final TypedProperty<String> PROPERTY_TEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TEXT);
 	public static final TypedProperty<String> PROPERTY_TITLETEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TITLETEXT);
 	public static final TypedProperty<String> PROPERTY_TOOLTIPTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TOOLTIPTEXT);
@@ -830,6 +834,18 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			// properties new in repository version 45, so if version < 45 we need to add them
 			cs.new Element(413, IRepository.FORMS, PROPERTY_LAYOUTGRID.getPropertyName(), IRepository.STRING);
 			cs.new Element(414, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.ELEMENTS);
+		}
+		if (old_repository_version < 46)
+		{
+			// properties new in repository version 46, so if version < 46 we need to add them
+			cs.new Element(415, IRepository.LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(416, IRepository.LAYOUTCONTAINERS, PROPERTY_TAGTYPE.getPropertyName(), IRepository.STRING);
+			cs.new Element(417, IRepository.LAYOUTCONTAINERS, PROPERTY_ELEMENTID.getPropertyName(), IRepository.STRING);
+			cs.new Element(418, IRepository.LAYOUTCONTAINERS, PROPERTY_CSSCLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(419, IRepository.LAYOUTCONTAINERS, PROPERTY_STYLE.getPropertyName(), IRepository.STRING);
+			cs.new Element(420, IRepository.LAYOUTCONTAINERS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(421, IRepository.LAYOUTCONTAINERS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
+			cs.new Element(422, IRepository.LAYOUTCONTAINERS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
 		}
 		//##add property adds here
 		return cs;

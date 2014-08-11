@@ -18,7 +18,6 @@ package com.servoy.j2db.persistence;
 
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,8 +41,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok,jcompagner
  */
-public class Form extends AbstractBase implements ISupportFormElements, ITableDisplay, ISupportUpdateableName, ISupportScrollbars, IPersistCloneable,
-	ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID, ISupportEncapsulation, ISupportDeprecated
+public class Form extends AbstractContainer implements ITableDisplay, ISupportScrollbars, IPersistCloneable, ISupportSize, ISupportScriptProviders, ICloneable,
+	ISupportExtendsID, ISupportEncapsulation, ISupportDeprecated
 {
 	/**
 	 * @sameas getNavigatorID()
@@ -154,52 +153,11 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 
 	/**
-	 * FOR INTERNAL USE ONLY, DO NOT CALL. This method shouldn't be called from outside the persistance package!!
-	 * 
-	 * @param arg the form name
-	 * @exclude
-	 */
-	public void setName(String arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
-	}
-
-	/**
-	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
-	 * @exclude
-	 */
-	public void updateName(IValidateName validator, String arg) throws RepositoryException
-	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(this, IRepository.FORMS), false);
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
-		getRootObject().getChangeHandler().fireIPersistChanged(this);
-	}
-
-	/**
-	 * The name of the form.
-	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public String getName()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
-	}
-
-	/**
-	 * Set the form size.
-	 * 
-	 * @param arg the size
-	 */
-	public void setSize(Dimension arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE, arg);
-	}
-
-	/**
 	 * Get the form size.
 	 * 
 	 * @return the size
 	 */
+	@Override
 	public Dimension getSize()
 	{
 		return checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
@@ -644,16 +602,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 
 	/**
-	 * Get the all the fields on a form.
-	 * 
-	 * @return the fields
-	 */
-	public Iterator<Field> getFields()
-	{
-		return getObjects(IRepository.FIELDS);
-	}
-
-	/**
 	 * Get the all the tab seq elements on a form sorted by taborder.
 	 * 
 	 * @return the fields
@@ -694,84 +642,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 			sl.add(p);
 		}
 		return sl.iterator();
-	}
-
-	/**
-	 * Create a new field.
-	 * 
-	 * @param location the location
-	 * @return the field
-	 */
-	public Field createNewField(Point location) throws RepositoryException
-	{
-		Field obj = (Field)getSolution().getChangeHandler().createNewObject(this, IRepository.FIELDS);
-
-		//set all the required properties
-		obj.setLocation(location);
-
-		addChild(obj);
-		return obj;
-	}
-
-	/*
-	 * _____________________________________________________________ Methods for Label handling
-	 */
-	/**
-	 * Get all the graphicalComponents from this form.
-	 * 
-	 * @return graphicalComponents
-	 */
-	public Iterator<GraphicalComponent> getGraphicalComponents()
-	{
-		return getObjects(IRepository.GRAPHICALCOMPONENTS);
-	}
-
-	/**
-	 * Create new graphicalComponents.
-	 * 
-	 * @param location
-	 * @return the graphicalComponent
-	 */
-	public GraphicalComponent createNewGraphicalComponent(Point location) throws RepositoryException
-	{
-		GraphicalComponent obj = (GraphicalComponent)getRootObject().getChangeHandler().createNewObject(this, IRepository.GRAPHICALCOMPONENTS);
-		//set all the required properties
-
-		obj.setLocation(location);
-
-		addChild(obj);
-		return obj;
-	}
-
-	/*
-	 * _____________________________________________________________ Methods for Shape handling
-	 */
-
-	/**
-	 * Get all the shapes.
-	 * 
-	 * @return the shapes
-	 */
-	public Iterator<Shape> getShapes()
-	{
-		return getObjects(IRepository.SHAPES);
-	}
-
-	/**
-	 * Create a new shape.
-	 * 
-	 * @param location
-	 * @return the shape
-	 */
-	public Shape createNewShape(Point location) throws RepositoryException
-	{
-		Shape obj = (Shape)getRootObject().getChangeHandler().createNewObject(this, IRepository.SHAPES);
-		//set all the required properties
-
-		obj.setLocation(location);
-		obj.setLineSize(1);
-		addChild(obj);
-		return obj;
 	}
 
 	/*
@@ -866,118 +736,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	}
 
 	/*
-	 * _____________________________________________________________ Methods for Portal handling
-	 */
-	/**
-	 * Get all the portals from this form.
-	 * 
-	 * @return the portals
-	 */
-	public Iterator<Portal> getPortals()
-	{
-		return getObjects(IRepository.PORTALS);
-	}
-
-	/**
-	 * Create a new portal.
-	 * 
-	 * @param name the name of the new portal
-	 * @param location the location of the new portal
-	 * @return the new portal
-	 */
-	public Portal createNewPortal(String name, Point location) throws RepositoryException
-	{
-		Portal obj = (Portal)getRootObject().getChangeHandler().createNewObject(this, IRepository.PORTALS);
-		//set all the required properties
-
-		obj.setLocation(location);
-		obj.setName(name == null ? "untitled" : name); //$NON-NLS-1$
-
-		addChild(obj);
-		return obj;
-	}
-
-	/*
-	 * _____________________________________________________________ Methods for Bean handling
-	 */
-	/**
-	 * Get all the beans for this form.
-	 * 
-	 * @return all the beans
-	 */
-	public Iterator<Bean> getBeans()
-	{
-		return getObjects(IRepository.BEANS);
-	}
-
-	/**
-	 * Create a new bean.
-	 * 
-	 * @param name the name of the bean
-	 * @param className the class name 
-	 * @return the new bean
-	 */
-	public Bean createNewBean(String name, String className) throws RepositoryException
-	{
-		Bean obj = (Bean)getRootObject().getChangeHandler().createNewObject(this, IRepository.BEANS);
-		//set all the required properties
-
-		obj.setName(name == null ? "untitled" : name); //$NON-NLS-1$
-		obj.setBeanClassName(className);
-
-		addChild(obj);
-		return obj;
-	}
-
-	/*
-	 * _____________________________________________________________ Methods for TabPanel handling
-	 */
-	/**
-	 * Get all the form tab panels.
-	 * 
-	 * @return all the tab panels
-	 */
-	public Iterator<TabPanel> getTabPanels()
-	{
-		return getObjects(IRepository.TABPANELS);
-	}
-
-	/**
-	 * Create a new tab panel.
-	 * 
-	 * @param name
-	 * @return the new tab panel
-	 */
-	public TabPanel createNewTabPanel(String name) throws RepositoryException
-	{
-		TabPanel obj = (TabPanel)getRootObject().getChangeHandler().createNewObject(this, IRepository.TABPANELS);
-		//set all the required properties
-
-		obj.setName(name);
-
-		addChild(obj);
-		return obj;
-	}
-
-	/*
-	 * _____________________________________________________________ Methods for Rectangle handling
-	 */
-	/**
-	 * @deprecated
-	 */
-	@Deprecated
-	public RectShape createNewRectangle(Point location) throws RepositoryException
-	{
-		RectShape obj = (RectShape)getRootObject().getChangeHandler().createNewObject(this, IRepository.RECTSHAPES);
-		//set all the required properties
-
-		obj.setLocation(location);
-		obj.setLineSize(1);
-		addChild(obj);
-		return obj;
-	}
-
-	/*
 	 * _____________________________________________________________ Methods for ScriptMethod handling
 	 */
 	/**
@@ -1041,11 +799,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/*
 	 * _____________________________________________________________ Methods from this class
 	 */
-
-	public Solution getSolution()
-	{
-		return (Solution)getRootObject();
-	}
 
 	@Override
 	public String toString()

@@ -125,6 +125,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				object = new Form(parent, elementId, uuid);
 				break;
 
+			case IRepository.LAYOUTCONTAINERS :
+				object = new LayoutContainer(parent, elementId, uuid);
+				break;
+
 			case IRepository.GRAPHICALCOMPONENTS :
 				object = new GraphicalComponent(parent, elementId, uuid);
 				break;

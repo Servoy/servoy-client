@@ -71,5 +71,6 @@ public interface IRepositoryConstants
 	public static final int SOLUTIONS = 43;
 	public static final int TABLES = 44;
 	public static final int STATS = 45;
+	public static final int LAYOUTCONTAINERS = 46;
 
 }

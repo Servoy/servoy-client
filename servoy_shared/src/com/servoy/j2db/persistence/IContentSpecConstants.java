@@ -63,6 +63,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_INTERCELLSPACING = "intercellSpacing";
 	public static final String PROPERTY_MARGIN = "margin";
 	public static final String PROPERTY_SELECTIONMODE = "selectionMode"; //
+	public static final String PROPERTY_ELEMENTID = "elementId";
 	public static final String PROPERTY_ENCAPSULATION = "encapsulation";
 	public static final String PROPERTY_DEPRECATED = "deprecated";
 	public static final String PROPERTY_ADDEMPTYVALUE = "addEmptyValue";
@@ -200,8 +201,11 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_STYLESHEET = "styleSheetID";
 	public static final String PROPERTY_STYLECLASS = "styleClass";
 	public static final String PROPERTY_STYLENAME = "styleName";
+	public static final String PROPERTY_TAGTYPE = "tagType";
 	public static final String PROPERTY_TITLETEXT = "titleText";
 	public static final String PROPERTY_TOOLTIPTEXT = "toolTipText";
 	public static final String PROPERTY_TEXTROTATION = "textRotation";
 	public static final String PROPERTY_LAYOUTGRID = "layoutGrid";
+	public static final String PROPERTY_STYLE = "style";
+	public static final String PROPERTY_CSSCLASS = "cssClass";
 }

@@ -92,6 +92,7 @@ public interface IRepository
 	public static final int SHAPES = IRepositoryConstants.SHAPES;//obsolete should be removed!!, but that will break repository updates
 	public static final int PARTS = IRepositoryConstants.PARTS;
 	public static final int RECTSHAPES = IRepositoryConstants.RECTSHAPES;
+	public static final int LAYOUTCONTAINERS = IRepositoryConstants.LAYOUTCONTAINERS;
 
 	public static final int RELATIONS = IRepositoryConstants.RELATIONS;
 	public static final int RELATION_ITEMS = IRepositoryConstants.RELATION_ITEMS;
