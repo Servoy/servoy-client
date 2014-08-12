@@ -16,7 +16,9 @@
 -->
 name: 'svy-${name}',
 displayName: '${displayName}',
-definition: 'servoydefault/${name}/${name}.js',
+<#if categoryName??>categoryName: '${categoryName}',
+</#if><#if icon??>icon: 'servoydefault/${name}/${icon}',
+</#if>definition: 'servoydefault/${name}/${name}.js',
 <#if serverScript??>serverscript: '${serverScript}',
 </#if>libraries: [<#list libraries as lib>'${lib}'<#if lib_has_next>,</#if></#list>],
 model:

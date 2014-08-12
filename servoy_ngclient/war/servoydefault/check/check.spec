@@ -1,5 +1,7 @@
 name: 'svy-check',
 displayName: 'Check',
+categoryName: 'Elements',
+icon: 'servoydefault/check/CHECKBOX16.png',
 definition: 'servoydefault/check/check.js',
 libraries: [],
 model:

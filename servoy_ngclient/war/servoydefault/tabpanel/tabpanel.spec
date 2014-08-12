@@ -1,5 +1,7 @@
 name: 'svy-tabpanel',
 displayName: 'Tab panel',
+categoryName: 'Containers',
+icon: 'servoydefault/tabpanel/tabs.gif',
 definition: 'servoydefault/tabpanel/tabpanel.js',
 serverscript: 'servoydefault/tabpanel/tabpanel_server.js',
 libraries: ['servoydefault/tabpanel/accordionpanel.css'],

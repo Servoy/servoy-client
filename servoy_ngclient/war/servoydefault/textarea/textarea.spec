@@ -1,5 +1,7 @@
 name: 'svy-textarea',
 displayName: 'Text Area',
+categoryName: 'Elements',
+icon: 'servoydefault/textarea/TEXTAREA16.png',
 definition: 'servoydefault/textarea/textarea.js',
 libraries: [],
 model:

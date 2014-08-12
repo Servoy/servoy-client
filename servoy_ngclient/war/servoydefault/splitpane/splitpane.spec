@@ -1,5 +1,7 @@
 name: 'svy-splitpane',
 displayName: 'Split Pane',
+categoryName: 'Containers',
+icon: 'servoydefault/splitpane/split.gif',
 definition: 'servoydefault/splitpane/splitpane.js',
 libraries: ['servoydefault/splitpane/bg-splitter/js/splitter.js','servoydefault/splitpane/bg-splitter/css/style.css'],
 model:

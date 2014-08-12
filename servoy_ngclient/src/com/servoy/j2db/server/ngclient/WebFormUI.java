@@ -64,7 +64,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	{
 		private FormSpecification()
 		{
-			super("form_spec", "", "", "", null);
+			super("form_spec", "", "", null, null, "", null);
 			putProperty("size", new PropertyDescription("size", TypesRegistry.getType("dimension")));
 		}
 	}

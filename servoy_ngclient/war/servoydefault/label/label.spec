@@ -1,5 +1,7 @@
 name: 'svy-label',
 displayName: 'label',
+categoryName: 'Elements',
+icon: 'servoydefault/label/text.gif',
 definition: 'servoydefault/label/label.js',
 libraries: [],
 model:

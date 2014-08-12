@@ -1,5 +1,7 @@
 name: 'svy-calendar',
 displayName: 'Calendar',
+categoryName: 'Elements',
+icon: 'servoydefault/calendar/Calendar_C16.png',
 definition: 'servoydefault/calendar/calendar.js',
 libraries: ['servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js','servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js','servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css'],
 model:

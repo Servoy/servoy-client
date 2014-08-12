@@ -1,5 +1,7 @@
 name: 'svy-textfield',
 displayName: 'Text field',
+categoryName: 'Elements',
+icon: 'servoydefault/textfield/textinput.png',
 definition: 'servoydefault/textfield/textfield.js',
 libraries: [],
 model:

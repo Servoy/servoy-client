@@ -1,5 +1,7 @@
 name: 'svy-listbox',
 displayName: 'ListBox',
+categoryName: 'Elements',
+icon: 'servoydefault/listbox/listbox.png',
 definition: 'servoydefault/listbox/listbox.js',
 libraries: [],
 model:
