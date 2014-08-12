@@ -270,11 +270,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
         			  visible: el.model.visible
         		  });
 
-        		  $scope.$watch('model.childElements[' + idx + '].model.visible', function (newVal, oldVal) {
-        			  for (var i in $scope.columnDefinitions) {
-        				  $scope.columnDefinitions[i].visible = $scope.model.childElements[i].model.visible;
-        			  }
-        		  }, false);
+        		  updateColumnVisibility($scope, idx);
     		  }
     	  }
     	  
@@ -283,6 +279,12 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  width: '100%',
     			  cellTemplate: rowTemplate 
     		  });
+    	  }
+    	  
+    	  function updateColumnVisibility(scope, idx) {
+    		  scope.$watch('model.childElements[' + idx + '].model.visible', function (newVal, oldVal) {
+    			  scope.columnDefinitions[idx].visible = scope.model.childElements[idx].model.visible;
+    		  }, false);
     	  }
     	  
     	  function getOrCreateRowProxies(rowId) {
