@@ -1234,26 +1234,31 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		// IGNORE
 	}
 
+	public boolean isParentContainerChanged()
+	{
+		final boolean[] isParentContainerChanged = { false };
+		visitParents(IProviderStylePropertyChanges.class, new IVisitor<Component>()
+		{
+			@Override
+			public Object component(Component component)
+			{
+				if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
+				{
+					isParentContainerChanged[0] = true;
+					return IVisitor.STOP_TRAVERSAL;
+				}
+				return IVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+
+		return isParentContainerChanged[0];
+	}
+
 	public void attachComponents(AjaxRequestTarget target)
 	{
 		if (!((ChangesRecorder)scriptable.getChangesRecorder()).isChanged())
 		{
-			final boolean[] needToUpdateTarget = { true };
-			visitParents(IProviderStylePropertyChanges.class, new IVisitor<Component>()
-			{
-				@Override
-				public Object component(Component component)
-				{
-					if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
-					{
-						needToUpdateTarget[0] = false;
-						return IVisitor.STOP_TRAVERSAL;
-					}
-					return IVisitor.CONTINUE_TRAVERSAL;
-				}
-			});
-
-			if (needToUpdateTarget[0] && (paneChanged[0] || paneChanged[1]))
+			if (!isParentContainerChanged() && (paneChanged[0] || paneChanged[1]))
 			{
 				if (paneChanged[0] && paneChanged[1])
 				{
