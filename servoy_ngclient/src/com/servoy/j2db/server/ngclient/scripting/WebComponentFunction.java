@@ -19,9 +19,12 @@ package com.servoy.j2db.server.ngclient.scripting;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.WebComponent;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 
 /**
  * Javascript function to call a client-side function in the web component api.
@@ -42,7 +45,15 @@ public class WebComponentFunction extends WebBaseFunction
 	@Override
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		// No unwrapping here so that javascript objects can also be sent to client
+		// first do rhino conversion on the types first.(form scope -> name, native object -> dimension)
+		if (args != null && args.length > 0)
+		{
+			PropertyDescription parameterTypes = WebComponent.getParameterTypes(definition);
+			for (int i = 0; i < args.length; i++)
+			{
+				args[i] = RhinoConversion.convert(args[i], null, parameterTypes.getProperty(Integer.toString(i)), component.getDataConverterContext());
+			}
+		}
 		return component.invokeApi(definition, args);
 	}
 }
