@@ -77,12 +77,12 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ELEMENTID);
 	}
 
-	public void setCSSClass(String cls)
+	public void setCSSClasses(String cls)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS, cls);
 	}
 
-	public String getCSSClass()
+	public String getCSSClasses()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS);
 	}

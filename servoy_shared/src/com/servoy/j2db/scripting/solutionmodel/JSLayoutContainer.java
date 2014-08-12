@@ -107,22 +107,22 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getCSSClass()
+	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getCSSClasses()
 	 * 
 	 * @sample
-	 * layoutContainer.cssClass = 'myContainer';
+	 * layoutContainer.cssClasses = 'myContainer';
 	 */
 	@JSGetter
-	public String getCSSClass()
+	public String getCSSClasses()
 	{
-		return layoutContainer.getCSSClass();
+		return layoutContainer.getCSSClasses();
 	}
 
 	@JSSetter
-	public void setCSSClass(String cssClass)
+	public void setCSSClasses(String cssClasses)
 	{
 		checkModification();
-		layoutContainer.setCSSClass(cssClass);
+		layoutContainer.setCSSClasses(cssClasses);
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	public void setStyle(String style)
 	{
 		checkModification();
-		layoutContainer.setCSSClass(style);
+		layoutContainer.setStyle(style);
 	}
 
 	/**
