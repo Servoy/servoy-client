@@ -29,9 +29,9 @@ import com.servoy.j2db.util.Utils;
 /**
  * Base event executor that handles all events from the elements that are on the form.
  * Subclasses implement specific code for the specific gui implementations (Swing or Wicket/Web)
- * 
+ *
  * @author jcompagner
- * 
+ *
  */
 public abstract class BaseEventExecutor implements IEventExecutor
 {
@@ -139,7 +139,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IEventExecutor#getValidationEnabled()
 	 */
 	public boolean getValidationEnabled()
@@ -154,7 +154,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IEventExecutor#getSelectOnEnter()
 	 */
 	public boolean getSelectOnEnter()
@@ -173,7 +173,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	{
 		Object o = fireEventCommand(EventType.dataChange, changeCommand, new Object[] { oldVal, newVal }, changeArgs, saveData, display, false,
 			MODIFIERS_UNSPECIFIED, true);
-		display.setValueValid(!Boolean.FALSE.equals(o), oldVal);
+		display.setValueValid(!Boolean.FALSE.equals(o) && !(o instanceof String && ((String)o).length() > 0), oldVal);
 	}
 
 	/* ----------------------------------------- */
