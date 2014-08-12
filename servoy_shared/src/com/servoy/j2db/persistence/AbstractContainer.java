@@ -114,6 +114,33 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		return obj;
 	}
 
+	/**
+	 * Get the all the child layout containers.
+	 * 
+	 * @return the layout containers
+	 */
+	public Iterator<LayoutContainer> getLayoutContainers()
+	{
+		return getObjects(IRepository.LAYOUTCONTAINERS);
+	}
+
+	/**
+	 * Create a new layout container.
+	 * 
+	 * @param location the location
+	 * @return the field
+	 */
+	public LayoutContainer createNewLayoutContainer(String name) throws RepositoryException
+	{
+		LayoutContainer obj = (LayoutContainer)getSolution().getChangeHandler().createNewObject(this, IRepository.LAYOUTCONTAINERS);
+
+		//set all the required properties
+		obj.setName(name);
+
+		addChild(obj);
+		return obj;
+	}
+
 	public Solution getSolution()
 	{
 		return (Solution)getRootObject();

@@ -50,7 +50,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 {
 	private final IApplication application;
 
-	public JSTabPanel(JSForm parent, TabPanel tabPanel, IApplication application, boolean isNew)
+	public JSTabPanel(IJSParent< ? > parent, TabPanel tabPanel, IApplication application, boolean isNew)
 	{
 		super(parent, tabPanel, isNew);
 		this.application = application;
@@ -342,7 +342,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	@Deprecated
 	public void js_setOnTabChangeMethod(Function function)
 	{
-		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+		ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
 			getBaseComponent(true).setOnTabChangeMethodID(scriptMethod.getID());

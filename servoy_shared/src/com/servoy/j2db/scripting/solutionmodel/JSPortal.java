@@ -59,7 +59,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 {
 	private final IApplication application;
 
-	public JSPortal(JSForm form, Portal portal, IApplication application, boolean isNew)
+	public JSPortal(IJSParent< ? > form, Portal portal, IApplication application, boolean isNew)
 	{
 		super(form, portal, isNew);
 		this.application = application;
@@ -452,7 +452,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			}
 			else
 			{
-				int id = JSForm.getMethodId(action, gc, application);
+				int id = JSBaseContainer.getMethodId(action, gc, application);
 				gc.setOnActionMethodID(id);
 				return new JSButton(this, gc, application, true);
 			}
@@ -538,7 +538,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			}
 			else
 			{
-				int id = JSForm.getMethodId(action, gc, application);
+				int id = JSBaseContainer.getMethodId(action, gc, application);
 				if (id != -1) gc.setOnActionMethodID(id);
 				return new JSLabel(this, gc, application, true);
 			}

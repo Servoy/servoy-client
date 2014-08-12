@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -40,19 +38,13 @@ import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IScriptProvider;
-import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -61,7 +53,6 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
-import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IConstantsObject;
@@ -69,7 +60,6 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.solutionmodel.ISMDefaults;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMMethod;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -78,24 +68,21 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSForm")
-public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm
+public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm
 {
-	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)
-	{
-		return fs.getScriptMethod((String)function.get("_scopename_", function), (String)function.get("_methodname_", function));
-	}
-
 	protected Form form;
 	private final IApplication application;
 	private boolean isCopy;
 
 	public JSForm(IApplication application, Form form, boolean isNew)
 	{
+		super(application, form);
 		this.application = application;
 		this.form = form;
 		this.isCopy = isNew;
 	}
 
+	@Override
 	public final void checkModification()
 	{
 		// make copy if needed
@@ -509,987 +496,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	public JSMethod[] js_getFormMethods()
 	{
 		return getMethods();
-	}
-
-	/**
-	 * Creates a new JSField object on the form - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
-	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
-	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();  	
-	 *
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 *
-	 * @param type the display type of the JSField object (see the Solution Model -> JSField node for display types)
-	 *
-	 * @param x the horizontal "x" position of the JSField object in pixels
-	 *
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 *
-	 * @param width the width of the JSField object in pixels
-	 *
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object (of the specified display type) 
-	 */
-	@JSFunction
-	public JSField newField(Object dataprovider, int type, int x, int y, int width, int height)
-	{
-		checkModification();
-		try
-		{
-			Field field = form.createNewField(new Point(x, y));
-			field.setDisplayType(type);
-			field.setSize(new Dimension(width, height));
-			if (dataprovider instanceof String)
-			{
-				field.setDataProviderID((String)dataprovider);
-			}
-			else if (dataprovider instanceof JSVariable)
-			{
-				field.setDataProviderID(((JSVariable)dataprovider).getScriptVariable().getDataProviderID());
-			}
-			return JSField.createField(this, field, application, true);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
-
-	@JSFunction
-	public JSField newField(IBaseSMVariable dataprovider, int type, int y)
-	{
-		return newField(dataprovider, type, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSField newField(String dataprovider, int type, int y)
-	{
-		return newField(dataprovider, type, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of TEXT_FIELD - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600); 
-	 * //choose the dataprovider or jsvariable you want for the Text Field
-	 * var x = null;
-	 * //global jsvariable as the dataprovider 
-	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
-	 * //x.defaultValue = "'Text from a global variable'";
-	 * //or a form jsvariable as the dataprovider 
-	 * //x = form.newVariable('myFormVar',JSVariable.TEXT);
-	 * //x.defaultValue = "'Text from a form variable'";
-	 * var textField = form.newTextField(x,100,100,200,50);
-	 * //or a column data provider as the dataprovider
-	 * //textField.dataProviderID = columnTextDataProvider;
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a JSField object with the displayType of TEXT_FIELD
-	 */
-	@JSFunction
-	public JSField newTextField(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.TEXT_FIELD, x, y, width, height);
-	}
-
-	@JSFunction
-	public JSText newTextField(IBaseSMVariable dataprovider, int y)
-	{
-		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSText newTextField(String dataprovider, int y)
-	{
-		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of TEXT_AREA - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
-	 * var globalVar = solutionModel.newGlobalVariable('globals', 'myGlobal',JSVariable.TEXT);
-	 * globalVar.defaultValue = "'Type your text in here'";
-	 * var textArea = form.newTextArea(globalVar,100,100,300,150);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSTabPanel object in pixels
-	 * @param y the vertical "y" position of the JSTabPanel object in pixels
-	 * @param width the width of the JSTabPanel object in pixels
-	 * @param height the height of the JSTabPanel object in pixels
-	 * 
-	 * @return a JSField object with the displayType of TEXT_AREA
-	 */
-	@JSFunction
-	public JSField newTextArea(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.TEXT_AREA, x, y, width, height);
-	}
-
-	@JSFunction
-	public JSTextArea newTextArea(IBaseSMVariable dataprovider, int y)
-	{
-		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSTextArea newTextArea(String dataprovider, int y)
-	{
-		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of COMBOBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var calendar = form.newComboBox(myDataProvider, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of COMBOBOX
-	 */
-	@JSFunction
-	public JSField newComboBox(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.COMBOBOX, x, y, width, height);
-	}
-
-	@JSFunction
-	public JSCombobox newCombobox(IBaseSMVariable dataprovider, int y)
-	{
-		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSCombobox newCombobox(String dataprovider, int y)
-	{
-		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of LISTBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 * var list = form.newListBox(myDataProvider, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of LISTBOX
-	 */
-	@JSFunction
-	public JSField newListBox(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.LIST_BOX, x, y, width, height);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of MULTISELECT_LISTBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 * var calendar = form.newMultiSelectListBox(myDataProvider, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
-	 */
-	@JSFunction
-	public JSField newMultiSelectListBox(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.MULTISELECT_LISTBOX, x, y, width, height);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of SPINNER - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 * var spinner = form.newSpinner(myDataProvider, 10, 460, 100, 20);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of SPINNER
-	 */
-	@JSFunction
-	public JSField newSpinner(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.SPINNER, x, y, width, height);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample	
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var vlist = solutionModel.newValueList('options',JSValueList.CUSTOM_VALUES); 
-	 * vlist.customValues = "value1\nvalue2\nvalue3"; 
-	 * var radios = form.newRadios('columnDataProvider',100,100,200,200);
-	 * radios.valuelist = vlist;
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a JSField object with the displayType of RADIOS (radio buttons)
-	 */
-	@JSFunction
-	public JSField newRadios(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.RADIOS, x, y, width, height);
-	}
-
-	@JSFunction
-	public JSRadios newRadios(IBaseSMVariable dataprovider, int y)
-	{
-		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSRadios newRadios(String dataprovider, int y)
-	{
-		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of CHECK (checkbox) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var calendar = form.newCheck(myDataProvider, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of CHECK (checkbox)
-	 */
-	@JSFunction
-	public JSField newCheck(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.CHECKS, x, y, width, height);
-	}
-
-	@JSFunction
-	public JSChecks newCheck(IBaseSMVariable dataprovider, int y)
-	{
-		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSChecks newCheck(String dataprovider, int y)
-	{
-		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of CALENDAR - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var calendar = form.newCalendar(myDataProvider, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels 
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of CALENDAR
-	 */
-	@JSFunction
-	public JSField newCalendar(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.CALENDAR, x, y, width, height);
-	}
-
-	@JSFunction
-	public JSCalendar newCalendar(IBaseSMVariable dataprovider, int y)
-	{
-		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSCalendar newCalendar(String dataprovider, int y)
-	{
-		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of RTF_AREA (enables more than one line of text to be displayed in a field) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
-	 * var rtf_area = form.newRtfArea('columnDataProvider',100,100,100,100);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a JSField object with the displayType of RTF_AREA
-	 */
-	@JSFunction
-	public JSField newRtfArea(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.RTF_AREA, x, y, width, height);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of HTML_AREA - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var textProvider = form.newVariable('myVar',JSVariable.TEXT);
-	 * textProvider.defaultValue = "'This is a triple quoted text!'";
-	 * var htmlArea = myListViewForm.newHtmlArea(textProvider,100,100,100,100);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a JSField object on the form with the displayType of HTML_AREA 
-	 */
-	@JSFunction
-	public JSField newHtmlArea(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.HTML_AREA, x, y, width, height);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of IMAGE_MEDIA - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var myMediaVar = form.newVariable("media", JSVariable.MEDIA);
-	 * var imageMedia = form.newImageMedia(myMediaVar,100,100,200,200)
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of IMAGE_MEDIA
-	 */
-	@JSFunction
-	public JSField newImageMedia(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.IMAGE_MEDIA, x, y, width, height);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of TYPE_AHEAD - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1',myDatasource,null,true,800,600);
-	 * var vlist = solutionModel.newValueList('options',JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "value1\nvalue2\nvalue3";
-	 * var typeAhead = form.newTypeAhead(columnTextDataProvider,100,100,300,200);
-	 * typeAhead.valuelist = vlist;
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a JSField object with the displayType of TYPE_AHEAD
-	 */
-	@JSFunction
-	public JSField newTypeAhead(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.TYPE_AHEAD, x, y, width, height);
-	}
-
-	/**
-	 * Creates a new JSField object on the form with the displayType of PASSWORD - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var pass = form.newPassword(scopes.globals.aVariable, 100, 100, 70, 30);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
-	 * @param x the horizontal "x" position of the JSfield object in pixels
-	 * @param y the vertical "y" position of the JSField object in pixels
-	 * @param width the width of the JSField object in pixels
-	 * @param height the height of the JSField object in pixels
-	 * 
-	 * @return a new JSField object on the form with the displayType of PASSWORD
-	 */
-	@JSFunction
-	public JSField newPassword(Object dataprovider, int x, int y, int width, int height)
-	{
-		return newField(dataprovider, Field.PASSWORD, x, y, width, height);
-	}
-
-	@JSFunction
-	public JSPassword newPassword(IBaseSMVariable dataprovider, int y)
-	{
-		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
-	}
-
-	@JSFunction
-	public JSPassword newPassword(String dataprovider, int y)
-	{
-		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
-	}
-
-	/**
-	 * Creates a new button on the form with the given text, place, size and JSMethod as the onAction event triggered action.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var method = form.newMethod('function onAction(event) { application.output("onAction intercepted on " + event.getFormName()); }');
-	 * var button = form.newButton('myButton', 10, 10, 100, 30, method);
-	 * application.output("The new button: " + button.name + " has the following onAction event handling method assigned " + button.onAction.getName());
-	 *
-	 * @param txt the text on the button
-	 *
-	 * @param x the x coordinate of the button location on the form
-	 *
-	 * @param y the y coordinate of the button location on the form
-	 *
-	 * @param width the width of the button
-	 * 
-	 * @param height the height of the button 
-	 *
-	 * @param action the method assigned to handle an onAction event
-	 * 
-	 * @return a new JSButton object
-	 */
-	@JSFunction
-	public JSButton newButton(String txt, int x, int y, int width, int height, Object action)
-	{
-		checkModification();
-		try
-		{
-			GraphicalComponent gc = form.createNewGraphicalComponent(new Point(x, y));
-			gc.setSize(new Dimension(width, height));
-			gc.setText(txt);
-			if (action instanceof JSMethod)
-			{
-				JSButton button = new JSButton(this, gc, application, true);
-				button.setOnAction((JSMethod)action);
-				return button;
-			}
-			else
-			{
-				int id = getMethodId(action, gc, application);
-				gc.setOnActionMethodID(id);
-				return new JSButton(this, gc, application, true);
-			}
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	@JSFunction
-	public JSButton newButton(String txt, int y, IBaseSMMethod jsmethod)
-	{
-		return newButton(txt, 0, y, 10, 10, jsmethod);
-	}
-
-	/**
-	 * Creates a new JSLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var label = form.newLabel('The text on the label', 140, 140, 50, 20);
-	 * forms['newForm1'].controller.show(); 
-	 *
-	 * @param txt the specified text of the label object
-	 *
-	 * @param x the horizontal "x" position of the label object in pixels
-	 *
-	 * @param y the vertical "y" position of the label object in pixels
-	 *
-	 * @param width the width of the label object in pixels
-	 *
-	 * @param height the height of the label object in pixels
-	 * 
-	 * @return a JSLabel object
-	 */
-	@JSFunction
-	public JSLabel newLabel(String txt, int x, int y, int width, int height)
-	{
-		return newLabel(txt, x, y, width, height, null);
-	}
-
-	/**
-	 * Creates a new JSLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels and a JSMethod action such as the method for an onAction event.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var label = form.newLabel('The text on the label', 140, 140, 50, 20);
-	 * forms['newForm1'].controller.show(); 
-	 *
-	 * @param txt the specified text of the label object
-	 *
-	 * @param x the horizontal "x" position of the label object in pixels
-	 *
-	 * @param y the vertical "y" position of the label object in pixels
-	 *
-	 * @param width the width of the label object in pixels
-	 *
-	 * @param height the height of the label object in pixels
-	 *
-	 * @param action the event action JSMethod of the label object
-	 * 
-	 * @return a JSLabel object
-	 */
-	@JSFunction
-	public JSLabel newLabel(String txt, int x, int y, int width, int height, Object action)
-	{
-		checkModification();
-		try
-		{
-			GraphicalComponent gc = form.createNewGraphicalComponent(new Point(x, y));
-			gc.setSize(new Dimension(width, height));
-			gc.setText(txt);
-			if (action instanceof JSMethod)
-			{
-				JSLabel label = new JSLabel(this, gc, application, true);
-				label.setOnAction((JSMethod)action);
-				return label;
-			}
-			else
-			{
-				int methodId = getMethodId(action, gc, application);
-				if (methodId > 0)
-				{
-					gc.setOnActionMethodID(methodId);
-					gc.setShowClick(false);
-				}
-				return new JSLabel(this, gc, application, true);
-			}
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	@JSFunction
-	public JSLabel newLabel(String txt, int y)
-	{
-		return newLabel(txt, 0, y, 10, 10, null);
-	}
-
-	protected static int getMethodId(Object action, GraphicalComponent gc, IApplication application)
-	{
-		int methodId = -1;
-		if (action != null)
-		{
-			if (action instanceof Function)
-			{
-				ScriptMethod scriptMethod = getScriptMethod((Function)action, application.getFlattenedSolution());
-				if (scriptMethod != null)
-				{
-					methodId = getMethodId(application, gc, scriptMethod);
-				}
-			}
-			else if (action instanceof JSMethod)
-			{
-				methodId = getMethodId(application, gc, (JSMethod)action, null);
-			}
-			else
-			{
-				throw new RuntimeException("method argument not a jsmethod"); //$NON-NLS-1$ 
-			}
-		}
-		return methodId;
-	}
-
-	/**
-	 * Creates a new JSPortal object on the form - including the name of the JSPortal object; the relation the JSPortal object is based on, the "x" and "y" position of the JSPortal object in pixels, as well as the width and height of the JSPortal object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
-	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/table1','db:/server2/table2',JSRelation.INNER_JOIN);
-	 * relation.newRelationItem('another_parent_table_id', '=', 'another_child_table_parent_id');
-	 * var portal = form.newPortal('portal',relation,200,200,300,300);
-	 * portal.newField('someColumn',JSField.TEXT_FIELD,200,200,120);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param name the specified name of the JSPortal object
-	 * @param relation the relation of the JSPortal object
-	 * @param x the horizontal "x" position of the JSPortal object in pixels
-	 * @param y the vertical "y" position of the JSPortal object in pixels
-	 * @param width the width of the JSPortal object in pixels
-	 * @param height the height of the JSPortal object in pixels
-	 * 
-	 * @return a JSPortal object 
-	 */
-	@JSFunction
-	public JSPortal newPortal(String name, Object relation, int x, int y, int width, int height)
-	{
-		checkModification();
-		try
-		{
-			Portal portal = form.createNewPortal(name, new Point(x, y));
-			portal.setSize(new Dimension(width, height));
-			String relationName = null;
-			if (relation instanceof RelatedFoundSet)
-			{
-				relationName = ((RelatedFoundSet)relation).getRelationName();
-			}
-			else if (relation instanceof String)
-			{
-				relationName = (String)relation;
-			}
-			else if (relation instanceof JSRelation)
-			{
-				relationName = ((JSRelation)relation).getName();
-			}
-			portal.setRelationName(relationName);
-			return new JSPortal(this, portal, application, true);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Returns a JSPortal that has the given name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var portal = frm.getPortal("myPortal");
-	 * portal.initialSort = 'my_table_text desc';
-	 *
-	 * @param name the specified name of the portal
-	 * 
-	 * @return a JSPortal object
-	 */
-	@JSFunction
-	public JSPortal getPortal(String name)
-	{
-		if (name == null) return null;
-		Iterator<Portal> portals = application.getFlattenedSolution().getFlattenedForm(form).getPortals();
-		while (portals.hasNext())
-		{
-			Portal portal = portals.next();
-			if (name.equals(portal.getName()))
-			{
-				return new JSPortal(this, portal, application, false);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Removes a JSPortal that has the given name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
-	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/myTable','db:/server1/myOtherTable',JSRelation.INNER_JOIN);
-	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
-	 * var jsportal = form.newPortal('jsp',relation,100,400,300,300);
-	 * jsportal.newField('child_table_id',JSField.TEXT_FIELD,200,200,120);
-	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jsp') == true) application.output('Portal removed ok'); else application.output('Portal could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove the portal',450,500,250,50,jsmethod);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 * 
-	 * @param name the specified name of the JSPortal to be removed
-	 * 
-	 * @return true if the JSPortal has successfully been removed; false otherwise
-	 */
-	@JSFunction
-	public boolean removePortal(String name)
-	{
-		if (name == null) return false;
-		checkModification();
-		Iterator<Portal> portals = form.getPortals();
-		while (portals.hasNext())
-		{
-			Portal portal = portals.next();
-			if (name.equals(portal.getName()))
-			{
-				form.removeChild(portal);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Returns all JSPortal objects of this form (optionally also the ones from the parent form), including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var portals = frm.getPortals();
-	 * for (var i in portals)
-	 * {
-	 * 	var p = portals[i];
-	 * 	if (p.name != null)
-	 * 		application.output(p.name);
-	 * 	else
-	 * 		application.output("unnamed portal detected");
-	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from parent form 
-	 * @return an array of all JSPortal objects on this form
-	 *
-	 */
-	@JSFunction
-	public JSPortal[] getPortals(boolean returnInheritedElements)
-	{
-		List<JSPortal> portals = new ArrayList<JSPortal>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
-		Iterator<Portal> iterator = form2use.getPortals();
-		while (iterator.hasNext())
-		{
-			portals.add(new JSPortal(this, iterator.next(), application, false));
-		}
-		return portals.toArray(new JSPortal[portals.size()]);
-	}
-
-	/**
-	 * Returns all JSPortal objects of this form (not including the ones from the parent form), including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var portals = frm.getPortals();
-	 * for (var i in portals)
-	 * {
-	 * 	var p = portals[i];
-	 * 	if (p.name != null)
-	 * 		application.output(p.name);
-	 * 	else
-	 * 		application.output("unnamed portal detected");
-	 * }
-	 * 
-	 * @return an array of all JSPortal objects on this form
-	 *
-	 */
-	@JSFunction
-	public JSPortal[] getPortals()
-	{
-		return getPortals(false);
-	}
-
-	/**
-	 * Creates a new JSTabPanel object on the form - including the name of the JSTabPanel object, the "x" and "y" position of the JSTabPanel object in pixels, as well as the width and height of the JSTabPanel object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('parentForm','db:/server1/parent_table',null,false,640,480); 
-	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_text', JSField.TEXT_FIELD,10,10,100,20); 
-	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
-	 * parentToChild.newRelationItem('parent_table_id','=','child_table_parent_id');
-	 * var childTwo = solutionModel.newForm('childTwo','db:/server1/my_table',null,false,400,300);
-	 * childTwo.newField('my_table_image', JSField.IMAGE_MEDIA,10,10,100,100); 
-	 * var tabPanel = form.newTabPanel('tabs',10,10,620,460);
-	 * tabPanel.newTab('tab1','Child One',childOne,parentToChild);
-	 * tabPanel.newTab('tab2','Child Two',childTwo);
-	 * forms['parentForm'].controller.show();
-	 * 
-	 * @param name the specified name of the JSTabPanel object
-	 * @param x the horizontal "x" position of the JSTabPanel object in pixels
-	 * @param y the vertical "y" position of the JSTabPanel object in pixels
-	 * @param width the width of the JSTabPanel object in pixels
-	 * @param height the height of the JSTabPanel object in pixels
-	 * 
-	 * @return a JSTabPanel object	
-	 */
-	@JSFunction
-	public JSTabPanel newTabPanel(String name, int x, int y, int width, int height)
-	{
-		checkModification();
-		try
-		{
-			TabPanel tabPanel = form.createNewTabPanel(name);
-			tabPanel.setSize(new Dimension(width, height));
-			tabPanel.setLocation(new Point(x, y));
-			return new JSTabPanel(this, tabPanel, application, true);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Returns a JSTabPanel that has the given name.
-	 *
-	 * @sample
-	 * var frm = solutionModel.getForm("myForm");
-	 * var tabPanel = frm.getTabPanel("myTabPanel"); 
-	 * var tabs = tabPanel.getTabs(); 
-	 * for (var i=0; i<tabs.length; i++) 
-	 *	application.output("Tab " + i + " has text " + tabs[i].text);	 
-	 * 
-	 * @param name the specified name of the tabpanel
-	 * 
-	 * @return a JSTabPanel object
-	 */
-	@JSFunction
-	public JSTabPanel getTabPanel(String name)
-	{
-		if (name == null) return null;
-		Iterator<TabPanel> tabPanels = application.getFlattenedSolution().getFlattenedForm(form).getTabPanels();
-		while (tabPanels.hasNext())
-		{
-			TabPanel tabPanel = tabPanels.next();
-			if (name.equals(tabPanel.getName()))
-			{
-				return new JSTabPanel(this, tabPanel, application, false);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Removes a JSTabPanel that has the given name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX','db:/server1/parent_table',null,false,800,600);
-	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_text', JSField.TEXT_FIELD,10,10,100,20); 
-	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
-	 * parentToChild.newRelationItem('parent_table_id','=','child_table_id');
-	 * var childTwo = solutionModel.newForm('childTwo','db:/server1/another_table',null,false,400,300);
-	 * childTwo.newField('columnDataProvider', JSField.TEXT_FIELD,10,10,100,100);
-	 * var tabPanel = form.newTabPanel('jst',10,10,620,460);
-	 * tabPanel.newTab('tab1','Child One',childOne,parentToChild);
-	 * tabPanel.newTab('tab2','Child Two',childTwo);
-	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jst') == true)\n application.output('TabPanel has been removed ok');\n else\n application.output('TabPanel could not be deleted');\n forms['newFormX'].controller.recreateUI();\n}");
-	 * var removerButton = form.newButton('Click here to remove the tab panel',450,500,250,50,jsmethod);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show(); 
-	 *
-	 * @param name the specified name of the JSTabPanel to be removed
-	 * 
-	 * @return true is the JSTabPanel has been successfully removed, false otherwise
-	 */
-	@JSFunction
-	public boolean removeTabPanel(String name)
-	{
-		if (name == null) return false;
-		checkModification();
-		Iterator<TabPanel> tabPanels = form.getTabPanels();
-		while (tabPanels.hasNext())
-		{
-			TabPanel tabPanel = tabPanels.next();
-			if (name.equals(tabPanel.getName()))
-			{
-				form.removeChild(tabPanel);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Returns all JSTabPanels of this form (optionally the ones from the parent form), including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var tabPanels = frm.getTabPanels();
-	 * for (var i in tabPanels)
-	 * {
-	 *	var tp = tabPanels[i];
-	 *	if (tp.name != null)
-	 *		application.output("Tab " + tp.name + " has text " + tp.text);
-	 *	else
-	 *		application.output("Tab with text " + tp.text + " has no name");
-	 * }
-	 *
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
-	 * @return an array of all JSTabPanel objects on this form			
-	 *		
-	 */
-	@JSFunction
-	public JSTabPanel[] getTabPanels(boolean returnInheritedElements)
-	{
-		List<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
-		Iterator<TabPanel> iterator = form2use.getTabPanels();
-		while (iterator.hasNext())
-		{
-			tabPanels.add(new JSTabPanel(this, iterator.next(), application, false));
-		}
-		return tabPanels.toArray(new JSTabPanel[tabPanels.size()]);
-	}
-
-	/**
-	 * Returns all JSTabPanels of this form (not including the ones from the parent form), including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var tabPanels = frm.getTabPanels();
-	 * for (var i in tabPanels)
-	 * {
-	 *	var tp = tabPanels[i];
-	 *	if (tp.name != null)
-	 *		application.output("Tab " + tp.name + " has text " + tp.text);
-	 *	else
-	 *		application.output("Tab with text " + tp.text + " has no name");
-	 * }
-	 *
-	 * @return an array of all JSTabPanel objects on this form			
-	 *		
-	 */
-	@JSFunction
-	public JSTabPanel[] getTabPanels()
-	{
-		return getTabPanels(false);
 	}
 
 	private JSPart[] getPartsInternal(int partType)
@@ -2163,272 +1169,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		return getPartInternal(Part.TITLE_FOOTER);
 	}
 
-	/**
-	 * The field with the specified name.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("myForm");
-	 * var field = form.getField("myField");
-	 * application.output(field.dataProviderID);
-	 * 
-	 * @param name the specified name of the field
-	 * 
-	 * @return a JSField object
-	 */
-	@JSFunction
-	public JSField getField(String name)
-	{
-		if (name == null) return null;
-
-		Iterator<Field> fields = application.getFlattenedSolution().getFlattenedForm(form).getFields();
-		while (fields.hasNext())
-		{
-			Field field = fields.next();
-			if (name.equals(field.getName()))
-			{
-				return JSField.createField(this, field, application, false);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Removes a JSField that has the given name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
-	 * var jsfield = form.newField(scopes.globals.myGlobalVariable,JSField.TEXT_FIELD,100,300,200,50);
-	 * jsfield.name = 'jsf';
-	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jsf') == true) application.output('Field has been removed ok'); else application.output('Field could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove the field',450,500,250,50,jsmethod);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 *
-	 * @param name the specified name of the JSField to remove 
-	 * 
-	 * @return true is the JSField has been successfully removed; false otherwise
-	 */
-	@JSFunction
-	public boolean removeField(String name)
-	{
-		if (name == null) return false;
-		checkModification();
-		Iterator<Field> fields = form.getFields();
-		while (fields.hasNext())
-		{
-			Field field = fields.next();
-			if (name.equals(field.getName()))
-			{
-				form.removeChild(field);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Returns all JSField objects of this form, including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var fields = frm.getFields();
-	 * for (var f in fields)
-	 * {
-	 * 	var fname = fields[f].name;
-	 * 	if (fname != null)
-	 * 		application.output(fname);
-	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 * @return all JSField objects of this form
-	 *
-	 */
-	@JSFunction
-	public JSField[] getFields(boolean returnInheritedElements)
-	{
-		List<JSField> fields = new ArrayList<JSField>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
-		Iterator<Field> iterator = form2use.getFields();
-		while (iterator.hasNext())
-		{
-			fields.add(JSField.createField(this, iterator.next(), application, false));
-		}
-		return fields.toArray(new JSField[fields.size()]);
-	}
-
-	/**
-	 * Returns all JSField objects of this form, including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var fields = frm.getFields();
-	 * for (var f in fields)
-	 * {
-	 * 	var fname = fields[f].name;
-	 * 	if (fname != null)
-	 * 		application.output(fname);
-	 * }
-	 * 
-	 * @return all JSField objects of this form
-	 *
-	 */
-	@JSFunction
-	public JSField[] getFields()
-	{
-		return getFields(false);
-	}
-
-	/**
-	 * Returns a JSButton that has the given name.
-	 *
-	 * @sample 
-	 * var btn = myForm.getButton("hello");
-	 * application.output(btn.text);
-	 *
-	 * @param name the specified name of the button
-	 * 
-	 * @return a JSButton object 
-	 */
-	@JSFunction
-	public JSButton getButton(String name)
-	{
-		if (name == null) return null;
-
-		Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(form).getGraphicalComponents();
-		while (graphicalComponents.hasNext())
-		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && ComponentFactory.isButton(button))
-			{
-				return new JSButton(this, button, application, false);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Removes a JSButton that has the specified name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
-	 * var b1 = form.newButton('This is button1',100,100,200,50,null);
-	 * b1.name = 'b1';
-	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX'); if (form.removeButton('b1') == true) application.output('Button has been removed ok'); else application.output('Button could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var b2 = form.newButton('Click here to remove button1',100,230,200,50,jsmethod);
-	 * b2.name = 'b2';
-	 * forms['newFormX'].controller.show();
-	 *
-	 * @param name the specified name of the JSButton to be removed 
-	 * 
-	 * @return true if the JSButton has been removed; false otherwise
-	 */
-	@JSFunction
-	public boolean removeButton(String name)
-	{
-		if (name == null) return false;
-		checkModification();
-		Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
-		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && ComponentFactory.isButton(button))
-			{
-				form.removeChild(button);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Returns all JSButtons of this form, including the ones without a name.
-	 *
-	 * @sample 
-	 * var buttons = myForm.getButtons();
-	 * for (var b in buttons)
-	 * {
-	 * 	if (buttons[b].name != null) 
-	 * 		application.output(buttons[b].name);
-	 * 	else
-	 * 		application.output(buttons[b].text + " has no name ");
-	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
-	 * @return the list of all JSbuttons on this forms
-	 *
-	 */
-	@JSFunction
-	public JSButton[] getButtons(boolean returnInheritedElements)
-	{
-		List<JSButton> buttons = new ArrayList<JSButton>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
-		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
-		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (ComponentFactory.isButton(button))
-			{
-				buttons.add(new JSButton(this, button, application, false));
-			}
-		}
-		return buttons.toArray(new JSButton[buttons.size()]);
-	}
-
-	/**
-	 * Returns all JSButtons of this form, including the ones without a name.
-	 *
-	 * @sample 
-	 * var buttons = myForm.getButtons();
-	 * for (var b in buttons)
-	 * {
-	 * 	if (buttons[b].name != null) 
-	 * 		application.output(buttons[b].name);
-	 * 	else
-	 * 		application.output(buttons[b].text + " has no name ");
-	 * }
-	 * 
-	 * @return the list of all JSbuttons on this forms
-	 *
-	 */
-	@JSFunction
-	public JSButton[] getButtons()
-	{
-		return getButtons(false);
-	}
-
-	/**
-	 * Creates a new JSBean object on the form - including the name of the JSBean object; the classname the JSBean object is based on, the "x" and "y" position of the JSBean object in pixels, as well as the width and height of the JSBean object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
-	 * var bean = form.newBean('bean','com.servoy.extensions.beans.dbtreeview.DBTreeView',200,200,300,300);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param name the specified name of the JSBean object
-	 * @param className the class name of the JSBean object
-	 * @param x the horizontal "x" position of the JSBean object in pixels
-	 * @param y the vertical "y" position of the JSBean object in pixels
-	 * @param width the width of the JSBean object in pixels
-	 * @param height the height of the JSBean object in pixels
-	 * 
-	 * @return a JSBean object 
-	 */
-	@JSFunction
-	public JSBean newBean(String name, String className, int x, int y, int width, int height)
-	{
-		checkModification();
-		try
-		{
-			Bean bean = form.createNewBean(name, className);
-			bean.setSize(new Dimension(width, height));
-			bean.setLocation(new Point(x, y));
-			return new JSBean(this, bean, true);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
 
 	@JSFunction
 	@Override
@@ -2437,368 +1177,114 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		return null; // only in mobile
 	}
 
-	/**
-	 * Returns a JSBean that has the given name.
-	 *
-	 * @sample 
-	 * var btn = myForm.getBean("mybean");
-	 * application.output(mybean.className);
-	 *
-	 * @param name the specified name of the bean
-	 * 
-	 * @return a JSBean object 
-	 */
 	@JSFunction
-	@Override
-	public JSBean getBean(String name)
+	public JSField newField(IBaseSMVariable dataprovider, int type, int y)
 	{
-		if (name == null) return null;
-
-		try
-		{
-			Iterator<Bean> beans = application.getFlattenedSolution().getFlattenedForm(form).getBeans();
-			while (beans.hasNext())
-			{
-				Bean bean = beans.next();
-				if (name.equals(bean.getName()))
-				{
-					return new JSBean(this, bean, false);
-				}
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.log(ex);
-		}
-		return null;
+		return newField(dataprovider, type, 0, y, 10, 10);
 	}
 
-	/**
-	 * Removes a JSBean that has the specified name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.getForm('myform');
-	 * form.removeBean('mybean')
-	 *  
-	 * @param name the specified name of the JSBean to be removed 
-	 * 
-	 * @return true if the JSBean has been removed; false otherwise
-	 */
 	@JSFunction
-	@Override
-	public boolean removeBean(String name)
+	public JSField newField(String dataprovider, int type, int y)
 	{
-		if (name == null) return false;
-		checkModification();
-		Iterator<Bean> beans = form.getBeans();
-		while (beans.hasNext())
-		{
-			Bean bean = beans.next();
-			if (name.equals(bean.getName()))
-			{
-				form.removeChild(bean);
-				return true;
-
-			}
-		}
-		return false;
+		return newField(dataprovider, type, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns all JSBeans of this form.
-	 *
-	 * @sample 
-	 * var beans = myForm.getBeans();
-	 * for (var b in beans)
-	 * {
-	 * 	if (beans[b].name != null) 
-	 * 		application.output(beans[b].name);
-	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from parent form 
-	 * @return the list of all JSbuttons on this forms
-	 *
-	 */
 	@JSFunction
-	@Override
-	public JSBean[] getBeans(boolean returnInheritedElements)
+	public JSText newTextField(IBaseSMVariable dataprovider, int y)
 	{
-		List<JSBean> beans = new ArrayList<JSBean>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
-		Iterator<Bean> iterator = form2use.getBeans();
-		while (iterator.hasNext())
-		{
-			beans.add(new JSBean(this, iterator.next(), false));
-		}
-		return beans.toArray(new JSBean[beans.size()]);
+		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns all JSBeans of this form. 
-	 *
-	 * @sample 
-	 * var beans = myForm.getBeans();
-	 * for (var b in beans)
-	 * {
-	 * 	if (beans[b].name != null) 
-	 * 		application.output(beans[b].name);
-	 * }
-	 * 
-	 * @return the list of all JSbuttons on this forms
-	 *
-	 */
 	@JSFunction
-	@Override
-	public JSBean[] getBeans()
+	public JSText newTextField(String dataprovider, int y)
 	{
-		return getBeans(false);
+		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns a JSComponent that has the given name; if found it will be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var cmp = frm.getComponent("componentName");
-	 * application.output("Component type and name: " + cmp);
-	 *
-	 * @param name the specified name of the component 
-	 * 
-	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel)
-	 */
 	@JSFunction
-	public JSComponent< ? > getComponent(String name)
+	public JSTextArea newTextArea(IBaseSMVariable dataprovider, int y)
 	{
-		JSComponent< ? > comp = getLabel(name);
-		if (comp != null) return comp;
-		comp = getButton(name);
-		if (comp != null) return comp;
-		comp = getField(name);
-		if (comp != null) return comp;
-		comp = getPortal(name);
-		if (comp != null) return comp;
-		comp = getTabPanel(name);
-		if (comp != null) return comp;
-		comp = getBean(name);
-		if (comp != null) return comp;
-		return null;
+		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
 	}
 
-	/**
-	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel) that has the given name. It is the same as calling "if(!removeLabel(name) &amp;&amp; !removeButton(name) ....)".
-	 * Returns true if removal was successful, false otherwise.  
-	 *
-	 * @sample
-	 * var form = solutionModel.newForm('newFormX','db:/server1/parent_table',null,true,1000,750);
-	 * var jsbutton = form.newButton('JSButton to delete',100,100,200,50,null);
-	 * jsbutton.name = 'jsb';
-	 * var jslabel = form.newLabel('JSLabel to delete',100,200,200,50,null);
-	 * jslabel.name = 'jsl';
-	 * jslabel.transparent = false;
-	 * jslabel.background = 'green';
-	 * var jsfield = form.newField('scopes.globals.myGlobalVariable',JSField.TEXT_FIELD,100,300,200,50);
-	 * jsfield.name = 'jsf';
-	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
-	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
-	 * var jsportal = form.newPortal('jsp',relation,100,400,300,300);
-	 * jsportal.newField('child_table_id',JSField.TEXT_FIELD,200,200,120);
-	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_id', JSField.TEXT_FIELD,10,10,100,20);
-	 * var childTwo = solutionModel.newForm('childTwo','server1','other_table',null,false,400,300);
-	 * childTwo.newField('some_table_id', JSField.TEXT_FIELD,10,10,100,100); 
-	 * var jstabpanel = form.newTabPanel('jst',450,30,620,460);
-	 * jstabpanel.newTab('tab1','Child One',childOne,relation);
-	 * jstabpanel.newTab('tab2','Child Two',childTwo);
-	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if ((form.removeComponent('jsb') == true) && (form.removeComponent('jsl') == true) && (form.removeComponent('jsf') == true) && (form.removeComponent('jsp') == true) & (form.removeComponent('jst') == true)) application.output('Components removed ok'); else application.output('Some component(s) could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove form components',450,500,250,50,jsmethod);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 *
-	 * @param name the specified name of the component to be deleted
-	 * 
-	 * @return true if component has been successfully deleted; false otherwise
-	 */
 	@JSFunction
-	public boolean removeComponent(String name)
+	public JSTextArea newTextArea(String dataprovider, int y)
 	{
-		if (name == null) return false;
-		if (removeLabel(name)) return true;
-		if (removeButton(name)) return true;
-		if (removeField(name)) return true;
-		if (removePortal(name)) return true;
-		if (removeTabPanel(name)) return true;
-		if (removeBean(name)) return true;
-		return false;
+		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean or JSTabPanel.
-	 *
-	 * @sample
-	 * var form = solutionModel.getForm("myForm");
-	 * var components = form.getComponents();
-	 * for (var i in components)
-	 * 	application.output("Component type and name: " + components[i]); 
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 * @return an array of all the JSComponents on the form.
-	 */
+
 	@JSFunction
-	public JSComponent< ? >[] getComponents(boolean returnInheritedElements)
+	public JSCombobox newCombobox(IBaseSMVariable dataprovider, int y)
 	{
-		List<JSComponent< ? >> lst = new ArrayList<JSComponent< ? >>();
-		lst.addAll(Arrays.asList(getLabels(returnInheritedElements)));
-		lst.addAll(Arrays.asList(getButtons(returnInheritedElements)));
-		lst.addAll(Arrays.asList(getFields(returnInheritedElements)));
-		lst.addAll(Arrays.asList(getPortals(returnInheritedElements)));
-		lst.addAll(Arrays.asList(getBeans(returnInheritedElements)));
-		lst.addAll(Arrays.asList(getTabPanels(returnInheritedElements)));
-		return lst.toArray(new JSComponent[lst.size()]);
+		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean or JSTabPanel.
-	 *
-	 * @sample
-	 * var form = solutionModel.getForm("myForm");
-	 * var components = form.getComponents();
-	 * for (var i in components)
-	 * 	application.output("Component type and name: " + components[i]); 
-	 * 
-	 * @return an array of all the JSComponents on the form.
-	 */
 	@JSFunction
-	public JSComponent< ? >[] getComponents()
+	public JSCombobox newCombobox(String dataprovider, int y)
 	{
-		return getComponents(false);
+		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns a JSLabel that has the given name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var label = frm.getLabel("myLabel");
-	 * application.output(label.text); 
-	 *
-	 * @param name the specified name of the label
-	 * 
-	 * @return a JSLabel object (or null if the label with the specified name does not exist)
-	 */
-	@JSFunction
-	public JSLabel getLabel(String name)
-	{
-		if (name == null) return null;
 
-		try
-		{
-			Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(form).getGraphicalComponents();
-			while (graphicalComponents.hasNext())
-			{
-				GraphicalComponent label = graphicalComponents.next();
-				if (name.equals(label.getName()) && !ComponentFactory.isButton(label))
-				{
-					return new JSLabel(this, label, application, false);
-				}
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-		}
-		return null;
+	@JSFunction
+	public JSRadios newRadios(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
 	}
 
-	/**
-	 * Removes a JSLabel that has the given name. Returns true if removal successful, false otherwise  
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,1000,750);
-	 * var jslabel = form.newLabel('JSLabel to delete',100,200,200,50,null);
-	 * jslabel.name = 'jsl';
-	 * jslabel.transparent = false;
-	 * jslabel.background = 'green';
-	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX'); if (form.removeComponent('jsl') == true) application.output('Label has been removed'); else application.output('Label could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove the green label',450,500,250,50,jsmethod);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 * 
-	 * @param name the specified name of the JSLabel to be removed
-	 * 
-	 * @return true if the JSLabel with the given name has successfully been removed; false otherwise
-	 */
 	@JSFunction
-	public boolean removeLabel(String name)
+	public JSRadios newRadios(String dataprovider, int y)
 	{
-		if (name == null) return false;
-		checkModification();
-		Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
-		{
-			GraphicalComponent label = graphicalComponents.next();
-			if (name.equals(label.getName()) && !ComponentFactory.isButton(label))
-			{
-				form.removeChild(label);
-				return true;
-			}
-		}
-		return false;
+		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns all JSLabels of this form (optionally including it super forms labels), including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var labels = frm.getLabels();
-	 * for (var i in labels)
-	 * {
-	 * 	var lname = labels[i].name;
-	 * 	if (lname != null)
-	 * 		application.output(lname);
-	 * }
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from parent form 
-	 * @return all JSLabels on this form
-	 *
-	 */
 	@JSFunction
-	public JSLabel[] getLabels(boolean returnInheritedElements)
+	public JSChecks newCheck(IBaseSMVariable dataprovider, int y)
 	{
-		List<JSLabel> labels = new ArrayList<JSLabel>();
-		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
-		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
-		while (graphicalComponents.hasNext())
-		{
-			GraphicalComponent gc = graphicalComponents.next();
-			if (!ComponentFactory.isButton(gc))
-			{
-				labels.add(new JSLabel(this, gc, application, false));
-			}
-		}
-		return labels.toArray(new JSLabel[labels.size()]);
+		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
 	}
 
-	/**
-	 * Returns all JSLabels of this form (not including its super form), including the ones without a name.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var labels = frm.getLabels();
-	 * for (var i in labels)
-	 * {
-	 * 	var lname = labels[i].name;
-	 * 	if (lname != null)
-	 * 		application.output(lname);
-	 * }
-	 * 
-	 * @return all JSLabels on this form
-	 *
-	 */
 	@JSFunction
-	public JSLabel[] getLabels()
+	public JSChecks newCheck(String dataprovider, int y)
 	{
-		return getLabels(false);
+		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSCalendar newCalendar(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSCalendar newCalendar(String dataprovider, int y)
+	{
+		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSPassword newPassword(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSPassword newPassword(String dataprovider, int y)
+	{
+		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSButton newButton(String txt, int y, IBaseSMMethod jsmethod)
+	{
+		return newButton(txt, 0, y, 10, 10, jsmethod);
+	}
+
+	@JSFunction
+	public JSLabel newLabel(String txt, int y)
+	{
+		return newLabel(txt, 0, y, 10, 10, null);
 	}
 
 	/**
@@ -3510,7 +1996,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnDeleteAllRecordsCmdMethodID(scriptMethod.getID());
@@ -3536,7 +2022,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnDeleteRecordCmdMethodID(scriptMethod.getID());
@@ -3563,7 +2049,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnDuplicateRecordCmdMethodID(scriptMethod.getID());
@@ -3589,7 +2075,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnFindCmdMethodID(scriptMethod.getID());
@@ -3615,7 +2101,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnHideMethodID(scriptMethod.getID());
@@ -3641,7 +2127,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnInvertRecordsCmdMethodID(scriptMethod.getID());
@@ -3667,7 +2153,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnLoadMethodID(scriptMethod.getID());
@@ -3693,7 +2179,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnNewRecordCmdMethodID(scriptMethod.getID());
@@ -3719,7 +2205,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnNextRecordCmdMethodID(scriptMethod.getID());
@@ -3745,7 +2231,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnOmitRecordCmdMethodID(scriptMethod.getID());
@@ -3771,7 +2257,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnPreviousRecordCmdMethodID(scriptMethod.getID());
@@ -3798,7 +2284,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnPrintPreviewCmdMethodID(scriptMethod.getID());
@@ -3825,7 +2311,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnRecordEditStartMethodID(scriptMethod.getID());
@@ -3851,7 +2337,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnRecordEditStopMethodID(scriptMethod.getID());
@@ -3877,7 +2363,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnRecordSelectionMethodID(scriptMethod.getID());
@@ -3903,7 +2389,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnSearchCmdMethodID(scriptMethod.getID());
@@ -3929,7 +2415,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnShowAllRecordsCmdMethodID(scriptMethod.getID());
@@ -3955,7 +2441,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnShowMethodID(scriptMethod.getID());
@@ -3981,7 +2467,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnShowOmittedRecordsCmdMethodID(scriptMethod.getID());
@@ -4007,7 +2493,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnSortCmdMethodID(scriptMethod.getID());
@@ -4033,7 +2519,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (functionOrInteger instanceof Function)
 		{
 			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
 				form.setOnUnLoadMethodID(scriptMethod.getID());
@@ -4073,17 +2559,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 			checkModification();
 			part.setHeight(height);
 		}
-	}
-
-	private static Form getFormParent(AbstractBase baseComponent)
-	{
-		if (baseComponent instanceof Form) return (Form)baseComponent;
-		ISupportChilds parent = baseComponent.getParent();
-		while (!(parent instanceof Form) && parent != null)
-		{
-			parent = parent.getParent();
-		}
-		return (Form)parent;
 	}
 
 	private static JSForm getJSFormParent(IJSParent< ? > parent)
@@ -4203,47 +2678,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	{
 		checkModification();
 		setEventHandler(application, form, methodProperty, method);
-	}
-
-	static int getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<Integer> methodProperty)
-	{
-		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return -1;
-		if (method == null || method == ISMDefaults.COMMAND_DEFAULT) return 0;
-		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
-	}
-
-	static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
-	{
-		ISupportChilds parent = method.getParent();
-
-		Form f = getFormParent(base);
-		// quick check if it is solution or own form..
-		if (parent instanceof Solution || parent.getUUID().equals(f.getUUID()))
-		{
-			return method.getID();
-		}
-
-		// it could be a extends form
-		while (f != null && f.getExtendsID() > 0)
-		{
-			f = application.getFlattenedSolution().getForm(f.getExtendsID());
-			if (f != null && parent.getUUID().equals(f.getUUID()))
-			{
-				return method.getID();
-			}
-		}
-
-		// or a foundset method
-		Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(f.getDataSource(), false);
-		while (foundsetMethods.hasNext())
-		{
-			if (foundsetMethods.next().getID() == method.getID())
-			{
-				return method.getID();
-			}
-		}
-
-		throw new RuntimeException("Method " + method.getName() + " must be a solution method, foundset method or a forms own method"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

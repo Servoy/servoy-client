@@ -46,6 +46,7 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Relation;
@@ -1992,5 +1993,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public JSField createField(IJSParent< ? > parent, Field field, boolean isNew)
 	{
 		return new JSField(parent, field, application, isNew);
+	}
+
+	public JSLayoutContainer createLayoutContainer(IJSParent< ? > parent, LayoutContainer container)
+	{
+		return new JSLayoutContainer(parent, application, container);
 	}
 }
