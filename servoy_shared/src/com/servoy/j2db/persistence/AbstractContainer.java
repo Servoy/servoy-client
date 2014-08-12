@@ -127,15 +127,15 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	/**
 	 * Create a new layout container.
 	 * 
-	 * @param location the location
+	 * @param cssClasses css classes used to layout
 	 * @return the field
 	 */
-	public LayoutContainer createNewLayoutContainer(String name) throws RepositoryException
+	public LayoutContainer createNewLayoutContainer(String cssClasses) throws RepositoryException
 	{
 		LayoutContainer obj = (LayoutContainer)getSolution().getChangeHandler().createNewObject(this, IRepository.LAYOUTCONTAINERS);
 
 		//set all the required properties
-		obj.setName(name);
+		obj.setCSSClasses(cssClasses);
 
 		addChild(obj);
 		return obj;

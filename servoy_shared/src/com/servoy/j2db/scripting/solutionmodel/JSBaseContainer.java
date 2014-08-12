@@ -121,17 +121,17 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * Create a new layout container.
 	 * 
 	 * @sample
-	 * var container = form.newLayoutContainer('row1');
-	 * @param name container name
+	 * var container = form.newLayoutContainer('col-md-4');
+	 * @param cssClasses css classes used for layout
 	 * @return the new layout container
 	 */
 	@JSFunction
-	public JSLayoutContainer newLayoutContainer(String name)
+	public JSLayoutContainer newLayoutContainer(String cssClasses)
 	{
 		checkModification();
 		try
 		{
-			LayoutContainer layoutContainer = container.createNewLayoutContainer(name);
+			LayoutContainer layoutContainer = container.createNewLayoutContainer(cssClasses);
 
 			return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, layoutContainer);
 		}
