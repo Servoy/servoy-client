@@ -99,7 +99,7 @@ public class HTMLTagsConverter
 							try
 							{
 								blobpart = SecuritySupport.encryptUrlSafe(Settings.getInstance(), blobpart);
-								attr.setValue("/resources/servoy_blobloader?blob=" + blobpart + "&uuid=" +
+								attr.setValue("resources/servoy_blobloader?blob=" + blobpart + "&uuid=" +
 									context.getApplication().getWebsocketSession().getUuid());
 							}
 							catch (Exception e1)
@@ -107,7 +107,7 @@ public class HTMLTagsConverter
 								Debug.error("could not encrypt blobloaderpart: " + blobpart);
 							}
 						}
-						else attr.setValue("/resources/fs/" + context.getSolution().getName() + media);
+						else attr.setValue("resources/fs/" + context.getSolution().getName() + media);
 					}
 				}
 			}
