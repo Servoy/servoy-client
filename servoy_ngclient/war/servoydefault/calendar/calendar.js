@@ -79,6 +79,25 @@ angular.module('svyCalendar',['servoy']).directive('svyCalendar', function(dateF
       	 		$scope.model.editable = $scope.wasEditable;
       	 	}
           };
+          var ngModel = $element.children().controller("ngModel");
+          var storedTooltip = false;
+			$scope.api.onDataChangeCallback = function(event, returnval) {
+				var stringValue = typeof returnval == 'string'
+				if(!returnval || stringValue) {
+					$element[0].focus();
+					ngModel.$setValidity("", false);
+					if (stringValue) {
+						if ( storedTooltip == false)
+							storedTooltip = $scope.model.toolTipText;
+						$scope.model.toolTipText = returnval;
+					}
+				}
+				else {
+					ngModel.$setValidity("", true);
+					$scope.model.toolTipText = storedTooltip;
+					storedTooltip = false;
+				}
+			}
       },
       templateUrl: 'servoydefault/calendar/calendar.html',
       replace: true

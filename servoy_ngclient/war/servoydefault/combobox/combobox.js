@@ -19,6 +19,8 @@ angular.module('svyCombobox',['servoy'])
       link: function(scope, element, attr) {
     	  // see http://ivaynberg.github.io/select2/ for what this component allows (also can do typeahead, multi-edit field and so on)
     	  // we could somehow give to select2() method 'containerCssClass' and 'dropdownCssClass' as well if needed in the future (for more custom styling)
+    	  
+    	  var ngModel = element.children().controller("ngModel");
     	  var select2Css = null;
     	  if (scope.model.styleClass && scope.model.styleClass.indexOf('select2 ', 0) == 0) {
     		  // transform it into a select2 bootstrap combo and append styles
@@ -72,6 +74,27 @@ angular.module('svyCombobox',['servoy'])
       	 		scope.model.editable = scope.wasEditable;
       	 	}
      	 };
+     	 var storedTooltip = false;
+     	scope.api.onDataChangeCallback = function(event, returnval) {
+			var stringValue = typeof returnval == 'string'
+			if(!returnval || stringValue) {
+				element[0].focus();
+				// TODO this will set ng-invalid on the tag, but "Select2" added many internal things to it that have 
+				// there own background color and img, so the color of ng-invalid won't be shown here...
+				// even setting ng-invalid class on those doesn't have to work because the background settings that is in select2.css could still override it.
+				ngModel.$setValidity("", false);
+				if (stringValue) {
+					if ( storedTooltip == false)
+						storedTooltip = scope.model.toolTipText;
+					scope.model.toolTipText = returnval;
+				}
+			}
+			else {
+				ngModel.$setValidity("", true);
+				scope.model.toolTipText = storedTooltip;
+				storedTooltip = false;
+			}
+		}
     	  
     	  if (select2Css != null) {
     		  $svyNGEvents.afterNGProcessedDOM(function () {

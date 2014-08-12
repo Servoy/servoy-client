@@ -2,19 +2,33 @@ angular.module('svyTextfield',['servoy']).directive('svyTextfield', function($ap
 	return {
 		restrict: 'E',
 		transclude: true,
+		require: 'ngModel',
 		scope: {
 			model: "=svyModel",
 			api: "=svyApi",
 			handlers: "=svyHandlers"
 		},
-		controller: function($scope, $element, $attrs, $log) {
+		link:function($scope, $element, $attrs, ngModel) {
 			$scope.findMode = false;
 			$scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-
+			
+			var storedTooltip = false;
 			// fill in the api defined in the spec file
 			$scope.api.onDataChangeCallback = function(event, returnval) {
-				if(!returnval) {
+				var stringValue = typeof returnval == 'string'
+				if(!returnval || stringValue) {
 					$element[0].focus();
+					ngModel.$setValidity("", false);
+					if (stringValue) {
+						if ( storedTooltip == false)
+							storedTooltip = $scope.model.toolTipText;
+						$scope.model.toolTipText = returnval;
+					}
+				}
+				else {
+					ngModel.$setValidity("", true);
+					$scope.model.toolTipText = storedTooltip;
+					storedTooltip = false;
 				}
 			}
 			$scope.api.requestFocus = function() { 

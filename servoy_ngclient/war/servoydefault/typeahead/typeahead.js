@@ -3,13 +3,14 @@ angular.module('svyTypeahead',['servoy'])
     return {
       restrict: 'E',
       transclude: true,
+      require: 'ngModel',
       scope: {
         model: "=svyModel",
         svyApply: "=",
         handlers: "=svyHandlers",
         api: "=svyApi"
       },
-      link: function($scope, $element, $attrs) {
+      link: function($scope, $element, $attrs,ngModel) {
     	  $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
     	  $scope.findMode = false;
           var timeoutPromise = null;
@@ -64,6 +65,24 @@ angular.module('svyTypeahead',['servoy'])
        	 		$scope.model.editable = $scope.wasEditable;
        	 	}
        	 };
+       	var storedTooltip = false;
+		$scope.api.onDataChangeCallback = function(event, returnval) {
+			var stringValue = typeof returnval == 'string'
+			if(!returnval || stringValue) {
+				$element[0].focus();
+				ngModel.$setValidity("", false);
+				if (stringValue) {
+					if ( storedTooltip == false)
+						storedTooltip = $scope.model.toolTipText;
+					$scope.model.toolTipText = returnval;
+				}
+			}
+			else {
+				ngModel.$setValidity("", true);
+				$scope.model.toolTipText = storedTooltip;
+				storedTooltip = false;
+			}
+		}
       },
       templateUrl: 'servoydefault/typeahead/typeahead.html',
       replace: true
