@@ -294,7 +294,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			response.renderOnDomReadyJavascript(tbodyStyle.toString());
 
-			StringBuffer onLoadtBodyCheck = new StringBuffer("var tbodyTop=").append(top).append(";if((tbodyTop != null) && ((tbodyTop + 'px') != $('#").append(tableContainerBody.getMarkupId()).append("').css('top'))) { alert('needs update'); if(tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			StringBuffer onLoadtBodyCheck = new StringBuffer("var tbodyTop=").append(top).append(";if((tbodyTop != null) && ((tbodyTop + 'px') != $('#").append(tableContainerBody.getMarkupId()).append("').css('top'))) { if(tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
 			onLoadtBodyCheck.append("wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);}"); //$NON-NLS-1$ //$NON-NLS-2$
 
