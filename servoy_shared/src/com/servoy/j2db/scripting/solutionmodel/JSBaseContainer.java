@@ -58,15 +58,15 @@ import com.servoy.j2db.util.Debug;
 public abstract class JSBaseContainer /* implements IJSParent */
 {
 	private final IApplication application;
-	protected AbstractContainer container;
 
-	public JSBaseContainer(IApplication application, AbstractContainer container)
+	public JSBaseContainer(IApplication application)
 	{
 		this.application = application;
-		this.container = container;
 	}
 
 	public abstract void checkModification();
+
+	public abstract AbstractContainer getContainer();
 
 	/**
 	 * Creates a new JSField object on the form - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
@@ -98,7 +98,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			Field field = container.createNewField(new Point(x, y));
+			Field field = getContainer().createNewField(new Point(x, y));
 			field.setDisplayType(type);
 			field.setSize(new Dimension(width, height));
 			if (dataprovider instanceof String)
@@ -131,7 +131,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			LayoutContainer layoutContainer = container.createNewLayoutContainer(cssClasses);
+			LayoutContainer layoutContainer = getContainer().createNewLayoutContainer(cssClasses);
 
 			return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, layoutContainer);
 		}
@@ -160,7 +160,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSLayoutContainer[] getLayoutContainers()
 	{
 		List<JSLayoutContainer> containers = new ArrayList<JSLayoutContainer>();
-		Iterator<LayoutContainer> iterator = container.getLayoutContainers();
+		Iterator<LayoutContainer> iterator = getContainer().getLayoutContainers();
 		while (iterator.hasNext())
 		{
 			containers.add(application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, iterator.next()));
@@ -184,7 +184,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return null;
 
-		Iterator<LayoutContainer> containers = container.getLayoutContainers();
+		Iterator<LayoutContainer> containers = getContainer().getLayoutContainers();
 		while (containers.hasNext())
 		{
 			LayoutContainer container = containers.next();
@@ -553,7 +553,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			GraphicalComponent gc = container.createNewGraphicalComponent(new Point(x, y));
+			GraphicalComponent gc = getContainer().createNewGraphicalComponent(new Point(x, y));
 			gc.setSize(new Dimension(width, height));
 			gc.setText(txt);
 			if (action instanceof JSMethod)
@@ -629,7 +629,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			GraphicalComponent gc = container.createNewGraphicalComponent(new Point(x, y));
+			GraphicalComponent gc = getContainer().createNewGraphicalComponent(new Point(x, y));
 			gc.setSize(new Dimension(width, height));
 			gc.setText(txt);
 			if (action instanceof JSMethod)
@@ -763,7 +763,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			Portal portal = container.createNewPortal(name, new Point(x, y));
+			Portal portal = getContainer().createNewPortal(name, new Point(x, y));
 			portal.setSize(new Dimension(width, height));
 			String relationName = null;
 			if (relation instanceof RelatedFoundSet)
@@ -803,7 +803,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSPortal getPortal(String name)
 	{
 		if (name == null) return null;
-		Iterator<Portal> portals = application.getFlattenedSolution().getFlattenedForm(container).getPortals();
+		Iterator<Portal> portals = application.getFlattenedSolution().getFlattenedForm(getContainer()).getPortals();
 		while (portals.hasNext())
 		{
 			Portal portal = portals.next();
@@ -838,13 +838,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return false;
 		checkModification();
-		Iterator<Portal> portals = container.getPortals();
+		Iterator<Portal> portals = getContainer().getPortals();
 		while (portals.hasNext())
 		{
 			Portal portal = portals.next();
 			if (name.equals(portal.getName()))
 			{
-				container.removeChild(portal);
+				getContainer().removeChild(portal);
 				return true;
 			}
 		}
@@ -874,7 +874,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSPortal[] getPortals(boolean returnInheritedElements)
 	{
 		List<JSPortal> portals = new ArrayList<JSPortal>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(container) : container;
+		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
 		Iterator<Portal> iterator = form2use.getPortals();
 		while (iterator.hasNext())
 		{
@@ -937,7 +937,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			TabPanel tabPanel = container.createNewTabPanel(name);
+			TabPanel tabPanel = getContainer().createNewTabPanel(name);
 			tabPanel.setSize(new Dimension(width, height));
 			tabPanel.setLocation(new Point(x, y));
 			return new JSTabPanel((IJSParent)this, tabPanel, application, true);
@@ -966,7 +966,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSTabPanel getTabPanel(String name)
 	{
 		if (name == null) return null;
-		Iterator<TabPanel> tabPanels = application.getFlattenedSolution().getFlattenedForm(container).getTabPanels();
+		Iterator<TabPanel> tabPanels = application.getFlattenedSolution().getFlattenedForm(getContainer()).getTabPanels();
 		while (tabPanels.hasNext())
 		{
 			TabPanel tabPanel = tabPanels.next();
@@ -1006,13 +1006,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return false;
 		checkModification();
-		Iterator<TabPanel> tabPanels = container.getTabPanels();
+		Iterator<TabPanel> tabPanels = getContainer().getTabPanels();
 		while (tabPanels.hasNext())
 		{
 			TabPanel tabPanel = tabPanels.next();
 			if (name.equals(tabPanel.getName()))
 			{
-				container.removeChild(tabPanel);
+				getContainer().removeChild(tabPanel);
 				return true;
 			}
 		}
@@ -1042,7 +1042,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSTabPanel[] getTabPanels(boolean returnInheritedElements)
 	{
 		List<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(container) : container;
+		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
 		Iterator<TabPanel> iterator = form2use.getTabPanels();
 		while (iterator.hasNext())
 		{
@@ -1092,7 +1092,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return null;
 
-		Iterator<Field> fields = application.getFlattenedSolution().getFlattenedForm(container).getFields();
+		Iterator<Field> fields = application.getFlattenedSolution().getFlattenedForm(getContainer()).getFields();
 		while (fields.hasNext())
 		{
 			Field field = fields.next();
@@ -1125,13 +1125,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return false;
 		checkModification();
-		Iterator<Field> fields = container.getFields();
+		Iterator<Field> fields = getContainer().getFields();
 		while (fields.hasNext())
 		{
 			Field field = fields.next();
 			if (name.equals(field.getName()))
 			{
-				container.removeChild(field);
+				getContainer().removeChild(field);
 				return true;
 			}
 		}
@@ -1159,7 +1159,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSField[] getFields(boolean returnInheritedElements)
 	{
 		List<JSField> fields = new ArrayList<JSField>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(container) : container;
+		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
 		Iterator<Field> iterator = form2use.getFields();
 		while (iterator.hasNext())
 		{
@@ -1206,7 +1206,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return null;
 
-		Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(container).getGraphicalComponents();
+		Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(getContainer()).getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
@@ -1239,13 +1239,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return false;
 		checkModification();
-		Iterator<GraphicalComponent> graphicalComponents = container.getGraphicalComponents();
+		Iterator<GraphicalComponent> graphicalComponents = getContainer().getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
 			if (name.equals(button.getName()) && ComponentFactory.isButton(button))
 			{
-				container.removeChild(button);
+				getContainer().removeChild(button);
 				return true;
 			}
 		}
@@ -1273,7 +1273,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSButton[] getButtons(boolean returnInheritedElements)
 	{
 		List<JSButton> buttons = new ArrayList<JSButton>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(container) : container;
+		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
 		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
@@ -1331,7 +1331,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			Bean bean = container.createNewBean(name, className);
+			Bean bean = getContainer().createNewBean(name, className);
 			bean.setSize(new Dimension(width, height));
 			bean.setLocation(new Point(x, y));
 			return new JSBean((IJSParent)this, bean, true);
@@ -1360,7 +1360,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 
 		try
 		{
-			Iterator<Bean> beans = application.getFlattenedSolution().getFlattenedForm(container).getBeans();
+			Iterator<Bean> beans = application.getFlattenedSolution().getFlattenedForm(getContainer()).getBeans();
 			while (beans.hasNext())
 			{
 				Bean bean = beans.next();
@@ -1393,13 +1393,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return false;
 		checkModification();
-		Iterator<Bean> beans = container.getBeans();
+		Iterator<Bean> beans = getContainer().getBeans();
 		while (beans.hasNext())
 		{
 			Bean bean = beans.next();
 			if (name.equals(bean.getName()))
 			{
-				container.removeChild(bean);
+				getContainer().removeChild(bean);
 				return true;
 
 			}
@@ -1426,7 +1426,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSBean[] getBeans(boolean returnInheritedElements)
 	{
 		List<JSBean> beans = new ArrayList<JSBean>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(container) : container;
+		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
 		Iterator<Bean> iterator = form2use.getBeans();
 		while (iterator.hasNext())
 		{
@@ -1593,7 +1593,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 
 		try
 		{
-			Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(container).getGraphicalComponents();
+			Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(getContainer()).getGraphicalComponents();
 			while (graphicalComponents.hasNext())
 			{
 				GraphicalComponent label = graphicalComponents.next();
@@ -1633,13 +1633,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return false;
 		checkModification();
-		Iterator<GraphicalComponent> graphicalComponents = container.getGraphicalComponents();
+		Iterator<GraphicalComponent> graphicalComponents = getContainer().getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent label = graphicalComponents.next();
 			if (name.equals(label.getName()) && !ComponentFactory.isButton(label))
 			{
-				container.removeChild(label);
+				getContainer().removeChild(label);
 				return true;
 			}
 		}
@@ -1667,7 +1667,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSLabel[] getLabels(boolean returnInheritedElements)
 	{
 		List<JSLabel> labels = new ArrayList<JSLabel>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(container) : container;
+		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
 		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{

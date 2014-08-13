@@ -40,6 +40,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
@@ -76,10 +77,16 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	public JSForm(IApplication application, Form form, boolean isNew)
 	{
-		super(application, form);
+		super(application);
 		this.application = application;
 		this.form = form;
 		this.isCopy = isNew;
+	}
+
+	@Override
+	public AbstractContainer getContainer()
+	{
+		return form;
 	}
 
 	@Override

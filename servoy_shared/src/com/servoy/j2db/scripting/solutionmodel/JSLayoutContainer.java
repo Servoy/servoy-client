@@ -22,6 +22,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
@@ -40,7 +41,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 
 	public JSLayoutContainer(IJSParent< ? > parent, IApplication application, LayoutContainer layoutContainer)
 	{
-		super(application, layoutContainer);
+		super(application);
 		this.application = application;
 		this.layoutContainer = layoutContainer;
 		this.parent = parent;
@@ -66,6 +67,12 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 			layoutContainer = (LayoutContainer)parent.getSupportChild().getChild(layoutContainer.getUUID());
 			isCopy = true;
 		}
+	}
+
+	@Override
+	public AbstractContainer getContainer()
+	{
+		return layoutContainer;
 	}
 
 	/**
