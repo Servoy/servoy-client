@@ -36,9 +36,12 @@ import org.apache.wicket.util.value.IValueMap;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.LayoutContainer;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -47,6 +50,95 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class FormWithInlineLayoutGenerator
 {
+	public static void generateLayoutContainers(Form form, ServoyDataConverterContext context, PrintWriter writer)
+	{
+		try
+		{
+			writer.println(String.format(
+				"<div ng-controller=\"%1$s\" svy-formstyle=\"formStyle\" svyScrollbars='formProperties.scrollbars' svy-layout-update svy-formload>",
+				form.getName()));
+			Iterator<LayoutContainer> it = form.getLayoutContainers();
+			while (it.hasNext())
+			{
+				generateLayoutContainer(it.next(), context, writer);
+			}
+			writer.println("</div>");
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	private static void generateLayoutContainer(LayoutContainer container, ServoyDataConverterContext context, PrintWriter writer)
+	{
+		writer.print("<");
+		writer.print(container.getTagType());
+		writer.print(" ");
+		if (container.getElementId() != null)
+		{
+			writer.print("id='");
+			writer.print(container.getElementId());
+			writer.print("' ");
+		}
+		if (container.getStyle() != null)
+		{
+			writer.print("style='");
+			writer.print(container.getStyle());
+			writer.print("' ");
+		}
+		if (container.getCSSClasses() != null)
+		{
+			writer.print("class='");
+			writer.print(container.getCSSClasses());
+			writer.print("' ");
+		}
+		writer.println(">");
+
+		Iterator<IPersist> components = container.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		while (components.hasNext())
+		{
+			IPersist component = components.next();
+			if (component instanceof LayoutContainer)
+			{
+				generateLayoutContainer((LayoutContainer)component, context, writer);
+			}
+			else if (component instanceof IFormElement)
+			{
+				generateFormElement((IFormElement)component, context, writer);
+			}
+		}
+		writer.print("</");
+		writer.print(container.getTagType());
+		writer.print(">");
+	}
+
+	private static void generateFormElement(IFormElement formElement, ServoyDataConverterContext context, PrintWriter writer)
+	{
+		FormElement fe = ComponentFactory.getFormElement(formElement, context);
+		writer.print("<");
+		writer.print(fe.getTagname());
+		writer.print(" name='");
+		writer.print(fe.getName());
+		writer.print("'");
+		writer.print(" svy-model='model.");
+		writer.print(fe.getName());
+		writer.print("'");
+		writer.print(" svy-api='api.");
+		writer.print(fe.getName());
+		writer.print("'");
+		writer.print(" svy-handlers='handlers.");
+		writer.print(fe.getName());
+		writer.print("'");
+		writer.print(" svy-apply='handlers.");
+		writer.print(fe.getName());
+		writer.print(".svy_apply'");
+		writer.print(" svy-servoyApi='handlers.");
+		writer.print(fe.getName());
+		writer.print(".svy_servoyApi'");
+		writer.print("/>");
+	}
+
 	/**
 	 * @param form
 	 * @param fs

@@ -1265,7 +1265,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	protected List<FormElement> getFormElements()
 	{
 		Form form = formController.getForm();
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), getDataConverterContext());
+		List<FormElement> formElements = ComponentFactory.getFormElements(form.getFlattenedObjects().iterator(), getDataConverterContext());
 		return formElements;
 	}
 }

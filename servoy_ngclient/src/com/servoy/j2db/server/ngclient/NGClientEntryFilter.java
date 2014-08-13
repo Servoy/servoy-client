@@ -182,6 +182,12 @@ public class NGClientEntryFilter extends WebEntry
 										FormWithInlineLayoutGenerator.generate(form, wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
 											: new ServoyDataConverterContext(fs), w);
 									}
+									else if (html && form.getLayoutContainers().hasNext())
+									{
+										((HttpServletResponse)servletResponse).setContentType("text/html");
+										FormWithInlineLayoutGenerator.generateLayoutContainers(form, wsSession != null ? new ServoyDataConverterContext(
+											wsSession.getClient()) : new ServoyDataConverterContext(fs), w);
+									}
 									else
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));

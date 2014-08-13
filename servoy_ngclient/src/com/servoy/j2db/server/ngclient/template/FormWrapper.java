@@ -206,10 +206,9 @@ public class FormWrapper
 			excludedComponents = getBodyComponents();
 		}
 
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
+		List<IPersist> persists = form.getFlattenedObjects();
+		for (IPersist persist : persists)
 		{
-			IPersist persist = it.next();
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{
 				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add((BaseComponent)persist);
@@ -243,10 +242,9 @@ public class FormWrapper
 
 		int startPos = form.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
+		List<IPersist> persists = form.getFlattenedObjects();
+		for (IPersist persist : persists)
 		{
-			IPersist persist = it.next();
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{
