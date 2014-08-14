@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
@@ -35,6 +36,7 @@ import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.smart.dataui.DataCalendar;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.smart.dataui.FormBodyEditor;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -48,7 +50,7 @@ import com.servoy.j2db.util.model.IEditListModel;
 
 /**
  * The listview controller from mvc architecture
- * 
+ *
  * @author jblok
  */
 public class ListView extends JEditList implements IView, ISupportRowStyling
@@ -68,7 +70,7 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Component#processMouseEvent(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -247,7 +249,7 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	@Override
 	public void setEditable(boolean editable)
 	{
-		//super.setEditable(editable);
+		super.setEditable(editable);
 		ListCellRenderer cellRenderer = getCellRenderer();
 		if (cellRenderer instanceof DataRenderer)
 		{
@@ -276,9 +278,15 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 
 	}
 
+	@Override
+	protected boolean shouldDispatchClickToButton(JButton button)
+	{
+		return !((button.getParent() != null) && (button.getParent() instanceof DataCalendar));
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.util.editlist.JEditList#isEditable()
 	 */
 	@Override

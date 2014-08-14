@@ -165,7 +165,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * The tableview display controller
- * 
+ *
  * @author jblok
  */
 public class TableView extends FixedJTable implements IView, IDataRenderer, ISupportRowStyling, IProvideTabSequence
@@ -298,10 +298,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		initDragNDrop(fc, 0);
 
 		//setRowMargin(0);
-		setAutoCreateColumnsFromModel(false);//this is very important for performance!! 
+		setAutoCreateColumnsFromModel(false);//this is very important for performance!!
 		setAutoscrolls(true);
 
-		setOpaque(false);//to make fields use background if fields are transparent 
+		setOpaque(false);//to make fields use background if fields are transparent
 
 		TableColumnModel tcm = getColumnModel();
 		if (tcm == null)
@@ -869,7 +869,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 			public void columnRemoved(TableColumnModelEvent e)
 			{
-				// not used				
+				// not used
 			}
 
 			public void columnAdded(TableColumnModelEvent e)
@@ -1393,7 +1393,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#getToolTipLocation(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -1443,7 +1443,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.gui.FixedJTable#editCellAt(int, int, java.util.EventObject)
 	 */
 	@Override
@@ -1460,6 +1460,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				((BaseEventExecutor)executor).setFormName(fc.getName());
 			}
 		}
+		if (b && !isEditable() && comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly &&
+			!((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).isReadOnly())
+		{
+			// the component is editable again, we have to set it back
+			((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
+		}
+
 		return b;
 	}
 
@@ -1544,11 +1551,11 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		{
 			// if model is set to null then remember the current row count
 			// so calls to getRowCount() return that value so that the scroll bar position isn't set to 0.
-			// because when the foundset is set back to that one it is probably the same foundset in the 
+			// because when the foundset is set back to that one it is probably the same foundset in the
 			// same view so the scroll bar position should stick.
 			prevRowCount = getModel().getRowCount();
 			removeEditor();//safety
-			// first make sure that the selection model is not adjusting anymore. 
+			// first make sure that the selection model is not adjusting anymore.
 			// (TableUI will set it to true in onpress of mouse and this will happen before onrelease that would reset it)
 			getSelectionModel().setValueIsAdjusting(false);
 			setSelectionModel(EMPTY_SELECTION);
@@ -1798,10 +1805,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		return tableTabSequenceHandler.getTabSequence();
 	}
 
+	private boolean editable = true;
+
 	@Override
 	public void setEditable(boolean editable)
 	{
 		super.setEditable(editable);
+		this.editable = editable;
 		if (rendererComponents != null)
 		{
 			for (Component element : rendererComponents)
@@ -1827,35 +1837,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.gui.FixedJTable#isEditable()
 	 */
 	@Override
 	public boolean isEditable()
 	{
-		boolean result = false;
-		if (rendererComponents != null)
-		{
-			for (Component element : rendererComponents)
-			{
-				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
-				{
-
-					if (!((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).isReadOnly()) return true;
-				}
-			}
-		}
-		if (editorComponents != null)
-		{
-			for (Component element : editorComponents)
-			{
-				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
-				{
-					if (!((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).isReadOnly()) return true;
-				}
-			}
-		}
-		return result;
+		return editable;
 	}
 
 	@Override
