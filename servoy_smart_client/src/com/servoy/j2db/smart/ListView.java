@@ -70,7 +70,7 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.awt.Component#processMouseEvent(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -282,41 +282,6 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	protected boolean shouldDispatchClickToButton(JButton button)
 	{
 		return !((button.getParent() != null) && (button.getParent() instanceof DataCalendar));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.util.editlist.JEditList#isEditable()
-	 */
-	@Override
-	public boolean isEditable()
-	{
-		boolean result = false;
-		ListCellRenderer cellRenderer = getCellRenderer();
-		if (cellRenderer instanceof DataRenderer)
-		{
-			DataRenderer dr = (DataRenderer)cellRenderer;
-			for (int i = 0; i < dr.getComponentCount(); i++)
-			{
-				Component c = dr.getComponent(i);
-				if ((c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof HasRuntimeReadOnly) &&
-					!((HasRuntimeReadOnly)((IScriptableProvider)c).getScriptObject()).isReadOnly()) return true;
-			}
-		}
-		IEditListEditor editorComponent = getCellEditor();
-		if (editorComponent instanceof FormBodyEditor)
-		{
-			FormBodyEditor formBodyEditor = (FormBodyEditor)editorComponent;
-			DataRenderer dataRenderer = formBodyEditor.getDataRenderer();
-			for (int i = 0; i < dataRenderer.getComponentCount(); i++)
-			{
-				Component c = dataRenderer.getComponent(i);
-				if ((c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof HasRuntimeReadOnly) &&
-					!((HasRuntimeReadOnly)((IScriptableProvider)c).getScriptObject()).isReadOnly()) return true;
-			}
-		}
-		return result;
 	}
 
 	/*
