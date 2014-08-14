@@ -63,8 +63,9 @@ webSocketModule.factory('$webSocket',
 									&& serviceInstance[service.call]) {
 								// responseValue keeps last services call return
 								// value
-								responseValue = serviceInstance[service.call]
-										.apply(serviceInstance, service.args);
+								$rootScope.$apply(function() { 
+									responseValue = serviceInstance[service.call].apply(serviceInstance, service.args);
+								});
 							}
 						}
 					}

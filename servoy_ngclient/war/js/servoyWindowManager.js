@@ -241,7 +241,6 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 			}
 		},
 		switchForm: function(name,form,navigatorForm) {		
-        	$rootScope.$apply(function() {
         		if(instances[name] && instances[name].type != WindowType.WINDOW){
         			instances[name].form = form;
         			instances[name].navigatorForm = navigatorForm;    			
@@ -250,16 +249,13 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
         			$solutionSettings.mainForm = form;
         			$solutionSettings.navigatorForm = navigatorForm;
         		}
-    		})
 		},
 		setTitle: function(name,title) {
-        	$rootScope.$apply(function() {
 				if(instances[name] && instances[name].type!= WindowType.WINDOW){
 					instances[name].title =title;
 	    		}else{
 	    			$solutionSettings.solutionTitle = title;
 	    		}
-			});
 		},
 		setInitialBounds:function(name,initialBounds){
 			if(instances[name]){
@@ -318,17 +314,13 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 			}
 		},
 		reload: function() {
-			$rootScope.$apply(function() {
         		$window.location.reload(true);
-    		})
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
-			$rootScope.$apply(function() {
 				$servoyInternal.clearformState(formName)
 				eval(controllerCode);
 				formTemplateUrls[formName] = realFormUrl;
 				if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
-			});
 		},
 		touchForm: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
