@@ -15,12 +15,11 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient;
+package com.servoy.j2db.server.ngclient.design;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -32,12 +31,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.WebEntry;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.websocket.IWebsocketSessionFactory;
 
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -46,31 +42,8 @@ import com.servoy.j2db.util.Debug;
  */
 @WebFilter(urlPatterns = { "/designer/*" })
 @SuppressWarnings("nls")
-public class DesignerFilter extends WebEntry
+public class DesignerFilter implements Filter
 {
-	private String[] locations;
-
-	@Override
-	public void init(final FilterConfig fc) throws ServletException
-	{
-		//when started in developer - init is done in the ResourceProvider filter
-		if (!ApplicationServerRegistry.get().isDeveloperStartup())
-		{
-			try
-			{
-				InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties");
-				Properties properties = new Properties();
-				properties.load(is);
-				locations = properties.getProperty("locations").split(";");
-			}
-			catch (Exception e)
-			{
-				Debug.error("Exception during init components.properties reading", e);
-			}
-			super.init(fc);
-		}
-	}
-
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
 	{
@@ -112,7 +85,7 @@ public class DesignerFilter extends WebEntry
 				return;
 			}
 
-			super.doFilter(servletRequest, servletResponse, filterChain);
+			filterChain.doFilter(request, servletResponse);
 		}
 		catch (RuntimeException | Error e)
 		{
@@ -121,26 +94,13 @@ public class DesignerFilter extends WebEntry
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.WebEntry#getWebComponentBundleNames()
-	 */
 	@Override
-	public String[] getWebComponentBundleNames()
+	public void destroy()
 	{
-		return locations;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.WebEntry#createSessionFactory()
-	 */
 	@Override
-	protected IWebsocketSessionFactory createSessionFactory()
+	public void init(FilterConfig filterConfig) throws ServletException
 	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
