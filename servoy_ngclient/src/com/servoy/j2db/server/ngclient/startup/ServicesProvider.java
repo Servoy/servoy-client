@@ -7,9 +7,9 @@ import org.apache.tomcat.starter.IServicesProvider;
 import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.server.ngclient.ComponentsModuleGenerator;
-import com.servoy.j2db.server.ngclient.DesignerFilter;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientEntryFilter;
+import com.servoy.j2db.server.ngclient.design.DesignerFilter;
 import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
 
 
