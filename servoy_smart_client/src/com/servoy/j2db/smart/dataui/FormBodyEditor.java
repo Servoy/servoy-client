@@ -27,13 +27,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
 
 /**
  * Editor part for a tableview
- * 
+ *
  * @author jblok
  */
 public class FormBodyEditor extends AbstractCellEditor implements IEditListEditor
@@ -47,10 +46,7 @@ public class FormBodyEditor extends AbstractCellEditor implements IEditListEdito
 
 	public Object getCellEditorValue()
 	{
-		if (editor instanceof DataRenderer)
-		{
-			editor.stopUIEditing(true);
-		}
+		editor.stopUIEditing(true);
 		return null;
 	}
 
@@ -60,12 +56,9 @@ public class FormBodyEditor extends AbstractCellEditor implements IEditListEdito
 	@Override
 	public boolean stopCellEditing()
 	{
-		if (editor instanceof IDataRenderer)
+		if (!editor.stopUIEditing(true))
 		{
-			if (!((IDataRenderer)editor).stopUIEditing(true))
-			{
-				return false;
-			}
+			return false;
 		}
 		fireEditingStopped();
 		return true;
