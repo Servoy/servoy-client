@@ -99,9 +99,10 @@ public class RuntimeWebComponent implements Scriptable
 					// all handlers are design properties, all api is runtime
 					specProperties.add(e.getKey());
 				}
-				if (type == DataproviderPropertyType.INSTANCE)
+				else if (type == DataproviderPropertyType.INSTANCE)
 				{
 					dataProviderProperties.add(e.getKey());
+					specProperties.add(e.getKey());
 				}
 				else if (type instanceof IComplexTypeImpl)
 				{
