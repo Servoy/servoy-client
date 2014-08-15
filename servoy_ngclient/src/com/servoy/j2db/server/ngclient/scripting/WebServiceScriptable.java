@@ -17,6 +17,10 @@
 
 package com.servoy.j2db.server.ngclient.scripting;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
@@ -29,6 +33,7 @@ import org.sablo.specification.WebComponentSpecification;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A {@link Scriptable} for wrapping a client side service.
@@ -38,6 +43,58 @@ import com.servoy.j2db.util.Debug;
  */
 public class WebServiceScriptable implements Scriptable
 {
+	/**
+	 * Compiles the server side script, enabled debugging if possible.
+	 *
+	 * @param serverScript
+	 */
+	public static Scriptable compileServerScript(URL serverScript, Scriptable model)
+	{
+		Scriptable apiObject = null;
+		Context context = Context.enter();
+		try
+		{
+			String name = "";
+			URI uri = serverScript.toURI();
+			if ("file".equals(uri.getScheme()))
+			{
+				File file = new File(uri);
+				if (file.exists())
+				{
+					name = file.getAbsolutePath();
+				}
+			}
+			if ("".endsWith(name))
+			{
+				context.setGeneratingDebug(false);
+				if (context.getDebugger() != null)
+				{
+					context.setOptimizationLevel(9);
+					context.setDebugger(null, null);
+				}
+			}
+			context.setGeneratingSource(false);
+			Script script = context.compileString(Utils.getURLContent(serverScript), name, 1, null);
+			ScriptableObject topLevel = context.initStandardObjects();
+			Scriptable scopeObject = context.newObject(topLevel);
+			apiObject = context.newObject(topLevel);
+			scopeObject.put("api", scopeObject, apiObject);
+			scopeObject.put("model", scopeObject, model);
+			topLevel.put("$scope", topLevel, scopeObject);
+			script.exec(context, topLevel);
+			apiObject.setPrototype(model);
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		finally
+		{
+			Context.exit();
+		}
+		return apiObject;
+	}
+
 	private final INGApplication application;
 	private final WebComponentSpecification serviceSpecification;
 	private Scriptable prototype;
@@ -52,29 +109,10 @@ public class WebServiceScriptable implements Scriptable
 	{
 		this.application = application;
 		this.serviceSpecification = serviceSpecification;
-		String serverScript = serviceSpecification.getServerScript();
+		URL serverScript = serviceSpecification.getServerScript();
 		if (serverScript != null)
 		{
-			Context context = Context.enter();
-			try
-			{
-				Script script = context.compileString(serverScript, serviceSpecification.getName(), 0, null);
-				ScriptableObject topLevel = context.initStandardObjects();
-				Scriptable scopeObject = context.newObject(topLevel);
-				apiObject = context.newObject(topLevel);
-				scopeObject.put("api", scopeObject, apiObject);
-				scopeObject.put("model", scopeObject, this);
-				topLevel.put("$scope", topLevel, scopeObject);
-				script.exec(context, topLevel);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-			finally
-			{
-				Context.exit();
-			}
+			apiObject = compileServerScript(serverScript, this);
 		}
 	}
 
