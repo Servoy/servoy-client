@@ -75,7 +75,8 @@ types: {
 	  	selected: 'boolean',
 	  	accelarator: 'string',
 	  	args: 'object[]',
-	  	cssClass: 'string'
+	  	cssClass: 'string',
+	  	items: 'menuitem[]'
 	}
   },
   popup: {
