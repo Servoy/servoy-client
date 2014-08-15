@@ -14,6 +14,7 @@ import java.util.WeakHashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyType;
@@ -271,6 +272,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		boolean changed = false;
 		Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), dataprovider);
+		if (value == Scriptable.NOT_FOUND) value = null;
 		for (Pair<WebFormComponent, String> pair : components)
 		{
 			WebFormComponent wc = pair.getLeft();
