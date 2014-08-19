@@ -5,6 +5,7 @@ Bundle-SymbolicName: servoy_ngclient;singleton:=true
 Bundle-Version: 8.0.0.3002
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
+ com.servoy.j2db.server.ngclient.design,
  com.servoy.j2db.server.ngclient.property.types,
  com.servoy.j2db.server.ngclient.scripting,
  com.servoy.j2db.server.ngclient.startup,

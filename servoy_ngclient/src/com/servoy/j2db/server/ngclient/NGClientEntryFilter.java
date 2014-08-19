@@ -281,6 +281,6 @@ public class NGClientEntryFilter extends WebEntry
 	@Override
 	protected IWebsocketSessionFactory createSessionFactory()
 	{
-		return WebsocketSessionFactory.get();
+		return new WebsocketSessionFactory();
 	}
 }

@@ -20,6 +20,9 @@ package com.servoy.j2db.server.ngclient;
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
 
+import com.servoy.j2db.server.ngclient.design.DesignNGClient;
+import com.servoy.j2db.server.ngclient.design.DesignNGClientWebsocketSession;
+
 /**
  * Create websocket session handler based on endpoint type.
  *
@@ -29,23 +32,7 @@ import org.sablo.websocket.IWebsocketSessionFactory;
 public class WebsocketSessionFactory implements IWebsocketSessionFactory
 {
 	public static final String CLIENT_ENDPOINT = "client";
-
-	private volatile IClientCreator clientCreator;
-
-	private static WebsocketSessionFactory me;
-
-	public static WebsocketSessionFactory get()
-	{
-		if (me == null)
-		{
-			me = new WebsocketSessionFactory();
-		}
-		return me;
-	}
-
-	private WebsocketSessionFactory()
-	{
-	}
+	public static final String EDITOR_ENDPOINT = "editor";
 
 	/**
 	 * @param endpointType
@@ -56,38 +43,15 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 	{
 		switch (endpointType)
 		{
+			case EDITOR_ENDPOINT :
+				NGClientWebsocketSession wsSession = new DesignNGClientWebsocketSession(uuid);
+				wsSession.setClient(new DesignNGClient(wsSession));
+				return wsSession;
 			case CLIENT_ENDPOINT :
-				NGClientWebsocketSession wsSession = new NGClientWebsocketSession(uuid);
-				wsSession.setClient(getClientCreator().createClient(wsSession));
+				wsSession = new NGClientWebsocketSession(uuid);
+				wsSession.setClient(new NGClient(wsSession));
 				return wsSession;
 		}
 		return null;
-	}
-
-	/**
-	 * @return the clientCreator
-	 */
-	public IClientCreator getClientCreator()
-	{
-		if ((clientCreator == null))
-		{
-			clientCreator = new IClientCreator()
-			{
-				@Override
-				public NGClient createClient(INGClientWebsocketSession wsSession) throws Exception
-				{
-					return new NGClient(wsSession);
-				}
-			};
-		}
-		return clientCreator;
-	}
-
-	/**
-	 * @param clientCreator the clientCreator to set
-	 */
-	public void setClientCreator(IClientCreator creator)
-	{
-		clientCreator = creator;
 	}
 }

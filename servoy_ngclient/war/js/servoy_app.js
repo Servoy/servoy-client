@@ -204,9 +204,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   
 	   // maybe do this with defer ($q)
 	   var ignoreChanges = false;
-	   $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec(window.location.pathname)[1];
+	   var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+	   if (!solName) $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec($window.location.pathname)[1];
+	   else $solutionSettings.solutionName  = solName;
 	   $solutionSettings.windowName = webStorage.session.get("windowid");
-	   var wsSession = $webSocket.connect('client', webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
+	   var endpointType = decodeURIComponent((new RegExp('[?|&]endpoint=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+	   if (!endpointType) endpointType ="client";
+	   var wsSession = $webSocket.connect(endpointType, webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
 	   wsSession.onMessageObject = function (msg, conversionInfo) {
 		   try {
 			   // data got back from the server

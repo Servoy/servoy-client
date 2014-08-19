@@ -119,7 +119,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			return;
 		}
 
-		J2DBGlobals.setServiceProvider(client);
+		if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(client);
 		try
 		{
 			if (client.getSolution() != null)
@@ -178,7 +178,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		finally
 		{
-			J2DBGlobals.setServiceProvider(null);
+			if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(null);
 		}
 	}
 
@@ -445,7 +445,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * @param fs
 	 * @param form
 	 */
-	private void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
+	protected void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
 	{
 		try
 		{
@@ -617,7 +617,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void closeSession()
 	{
-		if (client.getWebsocketSession().isValid())
+		if (client.getWebsocketSession() != null && client.getWebsocketSession().isValid())
 		{
 			client.invokeAndWait(new Runnable()
 			{
@@ -643,7 +643,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
