@@ -438,7 +438,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 						return generateCallbackScript("wicketAjaxGet('" + //$NON-NLS-1$
 							getCallbackUrl(onlyTargetActivePage()) + "&ignoremp=true&pvs=" + MainPage.this.getCurrentVersionNumber() + "'"); //$NON-NLS-1$
 					}
-					return "function(){}";
+					return "Servoy.Utils.nop()";
 				}
 
 				@Override
