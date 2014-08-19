@@ -150,6 +150,8 @@ webSocketModule.factory('$webSocket',
 				}
 
 			};
+			
+			var connected = false;
 
 			/**
 			 * The $webSocket service API.
@@ -179,6 +181,9 @@ webSocketModule.factory('$webSocket',
 
 					var wsSession = new WebsocketSession()
 					websocket.onopen = function(evt) {
+						$rootScope.$apply(function() {
+							connected = true;
+						})
 						if (wsSession.onopen)
 							wsSession.onopen(evt)
 					}
@@ -187,6 +192,9 @@ webSocketModule.factory('$webSocket',
 							wsSession.onerror(evt)
 					}
 					websocket.onclose = function(evt) {
+						$rootScope.$apply(function() {
+							connected = false;
+						})
 						if (wsSession.onclose)
 							wsSession.onclose(evt)
 					}
@@ -200,6 +208,10 @@ webSocketModule.factory('$webSocket',
 
 					return wsSession
 				},
+				
+				isConnected: function() {
+					return connected;
+				}
 			};
 		}).factory("$services", function($rootScope, $sabloConverters, $sabloUtils){
 			// serviceName:{} service model
