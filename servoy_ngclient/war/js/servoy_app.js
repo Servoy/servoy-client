@@ -59,7 +59,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   var changes = getComponentChanges(now, prev, $utils.getInDepthProperty(formStatesConversionInfo, formname, beanname),
 				   formStates[formname].layout[beanname], formStates[formname].properties.designSize, getChangeNotifier(formname, beanname));
 		   if (Object.getOwnPropertyNames(changes).length > 0) {
-			   wsSession.sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
+			   getSession().sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
 		   }
 	   };
 
@@ -201,158 +201,167 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   }
 		   }
 	   }
-		   
-	   // maybe do this with defer ($q)
+	   
+	   
+		  
 	   var ignoreChanges = false;
-	   var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-	   if (!solName) $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec($window.location.pathname)[1];
-	   else $solutionSettings.solutionName  = solName;
-	   $solutionSettings.windowName = webStorage.session.get("windowid");
-	   var endpointType = decodeURIComponent((new RegExp('[?|&]endpoint=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-	   if (!endpointType) endpointType ="client";
-	   var wsSession = $webSocket.connect(endpointType, webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
-	   wsSession.onMessageObject = function (msg, conversionInfo) {
-		   try {
-			   // data got back from the server
-			   if (msg.forms) {
-				   $rootScope.$apply(function() {
-					   ignoreChanges = true;
-					   try {
-						   for(var formname in msg.forms) {
-							   // current model
-							   var formState = formStates[formname];
-							   // if the formState is on the server but not here anymore, skip it. 
-							   // this can happen with a refresh on the browser.
-							   if (!formState) continue;
-							   var formModel = formState.model;
-							   var layout = formState.layout;
-							   var newFormData = msg.forms[formname];
-							   var newFormProperties = newFormData['']; // f form properties
-							   var newFormConversionInfo = (conversionInfo && conversionInfo.forms && conversionInfo.forms[formname]) ? conversionInfo.forms[formname] : undefined;
+	   var wsSession = null;
+	   function connect() {
+		   // maybe do this with defer ($q)
+		   var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		   if (!solName) $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec($window.location.pathname)[1];
+		   else $solutionSettings.solutionName  = solName;
+		   $solutionSettings.windowName = webStorage.session.get("windowid");
+		   var endpointType = decodeURIComponent((new RegExp('[?|&]endpoint=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		   if (!endpointType) endpointType ="client";
+		   wsSession = $webSocket.connect(endpointType, webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
+		   wsSession.onMessageObject = function (msg, conversionInfo) {
+			   try {
+				   // data got back from the server
+				   if (msg.forms) {
+					   $rootScope.$apply(function() {
+						   ignoreChanges = true;
+						   try {
+							   for(var formname in msg.forms) {
+								   // current model
+								   var formState = formStates[formname];
+								   // if the formState is on the server but not here anymore, skip it. 
+								   // this can happen with a refresh on the browser.
+								   if (!formState) continue;
+								   var formModel = formState.model;
+								   var layout = formState.layout;
+								   var newFormData = msg.forms[formname];
+								   var newFormProperties = newFormData['']; // f form properties
+								   var newFormConversionInfo = (conversionInfo && conversionInfo.forms && conversionInfo.forms[formname]) ? conversionInfo.forms[formname] : undefined;
 
-							   if(newFormProperties) {
-								   if (newFormConversionInfo && newFormConversionInfo['']) $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
-								   if (!formModel['']) formModel[''] = {};
-								   for(var p in newFormProperties) {
-									   formModel[''][p] = newFormProperties[p]; 
-								   } 
-							   }
-
-							   for (var beanname in newFormData) {
-								   // copy over the changes, skip for form properties (beanname empty)
-								   if (beanname != '') {
-									   if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined)) {	
-										   //size or location were changed at runtime, we need to update components with anchors
-										   newFormData[beanname].anchors = formModel[beanname].anchors;
-									   }
-
-									   var newBeanConversionInfo = newFormConversionInfo ? newFormConversionInfo[beanname] : undefined;
-									   var beanConversionInfo = newBeanConversionInfo ? $utils.getOrCreateInDepthProperty(formStatesConversionInfo, formname, beanname) : undefined; // we could do a get instead of undefined, but normally that value is not needed if the new conversion info is undefined
-									   applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize, getChangeNotifier(formname, beanname), beanConversionInfo, newBeanConversionInfo);
-									   for (var defProperty in deferredProperties) {
-										   for(var key in newFormData[beanname]) {
-											   if (defProperty == (formname + "_" + beanname + "_" + key)) {
-												   deferredProperties[defProperty].resolve(newFormData[beanname][key]);
-												   delete deferredProperties[defProperty];
-											   }
-										   }
+								   if(newFormProperties) {
+									   if (newFormConversionInfo && newFormConversionInfo['']) $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
+									   if (!formModel['']) formModel[''] = {};
+									   for(var p in newFormProperties) {
+										   formModel[''][p] = newFormProperties[p]; 
 									   } 
 								   }
-							   }
-							   if(deferredformStates[formname]){
-								   deferredformStates[formname].resolve(formStates[formname])
-								   delete deferredformStates[formname]
-							   }
-							   
-							   if (msg.initialdatarequest)
-							   		formState.addWatches();
-						   }
-					   } finally {
-						   ignoreChanges = false;
-					   }
-				   });
-			   }
 
-			   if (conversionInfo && conversionInfo.call) $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call);
-			   if (msg.call) {
-				   // {"call":{"form":"product","element":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}, // optionally "viewIndex":1 
-				   // "{ conversions: {product: {datatextfield1: {0: "Date"}}} }
-				   var call = msg.call;
-				   var formState = formStates[call.form];
-				   if (call.viewIndex != undefined) {
-					   var funcThis = formState.api[call.bean][call.viewIndex]; 
-					   if (funcThis)
-					   {
-						   var func = funcThis[call.api];
-					   }
-					   else
-					   {
-						   console.warn("cannot call " + call.api + " on " + call.bean + " because viewIndex "+ call.viewIndex +" api is not found")
-					   }
+								   for (var beanname in newFormData) {
+									   // copy over the changes, skip for form properties (beanname empty)
+									   if (beanname != '') {
+										   if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined)) {	
+											   //size or location were changed at runtime, we need to update components with anchors
+											   newFormData[beanname].anchors = formModel[beanname].anchors;
+										   }
+
+										   var newBeanConversionInfo = newFormConversionInfo ? newFormConversionInfo[beanname] : undefined;
+										   var beanConversionInfo = newBeanConversionInfo ? $utils.getOrCreateInDepthProperty(formStatesConversionInfo, formname, beanname) : undefined; // we could do a get instead of undefined, but normally that value is not needed if the new conversion info is undefined
+										   applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize, getChangeNotifier(formname, beanname), beanConversionInfo, newBeanConversionInfo);
+										   for (var defProperty in deferredProperties) {
+											   for(var key in newFormData[beanname]) {
+												   if (defProperty == (formname + "_" + beanname + "_" + key)) {
+													   deferredProperties[defProperty].resolve(newFormData[beanname][key]);
+													   delete deferredProperties[defProperty];
+												   }
+											   }
+										   } 
+									   }
+								   }
+								   if(deferredformStates[formname]){
+									   deferredformStates[formname].resolve(formStates[formname])
+									   delete deferredformStates[formname]
+								   }
+								   
+								   if (msg.initialdatarequest)
+								   		formState.addWatches();
+							   }
+						   } finally {
+							   ignoreChanges = false;
+						   }
+					   });
 				   }
-				   else if (call.parentComponentName != undefined)
-				   {
-					   // handle nested components
-					   var funcThis = formState.model[call.parentComponentName][call.parentComponentProperty][call.parentComponentIndex].api;
-					   var func = funcThis[call.api];
-				   }
-				   else {
-					   var funcThis = formState.api[call.bean];
-					   var func = funcThis[call.api];
-				   }
-				   if (!func) {
-					   // if setFindMode not present, set editable/readonly state
-					   if (call.api != "setFindMode") 
-					   {
-						   console.warn("bean " + call.bean + " did not provide the api: " + call.api)
-					   }
-					   else
-					   {
-						   if (call.args[0])
+
+				   if (conversionInfo && conversionInfo.call) $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call);
+				   if (msg.call) {
+					   // {"call":{"form":"product","element":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}, // optionally "viewIndex":1 
+					   // "{ conversions: {product: {datatextfield1: {0: "Date"}}} }
+					   var call = msg.call;
+					   var formState = formStates[call.form];
+					   if (call.viewIndex != undefined) {
+						   var funcThis = formState.api[call.bean][call.viewIndex]; 
+						   if (funcThis)
 						   {
-							   formState.model[call.bean].readOnlyBeforeFindMode = formState.model[call.bean].readOnly;
-							   formState.model[call.bean].readOnly = true;
+							   var func = funcThis[call.api];
 						   }
 						   else
 						   {
-							   formState.model[call.bean].readOnly = formState.model[call.bean].readOnlyBeforeFindMode;
+							   console.warn("cannot call " + call.api + " on " + call.bean + " because viewIndex "+ call.viewIndex +" api is not found")
 						   }
 					   }
-					   return;
+					   else if (call.parentComponentName != undefined)
+					   {
+						   // handle nested components
+						   var funcThis = formState.model[call.parentComponentName][call.parentComponentProperty][call.parentComponentIndex].api;
+						   var func = funcThis[call.api];
+					   }
+					   else {
+						   var funcThis = formState.api[call.bean];
+						   var func = funcThis[call.api];
+					   }
+					   if (!func) {
+						   // if setFindMode not present, set editable/readonly state
+						   if (call.api != "setFindMode") 
+						   {
+							   console.warn("bean " + call.bean + " did not provide the api: " + call.api)
+						   }
+						   else
+						   {
+							   if (call.args[0])
+							   {
+								   formState.model[call.bean].readOnlyBeforeFindMode = formState.model[call.bean].readOnly;
+								   formState.model[call.bean].readOnly = true;
+							   }
+							   else
+							   {
+								   formState.model[call.bean].readOnly = formState.model[call.bean].readOnlyBeforeFindMode;
+							   }
+						   }
+						   return;
+					   }
+
+					   return $rootScope.$apply(function() {
+						   return func.apply(funcThis, call.args)
+					   })
+				   }
+				   if (msg.sessionid) {
+					   webStorage.session.add("sessionid",msg.sessionid);
+				   }
+				   if (msg.styleSheetPath) {
+					   $solutionSettings.styleSheetPath = msg.styleSheetPath;
+				   }	   
+				   /**
+				    * TODO sesionExpired should not be called forom the protocol , 
+				    * it should be a direct call to a service (also check to see if  noLicense and maintenanceMode can be moved to a service)
+				    * */
+				   if(msg.noLicense){
+					   $sessionService.setNoLicense(msg.noLicense)	        		
+				   }	       
+				   if(msg.maintenanceMode){
+					   $sessionService.setMaintenanceMode(msg.maintenanceMode)    		
 				   }
 
-				   return $rootScope.$apply(function() {
-					   return func.apply(funcThis, call.args)
-				   })
+				   /** end TODO*/
+				   if (msg.windowid) {
+					   $solutionSettings.windowName = msg.windowid;
+					   webStorage.session.add("windowid",msg.windowid);
+				   }
+			   } finally {
+				   ignoreChanges = false;
 			   }
-			   if (msg.sessionid) {
-				   webStorage.session.add("sessionid",msg.sessionid);
-			   }
-			   if (msg.styleSheetPath) {
-				   $solutionSettings.styleSheetPath = msg.styleSheetPath;
-			   }	   
-			   /**
-			    * TODO sesionExpired should not be called forom the protocol , 
-			    * it should be a direct call to a service (also check to see if  noLicense and maintenanceMode can be moved to a service)
-			    * */
-			   if(msg.noLicense){
-				   $sessionService.setNoLicense(msg.noLicense)	        		
-			   }	       
-			   if(msg.maintenanceMode){
-				   $sessionService.setMaintenanceMode(msg.maintenanceMode)    		
-			   }
-
-			   /** end TODO*/
-			   if (msg.windowid) {
-				   $solutionSettings.windowName = msg.windowid;
-				   webStorage.session.add("windowid",msg.windowid);
-			   }
-		   } finally {
-			   ignoreChanges = false;
-		   }
-	   };
-	    
+		   };
+	   }
+	   function getSession() {
+		   if (wsSession == null) throw "Session is not created yet, first call connect()";
+		   return wsSession;
+	   }
 	   return {
+		   connect: connect,
 		   // used by custom property component[] to implement nested component logic
 		   applyBeanData: applyBeanData,
 		   getComponentChanges: getComponentChanges,
@@ -426,13 +435,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					   }
 					   var cmd = {cmd:'event',formname:formName,beanname:beanName,event:eventName,args:newargs,changes:data}
 					   if (rowId) cmd.rowId = rowId
-					   return wsSession.sendDeferredMessage(cmd)
+					   return getSession().sendDeferredMessage(cmd)
 				   },
 			   }
 		   },
 
 		   sendRequest: function(objToStringify) {
-			   wsSession.sendMessageObject(objToStringify);
+			   getSession().sendMessageObject(objToStringify);
 		   },
 
 		   // used by form template js
@@ -459,18 +468,18 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   }else{
 				   changes[property] = formStates[formname].model[beanname][property]
 			   }
-			   wsSession.sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
+			   getSession().sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
 		   },
 
 		   filterList: function(formname,beanname,property,filter)  {
 			   var deferred = $q.defer();
 			   deferredProperties[formname + "_" + beanname + "_" + property] = deferred;
-			   wsSession.sendMessageObject({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter})
+			   getSession().sendMessageObject({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter})
 			   return deferred.promise;
 		   },
 
 		   callService: function(serviceName, methodName, argsObject, async) {
-			   return wsSession.callService(serviceName, methodName, argsObject, async)
+			   return getSession().callService(serviceName, methodName, argsObject, async)
 		   }
 	   }
 }).directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
@@ -511,6 +520,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	styleSheetPath: undefined,
 	ltrOrientation : true
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage) {
+	$servoyInternal.connect();
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
 		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";
