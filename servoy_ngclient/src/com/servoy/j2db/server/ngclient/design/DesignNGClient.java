@@ -19,6 +19,8 @@ package com.servoy.j2db.server.ngclient.design;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -51,6 +53,8 @@ public class DesignNGClient extends NGClient
 	{
 		super(wsSession);
 		setUseLoginSolution(false);
+		setTimeZone(TimeZone.getDefault());
+		setLocale(Locale.getDefault());
 	}
 
 	@Override
