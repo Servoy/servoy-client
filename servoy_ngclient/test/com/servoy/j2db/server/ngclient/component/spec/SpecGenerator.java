@@ -382,6 +382,8 @@ public class SpecGenerator
 				}
 				el = cs.new Element(-1, IRepository.TABPANELS, "tabs", IRepository.SERVERS, null);
 				model.add(el);
+				el = cs.new Element(-1, IRepository.TABPANELS, "childElements", -1, null);
+				model.add(el);
 
 				el = cs.new Element(-1, IRepository.TABPANELS, "readOnly", IRepository.BOOLEAN, Boolean.FALSE);
 				model.add(el);
@@ -513,11 +515,13 @@ public class SpecGenerator
 		HashMap<String, String> splitpaneMapping = new HashMap<String, String>();
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', scope:'design', values:[]}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:300, height:300}}");
+		splitpaneMapping.put("childElements", "tab");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
 
 		HashMap<String, String> tabpanelMapping = new HashMap<String, String>();
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', scope:'design', values:[]}");
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:300, height:300}}");
+		tabpanelMapping.put("childElements", "tab");
 		componentRepoTypeMappingExceptions.put("tabpanel", tabpanelMapping);
 
 		HashMap<String, String> textareaTypeMapping = new HashMap<String, String>();

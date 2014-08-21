@@ -9,6 +9,7 @@ model:
 {
         background : 'color', 
         borderType : 'border', 
+        childElements : 'tab', 
         enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 
