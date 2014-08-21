@@ -515,13 +515,13 @@ public class SpecGenerator
 		HashMap<String, String> splitpaneMapping = new HashMap<String, String>();
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', scope:'design', values:[]}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:300, height:300}}");
-		splitpaneMapping.put("childElements", "tab");
+		splitpaneMapping.put("childElements", "{ type:'string[]', values:[tab] }");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
 
 		HashMap<String, String> tabpanelMapping = new HashMap<String, String>();
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', scope:'design', values:[]}");
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{type:'dimension',  default: {width:300, height:300}}");
-		tabpanelMapping.put("childElements", "tab");
+		tabpanelMapping.put("childElements", "{ type:'string[]', values:[tab] }");
 		componentRepoTypeMappingExceptions.put("tabpanel", tabpanelMapping);
 
 		HashMap<String, String> textareaTypeMapping = new HashMap<String, String>();

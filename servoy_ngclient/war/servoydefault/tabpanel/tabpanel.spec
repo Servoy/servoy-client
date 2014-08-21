@@ -9,7 +9,7 @@ model:
 {
         background : 'color', 
         borderType : 'border', 
-        childElements : 'tab', 
+        childElements : { type:'string[]', values:[tab] }, 
         enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 
