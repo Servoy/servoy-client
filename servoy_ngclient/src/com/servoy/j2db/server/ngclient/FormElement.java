@@ -58,6 +58,7 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
@@ -273,6 +274,15 @@ public final class FormElement implements IWebComponentInitializer
 			name = "svy_" + uniqueIdWithinForm;
 		}
 		return name.replace('-', '_');
+	}
+
+	public String getDesignId()
+	{
+		if (dataConverterContext != null && dataConverterContext.getApplication() instanceof DesignNGClient)
+		{
+			return persistImpl.getPersist().getUUID().toString();
+		}
+		return null;
 	}
 
 	public Object getWrappedProperty(String name)
@@ -530,7 +540,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
