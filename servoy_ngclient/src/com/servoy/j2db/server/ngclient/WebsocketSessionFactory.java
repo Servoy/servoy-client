@@ -32,7 +32,7 @@ import com.servoy.j2db.server.ngclient.design.DesignNGClientWebsocketSession;
 public class WebsocketSessionFactory implements IWebsocketSessionFactory
 {
 	public static final String CLIENT_ENDPOINT = "client";
-	public static final String EDITOR_ENDPOINT = "editor";
+	public static final String DESIGN_ENDPOINT = "designclient";
 
 	/**
 	 * @param endpointType
@@ -43,7 +43,7 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 	{
 		switch (endpointType)
 		{
-			case EDITOR_ENDPOINT :
+			case DESIGN_ENDPOINT :
 				NGClientWebsocketSession wsSession = new DesignNGClientWebsocketSession(uuid);
 				wsSession.setClient(new DesignNGClient(wsSession));
 				return wsSession;

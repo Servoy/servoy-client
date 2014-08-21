@@ -183,7 +183,7 @@ public class Activator implements BundleActivator
 					{
 						switch (endpointType)
 						{
-							case WebsocketSessionFactory.EDITOR_ENDPOINT :
+							case WebsocketSessionFactory.DESIGN_ENDPOINT :
 								if (designerSession == null || !designerSession.isValid())
 								{
 									final IDesignerSolutionProvider solutionProvider = ApplicationServerRegistry.getServiceRegistry().getService(
