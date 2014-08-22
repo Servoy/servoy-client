@@ -41,19 +41,36 @@
 	"api":
 	{
 	        "getSelectedText": {
-	            "returns": "string"	
+	            "returns": "string"
+		
 	        },
 	        "replaceSelectedText": {
-	            "parameters":[{"s":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"s",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "requestFocus": {
-	            "parameters":[{"mustExecuteOnFocusGainedMethod":"boolean","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"mustExecuteOnFocusGainedMethod",
+								"type":"boolean",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "selectAll": {
 		
 	        },
 	        "setValueListItems": {
-	            "parameters":[{"value":"dataset"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"value",
+								"type":"dataset"
+			                	}             
+							 ]	
 	        }
 	}
 	 

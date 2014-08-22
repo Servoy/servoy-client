@@ -43,10 +43,27 @@
 	{
 	        "getThumbnailJPGImage": {
 	            "returns": "byte []",
-	            "parameters":[{"width":"int","optional":"true"},{"height":"int","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"width",
+								"type":"int",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"height",
+								"type":"int",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "requestFocus": {
-	            "parameters":[{"mustExecuteOnFocusGainedMethod":"boolean","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"mustExecuteOnFocusGainedMethod",
+								"type":"boolean",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        }
 	}
 	 

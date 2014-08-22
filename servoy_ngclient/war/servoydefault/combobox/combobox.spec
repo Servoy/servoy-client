@@ -40,10 +40,21 @@
 	"api":
 	{
 	        "requestFocus": {
-	            "parameters":[{"mustExecuteOnFocusGainedMethod":"boolean","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"mustExecuteOnFocusGainedMethod",
+								"type":"boolean",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "setValueListItems": {
-	            "parameters":[{"value":"dataset"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"value",
+								"type":"dataset"
+			                	}             
+							 ]	
 	        }
 	}
 	 

@@ -39,22 +39,45 @@
 	"api":
 	{
 	        "getScrollX": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getScrollY": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getSelectedElements": {
-	            "returns": "object []"	
+	            "returns": "object []"
+		
 	        },
 	        "requestFocus": {
-	            "parameters":[{"mustExecuteOnFocusGainedMethod":"boolean","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"mustExecuteOnFocusGainedMethod",
+								"type":"boolean",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "setScroll": {
-	            "parameters":[{"x":"int"},{"y":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"x",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"y",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "setValueListItems": {
-	            "parameters":[{"value":"dataset"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"value",
+								"type":"dataset"
+			                	}             
+							 ]	
 	        }
 	}
 	 

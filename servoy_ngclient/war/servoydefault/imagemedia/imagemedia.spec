@@ -40,13 +40,24 @@
 	"api":
 	{
 	        "getScrollX": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getScrollY": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "setScroll": {
-	            "parameters":[{"x":"int"},{"y":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"x",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"y",
+								"type":"int"
+			                	}             
+							 ]	
 	        }
 	}
 	 

@@ -38,13 +38,19 @@
 	{
 	    <#list apis as api>
 	        "${api.name}": {
-	<#if (api.returnType != "void")>            "returns": "${api.returnType}"<#if (api.parameters?size>0 || api.hints??)>,
-	</#if></#if><#if (api.parameters?size>0)>            "parameters":[<#list api.parameters as param><#rt>
-	           {"${param.left}":"${param.right}"<#t>
-	            <#if (api.isOptionalParameter(param.left)!="false")>,"optional":"${api.isOptionalParameter(param.left)}"}<#else>}</#if><#t>
-	            <#if param_has_next>,</#if></#list>]<#if api.hints??>,<#lt>
-	</#if></#if><#if api.hints??><#list api.hints as hint>            ${hint}<#if hint_has_next>,
-	            </#if></#list></#if><#lt>
+	<#if (api.returnType != "void")>            "returns": "${api.returnType}"<#if (api.parameters?size>0 || api.hints??)>,</#if>
+	</#if><#if (api.parameters?size>0)>			"parameters":[
+			<#list api.parameters as param><#rt>					{
+                                                                 
+ 								"name":"${param.left}",
+								"type":"${param.right}"<#if (api.isOptionalParameter(param.left)!="false")>,
+			            		"optional":"${api.isOptionalParameter(param.left)}"
+			            		}<#else>
+			                	}</#if><#if param_has_next>,
+</#if>             </#list>
+<#t>							 ]<#if api.hints??>,<#lt>
+			</#if></#if><#if api.hints??><#list api.hints as hint>            ${hint}<#if hint_has_next>,
+			            </#if></#list></#if><#lt>
 	
 	        }<#if api_has_next>,</#if>
 	    </#list>

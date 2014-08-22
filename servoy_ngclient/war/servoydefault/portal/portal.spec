@@ -46,31 +46,62 @@
 		
 	        },
 	        "duplicateRecord": {
-	            "parameters":[{"addOnTop":"boolean","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"addOnTop",
+								"type":"boolean",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "getMaxRecordIndex": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getScrollX": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getScrollY": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getSelectedIndex": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getSortColumns": {
-	            "returns": "string"	
+	            "returns": "string"
+		
 	        },
 	        "newRecord": {
-	            "parameters":[{"addOnTop":"boolean","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"addOnTop",
+								"type":"boolean",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "setScroll": {
-	            "parameters":[{"x":"int"},{"y":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"x",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"y",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "setSelectedIndex": {
-	            "parameters":[{"index":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	}             
+							 ]	
 	        }
 	}
 	 

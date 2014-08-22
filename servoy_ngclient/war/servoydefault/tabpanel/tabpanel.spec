@@ -36,74 +36,226 @@
 	{
 	        "addTab": {
 	            "returns": "boolean",
-	            "parameters":[{"form/formname":"object []"},{"name":"object","optional":"true"},{"tabText":"object","optional":"true"},{"tooltip":"object","optional":"true"},{"iconURL":"object","optional":"true"},{"fg":"object","optional":"true"},{"bg":"object","optional":"true"},{"relatedfoundset/relationname":"object","optional":"true"},{"index":"object","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"form/formname",
+								"type":"object []"
+			                	},
+             					{                                                                 
+ 								"name":"name",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"tabText",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"tooltip",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"iconURL",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"fg",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"bg",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"relatedfoundset/relationname",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"index",
+								"type":"object",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "getMaxTabIndex": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getMnemonicAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getSelectedTabFormName": {
-	            "returns": "string"	
+	            "returns": "string"
+		
 	        },
 	        "getTabBGColorAt": {
 	            "returns": "string",
-	            "parameters":[{"unnamed_0":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabFGColorAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabFormNameAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabNameAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabRelationNameAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabTextAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "isTabEnabled": {
 	            "returns": "boolean",
-	            "parameters":[{"unnamed_0":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "isTabEnabledAt": {
 	            "returns": "boolean",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "removeAllTabs": {
-	            "returns": "boolean"	
+	            "returns": "boolean"
+		
 	        },
 	        "removeTabAt": {
 	            "returns": "boolean",
-	            "parameters":[{"index":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "setMnemonicAt": {
-	            "parameters":[{"index":"int"},{"text":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"text",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "setTabBGColorAt": {
-	            "parameters":[{"unnamed_0":"int"},{"unnamed_1":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"unnamed_1",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "setTabEnabled": {
-	            "parameters":[{"unnamed_0":"int"},{"unnamed_1":"boolean"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"unnamed_1",
+								"type":"boolean"
+			                	}             
+							 ]	
 	        },
 	        "setTabEnabledAt": {
-	            "parameters":[{"i":"int"},{"b":"boolean"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"b",
+								"type":"boolean"
+			                	}             
+							 ]	
 	        },
 	        "setTabFGColorAt": {
-	            "parameters":[{"i":"int"},{"s":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"s",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "setTabTextAt": {
-	            "parameters":[{"index":"int"},{"text":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"text",
+								"type":"string"
+			                	}             
+							 ]	
 	        }
 	},
 "types": {

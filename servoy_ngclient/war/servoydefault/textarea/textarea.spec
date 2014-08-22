@@ -40,25 +40,48 @@
 	"api":
 	{
 	        "getScrollX": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getScrollY": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getSelectedText": {
-	            "returns": "string"	
+	            "returns": "string"
+		
 	        },
 	        "replaceSelectedText": {
-	            "parameters":[{"s":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"s",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "requestFocus": {
-	            "parameters":[{"mustExecuteOnFocusGainedMethod":"boolean","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"mustExecuteOnFocusGainedMethod",
+								"type":"boolean",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "selectAll": {
 		
 	        },
 	        "setScroll": {
-	            "parameters":[{"x":"int"},{"y":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"x",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"y",
+								"type":"int"
+			                	}             
+							 ]	
 	        }
 	}
 	 

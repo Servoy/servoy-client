@@ -43,15 +43,32 @@
 	"api":
 	{
 	        "getLabelForElementName": {
-	            "returns": "string"	
+	            "returns": "string"
+		
 	        },
 	        "getParameterValue": {
 	            "returns": "string",
-	            "parameters":[{"param":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"param",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "getThumbnailJPGImage": {
 	            "returns": "byte []",
-	            "parameters":[{"width":"int","optional":"true"},{"height":"int","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"width",
+								"type":"int",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"height",
+								"type":"int",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        }
 	}
 	 

@@ -34,107 +34,248 @@
 	{
 	        "addTab": {
 	            "returns": "boolean",
-	            "parameters":[{"vargs":"object []"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"vargs",
+								"type":"object []"
+			                	}             
+							 ]	
 	        },
 	        "getContinuousLayout": {
-	            "returns": "boolean"	
+	            "returns": "boolean"
+		
 	        },
 	        "getDividerLocation": {
-	            "returns": "double"	
+	            "returns": "double"
+		
 	        },
 	        "getDividerSize": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getLeftForm": {
-	            "returns": "formscope"	
+	            "returns": "formscope"
+		
 	        },
 	        "getLeftFormMinSize": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getMaxTabIndex": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getMnemonicAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getResizeWeight": {
-	            "returns": "double"	
+	            "returns": "double"
+		
 	        },
 	        "getRightForm": {
-	            "returns": "formscope"	
+	            "returns": "formscope"
+		
 	        },
 	        "getRightFormMinSize": {
-	            "returns": "int"	
+	            "returns": "int"
+		
 	        },
 	        "getTabFGColorAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabFormNameAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabNameAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabRelationNameAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "getTabTextAt": {
 	            "returns": "string",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "isTabEnabledAt": {
 	            "returns": "boolean",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "removeAllTabs": {
-	            "returns": "boolean"	
+	            "returns": "boolean"
+		
 	        },
 	        "removeTabAt": {
 	            "returns": "boolean",
-	            "parameters":[{"i":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "setContinuousLayout": {
-	            "parameters":[{"b":"boolean"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"b",
+								"type":"boolean"
+			                	}             
+							 ]	
 	        },
 	        "setDividerLocation": {
-	            "parameters":[{"location":"double"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"location",
+								"type":"double"
+			                	}             
+							 ]	
 	        },
 	        "setDividerSize": {
-	            "parameters":[{"size":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"size",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "setLeftForm": {
 	            "returns": "boolean",
-	            "parameters":[{"form":"object"},{"relation":"object","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"form",
+								"type":"object"
+			                	},
+             					{                                                                 
+ 								"name":"relation",
+								"type":"object",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "setLeftFormMinSize": {
-	            "parameters":[{"minSize":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"minSize",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "setMnemonicAt": {
-	            "parameters":[{"index":"int"},{"text":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"text",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "setResizeWeight": {
-	            "parameters":[{"resizeWeight":"double"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"resizeWeight",
+								"type":"double"
+			                	}             
+							 ]	
 	        },
 	        "setRightForm": {
 	            "returns": "boolean",
-	            "parameters":[{"form":"object"},{"relation":"object","optional":"true"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"form",
+								"type":"object"
+			                	},
+             					{                                                                 
+ 								"name":"relation",
+								"type":"object",
+			            		"optional":"true"
+			            		}             
+							 ]	
 	        },
 	        "setRightFormMinSize": {
-	            "parameters":[{"minSize":"int"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"minSize",
+								"type":"int"
+			                	}             
+							 ]	
 	        },
 	        "setTabEnabledAt": {
-	            "parameters":[{"i":"int"},{"b":"boolean"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"b",
+								"type":"boolean"
+			                	}             
+							 ]	
 	        },
 	        "setTabFGColorAt": {
-	            "parameters":[{"i":"int"},{"clr":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"clr",
+								"type":"string"
+			                	}             
+							 ]	
 	        },
 	        "setTabTextAt": {
-	            "parameters":[{"i":"int"},{"text":"string"}]	
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"text",
+								"type":"string"
+			                	}             
+							 ]	
 	        }
 	},
 "types": {
