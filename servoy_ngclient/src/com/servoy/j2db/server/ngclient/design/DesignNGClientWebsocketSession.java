@@ -22,6 +22,10 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.websocket.IClientService;
+import org.sablo.websocket.impl.ClientService;
+
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.IWebFormController;
@@ -37,6 +41,11 @@ import com.servoy.j2db.util.Utils;
  */
 public final class DesignNGClientWebsocketSession extends NGClientWebsocketSession
 {
+	public static final String EDITOR_CONTENT_SERVICE = "$editorContentService";
+
+	private static final WebComponentSpecification EDITOR_CONTENT_SERVICE_SPECIFICATION = new WebComponentSpecification(EDITOR_CONTENT_SERVICE, "",
+		EDITOR_CONTENT_SERVICE, null, null, "", null);
+
 	/**
 	 * @param uuid
 	 */
@@ -45,12 +54,16 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 		super(uuid);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#updateController(com.servoy.j2db.persistence.Form, java.lang.String, java.lang.String,
-	 * boolean)
-	 */
+	@Override
+	protected IClientService createClientService(String name)
+	{
+		if (EDITOR_CONTENT_SERVICE.equals(name))
+		{
+			return new ClientService(EDITOR_CONTENT_SERVICE, EDITOR_CONTENT_SERVICE_SPECIFICATION);
+		}
+		return super.createClientService(name);
+	}
+
 	@Override
 	protected void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
 	{

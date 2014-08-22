@@ -24,10 +24,8 @@ import java.util.List;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.sablo.eventthread.WebsocketSessionEndpoints;
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
-import org.sablo.websocket.WebsocketEndpoint;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -132,7 +130,7 @@ public class Activator implements BundleActivator
 		@Override
 		public void persistChanges(Collection<IPersist> changes)
 		{
-			HashSet<Form> frms = new HashSet<>();
+			final HashSet<Form> frms = new HashSet<>();
 			for (IPersist persist : changes)
 			{
 				Form frm = null;
@@ -146,14 +144,25 @@ public class Activator implements BundleActivator
 					persist = persist.getParent();
 				}
 			}
-			WebsocketEndpoint.set(new WebsocketSessionEndpoints(getWebsocketSession()));
-			for (Form form : frms)
+			if (frms.size() > 0)
 			{
-				List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers(form);
-				for (IFormController fc : cachedFormControllers)
+				getWebsocketSession().getEventDispatcher().addEvent(new Runnable()
 				{
-					fc.recreateUI();
-				}
+					@Override
+					public void run()
+					{
+						for (Form form : frms)
+						{
+							List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers(form);
+							for (IFormController fc : cachedFormControllers)
+							{
+								fc.recreateUI();
+							}
+						}
+						getWebsocketSession().getService(DesignNGClientWebsocketSession.EDITOR_CONTENT_SERVICE).executeAsyncServiceCall("refreshDecorators",
+							new Object[] { });
+					}
+				});
 			}
 		}
 	}
