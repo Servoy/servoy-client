@@ -148,7 +148,7 @@ public class SpecTemplateModel
 		String type = SpecGenerator.getSpecTypeFromRepoType(compName, element);
 		if (!type.startsWith("{") && !type.startsWith("["))
 		{
-			type = "'" + type + "'";
+			type = "\"" + type + "\"";
 		}
 		else
 		{
@@ -156,7 +156,7 @@ public class SpecTemplateModel
 		}
 		if (element.getContentID() > 0 && !Utils.equalObjects(ContentSpec.getJavaClassMemberDefaultValue(element.getTypeID()), element.getDefaultClassValue()))
 		{
-			type = "{type:" + type + ", default:" + element.getDefaultTextualClassValue() + "}";
+			type = "{\"type\":" + type + ", \"default\":" + element.getDefaultTextualClassValue() + "}";
 		}
 		return type;
 	}
@@ -188,15 +188,17 @@ public class SpecTemplateModel
 	{
 		if (name.equals("tabpanel"))
 		{
-			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
-				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: 'color',\r\n"
-				+ "  		disabled: 'boolean',\r\n" + "  		imageMediaID: 'string',\r\n" + "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
+			return ",\r\n" + "\"types\": {\r\n" + "  \"tab\": {\r\n" + "  	\"model\": {\r\n" + "  		\"name\": \"string\",\r\n"
+				+ "  		\"containsFormId\": \"form\",\r\n" + "  		\"text\": \"tagstring\",\r\n" + "  		\"relationName\": \"relation\",\r\n"
+				+ "  		\"active\": \"boolean\",\r\n" + "  		\"foreground\": \"color\",\r\n" + "  		\"disabled\": \"boolean\",\r\n"
+				+ "  		\"imageMediaID\": \"string\",\r\n" + "  		\"mnemonic\": \"string\"\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		if (name.equals("splitpane"))
 		{
-			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
-				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: 'color',\r\n"
-				+ "  		disabled: 'boolean',\r\n" + "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
+			return ",\r\n" + "\"types\": {\r\n" + "  \"tab\": {\r\n" + "  	\"model\": {\r\n" + "  		\"name\": \"string\",\r\n"
+				+ "  		\"containsFormId\": \"form\",\r\n" + "  		\"text\": \"tagstring\",\r\n" + "  		\"relationName\": \"relation\",\r\n"
+				+ "  		\"active\": \"boolean\",\r\n" + "  		\"foreground\": \"color\",\r\n" + "  		\"disabled\": \"boolean\",\r\n"
+				+ "  		\"mnemonic\": \"string\"\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		return null;
 	}
