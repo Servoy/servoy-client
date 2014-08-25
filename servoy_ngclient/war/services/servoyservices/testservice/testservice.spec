@@ -1,15 +1,15 @@
 {
-	"name": 'testservice',
-	"displayName": 'Test service that says helloworld',
-	"definition": 'services/servoyservices/testservice/testservice.js',
+	"name": "testservice",
+	"displayName": "Test service that says helloworld",
+	"definition": "services/servoyservices/testservice/testservice.js",
 	"libraries": [],
 	"model":
 	{
-		"text": 'string',
+		"text": "string"
 	},
 	"api":
 	{
 	 	"talk": {
-	        },
+	        }
 	}
 }
