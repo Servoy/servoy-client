@@ -44,7 +44,6 @@
 	{
 	        "getLabelForElementName": {
 	            "returns": "string"
-		
 	        },
 	        "getParameterValue": {
 	            "returns": "string",
@@ -53,7 +52,7 @@
  								"name":"param",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getThumbnailJPGImage": {
 	            "returns": "byte []",
@@ -68,7 +67,7 @@
 								"type":"int",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        }
 	}
 	 

@@ -42,7 +42,6 @@
 	{
 	        "getSelectedText": {
 	            "returns": "string"
-		
 	        },
 	        "replaceSelectedText": {
 				"parameters":[
@@ -50,7 +49,7 @@
  								"name":"s",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "requestFocus": {
 				"parameters":[
@@ -59,10 +58,10 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "selectAll": {
-		
+	
 	        },
 	        "setValueListItems": {
 				"parameters":[
@@ -70,7 +69,7 @@
  								"name":"value",
 								"type":"dataset"
 			                	}             
-							 ]	
+							 ]
 	        }
 	}
 	 

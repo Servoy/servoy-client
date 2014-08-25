@@ -45,7 +45,7 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        }
 	}
 	 

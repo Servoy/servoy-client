@@ -43,7 +43,7 @@
 	"api":
 	{
 	        "deleteRecord": {
-		
+	
 	        },
 	        "duplicateRecord": {
 				"parameters":[
@@ -52,27 +52,22 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "getMaxRecordIndex": {
 	            "returns": "int"
-		
 	        },
 	        "getScrollX": {
 	            "returns": "int"
-		
 	        },
 	        "getScrollY": {
 	            "returns": "int"
-		
 	        },
 	        "getSelectedIndex": {
 	            "returns": "int"
-		
 	        },
 	        "getSortColumns": {
 	            "returns": "string"
-		
 	        },
 	        "newRecord": {
 				"parameters":[
@@ -81,7 +76,7 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "setScroll": {
 				"parameters":[
@@ -93,7 +88,7 @@
  								"name":"y",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setSelectedIndex": {
 				"parameters":[
@@ -101,7 +96,7 @@
  								"name":"index",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        }
 	}
 	 

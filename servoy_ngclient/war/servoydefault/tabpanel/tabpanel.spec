@@ -81,11 +81,10 @@
 								"type":"object",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "getMaxTabIndex": {
 	            "returns": "int"
-		
 	        },
 	        "getMnemonicAt": {
 	            "returns": "string",
@@ -94,11 +93,10 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getSelectedTabFormName": {
 	            "returns": "string"
-		
 	        },
 	        "getTabBGColorAt": {
 	            "returns": "string",
@@ -107,7 +105,7 @@
  								"name":"unnamed_0",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabFGColorAt": {
 	            "returns": "string",
@@ -116,7 +114,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabFormNameAt": {
 	            "returns": "string",
@@ -125,7 +123,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabNameAt": {
 	            "returns": "string",
@@ -134,7 +132,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabRelationNameAt": {
 	            "returns": "string",
@@ -143,7 +141,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabTextAt": {
 	            "returns": "string",
@@ -152,7 +150,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "isTabEnabled": {
 	            "returns": "boolean",
@@ -161,7 +159,7 @@
  								"name":"unnamed_0",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "isTabEnabledAt": {
 	            "returns": "boolean",
@@ -170,11 +168,10 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "removeAllTabs": {
 	            "returns": "boolean"
-		
 	        },
 	        "removeTabAt": {
 	            "returns": "boolean",
@@ -183,7 +180,7 @@
  								"name":"index",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setMnemonicAt": {
 				"parameters":[
@@ -195,7 +192,7 @@
  								"name":"text",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabBGColorAt": {
 				"parameters":[
@@ -207,7 +204,7 @@
  								"name":"unnamed_1",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabEnabled": {
 				"parameters":[
@@ -219,7 +216,7 @@
  								"name":"unnamed_1",
 								"type":"boolean"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabEnabledAt": {
 				"parameters":[
@@ -231,7 +228,7 @@
  								"name":"b",
 								"type":"boolean"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabFGColorAt": {
 				"parameters":[
@@ -243,7 +240,7 @@
  								"name":"s",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabTextAt": {
 				"parameters":[
@@ -255,7 +252,7 @@
  								"name":"text",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        }
 	},
 "types": {

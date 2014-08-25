@@ -39,31 +39,25 @@
  								"name":"vargs",
 								"type":"object []"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getContinuousLayout": {
 	            "returns": "boolean"
-		
 	        },
 	        "getDividerLocation": {
 	            "returns": "double"
-		
 	        },
 	        "getDividerSize": {
 	            "returns": "int"
-		
 	        },
 	        "getLeftForm": {
 	            "returns": "formscope"
-		
 	        },
 	        "getLeftFormMinSize": {
 	            "returns": "int"
-		
 	        },
 	        "getMaxTabIndex": {
 	            "returns": "int"
-		
 	        },
 	        "getMnemonicAt": {
 	            "returns": "string",
@@ -72,19 +66,16 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getResizeWeight": {
 	            "returns": "double"
-		
 	        },
 	        "getRightForm": {
 	            "returns": "formscope"
-		
 	        },
 	        "getRightFormMinSize": {
 	            "returns": "int"
-		
 	        },
 	        "getTabFGColorAt": {
 	            "returns": "string",
@@ -93,7 +84,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabFormNameAt": {
 	            "returns": "string",
@@ -102,7 +93,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabNameAt": {
 	            "returns": "string",
@@ -111,7 +102,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabRelationNameAt": {
 	            "returns": "string",
@@ -120,7 +111,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "getTabTextAt": {
 	            "returns": "string",
@@ -129,7 +120,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "isTabEnabledAt": {
 	            "returns": "boolean",
@@ -138,11 +129,10 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "removeAllTabs": {
 	            "returns": "boolean"
-		
 	        },
 	        "removeTabAt": {
 	            "returns": "boolean",
@@ -151,7 +141,7 @@
  								"name":"i",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setContinuousLayout": {
 				"parameters":[
@@ -159,7 +149,7 @@
  								"name":"b",
 								"type":"boolean"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setDividerLocation": {
 				"parameters":[
@@ -167,7 +157,7 @@
  								"name":"location",
 								"type":"double"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setDividerSize": {
 				"parameters":[
@@ -175,7 +165,7 @@
  								"name":"size",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setLeftForm": {
 	            "returns": "boolean",
@@ -189,7 +179,7 @@
 								"type":"object",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "setLeftFormMinSize": {
 				"parameters":[
@@ -197,7 +187,7 @@
  								"name":"minSize",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setMnemonicAt": {
 				"parameters":[
@@ -209,7 +199,7 @@
  								"name":"text",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setResizeWeight": {
 				"parameters":[
@@ -217,7 +207,7 @@
  								"name":"resizeWeight",
 								"type":"double"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setRightForm": {
 	            "returns": "boolean",
@@ -231,7 +221,7 @@
 								"type":"object",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "setRightFormMinSize": {
 				"parameters":[
@@ -239,7 +229,7 @@
  								"name":"minSize",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabEnabledAt": {
 				"parameters":[
@@ -251,7 +241,7 @@
  								"name":"b",
 								"type":"boolean"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabFGColorAt": {
 				"parameters":[
@@ -263,7 +253,7 @@
  								"name":"clr",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setTabTextAt": {
 				"parameters":[
@@ -275,7 +265,7 @@
  								"name":"text",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        }
 	},
 "types": {

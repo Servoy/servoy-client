@@ -54,7 +54,7 @@
 								"type":"int",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "requestFocus": {
 				"parameters":[
@@ -63,7 +63,7 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        }
 	}
 	 

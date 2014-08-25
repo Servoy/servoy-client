@@ -37,19 +37,15 @@
 	{
 	        "getAsPlainText": {
 	            "returns": "string"
-		
 	        },
 	        "getScrollX": {
 	            "returns": "int"
-		
 	        },
 	        "getScrollY": {
 	            "returns": "int"
-		
 	        },
 	        "getSelectedText": {
 	            "returns": "string"
-		
 	        },
 	        "replaceSelectedText": {
 				"parameters":[
@@ -57,7 +53,7 @@
  								"name":"s",
 								"type":"string"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "requestFocus": {
 				"parameters":[
@@ -66,10 +62,10 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "selectAll": {
-		
+	
 	        },
 	        "setScroll": {
 				"parameters":[
@@ -81,7 +77,7 @@
  								"name":"y",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        }
 	}
 	 

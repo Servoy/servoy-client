@@ -46,7 +46,7 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        }
 	}
 	 

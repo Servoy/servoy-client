@@ -40,15 +40,12 @@
 	{
 	        "getScrollX": {
 	            "returns": "int"
-		
 	        },
 	        "getScrollY": {
 	            "returns": "int"
-		
 	        },
 	        "getSelectedElements": {
 	            "returns": "object []"
-		
 	        },
 	        "requestFocus": {
 				"parameters":[
@@ -57,7 +54,7 @@
 								"type":"boolean",
 			            		"optional":"true"
 			            		}             
-							 ]	
+							 ]
 	        },
 	        "setScroll": {
 				"parameters":[
@@ -69,7 +66,7 @@
  								"name":"y",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        },
 	        "setValueListItems": {
 				"parameters":[
@@ -77,7 +74,7 @@
  								"name":"value",
 								"type":"dataset"
 			                	}             
-							 ]	
+							 ]
 	        }
 	}
 	 

@@ -41,11 +41,9 @@
 	{
 	        "getScrollX": {
 	            "returns": "int"
-		
 	        },
 	        "getScrollY": {
 	            "returns": "int"
-		
 	        },
 	        "setScroll": {
 				"parameters":[
@@ -57,7 +55,7 @@
  								"name":"y",
 								"type":"int"
 			                	}             
-							 ]	
+							 ]
 	        }
 	}
 	 
