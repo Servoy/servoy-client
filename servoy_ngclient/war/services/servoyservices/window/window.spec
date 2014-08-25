@@ -69,13 +69,15 @@
 		            				"type":"string"
 	            				},
 	            				{
-		            				"width":"int",
+		            				"name":"width",
+		            				"type":"int",
 		            				"optional":"true"
 	            				},
 	            				{
 		            				"name":"height",
 		            				"type":"int",
 		            				"optional":"true"
+		            				
 	            				}
 	            			 ]
 	        },
