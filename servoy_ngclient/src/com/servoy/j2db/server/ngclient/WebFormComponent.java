@@ -40,8 +40,8 @@ import com.servoy.j2db.util.Utils;
 public class WebFormComponent extends Container implements ListDataListener, IContextProvider
 {
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
-	private final FormElement formElement;
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
+	private FormElement formElement;
 
 	// list of all tabseq properties ordered by design time value; tabseq will be updated with runtime value
 	private final List<Pair<String, Integer>> calculatedTabSequence = new ArrayList<Pair<String, Integer>>();
@@ -101,6 +101,16 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	public FormElement getFormElement()
 	{
 		return formElement;
+	}
+
+	/**
+	 * Only used in designer to update this component to the latest desgin form element.
+	 *
+	 * @param formElement the formElement to set
+	 */
+	public void setFormElement(FormElement formElement)
+	{
+		this.formElement = formElement;
 	}
 
 	/**
@@ -247,7 +257,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -258,7 +268,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -269,7 +279,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

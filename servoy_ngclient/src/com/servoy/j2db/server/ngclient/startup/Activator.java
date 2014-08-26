@@ -18,12 +18,18 @@
 package com.servoy.j2db.server.ngclient.startup;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -33,6 +39,7 @@ import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistChangeListener;
 import com.servoy.j2db.persistence.IRepository;
@@ -40,15 +47,20 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.design.DesignNGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.design.IDesignerSolutionProvider;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jblok
@@ -130,18 +142,27 @@ public class Activator implements BundleActivator
 		@Override
 		public void persistChanges(Collection<IPersist> changes)
 		{
-			final HashSet<Form> frms = new HashSet<>();
+			final Map<Form, List<IFormElement>> frms = new HashMap<>();
 			for (IPersist persist : changes)
 			{
-				Form frm = null;
-				while (persist != null)
+				if (persist instanceof IFormElement)
 				{
-					if (persist instanceof Form)
+					IPersist parent = persist;
+					while (parent != null)
 					{
-						frms.add((Form)persist);
-						break;
+						if (parent instanceof Form)
+						{
+							List<IFormElement> list = frms.get(persist);
+							if (list == null)
+							{
+								list = new ArrayList<>();
+								frms.put((Form)parent, list);
+							}
+							list.add((IFormElement)persist);
+							break;
+						}
+						parent = parent.getParent();
 					}
-					persist = persist.getParent();
 				}
 			}
 			if (frms.size() > 0)
@@ -151,12 +172,57 @@ public class Activator implements BundleActivator
 					@Override
 					public void run()
 					{
-						for (Form form : frms)
+						for (Entry<Form, List<IFormElement>> entry : frms.entrySet())
 						{
-							List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers(form);
+							List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers(entry.getKey());
+							ServoyDataConverterContext cntxt = new ServoyDataConverterContext(DeveloperDesignClient.this);
 							for (IFormController fc : cachedFormControllers)
 							{
-								fc.recreateUI();
+								boolean bigChange = false;
+								outer : for (IFormElement persist : entry.getValue())
+								{
+									FormElement newFe = new FormElement(persist, cntxt);
+
+									IWebFormUI formUI = (IWebFormUI)fc.getFormUI();
+									WebFormComponent webComponent = formUI.getWebComponent(newFe.getName());
+									if (webComponent != null)
+									{
+										FormElement existingFe = webComponent.getFormElement();
+
+										WebComponentSpecification spec = webComponent.getSpecification();
+										Map<String, PropertyDescription> handlers = spec.getHandlers();
+										for (String property : newFe.getProperties().keySet())
+										{
+											Object currentPropValue = existingFe.getProperty(property);
+											Object newPropValue = newFe.getProperty(property);
+											if (!Utils.equalObjects(currentPropValue, newPropValue))
+											{
+												if (handlers.get(property) != null)
+												{
+													// this is a handler change so a big change (component could react to a handler differently)
+													bigChange = true;
+													break outer;
+												}
+												PropertyDescription prop = spec.getProperty(property);
+												if ("design".equals(prop.getScope()))
+												{
+													// this is a design property change so a big change
+													bigChange = true;
+													break outer;
+												}
+												webComponent.setFormElement(newFe);
+												webComponent.setProperty(property, newPropValue, ConversionLocation.SERVER);
+											}
+										}
+									}
+									else
+									{
+										// no webcomponent found, so new one or name change, recreate all
+										bigChange = true;
+										break;
+									}
+								}
+								if (bigChange) fc.recreateUI();
 							}
 						}
 						getWebsocketSession().getService(DesignNGClientWebsocketSession.EDITOR_CONTENT_SERVICE).executeAsyncServiceCall("refreshDecorators",
