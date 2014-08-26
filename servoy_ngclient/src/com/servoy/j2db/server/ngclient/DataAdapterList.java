@@ -51,7 +51,6 @@ import com.servoy.j2db.util.Text;
 
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
-	private final Map<WebFormComponent, List<String>> componentPropertiesWithI18N = new HashMap<>();
 	private final Map<String, Map<WebFormComponent, List<String>>> dataProviderToComponentWithTags = new HashMap<>();
 	private final Map<String, List<Pair<WebFormComponent, String>>> recordDataproviderToComponent = new HashMap<>();
 	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
@@ -188,19 +187,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addTaggedProperty(final WebFormComponent component, final String beanTaggedProperty, String propertyValue)
 	{
-		if (propertyValue.startsWith("i18n:"))
-		{
-			// TODO really store this like this so that it is pushed all the time?
-			// or should we just directly store it and have no support for constant changes?
-			List<String> props = componentPropertiesWithI18N.get(component);
-			if (props == null)
-			{
-				props = new ArrayList<>();
-				componentPropertiesWithI18N.put(component, props);
-			}
-			props.add(beanTaggedProperty);
-		}
-		else Text.processTags(propertyValue, new ITagResolver()
+		Text.processTags(propertyValue, new ITagResolver()
 		{
 			@Override
 			public String getStringValue(String name)
@@ -363,16 +350,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			for (Entry<String, Map<WebFormComponent, List<String>>> entry : dataProviderToComponentWithTags.entrySet())
 			{
 				changed = updateTagValue(entry.getValue(), fireChangeEvent) || changed;
-			}
-			// TODO not check only record change? But only on language change?
-			for (WebFormComponent component : componentPropertiesWithI18N.keySet())
-			{
-				for (String taggedProp : componentPropertiesWithI18N.get(component))
-				{
-					String initialPropValue = (String)component.getInitialProperty(taggedProp);
-					String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
-					changed = component.setProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
-				}
 			}
 		}
 		else

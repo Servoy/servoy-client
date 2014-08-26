@@ -91,11 +91,6 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		IServoyDataConverterContext dataConverterContext;
 		Object jsonValue;
 
-		TagStringWrapper(Object value)
-		{
-			this(value, null);
-		}
-
 		TagStringWrapper(Object value, IDataConverterContext dataConverterContext)
 		{
 			this.value = value;
@@ -120,10 +115,14 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 						return "<html></html>";
 					}
 				}
-//				else if (value == Scriptable.NOT_FOUND)
-//				{
-//					return null; // this should not happen I think... it should get intercepted before being set to "value"; it happened if the table didn't have a column that was used as dataprovider
-//				}
+				else if (value != null && value.toString().startsWith("i18n:"))
+				{
+					if (dataConverterContext != null && dataConverterContext.getApplication() != null)
+					{
+						jsonValue = dataConverterContext.getApplication().getI18NMessage(value.toString().substring(5));
+					}
+					else return value;
+				}
 				else
 				{
 					jsonValue = value;
