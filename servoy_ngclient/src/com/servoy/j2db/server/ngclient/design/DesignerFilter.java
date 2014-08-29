@@ -60,19 +60,30 @@ public class DesignerFilter implements Filter
 				{
 					JSONWriter jsonWriter = new JSONWriter(servletResponse.getWriter());
 					jsonWriter.array();
-					for (WebComponentSpecification spec : provider.getWebComponentSpecifications())
+
+					for (String packageName : provider.getPackageNames())
 					{
 						jsonWriter.object();
-						jsonWriter.key("name").value(spec.getName());
-						jsonWriter.key("displayName").value(spec.getDisplayName());
-						if (spec.getCategoryName() != null)
+						jsonWriter.key("packageName").value(packageName);
+						jsonWriter.key("components");
+						jsonWriter.array();
+						for (String componentName : provider.getComponentsInPackage(packageName))
 						{
-							jsonWriter.key("categoryName").value(spec.getCategoryName());
+							WebComponentSpecification spec = provider.getWebComponentSpecification(componentName);
+							jsonWriter.object();
+							jsonWriter.key("name").value(spec.getName());
+							jsonWriter.key("displayName").value(spec.getDisplayName());
+//							if (spec.getCategoryName() != null)
+//							{
+//								jsonWriter.key("categoryName").value(spec.getCategoryName());
+//							}
+							if (spec.getIcon() != null)
+							{
+								jsonWriter.key("icon").value(spec.getIcon());
+							}
+							jsonWriter.endObject();
 						}
-						if (spec.getIcon() != null)
-						{
-							jsonWriter.key("icon").value(spec.getIcon());
-						}
+						jsonWriter.endArray();
 						jsonWriter.endObject();
 					}
 					jsonWriter.endArray();
