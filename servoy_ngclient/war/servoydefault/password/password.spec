@@ -1,7 +1,6 @@
 {
 	"name": "svy-password",
 	"displayName": "Password field",
-	"categoryName": "Elements",
 	"icon": "servoydefault/password/password_field_16.png",
 	"definition": "servoydefault/password/password.js",
 	"libraries": [],

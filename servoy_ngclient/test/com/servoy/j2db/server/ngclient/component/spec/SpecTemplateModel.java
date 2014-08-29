@@ -40,7 +40,6 @@ public class SpecTemplateModel
 	private final String name;
 	private final String serverScript;
 	private final String displayName;
-	private final String categoryName;
 	private final String icon;
 	private final Class< ? > apiInterface;
 	private final String[] libraries;
@@ -49,17 +48,15 @@ public class SpecTemplateModel
 	private List<Element> handlers;
 	private List<Element> model;
 
-	SpecTemplateModel(String name, String displayName, String categoryName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries)
+	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries)
 	{
-		this(name, displayName, categoryName, icon, repositoryType, apiInterface, libaries, null);
+		this(name, displayName, icon, repositoryType, apiInterface, libaries, null);
 	}
 
-	SpecTemplateModel(String name, String displayName, String categoryName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries,
-		String serverScript)
+	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript)
 	{
 		this.name = name;
 		this.displayName = displayName;
-		this.categoryName = categoryName;
 		this.icon = icon;
 		this.apiInterface = apiInterface;
 		this.repositoryType = repositoryType;
@@ -67,10 +64,10 @@ public class SpecTemplateModel
 		this.serverScript = serverScript;
 	}
 
-	SpecTemplateModel(String name, String displayName, String categoryName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries,
-		String serverScript, ApiMethod[] extraApiMethods)
+	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript,
+		ApiMethod[] extraApiMethods)
 	{
-		this(name, displayName, categoryName, icon, repositoryType, apiInterface, libaries, serverScript);
+		this(name, displayName, icon, repositoryType, apiInterface, libaries, serverScript);
 		apis.addAll(Arrays.asList(extraApiMethods));
 	}
 
@@ -82,11 +79,6 @@ public class SpecTemplateModel
 	public String getDisplayName()
 	{
 		return displayName;
-	}
-
-	public String getCategoryName()
-	{
-		return categoryName;
 	}
 
 	public String getIcon()

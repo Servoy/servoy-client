@@ -1,7 +1,6 @@
 {
 	"name": "svy-htmlview",
 	"displayName": "Html View",
-	"categoryName": "Elements",
 	"definition": "servoydefault/htmlview/htmlview.js",
 	"libraries": [],
 	"model":

@@ -1,7 +1,6 @@
 {
 	"name": "svy-radio",
 	"displayName": "Radio",
-	"categoryName": "Elements",
 	"icon": "servoydefault/radio/RADIO16.png",
 	"definition": "servoydefault/radio/radio.js",
 	"libraries": [],

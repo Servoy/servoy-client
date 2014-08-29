@@ -1,7 +1,6 @@
 {
 	"name": "svy-imagemedia",
 	"displayName": "Image Media",
-	"categoryName": "Elements",
 	"icon": "servoydefault/imagemedia/IMG16.png",
 	"definition": "servoydefault/imagemedia/imagemedia.js",
 	"libraries": [],

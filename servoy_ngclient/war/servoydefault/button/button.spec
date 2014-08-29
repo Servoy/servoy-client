@@ -1,7 +1,6 @@
 {
 	"name": "svy-button",
 	"displayName": "Button",
-	"categoryName": "Elements",
 	"icon": "servoydefault/button/button.gif",
 	"definition": "servoydefault/button/button.js",
 	"libraries": [],

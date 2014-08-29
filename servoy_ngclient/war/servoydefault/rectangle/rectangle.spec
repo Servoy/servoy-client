@@ -1,7 +1,6 @@
 {
 	"name": "svy-rectangle",
 	"displayName": "Rectangle",
-	"categoryName": "Shapes",
 	"icon": "servoydefault/rectangle/rectangle.gif",
 	"definition": "servoydefault/rectangle/rectangle.js",
 	"libraries": [],

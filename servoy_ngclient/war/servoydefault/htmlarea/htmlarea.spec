@@ -1,7 +1,6 @@
 {
 	"name": "svy-htmlarea",
 	"displayName": "Html Area",
-	"categoryName": "Elements",
 	"icon": "servoydefault/htmlarea/H1_C16.png",
 	"definition": "servoydefault/htmlarea/htmlarea.js",
 	"libraries": ["servoydefault/htmlarea/lib/tinymce/tinymce.min.js","servoydefault/htmlarea/lib/ui-tinymce.js"],
