@@ -19,8 +19,10 @@ package com.servoy.j2db.server.ngclient.design;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -48,6 +50,8 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class DesignerFilter implements Filter
 {
+	private static List<String> ignoreList = Arrays.asList(new String[] { "svy-checkgroup", "svy-errorbean", "svy-navigator", "svy-radiogroup", "svy-htmlview" });
+
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
 	{
@@ -88,19 +92,18 @@ public class DesignerFilter implements Filter
 						jsonWriter.array();
 						for (String componentName : provider.getComponentsInPackage(packageName))
 						{
-							WebComponentSpecification spec = provider.getWebComponentSpecification(componentName);
-							jsonWriter.object();
-							jsonWriter.key("name").value(spec.getName());
-							jsonWriter.key("displayName").value(spec.getDisplayName());
-//							if (spec.getCategoryName() != null)
-//							{
-//								jsonWriter.key("categoryName").value(spec.getCategoryName());
-//							}
-							if (spec.getIcon() != null)
+							if (!ignoreList.contains(componentName))
 							{
-								jsonWriter.key("icon").value(spec.getIcon());
+								WebComponentSpecification spec = provider.getWebComponentSpecification(componentName);
+								jsonWriter.object();
+								jsonWriter.key("name").value(spec.getName());
+								jsonWriter.key("displayName").value(spec.getDisplayName());
+								if (spec.getIcon() != null)
+								{
+									jsonWriter.key("icon").value(spec.getIcon());
+								}
+								jsonWriter.endObject();
 							}
-							jsonWriter.endObject();
 						}
 						jsonWriter.endArray();
 						jsonWriter.endObject();

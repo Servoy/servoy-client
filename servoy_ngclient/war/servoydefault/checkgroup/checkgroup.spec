@@ -1,6 +1,6 @@
 {
 	"name": "svy-checkgroup",
-	"displayName": "Check group",
+	"displayName": "Check Group",
 	"definition": "servoydefault/checkgroup/checkgroup.js",
 	"libraries": [],
 	"model":

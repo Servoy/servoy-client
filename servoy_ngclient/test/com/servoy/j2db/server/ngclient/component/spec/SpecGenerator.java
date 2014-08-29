@@ -93,7 +93,7 @@ public class SpecGenerator
 			IRepository.FIELDS,
 			IRuntimeCalendar.class,
 			new String[] { "servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js", "servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js", "servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" }));
-		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group",  null, IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check Group",  null, IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel(
 			"combobox",
 			"Combobox ",
@@ -104,13 +104,13 @@ public class SpecGenerator
 			new String[] { "servoydefault/combobox/lib/select2-3.4.5/select2.js", "servoydefault/combobox/lib/select2-3.4.5/select2.css", "servoydefault/combobox/svy_select2.css"
 			// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 			}));
-		specTemplateList.add(new SpecTemplateModel("label", "label",  "text.gif", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("label", "Label",  "text.gif", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group",  null, IRepository.FIELDS, IRuntimeRadios.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("textfield", "Text field",  "textinput.png", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("typeahead", "TypeAhead ",  "bhdropdownlisticon.gif", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel",  "tabs.gif", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,
+		specTemplateList.add(new SpecTemplateModel("textfield", "Text Field",  "textinput.png", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("typeahead", "Type Ahead ",  "bhdropdownlisticon.gif", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab Panel",  "tabs.gif", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,
 			new String[] { "servoydefault/tabpanel/accordionpanel.css" },"servoydefault/tabpanel/tabpanel_server.js"));
-		specTemplateList.add(new SpecTemplateModel("password", "Password field",  "password_field_16.png", IRepository.FIELDS, IRuntimePassword.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("password", "Password Field",  "password_field_16.png", IRepository.FIELDS, IRuntimePassword.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area",  "H1_C16.png", IRepository.FIELDS, IRuntimeHtmlArea.class,
 			new String[] { "servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "servoydefault/htmlarea/lib/ui-tinymce.js" }));
 		specTemplateList.add(new SpecTemplateModel("htmlview", "Html View",  null, IRepository.FIELDS, IRuntimeHtmlArea.class, new String[0]));

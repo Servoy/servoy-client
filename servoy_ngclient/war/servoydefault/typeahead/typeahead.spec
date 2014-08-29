@@ -1,6 +1,6 @@
 {
 	"name": "svy-typeahead",
-	"displayName": "TypeAhead ",
+	"displayName": "Type Ahead ",
 	"icon": "servoydefault/typeahead/bhdropdownlisticon.gif",
 	"definition": "servoydefault/typeahead/typeahead.js",
 	"libraries": [],
