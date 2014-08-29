@@ -18,6 +18,10 @@
 package com.servoy.j2db.server.ngclient.design;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -60,8 +64,23 @@ public class DesignerFilter implements Filter
 				{
 					JSONWriter jsonWriter = new JSONWriter(servletResponse.getWriter());
 					jsonWriter.array();
+					Set<String> packageNames = provider.getPackageNames();
+					ArrayList<String> orderedPackageNames = new ArrayList<>();
+					for (String packName : packageNames)
+					{
+						orderedPackageNames.add(packName);
+					}
+					Collections.sort(orderedPackageNames, new Comparator<String>()
+					{
 
-					for (String packageName : provider.getPackageNames())
+						@Override
+						public int compare(String o1, String o2)
+						{
+							if (o1.toLowerCase().contains("default")) return -1;
+							else return o1.compareTo(o2);
+						}
+					});
+					for (String packageName : orderedPackageNames)
 					{
 						jsonWriter.object();
 						jsonWriter.key("packageName").value(packageName);
