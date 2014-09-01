@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -257,7 +256,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -268,7 +267,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -279,7 +278,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -293,11 +292,11 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	 */
 	private void valueListChanged(ListDataEvent e)
 	{
-		for (Entry<String, Object> entry : properties.entrySet())
+		for (String propName : properties.keySet())
 		{
-			if (entry.getValue() == e.getSource())
+			if (getProperty(propName) == e.getSource())
 			{
-				flagPropertyChanged(entry.getKey());
+				flagPropertyChanged(propName);
 			}
 		}
 	}

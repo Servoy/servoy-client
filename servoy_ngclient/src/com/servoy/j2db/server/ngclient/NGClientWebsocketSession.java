@@ -281,8 +281,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					else if (property instanceof LookupListModel)
 					{
 						lstModel = (LookupListModel)property;
-						// set the valuelistID property as changed on every letter typing
-						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 
 					if (lstModel != null)
