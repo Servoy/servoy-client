@@ -193,8 +193,8 @@ public class NGClientEntryFilter extends WebEntry
 										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
 										String view = (tableview ? "tableview" : "recordview");
 										new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
-											: new ServoyDataConverterContext(fs), false).generate(form, formName, "form_" + view + "_" +
-											(html ? "html" : "js") + ".ftl", w);
+											: new ServoyDataConverterContext(fs), false, Utils.getAsBoolean(request.getParameter("design"))).generate(form,
+											formName, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
 									}
 									w.flush();
 									return;

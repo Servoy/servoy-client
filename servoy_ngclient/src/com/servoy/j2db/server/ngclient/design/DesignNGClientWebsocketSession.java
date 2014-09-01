@@ -73,7 +73,8 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 			StringWriter sw = new StringWriter(512);
 			boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 			String view = (tableview ? "tableview" : "recordview");
-			new FormTemplateGenerator(new ServoyDataConverterContext(getClient()), true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
+			// for al js code design flag should be true.
+			new FormTemplateGenerator(new ServoyDataConverterContext(getClient()), true, true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
 			getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
 				new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
 		}

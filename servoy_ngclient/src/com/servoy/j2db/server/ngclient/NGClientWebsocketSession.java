@@ -471,7 +471,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 				String view = (tableview ? "tableview" : "recordview");
-				new FormTemplateGenerator(new ServoyDataConverterContext(client), true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
+				new FormTemplateGenerator(new ServoyDataConverterContext(client), true, false).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
 			}
 			if (client.isEventDispatchThread())
 			{
@@ -643,7 +643,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
