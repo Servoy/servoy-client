@@ -84,7 +84,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
 		 */
 		@Override
@@ -136,7 +136,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.persistence.IPersistChangeListener#persistChanges(java.util.Collection)
 		 */
 		@Override
@@ -181,6 +181,12 @@ public class Activator implements BundleActivator
 								boolean bigChange = false;
 								outer : for (IFormElement persist : entry.getValue())
 								{
+									if (persist.getParent().getChild(persist.getUUID()) == null)
+									{
+										// deleted persist
+										bigChange = true;
+										break;
+									}
 									FormElement newFe = new FormElement(persist, cntxt);
 
 									IWebFormUI formUI = (IWebFormUI)fc.getFormUI();

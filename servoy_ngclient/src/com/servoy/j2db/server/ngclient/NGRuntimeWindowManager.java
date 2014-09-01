@@ -72,8 +72,19 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 				if (formName != null)
 				{
 					Form form = application.getFormManager().getPossibleForm(formName);
-					if (form != null) ((INGApplication)application).getWebsocketSession().touchForm(application.getFlattenedSolution().getFlattenedForm(form),
-						formName, true);
+					if (form == null)
+					{
+						form = application.getFlattenedSolution().getForm(formName);
+						if (form != null)
+						{
+							// new form, add it in form manager
+							application.getFormManager().addForm(form, false);
+						}
+					}
+					if (form != null)
+					{
+						((INGApplication)application).getWebsocketSession().touchForm(application.getFlattenedSolution().getFlattenedForm(form), formName, true);
+					}
 				}
 				break;
 			}
