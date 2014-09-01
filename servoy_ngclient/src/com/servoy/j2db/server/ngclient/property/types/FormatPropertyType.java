@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
@@ -90,10 +89,14 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, Object/* ComponentFormat */formatValue, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object/* ComponentFormat */formatValue, DataConversion clientConversion) throws JSONException
 	{
 		ComponentFormat format;
-		if (formatValue == null || formatValue instanceof String) return writer.value(null);
+		if (formatValue == null || formatValue instanceof String)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			return writer.value(null);
+		}
 		format = (ComponentFormat)formatValue;
 
 		Map<String, Object> map = new HashMap<>();
@@ -121,6 +124,6 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 		map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());
 		map.put("display", format.parsedFormat.getDisplayFormat());
 
-		return JSONUtils.toJSONValue(writer, map, null, clientConversion, ConversionLocation.BROWSER);
+		return JSONUtils.toBrowserJSONValue(writer, key, map, null, clientConversion);
 	}
 }

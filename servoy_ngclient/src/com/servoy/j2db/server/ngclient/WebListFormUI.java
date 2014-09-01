@@ -40,7 +40,7 @@ public class WebListFormUI extends WebFormUI
 	@Override
 	protected List<FormElement> getFormElements()
 	{
-		return Arrays.asList(new FormElement[] { ComponentFactory.getFormElement(getPortal(), getDataConverterContext()) });
+		return Arrays.asList(new FormElement[] { ComponentFactory.getFormElement(getPortal(), getDataConverterContext(), null) });
 	}
 
 	protected ListViewPortal getPortal()

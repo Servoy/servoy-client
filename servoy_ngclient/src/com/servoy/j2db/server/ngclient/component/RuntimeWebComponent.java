@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient.component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -33,18 +32,13 @@ import org.mozilla.javascript.ScriptableObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IComplexPropertyValue;
-import org.sablo.specification.property.IComplexTypeImpl;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
-import org.sablo.specification.property.IWrapperType;
-import org.sablo.websocket.ConversionLocation;
 
-import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.util.Debug;
 
@@ -58,8 +52,8 @@ public class RuntimeWebComponent implements Scriptable
 	private Scriptable prototypeScope;
 	private final Set<String> specProperties;
 	private final Set<String> dataProviderProperties;
-	private final Map<String, IServerObjToJavaPropertyConverter< ? , ? >> complexProperties;
 	private final Map<String, Function> apiFunctions;
+	private final WebComponentSpecification webComponentSpec;
 
 	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
 	{
@@ -67,7 +61,7 @@ public class RuntimeWebComponent implements Scriptable
 		this.specProperties = new HashSet<String>();
 		this.apiFunctions = new HashMap<String, Function>();
 		this.dataProviderProperties = new HashSet<>();
-		this.complexProperties = new HashMap<>();
+		this.webComponentSpec = webComponentSpec;
 
 		String serverScript = webComponentSpec.getServerScript();
 		Scriptable apiObject = null;
@@ -125,15 +119,6 @@ public class RuntimeWebComponent implements Scriptable
 				{
 					dataProviderProperties.add(e.getKey());
 				}
-				else if (type instanceof IComplexTypeImpl)
-				{
-					IServerObjToJavaPropertyConverter< ? , ? > javascriptToPropertyConverter = ((IComplexTypeImpl)type).getServerObjectToJavaPropertyConverter(e.getValue().isArray());
-					if (javascriptToPropertyConverter != null)
-					{
-						// we have a custom property that is able to convert values for javascript
-						complexProperties.put(e.getKey(), javascriptToPropertyConverter);
-					}
-				}
 			}
 		}
 	}
@@ -149,22 +134,8 @@ public class RuntimeWebComponent implements Scriptable
 	{
 		if (specProperties != null && specProperties.contains(name))
 		{
-			if (complexProperties.containsKey(name))
-			{
-				Object val = component.getProperty(name);
-				if (val instanceof IComplexPropertyValue)
-				{
-					Object scriptValue = ((IComplexPropertyValue)val).toServerObj();
-					return (scriptValue == IComplexPropertyValue.NOT_AVAILABLE ? Scriptable.NOT_FOUND : scriptValue);
-				}
-			}
-			Object value = component.getConvertedPropertyWithDefault(name, dataProviderProperties.contains(name), true);
-			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
-			{
-				return new MapOrArrayWrapper(component, name, dataProviderProperties.contains(name),
-					component.getFormElement().getWebComponentSpec().getProperty(name), component.getDataConverterContext());
-			}
-			return DesignConversion.toStringObject(value, component.getFormElement().getWebComponentSpec().getProperty(name).getType());
+			PropertyDescription pd = webComponentSpec.getProperties().get(name);
+			return NGConversions.INSTANCE.applyConversion4_1(component.getProperty(name), pd, component);
 		}
 		if (apiFunctions.containsKey(name))
 		{
@@ -201,11 +172,11 @@ public class RuntimeWebComponent implements Scriptable
 	{
 		if (specProperties != null && specProperties.contains(name))
 		{
-			if (complexProperties.containsKey(name))
-			{
-				return complexProperties.get(name).usesServerObjRepresentation();
-			}
-			else return true;
+			PropertyDescription pd = webComponentSpec.getProperty(name);
+			IPropertyType< ? > type = pd.getType();
+			// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
+			return !(type instanceof ISupportsConversion4_1_SabloComponentValueToRhino< ? >) ||
+				((ISupportsConversion4_1_SabloComponentValueToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component);
 		}
 		if (apiFunctions.containsKey(name)) return true;
 
@@ -234,9 +205,10 @@ public class RuntimeWebComponent implements Scriptable
 		}
 		if (specProperties != null && specProperties.contains(name))
 		{
-			Object val = RhinoConversion.convert(value, component.getProperty(name), component.getFormElement().getWebComponentSpec().getProperty(name),
-				component.getDataConverterContext());
-			component.setProperty(name, val, ConversionLocation.SERVER);
+			Object previousVal = component.getProperty(name);
+			Object val = NGConversions.INSTANCE.applyConversion4_2(value, previousVal, webComponentSpec.getProperties().get(name), component);
+
+			if (val != previousVal) component.setProperty(name, val);
 		}
 		else if (prototypeScope != null)
 		{
@@ -304,12 +276,17 @@ public class RuntimeWebComponent implements Scriptable
 	public Object[] getIds()
 	{
 		ArrayList<String> al = new ArrayList<>();
-		al.addAll(specProperties);
-		al.addAll(apiFunctions.keySet());
-		for (Entry<String, IServerObjToJavaPropertyConverter< ? , ? >> cp : complexProperties.entrySet())
+		for (String name : specProperties)
 		{
-			if (!cp.getValue().usesServerObjRepresentation()) al.remove(cp.getKey());
+			PropertyDescription pd = webComponentSpec.getProperty(name);
+			IPropertyType< ? > type = pd.getType();
+			if (!(type instanceof ISupportsConversion4_1_SabloComponentValueToRhino< ? >) ||
+				((ISupportsConversion4_1_SabloComponentValueToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component))
+			{
+				al.add(name);
+			}
 		}
+		al.addAll(apiFunctions.keySet());
 		return al.toArray();
 	}
 
@@ -323,401 +300,6 @@ public class RuntimeWebComponent implements Scriptable
 	public boolean hasInstance(Scriptable instance)
 	{
 		return false;
-	}
-
-	/**
-	 * @author jcompagner
-	 */
-	private final static class MapOrArrayWrapper implements Scriptable
-	{
-		private final Object parentValue;
-		private final String property;
-		private final boolean design;
-		private final int indexProperty;
-		private final PropertyDescription propertyDescription;
-		private final IServoyDataConverterContext converterContext;
-		private Scriptable prototype;
-		private Scriptable parent;
-
-		public MapOrArrayWrapper(WebFormComponent parentValue, String property, boolean design, PropertyDescription propertyDescription,
-			IServoyDataConverterContext converterContext)
-		{
-			this.parentValue = parentValue;
-			this.property = property;
-			this.design = design;
-			this.propertyDescription = propertyDescription;
-			this.converterContext = converterContext;
-			this.indexProperty = -1;
-		}
-
-		public MapOrArrayWrapper(MapOrArrayWrapper parentValue, String property, PropertyDescription propertyDescription,
-			IServoyDataConverterContext converterContext)
-		{
-			this.parentValue = parentValue;
-			this.property = property;
-			this.propertyDescription = propertyDescription;
-			this.converterContext = converterContext;
-			this.design = false;
-			this.indexProperty = -1;
-		}
-
-		public MapOrArrayWrapper(MapOrArrayWrapper parentValue, int indexProperty, PropertyDescription propertyDescription,
-			IServoyDataConverterContext converterContext)
-		{
-			this.parentValue = parentValue;
-			this.indexProperty = indexProperty;
-			this.propertyDescription = propertyDescription;
-			this.converterContext = converterContext;
-			this.property = null;
-			this.design = false;
-		}
-
-		private WebFormComponent getWebFormComponent()
-		{
-			if (parentValue instanceof WebFormComponent) return (WebFormComponent)parentValue;
-			return ((MapOrArrayWrapper)parentValue).getWebFormComponent();
-		}
-
-		private Object getValue()
-		{
-			if (parentValue instanceof WebFormComponent)
-			{
-				return ((WebFormComponent)parentValue).getConvertedPropertyWithDefault(property, design, true);
-			}
-			if (indexProperty != -1)
-			{
-				return ((MapOrArrayWrapper)parentValue).get(indexProperty);
-			}
-			return ((MapOrArrayWrapper)parentValue).get(property);
-		}
-
-		@Override
-		public String getClassName()
-		{
-			return getValue() instanceof Map ? "Object" : "Array";
-		}
-
-		public Object get(String name)
-		{
-			Object value = getValue();
-			if (value instanceof Map)
-			{
-				return ((Map<String, Object>)value).get(name);
-			}
-			else if (value instanceof Object[] && name.equals("length"))
-			{
-				return Integer.valueOf(((Object[])value).length);
-			}
-			else if (value instanceof List && name.equals("length"))
-			{
-				return Integer.valueOf(((List< ? >)value).size());
-			}
-			return null;
-		}
-
-		@Override
-		public Object get(String name, Scriptable start)
-		{
-			Object value = get(name);
-
-			PropertyDescription propDesc = propertyDescription.getProperty(name);
-			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
-			{
-				return new MapOrArrayWrapper(this, name, propDesc, converterContext);
-			}
-			return propDesc != null ? DesignConversion.toStringObject(value, propDesc.getType()) : value;
-		}
-
-		public Object get(int index)
-		{
-			Object value = getValue();
-			if (value instanceof Object[])
-			{
-				if (((Object[])value).length > index)
-				{
-					return ((Object[])value)[index];
-				}
-			}
-			else if (value instanceof List< ? >)
-			{
-				if (((List< ? >)value).size() > index)
-				{
-					return ((List< ? >)value).get(index);
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public Object get(int index, Scriptable start)
-		{
-			Object value = get(index);
-			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
-			{
-				return new MapOrArrayWrapper(this, index, propertyDescription.asArrayElement(), converterContext);
-			}
-			return DesignConversion.toStringObject(value, propertyDescription.getType());
-		}
-
-		@Override
-		public boolean has(String name, Scriptable start)
-		{
-			Object value = getValue();
-			if (value instanceof Map)
-			{
-				return ((Map)value).containsKey(name);
-			}
-			return false;
-		}
-
-		@Override
-		public boolean has(int index, Scriptable start)
-		{
-			Object value = getValue();
-			if (value instanceof Object[])
-			{
-				return ((Object[])value).length > index;
-			}
-			else if (value instanceof List< ? >)
-			{
-				return ((List< ? >)value).size() > index;
-			}
-			else if (value instanceof MapOrArrayWrapper)
-			{
-				return ((MapOrArrayWrapper)value).has(index, start);
-			}
-			return false;
-		}
-
-		@Override
-		public void put(String name, Scriptable start, Object value)
-		{
-			Object mapValue = getValue();
-			if (mapValue instanceof Map)
-			{
-				Object convertedValue = convertValue(value, propertyDescription.getProperty(name), ((Map)mapValue).get(name));
-				((Map)mapValue).put(name, convertedValue);
-				markAsChanged();
-			}
-			else if ("length".equals(name))
-			{
-				int length = ((Number)value).intValue();
-				if (mapValue instanceof List)
-				{
-					List lst = (List)mapValue;
-					if (length == 0) lst.clear();
-					else
-					{
-						while (lst.size() != length)
-						{
-							lst.remove(lst.size() - 1);
-						}
-					}
-					markAsChanged();
-				}
-				else if (mapValue instanceof Object[])
-				{
-					Object[] newArray = null;
-					if (length == 0) newArray = new Object[0];
-					else
-					{
-						newArray = new Object[length];
-						System.arraycopy(mapValue, 0, newArray, 0, newArray.length);
-					}
-					// store the new array in the parent.
-					if (parentValue instanceof Scriptable)
-					{
-						if (indexProperty != -1)
-						{
-							((Scriptable)parentValue).put(indexProperty, (Scriptable)parentValue, newArray);
-						}
-						else
-						{
-							((Scriptable)parentValue).put(property, (Scriptable)parentValue, newArray);
-						}
-						markAsChanged();
-					}
-					else
-					{
-
-						((WebFormComponent)parentValue).setProperty(property, newArray, ConversionLocation.SERVER);
-					}
-
-				}
-
-			}
-		}
-
-		/**
-		 * @param value
-		 * @param propertyDesc
-		 * @param oldValue
-		 * @return
-		 */
-		private Object convertValue(Object value, PropertyDescription propertyDesc, Object oldValue)
-		{
-			// first convert the rhino value to a java value.
-			Object convertedValue = RhinoConversion.convert(value, oldValue, propertyDesc, converterContext);
-			// now convert it to an internal WebObject value (so it must be wrapped)
-			// TODO should this be done in BaseWebObject itself? So set the property with dots?
-			if (propertyDesc != null && propertyDesc.getType() instanceof IWrapperType< ? , ? >)
-			{
-				IWrapperType type = (IWrapperType)propertyDesc.getType();
-				convertedValue = type.wrap(convertedValue, oldValue, new DataConverterContext(propertyDesc, getWebFormComponent()));
-			}
-			return convertedValue;
-		}
-
-		private void markAsChanged()
-		{
-			if (parentValue instanceof WebFormComponent)
-			{
-				((WebFormComponent)parentValue).flagPropertyChanged(property);
-			}
-			else if (parentValue instanceof MapOrArrayWrapper)
-			{
-				((MapOrArrayWrapper)parentValue).markAsChanged();
-			}
-
-		}
-
-		@Override
-		public void put(int index, Scriptable start, Object value)
-		{
-			Object arrayValue = getValue();
-			if (arrayValue instanceof Object[])
-			{
-				Object val = convertValue(value, propertyDescription.asArrayElement(), ((Object[])arrayValue).length > index ? ((Object[])arrayValue)[index]
-					: null);
-				if (((Object[])arrayValue).length > index)
-				{
-					((Object[])arrayValue)[index] = val;
-					markAsChanged();
-				}
-				else
-				{
-					// array has to grow bigger.
-					Object[] newArray = new Object[index + 1];
-					newArray[index] = val;
-					System.arraycopy(arrayValue, 0, newArray, 0, ((Object[])arrayValue).length);
-					// store the new array in the parent.
-					if (parentValue instanceof Scriptable)
-					{
-						if (indexProperty != -1)
-						{
-							((Scriptable)parentValue).put(indexProperty, (Scriptable)parentValue, newArray);
-						}
-						else
-						{
-							((Scriptable)parentValue).put(property, (Scriptable)parentValue, newArray);
-						}
-						markAsChanged();
-					}
-					else
-					{
-
-						((WebFormComponent)parentValue).setProperty(property, newArray, ConversionLocation.SERVER);
-					}
-				}
-			}
-			else if (arrayValue instanceof List< ? >)
-			{
-				List<Object> lst = (List<Object>)arrayValue;
-				Object val = convertValue(value, propertyDescription.asArrayElement(), lst.size() > index ? lst.get(index) : null);
-				while (lst.size() <= index)
-				{
-					lst.add(null);
-				}
-				lst.set(index, val);
-				markAsChanged();
-			}
-		}
-
-		@Override
-		public void delete(String name)
-		{
-			Object value = getValue();
-			if (value instanceof Map)
-			{
-				((Map)value).remove(name);
-				markAsChanged();
-			}
-		}
-
-		@Override
-		public void delete(int index)
-		{
-			Object value = getValue();
-			if (value instanceof Object[])
-			{
-				((Object[])value)[index] = null;
-				markAsChanged();
-			}
-			else if (value instanceof List< ? >)
-			{
-				((List< ? >)value).set(index, null);
-			}
-		}
-
-		@Override
-		public Scriptable getPrototype()
-		{
-			return prototype;
-		}
-
-		@Override
-		public void setPrototype(Scriptable prototype)
-		{
-			this.prototype = prototype;
-		}
-
-		@Override
-		public Scriptable getParentScope()
-		{
-			return parent;
-		}
-
-		@Override
-		public void setParentScope(Scriptable parent)
-		{
-			this.parent = parent;
-		}
-
-		@Override
-		public Object[] getIds()
-		{
-			Object value = getValue();
-			if (value instanceof Map)
-			{
-				return ((Map)value).keySet().toArray(new Object[0]);
-			}
-			else if (value instanceof Object[] || value instanceof List< ? >)
-			{
-				int length = 0;
-				if (value instanceof Object[]) length = ((Object[])value).length;
-				else length = ((List< ? >)value).size();
-				Object[] result = new Object[length];
-				int i = result.length;
-				while (--i >= 0)
-					result[i] = Integer.valueOf(i);
-				return result;
-			}
-			return new Object[0];
-		}
-
-		@Override
-		public Object getDefaultValue(Class< ? > hint)
-		{
-			Object value = getValue();
-			if (value != null) return value.toString();
-			return null;
-		}
-
-		@Override
-		public boolean hasInstance(Scriptable instance)
-		{
-			return false;
-		}
 	}
 
 }

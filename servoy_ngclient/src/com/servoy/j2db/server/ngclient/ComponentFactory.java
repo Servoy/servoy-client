@@ -30,8 +30,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
@@ -48,6 +48,8 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -69,7 +71,7 @@ public class ComponentFactory
 			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{
-				int valuelistID = Utils.getAsInteger(fe.getPropertyWithDefault(vlProp.getName()));
+				int valuelistID = Utils.getAsInteger(fe.getPropertyValue(vlProp.getName()));
 				if (valuelistID > 0)
 				{
 					ValueList val = application.getFlattenedSolution().getValueList(valuelistID);
@@ -82,7 +84,7 @@ public class ComponentFactory
 								valueList = new GlobalMethodValueList(application, val);
 								break;
 							case IValueListConstants.CUSTOM_VALUES :
-								String dataproviderID = (String)fe.getProperty((String)vlProp.getConfig());
+								String dataproviderID = (String)fe.getPropertyValue((String)vlProp.getConfig());
 								String format = null;
 								if (dataproviderID != null)
 								{
@@ -92,7 +94,7 @@ public class ComponentFactory
 										// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
 										if (vlProp.getConfig().equals(pd.getConfig()))
 										{
-											format = (String)fe.getProperty(pd.getName());
+											format = (String)fe.getPropertyValue(pd.getName());
 											break;
 										}
 									}
@@ -106,7 +108,7 @@ public class ComponentFactory
 								valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val)
 									: new DBValueList(application, val);
 						}
-						webComponent.setProperty(vlProp.getName(), valueList, ConversionLocation.DESIGN);
+						webComponent.setProperty(vlProp.getName(), valueList);
 					}
 				}
 			}
@@ -133,25 +135,26 @@ public class ComponentFactory
 			IPersist persist = iterator.next();
 			if (persist instanceof IFormElement)
 			{
-				lst.add(getFormElement((IFormElement)persist, context));
+				lst.add(getFormElement((IFormElement)persist, context, null));
 			}
 		}
 		return lst;
 	}
 
-	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context)
+	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
 	{
+		if (propertyPath == null) propertyPath = new PropertyPath();
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
 		if (context.getSolution().getSolutionCopy(false) != null)
 		{
 			if (formElement instanceof ListViewPortal) return createListViewPortalFormElement((ListViewPortal)formElement, context);
-			else return new FormElement(formElement, context);
+			else return new FormElement(formElement, context, new PropertyPath());
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
 		{
 			if (formElement instanceof ListViewPortal) persistWrapper = createListViewPortalFormElement((ListViewPortal)formElement, context);
-			else persistWrapper = new FormElement(formElement, context);
+			else persistWrapper = new FormElement(formElement, context, new PropertyPath());
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{
@@ -177,25 +180,6 @@ public class ComponentFactory
 		{
 			try
 			{
-				JSONArray componentJSONs = new JSONArray();
-
-				int startPos = form.getPartStartYPos(bodyPart.getID());
-				int endPos = bodyPart.getHeight();
-				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-				while (it.hasNext())
-				{
-					IPersist persist = it.next();
-					if (persist instanceof IFormElement)
-					{
-						Point location = ((IFormElement)persist).getLocation();
-						if (startPos <= location.y && endPos >= location.y)
-						{
-							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, context);
-							componentJSONs.put(PersistBasedFormElementImpl.getPureSabloJSONForFormElement(fe, null));
-						}
-					}
-				}
-
 				String name = "svy_lvp_" + form.getName();
 
 				JSONObject portal = new JSONObject();
@@ -213,13 +197,49 @@ public class ComponentFactory
 				portal.put("size", size);
 				portal.put("visible", listViewPortal.getVisible());
 				portal.put("enabled", listViewPortal.getEnabled());
-				portal.put("childElements", componentJSONs);
+				portal.put("childElements", new JSONArray()); // empty contents; will be updated afterwards directly with form element values for components
 
 				JSONObject relatedFoundset = new JSONObject();
 				relatedFoundset.put("foundsetSelector", "");
 				portal.put("relatedFoundset", relatedFoundset);
 
-				return new FormElement("svy-portal", portal, form, name, context);
+				PropertyPath propertyPath = new PropertyPath();
+				FormElement portalFormElement = new FormElement("svy-portal", portal, form, name, context, propertyPath);
+
+				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
+				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
+				if (pd == null)
+				{
+					Debug.error(new RuntimeException("Cannot find component definition special type to use for portal."));
+					return null;
+				}
+				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
+
+				Map<String, Object> portalFormElementProperties = portalFormElement.getRawPropertyValues();
+				// now put real child component form element values in "childElements"
+				int startPos = form.getPartStartYPos(bodyPart.getID());
+				int endPos = bodyPart.getHeight();
+				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
+				propertyPath.add(portalFormElement.getName());
+				while (it.hasNext())
+				{
+					IPersist persist = it.next();
+					if (persist instanceof IFormElement)
+					{
+						Point loc = ((IFormElement)persist).getLocation();
+						if (startPos <= loc.y && endPos >= loc.y)
+						{
+							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, context, propertyPath);
+							children.add(type.getFormElementValue(null, pd, propertyPath, fe));
+						}
+					}
+				}
+				propertyPath.backOneLevel();
+				portalFormElementProperties.put("childElements", children.toArray());
+				portalFormElement.updatePropertyValuesDontUse(portalFormElementProperties);
+
+				return portalFormElement;
 			}
 			catch (JSONException ex)
 			{

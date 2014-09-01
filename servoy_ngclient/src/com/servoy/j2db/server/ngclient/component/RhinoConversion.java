@@ -27,9 +27,6 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IComplexPropertyValue;
-import org.sablo.specification.property.IComplexTypeImpl;
-import org.sablo.specification.property.IServerObjToJavaPropertyConverter;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -62,15 +59,6 @@ public class RhinoConversion
 	 */
 	public static Object convert(Object propertyValue, Object oldValue, PropertyDescription pd, IServoyDataConverterContext converterContext)
 	{
-		if (pd != null && pd.getType() instanceof IComplexTypeImpl)
-		{
-			IServerObjToJavaPropertyConverter val = ((IComplexTypeImpl)pd.getType()).getServerObjectToJavaPropertyConverter(pd.isArray());
-			if (val != null)
-			{
-				return val.serverObjToJava(propertyValue, pd.getConfig(), (IComplexPropertyValue)oldValue);
-			}
-		}
-
 		// convert simple values to json values
 		if (propertyValue == UniqueTag.NOT_FOUND || propertyValue == Undefined.instance)
 		{

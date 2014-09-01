@@ -39,7 +39,6 @@ import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.BaseWebsocketSession;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.TypedData;
@@ -271,18 +270,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					if (property instanceof CustomValueList)
 					{
 						lstModel = new LookupListModel(client, (CustomValueList)property);
-						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
+						webComponent.setProperty(obj.getString("property"), lstModel);
 					}
 					else if (property instanceof LookupValueList)
 					{
 						lstModel = new LookupListModel(client, (LookupValueList)property);
-						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
+						webComponent.setProperty(obj.getString("property"), lstModel);
 					}
 					else if (property instanceof LookupListModel)
 					{
 						lstModel = (LookupListModel)property;
 						// set the valuelistID property as changed on every letter typing
-						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
+						webComponent.setProperty(obj.getString("property"), lstModel);
 					}
 
 					if (lstModel != null)
@@ -607,9 +606,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
-			call.put("parentComponentName", receiver.getParent().getName());
-			call.put("parentComponentProperty", componentContext.getParentComponentProperty());
-			call.put("parentComponentIndex", componentContext.getParentComponentIndex());
+			call.put("propertyPath", componentContext);
 		}
 		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
 	}

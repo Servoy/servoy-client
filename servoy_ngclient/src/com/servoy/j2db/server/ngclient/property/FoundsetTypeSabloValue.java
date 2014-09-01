@@ -29,14 +29,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
-import org.sablo.IWebComponentInitializer;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -47,7 +44,6 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -62,7 +58,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class FoundsetTypeValue implements IServoyAwarePropertyValue
+public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 {
 
 	/**
@@ -89,7 +85,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	protected FoundsetTypeViewport viewPort;
 	protected IFoundSetInternal foundset;
 	protected final Object designJSONValue;
-	protected WebFormComponent component;
+	protected BaseWebObject webObject; // (the component)
 	protected Set<String> dataProviders = new HashSet<>();
 	protected String foundsetSelector;
 	protected IDataAdapterList dataAdapterList;
@@ -98,24 +94,20 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected FoundsetPropertySelectionListener listSelectionListener;
 
-	public FoundsetTypeValue(Object designJSONValue, Object config)
+	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName)
 	{
-		this.designJSONValue = designJSONValue; // maybe we should parse it and not keep it as JSON (it can be reconstructed afterwards from parseed content if needed)
-	}
-
-	@Override
-	public void initialize(IWebComponentInitializer fe, String propertyName, Object defaultValue)
-	{
-		// nothing to do here; foundset is not initialized until it's attached to a component
+		this.designJSONValue = designJSONValue;
 		this.propertyName = propertyName;
+
 		changeMonitor = new FoundsetTypeChangeMonitor(this);
 		viewPort = new FoundsetTypeViewport(changeMonitor);
+		// nothing to do here; foundset is not initialized until it's attached to a component
 	}
 
 	@Override
-	public void attachToComponent(IChangeListener changeNotifier, WebComponent component)
+	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject webObject)
 	{
-		this.component = (WebFormComponent)component;
+		this.webObject = webObject;
 		dataAdapterList = null;
 		changeMonitor.setChangeNotifier(changeNotifier);
 
@@ -185,7 +177,8 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		{
 			try
 			{
-				newFoundset = (IFoundSetInternal)component.findParent(IWebFormUI.class).getDataConverterContext().getApplication().getFoundSetManager().getFoundSet(
+				// if we want to use this type on services as well we need extra code here to get the application
+				newFoundset = (IFoundSetInternal)((WebComponent)webObject).findParent(IWebFormUI.class).getDataConverterContext().getApplication().getFoundSetManager().getFoundSet(
 					foundsetSelector);
 			}
 			catch (ServoyException e)
@@ -229,11 +222,10 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 	}
 
-	@Override
 	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
 		// TODO conversion markers should never be null I think, but it did happen (due to JSONUtils.toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType); will create a case for that
-		if (conversionMarkers != null) conversionMarkers.convert(FoundsetTypeImpl.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		destinationJSON.object();
 		destinationJSON.key(SERVER_SIZE).value(foundset != null ? foundset.getSize() : 0);
@@ -243,7 +235,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
-		addViewPort(destinationJSON, false);
+		addViewPort(destinationJSON);
 		// end viewPort
 
 		destinationJSON.endObject();
@@ -251,7 +243,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		return destinationJSON;
 	}
 
-	protected void addViewPort(JSONWriter destinationJSON, boolean update) throws JSONException
+	protected void addViewPort(JSONWriter destinationJSON) throws JSONException
 	{
 		destinationJSON.object();
 		addViewPortBounds(destinationJSON);
@@ -281,7 +273,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 				rowTypes.putProperty(ROWS, rowArrayTypes);
 			}
 			// convert for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeDataWithConversions(destinationJSON, rows, rowTypes, update ? ConversionLocation.BROWSER_UPDATE : ConversionLocation.BROWSER);
+			JSONUtils.writeDataWithConversions(destinationJSON, rows, rowTypes);
 		}
 		else
 		{
@@ -312,32 +304,33 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 	}
 
-	@Override
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
 		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers);
 		else
 		{
-			if (conversionMarkers != null) conversionMarkers.convert(FoundsetTypeImpl.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 			boolean somethingChanged = false;
-			destinationJSON.object();
 			// change monitor already takes care not to report duplicates here (like whole viewport + viewport bounds)
 			if (changeMonitor.shouldSendFoundsetSize())
 			{
+				destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(foundset != null ? foundset.getSize() : 0);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendSelectedIndexes())
 			{
+				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SELECTED_ROW_INDEXES);
 				addSelectedIndexes(destinationJSON);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendWholeViewPort())
 			{
+				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + VIEW_PORT);
-				addViewPort(destinationJSON, true);
+				addViewPort(destinationJSON);
 				somethingChanged = true;
 			}
 			else
@@ -345,6 +338,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 				boolean viewPortUpdateAdded = false;
 				if (changeMonitor.shouldSendViewPortBounds())
 				{
+					if (!somethingChanged) destinationJSON.object();
 					destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
 					viewPortUpdateAdded = true;
 					addViewPortBounds(destinationJSON);
@@ -353,6 +347,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 				List<RowData> viewPortChanges = changeMonitor.getViewPortChanges();
 				if (viewPortChanges.size() > 0)
 				{
+					if (!somethingChanged) destinationJSON.object();
 					if (!viewPortUpdateAdded)
 					{
 						destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
@@ -379,19 +374,21 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 					}
 
 					// convert for websocket traffic (for example Date objects will turn into long)
-					JSONUtils.writeDataWithConversions(destinationJSON, changes, changeTypes, ConversionLocation.BROWSER_UPDATE);
+					JSONUtils.writeDataWithConversions(destinationJSON, changes, changeTypes);
 					somethingChanged = true;
 				}
 				if (viewPortUpdateAdded) destinationJSON.endObject();
 			}
 
-			if (!somethingChanged)
+			if (somethingChanged) destinationJSON.endObject();
+			else
 			{
 				// no change yet we are still asked to send changes; we could send all or just nothing useful
-				destinationJSON.key(NO_OP).value(0);
+//				destinationJSON.key(NO_OP).value(0);
+				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again
+				toJSON(destinationJSON, conversionMarkers);
 			}
 
-			destinationJSON.endObject();
 			changeMonitor.clearChanges();
 			return destinationJSON;
 		}
@@ -405,7 +402,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
 		data.put(ROW_ID_COL_KEY, record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
-		IWebFormUI formUI = component.findParent(IWebFormUI.class);
+		IWebFormUI formUI = ((WebComponent)webObject).findParent(IWebFormUI.class);
 		Iterator<String> it = dataProviders.iterator();
 		while (it.hasNext())
 		{
@@ -414,30 +411,17 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 			// TODO currently we also send globals/form variables through foundset; in the future it should be enough to get it from the record only, not through DataAdapterList.getValueObject!
 			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, formUI.getController().getFormScope(), dataProvider);
 			data.put(dataProvider, value);
-			IPropertyType< ? > pt = NGUtils.getDataProviderPropertyType(dataProvider, foundset.getTable());
-			if (pt == null) pt = NGUtils.getDataProviderPropertyType(dataProvider, formUI.getDataConverterContext().getApplication().getFlattenedSolution(),
-				formUI.getController().getForm(), foundset.getTable()); // TODO remove this when component[] properly implements it's dataproviders - when there's no need for foundset to send over globals/form variables
-			if (pt != null)
+			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
+			if (pd == null) pd = NGUtils.getDataProviderPropertyDescription(dataProvider,
+				formUI.getDataConverterContext().getApplication().getFlattenedSolution(), formUI.getController().getForm(), foundset.getTable()); // TODO remove this when component[] properly implements it's dataproviders - when there's no need for foundset to send over globals/form variables
+			if (pd != null)
 			{
-				dataTypes.putProperty(dataProvider, new PropertyDescription("", pt));
+				dataTypes.putProperty(dataProvider, pd);
 			}
 		}
 		if (!dataTypes.hasChildProperties()) dataTypes = null;
 
 		return new TypedData<Map<String, Object>>(data, dataTypes);
-	}
-
-	@Override
-	public JSONWriter toDesignJSON(JSONWriter writer) throws JSONException
-	{
-		return writer.value(designJSONValue);
-	}
-
-	@Override
-	public Object toServerObj()
-	{
-		// TODO implement more here if we want this type of properties accessible in scripting
-		return null;
 	}
 
 	public void browserUpdatesReceived(Object jsonValue)
@@ -505,22 +489,19 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 
 							if (recordIndex != -1)
 							{
-								IWebFormUI formUI = component.findParent(IWebFormUI.class);
+								IWebFormUI formUI = ((WebComponent)webObject).findParent(IWebFormUI.class); // this will no longer be needed once 'component' type handles the global/form variables
 								IRecordInternal record = foundset.getRecord(recordIndex);
 								// convert Dates where it's needed
 
-								IPropertyType< ? > type = NGUtils.getDataProviderPropertyType(dataProviderName, foundset.getTable()); // this should be enough for when only foundset dataproviders are used
-								if (type == null)
+								PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable()); // this should be enough for when only foundset dataproviders are used
+								if (dataProviderPropDesc == null)
 								{
-									type = NGUtils.getDataProviderPropertyType(dataProviderName,
+									dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName,
 										formUI.getDataConverterContext().getApplication().getFlattenedSolution(), formUI.getController().getForm(),
 										foundset.getTable());
 								}
 
-								if (type instanceof IConvertedPropertyType< ? >)
-								{
-									value = ((IConvertedPropertyType< ? >)type).fromJSON(value, null, null);
-								}
+								value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, null);
 
 								viewPort.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 								try
@@ -573,10 +554,11 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	 */
 	public IDataAdapterList getDataAdapterList()
 	{
+		// TODO remove this or replace it with something else that can feed records to component properties
 		// this method gets called by linked component type property/properties
 		if (dataAdapterList == null)
 		{
-			dataAdapterList = new DataAdapterList(component.findParent(IWebFormUI.class).getController());
+			dataAdapterList = new DataAdapterList(((WebComponent)webObject).findParent(IWebFormUI.class).getController());
 		}
 		return dataAdapterList;
 	}
@@ -598,7 +580,7 @@ public class FoundsetTypeValue implements IServoyAwarePropertyValue
 	@Override
 	public String toString()
 	{
-		return "'" + propertyName + "' foundset type property on component " + (component != null ? component.getName() : "- not yet attached -");
+		return "'" + propertyName + "' foundset type property on component " + (webObject != null ? webObject.getName() : "- not yet attached -");
 	}
 
 }

@@ -20,13 +20,13 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.TypedData;
 
 import com.servoy.j2db.FormController;
@@ -133,16 +133,21 @@ public class WebFormUI extends Container implements IWebFormUI
 			counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
 			add(component);
 
-			for (String propName : fe.getProperties().keySet())
+			for (String propName : fe.getRawPropertyValues().keySet())
 			{
-				if (fe.getPropertyWithDefault(propName) == null || componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
-				fillProperties(fe.getForm(), fe, fe.getPropertyWithDefault(propName), componentSpec.getProperty(propName), dal, component, component, "");
+				if (componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
+				Object value = fe.getPropertyValueConvertedForWebComponent(propName, component);
+				if (value == null) continue;
+				fillProperties(fe.getForm(), fe, value, componentSpec.getProperty(propName), dal, component, component, "");
 			}
+
 			// overwrite accessible
-			if (persist != null && !((access & IRepository.ACCESSIBLE) != 0)) component.setProperty("enabled", false, ConversionLocation.SERVER);
+			if (persist != null && !((access & IRepository.ACCESSIBLE) != 0)) component.setProperty("enabled", false);
+
+			// TODO should this be a part of type conversions for handlers instead?
 			for (String eventName : componentSpec.getHandlers().keySet())
 			{
-				Object eventValue = fe.getProperty(eventName);
+				Object eventValue = fe.getPropertyValue(eventName);
 				if (eventValue instanceof String)
 				{
 					UUID uuid = UUID.fromString((String)eventValue);
@@ -241,14 +246,16 @@ public class WebFormUI extends Container implements IWebFormUI
 		// TODO This whole method content I think can be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
 		// except for initial filling of all properties from FormElement into WebComponent
 		IPropertyType< ? > type = propertySpec.getType();
-		if (propertySpec.isArray() && formElementProperty instanceof List && !(formElementProperty instanceof IComplexPropertyValue)) // if it's a special property type that handles directly arrays, it could be a different kind of object
+		if (propertySpec.getType() instanceof CustomJSONArrayType< ? , ? > && formElementProperty instanceof List &&
+			!(formElementProperty instanceof ISmartPropertyValue)) // if it's a special property type that handles directly arrays, it could be a different kind of object
 		{
+			PropertyDescription arrayElDesc = ((CustomJSONArrayType< ? , ? >)propertySpec.getType()).getCustomJSONTypeDefinition();
+			type = arrayElDesc.getType();
 			List<Object> processedArray = new ArrayList<>();
 			List<Object> fePropertyArray = (List<Object>)formElementProperty;
 			for (Object arrayValue : fePropertyArray)
 			{
-				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, propertySpec.asArrayElement(), dal, component, componentNode, level,
-					true);
+				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, arrayElDesc, dal, component, componentNode, level, true);
 				switch (type.getName())
 				{
 					case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
@@ -331,7 +338,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		{
 			// TODO this will convert a second time (the first conversion was done in FormElement; is this really needed? cause
 			// converted value reaching conversion again doesn't seem nice
-			((WebFormComponent)componentNode).setProperty(propName, propValue, ConversionLocation.DESIGN);
+			((WebFormComponent)componentNode).setProperty(propName, propValue);
 		}
 		else
 		{
@@ -362,7 +369,7 @@ public class WebFormUI extends Container implements IWebFormUI
 				if (propValue instanceof String)
 				{
 					// get dataproviderId
-					String dataproviderId = (String)fe.getProperty((String)propertySpec.getConfig());
+					String dataproviderId = (String)fe.getPropertyValue((String)propertySpec.getConfig());
 					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
 						getApplication().getFlattenedSolution().getDataproviderLookup(getApplication().getFoundSetManager(), formElNodeForm), getApplication());
 					ret = format;
@@ -383,7 +390,7 @@ public class WebFormUI extends Container implements IWebFormUI
 			default :
 			{
 				if ((propertySpec.getType() instanceof ICustomType) && ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition() != null &&
-					formElementProperty instanceof Map && !(formElementProperty instanceof IComplexPropertyValue))
+					formElementProperty instanceof Map && !(formElementProperty instanceof ISmartPropertyValue))
 				{
 					// TODO Remove this when pure tree-like JSON properties which use complex types in leafs are operational (so no need for flattening them any more)
 					String innerLevelpropName = level + propertySpec.getName();
@@ -567,11 +574,11 @@ public class WebFormUI extends Container implements IWebFormUI
 				{
 					if (fe.isLegacy())
 					{
-						component.setProperty("editable", !value, ConversionLocation.SERVER);
+						component.setProperty("editable", !value);
 					}
 					else
 					{
-						component.setProperty(property, value, ConversionLocation.SERVER);
+						component.setProperty(property, value);
 					}
 				}
 			}
@@ -580,7 +587,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		{
 			for (WebComponent component : components.values())
 			{
-				component.setProperty(property, value, ConversionLocation.SERVER);
+				component.setProperty(property, value);
 			}
 		}
 	}
@@ -1256,7 +1263,7 @@ public class WebFormUI extends Container implements IWebFormUI
 				Object vl = comp.getProperty(vlProp.getName());
 				if (vl instanceof IValueList && ((IValueList)vl).getValueList() == valuelist.getValueList())
 				{
-					comp.setProperty(vlProp.getName(), valuelist, ConversionLocation.BROWSER);
+					comp.setProperty(vlProp.getName(), valuelist);
 				}
 			}
 		}

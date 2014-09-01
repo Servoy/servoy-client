@@ -14,6 +14,9 @@ Web-Service: True
 Name: components_custom_property/components.spec
 Web-Service: True
 
+Name: custom_json_array_property/array.spec
+Web-Service: True
+
 Name: custom_properties/custom_properties.spec
 Web-Service: True
 

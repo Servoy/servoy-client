@@ -58,9 +58,9 @@ public class FoundsetTypeChangeMonitor
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
 	protected List<RowData> viewPortChanges = new ArrayList<>();
-	protected FoundsetTypeValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
+	protected FoundsetTypeSabloValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
 
-	public FoundsetTypeChangeMonitor(FoundsetTypeValue propertyValue)
+	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue)
 	{
 		this.propertyValue = propertyValue;
 	}

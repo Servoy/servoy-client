@@ -26,7 +26,9 @@ import java.util.Map;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.websocket.ConversionLocation;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -36,6 +38,8 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -52,6 +56,7 @@ public class RuntimeLegacyComponent implements Scriptable
 	private final GetPropertyCallable getCallable;
 	private static Map<String, String> ScriptNameToSpecName;
 	private Map<Object, Object> clientProperties;
+	private final WebComponentSpecification webComponentSpec;
 	static
 	{
 		ScriptNameToSpecName = new HashMap<String, String>();
@@ -72,6 +77,7 @@ public class RuntimeLegacyComponent implements Scriptable
 		this.component = component;
 		putCallable = new PutPropertyCallable(this);
 		getCallable = new GetPropertyCallable(this);
+		this.webComponentSpec = component.getFormElement().getWebComponentSpec();
 	}
 
 	@Override
@@ -135,8 +141,19 @@ public class RuntimeLegacyComponent implements Scriptable
 			return Scriptable.NOT_FOUND;
 		}
 
-		Object value = convertValue(name, component.getConvertedPropertyWithDefault(convertName(name),
-			StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name), !needsValueConversion(name)));
+		Object value;
+
+		PropertyDescription pd = webComponentSpec.getProperties().get(name);
+		IPropertyType< ? > type = pd.getType();
+		if (type instanceof ISupportsConversion4_1_SabloComponentValueToRhino< ? >)
+		{
+			value = ((ISupportsConversion4_1_SabloComponentValueToRhino)type).toRhinoValue(component.getProperty(name), pd, component);
+		}
+		else
+		{
+			value = convertValue(name, component.getConvertedPropertyWithDefault(convertName(name),
+				StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name), !needsValueConversion(name)));
+		}
 
 		if (isReadonly && value instanceof Boolean)
 		{
@@ -203,9 +220,10 @@ public class RuntimeLegacyComponent implements Scriptable
 			return;
 		}
 
-		Object val = RhinoConversion.convert(value, component.getProperty(name), component.getFormElement().getWebComponentSpec().getProperty(name),
-			component.getFormElement().getDataConverterContext());
-		component.setProperty(name, val, ConversionLocation.SERVER);
+		Object previousVal = component.getProperty(name);
+		Object val = NGConversions.INSTANCE.applyConversion4_2(value, previousVal, webComponentSpec.getProperties().get(name), component);
+
+		if (val != previousVal) component.setProperty(name, val);
 	}
 
 	@Override

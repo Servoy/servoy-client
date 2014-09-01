@@ -19,40 +19,21 @@ package com.servoy.j2db.server.ngclient;
 
 /**
  * @author lvostinar
- *	
+ *
  *	Context to retrieve parent information for the component type.
  */
 public class ComponentContext
 {
-	private final String parentComponentProperty;
-	private final int parentComponentIndex;
+	private final Object[] propertyPath;
 
-	/**
-	 * @param parentComponentName
-	 * @param parentComponentProperty
-	 * @param parentComponentIndex
-	 */
-	public ComponentContext(String parentComponentProperty, int parentComponentIndex)
+	public ComponentContext(Object[] propertyPath)
 	{
-		this.parentComponentProperty = parentComponentProperty;
-		this.parentComponentIndex = parentComponentIndex;
+		this.propertyPath = propertyPath;
 	}
 
-	/**
-	 * @return the parentComponentProperty
-	 */
-	public String getParentComponentProperty()
+	public Object[] getPropertyPath()
 	{
-		return parentComponentProperty;
+		return propertyPath;
 	}
-
-	/**
-	 * @return the parentComponentIndex
-	 */
-	public int getParentComponentIndex()
-	{
-		return parentComponentIndex;
-	}
-
 
 }

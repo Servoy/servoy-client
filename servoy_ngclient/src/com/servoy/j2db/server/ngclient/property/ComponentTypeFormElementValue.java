@@ -17,23 +17,36 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import org.sablo.specification.property.ISmartPropertyValue;
+import java.util.List;
+import java.util.Map;
 
-import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.server.ngclient.FormElement;
 
 /**
- * Complex properties that are to be used within Servoy beans - interested in Servoy specific behavior.
- * 
+ * Value used in FormElement for component types.
+ *
  * @author acostescu
  */
-public interface IServoyAwarePropertyValue extends ISmartPropertyValue
+@SuppressWarnings("nls")
+public class ComponentTypeFormElementValue
 {
 
+	protected final FormElement element;
+	protected final List<String> apisOnAll; // here are the api's that should be called on all records, not only selected one when called on a foundset linked component
+	protected final Map<String, String> dataLinks;
+	protected final Object[] propertyPath;
+
 	/**
-	 * Called when the record a component is bound to changes.<br/>
-	 * It can only be called after {@link ISmartPropertyValue#attachToComponent(org.sablo.IChangeListener, org.sablo.WebComponent)}
-	 * @param record the new record
+	 * @param apisOnAll can be null if the component is not linked to a foundset
+	 * @param dataLinks can be null if the component is not linked to a foundset
 	 */
-	boolean pushRecord(IRecordInternal record);
+	public ComponentTypeFormElementValue(FormElement element, List<String> apisOnAll, Map<String, String> dataLinks, Object[] propertyPath)
+	{
+		this.element = element;
+		this.apisOnAll = apisOnAll;
+		this.dataLinks = dataLinks;
+		this.propertyPath = propertyPath;
+	}
+
 
 }

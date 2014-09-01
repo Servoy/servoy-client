@@ -15,25 +15,40 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.property;
+package com.servoy.j2db.server.ngclient.property.types;
 
-import org.sablo.specification.property.ISmartPropertyValue;
-
-import com.servoy.j2db.dataprocessing.IRecordInternal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Complex properties that are to be used within Servoy beans - interested in Servoy specific behavior.
- * 
+ * The 'path' to a property (useful for nested property types or nested child components).
+ * When component property type will implement api calls directly through the type this class can be removed (currently it is the only one using it).
+ *
  * @author acostescu
  */
-public interface IServoyAwarePropertyValue extends ISmartPropertyValue
+public class PropertyPath
 {
 
-	/**
-	 * Called when the record a component is bound to changes.<br/>
-	 * It can only be called after {@link ISmartPropertyValue#attachToComponent(org.sablo.IChangeListener, org.sablo.WebComponent)}
-	 * @param record the new record
-	 */
-	boolean pushRecord(IRecordInternal record);
+	protected List<Object> path = new ArrayList<Object>();
+
+	public void add(int i)
+	{
+		path.add(Integer.valueOf(i));
+	}
+
+	public void add(String p)
+	{
+		path.add(p);
+	}
+
+	public void backOneLevel()
+	{
+		if (path.size() > 0) path.remove(path.size() - 1);
+	}
+
+	public Object[] currentPathCopy()
+	{
+		return path.toArray();
+	}
 
 }

@@ -17,7 +17,14 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.CustomJSONArrayType;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.IPropertyTypeFactory;
 import org.sablo.specification.property.types.TypesRegistry;
+
+import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 
 /**
  * @author Johan
@@ -40,5 +47,28 @@ public class Types
 		TypesRegistry.addType(DataproviderPropertyType.INSTANCE);
 		TypesRegistry.addType(TagStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
+
+		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
+		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);
+		TypesRegistry.addType(ComponentPropertyType.INSTANCE);
+
+		TypesRegistry.addTypeFactory(CustomJSONArrayType.TYPE_ID, new IPropertyTypeFactory<PropertyDescription, Object>()
+		{
+
+			@Override
+			public IPropertyType<Object> createType(PropertyDescription params)
+			{
+				return new NGCustomJSONArrayType(params);
+			}
+		});
+//		TypesRegistry.addTypeFactory(CustomJSONObjectType.TYPE_ID, new IPropertyTypeFactory<PropertyDescription, Object>()
+//		{
+//
+//			@Override
+//			public IPropertyType<Object> createType(PropertyDescription params)
+//			{
+//				return new NGCustomJSONObjectType(params);
+//			}
+//		});
 	}
 }

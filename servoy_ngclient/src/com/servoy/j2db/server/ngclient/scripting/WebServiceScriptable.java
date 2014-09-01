@@ -134,7 +134,7 @@ public class WebServiceScriptable implements Scriptable
 		if (apiFunction != null) return;
 		// TODO conversion should happen from string (color representation) to Color object.
 //		DesignConversion.toObject(value, type)
-		application.getWebsocketSession().getService(serviceSpecification.getName()).setProperty(name, value, null);
+		application.getWebsocketSession().getService(serviceSpecification.getName()).setProperty(name, value);
 	}
 
 	@Override

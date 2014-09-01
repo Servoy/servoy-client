@@ -34,7 +34,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketEndpoint;
@@ -743,8 +742,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				PropertyDescription formsDataTypes = requestData.getRight();
 				try
 				{
-					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : Collections.singletonMap("forms", formData), formsDataTypes, true,
-						ConversionLocation.BROWSER);
+					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : Collections.singletonMap("forms", formData), formsDataTypes, true);
 				}
 				catch (IOException e)
 				{
@@ -762,7 +760,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 					Map<String, Map<String, Map<String, Map<String, Object>>>> singletonMap = new HashMap<String, Map<String, Map<String, Map<String, Object>>>>();//.singletonMap("forms", formData);
 					singletonMap.put("forms", formData);
 					singletonMap.put("initialdatarequest", new HashMap<String, Map<String, Map<String, Object>>>());
-					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : singletonMap, formsDataTypes, true, ConversionLocation.BROWSER);
+					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : singletonMap, formsDataTypes, true);
 				}
 				catch (IOException e)
 				{

@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.utils;
 
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
@@ -37,13 +38,13 @@ import com.servoy.j2db.util.Debug;
 public abstract class NGUtils
 {
 
-	public static IPropertyType< ? > getDataProviderPropertyType(String dataProviderName, ITable table)
+	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table)
 	{
 		if (table == null || dataProviderName == null) return null;
-		return getDataProviderPropertyType(table.getColumnType(dataProviderName));
+		return getDataProviderPropertyDescription(table.getColumnType(dataProviderName));
 	}
 
-	public static IPropertyType< ? > getDataProviderPropertyType(String dataProviderName, FlattenedSolution flattenedSolution, Form form, ITable table)
+	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, FlattenedSolution flattenedSolution, Form form, ITable table)
 	{
 		FormAndTableDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(flattenedSolution, form, table);
 		IDataProvider dp = null;
@@ -55,18 +56,18 @@ public abstract class NGUtils
 		{
 			Debug.error(e);
 		}
-		if (dp != null) return getDataProviderPropertyType(dp.getDataProviderType());
+		if (dp != null) return getDataProviderPropertyDescription(dp.getDataProviderType());
 		return null;
 	}
 
-	public static IPropertyType< ? > getDataProviderPropertyType(int type)
+	public static PropertyDescription getDataProviderPropertyDescription(int type)
 	{
 		IPropertyType< ? > propType = null;
 		if (type == IColumnTypes.DATETIME)
 		{
 			propType = TypesRegistry.getType("date");
 		}
-		return propType;
+		return propType != null ? new PropertyDescription("generated DP prop", propType) : null;
 	}
 
 }

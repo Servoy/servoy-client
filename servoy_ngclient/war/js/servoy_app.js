@@ -286,11 +286,15 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 						   console.warn("cannot call " + call.api + " on " + call.bean + " because viewIndex "+ call.viewIndex +" api is not found")
 					   }
 				   }
-				   else if (call.parentComponentName != undefined)
+				   else if (call.propertyPath != undefined)
 				   {
-					   // handle nested components
-					   var funcThis = formState.model[call.parentComponentName][call.parentComponentProperty][call.parentComponentIndex].api;
-					   var func = funcThis[call.api];
+					   // handle nested components; the property path is an array of string or int keys going
+					   // through the form's model starting with the root bean name, then it's properties (that could be nested)
+					   // then maybe nested child properties and so on 
+					   var obj = formState.model;
+					   var pn;
+					   for (pn in call.propertyPath) obj = obj[pn];
+					   var func = obj.api[call.api];
 				   }
 				   else {
 					   var funcThis = formState.api[call.bean];

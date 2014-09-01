@@ -28,18 +28,19 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType.DataproviderWrapper;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
 import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * @author jcompagner
  *
  */
-public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>
+public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, ISupportsConversion2_FormElementValueToTemplateJSON<Object, Object>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -98,19 +99,28 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 		return wrap(newValue, previousValue, dataConverterContext); // the same types as we would expect from java come from JSON as well here, so du usual wrap
 	}
 
+
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, DataproviderWrapper object, DataConversion clientConversion) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers) throws JSONException
+	{
+		// TODO use type info instead of null for jsonValue, depending on the type the dataprovider is linked to
+		return JSONUtils.toBrowserJSONValue(writer, key, new DataproviderWrapper(formElementValue).getJsonValue(), null, browserConversionMarkers);
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, String key, DataproviderWrapper object, DataConversion clientConversion) throws JSONException
 	{
 		if (object != null)
 		{
 			// TODO use type info instead of null for jsonValue, depending on the type the dataprovider is linked to
-			JSONUtils.toJSONValue(writer, object.getJsonValue(), null, clientConversion, null);
+			JSONUtils.toBrowserJSONValue(writer, key, object.getJsonValue(), null, clientConversion);
 		}
 		return writer;
 	}
 
 	@Override
-	public DataproviderWrapper defaultValue()
+	public Object defaultValue()
 	{
 		return null;
 	}
@@ -121,9 +131,6 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 		return value != null ? value.value : null;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IWrapperType#wrap(java.lang.Object, java.lang.Object, org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
 	public DataproviderWrapper wrap(Object value, DataproviderWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
@@ -133,15 +140,19 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 	class DataproviderWrapper
 	{
 		final Object value;
-		IServoyDataConverterContext dataConverterContext;
+		IDataConverterContext dataConverterContext;
 		Object jsonValue;
 		PropertyDescription propertyDescription;
+
+		DataproviderWrapper(Object value)
+		{
+			this(value, null);
+		}
 
 		DataproviderWrapper(Object value, IDataConverterContext dataConverterContext)
 		{
 			this.value = value;
-			this.dataConverterContext = NGClientForJsonConverter.getServoyConverterContext(dataConverterContext);
-			this.propertyDescription = dataConverterContext.getPropertyDescription();
+			this.dataConverterContext = dataConverterContext;
 		}
 
 		Object getJsonValue() // TODO this should return a TypedData instead
@@ -157,11 +168,11 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 				}
 				else if (HtmlUtils.startsWithHtml(value))
 				{
-					if (dataConverterContext != null && dataConverterContext.getForm() != null && dataConverterContext.getSolution() != null &&
-						dataConverterContext.getApplication() != null)
+					if (dataConverterContext != null)
 					{
-						jsonValue = HTMLTagsConverter.convert(value.toString(), dataConverterContext,
-							((DataproviderConfig)propertyDescription.getConfig()).hasParseHtml());
+						IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
+						jsonValue = HTMLTagsConverter.convert(value.toString(), servoyDataConverterContext,
+							((DataproviderConfig)dataConverterContext.getPropertyDescription().getConfig()).hasParseHtml());
 					}
 					else
 					{
@@ -188,4 +199,5 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 			return false;
 		}
 	}
+
 }

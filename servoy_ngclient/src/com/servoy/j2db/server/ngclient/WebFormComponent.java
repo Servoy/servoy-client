@@ -14,12 +14,9 @@ import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
 import org.sablo.Container;
-import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.property.IComplexPropertyValue;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.ConversionLocation;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -121,6 +118,8 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	public Object getConvertedPropertyWithDefault(String propertyName, boolean designValue, boolean convertValue)
 	{
+		// TODO remove this when possible; once all types keep their own design value if they need it and there's no need for that conversion
+		// if it's implemented already in the type itself, this method should be removable
 		Object value = null;
 		if (!designValue && properties.containsKey(propertyName))
 		{
@@ -133,13 +132,17 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 		return dataAdapterList != null && convertValue ? dataAdapterList.convertFromJavaObjectToString(formElement, propertyName, value) : value;
 	}
 
+	// TODO get rid of this! it should not be needed once all types are implemented properly (I think usually wrapped types use it, and they could keep
+	// this value in their internal state if needed)
 	public Object getInitialProperty(String propertyName)
 	{
-		return formElement.getPropertyWithDefault(propertyName);
+		// NGConversions.INSTANCE.applyConversion3(...) could be used here as this is currently wrong value type, but
+		// it's better to remove it altogether as previous comment says; anyway right now I think the types that call/use this method don't have conversion 3 defined
+		return formElement.getPropertyValue(propertyName);
 	}
 
 	@Override
-	protected Object convertPropertyValue(String propertyName, Object oldValue, Object propertyValue, ConversionLocation sourceOfValue) throws JSONException
+	protected Object convertPropertyValue(String propertyName, Object oldValue, Object propertyValue) throws JSONException
 	{
 		return (dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue) : propertyValue);
 	}
@@ -162,29 +165,6 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 		else if (propertyValue instanceof LookupListModel)
 		{
 			((LookupListModel)propertyValue).addListDataListener(this);
-		}
-
-		if (propertyValue instanceof IComplexPropertyValue && propertyValue != oldValue)
-		{
-			// TODO in the future we could allow changes to be pushed more granular (JSON subtrees), not only at root property level - as we already do this type of thing in many places
-			final String complexPropertyRoot = propertyName;
-			if (oldValue instanceof IComplexPropertyValue)
-			{
-				((IComplexPropertyValue)oldValue).detach();
-			}
-
-			// a new complex property is linked to this component; initialize it
-			((IComplexPropertyValue)propertyValue).attachToComponent(new IChangeListener()
-			{
-				@Override
-				public void valueChanged()
-				{
-					flagPropertyChanged(complexPropertyRoot);
-					// this must have happened on the event thread, in which case, after each event is fired, a check for changes happen
-					// if it didn't happen on the event thread something is really wrong, cause then properties might change while
-					// they are being read at the same time by the event thread
-				}
-			}, this);
 		}
 
 		if (propertyChangeSupport != null) propertyChangeSupport.firePropertyChange(propertyName, oldValue, propertyValue);
@@ -355,7 +335,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 			}
 		}
 		this.nextAvailableTabSequence = getMaxTabSequence() + 1;
-		setProperty(propertyName, Integer.valueOf(tabSequence), ConversionLocation.SERVER);
+		setProperty(propertyName, Integer.valueOf(tabSequence));
 	}
 
 	private int getMaxTabSequence()
@@ -403,10 +383,6 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	@Override
 	public void dispose()
 	{
-		for (Object p : getRawProperties().values())
-		{
-			if (p instanceof IComplexPropertyValue) ((IComplexPropertyValue)p).detach(); // clear any listeners/held resources
-		}
 		propertyChangeSupport = null;
 		super.dispose();
 	}
@@ -414,9 +390,14 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	public boolean isDesignOnlyProperty(String propertyName)
 	{
 		PropertyDescription description = specification.getProperty(propertyName);
-		if (description != null)
+		return isDesignOnlyProperty(description);
+	}
+
+	public static boolean isDesignOnlyProperty(PropertyDescription propertyDescription)
+	{
+		if (propertyDescription != null)
 		{
-			return "design".equals(description.getScope());
+			return "design".equals(propertyDescription.getScope());
 		}
 		return false;
 	}

@@ -20,12 +20,11 @@ package com.servoy.j2db.server.ngclient;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.sablo.websocket.ConversionLocation;
-
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
+import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 
 /**
  * @author obuligan
@@ -42,8 +41,8 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 	 */
 	public DefaultNavigatorWebComponent(IDataAdapterList dataAdapterList)
 	{
-		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, new ServoyDataConverterContext(dataAdapterList.getForm())),
-			dataAdapterList);
+		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, new ServoyDataConverterContext(dataAdapterList.getForm()),
+			new PropertyPath()), dataAdapterList);
 	}
 
 
@@ -79,12 +78,12 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 
 	public void setCurrentIndex(int index)
 	{
-		setProperty(DefaultNavigator.CURRENTINDEX_PROP, index, ConversionLocation.SERVER);
+		setProperty(DefaultNavigator.CURRENTINDEX_PROP, index);
 	}
 
 	public void setMaxIndex(int maxIndex)
 	{
-		setProperty(DefaultNavigator.MAXINDEX_PROP, maxIndex, ConversionLocation.SERVER);
+		setProperty(DefaultNavigator.MAXINDEX_PROP, maxIndex);
 	}
 
 	private void foundsetChanged()

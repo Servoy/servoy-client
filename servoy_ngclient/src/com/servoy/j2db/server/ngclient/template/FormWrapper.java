@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -268,7 +267,7 @@ public class FormWrapper
 		properties.put("designSize", form.getSize());
 		removeUnneededFormProperties(properties);
 
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, ConversionLocation.BROWSER).endObject().toString(); // null types as we don't have a spec file for forms
+		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null).endObject().toString(); // null types as we don't have a spec file for forms
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

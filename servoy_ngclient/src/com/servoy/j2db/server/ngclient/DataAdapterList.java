@@ -16,9 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.PropertyType;
 import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.websocket.ConversionLocation;
+import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
@@ -276,7 +275,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			WebFormComponent wc = pair.getLeft();
 			String property = pair.getRight();
 			Object oldValue = wc.getProperty(property);
-			boolean isPropertyChanged = wc.setProperty(property, value, ConversionLocation.SERVER);
+			boolean isPropertyChanged = wc.setProperty(property, value);
 			if (isPropertyChanged && fireOnDataChange)
 			{
 				String onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
@@ -312,7 +311,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				String initialPropValue = (String)component.getInitialProperty(taggedProp);
 				String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
-				changed = component.setProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
+				changed = component.setProperty(taggedProp, tagValue) || changed;
 			}
 			if (!fireChange)
 			{
@@ -369,7 +368,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				{
 					String initialPropValue = (String)component.getInitialProperty(taggedProp);
 					String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
-					changed = component.setProperty(taggedProp, tagValue, ConversionLocation.SERVER) || changed;
+					changed = component.setProperty(taggedProp, tagValue) || changed;
 				}
 			}
 		}
@@ -457,8 +456,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (onDataChangeCallback != null)
 				{
 					WebComponentApiDefinition call = new WebComponentApiDefinition(onDataChangeCallback);
-					call.addParameter(new PropertyDescription("event", new PropertyType("object")));
-					call.addParameter(new PropertyDescription("returnValue", new PropertyType("object")));
+					call.addParameter(new PropertyDescription("event", TypesRegistry.getType("object")));
+					call.addParameter(new PropertyDescription("returnValue", TypesRegistry.getType("object")));
 					webComponent.invokeApi(call, new Object[] { event, returnValue });
 				}
 			}
@@ -578,8 +577,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		boolean editable = !Boolean.TRUE.equals(getApplication().getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE));
 		WebComponentApiDefinition findModeCall = new WebComponentApiDefinition("setFindMode");
-		findModeCall.addParameter(new PropertyDescription("mode", new PropertyType("boolean")));
-		findModeCall.addParameter(new PropertyDescription("editable", new PropertyType("boolean")));
+		findModeCall.addParameter(new PropertyDescription("mode", TypesRegistry.getType("boolean")));
+		findModeCall.addParameter(new PropertyDescription("editable", TypesRegistry.getType("boolean")));
 		Object[] args = new Object[] { Boolean.valueOf(findMode), Boolean.valueOf(editable) };
 		for (WebFormComponent webComponent : webcomponents)
 		{

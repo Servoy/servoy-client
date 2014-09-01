@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -102,7 +103,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd = spec.getProperties().get("myvaluelist");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == TypesRegistry.getType("valuelist"));
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		Assert.assertEquals("mydataprovider", pd.getConfig());
 	}
@@ -117,7 +118,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd = spec.getProperties().get("myformat");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == TypesRegistry.getType("format"));
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		Assert.assertEquals("mydataprovider", pd.getConfig());
 	}
@@ -132,7 +133,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -145,19 +146,19 @@ public class WebComponentSpecTest
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop2");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == BooleanPropertyType.INSTANCE);
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop3");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == IntPropertyType.INSTANCE);
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop4");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == DatePropertyType.INSTANCE);
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -170,7 +171,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
-		Assert.assertTrue(pd.isArray());
+		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -184,7 +185,7 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd);
 		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("test.mytype", wct.getName());
@@ -192,7 +193,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
-		Assert.assertFalse(pd2.isArray());
+		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -206,7 +207,7 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd);
 		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
-		Assert.assertTrue(pd.isArray());
+		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("test.mytype", wct.getName());
@@ -214,7 +215,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
-		Assert.assertFalse(pd2.isArray());
+		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 	}
 
@@ -229,7 +230,7 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd);
 		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
-		Assert.assertTrue(pd.isArray());
+		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("test.mytype", wct.getName());
@@ -237,7 +238,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
-		Assert.assertTrue(pd2.isArray());
+		Assert.assertTrue(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 	}
 
@@ -253,7 +254,7 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
 		Assert.assertNull(config);
-		Assert.assertFalse(pd.isArray());
+		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("test.mytype", wct.getName());
@@ -261,7 +262,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertNotNull(((ICustomType)pd2.getType()).getCustomJSONTypeDefinition());
-		Assert.assertFalse(pd2.isArray());
+		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		config = pd2.getConfig();
 		Assert.assertNull(config);
@@ -271,7 +272,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd3 = wct2.getProperty("typeproperty");
 		Assert.assertNotNull(pd3);
 		Assert.assertTrue(pd3.getType() == StringPropertyType.INSTANCE);
-		Assert.assertFalse(pd3.isArray());
+		Assert.assertFalse(pd3.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test

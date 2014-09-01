@@ -83,12 +83,12 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, ValueListPropertyWrapper object, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, ValueListPropertyWrapper object, DataConversion clientConversion) throws JSONException
 	{
 		if (object != null)
 		{
 			// TODO we should have type info here to send instead of null for real/display values
-			JSONUtils.toJSONValue(writer, object.getJsonValue(), null, clientConversion, null);
+			JSONUtils.toBrowserJSONValue(writer, key, object.getJsonValue(), null, clientConversion);
 		}
 		return writer;
 	}

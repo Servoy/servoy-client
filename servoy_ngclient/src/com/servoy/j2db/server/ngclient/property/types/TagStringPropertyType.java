@@ -18,13 +18,15 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType.TagStringWrapper;
 import com.servoy.j2db.util.HtmlUtils;
 
@@ -33,7 +35,7 @@ import com.servoy.j2db.util.HtmlUtils;
  * @author jcompagner
  *
  */
-public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>
+public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, ISupportsConversion2_FormElementValueToTemplateJSON<Object, Object>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -55,15 +57,40 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	}
 
 	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers) throws JSONException
+	{
+		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
+		if (formElementValue != null)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			if (HtmlUtils.startsWithHtml(formElementValue))
+			{
+				// TODO - it could still return "value" if we know HTMLTagsConverter.convert() would not want to touch that (so simple HTML)
+				// design-time wrap (used by FormElement); no component available
+				// return empty value as we don't want to expose the actual design-time stuff that would normally get encrypted by HTMLTagsConverter.convert() or is not yet valid (blobloader without an application instance for example).
+				writer.value("<html></html>");
+			}
+			else writer.value(formElementValue);
+		}
+
+		return writer;
+	}
+
+	@Override
 	public TagStringWrapper fromJSON(Object newValue, TagStringWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
 		return wrap(newValue, previousValue, dataConverterContext);
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, TagStringWrapper object, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, TagStringWrapper object, DataConversion clientConversion) throws JSONException
 	{
-		if (object != null) writer.value(object.getJsonValue());
+		if (object != null)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			writer.value(object.getJsonValue());
+		}
 		return writer;
 	}
 
@@ -99,7 +126,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		TagStringWrapper(Object value, IDataConverterContext dataConverterContext)
 		{
 			this.value = value;
-			this.dataConverterContext = NGClientForJsonConverter.getServoyConverterContext(dataConverterContext);
+			this.dataConverterContext = (IServoyDataConverterContext)dataConverterContext;
 		}
 
 		Object getJsonValue()
@@ -112,18 +139,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 					{
 						jsonValue = HTMLTagsConverter.convert(value.toString(), dataConverterContext, false);
 					}
-					else
-					{
-						// TODO - it could still return "value" if we know HTMLTagsConverter.convert() would not want to touch that (so simple HTML)
-						// design-time wrap (used by FormElement); no component available
-						// return empty value as we don't want to expose the actual design-time stuff that would normally get encrypted by HTMLTagsConverter.convert() or is not yet valid (blobloader without an application instance for example).
-						return "<html></html>";
-					}
 				}
-//				else if (value == Scriptable.NOT_FOUND)
-//				{
-//					return null; // this should not happen I think... it should get intercepted before being set to "value"; it happened if the table didn't have a column that was used as dataprovider
-//				}
 				else
 				{
 					jsonValue = value;
@@ -133,4 +149,5 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 			return jsonValue;
 		}
 	}
+
 }

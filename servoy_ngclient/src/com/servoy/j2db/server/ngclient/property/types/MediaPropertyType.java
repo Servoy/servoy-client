@@ -20,17 +20,21 @@ import java.awt.Dimension;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
-import com.servoy.j2db.server.ngclient.NGClientForJsonConverter;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
@@ -38,7 +42,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
+public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, ISupportsConversion2_FormElementValueToTemplateJSON<Object, Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 
@@ -59,15 +63,30 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 	}
 
 	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers) throws JSONException
+	{
+		// TODO currently we don't write anything here; we could make it implement ISupportsConversion1_FromDesignToFormElement, then it has access to solution we can use that to generate an url for many cases that don't need an application
+		// JSONUtils.addKeyIfPresent(...);
+		// writer.value(getMediaUrl(formElementValue.designValue, solution, null));
+
+		return writer;
+	}
+
+	@Override
 	public MediaWrapper fromJSON(Object newValue, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
 		return wrap(newValue, previousValue, dataConverterContext);
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, MediaWrapper object, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, MediaWrapper object, DataConversion clientConversion) throws JSONException
 	{
-		if (object != null) writer.value(object.mediaUrl);
+		if (object != null)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			writer.value(object.mediaUrl);
+		}
 		return writer;
 	}
 
@@ -83,9 +102,6 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 		return value != null ? value.mediaId : null;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IWrapperType#wrap(java.lang.Object, java.lang.Object)
-	 */
 	@Override
 	public MediaWrapper wrap(Object value, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
 	{
@@ -93,19 +109,33 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 		{
 			return previousValue;
 		}
-		IServoyDataConverterContext servoyDataConverterContext = NGClientForJsonConverter.getServoyConverterContext(dataConverterContext);
+		IServoyDataConverterContext servoyDataConverterContext = (IServoyDataConverterContext)dataConverterContext;
+		FlattenedSolution flattenedSolution = servoyDataConverterContext.getSolution();
+		INGApplication application = servoyDataConverterContext.getApplication();
+
+		String url = getMediaUrl(value, flattenedSolution, application);
+
+		if (url != null) return new MediaWrapper(value, url);
+
+		Debug.log("cannot convert media " + value + " using converter context " + servoyDataConverterContext);
+		return null;
+	}
+
+	protected String getMediaUrl(Object value, FlattenedSolution flattenedSolution, INGApplication application)
+	{
+		String url = null;
 		Media media = null;
 		if (value instanceof Integer)
 		{
-			media = servoyDataConverterContext.getSolution().getMedia(((Integer)value).intValue());
+			media = flattenedSolution.getMedia(((Integer)value).intValue());
 		}
 		else if (value instanceof String && ((String)value).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
 		{
-			media = servoyDataConverterContext.getSolution().getMedia(((String)value).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
+			media = flattenedSolution.getMedia(((String)value).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
 		}
 		if (media != null)
 		{
-			String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" + media.getName();
+			url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" + media.getName();
 			Dimension imageSize = ImageLoader.getSize(media.getMediaData());
 			boolean paramsAdded = false;
 			if (imageSize != null)
@@ -113,21 +143,18 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 				paramsAdded = true;
 				url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
 			}
-			if (servoyDataConverterContext.getApplication() != null)
+			if (application != null)
 			{
-				Solution sc = servoyDataConverterContext.getSolution().getSolutionCopy(false);
+				Solution sc = flattenedSolution.getSolutionCopy(false);
 				if (sc != null && sc.getMedia(media.getName()) != null)
 				{
 					if (paramsAdded) url += "&";
 					else url += "?";
-					url += "uuid=" + servoyDataConverterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
+					url += "uuid=" + application.getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
 				}
 			}
-			return new MediaWrapper(value, url);
 		}
-
-		Debug.log("cannot convert media " + value + " using converter context " + servoyDataConverterContext);
-		return null;
+		return url;
 	}
 
 	class MediaWrapper
@@ -141,4 +168,5 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>
 			this.mediaUrl = mediaUrl;
 		}
 	}
+
 }

@@ -32,7 +32,6 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -67,10 +66,10 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, Border value, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Border value, DataConversion clientConversion) throws JSONException
 	{
 		Map<String, Object> javaResult = writeBorderToJson(value);
-		return JSONUtils.toJSONValue(writer, javaResult, null, clientConversion, ConversionLocation.BROWSER);
+		return JSONUtils.toBrowserJSONValue(writer, key, javaResult, null, clientConversion);
 	}
 
 	private Map<String, Object> writeBorderToJson(Border value)

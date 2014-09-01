@@ -29,7 +29,6 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.FunctionPropertyType;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -77,7 +76,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, Object object, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object object, DataConversion clientConversion) throws JSONException
 	{
 		Map<String, Object> map = new HashMap<>();
 		try
@@ -125,6 +124,6 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 		{
 			Debug.error(ex);
 		}
-		return JSONUtils.toJSONValue(writer, map, null, clientConversion, ConversionLocation.BROWSER);
+		return JSONUtils.toBrowserJSONValue(writer, key, map, null, clientConversion);
 	}
 }

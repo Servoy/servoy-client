@@ -37,8 +37,8 @@ import org.apache.wicket.util.value.IValueMap;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -62,7 +62,7 @@ public class FormWithInlineLayoutGenerator
 			while (it.hasNext())
 			{
 				IFormElement element = it.next();
-				FormElement fe = ComponentFactory.getFormElement(element, context);
+				FormElement fe = ComponentFactory.getFormElement(element, context, null);
 				allFormElements.put(element.getUUID().toString(), fe);
 
 				//make life easy if a real name is used
