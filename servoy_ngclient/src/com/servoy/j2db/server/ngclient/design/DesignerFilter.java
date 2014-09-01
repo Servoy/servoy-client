@@ -40,6 +40,7 @@ import org.json.JSONWriter;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 
+import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -98,6 +99,7 @@ public class DesignerFilter implements Filter
 								jsonWriter.object();
 								jsonWriter.key("name").value(spec.getName());
 								jsonWriter.key("displayName").value(spec.getDisplayName());
+								jsonWriter.key("tagName").value(FormTemplateGenerator.getTagName(componentName));
 								if (spec.getIcon() != null)
 								{
 									jsonWriter.key("icon").value(spec.getIcon());

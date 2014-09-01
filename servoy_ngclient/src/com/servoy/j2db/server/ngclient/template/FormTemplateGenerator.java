@@ -99,6 +99,11 @@ public class FormTemplateGenerator
 		return component_type;
 	}
 
+	public static String getTagName(String componentType)
+	{
+		return componentType != null ? "data-" + componentType : "data-form";
+	}
+
 	private static String getPersistComponentTypeName(IFormElement persist)
 	{
 		if (persist instanceof Bean)

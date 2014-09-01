@@ -395,7 +395,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getTagname()
 	{
-		return componentType != null ? "data-" + componentType : "data-form";
+		return FormTemplateGenerator.getTagName(componentType);
 	}
 
 	public String getTypeName()
@@ -540,7 +540,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
