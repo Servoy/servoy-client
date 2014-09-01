@@ -17,9 +17,11 @@
 
 package com.servoy.j2db.persistence;
 
+import java.util.Map;
+
 /**
  * Element inheritance interface.
- * 
+ *
  * @author lvostinar
  *
  */
@@ -27,7 +29,7 @@ public interface ISupportExtendsID
 {
 	/**
 	 * The selected parent (extended element) for the element (form).
-	 * 
+	 *
 	 * @return the parent
 	 */
 	int getExtendsID();
@@ -36,4 +38,7 @@ public interface ISupportExtendsID
 	 * @param arg the selected parent
 	 */
 	void setExtendsID(int arg);
+
+	Map<String, Object> getFlattenedPropertiesMap();
+
 }

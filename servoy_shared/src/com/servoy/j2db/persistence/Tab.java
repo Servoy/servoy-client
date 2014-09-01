@@ -19,14 +19,16 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Map;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.util.PersistUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
  * One Tab from a tabpanel
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.TABS)
@@ -53,7 +55,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	/**
 	 * Update the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
@@ -87,7 +89,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	/**
 	 * Set the containsFormID
-	 * 
+	 *
 	 * @param arg the containsFormID
 	 */
 	public void setContainsFormID(int arg)
@@ -105,7 +107,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	/**
 	 * Set the relationID
-	 * 
+	 *
 	 * @param arg the relationID
 	 */
 	public void setRelationName(String arg)
@@ -205,7 +207,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	/**
 	 * Returns the groupID.
-	 * 
+	 *
 	 * @return int
 	 */
 	public String getGroupID()
@@ -215,7 +217,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	/**
 	 * Returns the locked.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean getLocked()
@@ -225,7 +227,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	/**
 	 * Sets the groupID.
-	 * 
+	 *
 	 * @param groupID The groupID to set
 	 */
 	public void setGroupID(String arg)
@@ -235,7 +237,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 
 	/**
 	 * Sets the locked.
-	 * 
+	 *
 	 * @param locked The locked to set
 	 */
 	public void setLocked(boolean arg)
@@ -301,4 +303,11 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_MNEMONIC, arg);
 	}
+
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return PersistUtils.getFlattenedPropertiesMap(this);
+	}
+
 }

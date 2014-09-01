@@ -19,17 +19,19 @@ package com.servoy.j2db.persistence;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.base.persistence.IBasePart;
 import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.util.PersistUtils;
 import com.servoy.j2db.util.UUID;
 
 
 /**
  * A part is a section from a Form, which can be used in reporting to aggregate data
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.PARTS)
@@ -66,7 +68,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the absolute height (from top of Form).
-	 * 
+	 *
 	 * @param arg the height
 	 */
 	public void setHeight(int arg)
@@ -75,8 +77,8 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	}
 
 	/**
-	 * The height of a selected part; specified in pixels. 
-	 * 
+	 * The height of a selected part; specified in pixels.
+	 *
 	 * This height property is the lowerbound as its ending Y value (0 == top of the form).
 	 */
 	public int getHeight()
@@ -86,7 +88,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the partType
-	 * 
+	 *
 	 * @param arg the partType
 	 */
 	public void setPartType(int arg)
@@ -104,7 +106,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the background
-	 * 
+	 *
 	 * @param arg the background
 	 */
 	public void setBackground(java.awt.Color arg)
@@ -113,10 +115,10 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	}
 
 	/**
-	 * The background color of the form part. 
-	 * 
-	 * NOTE: When no background color has been set, the default background 
-	 * color will be determined by the Look and Feel (LAF) that has been selected 
+	 * The background color of the form part.
+	 *
+	 * NOTE: When no background color has been set, the default background
+	 * color will be determined by the Look and Feel (LAF) that has been selected
 	 * in Application Preferences.
 	 */
 	public java.awt.Color getBackground()
@@ -126,7 +128,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the sequence
-	 * 
+	 *
 	 * @param arg the sequence
 	 */
 	public void setSequence(int arg)
@@ -136,7 +138,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Get the sequence
-	 * 
+	 *
 	 * @return the sequence
 	 */
 	public int getSequence()
@@ -148,7 +150,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	//Size methods only for ISupportSize
 	/**
 	 * Set the size
-	 * 
+	 *
 	 * @param arg the size
 	 */
 	public void setSize(java.awt.Dimension arg)
@@ -161,7 +163,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Get the size
-	 * 
+	 *
 	 * @return the size
 	 */
 	public java.awt.Dimension getSize()
@@ -170,10 +172,10 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	}
 
 	/**
-	 * When set, the remainder of a selected part that does not fit on the page currently 
-	 * being printed, will not be transported to the next page - it will break where the page 
-	 * ends and continue on the next page. 
-	 * 
+	 * When set, the remainder of a selected part that does not fit on the page currently
+	 * being printed, will not be transported to the next page - it will break where the page
+	 * ends and continue on the next page.
+	 *
 	 * NOTE: Make sure to set this option when you are printing more than one page per record.
 	 */
 	public boolean getAllowBreakAcrossPageBounds()
@@ -183,7 +185,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the allowBreakAcrossPageBounds
-	 * 
+	 *
 	 * @param b the allowBreakAcrossPageBounds
 	 */
 	public void setAllowBreakAcrossPageBounds(boolean b)
@@ -192,7 +194,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	}
 
 	/**
-	 * When set, the remainder of a selected part that is broken due to the page 
+	 * When set, the remainder of a selected part that is broken due to the page
 	 * ending will not be printed on the next page - it will be discarded.
 	 */
 	public boolean getDiscardRemainderAfterBreak()
@@ -202,7 +204,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the discardRemainderAfterBreak
-	 * 
+	 *
 	 * @param b the discardRemainderAfterBreak
 	 */
 	public void setDiscardRemainderAfterBreak(boolean b)
@@ -223,7 +225,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the groupbyDataProviderIDs
-	 * 
+	 *
 	 * @param arg the groupbyDataProviderIDs
 	 */
 	public void setGroupbyDataProviderIDs(String arg)
@@ -241,7 +243,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the pageBreakBefore
-	 * 
+	 *
 	 * @param b the pageBreakBefore
 	 */
 	public void setPageBreakBefore(boolean b)
@@ -259,7 +261,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the pageBreakAfterOccurrence
-	 * 
+	 *
 	 * @param i the pageBreakAfterOccurrence
 	 */
 	public void setPageBreakAfterOccurrence(int i)
@@ -277,7 +279,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the restartPageNumber
-	 * 
+	 *
 	 * @param b the restartPageNumber
 	 */
 	public void setRestartPageNumber(boolean b)
@@ -286,7 +288,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	}
 
 	/**
-	 * When set, the last part on a page (such as a Trailing Grand Summary part) will 
+	 * When set, the last part on a page (such as a Trailing Grand Summary part) will
 	 * "sink" to the lowest part of the page when there is free space.
 	 */
 	public boolean getSinkWhenLast()
@@ -296,7 +298,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 
 	/**
 	 * Set the sinkWhenLast
-	 * 
+	 *
 	 * @param b the sinkWhenLast
 	 */
 	public void setSinkWhenLast(boolean b)
@@ -451,4 +453,11 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
 	}
+
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return PersistUtils.getFlattenedPropertiesMap(this);
+	}
+
 }

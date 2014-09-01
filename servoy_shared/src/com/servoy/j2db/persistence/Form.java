@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -32,13 +33,14 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
+import com.servoy.j2db.util.PersistUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
  * A normal Servoy form
- * 
+ *
  * @author jblok,jcompagner
  */
 public class Form extends AbstractContainer implements ITableDisplay, ISupportScrollbars, IPersistCloneable, ISupportSize, ISupportScriptProviders, ICloneable,
@@ -50,7 +52,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public static final int NAVIGATOR_DEFAULT = IFormConstants.DEFAULT;
 
 	/**
-	 * @sameas getNavigatorID() 
+	 * @sameas getNavigatorID()
 	 */
 	public static final int NAVIGATOR_NONE = IFormConstants.NAVIGATOR_NONE;
 
@@ -113,7 +115,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the background.
-	 * 
+	 *
 	 * @param arg the background
 	 */
 	public void setBackground(java.awt.Color arg)
@@ -123,7 +125,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get the background.
-	 * 
+	 *
 	 * @return the background
 	 */
 	public java.awt.Color getBackground()
@@ -133,7 +135,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the server name to use by this form.
-	 * 
+	 *
 	 * @param arg the server name to use
 	 */
 	public void setServerName(String arg)
@@ -143,7 +145,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get the server name used by this form.
-	 * 
+	 *
 	 */
 	public String getServerName()
 	{
@@ -154,7 +156,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get the form size.
-	 * 
+	 *
 	 * @return the size
 	 */
 	@Override
@@ -164,7 +166,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The width of the form in pixels. 
+	 * The width of the form in pixels.
 	 */
 	public int getWidth()
 	{
@@ -173,7 +175,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the width.
-	 * 
+	 *
 	 * @param width
 	 */
 	public void setWidth(int width)
@@ -193,7 +195,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the form layout grid.
-	 * 
+	 *
 	 * @param arg the layout contents
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = false)
@@ -214,7 +216,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set show in menu.
-	 * 
+	 *
 	 * @param arg the flag
 	 */
 	public void setShowInMenu(boolean arg)
@@ -223,8 +225,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * When set, the form is displayed under the Window menu. 
-	 * If it is not set, the form will be 'hidden'. 
+	 * When set, the form is displayed under the Window menu.
+	 * If it is not set, the form will be 'hidden'.
 	 * NOTE: This is only applicable for Servoy Client. Servoy Developer always shows all forms so that
 	 * developers have access to all forms within a solution during development.
 	 */
@@ -235,7 +237,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the style name.
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void setStyleName(String arg)
@@ -254,7 +256,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the data source.
-	 * 
+	 *
 	 * @param arg the data source uri
 	 */
 	public void setDataSource(String arg)
@@ -289,7 +291,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the table name.
-	 * 
+	 *
 	 * @param arg the table to use
 	 */
 	public void setTableName(String arg)
@@ -311,7 +313,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The table associated with this form.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public Table getTable() throws RepositoryException
@@ -336,7 +338,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the view.
-	 * 
+	 *
 	 * @param arg the view
 	 */
 	public void setView(int arg)
@@ -345,17 +347,17 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The default form view mode. 
-	 * 
-	 * The view can be changed using a method at runtime. The following views are available: 
-	 * - Record view 
-	 * - List view 
-	 * - Record view (locked) 
-	 * - List view (locked) 
-	 * - Table View (locked) 
-	 * 
-	 * NOTE: Only Table View (locked) uses asynchronized related data loading. 
-	 * This feature defers all related foundset data loading to the background - enhancing 
+	 * The default form view mode.
+	 *
+	 * The view can be changed using a method at runtime. The following views are available:
+	 * - Record view
+	 * - List view
+	 * - Record view (locked)
+	 * - List view (locked)
+	 * - Table View (locked)
+	 *
+	 * NOTE: Only Table View (locked) uses asynchronized related data loading.
+	 * This feature defers all related foundset data loading to the background - enhancing
 	 * the visual display of a related foundset.
 	 */
 	public int getView()
@@ -365,7 +367,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the scale.
-	 * 
+	 *
 	 * @param arg the scale
 	 */
 	public void setPaperPrintScale(int arg)
@@ -374,8 +376,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The percentage value the printed page is enlarged or reduced to; the size of the printed form 
-	 * is inversely proportional. For example, if the paperPrintScale is 50, the printed form will be 
+	 * The percentage value the printed page is enlarged or reduced to; the size of the printed form
+	 * is inversely proportional. For example, if the paperPrintScale is 50, the printed form will be
 	 * enlarged 200%.
 	 */
 	public int getPaperPrintScale()
@@ -391,16 +393,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The navigator (previously named "controller")
 	 * that is used to control/navigate to the form. The navigator is shown at
-	 * the left or at the right side of the form, depending on the page orientation. 
-	 * 
-	 * The following options are available: 
-	 * -none- - no navigator is assigned. 
-	 * DEFAULT - the Servoy default navigator is assigned. 
-	 * IGNORE - the navigator last assigned to a previous form. 
+	 * the left or at the right side of the form, depending on the page orientation.
+	 *
+	 * The following options are available:
+	 * -none- - no navigator is assigned.
+	 * DEFAULT - the Servoy default navigator is assigned.
+	 * IGNORE - the navigator last assigned to a previous form.
 	 * Custom - a custom navigator based on a selected form.
-	 * 
+	 *
 	 * @description-mc
-	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value SM_DEFAULTS.NONE (no navigator) or SM_DEFAULTS.IGNORE (reuse current form navigator). 
+	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value SM_DEFAULTS.NONE (no navigator) or SM_DEFAULTS.IGNORE (reuse current form navigator).
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getNavigatorID()
@@ -410,7 +412,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the controller form id.
-	 * 
+	 *
 	 * @param arg
 	 */
 	public void setNavigatorID(int arg)
@@ -421,7 +423,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The selected parent (extend form) for the form. The default is set to -none-.
-	 * 
+	 *
 	 * @deprecated replaced by the extends property
 	 */
 	@Deprecated
@@ -432,7 +434,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Sets the selected parent (extend form) for the form.
-	 * 
+	 *
 	 * @param arg the selected parent
 	 */
 	@Deprecated
@@ -467,7 +469,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get all part on this form.
-	 * 
+	 *
 	 * @return the parts
 	 */
 	public Iterator<Part> getParts()
@@ -477,7 +479,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Create a new form part (header,footer and such).
-	 * 
+	 *
 	 * @param partType the part type
 	 * @param heigth the absolute height (from top of Form)
 	 * @return the new created part
@@ -517,7 +519,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get a part start position.
-	 * 
+	 *
 	 * @param partElementId the part element_id
 	 * @return the position
 	 */
@@ -542,7 +544,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get a part end position.
-	 * 
+	 *
 	 * @param partElementId the part element_id
 	 * @return the position
 	 */
@@ -603,7 +605,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get the all the tab seq elements on a form sorted by taborder.
-	 * 
+	 *
 	 * @return the fields
 	 */
 	public Iterator<ISupportTabSeq> getTabSeqElementsByTabOrder()
@@ -649,8 +651,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 */
 	/**
 	 * Get the form variables.
-	 * 
-	 * @param sort the flag (true for sorted by name, false for sorted by line number) 
+	 *
+	 * @param sort the flag (true for sorted by name, false for sorted by line number)
 	 * @return the form variables
 	 */
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
@@ -660,7 +662,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get the form variables.
-	 * 
+	 *
 	 * @param childs list of child objects
 	 * @param sort the flag (true for sorted by name, false for sorted by line number)
 	 * @return the form variables
@@ -677,8 +679,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get a form variable by name.
-	 * 
-	 * @param name the name of the variable to get 
+	 *
+	 * @param name the name of the variable to get
 	 * @return the form variable
 	 */
 	public ScriptVariable getScriptVariable(String name)
@@ -700,7 +702,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Create a new form variable.
-	 * 
+	 *
 	 * @param validator the name validator
 	 * @param name the name of the new variable
 	 * @param variableType the type of the variable
@@ -740,7 +742,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 */
 	/**
 	 * Get all script methods.
-	 * 
+	 *
 	 * @param sort the flag (true for sorted, false for not sorted)
 	 * @return all the methods
 	 */
@@ -756,7 +758,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get a script method by id.
-	 * 
+	 *
 	 * @param id the id of the script method to get
 	 * @return the script method
 	 */
@@ -767,7 +769,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get a script method by name.
-	 * 
+	 *
 	 * @param name the name of the script method to get
 	 * @return the script method
 	 */
@@ -778,7 +780,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Create new script method.
-	 * 
+	 *
 	 * @param validator the name validator
 	 * @param name the name of the method
 	 * @return the new script method
@@ -809,7 +811,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get all objects sorted by form index
-	 * 
+	 *
 	 * @return all the form elements
 	 */
 	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
@@ -819,7 +821,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get all objects sorted
-	 * 
+	 *
 	 * @return all the form elements
 	 */
 	public Iterator<IFormElement> getFormElementsSorted(Comparator<IFormElement> comparator)
@@ -890,7 +892,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public Dimension getMinMaxUsedFormIndex()
@@ -912,13 +914,13 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered when a form is loaded/reloaded from the repository; used to alter elements, set globals, hide toolbars, 
+	 * The method that is triggered when a form is loaded/reloaded from the repository; used to alter elements, set globals, hide toolbars,
 	 * etc; onShow method can also be assigned.
-	 * NOTE: onShow should be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded. 
+	 * NOTE: onShow should be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded.
 	 * Also calls to loadRecords() should be done in the onShow method and not in the onLoad method
 	 * If you call loadRecords() in the onShow method, you may want to set the namedFoundSet property of the form to 'empty' to prevent the first default form query.
 	 * NOTE: the onLoad event bubbles down, meaning that the onLoad is first fired on the parent then on a tab in a tabpanel (and in tab of that tab panels if you are 3 deep)
-	 * 
+	 *
 	 * @templateprivate
 	 * @templatedescription Callback method when form is (re)loaded
 	 * @templatename onLoad
@@ -933,7 +935,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onLoadMethodID.
-	 * 
+	 *
 	 * @param arg the onLoadMethodID to set
 	 */
 	public void setOnLoadMethodID(int arg)
@@ -942,10 +944,10 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered when a form is unloaded from the repository. 
+	 * The method that is triggered when a form is unloaded from the repository.
 	 * NOTE: Forms can be prevented from being removed from memory by referencing the form object in a global variable or inside an array inside a global variable. Do take care using this technique.
 	 * Forms take up memory and if too many forms are in memory and cannot be unloaded, there is a possibility of running out of memory.
-	 * 
+	 *
 	 * @templateprivate
 	 * @templatedescription Callback method when form is destroyed
 	 * @templatename onUnload
@@ -959,7 +961,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onLoadMethodID.
-	 * 
+	 *
 	 * @param arg the onLoadMethodID to set
 	 */
 	public void setOnUnLoadMethodID(int arg)
@@ -977,10 +979,10 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered when another form is being activated. 
-	 * NOTE: If the onHide method returns false, the form can be prevented from hiding. 
+	 * The method that is triggered when another form is being activated.
+	 * NOTE: If the onHide method returns false, the form can be prevented from hiding.
 	 * For example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X).
-	 * 
+	 *
 	 * @templatedescription Handle hide window
 	 * @templatename onHide
 	 * @templatetype Boolean
@@ -996,11 +998,11 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered when a record is being saved. 
+	 * The method that is triggered when a record is being saved.
 	 * A record is saved when a user clicks out of it (for example on an empty part of the layout or to another form).
 	 * When the method returns false (for example as part of a validation), the user cannot leave the record, for example in
 	 * a table view a user cannot move to another record when the callback returns false.
-	 * 
+	 *
 	 * @templatedescription Callback method form when editing is stopped, return false if the record fails to validate then the user cannot leave the record.
 	 * @templatename onRecordEditStop
 	 * @templatetype Boolean
@@ -1016,12 +1018,12 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered each time a record is selected. 
+	 * The method that is triggered each time a record is selected.
 	 * If a form is in List view or Special table view - when the user clicks on it.
-	 * In Record view - after the user navigates to another record using the slider or clicks up or down for next/previous record. 
+	 * In Record view - after the user navigates to another record using the slider or clicks up or down for next/previous record.
 	 * NOTE: Data and Servoy tag values are returned when the onRecordSelection method is executed.
 	 * NOTE: this will also fire if the selection goes to -1 because the foundset is cleared. So foundset.getSelectedRecord() can return null.
-	 * 
+	 *
 	 * @templatedescription Handle record selected
 	 * @templatename onRecordSelection
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1034,12 +1036,12 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered EVERY TIME the form is displayed; an argument must be passed to the method if this is the first time the form is displayed. 
-	 * 
-	 * NOTE: onShow can be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded. 
-	 * 
+	 * The method that is triggered EVERY TIME the form is displayed; an argument must be passed to the method if this is the first time the form is displayed.
+	 *
+	 * NOTE: onShow can be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded.
+	 *
 	 * NOTE: the onShow event bubbles down, meaning that the onShow event of a form displayed in a tabPanel is fired after the onShow event of the parent.
-	 * 
+	 *
 	 * @templatedescription Callback method for when form is shown
 	 * @templatename onShow
 	 * @templateparam Boolean firstShow form is shown first time after load
@@ -1054,7 +1056,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the defaultSort.
-	 * 
+	 *
 	 * @param arg The defaultSort to set
 	 */
 	public void setInitialSort(String arg)
@@ -1064,7 +1066,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Returns the aliases.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getAliases()
@@ -1074,7 +1076,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the aliases.
-	 * 
+	 *
 	 * @param arg The aliases to set
 	 */
 	public void setAliases(String arg)
@@ -1084,7 +1086,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onHideMethodID.
-	 * 
+	 *
 	 * @param arg The onHideMethodID to set
 	 */
 	public void setOnHideMethodID(int arg)
@@ -1094,7 +1096,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onRecordSaveMethodID.
-	 * 
+	 *
 	 * @param arg The onRecordSaveMethodID to set
 	 */
 	public void setOnRecordEditStopMethodID(int arg)
@@ -1104,7 +1106,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onRecordShowMethodID.
-	 * 
+	 *
 	 * @param arg The onRecordShowMethodID to set
 	 */
 	public void setOnRecordSelectionMethodID(int arg)
@@ -1114,7 +1116,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onShowMethodID.
-	 * 
+	 *
 	 * @param arg The onShowMethodID to set
 	 */
 	public void setOnShowMethodID(int arg)
@@ -1125,7 +1127,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The method that is triggered when a user clicks into a column on the form.
 	 * NOTE: There is a small "e" displayed in the lower left side of the Servoy Client screen in the status area at the bottom of the window when the record is being edited.
-	 * 
+	 *
 	 * @templatedescription Callback method form when editing is started
 	 * @templatename onRecordEditStart
 	 * @templatetype Boolean
@@ -1139,7 +1141,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onRecordEditStart.
-	 * 
+	 *
 	 * @param arg The onRecordEditStart to set
 	 */
 	public void setOnRecordEditStartMethodID(int arg)
@@ -1148,9 +1150,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Delete Record (or keyboard shortcut). 
+	 * The method that overrides the Servoy menu item Select > Delete Record (or keyboard shortcut).
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform delete record
 	 * @templatename deleteRecord
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1166,7 +1168,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The method that overrides the Servoy menu item Select > Duplicate Record (or keyboard shortcut).
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform duplicate record
 	 * @templatename duplicateRecord
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1180,9 +1182,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Find (or keyboard shortcut) in Data (ready) mode. 
+	 * The method that overrides the Servoy menu item Select > Find (or keyboard shortcut) in Data (ready) mode.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform find
 	 * @templatename startFind
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1196,9 +1198,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Search (or keyboard shortcut) in Find mode. 
+	 * The method that overrides the Servoy menu item Select > Search (or keyboard shortcut) in Find mode.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform search
 	 * @templatename onSearch
 	 * @templateparam Boolean clear clear last results
@@ -1215,9 +1217,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Invert Records. 
+	 * The method that overrides the Servoy menu item Select > Invert Records.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform invert records
 	 * @templatename invertRecords
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1231,9 +1233,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > New Record (or keyboard shortcut). 
+	 * The method that overrides the Servoy menu item Select > New Record (or keyboard shortcut).
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform create new record
 	 * @templatename newRecord
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1247,9 +1249,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Omit Record. 
+	 * The method that overrides the Servoy menu item Select > Omit Record.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform omit record
 	 * @templatename omitRecord
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1263,9 +1265,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Show All (or keyboard shortcut). 
+	 * The method that overrides the Servoy menu item Select > Show All (or keyboard shortcut).
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform show-all-records
 	 * @templatename showAllRecords
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1279,9 +1281,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Show Omitted Records. 
+	 * The method that overrides the Servoy menu item Select > Show Omitted Records.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform show-omitted-records
 	 * @templatename showOmittedRecords
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1296,7 +1298,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onDeleteRecordCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnDeleteRecordCmdMethodID(int i)
@@ -1306,7 +1308,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onDuplicateRecordCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnDuplicateRecordCmdMethodID(int i)
@@ -1317,7 +1319,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onSearchCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnSearchCmdMethodID(int i)
@@ -1327,7 +1329,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onFindCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnFindCmdMethodID(int i)
@@ -1337,7 +1339,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onInvertRecordsCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnInvertRecordsCmdMethodID(int i)
@@ -1347,7 +1349,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onNewRecordCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnNewRecordCmdMethodID(int i)
@@ -1357,7 +1359,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onOmitRecordCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnOmitRecordCmdMethodID(int i)
@@ -1367,7 +1369,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onShowAllRecordsCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnShowAllRecordsCmdMethodID(int i)
@@ -1377,7 +1379,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onShowOmittedRecordsCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnShowOmittedRecordsCmdMethodID(int i)
@@ -1392,7 +1394,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the scrollbars (bitset)
-	 * 
+	 *
 	 * @param i bitset
 	 */
 	public void setScrollbars(int i)
@@ -1401,7 +1403,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The default page format for the form. 
+	 * The default page format for the form.
 	 */
 	public String getDefaultPageFormat()
 	{
@@ -1410,7 +1412,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the default page format
-	 * 
+	 *
 	 * @param string the format
 	 * @see com.servoy.j2db.util.PersistHelper
 	 */
@@ -1420,7 +1422,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The type, color and style of border. 
+	 * The type, color and style of border.
 	 * This property is automatically set to "DEFAULT" when a new form is created.
 	 */
 	public String getBorderType()
@@ -1429,9 +1431,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Delete All. 
+	 * The method that overrides the Servoy menu item Select > Delete All.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform delete all records
 	 * @templatename deleteAllRecords
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1445,9 +1447,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item File > Print Preview. 
+	 * The method that overrides the Servoy menu item File > Print Preview.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform print preview
 	 * @templatename printPreview
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1461,9 +1463,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Sort. 
+	 * The method that overrides the Servoy menu item Select > Sort.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Perform sort
 	 * @templatename onSort
 	 * @templateparam String dataProviderID element data provider
@@ -1479,7 +1481,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * When checked, the selected form will use its own foundset. 
+	 * When checked, the selected form will use its own foundset.
 	 * By default, all forms based on the same table share the same foundset.
 	 */
 	public boolean getUseSeparateFoundSet()
@@ -1488,8 +1490,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * When checked, the selected form will use an empty foundset. 
-	 * 
+	 * When checked, the selected form will use an empty foundset.
+	 *
 	 */
 	public boolean getUseEmptyFoundSet()
 	{
@@ -1511,7 +1513,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the border type
-	 * 
+	 *
 	 * @param b
 	 * @see com.servoy.j2db.dataui.ComponentFactoryHelper
 	 */
@@ -1522,7 +1524,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onDeleteAllRecordsCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnDeleteAllRecordsCmdMethodID(int i)
@@ -1532,7 +1534,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Get the onPrintPreviewCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnPrintPreviewCmdMethodID(int i)
@@ -1542,7 +1544,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the onSortCmdMethodID
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setOnSortCmdMethodID(int i)
@@ -1552,7 +1554,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the useSeparateFoundSet
-	 * 
+	 *
 	 * @param b
 	 */
 	public void setUseSeparateFoundSet(boolean b)
@@ -1561,8 +1563,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The text that displays in the title bar of the form window. 
-	 * NOTE: Data tags and Servoy tags can be used as part of the title text. 
+	 * The text that displays in the title bar of the form window.
+	 * NOTE: Data tags and Servoy tags can be used as part of the title text.
 	 */
 	public String getTitleText()
 	{
@@ -1571,7 +1573,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the form title text.
-	 * 
+	 *
 	 * @param string
 	 */
 	public void setTitleText(String string)
@@ -1580,11 +1582,11 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The calculation dataprovider used to add background color and highlight selected or alternate rows. 
-	 * The default is -none-. 
-	 * 
+	 * The calculation dataprovider used to add background color and highlight selected or alternate rows.
+	 * The default is -none-.
+	 *
 	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
-	 * 
+	 *
 	 * @templatedescription Calculate the row background color
 	 * @templatename rowBGColorCalculation
 	 * @templatetype String
@@ -1611,9 +1613,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the rowBGColorCalculation.
-	 * 
+	 *
 	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
-	 * 
+	 *
 	 * @param arg the rowBGColorCalculation
 	 */
 	public void setRowBGColorCalculation(String arg)
@@ -1622,7 +1624,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The Cascading Style Sheet (CSS) class name applied to the form. 
+	 * The Cascading Style Sheet (CSS) class name applied to the form.
 	 */
 	public String getStyleClass()
 	{
@@ -1631,7 +1633,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the style.
-	 * 
+	 *
 	 * @param arg the syle
 	 */
 	public void setStyleClass(String arg)
@@ -1640,9 +1642,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Next Record. 
+	 * The method that overrides the Servoy menu item Select > Next Record.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Select next record
 	 * @templatename nextRecord
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1658,7 +1660,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * Set the method that overrides the Servoy menu item Select > Next Record.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @param arg the method
 	 */
 	public void setOnNextRecordCmdMethodID(int arg)
@@ -1667,9 +1669,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that overrides the Servoy menu item Select > Previous Record. 
+	 * The method that overrides the Servoy menu item Select > Previous Record.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @templatedescription Select previous record
 	 * @templatename previousRecord
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1683,9 +1685,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * Set the method that overrides the Servoy menu item Select > Previous Record. 
+	 * Set the method that overrides the Servoy menu item Select > Previous Record.
 	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
-	 * 
+	 *
 	 * @param arg the method
 	 */
 	public void setOnPreviousRecordCmdMethodID(int arg)
@@ -1695,7 +1697,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the transparent
-	 * 
+	 *
 	 * @param arg the transparent
 	 */
 	public void setTransparent(boolean arg)
@@ -1713,7 +1715,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set selectionMode. Selection type is applied when necessary to the foundset used by the form (through it's multiselect property), even if the foundset changes.
-	 * 
+	 *
 	 * @param arg can be one of {@link IForm#SELECTION_MODE_DEFAULT}, {@link IForm#SELECTION_MODE_SINGLE} and {@link IForm#SELECTION_MODE_MULTI}.
 	 */
 	public void setSelectionMode(int arg)
@@ -1723,7 +1725,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Returns the value of the selectionMode property.
-	 * 
+	 *
 	 * @return one of {@link IForm#SELECTION_MODE_DEFAULT}, {@link IForm#SELECTION_MODE_SINGLE} and {@link IForm#SELECTION_MODE_MULTI}.
 	 * @see #setSelectionMode(int)
 	 */
@@ -1734,7 +1736,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the namedFoundSet
-	 * 
+	 *
 	 * @param arg the namedFoundSet
 	 */
 	public void setNamedFoundSet(String arg)
@@ -1755,11 +1757,11 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The method that is triggered when (non Design Mode) dragging occurs.
-	 * 
+	 *
 	 * @templateprivate
-	 * @templatedescription 
+	 * @templatedescription
 	 * Handle start of a drag, it can set the data that should be transfered and should return a constant which dragndrop mode/modes is/are supported
-	 * 
+	 *
 	 * Should return a DRAGNDROP constant or a combination of 2 constants:
 	 * DRAGNDROP.MOVE if only a move can happen,
 	 * DRAGNDROP.COPY if only a copy can happen,
@@ -1778,8 +1780,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * Set the method that gets triggered when (non Design Mode) dragging occurs. 
-	 * 
+	 * Set the method that gets triggered when (non Design Mode) dragging occurs.
+	 *
 	 * @param arg the method that is triggered
 	 */
 	public void setOnDragMethodID(int arg)
@@ -1790,13 +1792,13 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The method that is triggered when (non Design Mode) dragging end occurs.
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Handle end of a drag
-	 * 
+	 *
 	 * @templatename onDragEnd
 	 * @templateparam JSDNDEvent event the event that triggered the action
-	 * @templateaddtodo 
+	 * @templateaddtodo
 	 */
 	public int getOnDragEndMethodID()
 	{
@@ -1804,8 +1806,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * Set the method that gets triggered when (non Design Mode) dragging end occurs. 
-	 * 
+	 * Set the method that gets triggered when (non Design Mode) dragging end occurs.
+	 *
 	 * @param arg the method that is triggered
 	 */
 	public void setOnDragEndMethodID(int arg)
@@ -1815,10 +1817,10 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The method that is triggered when (non Design Mode) dragging over a component occurs.
-	 * 
+	 *
 	 * @templatedescription
 	 * Handle a drag over. Determines of a drop is allowed in this location.
-	 * 
+	 *
 	 * Return true is drop is allowed, otherwise false.
 	 * @templatename onDragOver
 	 * @templatetype Boolean
@@ -1837,7 +1839,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the method that gets triggered when (non Design Mode) dragging over a component occurs.
-	 * 
+	 *
 	 * @param arg the method that is triggered
 	 */
 	public void setOnDragOverMethodID(int arg)
@@ -1847,7 +1849,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The method that is triggered when (non Design Mode) dropping occurs.
-	 * 
+	 *
 	 * @templatedescription Handle a drop
 	 * Return true if drop has been performed successfully, otherwise false.
 	 * @templatename onDrop
@@ -1864,7 +1866,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the method that gets triggered when (non Design Mode) dropping occurs.
-	 * 
+	 *
 	 * @param arg the method that gets triggered
 	 */
 	public void setOnDropMethodID(int arg)
@@ -1874,7 +1876,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The method that is triggered when focus is gained by a component inside the form.
-	 * 
+	 *
 	 * @templatedescription Handle focus gained event of an element on the form. Return false when the focus gained event of the element itself shouldn't be triggered.
 	 * @templatename onElementFocusGained
 	 * @templatetype Boolean
@@ -1890,7 +1892,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the method that gets triggered when focus is gained.
-	 * 
+	 *
 	 * @param arg the method that gets triggered
 	 */
 	public void setOnElementFocusGainedMethodID(int arg)
@@ -1900,7 +1902,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The method that gets triggered when focus is lost by a component inside the form.
-	 * 
+	 *
 	 * @templatedescription Handle focus lost event of an element on the form. Return false when the focus lost event of the element itself shouldn't be triggered.
 	 * @templatename onElementFocusLost
 	 * @templatetype Boolean
@@ -1916,7 +1918,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the method that gets triggered when focus is lost.
-	 * 
+	 *
 	 * @param arg the method that gets triggered
 	 */
 	public void setOnElementFocusLostMethodID(int arg)
@@ -1926,7 +1928,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * The method that gets triggered when resize occurs.
-	 * 
+	 *
 	 * @templatedescription Callback method when form is resized
 	 * @templatename onResize
 	 * @templateparam JSEvent event the event that triggered the action
@@ -1939,7 +1941,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/**
 	 * Set the method that gets triggered when resize occurs.
-	 * 
+	 *
 	 * @param arg the method that gets triggered
 	 */
 	public void setOnResizeMethodID(int arg)
@@ -1972,22 +1974,22 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
 	}
 
-	/** 
+	/**
 	 * The method that is executed when the component is rendered.
-	 * 
+	 *
 	 * @templatedescription Called before the form component is rendered
 	 * @templatename onRender
 	 * @templateparam JSRenderEvent event the render event
 	 * @templateaddtodo
 	 * @templatecode
-	 * 
+	 *
 	 * // NOTE: a property set on the renderable, will be kept on the element only during onRender
 	 * if (event.isRecordSelected()) {
 	 * 	event.getRenderable().fgcolor = '#00ff00';
 	 * } else if (event.getRecordIndex() % 2) {
 	 * 	event.getRenderable().fgcolor = '#ff0000';
 	 * }
-	 * 
+	 *
 	 */
 	public int getOnRenderMethodID()
 	{
@@ -2035,4 +2037,11 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
 	}
+
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return PersistUtils.getFlattenedPropertiesMap(this);
+	}
+
 }

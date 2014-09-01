@@ -18,15 +18,17 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Map;
 
 import com.servoy.base.persistence.IBaseComponent;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.util.PersistUtils;
 import com.servoy.j2db.util.UUID;
 
 
 /**
  * The base component, providing default properties for graphical components
- * 
+ *
  * @author jblok
  */
 public class BaseComponent extends AbstractBase implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable, IBaseComponent
@@ -46,7 +48,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the anchors (bitset)
-	 * 
+	 *
 	 * @param arg the anchors
 	 */
 	public void setAnchors(int arg)
@@ -87,7 +89,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the border
-	 * 
+	 *
 	 * @param arg the border
 	 * @see com.servoy.j2db.dataui.ComponentFactoryHelper
 	 */
@@ -106,7 +108,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the font
-	 * 
+	 *
 	 * @param arg the font
 	 * @see com.servoy.j2db.util.PersistHelper
 	 */
@@ -125,7 +127,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the size
-	 * 
+	 *
 	 * @param arg the size
 	 */
 	public void setSize(java.awt.Dimension arg)
@@ -146,7 +148,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the location
-	 * 
+	 *
 	 * @param arg the location
 	 */
 	public void setLocation(java.awt.Point arg)
@@ -166,7 +168,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Check if a component contains the x and y.
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @return true if so
@@ -179,7 +181,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Check if a component contains the abs x and y.
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @return true if so
@@ -193,7 +195,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Check if a component contains the rect.
-	 * 
+	 *
 	 * @return true if so
 	 */
 	public boolean contains(java.awt.Rectangle r)
@@ -245,7 +247,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void setName(String arg)
@@ -255,7 +257,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Update the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
@@ -280,7 +282,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Returns the locked.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean getLocked()
@@ -290,7 +292,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Sets the groupID.
-	 * 
+	 *
 	 * @param arg
 	 */
 	public void setGroupID(String arg)
@@ -300,7 +302,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Sets the locked.
-	 * 
+	 *
 	 * @param arg
 	 */
 	public void setLocked(boolean arg)
@@ -310,8 +312,8 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Enables an element to resize based on its content and/or move when printing.
-	 * The component can move horizontally or vertically and can grow or shrink in 
-	 * height and width, based on its content and the content of neighboring 
+	 * The component can move horizontally or vertically and can grow or shrink in
+	 * height and width, based on its content and the content of neighboring
 	 * components.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -322,7 +324,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the printsliding (bitset)
-	 * 
+	 *
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -333,7 +335,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Set the transparent
-	 * 
+	 *
 	 * @param arg the transparent
 	 */
 	public void setTransparent(boolean arg)
@@ -343,8 +345,8 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	/**
 	 * Flag that tells if the component is transparent or not.
-	 * 
-	 * The default value is "false", that is the components 
+	 *
+	 * The default value is "false", that is the components
 	 * are not transparent.
 	 */
 	public boolean getTransparent()
@@ -400,4 +402,11 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
+
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return PersistUtils.getFlattenedPropertiesMap(this);
+	}
+
 }
