@@ -17,11 +17,21 @@ angular.module('svyTypeahead',['servoy'])
           var lastAppliedDataProviderID = null;
           
          $scope.formatLabel = function (model){
-        	  var displayFormat = undefined;
-     		  var type = undefined;
-     		  if($scope.model.format && $scope.model.format.display) displayFormat = $scope.model.format.display;
-     		  if($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;	          		
-     		  return formatFilter(model, displayFormat ,type);        	 
+        	 var displayFormat = undefined;
+    		  var type = undefined;
+    		  var displayValue = model;
+    		  if ($scope.model.valuelistID !== undefined)
+    		  {
+	     		  for (var i=0; i< $scope.model.valuelistID.length; i++) {
+	     			  if (model === $scope.model.valuelistID[i].realValue) {
+	     				  displayValue = $scope.model.valuelistID[i].displayValue;
+	     				  break;
+	     			  }
+	     		  }
+    		  }
+    		  if($scope.model.format && $scope.model.format.display) displayFormat = $scope.model.format.display;
+    		  if($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;	          		
+    		  return formatFilter(displayValue, displayFormat ,type);    	 
          }
           $scope.doSvyApply = function (){
             // only the last ngBlur should take effect

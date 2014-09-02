@@ -23,6 +23,7 @@ import org.sablo.WebComponent;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.dataprocessing.IRecord;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 
 /**
  * @author jcompagner
@@ -83,4 +84,6 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	void addRelatedForm(IWebFormController form, String relation);
 
 	void removeRelatedForm(IWebFormController form);
+
+	IRecordInternal getRecord();
 }
