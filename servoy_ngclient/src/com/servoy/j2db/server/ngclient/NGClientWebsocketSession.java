@@ -100,7 +100,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public boolean isValid()
 	{
-		return !client.isShutDown();
+		return client != null && !client.isShutDown();
 	}
 
 	@Override
