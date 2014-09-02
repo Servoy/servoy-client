@@ -272,14 +272,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					if (property instanceof CustomValueList)
 					{
 						lstModel = new LookupListModel(client, (CustomValueList)property);
+						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 					else if (property instanceof LookupValueList)
 					{
 						lstModel = new LookupListModel(client, (LookupValueList)property);
+						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 					else if (property instanceof ColumnBasedValueList)
 					{
 						lstModel = ((ColumnBasedValueList)property).getListModel();
+						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
 					}
 					else if (property instanceof LookupListModel)
 					{
@@ -288,8 +291,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 					if (lstModel != null)
 					{
-						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
-
 						lstModel.fill(webComponent.dataAdapterList.getRecord(),
 							(String)webComponent.getFormElement().getProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()),
 							obj.getString("filter"), false);
