@@ -118,7 +118,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			return;
 		}
 
-		J2DBGlobals.setServiceProvider(client);
+		if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(client);
 		try
 		{
 			if (client.getSolution() != null)
@@ -177,7 +177,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		finally
 		{
-			J2DBGlobals.setServiceProvider(null);
+			if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(null);
 		}
 	}
 
@@ -280,8 +280,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					else if (property instanceof LookupListModel)
 					{
 						lstModel = (LookupListModel)property;
-						// set the valuelistID property as changed on every letter typing
-						webComponent.setProperty(obj.getString("property"), lstModel);
 					}
 
 					if (lstModel != null)
@@ -444,7 +442,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * @param fs
 	 * @param form
 	 */
-	private void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
+	protected void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
 	{
 		try
 		{
@@ -470,7 +468,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 				String view = (tableview ? "tableview" : "recordview");
-				new FormTemplateGenerator(new ServoyDataConverterContext(client), true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
+				new FormTemplateGenerator(new ServoyDataConverterContext(client), true, false).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
 			}
 			if (client.isEventDispatchThread())
 			{
@@ -614,7 +612,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void closeSession()
 	{
-		if (client.getWebsocketSession().isValid())
+		if (client.getWebsocketSession() != null && client.getWebsocketSession().isValid())
 		{
 			client.invokeAndWait(new Runnable()
 			{

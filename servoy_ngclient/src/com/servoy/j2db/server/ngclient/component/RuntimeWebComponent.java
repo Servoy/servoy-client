@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,11 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
@@ -40,7 +38,7 @@ import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
-import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 
 /**
  * @author lvostinar
@@ -63,31 +61,11 @@ public class RuntimeWebComponent implements Scriptable
 		this.dataProviderProperties = new HashSet<>();
 		this.webComponentSpec = webComponentSpec;
 
-		String serverScript = webComponentSpec.getServerScript();
+		URL serverScript = webComponentSpec.getServerScript();
 		Scriptable apiObject = null;
 		if (serverScript != null)
 		{
-			Context context = Context.enter();
-			try
-			{
-				Script script = context.compileString(serverScript, webComponentSpec.getName(), 0, null);
-				ScriptableObject topLevel = context.initStandardObjects();
-				Scriptable scopeObject = context.newObject(topLevel);
-				apiObject = context.newObject(topLevel);
-				apiObject.setPrototype(this);
-				scopeObject.put("api", scopeObject, apiObject);
-				scopeObject.put("model", scopeObject, this);
-				topLevel.put("$scope", topLevel, scopeObject);
-				script.exec(context, topLevel);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-			finally
-			{
-				Context.exit();
-			}
+			apiObject = WebServiceScriptable.compileServerScript(serverScript, this);
 		}
 		if (webComponentSpec != null)
 		{
@@ -115,9 +93,10 @@ public class RuntimeWebComponent implements Scriptable
 					// all handlers are design properties, all api is runtime
 					specProperties.add(e.getKey());
 				}
-				if (type == DataproviderPropertyType.INSTANCE)
+				else if (type == DataproviderPropertyType.INSTANCE)
 				{
 					dataProviderProperties.add(e.getKey());
+					specProperties.add(e.getKey());
 				}
 			}
 		}
@@ -137,11 +116,11 @@ public class RuntimeWebComponent implements Scriptable
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
 			return NGConversions.INSTANCE.applyConversion4_1(component.getProperty(name), pd, component);
 		}
-		if (apiFunctions.containsKey(name))
+		Function func = apiFunctions.get(name);
+		if (func != null)
 		{
-			return apiFunctions.get(name);
+			return func;
 		}
-
 		// check if we have a setter/getter for this property
 		if (name != null && name.length() > 0)
 		{

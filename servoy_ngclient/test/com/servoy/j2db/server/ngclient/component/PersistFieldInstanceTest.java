@@ -86,6 +86,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.plugins.IServerAccess;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
@@ -811,6 +812,8 @@ public class PersistFieldInstanceTest
 	public void testFieldWithValueList() throws RepositoryException
 	{
 		Form form = solution.getForm("test");
+		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form));
+
 		Assert.assertNotNull(form);
 		ValueList vl = solution.getValueList("test");
 		Assert.assertNotNull(vl);
@@ -825,7 +828,7 @@ public class PersistFieldInstanceTest
 		Assert.assertEquals(1, formElements.size());
 		for (FormElement formElement : formElements)
 		{
-			WebFormComponent wc = ComponentFactory.createComponent(client, null, formElement, null);
+			WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElement, null);
 			Object property = wc.getProperty("valuelistID");
 			Assert.assertTrue(property != null ? property.getClass().getName() : "null", property instanceof CustomValueList);
 			Assert.assertEquals("#,###.00", ((CustomValueList)property).getFormat().getDisplayFormat());
@@ -840,6 +843,7 @@ public class PersistFieldInstanceTest
 		Assert.assertNotNull(form);
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
+		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(tabForm));
 
 		TabPanel tabpanel = form.createNewTabPanel("tabpanel");
 		tabpanel.createNewTab("tab1", null, tabForm);
@@ -849,7 +853,7 @@ public class PersistFieldInstanceTest
 		Assert.assertEquals(1, formElements.size());
 		for (FormElement formElement : formElements)
 		{
-			WebFormComponent wc = ComponentFactory.createComponent(client, null, formElement, null);
+			WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElement, null);
 			List<Map<String, Object>> tabs = (List)wc.getConvertedPropertyWithDefault("tabs", false, true);
 			Assert.assertEquals(2, tabs.size());
 			Map<String, Object> map = tabs.get(1);

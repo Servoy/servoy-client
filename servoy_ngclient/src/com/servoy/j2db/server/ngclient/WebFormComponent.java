@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -37,8 +36,8 @@ import com.servoy.j2db.util.Utils;
 public class WebFormComponent extends Container implements ListDataListener, IContextProvider
 {
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
-	private final FormElement formElement;
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
+	private FormElement formElement;
 
 	// list of all tabseq properties ordered by design time value; tabseq will be updated with runtime value
 	private final List<Pair<String, Integer>> calculatedTabSequence = new ArrayList<Pair<String, Integer>>();
@@ -98,6 +97,16 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	public FormElement getFormElement()
 	{
 		return formElement;
+	}
+
+	/**
+	 * Only used in designer to update this component to the latest desgin form element.
+	 *
+	 * @param formElement the formElement to set
+	 */
+	public void setFormElement(FormElement formElement)
+	{
+		this.formElement = formElement;
 	}
 
 	/**
@@ -263,11 +272,11 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	 */
 	private void valueListChanged(ListDataEvent e)
 	{
-		for (Entry<String, Object> entry : properties.entrySet())
+		for (String propName : properties.keySet())
 		{
-			if (entry.getValue() == e.getSource())
+			if (getProperty(propName) == e.getSource())
 			{
-				flagPropertyChanged(entry.getKey());
+				flagPropertyChanged(propName);
 			}
 		}
 	}

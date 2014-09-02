@@ -21,14 +21,12 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
@@ -110,10 +108,9 @@ public class PartWrapper
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		Iterator<IFormElement> it = context.getFormElementsSortedByFormIndex();
-		while (it.hasNext())
+		List<IPersist> persists = context.getFlattenedObjects();
+		for (IPersist persist : persists)
 		{
-			IPersist persist = it.next();
 			if (persist instanceof BaseComponent)
 			{
 				Point location = ((BaseComponent)persist).getLocation();

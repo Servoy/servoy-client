@@ -1,122 +1,272 @@
-name: 'svy-tabpanel',
-displayName: 'Tab panel',
-categoryName: 'Containers',
-icon: 'servoydefault/tabpanel/tabs.gif',
-definition: 'servoydefault/tabpanel/tabpanel.js',
-serverscript: 'servoydefault/tabpanel/tabpanel_server.js',
-libraries: ['servoydefault/tabpanel/accordionpanel.css'],
-model:
 {
-        background : 'color', 
-        borderType : 'border', 
-        enabled : {type:'boolean', default:true}, 
-        fontType : 'font', 
-        foreground : 'color', 
-        horizontalAlignment : {type:'int', scope:'design', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: -1}, 
-        location : 'point', 
-        readOnly : 'boolean', 
-        selectedTabColor : 'color', 
-        size : {type:'dimension',  default: {width:300, height:300}}, 
-        styleClass : { type:'styleclass', scope:'design', values:[]}, 
-        tabIndex : 'int', 
-        tabOrientation : {type:'int', scope:'design', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}, 
-        tabSeq : {type:'tabseq', scope:'design'}, 
-        tabs : 'tab[]', 
-        transparent : 'boolean', 
-        visible : {type:'boolean', default:true} 
-},
-handlers:
-{
-        onChangeMethodID : 'function', 
-        onTabChangeMethodID : 'function' 
-},
-api:
-{
-        addTab: {
-            returns: 'boolean',
-            parameters:[{'form/formname':'object []'},{'name':'object','optional':'true'},{'tabText':'object','optional':'true'},{'tooltip':'object','optional':'true'},{'iconURL':'object','optional':'true'},{'fg':'object','optional':'true'},{'bg':'object','optional':'true'},{'relatedfoundset/relationname':'object','optional':'true'},{'index':'object','optional':'true'}]
-        },
-        getMaxTabIndex: {
-            returns: 'int'
-        },
-        getMnemonicAt: {
-            returns: 'string',
-            parameters:[{'i':'int'}]
-        },
-        getSelectedTabFormName: {
-            returns: 'string'
-        },
-        getTabBGColorAt: {
-            returns: 'string',
-            parameters:[{'unnamed_0':'int'}]
-        },
-        getTabFGColorAt: {
-            returns: 'string',
-            parameters:[{'i':'int'}]
-        },
-        getTabFormNameAt: {
-            returns: 'string',
-            parameters:[{'i':'int'}]
-        },
-        getTabNameAt: {
-            returns: 'string',
-            parameters:[{'i':'int'}]
-        },
-        getTabRelationNameAt: {
-            returns: 'string',
-            parameters:[{'i':'int'}]
-        },
-        getTabTextAt: {
-            returns: 'string',
-            parameters:[{'i':'int'}]
-        },
-        isTabEnabled: {
-            returns: 'boolean',
-            parameters:[{'unnamed_0':'int'}]
-        },
-        isTabEnabledAt: {
-            returns: 'boolean',
-            parameters:[{'i':'int'}]
-        },
-        removeAllTabs: {
-            returns: 'boolean'
-        },
-        removeTabAt: {
-            returns: 'boolean',
-            parameters:[{'index':'int'}]
-        },
-        setMnemonicAt: {
-            parameters:[{'index':'int'},{'text':'string'}]
-        },
-        setTabBGColorAt: {
-            parameters:[{'unnamed_0':'int'},{'unnamed_1':'string'}]
-        },
-        setTabEnabled: {
-            parameters:[{'unnamed_0':'int'},{'unnamed_1':'boolean'}]
-        },
-        setTabEnabledAt: {
-            parameters:[{'i':'int'},{'b':'boolean'}]
-        },
-        setTabFGColorAt: {
-            parameters:[{'i':'int'},{'s':'string'}]
-        },
-        setTabTextAt: {
-            parameters:[{'index':'int'},{'text':'string'}]
-        }
-},
-types: {
-  tab: {
-  	model: {
-  		name: 'string',
-  		containsFormId: 'form',
-  		text: 'tagstring',
-  		relationName: 'relation',
-  		active: 'boolean',
-  		foreground: 'color',
-  		disabled: 'boolean',
-  		imageMediaID: 'string',
-  		mnemonic: 'string'
+	"name": "svy-tabpanel",
+	"displayName": "Tab Panel",
+	"icon": "servoydefault/tabpanel/tabs.gif",
+	"definition": "servoydefault/tabpanel/tabpanel.js",
+	"serverscript": "servoydefault/tabpanel/tabpanel_server.js",
+	"libraries": ["servoydefault/tabpanel/accordionpanel.css"],
+	"model":
+	{
+	        "background" : "color", 
+	        "borderType" : "border", 
+	        "enabled" : {"type":"boolean", "default":true}, 
+	        "fontType" : "font", 
+	        "foreground" : "color", 
+	        "horizontalAlignment" : {"type" :"int", "scope" :"design", "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
+	        "location" : "point", 
+	        "readOnly" : "boolean", 
+	        "selectedTabColor" : "color", 
+	        "size" : {"type" :"dimension",  "default" : {"width":300, "height":300}}, 
+	        "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
+	        "tabIndex" : "int", 
+	        "tabOrientation" : {"type" :"int", "scope" :"design", "values" :[{"default" :0}, {"TOP":1}, {"HIDE":-1}]}, 
+	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
+	        "tabs" : "tab[]", 
+	        "transparent" : "boolean", 
+	        "visible" : {"type":"boolean", "default":true} 
+	},
+	"handlers":
+	{
+	        "onChangeMethodID" : "function", 
+	        "onTabChangeMethodID" : "function" 
+	},
+	"api":
+	{
+	        "addTab": {
+	            "returns": "boolean",
+				"parameters":[
+								{                                                                 
+ 								"name":"form/formname",
+								"type":"object []"
+			                	},
+             					{                                                                 
+ 								"name":"name",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"tabText",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"tooltip",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"iconURL",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"fg",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"bg",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"relatedfoundset/relationname",
+								"type":"object",
+			            		"optional":"true"
+			            		},
+             					{                                                                 
+ 								"name":"index",
+								"type":"object",
+			            		"optional":"true"
+			            		}             
+							 ]
+	        },
+	        "getMaxTabIndex": {
+	            "returns": "int"
+	        },
+	        "getMnemonicAt": {
+	            "returns": "string",
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "getSelectedTabFormName": {
+	            "returns": "string"
+	        },
+	        "getTabBGColorAt": {
+	            "returns": "string",
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "getTabFGColorAt": {
+	            "returns": "string",
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "getTabFormNameAt": {
+	            "returns": "string",
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "getTabNameAt": {
+	            "returns": "string",
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "getTabRelationNameAt": {
+	            "returns": "string",
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "getTabTextAt": {
+	            "returns": "string",
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "isTabEnabled": {
+	            "returns": "boolean",
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "isTabEnabledAt": {
+	            "returns": "boolean",
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "removeAllTabs": {
+	            "returns": "boolean"
+	        },
+	        "removeTabAt": {
+	            "returns": "boolean",
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	}             
+							 ]
+	        },
+	        "setMnemonicAt": {
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"text",
+								"type":"string"
+			                	}             
+							 ]
+	        },
+	        "setTabBGColorAt": {
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"unnamed_1",
+								"type":"string"
+			                	}             
+							 ]
+	        },
+	        "setTabEnabled": {
+				"parameters":[
+								{                                                                 
+ 								"name":"unnamed_0",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"unnamed_1",
+								"type":"boolean"
+			                	}             
+							 ]
+	        },
+	        "setTabEnabledAt": {
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"b",
+								"type":"boolean"
+			                	}             
+							 ]
+	        },
+	        "setTabFGColorAt": {
+				"parameters":[
+								{                                                                 
+ 								"name":"i",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"s",
+								"type":"string"
+			                	}             
+							 ]
+	        },
+	        "setTabTextAt": {
+				"parameters":[
+								{                                                                 
+ 								"name":"index",
+								"type":"int"
+			                	},
+             					{                                                                 
+ 								"name":"text",
+								"type":"string"
+			                	}             
+							 ]
+	        }
+	},
+"types": {
+  "tab": {
+  	"model": {
+  		"name": "string",
+  		"containsFormId": "form",
+  		"text": "tagstring",
+  		"relationName": "relation",
+  		"active": "boolean",
+  		"foreground": "color",
+  		"disabled": "boolean",
+  		"imageMediaID": "string",
+  		"mnemonic": "string"
   	}
   }
 }
- 
+	 
+}

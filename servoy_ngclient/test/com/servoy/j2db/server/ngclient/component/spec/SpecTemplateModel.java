@@ -40,7 +40,6 @@ public class SpecTemplateModel
 	private final String name;
 	private final String serverScript;
 	private final String displayName;
-	private final String categoryName;
 	private final String icon;
 	private final Class< ? > apiInterface;
 	private final String[] libraries;
@@ -49,17 +48,15 @@ public class SpecTemplateModel
 	private List<Element> handlers;
 	private List<Element> model;
 
-	SpecTemplateModel(String name, String displayName, String categoryName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries)
+	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries)
 	{
-		this(name, displayName, categoryName, icon, repositoryType, apiInterface, libaries, null);
+		this(name, displayName, icon, repositoryType, apiInterface, libaries, null);
 	}
 
-	SpecTemplateModel(String name, String displayName, String categoryName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries,
-		String serverScript)
+	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript)
 	{
 		this.name = name;
 		this.displayName = displayName;
-		this.categoryName = categoryName;
 		this.icon = icon;
 		this.apiInterface = apiInterface;
 		this.repositoryType = repositoryType;
@@ -67,10 +64,10 @@ public class SpecTemplateModel
 		this.serverScript = serverScript;
 	}
 
-	SpecTemplateModel(String name, String displayName, String categoryName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries,
-		String serverScript, ApiMethod[] extraApiMethods)
+	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript,
+		ApiMethod[] extraApiMethods)
 	{
-		this(name, displayName, categoryName, icon, repositoryType, apiInterface, libaries, serverScript);
+		this(name, displayName, icon, repositoryType, apiInterface, libaries, serverScript);
 		apis.addAll(Arrays.asList(extraApiMethods));
 	}
 
@@ -82,11 +79,6 @@ public class SpecTemplateModel
 	public String getDisplayName()
 	{
 		return displayName;
-	}
-
-	public String getCategoryName()
-	{
-		return categoryName;
 	}
 
 	public String getIcon()
@@ -148,7 +140,7 @@ public class SpecTemplateModel
 		String type = SpecGenerator.getSpecTypeFromRepoType(compName, element);
 		if (!type.startsWith("{") && !type.startsWith("["))
 		{
-			type = "'" + type + "'";
+			type = "\"" + type + "\"";
 		}
 		else
 		{
@@ -156,7 +148,7 @@ public class SpecTemplateModel
 		}
 		if (element.getContentID() > 0 && !Utils.equalObjects(ContentSpec.getJavaClassMemberDefaultValue(element.getTypeID()), element.getDefaultClassValue()))
 		{
-			type = "{type:" + type + ", default:" + element.getDefaultTextualClassValue() + "}";
+			type = "{\"type\":" + type + ", \"default\":" + element.getDefaultTextualClassValue() + "}";
 		}
 		return type;
 	}
@@ -188,15 +180,17 @@ public class SpecTemplateModel
 	{
 		if (name.equals("tabpanel"))
 		{
-			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
-				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: 'color',\r\n"
-				+ "  		disabled: 'boolean',\r\n" + "  		imageMediaID: 'string',\r\n" + "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
+			return ",\r\n" + "\"types\": {\r\n" + "  \"tab\": {\r\n" + "  	\"model\": {\r\n" + "  		\"name\": \"string\",\r\n"
+				+ "  		\"containsFormId\": \"form\",\r\n" + "  		\"text\": \"tagstring\",\r\n" + "  		\"relationName\": \"relation\",\r\n"
+				+ "  		\"active\": \"boolean\",\r\n" + "  		\"foreground\": \"color\",\r\n" + "  		\"disabled\": \"boolean\",\r\n"
+				+ "  		\"imageMediaID\": \"string\",\r\n" + "  		\"mnemonic\": \"string\"\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		if (name.equals("splitpane"))
 		{
-			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
-				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: 'color',\r\n"
-				+ "  		disabled: 'boolean',\r\n" + "  		mnemonic: 'string'\r\n" + "  	}\r\n" + "  }\r\n" + "}";
+			return ",\r\n" + "\"types\": {\r\n" + "  \"tab\": {\r\n" + "  	\"model\": {\r\n" + "  		\"name\": \"string\",\r\n"
+				+ "  		\"containsFormId\": \"form\",\r\n" + "  		\"text\": \"tagstring\",\r\n" + "  		\"relationName\": \"relation\",\r\n"
+				+ "  		\"active\": \"boolean\",\r\n" + "  		\"foreground\": \"color\",\r\n" + "  		\"disabled\": \"boolean\",\r\n"
+				+ "  		\"mnemonic\": \"string\"\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		return null;
 	}

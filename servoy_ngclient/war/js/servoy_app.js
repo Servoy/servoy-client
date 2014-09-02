@@ -59,7 +59,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   var changes = getComponentChanges(now, prev, $utils.getInDepthProperty(formStatesConversionInfo, formname, beanname),
 				   formStates[formname].layout[beanname], formStates[formname].properties.designSize, getChangeNotifier(formname, beanname));
 		   if (Object.getOwnPropertyNames(changes).length > 0) {
-			   wsSession.sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
+			   getSession().sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
 		   }
 	   };
 
@@ -202,11 +202,19 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 	   }
 		   
-	   // maybe do this with defer ($q)
+	   
+		  
 	   var ignoreChanges = false;
-	   $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec(window.location.pathname)[1];
+	   var wsSession = null;
+	   function connect() {
+	   // maybe do this with defer ($q)
+		   var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		   if (!solName) $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec($window.location.pathname)[1];
+		   else $solutionSettings.solutionName  = solName;
 	   $solutionSettings.windowName = webStorage.session.get("windowid");
-	   var wsSession = $webSocket.connect('client', webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
+		   var endpointType = decodeURIComponent((new RegExp('[?|&]endpoint=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		   if (!endpointType) endpointType ="client";
+		   wsSession = $webSocket.connect(endpointType, webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName)
 	   wsSession.onMessageObject = function (msg, conversionInfo) {
 		   try {
 			   // data got back from the server
@@ -351,8 +359,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   ignoreChanges = false;
 		   }
 	   };
-	    
+	   }
+	   function getSession() {
+		   if (wsSession == null) throw "Session is not created yet, first call connect()";
+		   return wsSession;
+	   }
 	   return {
+		   connect: connect,
 		   // used by custom property component[] to implement nested component logic
 		   applyBeanData: applyBeanData,
 		   getComponentChanges: getComponentChanges,
@@ -426,13 +439,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					   }
 					   var cmd = {cmd:'event',formname:formName,beanname:beanName,event:eventName,args:newargs,changes:data}
 					   if (rowId) cmd.rowId = rowId
-					   return wsSession.sendDeferredMessage(cmd)
+					   return getSession().sendDeferredMessage(cmd)
 				   },
 			   }
 		   },
 
 		   sendRequest: function(objToStringify) {
-			   wsSession.sendMessageObject(objToStringify);
+			   getSession().sendMessageObject(objToStringify);
 		   },
 
 		   // used by form template js
@@ -459,18 +472,18 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   }else{
 				   changes[property] = formStates[formname].model[beanname][property]
 			   }
-			   wsSession.sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
+			   getSession().sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
 		   },
 
 		   filterList: function(formname,beanname,property,filter)  {
 			   var deferred = $q.defer();
 			   deferredProperties[formname + "_" + beanname + "_" + property] = deferred;
-			   wsSession.sendMessageObject({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter})
+			   getSession().sendMessageObject({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter})
 			   return deferred.promise;
 		   },
 
 		   callService: function(serviceName, methodName, argsObject, async) {
-			   return wsSession.callService(serviceName, methodName, argsObject, async)
+			   return getSession().callService(serviceName, methodName, argsObject, async)
 		   }
 	   }
 }).directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
@@ -511,6 +524,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	styleSheetPath: undefined,
 	ltrOrientation : true
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage) {
+	$servoyInternal.connect();
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
 		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";

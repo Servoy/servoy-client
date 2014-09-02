@@ -761,24 +761,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			ApplicationServerRegistry.get().setServerProcess(getClientID());
 			if (!registered)
 			{
-				((NGClientWebsocketSession)wsSession).setClient(this);
-				invokeLater(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						if (adsInfo == null) adsInfo = Ad.getAdInfo();
-						final int w = Utils.getAsInteger(adsInfo[1]);
-						final int h = Utils.getAsInteger(adsInfo[2]);
-						if (w > 50 && h > 50)
-						{
-							final URL url = (URL)adsInfo[0];
-							final int t = Utils.getAsInteger(adsInfo[3]);
-							getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showInfoPanel",
-								new Object[] { url.toString(), w, h, t, getI18NMessage("servoy.button.close") });
-						}
-					}
-				});
+				showInfoPanel();
 			}
 		}
 		catch (final ApplicationException e)
@@ -798,6 +781,28 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			throw e;
 		}
 		return registered;
+	}
+
+	protected void showInfoPanel()
+	{
+		((NGClientWebsocketSession)wsSession).setClient(this);
+		invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (adsInfo == null) adsInfo = Ad.getAdInfo();
+				final int w = Utils.getAsInteger(adsInfo[1]);
+				final int h = Utils.getAsInteger(adsInfo[2]);
+				if (w > 50 && h > 50)
+				{
+					final URL url = (URL)adsInfo[0];
+					final int t = Utils.getAsInteger(adsInfo[3]);
+					getWebsocketSession().getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showInfoPanel",
+						new Object[] { url.toString(), w, h, t, getI18NMessage("servoy.button.close") });
+				}
+			}
+		});
 	}
 
 	private Map<String, Object> getLicenseAndMentenanceDetail()

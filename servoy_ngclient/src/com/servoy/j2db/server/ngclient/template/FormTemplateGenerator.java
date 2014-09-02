@@ -59,12 +59,12 @@ public class FormTemplateGenerator
 {
 	private final Configuration cfg;
 
-	public FormTemplateGenerator(IServoyDataConverterContext context, boolean useControllerProvider)
+	public FormTemplateGenerator(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
 	{
 		cfg = new Configuration();
 
 		cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "templates"));
-		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider));
+		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider, design));
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		cfg.setIncompatibleImprovements(new Version(2, 3, 20));
@@ -97,6 +97,11 @@ public class FormTemplateGenerator
 			return "svy-errorbean";
 		}
 		return component_type;
+	}
+
+	public static String getTagName(String componentType)
+	{
+		return componentType != null ? "data-" + componentType : "data-form";
 	}
 
 	private static String getPersistComponentTypeName(IFormElement persist)

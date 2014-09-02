@@ -58,17 +58,24 @@ public class FormWrapper
 	private final String realName;
 	private final IFormElementValidator formElementValidator;
 	private final IServoyDataConverterContext context;
+	private final boolean design;
 
 	public FormWrapper(Form form, String realName, boolean useControllerProvider, IFormElementValidator formElementValidator,
-		IServoyDataConverterContext context)
+		IServoyDataConverterContext context, boolean design)
 	{
 		this.form = form;
 		this.realName = realName;
 		this.useControllerProvider = useControllerProvider;
 		this.formElementValidator = formElementValidator;
 		this.context = context;
+		this.design = design;
 		isTableView = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 		isListView = form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED;
+	}
+
+	public boolean isDesign()
+	{
+		return design;
 	}
 
 	public String getControllerName()
@@ -205,10 +212,9 @@ public class FormWrapper
 			excludedComponents = getBodyComponents();
 		}
 
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
+		List<IPersist> persists = form.getFlattenedObjects();
+		for (IPersist persist : persists)
 		{
-			IPersist persist = it.next();
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{
 				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add((BaseComponent)persist);
@@ -242,10 +248,9 @@ public class FormWrapper
 
 		int startPos = form.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
+		List<IPersist> persists = form.getFlattenedObjects();
+		for (IPersist persist : persists)
 		{
-			IPersist persist = it.next();
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{

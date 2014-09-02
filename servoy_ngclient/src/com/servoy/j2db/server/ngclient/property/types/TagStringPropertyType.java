@@ -140,6 +140,14 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 						jsonValue = HTMLTagsConverter.convert(value.toString(), dataConverterContext, false);
 					}
 				}
+				else if (value != null && value.toString().startsWith("i18n:"))
+				{
+					if (dataConverterContext != null && dataConverterContext.getApplication() != null)
+					{
+						jsonValue = dataConverterContext.getApplication().getI18NMessage(value.toString().substring(5));
+					}
+					else return value;
+				}
 				else
 				{
 					jsonValue = value;

@@ -91,8 +91,8 @@ angular.module('window',['servoy'])
 				var groupCount = 1;
 				if (items[j])
 				{
-					if (items[j].visible == false) continue;
 					var text = items[j].text;
+					if (items[j].visible == false || !text) continue;
 					var cssClass = items[j].cssClass;
 					if (cssClass == 'img_checkbox' && items[j].selected != true)
 					{
@@ -114,10 +114,12 @@ angular.module('window',['servoy'])
 						text = htmltext;
 					}
 					var mi = new YAHOO.widget.MenuItem(text);
-					mi.cfg.setProperty('onclick', {fn:function(index) {return function(){
-						$window.executeInlineScript(items[index].callback.formname,items[index].callback.script,items[index].args)
-						}}(j)
-					});
+					if (items[j].callback) {
+						mi.cfg.setProperty('onclick', {fn:function(index) {return function(){
+							$window.executeInlineScript(items[index].callback.formname,items[index].callback.script,items[index].args)
+							}}(j)
+						});
+					}
 					if (items[j].enabled == false)
 					{
 						mi.cfg.setProperty('disabled', true);
@@ -148,7 +150,7 @@ angular.module('window',['servoy'])
 		}
 	}
 })
-.run(function($rootScope,$services,window,$window)
+.run(function($rootScope,$services,window,$window, $timeout)
 {
 	var scope = $rootScope.$new(true);
 	scope.state = $services.getServiceState('window');
@@ -166,11 +168,11 @@ angular.module('window',['servoy'])
 			var oMenu = new YAHOO.widget.Menu('basicmenu',{zIndex : 1000});
 			oMenu.clearContent();
 			oMenu.subscribe('hide', function (event) {
-				$rootScope.$apply(function(){
+				$timeout(function(){
 					var state = $services.getServiceState('window');
 					state.popupMenuShowCommand = null;
 					oMenu.destroy();
-				});
+				},1);
 			});
 			if (newvalue.popupMenus && newvalue.popupMenuShowCommand.popupName)
 			{

@@ -14,38 +14,45 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
-name: 'svy-${name}',
-displayName: '${displayName}',
-<#if categoryName??>categoryName: '${categoryName}',
-</#if><#if icon??>icon: 'servoydefault/${name}/${icon}',
-</#if>definition: 'servoydefault/${name}/${name}.js',
-<#if serverScript??>serverscript: '${serverScript}',
-</#if>libraries: [<#list libraries as lib>'${lib}'<#if lib_has_next>,</#if></#list>],
-model:
 {
-    <#list model as prop>
-        ${prop.name} : ${getPropTypeWithDefault(name, prop)}<#if prop_has_next>,</#if> 
-    </#list>
-},
-handlers:
-{
-    <#list handlers as prop>
-        ${prop.name} : 'function'<#if prop_has_next>,</#if> 
-    </#list>
-},
-api:
-{
-    <#list apis as api>
-        ${api.name}: {
-<#if (api.returnType != 'void')>            returns: '${api.returnType}'<#if (api.parameters?size>0 || api.hints??)>,
-</#if></#if><#if (api.parameters?size>0)>            parameters:[<#list api.parameters as param><#rt>
-           {'${param.left}':'${param.right}'<#t>
-            <#if (api.isOptionalParameter(param.left)!='false')>,'optional':'${api.isOptionalParameter(param.left)}'}<#else>}</#if><#t>
-            <#if param_has_next>,</#if></#list>]<#if api.hints??>,<#lt>
-</#if></#if><#if api.hints??><#list api.hints as hint>            ${hint}<#if hint_has_next>,
-            </#if></#list></#if><#lt>
+	"name": "svy-${name}",
+	"displayName": "${displayName}",
+	<#if icon??>"icon": "servoydefault/${name}/${icon}",
+	</#if>"definition": "servoydefault/${name}/${name}.js",
+	<#if serverScript??>"serverscript": "${serverScript}",
+	</#if>"libraries": [<#list libraries as lib>"${lib}"<#if lib_has_next>,</#if></#list>],
+	"model":
+	{
+	    <#list model as prop>
+	        "${prop.name}" : ${getPropTypeWithDefault(name, prop)}<#if prop_has_next>,</#if> 
+	    </#list>
+	},
+	"handlers":
+	{
+	    <#list handlers as prop>
+	        "${prop.name}" : "function"<#if prop_has_next>,</#if> 
+	    </#list>
+	},
+	"api":
+	{
+	    <#list apis as api>
+	        "${api.name}": {
+	<#if (api.returnType != "void")>            "returns": "${api.returnType}"<#if (api.parameters?size>0 || api.hints??)>,
+	</#if></#if><#if (api.parameters?size>0)>			"parameters":[
+			<#list api.parameters as param><#rt>					{
+                                                                 
+ 								"name":"${param.left}",
+								"type":"${param.right}"<#if (api.isOptionalParameter(param.left)!="false")>,
+			            		"optional":"${api.isOptionalParameter(param.left)}"
+			            		}<#else>
+			                	}</#if><#if param_has_next>,
+</#if>             </#list>
+<#t>							 ]<#if api.hints??>,<#lt>
+			</#if></#if><#if api.hints??><#list api.hints as hint>            ${hint}<#if hint_has_next>,
+			            </#if></#list></#if><#lt>
 
-        }<#if api_has_next>,</#if>
-    </#list>
-}<#if types??>${types}</#if>
- 
+	        }<#if api_has_next>,</#if>
+	    </#list>
+	}<#if types??>${types}</#if>
+	 
+}

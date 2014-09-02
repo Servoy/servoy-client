@@ -305,6 +305,15 @@ public final class FormElement implements IWebComponentInitializer
 		return name.replace('-', '_');
 	}
 
+	public String getDesignId()
+	{
+		if (dataConverterContext != null && dataConverterContext.getApplication() instanceof DesignNGClient)
+		{
+			return persistImpl.getPersist().getUUID().toString();
+		}
+		return null;
+	}
+
 //
 //	/**
 //	 * Gets the JSON value to be set in form's ftl template. (initial value)<br><br>
@@ -411,7 +420,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getTagname()
 	{
-		return componentType != null ? "data-" + componentType : "data-form";
+		return FormTemplateGenerator.getTagName(componentType);
 	}
 
 	public String getTypeName()

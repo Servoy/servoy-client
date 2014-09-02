@@ -41,14 +41,16 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 	private final IServoyDataConverterContext context;
 	private final boolean useControllerProvider;
 	private Form flattenedForm;
+	private final boolean design;
 
 	/**
 	 * @param fs
 	 */
-	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider)
+	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
 	{
 		this.context = context;
 		this.useControllerProvider = useControllerProvider;
+		this.design = design;
 	}
 
 	@Override
@@ -58,12 +60,12 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		if (obj instanceof Form)
 		{
 			this.flattenedForm = context.getSolution().getFlattenedForm((Form)obj);
-			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, this, context);
+			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, this, context, design);
 		}
 		else if (obj instanceof Object[])
 		{
 			this.flattenedForm = context.getSolution().getFlattenedForm((Form)((Object[])obj)[0]);
-			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, this, context);
+			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, this, context, design);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{

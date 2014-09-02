@@ -15,13 +15,36 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient;
+package com.servoy.j2db.server.ngclient.design;
+
+import com.servoy.j2db.persistence.IPersistChangeListener;
+import com.servoy.j2db.persistence.Solution;
 
 /**
  * @author jcompagner
  *
  */
-public interface IClientCreator
+public interface IDesignerSolutionProvider
 {
-	public NGClient createClient(INGClientWebsocketSession wsSession) throws Exception;
+	/**
+	 * returns the active solution from developer
+	 */
+	Solution getActiveEditingSolution();
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	Solution getEditingSolution(String name);
+
+	/**
+	 * @param listener
+	 */
+	void addPersistListener(IPersistChangeListener listener);
+
+	/**
+	 * @param listener
+	 */
+	void removePersistListener(IPersistChangeListener listener);
+
 }
