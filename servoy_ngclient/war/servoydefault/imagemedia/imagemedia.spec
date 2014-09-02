@@ -19,7 +19,7 @@
 	        "margin" : {"type" :"insets", "scope" :"design"}, 
 	        "placeholderText" : "tagstring", 
 	        "scrollbars" : {"type" :"int", "scope" :"design"}, 
-	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}}, 
+	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":140}}, 
 	        "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
 	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
 	        "text" : "tagstring", 

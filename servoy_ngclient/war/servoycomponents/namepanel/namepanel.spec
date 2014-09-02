@@ -9,10 +9,11 @@
 	    "firstNameTabsequence": {"type": "tabseq","scope": "design"},
 	    "lastNameDataprovider": "dataprovider",
 	    "lastNameTabsequence": {"type": "tabseq","scope": "design"},
-		"buttontext": "string",
+		"buttontext": {"type":"string", "default":"button"},
 		"buttonClass": { "type":"styleclass", "values":["btn","btn-default","btn-lg","btn-sm","btn-xs"]}, 
 		"tooltiptext": "string",
 		"readOnly": "boolean",
+		"size" : {"type" :"dimension",  "default" : {"width":230, "height":120}}, 
 	    "firstNameFormat": {"for":"firstNameDataprovider" , "type":"format"},
 	    "testruntime": { "type": "string", "scope":"runtime"}
 	},

@@ -52,10 +52,10 @@ angular.module('svySplitpane',['servoy']).directive('svySplitpane', function() {
      		 }
      	  });
     	  
-    	  if ($scope.model.tabs[0] && $scope.model.tabs[0].containsFormId) {
+    	  if ($scope.model.tabs && $scope.model.tabs[0] && $scope.model.tabs[0].containsFormId) {
     		  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[0].containsFormId, true, $scope.model.tabs[0].relationName,0);
     	  }
-    	  if ($scope.model.tabs[1] && $scope.model.tabs[1].containsFormId) {
+    	  if ($scope.model.tabs && $scope.model.tabs[1] && $scope.model.tabs[1].containsFormId) {
     		  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[1].containsFormId, true, $scope.model.tabs[1].relationName,1);
     	  }
     	  $scope.onChange = function() {

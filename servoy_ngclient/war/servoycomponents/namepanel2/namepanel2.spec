@@ -1,13 +1,14 @@
 {
 	"name": "namepanel2",
-	"displayName": "Name panel",
+	"displayName": "Name panel 2",
 	"definition": "servoycomponents/namepanel2/namepanel2.js",
 	"model":
 	{
 		"bgcolor": "color",
-		"buttontext": "string",
+		"buttontext": {"type":"string", "default":"button"},
 		"tooltiptext": "string",
-		"complexmodel": "complextype"
+		"complexmodel": "complextype",
+		"size" : {"type" :"dimension",  "default" : {"width":230, "height":120}}, 
 	},
 	"handlers":
 	{
