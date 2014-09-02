@@ -19,7 +19,9 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.UUID;
@@ -317,6 +319,28 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		obj.setLineSize(1);
 		addChild(obj);
 		return obj;
+	}
+
+	/**
+	 * @return
+	 */
+	public List<IPersist> getFlattenedObjects()
+	{
+		List<IPersist> flattenedPersists = new ArrayList<IPersist>();
+		Iterator<IPersist> it = getAllObjects();
+		while (it.hasNext())
+		{
+			IPersist persist = it.next();
+			if (persist instanceof LayoutContainer)
+			{
+				flattenedPersists.addAll(((LayoutContainer)persist).getFlattenedObjects());
+			}
+			else
+			{
+				flattenedPersists.add(persist);
+			}
+		}
+		return flattenedPersists;
 	}
 
 }

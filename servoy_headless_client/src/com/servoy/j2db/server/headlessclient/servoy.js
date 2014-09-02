@@ -2417,7 +2417,9 @@ if (typeof(Servoy.Utils) == "undefined")
         			  function() { return Wicket.$(elId) != null; }.bind($('#' + elId).get(0))
         	  );
     	  }, 500);
-	  }
+	  },
+	  
+	  nop: function(){}
 	}
 }
 

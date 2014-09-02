@@ -36,6 +36,7 @@ import javax.swing.ActionMap;
 import javax.swing.DefaultCellEditor;
 import javax.swing.FocusManager;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -210,10 +211,10 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	/**
 	 * Sets whether editors in this JEditList get the keyboard focus when an editor is activated as a result of the JEditList forwarding keyboard events for a
 	 * cell. By default, this property is false, and the JEditList retains the focus unless the cell is clicked.
-	 * 
+	 *
 	 * @param surrendersFocusOnKeystroke true if the editor should get the focus when keystrokes cause the editor to be activated
-	 * 
-	 * 
+	 *
+	 *
 	 * @see #getSurrendersFocusOnKeystroke
 	 */
 	public void setSurrendersFocusOnKeystroke(boolean surrendersFocusOnKeystroke)
@@ -223,9 +224,9 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Returns true if the editor should get the focus when keystrokes cause the editor to be activated
-	 * 
+	 *
 	 * @return true if the editor should get the focus when keystrokes cause the editor to be activated
-	 * 
+	 *
 	 * @see #setSurrendersFocusOnKeystroke
 	 */
 	public boolean getSurrendersFocusOnKeystroke()
@@ -235,7 +236,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Programmatically starts editing the cell at <code>row</code>
-	 * 
+	 *
 	 * @param row the row to be edited
 	 * @exception IllegalArgumentException if <code>row</code> is not in the valid range
 	 * @return false if for any reason the cell cannot be edited
@@ -248,7 +249,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	/**
 	 * Programmatically starts editing the cell at <code>row</code> , if the cell is editable. To prevent the <code>JEditList</code> from editing a particular
 	 * table, column or cell value, return false from the <code>isCellEditable</code> method in the <code>TableModel</code> interface.
-	 * 
+	 *
 	 * @param row the row to be edited
 	 * @param e event to pass into <code>shouldSelectCell</code>; note that as of Java 2 platform v1.2, the call to <code>shouldSelectCell</code> is no longer
 	 *            made
@@ -269,7 +270,6 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 			return false;
 		}
 
-
 		FocusManager fm = FocusManager.getCurrentManager();
 		//System.out.println("editCellAt3");
 		if (editorRemover == null)
@@ -282,7 +282,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 		IEditListEditor editor = getCellEditor();
 		if (editor != null && editor.isCellEditable(e))
 		{
-			//System.out.println(" preparing editor ");			
+			//System.out.println(" preparing editor ");
 			editorComp = prepareEditor(editor, row);
 			if (editorComp == null)
 			{
@@ -305,9 +305,14 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 		return false;
 	}
 
+	protected boolean shouldDispatchClickToButton(JButton button)
+	{
+		return true;
+	}
+
 	/**
 	 * Returns true if a cell is being edited.
-	 * 
+	 *
 	 * @return true if the table is editing a cell
 	 * @see #editingRow
 	 */
@@ -318,7 +323,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Returns the component that is handling the editing session. If nothing is being edited, returns null.
-	 * 
+	 *
 	 * @return Component handling editing session
 	 */
 	public Component getEditorComponent()
@@ -328,7 +333,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Returns the index of the row that contains the cell currently being edited. If nothing is being edited, returns -1.
-	 * 
+	 *
 	 * @return the index of the row that contains the cell currently being edited; returns -1 if nothing being edited
 	 */
 	public int getEditingRow()
@@ -351,7 +356,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	 * ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed); // If we have started an editor as a result of the user // pressing a key
 	 * and the surrendersFocusOnKeystroke property // is true, give the focus to the new editor. if (getSurrendersFocusOnKeystroke()) {
 	 * editorComponent.requestFocus(); } } }
-	 * 
+	 *
 	 * return retValue; }
 	 */
 
@@ -362,7 +367,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	 * Invoked when editing is finished. The changes are saved and the editor is discarded.
 	 * <p>
 	 * Application code will not use these methods explicitly, they are used internally by JEditList.
-	 * 
+	 *
 	 * @param e the event received
 	 * @see CellEditorListener
 	 */
@@ -382,7 +387,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	 * Invoked when editing is canceled. The editor object is discarded and the cell is rendered once again.
 	 * <p>
 	 * Application code will not use these methods explicitly, they are used internally by JEditList.
-	 * 
+	 *
 	 * @param e the event received
 	 * @see CellEditorListener
 	 */
@@ -393,7 +398,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Sets the <code>cellEditor</code> variable.
-	 * 
+	 *
 	 * @param anEditor the IEditListEditor that does the editing
 	 * @see #cellEditor
 	 * @beaninfo bound: true description: The table's active cell editor, if one exists.
@@ -410,7 +415,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	 * <p>
 	 * <b>Note:</b> Throughout the table package, the internal implementations always use this method to provide editors so that this default behavior can be
 	 * safely overridden by a subclass.
-	 * 
+	 *
 	 * @param row the row of the cell to edit, where 0 is the first row
 	 * @return the editor for this cell; if <code>null</code> return the default editor for this type of cell
 	 * @see DefaultCellEditor
@@ -422,9 +427,9 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Sets the <code>editingRow</code> variable.
-	 * 
+	 *
 	 * @param aRow the row of the cell to be edited
-	 * 
+	 *
 	 * @see #editingRow
 	 */
 	public void setEditingRow(int aRow)
@@ -437,7 +442,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	 * <p>
 	 * <b>Note:</b> Throughout the table package, the internal implementations always use this method to prepare editors so that this default behavior can be
 	 * safely overridden by a subclass.
-	 * 
+	 *
 	 * @param editor the <code>IEditListEditor</code> to set up
 	 * @param row the row of the cell to edit, where 0 is the first row
 	 * @return the <code>Component</code> being edited
@@ -525,7 +530,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JList#setSelectionModel(javax.swing.ListSelectionModel)
 	 */
 	@Override
@@ -569,7 +574,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 //			{
 //				setSelectedIndex(0);
 //			}
-//Debug.trace("index "+getSelectedIndex());			
+//Debug.trace("index "+getSelectedIndex());
 		}
 
 		public void intervalRemoved(ListDataEvent event)
@@ -638,7 +643,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Gets the mustSelectFirst. (first the row must be selected before it starts editing)
-	 * 
+	 *
 	 * @return Returns a boolean
 	 */
 	public boolean getMustSelectFirst()
@@ -648,7 +653,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Sets the mustSelectFirst.
-	 * 
+	 *
 	 * @param mustSelectFirst The mustSelectFirst to set
 	 */
 	public void setMustSelectFirst(boolean mustSelectFirst)
@@ -672,7 +677,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Returns the isRendererSameAsEditor.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isRendererSameAsEditor()
@@ -682,7 +687,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/**
 	 * Sets the isRendererSameAsEditor.
-	 * 
+	 *
 	 * @param isRendererSameAsEditor The isRendererSameAsEditor to set
 	 */
 	public void setRendererSameAsEditor(boolean isRendererSameAsEditor)
@@ -692,7 +697,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 	 */
 	public void valueChanged(ListSelectionEvent e)
