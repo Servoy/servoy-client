@@ -534,6 +534,7 @@ public class SpecGenerator
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"scope\" :\"design\", \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"scope\" :\"design\", \"for\": \"dataProviderID\", \"default\":\"autoVL\"}");
 		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
 
 		//speciffic repository element mapping
