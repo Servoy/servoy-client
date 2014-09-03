@@ -609,52 +609,44 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	
 	return {
 		expireSession : function (sessionExpired){
-			$rootScope.$apply(function(){
-				var exp = { 
-			    	viewUrl: 'templates/sessionExpiredView.html',
-			    	redirectUrl : $window.location.href
-			    }
-			    if(sessionExpired.viewUrl)	exp.viewUrl= sessionExpired.viewUrl;
-			    
-			    $solutionSettings.sessionExpired = exp;
-			})
+			var exp = { 
+					viewUrl: 'templates/sessionExpiredView.html',
+					redirectUrl : $window.location.href
+			}
+			if(sessionExpired.viewUrl)	exp.viewUrl= sessionExpired.viewUrl;
+
+			$solutionSettings.sessionExpired = exp;
 		},
 		setNoLicense: function (noLicense){
-			$rootScope.$apply(function(){
-				var noLic = {
-						viewUrl : 'templates/serverTooBusyView.html',
-						redirectUrl : $window.location.href,
-						redirectTimeout : 0
-				}
-	        	if(noLicense.viewUrl) noLic.viewUrl = noLicense.viewUrl 
-	        	if(noLicense.redirectUrl) noLic.redirectUrl = noLicense.redirectUrl;
-	        	if(noLicense.redirectTimeout) noLic.redirectTimeout = noLicense.redirectTimeout;
-	        	
-	        	$solutionSettings.noLicense = noLic;
-			})
+			var noLic = {
+					viewUrl : 'templates/serverTooBusyView.html',
+					redirectUrl : $window.location.href,
+					redirectTimeout : 0
+			}
+			if(noLicense.viewUrl) noLic.viewUrl = noLicense.viewUrl 
+			if(noLicense.redirectUrl) noLic.redirectUrl = noLicense.redirectUrl;
+			if(noLicense.redirectTimeout) noLic.redirectTimeout = noLicense.redirectTimeout;
+
+			$solutionSettings.noLicense = noLic;
 		},
 		setMaintenanceMode: function (maintenanceMode){
-			$rootScope.$apply(function(){
-				var ment = {
-						viewUrl : 'templates/maintenanceView.html',
-						redirectUrl : $window.location.href,
-						redirectTimeout : 0
-				}
-	        	if(maintenanceMode.viewUrl) ment.viewUrl = mentenanceMode.viewUrl 
-	        	if(msg.maintenanceMode.redirectUrl)	ment.redirectUrl = maintenanceMode.redirectUrl;
-	        	if(msg.maintenanceMode.redirectTimeout)	ment.redirectTimeout = maintenanceMode.redirectTimeout;
-	
-	        	$solutionSettings.maintenanceMode = ment;
-			})
+			var ment = {
+					viewUrl : 'templates/maintenanceView.html',
+					redirectUrl : $window.location.href,
+					redirectTimeout : 0
+			}
+			if(maintenanceMode.viewUrl) ment.viewUrl = mentenanceMode.viewUrl 
+			if(msg.maintenanceMode.redirectUrl)	ment.redirectUrl = maintenanceMode.redirectUrl;
+			if(msg.maintenanceMode.redirectTimeout)	ment.redirectTimeout = maintenanceMode.redirectTimeout;
+
+			$solutionSettings.maintenanceMode = ment;
 		},
 		setInternalServerError: function(internalServerError){
-			$rootScope.$apply(function(){
-				var error = {viewUrl:'templates/serverInternalErrorView.html'}
-				if(internalServerError.viewUrl)  error.viewUrl = internalServerError.viewUrl;
-				if(internalServerError.stack) error.stack = internalServerError.stack;
-				
-				$solutionSettings.internalServerError = error;					
-			})
+			var error = {viewUrl:'templates/serverInternalErrorView.html'}
+			if(internalServerError.viewUrl)  error.viewUrl = internalServerError.viewUrl;
+			if(internalServerError.stack) error.stack = internalServerError.stack;
+
+			$solutionSettings.internalServerError = error;					
 		}
 	}
 }])

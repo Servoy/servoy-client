@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -98,7 +99,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public boolean isValid()
 	{
-		return !client.isShutDown();
+		return client != null && !client.isShutDown();
 	}
 
 	@Override
@@ -277,6 +278,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						lstModel = new LookupListModel(client, (LookupValueList)property);
 						webComponent.setProperty(obj.getString("property"), lstModel);
 					}
+					else if (property instanceof ColumnBasedValueList)
+					{
+						lstModel = ((ColumnBasedValueList)property).getListModel();
+						webComponent.setProperty(obj.getString("property"), lstModel, ConversionLocation.BROWSER_UPDATE);
+					}
 					else if (property instanceof LookupListModel)
 					{
 						lstModel = (LookupListModel)property;
@@ -284,8 +290,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 					if (lstModel != null)
 					{
-						// TODO what is the dataprovider? record could be given through the DataAdapterList..
-						lstModel.fill(null, null, obj.getString("filter"), false);
+						lstModel.fill(webComponent.dataAdapterList.getRecord(),
+							(String)webComponent.getFormElement().getProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()),
+							obj.getString("filter"), false);
 					}
 					break;
 				}

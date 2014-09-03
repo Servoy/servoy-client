@@ -25,7 +25,7 @@
 	        "text" : "tagstring", 
 	        "toolTipText" : "tagstring", 
 	        "transparent" : "boolean", 
-	        "valuelistID" : { "type" : "valuelist", "scope" :"design", "for": "dataProviderID"}, 
+	        "valuelistID" : { "type" : "valuelist", "scope" :"design", "for": "dataProviderID", "default":"autoVL"}, 
 	        "visible" : {"type":"boolean", "default":true} 
 	},
 	"handlers":

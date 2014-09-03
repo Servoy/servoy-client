@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -36,7 +38,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 
@@ -51,7 +55,7 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class DesignerFilter implements Filter
 {
-	private static List<String> ignoreList = Arrays.asList(new String[] { "svy-checkgroup", "svy-errorbean", "svy-navigator", "svy-radiogroup", "svy-htmlview" });
+	private static List<String> ignoreList = Arrays.asList(new String[] { "svy-checkgroup", "svy-errorbean", "svy-navigator", "svy-radiogroup", "svy-htmlview", "colorthefoundset" });
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
@@ -100,6 +104,25 @@ public class DesignerFilter implements Filter
 								jsonWriter.key("name").value(spec.getName());
 								jsonWriter.key("displayName").value(spec.getDisplayName());
 								jsonWriter.key("tagName").value(FormTemplateGenerator.getTagName(componentName));
+								Map<String, Object> model = new HashMap<String, Object>();
+								PropertyDescription pd = spec.getProperty("size");
+								if (pd != null && pd.getDefaultValue() != null)
+								{
+									model.put("size", pd.getDefaultValue());
+								}
+								if (spec.getProperty("enabled") != null)
+								{
+									model.put("enabled", Boolean.TRUE);
+								}
+								if (spec.getProperty("editable") != null)
+								{
+									model.put("editable", Boolean.TRUE);
+								}
+								if ("svy-label".equals(spec.getName()))
+								{
+									model.put("text", "label");
+								}
+								jsonWriter.key("model").value(new JSONObject(model));
 								if (spec.getIcon() != null)
 								{
 									jsonWriter.key("icon").value(spec.getIcon());

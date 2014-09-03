@@ -47,6 +47,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -110,6 +111,13 @@ public class ComponentFactory
 						}
 						webComponent.setProperty(vlProp.getName(), valueList);
 					}
+				}
+				else
+				{
+
+					ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
+						(String)fe.getProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
+					webComponent.setProperty(vlProp.getName(), vl, ConversionLocation.DESIGN);
 				}
 			}
 			return webComponent;
