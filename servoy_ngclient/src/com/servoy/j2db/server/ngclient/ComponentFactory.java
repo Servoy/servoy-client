@@ -116,8 +116,8 @@ public class ComponentFactory
 				{
 
 					ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
-						(String)fe.getProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
-					webComponent.setProperty(vlProp.getName(), vl, ConversionLocation.DESIGN);
+						(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
+					webComponent.setProperty(vlProp.getName(), vl);
 				}
 			}
 			return webComponent;

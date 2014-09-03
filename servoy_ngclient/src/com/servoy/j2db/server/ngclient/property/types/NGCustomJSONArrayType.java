@@ -30,10 +30,11 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
@@ -87,20 +88,31 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd, DataConversion conversionMarkers)
+		throws JSONException
 	{
+		JSONUtils.addKeyIfPresent(writer, key);
+		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+		writer.object().key(CONTENT_VERSION).value(0).key(VALUE).array();
+		DataConversion arrayConversionMarkers = new DataConversion();
+
 		if (formElementValue != null)
 		{
-			writer.array();
 			for (int i = 0; i < formElementValue.length; i++)
 			{
-				if (browserConversionMarkers != null) browserConversionMarkers.pushNode(String.valueOf(i));
-				NGConversions.INSTANCE.applyConversion2(writer, key, formElementValue[i], getCustomJSONTypeDefinition(), browserConversionMarkers);
-				if (browserConversionMarkers != null) browserConversionMarkers.popNode();
+				arrayConversionMarkers.pushNode(String.valueOf(i));
+				NGConversions.INSTANCE.applyConversion2(writer, null, formElementValue[i], getCustomJSONTypeDefinition(), arrayConversionMarkers);
+				arrayConversionMarkers.popNode();
 			}
-			writer.endArray();
 		}
+		writer.endArray();
+		if (arrayConversionMarkers.getConversions().size() > 0)
+		{
+			writer.key("conversions").object();
+			JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
+			writer.endObject();
+		}
+		writer.endObject();
 		return writer;
 	}
 

@@ -522,17 +522,17 @@ public final class FormElement implements IWebComponentInitializer
 
 		if (persistImpl == null || !persistImpl.isForm())
 		{
-			Map<String, Object> propertiesMap = new HashMap<>(propertyValues);
 			Dimension dim = getDesignSize();
 			if (dim != null) properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
-			Integer anchor = (Integer)propertiesMap.get(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
+			Integer anchor = (Integer)getPropertyValue(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
 			if (anchor != null)
 			{
 				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
 			}
 		}
 
-		if (propertyValues.containsKey("offsetY")) properties.put("offsetY", propertyValues.get("offsetY"));
+		Object offsetY = getPropertyValue("offsetY");
+		if (offsetY != null) properties.put("offsetY", offsetY);
 
 		// get types for conversion
 		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();

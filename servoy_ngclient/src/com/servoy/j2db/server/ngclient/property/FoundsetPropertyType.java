@@ -55,6 +55,34 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, JSONObject formElementValue, PropertyDescription pd, DataConversion conversionMarkers)
+		throws JSONException
+	{
+		// this just dumps an empty/dummy value
+		if (conversionMarkers != null) conversionMarkers.convert(TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+
+		JSONUtils.addKeyIfPresent(writer, key);
+		writer.object();
+		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(0);
+		writer.key(FoundsetTypeSabloValue.SELECTED_ROW_INDEXES).array().endArray();
+		writer.key(FoundsetTypeSabloValue.MULTI_SELECT).value(false);
+
+		// viewPort
+		writer.key(FoundsetTypeSabloValue.VIEW_PORT).object().key(FoundsetTypeSabloValue.START_INDEX).value(0).key(FoundsetTypeSabloValue.SIZE).value(0).key(
+			FoundsetTypeSabloValue.ROWS).array().endArray().endObject();
+		// end viewPort
+
+		writer.endObject();
+		return writer;
+	}
+
+	@Override
+	public FoundsetTypeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component)
+	{
+		return new FoundsetTypeSabloValue(formElementValue, pd.getName());
+	}
+
+	@Override
 	public FoundsetTypeSabloValue fromJSON(Object newJSONValue, FoundsetTypeSabloValue previousSabloValue, IDataConverterContext dataConverterContext)
 	{
 		if (previousSabloValue != null)
@@ -63,7 +91,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		}
 		// else there's nothing to do here / this type can't receive browser updates when server has no value for it
 
-		return null;
+		return previousSabloValue;
 	}
 
 	@Override
@@ -75,32 +103,6 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			sabloValue.changesToJSON(writer, clientConversion);
 		}
 		return null;
-	}
-
-	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, JSONObject formElementValue, PropertyDescription pd, DataConversion conversionMarkers)
-		throws JSONException
-	{
-		// this just dumps an empty/dummy value
-		if (conversionMarkers != null) conversionMarkers.convert(TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
-
-		writer.object();
-		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(0);
-		writer.key(FoundsetTypeSabloValue.SELECTED_ROW_INDEXES).array().endArray();
-		writer.key(FoundsetTypeSabloValue.MULTI_SELECT).value(false);
-
-		// viewPort
-		writer.key(FoundsetTypeSabloValue.VIEW_PORT).key(FoundsetTypeSabloValue.ROWS).array().endArray();
-		// end viewPort
-
-		writer.endObject();
-		return writer;
-	}
-
-	@Override
-	public FoundsetTypeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component)
-	{
-		return new FoundsetTypeSabloValue(formElementValue, pd.getName());
 	}
 
 	@Override

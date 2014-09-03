@@ -240,7 +240,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		}
 		// else there's nothing to do here / this type can't receive browser updates when server has no value for it
 
-		return null;
+		return previousSabloValue;
 	}
 
 	@Override

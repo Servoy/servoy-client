@@ -325,7 +325,7 @@ class PersistBasedFormElementImpl
 						if (dpChanged) nfe.updatePropertyValuesDontUse(elementProperties);
 						propertyPath.backOneLevel();
 
-						componentFormElementValues[i] = type.getFormElementValue(null, pd, propertyPath, nfe);
+						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe);
 					}
 				}
 				map.put("childElements", componentFormElementValues);

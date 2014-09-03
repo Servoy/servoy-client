@@ -8,7 +8,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : "border", 
-	        "childElements" : { "type" : "component[]", "forFoundsetTypedProperty": "relatedFoundset" }, 
+	        "childElements" : { "type" : "component[]", "elementConfig" : { "forFoundsetTypedProperty": "relatedFoundset" } }, 
 	        "enabled" : {"type":"boolean", "default":true}, 
 	        "foreground" : "color", 
 	        "initialSort" : "string", 

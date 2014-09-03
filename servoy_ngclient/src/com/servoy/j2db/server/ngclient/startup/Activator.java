@@ -84,7 +84,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
 		 */
 		@Override
@@ -136,7 +136,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.persistence.IPersistChangeListener#persistChanges(java.util.Collection)
 		 */
 		@Override
@@ -217,7 +217,7 @@ public class Activator implements BundleActivator
 													break outer;
 												}
 												webComponent.setFormElement(newFe);
-												webComponent.setProperty(property, newPropValue);
+												webComponent.setProperty(property, newFe.getPropertyValueConvertedForWebComponent(property, webComponent));
 											}
 										}
 									}

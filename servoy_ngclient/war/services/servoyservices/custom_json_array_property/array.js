@@ -75,7 +75,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 		        });
 			} else if (serverJSONValue && serverJSONValue[UPDATES]) {
 				// granular updates received
-				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
+				var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 				internalState[CONTENT_VERSION] = serverJSONValue[CONTENT_VERSION];
 				var updates = serverJSONValue[UPDATES];
 				var conversionInfos = serverJSONValue.conversions;

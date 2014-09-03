@@ -27,8 +27,8 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 
@@ -54,7 +54,14 @@ public class NGConversions
 		 * The idea behind this marker is that when generating the form template, these Sablo (runtime) values can still be converted to JSON using Sablo
 		 * converters so that they do get cached. And this marker can be used at that toJSON stage.
 		 */
-		public final static Object TYPE_DEFAULT_VALUE_MARKER = new Object();
+		public final static Object TYPE_DEFAULT_VALUE_MARKER = new Object()
+		{
+			@Override
+			public String toString()
+			{
+				return "TYPE_DEFAULT_VALUE_MARKER";
+			};
+		};
 
 		/**
 		 * Converts a design JSON value / primitive to a Java value representing that property in FormElement based on spec. type.<br>
@@ -185,7 +192,7 @@ public class NGConversions
 		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers)
 			throws JSONException, IllegalArgumentException
 		{
-			IPropertyType< ? > type = valueType.getType();
+			IPropertyType< ? > type = (valueType != null ? valueType.getType() : null);
 			if (value != ISupportsConversion1_FromDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 			{
 				if (type instanceof ISupportsConversion2_FormElementValueToTemplateJSON)
@@ -199,7 +206,7 @@ public class NGConversions
 					writer.value(value);
 				}
 			}
-			else
+			else if (type != null)
 			{
 				// use conversion 5.1 to convert from default sablo type value to browser JSON in this case
 				writer = JSONUtils.ToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(), valueType, browserConversionMarkers);
@@ -208,6 +215,9 @@ public class NGConversions
 		}
 	}
 
+	// FormElement value of property is only one across all client sessions, so properties that need to have
+	// special behavior in cached template form only or those that have a modifyable object in form element and want to make copies of it for
+	// each client will implement this conversion
 	public Object applyConversion3(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component)
 	{
 		IPropertyType< ? > type = pd.getType();
