@@ -11,7 +11,7 @@ Web-Service: True
 Name: foundset_custom_property/foundset.spec
 Web-Service: True
 
-Name: components_custom_property/components.spec
+Name: component_custom_property/component.spec
 Web-Service: True
 
 Name: custom_json_array_property/array.spec

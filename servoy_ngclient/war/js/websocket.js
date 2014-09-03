@@ -30,7 +30,7 @@ webSocketModule.factory('$webSocket',
 						if (obj.exception) {
 							// something went wrong
 							if (obj.conversions && obj.conversions.exception) {
-								$sabloConverters.convertFromServerToClient(obj.exception, obj.conversions.exception)
+								obj.exception = $sabloConverters.convertFromServerToClient(obj.exception, obj.conversions.exception)
 							}
 							$rootScope.$apply(function() {
 								deferredEvents[obj.cmsgid]
@@ -38,7 +38,7 @@ webSocketModule.factory('$webSocket',
 							})
 						} else {
 							if (obj.conversions && obj.conversions.ret) {
-								$sabloConverters.convertFromServerToClient(obj.ret, obj.conversions.ret)
+								obj.ret = $sabloConverters.convertFromServerToClient(obj.ret, obj.conversions.ret)
 							}
 							$rootScope.$apply(function() {
 								deferredEvents[obj.cmsgid].resolve(obj.ret);
@@ -54,7 +54,7 @@ webSocketModule.factory('$webSocket',
 					if (obj.services) {
 						// services call
 						if (obj.conversions && obj.conversions.services) {
-							$sabloConverters.convertFromServerToClient(obj.services, obj.conversions.services)
+							obj.services = $sabloConverters.convertFromServerToClient(obj.services, obj.conversions.services)
 						}
 						for ( var index in obj.services) {
 							var service = obj.services[index];
@@ -271,7 +271,7 @@ webSocketModule.factory('$webSocket',
 		 		            if (!serviceState) {
 		 		            	if (conversionInfo && conversionInfo[servicename]) {
 	 		            			// convert all properties, remember type for when a client-server conversion will be needed
-									$sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename], serviceStates[servicename])
+		 		            		services[servicename] = $sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename], serviceStates[servicename])
 		 		            		serviceStatesConversionInfo[servicename] = conversionInfo[servicename];
 		 		            	}
 		 		            	serviceStates[servicename] = services[servicename];
@@ -284,7 +284,7 @@ webSocketModule.factory('$webSocket',
 		 		            		if (conversionInfo && conversionInfo[servicename] && conversionInfo[servicename][key]) {
 		 		            			// convert property, remember type for when a client-server conversion will be needed
 		 		            			if (!serviceStatesConversionInfo[servicename]) serviceStatesConversionInfo[servicename] = {};
-										$sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceStates[servicename][key])
+		 		            			serviceData[key] = $sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceStates[servicename][key])
 		 		            			serviceStatesConversionInfo[servicename][key] = conversionInfo[servicename][key];
 		 		            		}
 		 		            		serviceStates[servicename][key] = serviceData[key];

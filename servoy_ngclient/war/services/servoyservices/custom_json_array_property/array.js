@@ -1,150 +1,117 @@
 angular.module('custom_json_array_property', ['webSocketModule'])
-// Component type ------------------------------------------
-.value("$componentTypeConstants", {
-    CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
-    CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
-})
-.run(function ($sabloConverters, $utils, $servoyInternal, $rootScope) {
-	var PROPERTY_UPDATES = "propertyUpdates";
-	
-	function getChildPropertyChanges(propertyValue, beanIndex, oldBeanModel) {
-		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
+// CustomJSONArray type ------------------------------------------
+.run(function ($sabloConverters, $utils, $rootScope, $sabloConverters) {
+	var UPDATES = "updates";
+	var INDEX = "i";
+	var VALUE = "v";
+	var CONTENT_VERSION = "version"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile serverside
 
-		var newBeanModel = propertyValue[beanIndex].model;
-		if (angular.isUndefined(oldBeanModel)) oldBeanModel = newBeanModel; // for child components who's custom prop. changed
-		var childChangedNotifier = getBeanPropertyChangeNotifier(propertyValue, beanIndex); 
-		var beanConversionInfo = $utils.getInDepthProperty(internalState, 'conversions', beanIndex);
-		
-		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
-		var containerSize = {width: 0, height: 0};
-		
-		return $servoyInternal.getComponentChanges(newBeanModel, oldBeanModel, beanConversionInfo, internalState.beanLayout[beanIndex], containerSize, childChangedNotifier);
-	};
-	
-	function getBeanPropertyChangeNotifier(propertyValue, beanIndex) {
-		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-		return function (oldBeanModel) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
-			if (!internalState.requests) internalState.requests = [];
-			internalState.requests.push({ propertyChanges : {
-				beanIndex: beanIndex,
-				changes: getChildPropertyChanges(propertyValue, beanIndex, oldBeanModel)
-			}});
-			if (internalState.notifier) internalState.notifier();
-		};
-	};
-	
-	function watchModel(beanModel, childChangedNotifier) {
-		// TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes!
-		return $rootScope.$watch(function() {
-			return beanModel;
-		}, function(newvalue, oldvalue) {
-			if (oldvalue === newvalue) return;
-			childChangedNotifier(oldvalue);
-		}, true);
+	function getChangeNotifier(propertyValue, idx) {
+		return function() {
+			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
+			internalState.changedIndexes.push(idx);
+			internalState.notifier();
+		}
 	}
 	
-	$sabloConverters.registerCustomPropertyHandler('component[]', {
+	function watchDumbElementForChanges(propertyValue, idx) {
+		// if elements are primitives or anyway not something that wants control over changes, just add an in-depth watch
+		var notifier = getChangeNotifier(propertyValue, idx);
+		return $rootScope.$watch(function() {
+			return propertyValue[idx];
+		}, function(newvalue, oldvalue) {
+			if (oldvalue === newvalue) return;
+			notifier();
+		}, true);
+	}
+
+	$sabloConverters.registerCustomPropertyHandler('JSON_arr', {
 		fromServerToClient: function (serverJSONValue, currentClientValue) {
 			var newValue = currentClientValue;
 
-			if ($.isArray(serverJSONValue)) {
-				newValue = serverJSONValue;
+			if (serverJSONValue && serverJSONValue[VALUE]) {
+				newValue = serverJSONValue[VALUE];
 				$sabloConverters.prepareInternalState(newValue);
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-				
-				var executeHandler = function(name,type,event,row) {
-					if (!internalState.requests) internalState.requests = [];
-					var newargs = $utils.getEventArgs(event,type);
-					internalState.requests.push({ handlerExec: {
-						beanName: name,
-						eventType: type,
-						args:newargs,
-						rowId : row
-					}});
-					if (internalState.notifier) internalState.notifier();
-				};
+				internalState[CONTENT_VERSION] = serverJSONValue[CONTENT_VERSION];
 				
 				// implement what $sabloConverters need to make this work
 				internalState.setChangeNotifier = function(changeNotifier) {
 					internalState.notifier = changeNotifier; 
 				}
-				internalState.isChanged = function() { return internalState.requests && (internalState.requests.length > 0); }
+				internalState.isChanged = function() { return internalState.allChanged || (internalState.changedIndexes.length > 0); }
 
 				// private impl
-				internalState.beanLayout = []; // not really useful right now; just to be able to reuse existing form code 
-				
 				internalState.modelUnwatch = [];
-				for (var c in serverJSONValue) {
-					var childChangedNotifier = getBeanPropertyChangeNotifier(newValue, c); 
-					
-					// calling applyBeanData initially to make sure any needed conversions are done on model's properties
-					var beanModel = serverJSONValue[c].model;
-					
-					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
-					internalState.beanLayout[c] = {};
-					var containerSize = {width: 0, height: 0};
-					
-					var currentConversionInfo = beanModel.conversions ? $utils.getOrCreateInDepthProperty(internalState, 'conversions', i) : undefined;
-					
-					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout[c], beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel.conversions);
-					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
-					
-					if (!serverJSONValue[c].api) serverJSONValue[c].api = {};
-					if (serverJSONValue[c].handlers)
-					{
-						for (var key in serverJSONValue[c].handlers) 
-						{
-							var handler = serverJSONValue[c].handlers[key];
-							(function(key,beanName) {
-								var eventHandler = function (args,rowId)
-								{
-									return executeHandler(beanName,key,args,rowId);
-								}
-								eventHandler.selectRecordHandler = function(rowId){
-									return function () { return eventHandler(arguments,rowId) }
-								};
-								serverJSONValue[c].handlers[key] = eventHandler;
-							})(key,handler.beanName);
-						}
+				internalState.arrayStructureUnwatch = null;
+				internalState.conversionInfo = [];
+				internalState.changedIndexes = [];
+				internalState.allChanged = false;
+				for (var c in newValue) {
+					var elem = newValue[c];
+					var conversionInfo = null;
+					if (serverJSONValue.conversions) {
+						conversionInfo = serverJSONValue.conversions[c];
 					}
-					serverJSONValue[c].apply =  function(property, componentModel, rowId) {
-						// TODO when dataproviders will get sent through components; right now it goes through foundset
-        				// $servoyInternal.pushDPChange("product", "datatextfield1c", property, componentModel, rowId);
-						// alert("Apply called with: (" + rowId + ", " + property + ", " + componentModel[property] + ")");
-					};
-					
-					internalState.modelUnwatch[c] = watchModel(beanModel, childChangedNotifier);
+
+					if (conversionInfo) {
+						internalState.conversionInfo[c] = conversionInfo;
+						newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo);
+					}
+
+					if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+						// child is able to handle it's own change mechanism
+						elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(newValue, c));
+					} else {
+						// watch the child's value to see if it changes
+						internalState.elUnwatch.push(watchDumbElementForChanges(newValue, c));
+					}
 				}
-			} else {
+				
+				// watch for add/remove and such operations on array
+				internalState.arrayStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newVal) {
+					internalState.allChanged = true;
+					internalState.notifier();
+		        });
+			} else if (serverJSONValue && serverJSONValue[UPDATES]) {
 				// granular updates received
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-				if (serverJSONValue[PROPERTY_UPDATES]) {
-					var updates = serverJSONValue[PROPERTY_UPDATES];
-					var i;
-					for (i in updates) {
-						var childChangedNotifier = getBeanPropertyChangeNotifier(newValue, i); 
-						var beanUpdate = updates[i];
-						var beanModel = newValue[i].model;
-						
-						// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
-						var beanLayout = internalState.beanLayout[i];
-						var containerSize = {width: 0, height: 0};
-						
-						var currentConversionInfo = beanUpdate.conversions ? $utils.getOrCreateInDepthProperty(internalState, 'conversions', i) : undefined;
+				internalState[CONTENT_VERSION] = serverJSONValue[CONTENT_VERSION];
+				var updates = serverJSONValue[UPDATES];
+				var conversionInfos = serverJSONValue.conversions;
+				var i;
+				for (i in updates) {
+					var update = updates[i];
+					var idx = update[INDEX];
+					var val = update[VALUE];
 
-						$servoyInternal.applyBeanData(beanModel, beanLayout, beanUpdate, containerSize, childChangedNotifier, currentConversionInfo, beanUpdate.conversions);
+					var conversionInfo = null;
+					if (conversionInfos && conversionInfos[i] && conversionInfos[i][VALUE]) {
+						conversionInfo = conversionInfos[i][VALUE];
 					}
+
+					if (conversionInfo) {
+						internalState.conversionInfo[idx] = conversionInfo;
+						currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo);
+					}
+
+					if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+						// child is able to handle it's own change mechanism
+						val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(currentClientValue, idx));
+					} // else a watch for this dumb value at this index is already in place as this does not modify the array size nor the element types
 				}
-			}
+			} else newValue = null; // anything else would not be supported...
 			
 			if (angular.isDefined(currentClientValue) && newValue !== currentClientValue) {
 				// the client side object will change completely, and the old one probably has watches defined...
 				// unregister those
-				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL]; // not using internalState to not override closure var of current/new value that will be used by nested functions
-				var c;
-				for (c in iS.modelUnwatch) {
-					iS.modelUnwatch[c]();
+				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+				if (iS.arrayStructureUnwatch) iS.arrayStructureUnwatch();
+				for (var key in iS.elUnwatch) {
+					iS.elUnwatch[key]();
 				}
+				iS.arrayStructureUnwatch = null;
+				iS.elUnwatch = null;
 			}
 			return newValue;
 		},
@@ -153,12 +120,35 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 			if (newClientData) {
 				var internalState = newClientData[$sabloConverters.INTERNAL_IMPL];
 				if (internalState.isChanged()) {
-					var tmp = internalState.requests;
-					internalState.requests = null;
-					return tmp;
+					if (internalState.allChanged) {
+						// send all
+						var toBeSentArray = [];
+						for (var idx in newClientData) {
+							var val = newClientData[idx];
+							if (internalState.conversionInfo[idx]) toBeSentArray[idx] = $sabloConverters.convertFromClientToServer(val, internalState.conversionInfo[idx], oldClientData ? oldClientData[idx] : undefined);
+							else toBeSentArray[prop] = $sabloUtils.convertClientObject(val);
+						}
+						return toBeSentArray;
+					} else {
+						// send only changed indexes
+						var changes = {};
+						changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
+						changedElements = changes[UPDATES] = [];
+						for (var idxOfIdx in internalState.changedIndexes) {
+							var idx = internalState.changedIndexes[idxOfIdx];
+							var ch = {};
+							ch[IDX] = idx;
+							
+							if (internalState.conversionInfo[idx]) ch[VALUE] = $sabloConverters.convertFromClientToServer(newClientData[idx], internalState.conversionInfo[idx], oldClientData ? oldClientData[idx] : undefined);
+							else ch[VALUE] = $sabloUtils.convertClientObject(newClientData[idx]);
+							
+							changedElements.push(ch);
+						}
+						return changes;
+					}
 				}
 			}
-			return [];
+			return {};
 		}
 	});
 });

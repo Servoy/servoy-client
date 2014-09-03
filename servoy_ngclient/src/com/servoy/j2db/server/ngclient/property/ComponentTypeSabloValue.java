@@ -227,8 +227,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					if (selectionOk)
 					{
 						String eventType = update.getString("eventType");
-						String beanName = update.getString("beanName");
-						notneededAnymoreBeanName();
+//						String beanName = update.getString("beanName");
 						JSONArray jsargs = update.getJSONArray("args");
 						Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
 						for (int j = 0; jsargs != null && j < jsargs.length(); j++)
@@ -246,10 +245,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				//	 	beanIndex: ...,
 				// 		changes: ...
 				// }}
-				update = update.getJSONObject("propertyChanges");
-//				BaseWebObject c = childComponents[update.getInt("beanIndex")];
-				notNeededAnymoreindex();
-				JSONObject changes = update.getJSONObject("changes");
+				JSONObject changes = update.getJSONObject("propertyChanges");
 
 				Iterator<String> keys = changes.keys();
 				while (keys.hasNext())

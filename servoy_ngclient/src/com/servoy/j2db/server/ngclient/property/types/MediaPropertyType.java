@@ -30,6 +30,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
@@ -109,7 +110,7 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IS
 		{
 			return previousValue;
 		}
-		IServoyDataConverterContext servoyDataConverterContext = (IServoyDataConverterContext)dataConverterContext;
+		IServoyDataConverterContext servoyDataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
 		FlattenedSolution flattenedSolution = servoyDataConverterContext.getSolution();
 		INGApplication application = servoyDataConverterContext.getApplication();
 

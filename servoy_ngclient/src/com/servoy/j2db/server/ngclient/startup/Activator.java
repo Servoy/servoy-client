@@ -29,7 +29,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.websocket.ConversionLocation;
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -58,6 +57,7 @@ import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.design.DesignNGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.design.IDesignerSolutionProvider;
+import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -84,7 +84,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
 		 */
 		@Override
@@ -136,7 +136,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.persistence.IPersistChangeListener#persistChanges(java.util.Collection)
 		 */
 		@Override
@@ -187,7 +187,7 @@ public class Activator implements BundleActivator
 										bigChange = true;
 										break;
 									}
-									FormElement newFe = new FormElement(persist, cntxt);
+									FormElement newFe = new FormElement(persist, cntxt, new PropertyPath());
 
 									IWebFormUI formUI = (IWebFormUI)fc.getFormUI();
 									WebFormComponent webComponent = formUI.getWebComponent(newFe.getName());
@@ -197,10 +197,10 @@ public class Activator implements BundleActivator
 
 										WebComponentSpecification spec = webComponent.getSpecification();
 										Map<String, PropertyDescription> handlers = spec.getHandlers();
-										for (String property : newFe.getProperties().keySet())
+										for (String property : newFe.getRawPropertyValues().keySet())
 										{
-											Object currentPropValue = existingFe.getProperty(property);
-											Object newPropValue = newFe.getProperty(property);
+											Object currentPropValue = existingFe.getPropertyValue(property);
+											Object newPropValue = newFe.getPropertyValue(property);
 											if (!Utils.equalObjects(currentPropValue, newPropValue))
 											{
 												if (handlers.get(property) != null)
@@ -217,7 +217,7 @@ public class Activator implements BundleActivator
 													break outer;
 												}
 												webComponent.setFormElement(newFe);
-												webComponent.setProperty(property, newPropValue, ConversionLocation.SERVER);
+												webComponent.setProperty(property, newPropValue);
 											}
 										}
 									}

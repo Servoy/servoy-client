@@ -67,7 +67,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   if (newConversionInfo) { // then means beanConversionInfo should also be defined - we assume that
 			   // beanConversionInfo will be granularly updated in the loop below
 			   // (to not drop other property conversion info when only one property is being applied granularly to the bean)
-			   $sabloConverters.convertFromServerToClient(beanData, newConversionInfo, beanModel);
+			   beanData = $sabloConverters.convertFromServerToClient(beanData, newConversionInfo, beanModel);
 		   }
 
 		   for(var key in beanData) {
@@ -235,7 +235,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 							   var newFormConversionInfo = (conversionInfo && conversionInfo.forms && conversionInfo.forms[formname]) ? conversionInfo.forms[formname] : undefined;
 
 							   if(newFormProperties) {
-								   if (newFormConversionInfo && newFormConversionInfo['']) $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
+								   if (newFormConversionInfo && newFormConversionInfo['']) newFormProperties = $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
 								   if (!formModel['']) formModel[''] = {};
 								   for(var p in newFormProperties) {
 									   formModel[''][p] = newFormProperties[p]; 
@@ -277,7 +277,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   });
 			   }
 
-			   if (conversionInfo && conversionInfo.call) $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call);
+			   if (conversionInfo && conversionInfo.call) msg.call = $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call);
 			   if (msg.call) {
 				   // {"call":{"form":"product","element":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}, // optionally "viewIndex":1 
 				   // "{ conversions: {product: {datatextfield1: {0: "Date"}}} }
@@ -467,11 +467,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   }
 			   // default model, simple direct form child component
 			   var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
-			   if (conversionInfo && conversionInfo[property]){
+			   
+			   if (conversionInfo && conversionInfo[property]) {
 				   changes[property] = $sabloConverters.convertFromClientToServer(formStates[formname].model[beanname][property], conversionInfo[property], undefined);
-			   }else{
-				   changes[property] = formStates[formname].model[beanname][property]
+			   } else {
+				   changes[property] = $sabloUtils.convertClientObject(formStates[formname].model[beanname][property]);
 			   }
+
 			   getSession().sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
 		   },
 

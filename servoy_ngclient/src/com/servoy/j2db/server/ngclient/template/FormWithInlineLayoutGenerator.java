@@ -115,7 +115,7 @@ public class FormWithInlineLayoutGenerator
 
 	private static void generateFormElement(IFormElement formElement, ServoyDataConverterContext context, PrintWriter writer)
 	{
-		FormElement fe = ComponentFactory.getFormElement(formElement, context);
+		FormElement fe = ComponentFactory.getFormElement(formElement, context, null);
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");

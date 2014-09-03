@@ -25,6 +25,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType.TagStringWrapper;
@@ -126,7 +127,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		TagStringWrapper(Object value, IDataConverterContext dataConverterContext)
 		{
 			this.value = value;
-			this.dataConverterContext = (IServoyDataConverterContext)dataConverterContext;
+			this.dataConverterContext = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext();
 		}
 
 		Object getJsonValue()
