@@ -34,7 +34,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 
 	/**
 	 * Set the location
-	 * 
+	 *
 	 * @param arg the location
 	 */
 	public void setLocation(java.awt.Point arg)
@@ -77,12 +77,12 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ELEMENTID);
 	}
 
-	public void setCSSClasses(String cls)
+	public void setCssClasses(String cls)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS, cls);
 	}
 
-	public String getCSSClasses()
+	public String getCssClasses()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS);
 	}

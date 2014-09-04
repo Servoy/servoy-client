@@ -77,7 +77,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getTagType()
-	 * 
+	 *
 	 * @sample
 	 * layoutContainer.tagType = 'span';
 	 */
@@ -96,7 +96,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getElementId()
-	 * 
+	 *
 	 * @sample
 	 * layoutContainer.elementId = 'rowCol';
 	 */
@@ -114,27 +114,27 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getCSSClasses()
-	 * 
+	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getCssClasses()
+	 *
 	 * @sample
 	 * layoutContainer.cssClasses = 'myContainer';
 	 */
 	@JSGetter
-	public String getCSSClasses()
+	public String getCssClasses()
 	{
-		return layoutContainer.getCSSClasses();
+		return layoutContainer.getCssClasses();
 	}
 
 	@JSSetter
-	public void setCSSClasses(String cssClasses)
+	public void setCssClasses(String cssClasses)
 	{
 		checkModification();
-		layoutContainer.setCSSClasses(cssClasses);
+		layoutContainer.setCssClasses(cssClasses);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getStyle()
-	 * 
+	 *
 	 * @sample
 	 * layoutContainer.style = "background-color:'red'";
 	 */
@@ -153,7 +153,7 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getName()
-	 * 
+	 *
 	 * @sample
 	 * layoutContainer.name = 'col1';
 	 */

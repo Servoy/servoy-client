@@ -39,7 +39,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. This method shouldn't be called from outside the persistance package!!
-	 * 
+	 *
 	 * @param arg the form name
 	 * @exclude
 	 */
@@ -50,7 +50,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
@@ -71,7 +71,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Set the container size.
-	 * 
+	 *
 	 * @param arg the size
 	 */
 	public void setSize(Dimension arg)
@@ -91,7 +91,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Get the all the fields on a form.
-	 * 
+	 *
 	 * @return the fields
 	 */
 	public Iterator<Field> getFields()
@@ -101,7 +101,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Create a new field.
-	 * 
+	 *
 	 * @param location the location
 	 * @return the field
 	 */
@@ -118,7 +118,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Get the all the child layout containers.
-	 * 
+	 *
 	 * @return the layout containers
 	 */
 	public Iterator<LayoutContainer> getLayoutContainers()
@@ -128,7 +128,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Create a new layout container.
-	 * 
+	 *
 	 * @param cssClasses css classes used to layout
 	 * @return the field
 	 */
@@ -137,7 +137,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		LayoutContainer obj = (LayoutContainer)getSolution().getChangeHandler().createNewObject(this, IRepository.LAYOUTCONTAINERS);
 
 		//set all the required properties
-		obj.setCSSClasses(cssClasses);
+		obj.setCssClasses(cssClasses);
 
 		addChild(obj);
 		return obj;
@@ -153,7 +153,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 */
 	/**
 	 * Get all the graphicalComponents from this form.
-	 * 
+	 *
 	 * @return graphicalComponents
 	 */
 	public Iterator<GraphicalComponent> getGraphicalComponents()
@@ -163,7 +163,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Create new graphicalComponents.
-	 * 
+	 *
 	 * @param location
 	 * @return the graphicalComponent
 	 */
@@ -184,7 +184,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Get all the shapes.
-	 * 
+	 *
 	 * @return the shapes
 	 */
 	public Iterator<Shape> getShapes()
@@ -194,7 +194,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Create a new shape.
-	 * 
+	 *
 	 * @param location
 	 * @return the shape
 	 */
@@ -214,7 +214,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 */
 	/**
 	 * Get all the portals from this form.
-	 * 
+	 *
 	 * @return the portals
 	 */
 	public Iterator<Portal> getPortals()
@@ -224,7 +224,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Create a new portal.
-	 * 
+	 *
 	 * @param name the name of the new portal
 	 * @param location the location of the new portal
 	 * @return the new portal
@@ -246,7 +246,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 */
 	/**
 	 * Get all the beans for this form.
-	 * 
+	 *
 	 * @return all the beans
 	 */
 	public Iterator<Bean> getBeans()
@@ -256,9 +256,9 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Create a new bean.
-	 * 
+	 *
 	 * @param name the name of the bean
-	 * @param className the class name 
+	 * @param className the class name
 	 * @return the new bean
 	 */
 	public Bean createNewBean(String name, String className) throws RepositoryException
@@ -278,7 +278,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 */
 	/**
 	 * Get all the form tab panels.
-	 * 
+	 *
 	 * @return all the tab panels
 	 */
 	public Iterator<TabPanel> getTabPanels()
@@ -288,7 +288,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 
 	/**
 	 * Create a new tab panel.
-	 * 
+	 *
 	 * @param name
 	 * @return the new tab panel
 	 */
