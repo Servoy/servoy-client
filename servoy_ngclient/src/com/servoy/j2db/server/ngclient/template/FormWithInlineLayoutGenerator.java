@@ -136,7 +136,10 @@ public class FormWithInlineLayoutGenerator
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());
 		writer.print(".svy_servoyApi'");
-		writer.print("/>");
+		writer.println(">");
+		writer.print("</");
+		writer.print(fe.getTagname());
+		writer.println(">");
 	}
 
 	/**
