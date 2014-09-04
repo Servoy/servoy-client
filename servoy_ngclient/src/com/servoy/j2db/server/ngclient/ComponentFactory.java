@@ -138,9 +138,13 @@ public class ComponentFactory
 				else
 				{
 					// this code got executed for text fields that have no valuelist set
-//					ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
-//						(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
-//					webComponent.setProperty(vlProp.getName(), vl);
+//					String dp = (String)fe.getProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName());
+//					if (dp != null && formUI.getController().getTable() != null && formUI.getController().getTable().getColumnType(dp) != 0)
+//					{					
+//						ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
+//							(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
+//						webComponent.setProperty(vlProp.getName(), vl);
+//					}
 				}
 			}
 
