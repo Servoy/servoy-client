@@ -21,10 +21,12 @@ import java.awt.print.PrinterJob;
 import java.util.List;
 
 import com.servoy.j2db.BasicFormController.JSForm;
+import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.FormScope;
@@ -42,11 +44,12 @@ public class TestFormController implements IWebFormController
 {
 
 	private final Form form;
+	private final INGApplication application;
 
-	public TestFormController(Form form)
+	public TestFormController(Form form, INGApplication application)
 	{
 		this.form = form;
-
+		this.application = application;
 	}
 
 	@Override
@@ -105,8 +108,7 @@ public class TestFormController implements IWebFormController
 	@Override
 	public FormScope getFormScope()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new FormScope(this, new ISupportScriptProviders[] { new RuntimeSupportScriptProviders(application, getForm()) });
 	}
 
 	/*
@@ -647,8 +649,7 @@ public class TestFormController implements IWebFormController
 	@Override
 	public INGApplication getApplication()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return application;
 	}
 
 	/*

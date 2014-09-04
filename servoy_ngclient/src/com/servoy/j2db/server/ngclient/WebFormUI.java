@@ -20,12 +20,6 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.CustomJSONArrayType;
-import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.ICustomType;
-import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.ISmartPropertyValue;
-import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.TypedData;
 
@@ -33,17 +27,13 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -51,10 +41,8 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 @SuppressWarnings("nls")
@@ -122,50 +110,8 @@ public class WebFormUI extends Container implements IWebFormUI
 			}
 
 			WebFormComponent component = ComponentFactory.createComponent(getApplication(), dal, fe, this);
-			IPersist persist = fe.getPersistIfAvailable();
-			int access = 0;
-			if (persist != null)
-			{
-				// don't add the component to the form ui if component is not visible due to security settings
-				access = formController.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
-				if (!((access & IRepository.VIEWABLE) != 0)) continue;
-			}
+
 			counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
-			add(component);
-
-			for (String propName : fe.getRawPropertyValues().keySet())
-			{
-				if (componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
-				Object value = fe.getPropertyValueConvertedForWebComponent(propName, component);
-				if (value == null) continue;
-				fillProperties(fe.getForm(), fe, value, componentSpec.getProperty(propName), dal, component, component, "");
-			}
-
-			// overwrite accessible
-			if (persist != null && !((access & IRepository.ACCESSIBLE) != 0)) component.setProperty("enabled", false);
-
-			// TODO should this be a part of type conversions for handlers instead?
-			for (String eventName : componentSpec.getHandlers().keySet())
-			{
-				Object eventValue = fe.getPropertyValue(eventName);
-				if (eventValue instanceof String)
-				{
-					UUID uuid = UUID.fromString((String)eventValue);
-					try
-					{
-						component.add(eventName, ((AbstractPersistFactory)ApplicationServerRegistry.get().getLocalRepository()).getElementIdForUUID(uuid));
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
-					}
-				}
-				else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
-				{
-					component.add(eventName, ((Number)eventValue).intValue());
-
-				}
-			}
 		}
 
 		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
@@ -230,190 +176,6 @@ public class WebFormUI extends Container implements IWebFormUI
 	public IServoyDataConverterContext getDataConverterContext()
 	{
 		return new ServoyDataConverterContext(formController);
-	}
-
-	/**
-	 *  -fe is only needed because of format . It accesses another property value based on the 'for' property (). TODO this FormElement parameter should be analyzed because format accepts a flat property value.
-	 *
-	 * -level is only needed because the current implementation 'flattens' the dataproviderid's and tagstrings for DAL  .(level should be removed after next changes)
-	 *
-	 *  -component is the whole component for now ,but it should be the current component node in the runtime component tree (instead of flat properties map)
-	 *  -component and componentNode should have been just componentNode (but currently WebCoponent is not nested)
-	 */
-	public void fillProperties(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec, DataAdapterList dal,
-		WebFormComponent component, Object componentNode, String level)
-	{
-		// TODO This whole method content I think can be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
-		// except for initial filling of all properties from FormElement into WebComponent
-		IPropertyType< ? > type = propertySpec.getType();
-		if (propertySpec.getType() instanceof CustomJSONArrayType< ? , ? > && formElementProperty instanceof List &&
-			!(formElementProperty instanceof ISmartPropertyValue)) // if it's a special property type that handles directly arrays, it could be a different kind of object
-		{
-			PropertyDescription arrayElDesc = ((CustomJSONArrayType< ? , ? >)propertySpec.getType()).getCustomJSONTypeDefinition();
-			type = arrayElDesc.getType();
-			List<Object> processedArray = new ArrayList<>();
-			List<Object> fePropertyArray = (List<Object>)formElementProperty;
-			for (Object arrayValue : fePropertyArray)
-			{
-				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, arrayElDesc, dal, component, componentNode, level, true);
-				switch (type.getName())
-				{
-					case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
-					{
-						Debug.error("Array of dataprovider currently not supported dataprovider");
-						Object dataproviderID = propValue;
-						if (dataproviderID instanceof String)
-						{
-							dal.add(component, level + (String)dataproviderID, propertySpec.getName());
-						}
-						break;
-					}
-					case "tagstring" : // array of taggstring is not supported yet (DAL does not support arrays)
-					{
-						Debug.error("Array of tagstring currently not supported dataprovider");
-						//bind tag expressions
-						//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
-						if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%")) || ((String)propValue).startsWith("i18n:"))
-						{
-							dal.addTaggedProperty(component, level + propertySpec.getName(), (String)propValue);
-						}
-						break;
-					}
-					default :
-					{
-						processedArray.add(propValue);
-					}
-
-				}
-			}
-			if (processedArray.size() > 0)
-			{
-				putInComponentNode(componentNode, propertySpec.getName(), processedArray, propertySpec, component);
-			}
-		}
-		else
-		{
-			Object propValue = initFormElementProperty(formElNodeForm, fe, formElementProperty, propertySpec, dal, component, componentNode, level, false);
-			String propName = propertySpec.getName();
-			switch (type.getName())
-			{
-				case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)
-				{
-					Object dataproviderID = formElementProperty;
-					if (dataproviderID instanceof String)
-					{
-						dal.add(component, (String)dataproviderID, level + propName);
-						return;
-					}
-					break;
-				}
-				case "tagstring" : // array of taggstring is not supported yet (DAL does not support arrays)
-				{
-					//bind tag expressions
-					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
-					if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%") || ((String)propValue).startsWith("i18n:")))
-					{
-						dal.addTaggedProperty(component, level + propName, (String)propValue);
-						return;
-					}
-					break;
-				}
-				case "valuelist" : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
-					return;
-				default :
-					break;
-			}
-			if (propValue != null) putInComponentNode(componentNode, propName, propValue, propertySpec, component); //TODO
-		}
-	}
-
-	/**
-	 * TEMPORARY FUNCTION until we move to nested web component tree , with each node having semantics (PropertyType)
-	 *  Webcomponent will be a tree
-	 */
-	private void putInComponentNode(Object componentNode, String propName, Object propValue, PropertyDescription propertySpec, WebFormComponent component)
-	{
-		// TODO should this just a a property.property.property = value called to WebFormComponent?
-		if (componentNode instanceof WebFormComponent)
-		{
-			// TODO this will convert a second time (the first conversion was done in FormElement; is this really needed? cause
-			// converted value reaching conversion again doesn't seem nice
-			((WebFormComponent)componentNode).setProperty(propName, propValue);
-		}
-		else
-		{
-			// now we need to convert it ourselfs. because this map will be internal to the WebFormComponent so has to have wrapper values.
-			if (propertySpec != null && propertySpec.getType() instanceof IWrapperType< ? , ? >)
-			{
-				propValue = ((IWrapperType)propertySpec.getType()).wrap(propValue, null, new DataConverterContext(propertySpec, component));
-			}
-			((Map)componentNode).put(propName, propValue);
-		}
-	}
-
-	/**
-	 * This method turns a design-time property into a Runtime Object that will be used as that property.
-	 *  TODO merge component and component node remove isarrayElement parameter
-	 * @return
-	 */
-	private Object initFormElementProperty(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec,
-		DataAdapterList dal, WebFormComponent component, Object componentNode, String level, boolean isArrayElement)
-	{
-		// TODO This whole method I think should be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
-		Object ret = null;
-		switch (propertySpec.getType().getName())
-		{
-			case "format" :
-			{
-				Object propValue = formElementProperty;
-				if (propValue instanceof String)
-				{
-					// get dataproviderId
-					String dataproviderId = (String)fe.getPropertyValue((String)propertySpec.getConfig());
-					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
-						getApplication().getFlattenedSolution().getDataproviderLookup(getApplication().getFoundSetManager(), formElNodeForm), getApplication());
-					ret = format;
-				}
-				break;
-			}
-			case "bean" :
-			{
-				Object propValue = formElementProperty;
-				if (propValue instanceof String)
-				{
-					ret = ComponentFactory.getMarkupId(fe.getName(), (String)propValue);
-				}
-				break;
-			}
-			case "valuelist" : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
-				break;
-			default :
-			{
-				if ((propertySpec.getType() instanceof ICustomType) && ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition() != null &&
-					formElementProperty instanceof Map && !(formElementProperty instanceof ISmartPropertyValue))
-				{
-					// TODO Remove this when pure tree-like JSON properties which use complex types in leafs are operational (so no need for flattening them any more)
-					String innerLevelpropName = level + propertySpec.getName();
-					Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
-					Map<String, Object> newComponentNode = new HashMap<>();
-					PropertyDescription localPropertyType = ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition();
-
-					for (String prop : props.keySet())
-					{
-						PropertyDescription localPropertyDescription = localPropertyType.getProperty(prop);
-						fillProperties(formElNodeForm, fe, props.get(prop), localPropertyDescription, dal, component, newComponentNode, isArrayElement ? ""
-							: innerLevelpropName + ".");
-					}
-					ret = newComponentNode;
-					break;
-				}
-				else
-				{
-					ret = formElementProperty;
-				}
-			}
-		}
-		return ret;
 	}
 
 	public IDataAdapterList getDataAdapterList()

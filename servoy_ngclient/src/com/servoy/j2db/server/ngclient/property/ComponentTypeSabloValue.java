@@ -127,7 +127,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
 		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
 
-		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, formUI);
+		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent);
 		childComponent.addPropertyChangeListener(null, new PropertyChangeListener()
 		{
 			@Override
@@ -136,7 +136,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				monitor.valueChanged();
 			}
 		});
-		parentComponent.add(childComponent);
 		childComponent.setComponentContext(new ComponentContext(formElementValue.propertyPath));
 		formUI.contributeComponentToElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
 		for (String handler : childComponent.getFormElement().getHandlers())

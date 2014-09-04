@@ -312,14 +312,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return changed;
 	}
 
-	private boolean isFormDataprovider(String dataprovider)
+	protected boolean isFormDataprovider(String dataprovider)
 	{
 		if (dataprovider == null) return false;
 		FormScope fs = formController.getFormScope();
 		return fs.has(dataprovider, fs);
 	}
 
-	private boolean isGlobalDataprovider(String dataprovider)
+	protected boolean isGlobalDataprovider(String dataprovider)
 	{
 		if (dataprovider == null) return false;
 		ScopesScope ss = formController.getApplication().getScriptEngine().getScopesScope();

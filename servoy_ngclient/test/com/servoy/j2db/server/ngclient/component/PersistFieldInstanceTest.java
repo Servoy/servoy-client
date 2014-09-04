@@ -812,7 +812,20 @@ public class PersistFieldInstanceTest
 	public void testFieldWithValueList() throws RepositoryException
 	{
 		Form form = solution.getForm("test");
-		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form));
+		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client))
+		{
+			@Override
+			protected boolean isFormDataprovider(String dataprovider)
+			{
+				return false;
+			}
+
+			@Override
+			protected boolean isGlobalDataprovider(String dataprovider)
+			{
+				return false;
+			}
+		};
 
 		Assert.assertNotNull(form);
 		ValueList vl = solution.getValueList("test");
@@ -843,7 +856,7 @@ public class PersistFieldInstanceTest
 		Assert.assertNotNull(form);
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
-		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(tabForm));
+		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(tabForm, client));
 
 		TabPanel tabpanel = form.createNewTabPanel("tabpanel");
 		tabpanel.createNewTab("tab1", null, tabForm);
@@ -854,7 +867,7 @@ public class PersistFieldInstanceTest
 		for (FormElement formElement : formElements)
 		{
 			WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElement, null);
-			List<Map<String, Object>> tabs = (List)wc.getConvertedPropertyWithDefault("tabs", false, true);
+			List<Map<String, Object>> tabs = (List)wc.getProperty("tabs");
 			Assert.assertEquals(2, tabs.size());
 			Map<String, Object> map = tabs.get(1);
 			Assert.assertSame(tabForm.getName(), map.get("containsFormId"));

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
+import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
@@ -170,8 +171,8 @@ public class WebComponentSpecTest
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
 		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assert.assertTrue(((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition().getType() == StringPropertyType.INSTANCE);
 	}
 
 	@Test
@@ -209,8 +210,10 @@ public class WebComponentSpecTest
 		Object config = pd.getConfig();
 		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
-		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("test.mytype", wct.getName());
+		PropertyDescription wct = ((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition();
+		Assert.assertEquals("test.mytype", wct.getType().getName());
+		Assert.assertEquals(0, wct.getProperties().size());
+		wct = ((CustomJSONPropertyType)wct.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
@@ -232,13 +235,15 @@ public class WebComponentSpecTest
 		Object config = pd.getConfig();
 		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
-		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("test.mytype", wct.getName());
+		PropertyDescription wct = ((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition();
+		Assert.assertEquals("test.mytype", wct.getType().getName());
+		Assert.assertEquals(0, wct.getProperties().size());
+		wct = ((CustomJSONPropertyType)wct.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
 		Assert.assertTrue(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assert.assertTrue(((CustomJSONArrayType)pd2.getType()).getCustomJSONTypeDefinition().getType() == StringPropertyType.INSTANCE);
 
 	}
 
