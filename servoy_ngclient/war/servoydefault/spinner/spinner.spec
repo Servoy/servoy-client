@@ -3,7 +3,7 @@
 	"displayName": "Spinner",
 	"icon": "servoydefault/spinner/spinner.png",
 	"definition": "servoydefault/spinner/spinner.js",
-	"libraries": ["servoydefault/spinner/spinner.css","//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"],
+	"libraries": ["servoydefault/spinner/spinner.css","//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"],
 	"model":
 	{
 	        "background" : "color", 

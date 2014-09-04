@@ -87,10 +87,10 @@ public class FormWithInlineLayoutGenerator
 			writer.print(container.getStyle());
 			writer.print("' ");
 		}
-		if (container.getCSSClasses() != null)
+		if (container.getCssClasses() != null)
 		{
 			writer.print("class='");
-			writer.print(container.getCSSClasses());
+			writer.print(container.getCssClasses());
 			writer.print("' ");
 		}
 		writer.println(">");
@@ -136,7 +136,10 @@ public class FormWithInlineLayoutGenerator
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());
 		writer.print(".svy_servoyApi'");
-		writer.print("/>");
+		writer.println(">");
+		writer.print("</");
+		writer.print(fe.getTagname());
+		writer.println(">");
 	}
 
 	/**
