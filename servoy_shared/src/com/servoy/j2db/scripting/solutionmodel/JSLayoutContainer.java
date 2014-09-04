@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.awt.Point;
+
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
@@ -167,5 +169,31 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	public void setName(String arg)
 	{
 		layoutContainer.setName(arg);
+	}
+
+	@JSGetter
+	public int getX()
+	{
+		return layoutContainer.getLocation().x;
+	}
+
+	@JSSetter
+	public void setX(int x)
+	{
+		checkModification();
+		layoutContainer.setLocation(new Point(x, layoutContainer.getLocation().y));
+	}
+
+	@JSGetter
+	public int getY()
+	{
+		return layoutContainer.getLocation().y;
+	}
+
+	@JSSetter
+	public void setY(int y)
+	{
+		checkModification();
+		layoutContainer.setLocation(new Point(layoutContainer.getLocation().x, y));
 	}
 }
