@@ -106,4 +106,14 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 	{
 		super.formCreated(formName);
 	}
+
+	@Override
+	public void onOpen(String solutionName)
+	{
+		super.onOpen(solutionName);
+		if (getClient().getSolution() != null)
+		{
+			sendSolutionCSSURL(getClient().getSolution());
+		}
+	}
 }

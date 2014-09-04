@@ -87,10 +87,10 @@ public class FormWithInlineLayoutGenerator
 			writer.print(container.getStyle());
 			writer.print("' ");
 		}
-		if (container.getCSSClasses() != null)
+		if (container.getCssClasses() != null)
 		{
 			writer.print("class='");
-			writer.print(container.getCSSClasses());
+			writer.print(container.getCssClasses());
 			writer.print("' ");
 		}
 		writer.println(">");
