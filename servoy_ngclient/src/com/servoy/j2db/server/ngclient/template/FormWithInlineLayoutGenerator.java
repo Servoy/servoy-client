@@ -57,10 +57,18 @@ public class FormWithInlineLayoutGenerator
 			writer.println(String.format(
 				"<div ng-controller=\"%1$s\" svy-formstyle=\"formStyle\" svyScrollbars='formProperties.scrollbars' svy-layout-update svy-formload>",
 				form.getName()));
-			Iterator<LayoutContainer> it = form.getLayoutContainers();
-			while (it.hasNext())
+			Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+			while (components.hasNext())
 			{
-				generateLayoutContainer(it.next(), context, writer, design);
+				IPersist component = components.next();
+				if (component instanceof LayoutContainer)
+				{
+					generateLayoutContainer((LayoutContainer)component, context, writer, design);
+				}
+				else if (component instanceof IFormElement)
+				{
+					generateFormElement((IFormElement)component, context, writer, design);
+				}
 			}
 			writer.println("</div>");
 		}
