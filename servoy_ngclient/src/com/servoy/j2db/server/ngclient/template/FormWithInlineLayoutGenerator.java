@@ -50,7 +50,7 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class FormWithInlineLayoutGenerator
 {
-	public static void generateLayoutContainers(Form form, ServoyDataConverterContext context, PrintWriter writer)
+	public static void generateLayoutContainers(Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 	{
 		try
 		{
@@ -60,7 +60,7 @@ public class FormWithInlineLayoutGenerator
 			Iterator<LayoutContainer> it = form.getLayoutContainers();
 			while (it.hasNext())
 			{
-				generateLayoutContainer(it.next(), context, writer);
+				generateLayoutContainer(it.next(), context, writer, design);
 			}
 			writer.println("</div>");
 		}
@@ -70,7 +70,7 @@ public class FormWithInlineLayoutGenerator
 		}
 	}
 
-	private static void generateLayoutContainer(LayoutContainer container, ServoyDataConverterContext context, PrintWriter writer)
+	private static void generateLayoutContainer(LayoutContainer container, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 	{
 		writer.print("<");
 		writer.print(container.getTagType());
@@ -101,11 +101,11 @@ public class FormWithInlineLayoutGenerator
 			IPersist component = components.next();
 			if (component instanceof LayoutContainer)
 			{
-				generateLayoutContainer((LayoutContainer)component, context, writer);
+				generateLayoutContainer((LayoutContainer)component, context, writer, design);
 			}
 			else if (component instanceof IFormElement)
 			{
-				generateFormElement((IFormElement)component, context, writer);
+				generateFormElement((IFormElement)component, context, writer, design);
 			}
 		}
 		writer.print("</");
@@ -113,7 +113,7 @@ public class FormWithInlineLayoutGenerator
 		writer.print(">");
 	}
 
-	private static void generateFormElement(IFormElement formElement, ServoyDataConverterContext context, PrintWriter writer)
+	private static void generateFormElement(IFormElement formElement, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 	{
 		FormElement fe = ComponentFactory.getFormElement(formElement, context, null);
 		writer.print("<");
@@ -136,6 +136,12 @@ public class FormWithInlineLayoutGenerator
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());
 		writer.print(".svy_servoyApi'");
+		if (design)
+		{
+			writer.print(" svy-id='");
+			writer.print(fe.getDesignId());
+			writer.print("'");
+		}
 		writer.println(">");
 		writer.print("</");
 		writer.print(fe.getTagname());
