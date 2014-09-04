@@ -97,14 +97,17 @@ public final class FormElement implements IWebComponentInitializer
 		this.componentType = FormTemplateGenerator.getComponentTypeName(persist);
 		this.uniqueIdWithinForm = String.valueOf(persist.getID());
 
+		propertyValues = new HashMap<String, Object>();
+		propertyValues.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), persist.getName());
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
-		propertyPath.add(getName(persist.getName()));
+		boolean addNameToPath = propertyPath.shouldAddElementNameAndClearFlag();
+		if (addNameToPath) propertyPath.add(getName());
 		Map<String, Object> map = persistImpl.getFormElementPropertyValues(context, specProperties, propertyPath);
 
 		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
 		adjustLocationRelativeToPart(context.getSolution(), map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
-		propertyPath.backOneLevel();
+		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, IServoyDataConverterContext context,
@@ -116,8 +119,13 @@ public final class FormElement implements IWebComponentInitializer
 		this.componentType = componentTypeString;
 		this.uniqueIdWithinForm = uniqueIdWithinForm;
 
+		propertyValues = new HashMap<String, Object>();
+		propertyValues.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(),
+			jsonObject.optString(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName()));
+
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
-		propertyPath.add(getName(jsonObject.optString(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName())));
+		boolean addNameToPath = propertyPath.shouldAddElementNameAndClearFlag();
+		if (addNameToPath) propertyPath.add(getName());
 		Map<String, Object> map = new HashMap<>();
 		try
 		{
@@ -131,7 +139,7 @@ public final class FormElement implements IWebComponentInitializer
 		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
 		adjustLocationRelativeToPart(context.getSolution(), map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
-		propertyPath.backOneLevel();
+		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
 	public IServoyDataConverterContext getDataConverterContext()
@@ -151,14 +159,14 @@ public final class FormElement implements IWebComponentInitializer
 		{
 			String key = (String)keys.next();
 			Object value = propertyDesignJSONValues.get(key);
-			convertDesignToFormElementValueAndPut(context, specProperties.get(key), jsonMap, eventProperties, key, value, propertyPath);
+			convertDesignToFormElementValueAndPut(context, getPropertyOrEvent(key, specProperties, eventProperties), jsonMap, key, value, propertyPath);
 		}
 	}
 
 	/**
 	 * This is part of 'Conversion 1' (see {@link NGConversions})
 	 *
-	 * It should ONLY have primitives in propertyDesignPrimitiveValues for property descriptor types that provide such a conversion, as those will be fed to
+	 * It should ONLY have primitives in properties for property descriptor types that provide such a conversion, as those will be fed to
 	 * a converter that expects JSON. For types that do not provide a converter for 'Conversion 1' - it can be any type of object.
 	 *
 	 * If we figure out that we ever need conversions for non-primitive Java design types that a persist can create, we need another conversion on the type
@@ -166,33 +174,46 @@ public final class FormElement implements IWebComponentInitializer
 	 * persist property values are always assumed to not need "Conversion 1"
 	 */
 	protected void convertFromPersistPrimitivesToFormElementValues(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties,
-		Map<String, Object> jsonMap, Map<String, PropertyDescription> eventProperties, Map<String, Object> propertyDesignPrimitiveValues,
-		PropertyPath propertyPath)
+		Map<String, PropertyDescription> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
 	{
-		Iterator<String> keys = propertyDesignPrimitiveValues.keySet().iterator();
+		Iterator<String> keys = properties.keySet().iterator();
 		while (keys.hasNext())
 		{
 			String key = keys.next();
-			Object value = propertyDesignPrimitiveValues.get(key);
-			convertDesignToFormElementValueAndPut(context, specProperties.get(key), jsonMap, eventProperties, key, value, propertyPath);
+			Object value = properties.get(key);
+			if (!(value instanceof Number || value instanceof String || value instanceof Byte || value instanceof Character))
+			{
+				// non - primitive type; skip extra conversion as Persist already converted it or convertSpecialPersistProperties(...) already converted it
+				continue;
+			}
+			convertDesignToFormElementValueAndPut(context, getPropertyOrEvent(key, specProperties, eventProperties), properties, key, value, propertyPath);
 		}
+	}
+
+	protected PropertyDescription getPropertyOrEvent(String key, Map<String, PropertyDescription> specProperties,
+		Map<String, PropertyDescription> eventProperties)
+	{
+		PropertyDescription pd = specProperties.get(key);
+		if (pd == null && eventProperties != null)
+		{
+			// or an event
+			pd = eventProperties.get(key);
+		}
+		return pd;
 	}
 
 	/**
 	 * Applies 'Conversion 1' (see {@link NGConversions}) to one property value - from design to FormElement value and then puts the value in the given formElementValues map.
 	 */
 	protected void convertDesignToFormElementValueAndPut(IServoyDataConverterContext context, PropertyDescription pd, Map<String, Object> formElementValues,
-		Map<String, PropertyDescription> eventProperties, String key, Object value, PropertyPath propertyPath)
+		String key, Object value, PropertyPath propertyPath)
 	{
 		// is it a property
-		if (pd == null && eventProperties != null)
-		{
-			// or an event
-			pd = eventProperties.get(key);
-		}
 		if (pd != null)
 		{
+			propertyPath.add(key);
 			formElementValues.put(key, NGConversions.INSTANCE.applyConversion1(value, pd, context != null ? context.getSolution() : null, this, propertyPath));
+			propertyPath.backOneLevel();
 		}
 		else if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(key))
 		{
@@ -221,8 +242,10 @@ public final class FormElement implements IWebComponentInitializer
 				{
 					if (pd.getDefaultValue() != null)
 					{
+						propertyPath.add(pd.getName());
 						map.put(pd.getName(), NGConversions.INSTANCE.applyConversion1(pd.getDefaultValue(), pd, context != null ? context.getSolution() : null,
 							this, propertyPath));
+						propertyPath.backOneLevel();
 					}
 					else if (pd.getType().defaultValue() != null)
 					{

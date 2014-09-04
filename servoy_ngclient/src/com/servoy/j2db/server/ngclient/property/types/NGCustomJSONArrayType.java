@@ -92,7 +92,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 		writer.object().key(CONTENT_VERSION).value(0).key(VALUE).array();
 		DataConversion arrayConversionMarkers = new DataConversion();
 

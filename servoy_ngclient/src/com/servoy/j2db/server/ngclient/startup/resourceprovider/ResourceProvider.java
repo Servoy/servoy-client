@@ -84,7 +84,7 @@ public class ResourceProvider implements Filter
 		initSpecProvider();
 	}
 
-	private static void initSpecProvider()
+	private synchronized static void initSpecProvider()
 	{
 		//register the session factory at the manager
 		if (WebsocketSessionManager.getWebsocketSessionFactory() == null) WebsocketSessionManager.setWebsocketSessionFactory(new WebsocketSessionFactory());
@@ -232,7 +232,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -243,7 +243,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -270,7 +270,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override

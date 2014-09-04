@@ -28,6 +28,7 @@ public class FormScopePropertyType implements IPropertyType<String>
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
+	public static final String TYPE_NAME = "formscope";
 
 	private FormScopePropertyType()
 	{
@@ -36,7 +37,7 @@ public class FormScopePropertyType implements IPropertyType<String>
 	@Override
 	public String getName()
 	{
-		return "formscope";
+		return TYPE_NAME;
 	}
 
 	@Override

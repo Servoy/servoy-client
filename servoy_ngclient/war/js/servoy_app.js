@@ -29,9 +29,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   if (!prev) {
 				   changed = true;
 			   }
-			   else if (now[prop] && now[prop][$sabloConverters.INTERNAL_IMPL] && now[prop][$sabloConverters.INTERNAL_IMPL].isChanged && now[prop][$sabloConverters.INTERNAL_IMPL].isChanged())
+			   else if (now[prop] && now[prop][$sabloConverters.INTERNAL_IMPL] && now[prop][$sabloConverters.INTERNAL_IMPL].isChanged)
 			   {
-				   changed = true;
+				   changed = now[prop][$sabloConverters.INTERNAL_IMPL].isChanged();
 			   }
 			   else if (prev[prop] !== now[prop]) {
 				   if (typeof now[prop] == "object") {
@@ -301,7 +301,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					   // then maybe nested child properties and so on 
 					   var obj = formState.model;
 					   var pn;
-					   for (pn in call.propertyPath) obj = obj[pn];
+					   for (pn in call.propertyPath) obj = obj[call.propertyPath[pn]];
 					   var func = obj.api[call.api];
 				   }
 				   else {

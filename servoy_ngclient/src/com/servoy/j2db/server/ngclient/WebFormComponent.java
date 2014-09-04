@@ -159,6 +159,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	@Override
 	protected void onPropertyChange(String propertyName, Object oldValue, Object propertyValue)
 	{
+		super.onPropertyChange(propertyName, oldValue, propertyValue);
 		if (oldValue instanceof IValueList)
 		{
 			((IValueList)oldValue).removeListDataListener(this);
@@ -236,7 +237,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -247,7 +248,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -258,7 +259,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

@@ -150,7 +150,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 					return tmp;
 				}
 			}
-			return {};
+			return [];
 		}
 	});
 });

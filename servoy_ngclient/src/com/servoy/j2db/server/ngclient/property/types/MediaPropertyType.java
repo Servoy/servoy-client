@@ -46,6 +46,7 @@ import com.servoy.j2db.util.Utils;
 public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, ISupportsConversion2_FormElementValueToTemplateJSON<Object, Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
+	public static final String TYPE_NAME = "media";
 
 	private MediaPropertyType()
 	{
@@ -54,7 +55,7 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IS
 	@Override
 	public String getName()
 	{
-		return "media";
+		return TYPE_NAME;
 	}
 
 	@Override

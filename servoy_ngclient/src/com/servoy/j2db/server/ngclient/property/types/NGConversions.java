@@ -261,7 +261,7 @@ public class NGConversions
 //			}
 
 			// hmm getConvertedPropertyWithDefault() above might (or might not) also have done the design conversion already through DataAdapterList call; so it might get called twice DesignConversion.toStringObject which is wrong
-			return DesignConversion.toStringObject(value, component.getFormElement().getWebComponentSpec().getProperty(name).getType());
+			return DesignConversion.toStringObject(value, pd.getType());
 		}
 
 		return rhinoVal;

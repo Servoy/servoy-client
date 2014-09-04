@@ -47,7 +47,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -114,10 +113,10 @@ public class ComponentFactory
 				}
 				else
 				{
-
-					ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
-						(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
-					webComponent.setProperty(vlProp.getName(), vl);
+					// this code got executed for text fields that have no valuelist set
+//					ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
+//						(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
+//					webComponent.setProperty(vlProp.getName(), vl);
 				}
 			}
 			return webComponent;
@@ -151,18 +150,27 @@ public class ComponentFactory
 
 	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
 	{
-		if (propertyPath == null) propertyPath = new PropertyPath();
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
 		if (context.getSolution().getSolutionCopy(false) != null)
 		{
+			if (propertyPath == null)
+			{
+				propertyPath = new PropertyPath();
+				propertyPath.setShouldAddElementName();
+			}
 			if (formElement instanceof ListViewPortal) return createListViewPortalFormElement((ListViewPortal)formElement, context);
-			else return new FormElement(formElement, context, new PropertyPath());
+			else return new FormElement(formElement, context, propertyPath);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
 		{
+			if (propertyPath == null)
+			{
+				propertyPath = new PropertyPath();
+				propertyPath.setShouldAddElementName();
+			}
 			if (formElement instanceof ListViewPortal) persistWrapper = createListViewPortalFormElement((ListViewPortal)formElement, context);
-			else persistWrapper = new FormElement(formElement, context, new PropertyPath());
+			else persistWrapper = new FormElement(formElement, context, propertyPath);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{
@@ -212,6 +220,7 @@ public class ComponentFactory
 				portal.put("relatedFoundset", relatedFoundset);
 
 				PropertyPath propertyPath = new PropertyPath();
+				propertyPath.setShouldAddElementName();
 				FormElement portalFormElement = new FormElement("svy-portal", portal, form, name, context, propertyPath);
 
 				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
@@ -230,6 +239,7 @@ public class ComponentFactory
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
 				propertyPath.add(portalFormElement.getName());
+				propertyPath.add("childElements");
 				while (it.hasNext())
 				{
 					IPersist persist = it.next();
@@ -238,11 +248,14 @@ public class ComponentFactory
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos >= loc.y)
 						{
+							propertyPath.add(children.size());
 							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, context, propertyPath);
 							children.add(type.getFormElementValue(null, pd, propertyPath, fe));
+							propertyPath.backOneLevel();
 						}
 					}
 				}
+				propertyPath.backOneLevel();
 				propertyPath.backOneLevel();
 				portalFormElementProperties.put("childElements", children.toArray());
 				portalFormElement.updatePropertyValuesDontUse(portalFormElementProperties);

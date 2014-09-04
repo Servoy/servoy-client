@@ -26,11 +26,11 @@ import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.types.BooleanPropertyType;
-import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
+import com.servoy.j2db.server.ngclient.property.types.NGDatePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 
 /**
@@ -157,7 +157,7 @@ public class WebComponentSpecTest
 		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop4");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == DatePropertyType.INSTANCE);
+		Assert.assertTrue(pd.getType() == NGDatePropertyType.NG_INSTANCE);
 		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 

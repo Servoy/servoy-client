@@ -62,7 +62,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType(null);
 
-	public static final String TYPE_ID = "component";
+	public static final String TYPE_NAME = "component";
 
 	// START keys and values used in JSON
 	public final static String TYPE_NAME_KEY = "typeName";
@@ -81,7 +81,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	public ComponentPropertyType(PropertyDescription definition)
 	{
-		super(TYPE_ID, definition);
+		super(TYPE_NAME, definition);
 	}
 
 	@Override
@@ -172,7 +172,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers) throws JSONException
 	{
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		// create children of component as specified by this property
 		FormElement fe = formElementValue.element;

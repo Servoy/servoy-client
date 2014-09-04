@@ -261,7 +261,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  rowTemplate = rowTemplate + '<div ng-style="getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
     		  }
     		  else {
-    			  if($scope.rowHeight == undefined || $scope.rowHeigth < el.model.size.height) {
+    			  if($scope.rowHeight == undefined || $scope.rowHeight < el.model.size.height) {
     				  $scope.rowHeight = el.model.size.height;
     			  }
         		  $scope.columnDefinitions.push({
@@ -330,7 +330,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  var elX = el.model.location.x - $scope.model.location.x;
     		  var elY = el.model.location.y - $scope.model.location.y;
     		  var style = {position: 'absolute', left: elX + 'px', top: elY + 'px', width: el.model.size.width + 'px', height: el.model.size.height + 'px'};
-    		  if(!el.model.visible) style.display = 'none';
+    		  if (typeof el.model.visible !== "undefined" && !el.model.visible) style.display = 'none'; // undefined is considered visible by default
     		  
     		  return style;
     	  }
@@ -566,7 +566,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
       link: function (scope, element, attrs) {
     	  var sc = element.find('.svyPortalGridStyle').scope();
     	  scope.$watch(function() { return sc.viewportDimHeight() }, function(newViewportHeight) {
-    		  scope.pagingOptions.pageSize = Math.max(Math.floor(newViewportHeight / scope.rowHeight), 1);
+    		  scope.pagingOptions.pageSize = (scope.rowHeight == 0) ? 1 : Math.max(Math.floor(newViewportHeight / scope.rowHeight), 1);
     		  scope.pagingOptions.pageSizes = [scope.pagingOptions.pageSize]; // TODO can we make it scoll if we allow clients to change page size manually to other values as well?
     	  });
       },

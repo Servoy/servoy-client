@@ -44,6 +44,7 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
+	public static final String TYPE_NAME = "dataprovider";
 
 	private DataproviderPropertyType()
 	{
@@ -52,7 +53,7 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 	@Override
 	public String getName()
 	{
-		return "dataprovider";
+		return TYPE_NAME;
 	}
 
 	@Override

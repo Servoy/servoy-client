@@ -26,6 +26,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 public class RelationPropertyType implements IPropertyType<RelatedFoundSet>
 {
 	public static RelationPropertyType INSTANCE = new RelationPropertyType();
+	public static final String TYPE_NAME = "relation";
 
 	private RelationPropertyType()
 	{
@@ -34,7 +35,7 @@ public class RelationPropertyType implements IPropertyType<RelatedFoundSet>
 	@Override
 	public String getName()
 	{
-		return "relation";
+		return TYPE_NAME;
 	}
 
 	@Override

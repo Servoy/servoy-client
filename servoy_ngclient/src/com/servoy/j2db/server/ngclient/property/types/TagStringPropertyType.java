@@ -40,6 +40,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
+	public static final String TYPE_NAME = "tagstring";
 
 	private TagStringPropertyType()
 	{
@@ -48,7 +49,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	@Override
 	public String getName()
 	{
-		return "tagstring";
+		return TYPE_NAME;
 	}
 
 	@Override

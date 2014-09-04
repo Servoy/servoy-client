@@ -30,11 +30,16 @@ import javax.swing.border.TitledBorder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -44,10 +49,12 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  * @author jcompagner
  *
  */
-public class BorderPropertyType implements IConvertedPropertyType<Border>
+public class BorderPropertyType implements IConvertedPropertyType<Border>, ISupportsConversion1_FromDesignToFormElement<JSONObject, Border, Border>,
+	ISupportsConversion2_FormElementValueToTemplateJSON<Border, Border>
 {
 
 	public static final BorderPropertyType INSTANCE = new BorderPropertyType();
+	public static final String TYPE_NAME = "border";
 
 	private BorderPropertyType()
 	{
@@ -56,7 +63,7 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>
 	@Override
 	public String getName()
 	{
-		return "border";
+		return TYPE_NAME;
 	}
 
 	@Override
@@ -224,6 +231,20 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>
 	public Border defaultValue()
 	{
 		return null;
+	}
+
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Border formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers) throws JSONException
+	{
+		return toJSON(writer, key, formElementValue, browserConversionMarkers);
+	}
+
+	@Override
+	public Border toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
+		PropertyPath propertyPath)
+	{
+		return fromJSON(designValue, null, null);
 	}
 
 }

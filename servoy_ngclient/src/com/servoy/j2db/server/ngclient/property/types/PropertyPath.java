@@ -30,6 +30,7 @@ public class PropertyPath
 {
 
 	protected List<Object> path = new ArrayList<Object>();
+	private boolean shouldAddElementName = true; // another hack - when not directly a child of a form, a child component will not be referenced by name, but by index or custom property key
 
 	public void add(int i)
 	{
@@ -44,6 +45,18 @@ public class PropertyPath
 	public void backOneLevel()
 	{
 		if (path.size() > 0) path.remove(path.size() - 1);
+	}
+
+	public boolean shouldAddElementNameAndClearFlag()
+	{
+		boolean tmp = shouldAddElementName;
+		shouldAddElementName = false;
+		return tmp;
+	}
+
+	public void setShouldAddElementName()
+	{
+		this.shouldAddElementName = true;
 	}
 
 	public Object[] currentPathCopy()

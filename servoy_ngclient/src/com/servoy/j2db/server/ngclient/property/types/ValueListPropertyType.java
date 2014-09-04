@@ -44,6 +44,7 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 	private static final Logger log = LoggerFactory.getLogger(ValueListPropertyType.class.getCanonicalName());
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
+	public static final String TYPE_NAME = "valuelist";
 
 	private ValueListPropertyType()
 	{
@@ -52,7 +53,7 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 	@Override
 	public String getName()
 	{
-		return "valuelist";
+		return TYPE_NAME;
 	}
 
 	@Override
@@ -110,10 +111,10 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 	{
 		// first time it creates the wrapper then, it will always be a Wrapper (skips if statement)
 		if (value instanceof ValueListPropertyWrapper) return (ValueListPropertyWrapper)value;
-		if (value instanceof LookupListModel)
-		{
-			return new ValueListPropertyWrapper(value);
-		}
+//		if (value instanceof LookupListModel)
+//		{
+//			return new ValueListPropertyWrapper(value);
+//		}
 		return new ValueListPropertyWrapper(value);
 	}
 

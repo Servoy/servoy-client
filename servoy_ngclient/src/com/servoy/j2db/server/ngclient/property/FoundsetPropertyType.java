@@ -47,7 +47,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
 
-	public static final String TYPE_ID = "foundset";
+	public static final String TYPE_NAME = "foundset";
 
 	public FoundsetPropertyType(PropertyDescription definition)
 	{
@@ -59,7 +59,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		throws JSONException
 	{
 		// this just dumps an empty/dummy value
-		if (conversionMarkers != null) conversionMarkers.convert(TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+		if (conversionMarkers != null) conversionMarkers.convert(TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();

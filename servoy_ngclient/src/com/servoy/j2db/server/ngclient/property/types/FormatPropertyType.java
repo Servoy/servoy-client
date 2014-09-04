@@ -43,6 +43,7 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
 
 	public static final FormatPropertyType INSTANCE = new FormatPropertyType();
+	public static final String TYPE_NAME = "format";
 
 	private FormatPropertyType()
 	{
@@ -51,7 +52,7 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 	@Override
 	public String getName()
 	{
-		return "format";
+		return TYPE_NAME;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 angular.module('custom_json_array_property', ['webSocketModule'])
 // CustomJSONArray type ------------------------------------------
-.run(function ($sabloConverters, $utils, $rootScope, $sabloConverters) {
+.run(function ($sabloConverters, $rootScope, $sabloUtils) {
 	var UPDATES = "updates";
 	var INDEX = "i";
 	var VALUE = "v";
@@ -9,25 +9,37 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 	function getChangeNotifier(propertyValue, idx) {
 		return function() {
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-			internalState.changedIndexes.push(idx);
+			internalState.changedIndexes[idx] = true;
 			internalState.notifier();
 		}
 	}
 	
 	function watchDumbElementForChanges(propertyValue, idx) {
 		// if elements are primitives or anyway not something that wants control over changes, just add an in-depth watch
-		var notifier = getChangeNotifier(propertyValue, idx);
 		return $rootScope.$watch(function() {
 			return propertyValue[idx];
 		}, function(newvalue, oldvalue) {
 			if (oldvalue === newvalue) return;
-			notifier();
+			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
+			internalState.changedIndexes[idx] = { old: oldvalue };
+			internalState.notifier();
 		}, true);
 	}
 
 	$sabloConverters.registerCustomPropertyHandler('JSON_arr', {
 		fromServerToClient: function (serverJSONValue, currentClientValue) {
 			var newValue = currentClientValue;
+
+			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
+			if (angular.isDefined(currentClientValue)) {
+				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+				if (iS.arrayStructureUnwatch) iS.arrayStructureUnwatch();
+				for (var key in iS.elUnwatch) {
+					iS.elUnwatch[key]();
+				}
+				iS.arrayStructureUnwatch = null;
+				iS.elUnwatch = null;
+			}
 
 			if (serverJSONValue && serverJSONValue[VALUE]) {
 				newValue = serverJSONValue[VALUE];
@@ -39,13 +51,17 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 				internalState.setChangeNotifier = function(changeNotifier) {
 					internalState.notifier = changeNotifier; 
 				}
-				internalState.isChanged = function() { return internalState.allChanged || (internalState.changedIndexes.length > 0); }
+				internalState.isChanged = function() {
+					var hasChanges = internalState.allChanged;
+					if (!hasChanges) for (var x in internalState.changedIndexes) { hasChanges = true; break; }
+					return hasChanges;
+				}
 
 				// private impl
 				internalState.modelUnwatch = [];
 				internalState.arrayStructureUnwatch = null;
 				internalState.conversionInfo = [];
-				internalState.changedIndexes = [];
+				internalState.changedIndexes = {};
 				internalState.allChanged = false;
 				for (var c in newValue) {
 					var elem = newValue[c];
@@ -56,23 +72,14 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 					if (conversionInfo) {
 						internalState.conversionInfo[c] = conversionInfo;
-						newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo);
+						newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined);
 					}
 
 					if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 						// child is able to handle it's own change mechanism
 						elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(newValue, c));
-					} else {
-						// watch the child's value to see if it changes
-						internalState.elUnwatch.push(watchDumbElementForChanges(newValue, c));
 					}
 				}
-				
-				// watch for add/remove and such operations on array
-				internalState.arrayStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newVal) {
-					internalState.allChanged = true;
-					internalState.notifier();
-		        });
 			} else if (serverJSONValue && serverJSONValue[UPDATES]) {
 				// granular updates received
 				var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
@@ -92,27 +99,38 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 					if (conversionInfo) {
 						internalState.conversionInfo[idx] = conversionInfo;
-						currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo);
+						currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx]);
 					}
 
 					if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 						// child is able to handle it's own change mechanism
 						val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(currentClientValue, idx));
-					} // else a watch for this dumb value at this index is already in place as this does not modify the array size nor the element types
+					}
 				}
 			} else newValue = null; // anything else would not be supported...
 			
-			if (angular.isDefined(currentClientValue) && newValue !== currentClientValue) {
-				// the client side object will change completely, and the old one probably has watches defined...
-				// unregister those
-				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-				if (iS.arrayStructureUnwatch) iS.arrayStructureUnwatch();
-				for (var key in iS.elUnwatch) {
-					iS.elUnwatch[key]();
+			// add back watches if needed
+			if (newValue) {
+				internalState.elUnwatch = {};
+				for (var c in newValue) {
+					var elem = newValue[c];
+					if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+						// watch the child's value to see if it changes
+						internalState.elUnwatch[c] = watchDumbElementForChanges(newValue, c);
+					}
 				}
-				iS.arrayStructureUnwatch = null;
-				iS.elUnwatch = null;
+				
+				internalState.arrayStructureUnwatchIgnoreOnce = true;
+				// watch for add/remove and such operations on array
+				internalState.arrayStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newVal) {
+					if (internalState.arrayStructureUnwatchIgnoreOnce) internalState.arrayStructureUnwatchIgnoreOnce = false;
+					else {
+						internalState.allChanged = true;
+						internalState.notifier();
+					}
+				});
 			}
+			
 			return newValue;
 		},
 
@@ -134,19 +152,41 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						var changes = {};
 						changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
 						changedElements = changes[UPDATES] = [];
-						for (var idxOfIdx in internalState.changedIndexes) {
-							var idx = internalState.changedIndexes[idxOfIdx];
-							var ch = {};
-							ch[IDX] = idx;
+						for (var idx in internalState.changedIndexes) {
+							var newVal = newClientData[idx];
 							
-							if (internalState.conversionInfo[idx]) ch[VALUE] = $sabloConverters.convertFromClientToServer(newClientData[idx], internalState.conversionInfo[idx], oldClientData ? oldClientData[idx] : undefined);
-							else ch[VALUE] = $sabloUtils.convertClientObject(newClientData[idx]);
-							
-							changedElements.push(ch);
+							var changed = (typeof oldVal == 'undefined');
+							if (!changed) {
+								if (internalState.elUnwatch[key]) {
+									var oldDumbVal = internalState.changedIndexes[idx].old;
+									// it's a dumb value - watched; see if it really changed acording to sablo rules
+									if (oldDumbVal !== newVal) {
+										if (typeof newVal == "object") {
+											if ($sabloUtils.isChanged(newVal, oldDumbVal, internalState.conversionInfo[idx])) {
+												changed = true;
+											}
+										} else {
+											changed = true;
+										}
+									}
+								} else changed = newVal.isChanged(); // must be smart value then
+							}
+
+							if (changed) {
+								var ch = {};
+								ch[INDEX] = idx;
+
+								if (internalState.conversionInfo[idx]) ch[VALUE] = $sabloConverters.convertFromClientToServer(newVal, internalState.conversionInfo[idx], oldClientData ? oldClientData[idx] : undefined);
+								else ch[VALUE] = $sabloUtils.convertClientObject(newVal);
+
+								changedElements.push(ch);
+							}
 						}
 						return changes;
 					}
 				}
+				internalState.allChanged = false;
+				internalState.changedIndexes = {};
 			}
 			return {};
 		}

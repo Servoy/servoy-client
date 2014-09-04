@@ -140,7 +140,7 @@ class PersistBasedFormElementImpl
 		PropertyPath propertyPath)
 	{
 		Map<String, Object> jsonMap = convertSpecialPersistProperties(getFlattenedPropertiesMap(), context, specProperties);
-		formElement.convertFromPersistPrimitivesToFormElementValues(context, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(), jsonMap,
+		formElement.convertFromPersistPrimitivesToFormElementValues(context, specProperties, formElement.getWebComponentSpec().getHandlers(), jsonMap,
 			propertyPath);
 		return jsonMap;
 	}
@@ -206,7 +206,7 @@ class PersistBasedFormElementImpl
 	private void putAndConvertProperty(String propName, Object val, Map<String, Object> map, final IServoyDataConverterContext context,
 		PropertyDescription desc, PropertyPath propertyPath)
 	{
-		formElement.convertDesignToFormElementValueAndPut(context, desc, map, null, propName, val, propertyPath);
+		formElement.convertDesignToFormElementValueAndPut(context, desc, map, propName, val, propertyPath);
 	}
 
 	private void convertFromTabPanelToNGProperties(IFormElement persist, final IServoyDataConverterContext context, Map<String, Object> map,
@@ -253,7 +253,7 @@ class PersistBasedFormElementImpl
 			tabList.add(tabMap);
 			active = false;
 		}
-		map.put("tabs", tabList);
+		map.put("tabs", tabList.toArray());
 	}
 
 	private void convertFromPortalToNGProperties(IFormElement portalPersist, final IServoyDataConverterContext context, Map<String, Object> map,
@@ -299,6 +299,7 @@ class PersistBasedFormElementImpl
 				Object[] componentFormElementValues = new Object[components.size()]; // of ComponentTypeFormElementValue type (this array of objects corresponds to CustomJSONArrayType form element value
 				int i = 0;
 				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
+				propertyPath.add("childElements");
 				for (IPersist component : components)
 				{
 					if (component instanceof IFormElement)
@@ -306,7 +307,7 @@ class PersistBasedFormElementImpl
 						FormElement nfe = com.servoy.j2db.server.ngclient.ComponentFactory.getFormElement((IFormElement)component, context, propertyPath);
 						boolean dpChanged = false;
 
-						propertyPath.add(nfe.getName());
+						propertyPath.add(i);
 						// remove the name of relation prefix from child dataproviders as it only stands in the way later on...
 						List<String> dataProviders = WebGridFormUI.getWebComponentPropertyType(nfe.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 						String relationPrefix = portal.getRelationName() + '.';
@@ -323,11 +324,12 @@ class PersistBasedFormElementImpl
 							}
 						}
 						if (dpChanged) nfe.updatePropertyValuesDontUse(elementProperties);
-						propertyPath.backOneLevel();
 
 						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe);
+						propertyPath.backOneLevel();
 					}
 				}
+				propertyPath.backOneLevel();
 				map.put("childElements", componentFormElementValues);
 			}
 

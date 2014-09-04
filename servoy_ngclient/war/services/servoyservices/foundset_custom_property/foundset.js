@@ -207,14 +207,14 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 									}
 								}
 								// insert might have made obsolete some records in cache; remove those
-								if (rows.length > currentClientValue[VIEW_PORT].size) {
+								if (rows.length > currentClientValue[VIEW_PORT][SIZE]) {
 									// remove conversion info for these rows as well
 									if (internalState[CONVERSIONS]) {
-										for (j = currentClientValue[VIEW_PORT].size; j < rows.length; j++)
+										for (j = currentClientValue[VIEW_PORT][SIZE]; j < rows.length; j++)
 											removeRowConversionInfo(j, currentClientValue);
 									}
 									
-									rows.splice(currentClientValue[VIEW_PORT].size, rows.length - currentClientValue[VIEW_PORT].size);
+									rows.splice(currentClientValue[VIEW_PORT][SIZE], rows.length - currentClientValue[VIEW_PORT][SIZE]);
 								}
 								for (j = oldLength; j < rows.length; j++)
 									addDataWatchesToRow(j, currentClientValue);

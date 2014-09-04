@@ -25,15 +25,16 @@ public class BeanPropertyType implements IPropertyType<String>
 {
 
 	public static final BeanPropertyType INSTANCE = new BeanPropertyType();
+	public static final String TYPE_NAME = "bean";
 
-	private BeanPropertyType()
+	protected BeanPropertyType()
 	{
 	}
 
 	@Override
 	public String getName()
 	{
-		return "bean";
+		return TYPE_NAME;
 	}
 
 	@Override

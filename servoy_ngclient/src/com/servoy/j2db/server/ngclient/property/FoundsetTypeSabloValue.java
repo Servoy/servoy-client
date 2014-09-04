@@ -225,7 +225,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
 		// TODO conversion markers should never be null I think, but it did happen (due to JSONUtils.toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType); will create a case for that
-		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		destinationJSON.object();
 		destinationJSON.key(SERVER_SIZE).value(foundset != null ? foundset.getSize() : 0);
@@ -309,7 +309,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers);
 		else
 		{
-			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 			boolean somethingChanged = false;
 			// change monitor already takes care not to report duplicates here (like whole viewport + viewport bounds)

@@ -24,6 +24,7 @@ import org.sablo.specification.property.IPropertyType;
 public class FormPropertyType implements IPropertyType<String>
 {
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
+	public static final String TYPE_NAME = "form";
 
 	private FormPropertyType()
 	{
@@ -32,7 +33,7 @@ public class FormPropertyType implements IPropertyType<String>
 	@Override
 	public String getName()
 	{
-		return "form";
+		return TYPE_NAME;
 	}
 
 	@Override

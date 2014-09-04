@@ -28,8 +28,8 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IPropertyType;
 
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
 
@@ -48,8 +48,8 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	private Scriptable parent;
 	private final WebFormComponent baseWebObject;
 
-	public RhinoMapOrArrayWrapper(Object wrappedValue, WebFormComponent baseWebObject, String property, boolean design, PropertyDescription propertyDescription,
-		IServoyDataConverterContext converterContext)
+	public RhinoMapOrArrayWrapper(Object wrappedValue, WebFormComponent baseWebObject, String property, boolean design,
+		PropertyDescription propertyDescription, IServoyDataConverterContext converterContext)
 	{
 		this.baseWebObject = baseWebObject;
 		this.wrappedValue = wrappedValue;
@@ -112,6 +112,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	public Object get(String name, Scriptable start)
 	{
 		Object value = getAsSabloValue(name);
+		if (wrappedValue instanceof List && name.equals("length")) return value;
 
 		PropertyDescription propDesc = propertyDescription.getProperty(name);
 		return NGConversions.INSTANCE.applyConversion4_1(value, propDesc, baseWebObject);

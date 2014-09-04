@@ -340,17 +340,20 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	        	return;
 	        }
 	        
-	        var formname = parent.formname;
-	        var formParentScope = parent;
-	        while (!formname) {
-	        	formParentScope = formParentScope.$parent;
-	        	if (formParentScope) {
-	        		formname = formParentScope.formname;
+	        function searchForFormName() {
+	        	var formname = parent.formname;
+	        	var formParentScope = parent;
+	        	while (!formname) {
+	        		formParentScope = formParentScope.$parent;
+	        		if (formParentScope) {
+	        			formname = formParentScope.formname;
+	        		}
+	        		else { 
+	        			$log.error("[svy-autoapply] no form found for " + beanname + "." + propertyname + ". It might have been recreated/detached or not yet attached to angular scope chain.");
+	        			return;
+	        		}
 	        	}
-	        	else { 
-	        		$log.error("[svy-autoapply] no form found for " + beanname + "." + propertyname);
-	        		return;
-	        	}
+	        	return formname;
 	        }
 
 	        // search for svy-apply attribute on element, within parents (svy-autoapply could be used on a child DOM element of the web component)
@@ -364,6 +367,8 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	        	svyApply = parent.$eval(svyApplyAttrValue);
 	        }
 	        
+	        var formName = null;
+	        
 		        // Listen for change events to enable binding
 		     element.bind('change', function() {
 		        	// model has not been updated yet
@@ -375,15 +380,17 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		    	        	svyApply(propertyname);
 		    	        } else {
 		    	        	// this shouldn't happen (svy-apply not being set on a web-component...)
-			        		if (beanModel) $servoyInternal.pushChange(formname,beanname,propertyname,beanModel[propertyname],beanModel.rowId);
-			        		else $servoyInternal.pushChangeDefault(formname,beanname,propertyname);
+		    	        	if (!formName) formName = searchForFormName(); 
+			        		if (beanModel) $servoyInternal.pushChange(formName,beanname,propertyname,beanModel[propertyname],beanModel.rowId);
+			        		else $servoyInternal.pushChangeDefault(formName,beanname,propertyname);
 		    	        }
 		        	}, 0);
 		     });
 		     // Listen for start edit
 	  	     element.bind('focus', function() {
 	  	        	setTimeout(function() { 
-		        		$servoyInternal.callService("formService", "startEdit", {formname:formname,beanname:beanname,property:propertyname},true)
+	    	        	if (!formName) formName = searchForFormName(); 
+		        		$servoyInternal.callService("formService", "startEdit", {formname:formName,beanname:beanname,property:propertyname},true)
 	  	        	}, 0);
 	  	     });
 

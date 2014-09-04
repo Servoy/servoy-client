@@ -25,6 +25,7 @@ public class MediaOptionsPropertyType implements IPropertyType<Integer>
 {
 
 	public static final MediaOptionsPropertyType INSTANCE = new MediaOptionsPropertyType();
+	public static final String TYPE_NAME = "mediaoptions";
 
 	private MediaOptionsPropertyType()
 	{
@@ -33,7 +34,7 @@ public class MediaOptionsPropertyType implements IPropertyType<Integer>
 	@Override
 	public String getName()
 	{
-		return "mediaoptions";
+		return TYPE_NAME;
 	}
 
 	@Override

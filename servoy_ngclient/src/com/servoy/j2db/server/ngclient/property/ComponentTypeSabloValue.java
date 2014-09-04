@@ -167,7 +167,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
 		throws JSONException
 	{
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_ID); // so that the client knows it must use the custom client side JS for what JSON it gets
+		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		// TODO if the components property type is not linked to a foundset then somehow the dataproviders/tagstring must also be sent when needed
 		// but if it is linked to a foundset those should only be sent through the foundset!
@@ -198,61 +198,64 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		try
 		{
-			JSONObject update = (JSONObject)jsonValue;
-			if (update.has("handlerExec"))
+			JSONArray updates = (JSONArray)jsonValue;
+			for (int i = 0; i < updates.length(); i++)
 			{
-				// { handlerExec: {
-				// 		beanName: ...,
-				// 		eventType: ...,
-				// 		args: ...,
-				// 		rowId : ...
-				// }});
-				update = update.getJSONObject("handlerExec");
-				if (update.has("eventType"))
+				JSONObject update = (JSONObject)updates.get(i);
+				if (update.has("handlerExec"))
 				{
-					boolean selectionOk = true;
-					if (update.has("rowId"))
+					// { handlerExec: {
+					// 		eventType: ...,
+					// 		args: ...,
+					// 		rowId : ...
+					// }});
+					update = update.getJSONObject("handlerExec");
+					if (update.has("eventType"))
 					{
-						String rowId = update.getString("rowId");
-						FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
-						if (foundsetValue != null)
+						boolean selectionOk = true;
+						if (update.has("rowId"))
 						{
-							if (!foundsetValue.setEditingRowByPkHash(rowId))
+							String rowId = update.getString("rowId");
+							FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
+							if (foundsetValue != null)
 							{
-								Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
-								selectionOk = false;
+								if (!foundsetValue.setEditingRowByPkHash(rowId))
+								{
+									Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
+									selectionOk = false;
+								}
 							}
 						}
-					}
-					if (selectionOk)
-					{
-						String eventType = update.getString("eventType");
-//						String beanName = update.getString("beanName");
-						JSONArray jsargs = update.getJSONArray("args");
-						Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
-						for (int j = 0; jsargs != null && j < jsargs.length(); j++)
+						if (selectionOk)
 						{
-							args[j] = jsargs.get(j);
-						}
+							String eventType = update.getString("eventType");
+//						String beanName = update.getString("beanName");
+							JSONArray jsargs = update.getJSONArray("args");
+							Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
+							for (int j = 0; jsargs != null && j < jsargs.length(); j++)
+							{
+								args[j] = jsargs.get(j);
+							}
 
-						childComponent.executeEvent(eventType, args); // TODO
+							childComponent.executeEvent(eventType, args); // TODO
+						}
 					}
 				}
-			}
-			else if (update.has("propertyChanges"))
-			{
-				// { propertyChanges : {
-				//	 	beanIndex: ...,
-				// 		changes: ...
-				// }}
-				JSONObject changes = update.getJSONObject("propertyChanges");
-
-				Iterator<String> keys = changes.keys();
-				while (keys.hasNext())
+				else if (update.has("propertyChanges"))
 				{
-					String key = keys.next();
-					Object object = changes.get(key);
-					childComponent.putBrowserProperty(key, object);
+					// { propertyChanges : {
+					//	 	beanIndex: ...,
+					// 		changes: ...
+					// }}
+					JSONObject changes = update.getJSONObject("propertyChanges");
+
+					Iterator<String> keys = changes.keys();
+					while (keys.hasNext())
+					{
+						String key = keys.next();
+						Object object = changes.get(key);
+						childComponent.putBrowserProperty(key, object);
+					}
 				}
 			}
 		}

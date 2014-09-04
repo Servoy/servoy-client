@@ -611,7 +611,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
-			call.put("propertyPath", componentContext);
+			call.put("propertyPath", componentContext.getPropertyPath());
 		}
 		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
 	}
@@ -645,7 +645,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override

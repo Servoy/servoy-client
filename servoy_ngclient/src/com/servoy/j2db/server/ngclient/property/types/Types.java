@@ -48,11 +48,19 @@ public class Types
 		TypesRegistry.addType(TagStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
 
+		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGDimensionPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGFontPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGInsetsPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGPointPropertyType.NG_INSTANCE);
+
+
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);
 		TypesRegistry.addType(ComponentPropertyType.INSTANCE);
 
-		TypesRegistry.addTypeFactory(CustomJSONArrayType.TYPE_ID, new IPropertyTypeFactory<PropertyDescription, Object>()
+		TypesRegistry.addTypeFactory(CustomJSONArrayType.TYPE_NAME, new IPropertyTypeFactory<PropertyDescription, Object>()
 		{
 
 			@Override

@@ -211,14 +211,14 @@
 			displayName: '${bc.name}'
 			</#if>,
 			cellTemplate: '<${bc.tagname} name="${bc.name}" svy-model="cellRender(row, \'${bc.name}\', model.${bc.name})" svy-api="cellApiWrapper(api.${bc.name},row.getProperty(\'${bc.name}\'))" svy-handlers="cellHandler(row,\'${bc.name}\',handlers.${bc.name})" svy-apply="applyWrapper(handlers.${bc.name}.svy_apply,row.getProperty(\'${bc.name}\'))"/>',
-			<#if bc.properties.size??>
-			width: ${bc.properties.size.width},
+			<#if bc.rawPropertyValues.size??>
+			width: ${bc.getPropertyValue("size").width},
 			</#if>
-			<#if bc.properties.visible??>
-			visible: ${bc.properties.visible?c},
+			<#if bc.rawPropertyValues.visible??>
+			visible: ${bc.getPropertyValue("visible")?c},
 			</#if>
 		};
-		<#if bc.properties.visible??>
+		<#if bc.rawPropertyValues.visible??>
 			$scope.$watch('model.${bc.name}.visible', function (newVal, oldVal) {
 				$scope.columnDefs[${i}].visible = newVal;
 			}, false);

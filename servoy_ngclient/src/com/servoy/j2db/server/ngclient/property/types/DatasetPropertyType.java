@@ -39,6 +39,7 @@ public class DatasetPropertyType implements IConvertedPropertyType<IDataSet>
 {
 
 	public static final DatasetPropertyType INSTANCE = new DatasetPropertyType();
+	public static final String TYPE_NAME = "dataset";
 
 	private DatasetPropertyType()
 	{
@@ -47,7 +48,7 @@ public class DatasetPropertyType implements IConvertedPropertyType<IDataSet>
 	@Override
 	public String getName()
 	{
-		return "dataset";
+		return TYPE_NAME;
 	}
 
 	@Override
