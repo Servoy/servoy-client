@@ -38,8 +38,8 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -49,8 +49,8 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  * @author jcompagner
  *
  */
-public class BorderPropertyType implements IConvertedPropertyType<Border>, ISupportsConversion1_FromDesignToFormElement<JSONObject, Border, Border>,
-	ISupportsConversion2_FormElementValueToTemplateJSON<Border, Border>
+public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesignToFormElement<JSONObject, Border, Border>,
+	IFormElementToTemplateJSON<Border, Border>
 {
 
 	public static final BorderPropertyType INSTANCE = new BorderPropertyType();

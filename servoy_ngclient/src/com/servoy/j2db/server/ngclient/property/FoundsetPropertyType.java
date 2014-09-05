@@ -30,9 +30,9 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion3_FormElementValueToSabloComponentValue;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
  * Implementation for the complex custom type "foundset".
@@ -40,9 +40,9 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsCon
  * @author acostescu
  */
 public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue> implements
-	ISupportsConversion2_FormElementValueToTemplateJSON<JSONObject, FoundsetTypeSabloValue>,
-	ISupportsConversion3_FormElementValueToSabloComponentValue<JSONObject, FoundsetTypeSabloValue>, IConvertedPropertyType<FoundsetTypeSabloValue>,
-	ISupportsConversion4_1_SabloComponentValueToRhino<FoundsetTypeSabloValue>
+	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>,
+	IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>, IConvertedPropertyType<FoundsetTypeSabloValue>,
+	ISabloComponentToRhino<FoundsetTypeSabloValue>
 {
 
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);

@@ -33,14 +33,14 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType.DataproviderWrapper;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * @author jcompagner
  *
  */
-public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, ISupportsConversion2_FormElementValueToTemplateJSON<Object, Object>
+public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, IFormElementToTemplateJSON<Object, Object>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();

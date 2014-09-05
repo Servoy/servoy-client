@@ -25,15 +25,14 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
 /**
  *
  * @author acostescu
  */
-public class NGColorPropertyType extends ColorPropertyType implements ISupportsConversion1_FromDesignToFormElement<Object, Color, Color>,
-	ISupportsConversion2_FormElementValueToTemplateJSON<Color, Color>
+public class NGColorPropertyType extends ColorPropertyType implements IDesignToFormElement<Object, Color, Color>, IFormElementToTemplateJSON<Color, Color>
 {
 
 	public final static NGColorPropertyType NG_INSTANCE = new NGColorPropertyType();

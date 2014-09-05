@@ -26,15 +26,15 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
 /**
  *
  * @author acostescu
  */
-public class NGDimensionPropertyType extends DimensionPropertyType implements ISupportsConversion1_FromDesignToFormElement<JSONObject, Dimension, Dimension>,
-	ISupportsConversion2_FormElementValueToTemplateJSON<Dimension, Dimension>
+public class NGDimensionPropertyType extends DimensionPropertyType implements IDesignToFormElement<JSONObject, Dimension, Dimension>,
+	IFormElementToTemplateJSON<Dimension, Dimension>
 {
 
 	public final static NGDimensionPropertyType NG_INSTANCE = new NGDimensionPropertyType();

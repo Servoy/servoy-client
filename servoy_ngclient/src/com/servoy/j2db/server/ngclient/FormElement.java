@@ -56,7 +56,7 @@ import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
@@ -212,7 +212,7 @@ public final class FormElement implements IWebComponentInitializer
 		if (pd != null)
 		{
 			propertyPath.add(key);
-			formElementValues.put(key, NGConversions.INSTANCE.applyConversion1(value, pd, context != null ? context.getSolution() : null, this, propertyPath));
+			formElementValues.put(key, NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, context != null ? context.getSolution() : null, this, propertyPath));
 			propertyPath.backOneLevel();
 		}
 		else if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(key))
@@ -243,14 +243,14 @@ public final class FormElement implements IWebComponentInitializer
 					if (pd.getDefaultValue() != null)
 					{
 						propertyPath.add(pd.getName());
-						map.put(pd.getName(), NGConversions.INSTANCE.applyConversion1(pd.getDefaultValue(), pd, context != null ? context.getSolution() : null,
+						map.put(pd.getName(), NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd, context != null ? context.getSolution() : null,
 							this, propertyPath));
 						propertyPath.backOneLevel();
 					}
 					else if (pd.getType().defaultValue() != null)
 					{
 						// remember that we can use type specified default value when this gets transformed to JSON
-						map.put(pd.getName(), NGConversions.ISupportsConversion1_FromDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER);
+						map.put(pd.getName(), NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER);
 					}
 				}
 			}
@@ -360,7 +360,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/**
 	 * Returns the actual value that this FormElement keeps for the requested property.<br>
-	 * It is possible that it will return a {@link ISupportsConversion1_FromDesignToFormElement#TYPE_DEFAULT_VALUE_MARKER} in case
+	 * It is possible that it will return a {@link IFromDesignToFormElement#TYPE_DEFAULT_VALUE_MARKER} in case
 	 * the type has a default value bu there was no design value or spec. defined default value for this property.
 	 */
 	public Object getRawPropertyValue(String propertyName)
@@ -369,13 +369,13 @@ public final class FormElement implements IWebComponentInitializer
 	}
 
 	/**
-	 * Same as {@link #getRawPropertyValue(String)} but changes {@link ISupportsConversion1_FromDesignToFormElement#TYPE_DEFAULT_VALUE_MARKER} to null.
+	 * Same as {@link #getRawPropertyValue(String)} but changes {@link IFromDesignToFormElement#TYPE_DEFAULT_VALUE_MARKER} to null.
 	 * It is probably that this method can be removed once more types are refactored to use converters instead of hard-coded lines here and there.
 	 */
 	public Object getPropertyValue(String propertyName)
 	{
 		Object value = propertyValues.get(propertyName);
-		return value == ISupportsConversion1_FromDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER ? null : value;
+		return value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER ? null : value;
 	}
 
 	/**
@@ -395,7 +395,7 @@ public final class FormElement implements IWebComponentInitializer
 		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(propertyName);
 		if (propertyValues.containsKey(propertyName))
 		{
-			if (propertyDescription != null) return NGConversions.INSTANCE.applyConversion3(getRawPropertyValue(propertyName), propertyDescription, this,
+			if (propertyDescription != null) return NGConversions.INSTANCE.convertFormElementToSabloComponentValue(getRawPropertyValue(propertyName), propertyDescription, this,
 				component);
 			else return getPropertyValue(propertyName); // just in case this method gets called for events for example (which are currently stored in the same map)
 		}
@@ -525,7 +525,7 @@ public final class FormElement implements IWebComponentInitializer
 			Object val = getRawPropertyValue(pd.getName());
 			if (val == null) continue;
 
-			if (val != ISupportsConversion1_FromDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+			if (val != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 			{
 				IPropertyType type = pd.getType();
 				if (type instanceof DataproviderPropertyType || type instanceof FormatPropertyType || type instanceof ValueListPropertyType ||
@@ -594,7 +594,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

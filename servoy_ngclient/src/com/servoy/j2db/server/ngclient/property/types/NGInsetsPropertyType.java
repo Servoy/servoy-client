@@ -25,14 +25,14 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
 /**
  * @author acostescu
  */
-public class NGInsetsPropertyType extends InsetsPropertyType implements ISupportsConversion1_FromDesignToFormElement<Object, Insets, Insets>,
-	ISupportsConversion2_FormElementValueToTemplateJSON<Insets, Insets>
+public class NGInsetsPropertyType extends InsetsPropertyType implements IDesignToFormElement<Object, Insets, Insets>,
+	IFormElementToTemplateJSON<Insets, Insets>
 {
 
 	public final static NGInsetsPropertyType NG_INSTANCE = new NGInsetsPropertyType();

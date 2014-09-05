@@ -35,7 +35,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, ISupportsConversion2_FormElementValueToTemplateJSON<Object, Object>
+public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IFormElementToTemplateJSON<Object, Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";

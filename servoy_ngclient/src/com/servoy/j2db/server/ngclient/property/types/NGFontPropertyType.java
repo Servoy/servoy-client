@@ -26,14 +26,13 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
 /**
  * @author acostescu
  */
-public class NGFontPropertyType extends FontPropertyType implements ISupportsConversion1_FromDesignToFormElement<JSONObject, Font, Font>,
-	ISupportsConversion2_FormElementValueToTemplateJSON<Font, Font>
+public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>
 {
 
 	public final static NGFontPropertyType NG_INSTANCE = new NGFontPropertyType();

@@ -41,10 +41,10 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion3_FormElementValueToSabloComponentValue;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.util.Debug;
 
@@ -54,10 +54,10 @@ import com.servoy.j2db.util.Debug;
  * @author acostescu
  */
 public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue> implements
-	ISupportsConversion1_FromDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
-	ISupportsConversion2_FormElementValueToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
-	ISupportsConversion3_FormElementValueToSabloComponentValue<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
-	IConvertedPropertyType<ComponentTypeSabloValue>, ISupportsConversion4_1_SabloComponentValueToRhino<ComponentTypeSabloValue>
+	IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
+	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
+	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
+	IConvertedPropertyType<ComponentTypeSabloValue>, ISabloComponentToRhino<ComponentTypeSabloValue>
 {
 
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType(null);

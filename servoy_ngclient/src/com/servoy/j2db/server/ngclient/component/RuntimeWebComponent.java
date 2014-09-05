@@ -36,7 +36,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 
@@ -114,7 +114,7 @@ public class RuntimeWebComponent implements Scriptable
 		if (specProperties != null && specProperties.contains(name))
 		{
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
-			return NGConversions.INSTANCE.applyConversion4_1(component.getProperty(name), pd, component);
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component);
 		}
 		Function func = apiFunctions.get(name);
 		if (func != null)
@@ -154,8 +154,8 @@ public class RuntimeWebComponent implements Scriptable
 			PropertyDescription pd = webComponentSpec.getProperty(name);
 			IPropertyType< ? > type = pd.getType();
 			// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
-			return !(type instanceof ISupportsConversion4_1_SabloComponentValueToRhino< ? >) ||
-				((ISupportsConversion4_1_SabloComponentValueToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component);
+			return !(type instanceof ISabloComponentToRhino< ? >) ||
+				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component);
 		}
 		if (apiFunctions.containsKey(name)) return true;
 
@@ -185,7 +185,7 @@ public class RuntimeWebComponent implements Scriptable
 		if (specProperties != null && specProperties.contains(name))
 		{
 			Object previousVal = component.getProperty(name);
-			Object val = NGConversions.INSTANCE.applyConversion4_2(value, previousVal, webComponentSpec.getProperties().get(name), component);
+			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, webComponentSpec.getProperties().get(name), component);
 
 			if (val != previousVal) component.setProperty(name, val);
 		}
@@ -259,8 +259,8 @@ public class RuntimeWebComponent implements Scriptable
 		{
 			PropertyDescription pd = webComponentSpec.getProperty(name);
 			IPropertyType< ? > type = pd.getType();
-			if (!(type instanceof ISupportsConversion4_1_SabloComponentValueToRhino< ? >) ||
-				((ISupportsConversion4_1_SabloComponentValueToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component))
+			if (!(type instanceof ISabloComponentToRhino< ? >) ||
+				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component))
 			{
 				al.add(name);
 			}

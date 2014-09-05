@@ -27,7 +27,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType.TagStringWrapper;
 import com.servoy.j2db.util.HtmlUtils;
 
@@ -36,7 +36,7 @@ import com.servoy.j2db.util.HtmlUtils;
  * @author jcompagner
  *
  */
-public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, ISupportsConversion2_FormElementValueToTemplateJSON<Object, Object>
+public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();

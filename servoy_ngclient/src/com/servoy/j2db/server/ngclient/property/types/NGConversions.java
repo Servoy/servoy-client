@@ -44,7 +44,10 @@ public class NGConversions
 
 	public static final NGConversions INSTANCE = new NGConversions();
 
-	public static interface ISupportsConversion1_FromDesignToFormElement<D, F, T> extends IPropertyType<T>
+	/**
+	 * Conversion 1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public static interface IDesignToFormElement<D, F, T> extends IPropertyType<T>
 	{
 
 		/**
@@ -77,7 +80,10 @@ public class NGConversions
 
 	}
 
-	public static interface ISupportsConversion2_FormElementValueToTemplateJSON<F, T> extends IPropertyType<T>
+	/**
+	 * Conversion 2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public static interface IFormElementToTemplateJSON<F, T> extends IPropertyType<T>
 	{
 
 		/**
@@ -97,7 +103,10 @@ public class NGConversions
 
 	}
 
-	public static interface ISupportsConversion3_FormElementValueToSabloComponentValue<F, T> extends IPropertyType<T>
+	/**
+	 * Conversion 3 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public static interface IFormElementToSabloComponent<F, T> extends IPropertyType<T>
 	{
 
 		/**
@@ -112,7 +121,10 @@ public class NGConversions
 
 	}
 
-	public static interface ISupportsConversion4_1_SabloComponentValueToRhino<T> extends IPropertyType<T>
+	/**
+	 * Conversion 4.1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public static interface ISabloComponentToRhino<T> extends IPropertyType<T>
 	{
 
 		/**
@@ -140,7 +152,10 @@ public class NGConversions
 
 	}
 
-	public static interface ISupportsConversion4_2_RhinoToSabloComponentValue<T> extends IPropertyType<T>
+	/**
+	 * Conversion 4.2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public static interface IRhinoToSabloComponent<T> extends IPropertyType<T>
 	{
 
 		/**
@@ -155,19 +170,25 @@ public class NGConversions
 
 	}
 
-	public Object applyConversion1(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
+	/**
+	 * Conversion 1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public Object convertDesignToFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
 		PropertyPath propertyPath)
 	{
 		IPropertyType< ? > type = pd.getType();
-		if (type instanceof ISupportsConversion1_FromDesignToFormElement)
+		if (type instanceof IDesignToFormElement)
 		{
-			return ((ISupportsConversion1_FromDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
+			return ((IDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
 		}
 		return designValue;
 	}
 
-	public JSONWriter applyConversion2(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers)
-		throws IllegalArgumentException, JSONException
+	/**
+	 * Conversion 2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public JSONWriter convertFormElementToTemplateJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType,
+		DataConversion browserConversionMarkers) throws IllegalArgumentException, JSONException
 	{
 		return FormElementToJSON.INSTANCE.toJSONValue(writer, key, value, valueType, browserConversionMarkers);
 	}
@@ -193,12 +214,11 @@ public class NGConversions
 			throws JSONException, IllegalArgumentException
 		{
 			IPropertyType< ? > type = (valueType != null ? valueType.getType() : null);
-			if (value != ISupportsConversion1_FromDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+			if (value != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 			{
-				if (type instanceof ISupportsConversion2_FormElementValueToTemplateJSON)
+				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((ISupportsConversion2_FormElementValueToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType,
-						browserConversionMarkers);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers);
 				}
 				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers))
 				{
@@ -218,14 +238,17 @@ public class NGConversions
 	// FormElement value of property is only one across all client sessions, so properties that need to have
 	// special behavior in cached template form only or those that have a modifyable object in form element and want to make copies of it for
 	// each client will implement this conversion
-	public Object applyConversion3(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component)
+	/**
+	 * Conversion 3 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public Object convertFormElementToSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component)
 	{
 		IPropertyType< ? > type = pd.getType();
-		if (formElementValue != ISupportsConversion1_FromDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+		if (formElementValue != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 		{
-			if (type instanceof ISupportsConversion3_FormElementValueToSabloComponentValue)
+			if (type instanceof IFormElementToSabloComponent)
 			{
-				return ((ISupportsConversion3_FormElementValueToSabloComponentValue)type).toSabloComponentValue(formElementValue, pd, formElement, component);
+				return ((IFormElementToSabloComponent)type).toSabloComponentValue(formElementValue, pd, formElement, component);
 			}
 			return formElementValue;
 		}
@@ -235,15 +258,18 @@ public class NGConversions
 		}
 	}
 
-	public Object applyConversion4_1(Object webComponentValue, PropertyDescription pd, WebFormComponent component)
+	/**
+	 * Conversion 4.1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public Object convertSabloComponentToRhinoValue(Object webComponentValue, PropertyDescription pd, WebFormComponent component)
 	{
 		if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
 
 		Object rhinoVal;
 		IPropertyType< ? > type = pd.getType();
-		if (type instanceof ISupportsConversion4_1_SabloComponentValueToRhino< ? >)
+		if (type instanceof ISabloComponentToRhino< ? >)
 		{
-			rhinoVal = ((ISupportsConversion4_1_SabloComponentValueToRhino)type).toRhinoValue(webComponentValue, pd, component);
+			rhinoVal = ((ISabloComponentToRhino)type).toRhinoValue(webComponentValue, pd, component);
 		}
 		else
 		{
@@ -253,7 +279,7 @@ public class NGConversions
 			Object value = component.getConvertedPropertyWithDefault(name, type instanceof DataproviderPropertyType, true);
 
 			// TODO if we want to support random objects/array we should create a "AnyJSONValueType" that based on value type
-			// reuses stuff from CustomJSONArrayType, CustomJSONObject type and handle primitive types as well, instead of the commented out code below
+			// reuses stuff from CustomJSONArrayType, CustomJSONObject type instead of the commented out code below
 //			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
 //			{
 //				return new RhinoMapOrArrayWrapper(component, name, type instanceof DataproviderPropertyType,
@@ -267,13 +293,16 @@ public class NGConversions
 		return rhinoVal;
 	}
 
-	public Object applyConversion4_2(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, WebFormComponent component)
+	/**
+	 * Conversion 4.2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 */
+	public Object convertRhinoToSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, WebFormComponent component)
 	{
 		Object sabloVal;
 		IPropertyType< ? > type = pd.getType();
-		if (type instanceof ISupportsConversion4_2_RhinoToSabloComponentValue< ? >)
+		if (type instanceof IRhinoToSabloComponent< ? >)
 		{
-			sabloVal = ((ISupportsConversion4_2_RhinoToSabloComponentValue)type).toSabloComponentValue(rhinoValue, previousComponentValue, pd, component);
+			sabloVal = ((IRhinoToSabloComponent)type).toSabloComponentValue(rhinoValue, previousComponentValue, pd, component);
 		}
 		else
 		{

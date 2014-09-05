@@ -36,11 +36,11 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion1_FromDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion2_FormElementValueToTemplateJSON;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion3_FormElementValueToSabloComponentValue;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_1_SabloComponentValueToRhino;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISupportsConversion4_2_RhinoToSabloComponentValue;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -49,10 +49,9 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
-public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements
-	ISupportsConversion1_FromDesignToFormElement<JSONArray, Object[], Object>, ISupportsConversion2_FormElementValueToTemplateJSON<Object[], Object>,
-	ISupportsConversion3_FormElementValueToSabloComponentValue<Object[], Object>, ISupportsConversion4_1_SabloComponentValueToRhino<Object>,
-	ISupportsConversion4_2_RhinoToSabloComponentValue<Object>
+public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
+	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>,
+	ISabloComponentToRhino<Object>, IRhinoToSabloComponent<Object>
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -72,7 +71,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				try
 				{
 					propertyPath.add(i);
-					formElementValues[i] = NGConversions.INSTANCE.applyConversion1(designValue.get(i), getCustomJSONTypeDefinition(), flattenedSolution,
+					formElementValues[i] = NGConversions.INSTANCE.convertDesignToFormElementValue(designValue.get(i), getCustomJSONTypeDefinition(), flattenedSolution,
 						formElement, propertyPath);
 					propertyPath.backOneLevel();
 				}
@@ -101,7 +100,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			for (int i = 0; i < formElementValue.length; i++)
 			{
 				arrayConversionMarkers.pushNode(String.valueOf(i));
-				NGConversions.INSTANCE.applyConversion2(writer, null, formElementValue[i], getCustomJSONTypeDefinition(), arrayConversionMarkers);
+				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, null, formElementValue[i], getCustomJSONTypeDefinition(), arrayConversionMarkers);
 				arrayConversionMarkers.popNode();
 			}
 		}
@@ -124,7 +123,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			List<SabloT> list = new ArrayList<>(formElementValue.length);
 			for (Object element : formElementValue)
 			{
-				list.add((SabloT)NGConversions.INSTANCE.applyConversion3(element, getCustomJSONTypeDefinition(), formElement, component));
+				list.add((SabloT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(element, getCustomJSONTypeDefinition(), formElement, component));
 			}
 			return list;
 		}
@@ -163,7 +162,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				int i = 0;
 				for (Object rv : rhinoArray)
 				{
-					convertedArray.add(NGConversions.INSTANCE.applyConversion4_2(rv, previousSpecialArray != null ? previousSpecialArray.get(i) : null,
+					convertedArray.add(NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rv, previousSpecialArray != null ? previousSpecialArray.get(i) : null,
 						getCustomJSONTypeDefinition(), component));
 					i++;
 				}
