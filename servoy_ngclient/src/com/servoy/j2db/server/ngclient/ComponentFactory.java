@@ -58,6 +58,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -137,14 +138,17 @@ public class ComponentFactory
 				}
 				else
 				{
-					// this code got executed for text fields that have no valuelist set
-//					String dp = (String)fe.getProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName());
-//					if (dp != null && formUI.getController().getTable() != null && formUI.getController().getTable().getColumnType(dp) != 0)
-//					{					
-//						ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
-//							(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
-//						webComponent.setProperty(vlProp.getName(), vl);
-//					}
+					if (fe.getTypeName().equals("svy-typeahead"))
+					{
+						String dp = (String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName());
+						IWebFormUI formUI = (WebFormUI)parentToAddTo;
+						if (dp != null && formUI.getController().getTable() != null && formUI.getController().getTable().getColumnType(dp) != 0)
+						{
+							ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
+								(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
+							webComponent.setProperty(vlProp.getName(), vl);
+						}
+					}
 				}
 			}
 
