@@ -1,7 +1,7 @@
 {
 	"name": "testservice",
 	"displayName": "Test service that says helloworld",
-	"definition": "services/servoyservices/testservice/testservice.js",
+	"definition": "servoyservices/testservice/testservice.js",
 	"libraries": [],
 	"model":
 	{

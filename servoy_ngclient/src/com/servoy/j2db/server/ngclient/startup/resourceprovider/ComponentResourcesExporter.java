@@ -56,7 +56,7 @@ public class ComponentResourcesExporter
 		while (paths.hasMoreElements())
 		{
 			String name = paths.nextElement().replace("war/", "");
-			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/") && !name.equals("services/"))
+			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/") && !name.endsWith("services/"))
 			{
 				locations.append("/" + name + ";");
 			}
@@ -72,11 +72,11 @@ public class ComponentResourcesExporter
 	public static String getServicesDirectoryNames()
 	{
 		StringBuilder locations = new StringBuilder();
-		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/services");
+		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/");
 		while (paths.hasMoreElements())
 		{
 			String name = paths.nextElement().replace("war/", "");
-			locations.append("/" + name + ";");
+			if (name.endsWith("services/")) locations.append("/" + name + ";");
 		}
 		if (locations.length() > 0) locations.deleteCharAt(locations.length() - 1);
 		return locations.toString();

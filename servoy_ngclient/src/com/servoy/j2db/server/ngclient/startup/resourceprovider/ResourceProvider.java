@@ -97,7 +97,7 @@ public class ResourceProvider implements Filter
 		while (findEntries.hasMoreElements())
 		{
 			URL url = findEntries.nextElement();
-			if (url.toExternalForm().contains("/services/"))
+			if (url.toExternalForm().replace("META-INF/MANIFEST.MF", "").endsWith("services/"))
 			{
 				servicePackages.add(new URLPackageReader(url));
 			}

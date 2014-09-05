@@ -1,9 +1,9 @@
 {
 	"name": "window",
 	"displayName": "Servoy Window plugin",
-	"definition": "services/servoyservices/window/window.js",
-	"serverscript": "services/servoyservices/window/window_server.js",
-	"libraries": ["services/servoyservices/window/shortcut.js","services/servoyservices/window/yahoo-dom-event.js","services/servoyservices/window/container_core-min.js","services/servoyservices/window/fonts-min.css","services/servoyservices/window/menu-min.js","services/servoyservices/window/menu.css","services/servoyservices/window/servoy-menu.css"],
+	"definition": "servoyservices/window/window.js",
+	"serverscript": "servoyservices/window/window_server.js",
+	"libraries": ["servoyservices/window/shortcut.js","servoyservices/window/yahoo-dom-event.js","servoyservices/window/container_core-min.js","servoyservices/window/fonts-min.css","servoyservices/window/menu-min.js","servoyservices/window/menu.css","servoyservices/window/servoy-menu.css"],
 	"model":
 	{
 	 	"shortcuts" : "shortcut[]",
