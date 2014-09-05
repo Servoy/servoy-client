@@ -167,7 +167,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 
 		   //we set the following properties iff the bean doesn't have anchors
-		   if (beanModel.anchors == undefined)
+		   if (!beanModel.anchors)
 		   {
 			   if (beanModel.location)
 			   {
