@@ -28,7 +28,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -144,10 +143,9 @@ public class RuntimeLegacyComponent implements Scriptable
 		Object value;
 
 		PropertyDescription pd = webComponentSpec.getProperties().get(name);
-		IPropertyType< ? > type = pd.getType();
-		if (type instanceof ISabloComponentToRhino< ? >)
+		if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
 		{
-			value = ((ISabloComponentToRhino)type).toRhinoValue(component.getProperty(name), pd, component);
+			value = ((ISabloComponentToRhino)pd.getType()).toRhinoValue(component.getProperty(name), pd, component);
 		}
 		else
 		{
