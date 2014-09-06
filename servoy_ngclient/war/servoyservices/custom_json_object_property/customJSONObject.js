@@ -1,43 +1,43 @@
-angular.module('custom_json_array_property', ['webSocketModule'])
-// CustomJSONArray type ------------------------------------------
+angular.module('custom_json_object_property', ['webSocketModule'])
+// CustomJSONObject type ------------------------------------------
 .run(function ($sabloConverters, $rootScope, $sabloUtils) {
 	var UPDATES = "u";
-	var INDEX = "i";
+	var KEY = "k";
 	var VALUE = "v";
 	var CONTENT_VERSION = "ver"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile serverside
 
-	function getChangeNotifier(propertyValue, idx) {
+	function getChangeNotifier(propertyValue, key) {
 		return function() {
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-			internalState.changedIndexes[idx] = true;
+			internalState.changedKeys[key] = true;
 			internalState.notifier();
 		}
 	}
 	
-	function watchDumbElementForChanges(propertyValue, idx) {
+	function watchDumbElementForChanges(propertyValue, key) {
 		// if elements are primitives or anyway not something that wants control over changes, just add an in-depth watch
 		return $rootScope.$watch(function() {
-			return propertyValue[idx];
+			return propertyValue[key];
 		}, function(newvalue, oldvalue) {
 			if (oldvalue === newvalue) return;
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-			internalState.changedIndexes[idx] = { old: oldvalue };
+			internalState.changedKeys[key] = { old: oldvalue };
 			internalState.notifier();
 		}, true);
 	}
 
-	$sabloConverters.registerCustomPropertyHandler('JSON_arr', {
+	$sabloConverters.registerCustomPropertyHandler('JSON_obj', {
 		fromServerToClient: function (serverJSONValue, currentClientValue) {
 			var newValue = currentClientValue;
 
 			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
 			if (angular.isDefined(currentClientValue)) {
 				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-				if (iS.arrayStructureUnwatch) iS.arrayStructureUnwatch();
+				if (iS.objStructureUnwatch) iS.objStructureUnwatch();
 				for (var key in iS.elUnwatch) {
 					iS.elUnwatch[key]();
 				}
-				iS.arrayStructureUnwatch = null;
+				iS.objStructureUnwatch = null;
 				iS.elUnwatch = null;
 			}
 			
@@ -56,15 +56,15 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					}
 					internalState.isChanged = function() {
 						var hasChanges = internalState.allChanged;
-						if (!hasChanges) for (var x in internalState.changedIndexes) { hasChanges = true; break; }
+						if (!hasChanges) for (var x in internalState.changedKeys) { hasChanges = true; break; }
 						return hasChanges;
 					}
 
 					// private impl
 					internalState.modelUnwatch = [];
-					internalState.arrayStructureUnwatch = null;
-					internalState.conversionInfo = [];
-					internalState.changedIndexes = {};
+					internalState.objStructureUnwatch = null;
+					internalState.conversionInfo = {};
+					internalState.changedKeys = {};
 					internalState.allChanged = false;
 					for (var c in newValue) {
 						var elem = newValue[c];
@@ -88,7 +88,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 
 					// if something changed browser-side, increasing the content version thus not matching next expected version,
-					// we ignore this update and expect a fresh full copy of the array from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)
+					// we ignore this update and expect a fresh full copy of the object from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)
 					if (internalState[CONTENT_VERSION] + 1 == serverJSONValue[CONTENT_VERSION]) {
 
 						internalState[CONTENT_VERSION] = serverJSONValue[CONTENT_VERSION];
@@ -97,7 +97,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						var i;
 						for (i in updates) {
 							var update = updates[i];
-							var idx = update[INDEX];
+							var key = update[KEY];
 							var val = update[VALUE];
 
 							var conversionInfo = null;
@@ -106,13 +106,13 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 							}
 
 							if (conversionInfo) {
-								internalState.conversionInfo[idx] = conversionInfo;
-								currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx]);
-							} else currentClientValue[idx] = val;
+								internalState.conversionInfo[key] = conversionInfo;
+								currentClientValue[key] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[key]);
+							} else currentClientValue[key] = val;
 
 							if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 								// child is able to handle it's own change mechanism
-								val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(currentClientValue, idx));
+								val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(currentClientValue, key));
 							}
 						}
 					}
@@ -120,7 +120,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					  // else we got an update from server for a version that was already bumped by changes in browser; ignore that, as browser changes were sent to server
 					  // and server will detect the problem and send back a full update
 					//}
-				} else newValue = null; // anything else would not be supported...	// TODO how to handle null values (special watches/complete array set from client)? if null is on server and something is set on client or the other way around?
+				} else newValue = null; // anything else would not be supported...	// TODO how to handle null values (special watches/complete object set from client)? if null is on server and something is set on client or the other way around?
 			} finally {
 				// add back watches if needed
 				if (newValue) {
@@ -133,10 +133,10 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						}
 					}
 
-					internalState.arrayStructureUnwatchIgnoreOnce = true;
+					internalState.objStructureUnwatchIgnoreOnce = true;
 					// watch for add/remove and such operations on array
-					internalState.arrayStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newVal) {
-						if (internalState.arrayStructureUnwatchIgnoreOnce) internalState.arrayStructureUnwatchIgnoreOnce = false;
+					internalState.objStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newVal) {
+						if (internalState.objStructureUnwatchIgnoreOnce) internalState.objStructureUnwatchIgnoreOnce = false;
 						else {
 							internalState.allChanged = true;
 							internalState.notifier();
@@ -159,29 +159,29 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						// send all
 						var changes = {};
 						changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
-						var toBeSentArray = changes[VALUE] = [];
-						for (var idx in newClientData) {
-							var val = newClientData[idx];
-							if (internalState.conversionInfo[idx]) toBeSentArray[idx] = $sabloConverters.convertFromClientToServer(val, internalState.conversionInfo[idx], oldClientData ? oldClientData[idx] : undefined);
-							else toBeSentArray[idx] = $sabloUtils.convertClientObject(val);
+						var toBeSentObj = changes[VALUE] = {};
+						for (var key in newClientData) {
+							var val = newClientData[key];
+							if (internalState.conversionInfo[key]) toBeSentObj[key] = $sabloConverters.convertFromClientToServer(val, internalState.conversionInfo[key], oldClientData ? oldClientData[key] : undefined);
+							else toBeSentObj[key] = $sabloUtils.convertClientObject(val);
 						}
 						return changes;
 					} else {
-						// send only changed indexes
+						// send only changed keys
 						var changes = {};
 						changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
 						var changedElements = changes[UPDATES] = [];
-						for (var idx in internalState.changedIndexes) {
-							var newVal = newClientData[idx];
+						for (var key in internalState.changedKeys) {
+							var newVal = newClientData[key];
 							
 							var changed = (typeof oldVal == 'undefined');
 							if (!changed) {
 								if (internalState.elUnwatch[key]) {
-									var oldDumbVal = internalState.changedIndexes[idx].old;
+									var oldDumbVal = internalState.changedKeys[key].old;
 									// it's a dumb value - watched; see if it really changed acording to sablo rules
 									if (oldDumbVal !== newVal) {
 										if (typeof newVal == "object") {
-											if ($sabloUtils.isChanged(newVal, oldDumbVal, internalState.conversionInfo[idx])) {
+											if ($sabloUtils.isChanged(newVal, oldDumbVal, internalState.conversionInfo[key])) {
 												changed = true;
 											}
 										} else {
@@ -193,9 +193,9 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 							if (changed) {
 								var ch = {};
-								ch[INDEX] = idx;
+								ch[KEY] = key;
 
-								if (internalState.conversionInfo[idx]) ch[VALUE] = $sabloConverters.convertFromClientToServer(newVal, internalState.conversionInfo[idx], oldClientData ? oldClientData[idx] : undefined);
+								if (internalState.conversionInfo[key]) ch[VALUE] = $sabloConverters.convertFromClientToServer(newVal, internalState.conversionInfo[key], oldClientData ? oldClientData[key] : undefined);
 								else ch[VALUE] = $sabloUtils.convertClientObject(newVal);
 
 								changedElements.push(ch);
@@ -205,7 +205,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					}
 				}
 				internalState.allChanged = false;
-				internalState.changedIndexes = {};
+				internalState.changedKeys = {};
 			}
 			return {};
 		}

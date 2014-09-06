@@ -166,7 +166,7 @@ public class NGConversions
 		 * @param component the component to which the given value belongs to
 		 * @return the converted value, ready to be set in Sablo component/service
 		 */
-		T toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, WebFormComponent component);
+		T toSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, WebFormComponent component);
 
 	}
 
@@ -296,18 +296,18 @@ public class NGConversions
 	/**
 	 * Conversion 4.2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
-	public Object convertRhinoToSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, WebFormComponent component)
+	public <T> T convertRhinoToSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, WebFormComponent component)
 	{
-		Object sabloVal;
+		T sabloVal;
 		IPropertyType< ? > type = pd.getType();
 		if (type instanceof IRhinoToSabloComponent< ? >)
 		{
-			sabloVal = ((IRhinoToSabloComponent)type).toSabloComponentValue(rhinoValue, previousComponentValue, pd, component);
+			sabloVal = ((IRhinoToSabloComponent<T>)type).toSabloComponentValue(rhinoValue, previousComponentValue, pd, component);
 		}
 		else
 		{
 			// TODO this should slowly dissapear as more things are moved to type code
-			sabloVal = RhinoConversion.convert(rhinoValue, previousComponentValue, pd, component.getDataConverterContext());
+			sabloVal = (T)RhinoConversion.convert(rhinoValue, previousComponentValue, pd, component.getDataConverterContext());
 		}
 		return sabloVal;
 	}

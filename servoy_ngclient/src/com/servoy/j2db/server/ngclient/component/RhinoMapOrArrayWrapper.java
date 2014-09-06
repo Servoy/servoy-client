@@ -40,7 +40,6 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 {
 	private final Object wrappedValue;
 	private final String property;
-	private final boolean design;
 	private final int indexProperty;
 	private final PropertyDescription propertyDescription;
 	private final IServoyDataConverterContext converterContext;
@@ -48,19 +47,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	private Scriptable parent;
 	private final WebFormComponent baseWebObject;
 
-	public RhinoMapOrArrayWrapper(Object wrappedValue, WebFormComponent baseWebObject, String property, boolean design,
-		PropertyDescription propertyDescription, IServoyDataConverterContext converterContext)
-	{
-		this.baseWebObject = baseWebObject;
-		this.wrappedValue = wrappedValue;
-		this.property = property;
-		this.design = design;
-		this.propertyDescription = propertyDescription;
-		this.converterContext = converterContext;
-		this.indexProperty = -1;
-	}
-
-	protected RhinoMapOrArrayWrapper(Object wrappedValue, WebFormComponent baseWebObject, String property, PropertyDescription propertyDescription,
+	public RhinoMapOrArrayWrapper(Object wrappedValue, WebFormComponent baseWebObject, String property, PropertyDescription propertyDescription,
 		IServoyDataConverterContext converterContext)
 	{
 		this.baseWebObject = baseWebObject;
@@ -68,7 +55,6 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		this.property = property;
 		this.propertyDescription = propertyDescription;
 		this.converterContext = converterContext;
-		this.design = false;
 		this.indexProperty = -1;
 	}
 
@@ -81,7 +67,6 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		this.propertyDescription = propertyDescription;
 		this.converterContext = converterContext;
 		this.property = null;
-		this.design = false;
 	}
 
 	public Object getWrappedValue()
@@ -180,8 +165,8 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	{
 		if (wrappedValue instanceof Map)
 		{
-			Object convertedValue = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name), propertyDescription.getProperty(name),
-				baseWebObject);
+			Object convertedValue = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name),
+				propertyDescription.getProperty(name), baseWebObject);
 			((Map)wrappedValue).put(name, convertedValue);
 		}
 		else if ("length".equals(name))
@@ -208,7 +193,8 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		if (wrappedValue instanceof List< ? >)
 		{
 			List<Object> lst = (List<Object>)wrappedValue;
-			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getSabloValueForIndex(index), getArrayElementDescription(), baseWebObject);
+			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getSabloValueForIndex(index), getArrayElementDescription(),
+				baseWebObject);
 			while (lst.size() <= index)
 			{
 				lst.add(null);

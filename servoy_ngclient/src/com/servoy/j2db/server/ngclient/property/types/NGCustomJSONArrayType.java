@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.CustomJSONArrayType;
@@ -37,10 +38,10 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -50,8 +51,8 @@ import com.servoy.j2db.util.Debug;
  * @author acostescu
  */
 public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
-	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>,
-	ISabloComponentToRhino<Object>, IRhinoToSabloComponent<Object>
+	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>, ISabloComponentToRhino<Object>,
+	IRhinoToSabloComponent<Object>
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -71,8 +72,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				try
 				{
 					propertyPath.add(i);
-					formElementValues[i] = NGConversions.INSTANCE.convertDesignToFormElementValue(designValue.get(i), getCustomJSONTypeDefinition(), flattenedSolution,
-						formElement, propertyPath);
+					formElementValues[i] = NGConversions.INSTANCE.convertDesignToFormElementValue(designValue.get(i), getCustomJSONTypeDefinition(),
+						flattenedSolution, formElement, propertyPath);
 					propertyPath.backOneLevel();
 				}
 				catch (JSONException e)
@@ -100,7 +101,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			for (int i = 0; i < formElementValue.length; i++)
 			{
 				arrayConversionMarkers.pushNode(String.valueOf(i));
-				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, null, formElementValue[i], getCustomJSONTypeDefinition(), arrayConversionMarkers);
+				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, null, formElementValue[i], getCustomJSONTypeDefinition(),
+					arrayConversionMarkers);
 				arrayConversionMarkers.popNode();
 			}
 		}
@@ -133,6 +135,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	@Override
 	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, WebFormComponent component)
 	{
+		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
+
 		if (rhinoValue instanceof RhinoMapOrArrayWrapper)
 		{
 			return ((RhinoMapOrArrayWrapper)rhinoValue).getWrappedValue();
@@ -162,8 +166,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				int i = 0;
 				for (Object rv : rhinoArray)
 				{
-					convertedArray.add(NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rv, previousSpecialArray != null ? previousSpecialArray.get(i) : null,
-						getCustomJSONTypeDefinition(), component));
+					convertedArray.add(NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rv, previousSpecialArray != null ? previousSpecialArray.get(i)
+						: null, getCustomJSONTypeDefinition(), component));
 					i++;
 				}
 
@@ -182,8 +186,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	@Override
 	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, WebFormComponent component)
 	{
-		return new RhinoMapOrArrayWrapper(webComponentValue, component, pd.getName(), getElementType() instanceof DataproviderPropertyType, pd,
-			component.getDataConverterContext());
+		return new RhinoMapOrArrayWrapper(webComponentValue, component, pd.getName(), pd, component.getDataConverterContext());
 	}
 
 }

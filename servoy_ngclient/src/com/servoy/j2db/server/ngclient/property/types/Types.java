@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
+import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.IPropertyTypeFactory;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -69,14 +70,14 @@ public class Types
 				return new NGCustomJSONArrayType(params);
 			}
 		});
-//		TypesRegistry.addTypeFactory(CustomJSONObjectType.TYPE_ID, new IPropertyTypeFactory<PropertyDescription, Object>()
-//		{
-//
-//			@Override
-//			public IPropertyType<Object> createType(PropertyDescription params)
-//			{
-//				return new NGCustomJSONObjectType(params);
-//			}
-//		});
+		TypesRegistry.addTypeFactory(CustomJSONObjectType.TYPE_NAME, new IPropertyTypeFactory<String, Object>()
+		{
+
+			@Override
+			public IPropertyType<Object> createType(String typeName)
+			{
+				return new NGCustomJSONObjectType(typeName, null);
+			}
+		});
 	}
 }
