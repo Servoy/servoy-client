@@ -34,11 +34,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
-import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.ISmartPropertyValue;
-import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -304,11 +302,12 @@ public class ComponentFactory
 		}
 		else
 		{
-			// now we need to convert it ourselfs. because this map will be internal to the WebFormComponent so has to have wrapper values.
-			if (propertySpec != null && propertySpec.getType() instanceof IWrapperType< ? , ? >)
-			{
-				propValue = ((IWrapperType)propertySpec.getType()).wrap(propValue, null, new DataConverterContext(propertySpec, component));
-			}
+			// this is now done (the wrapping) inside CustomJSONArrayType and CustomJSONObject type
+//			// now we need to convert it ourselfs. because this map will be internal to the WebFormComponent so has to have wrapper values.
+//			if (propertySpec != null && propertySpec.getType() instanceof IWrapperType< ? , ? >)
+//			{
+//				propValue = ((IWrapperType)propertySpec.getType()).wrap(propValue, null, new DataConverterContext(propertySpec, component));
+//			}
 			((Map)componentNode).put(propName, propValue);
 		}
 	}

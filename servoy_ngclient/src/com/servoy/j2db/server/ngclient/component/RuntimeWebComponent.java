@@ -32,8 +32,8 @@ import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
 
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -114,7 +114,15 @@ public class RuntimeWebComponent implements Scriptable
 		if (specProperties != null && specProperties.contains(name))
 		{
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
-			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component);
+			if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
+			{
+				return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component);
+			}
+			else
+			{
+				Object value = component.getConvertedPropertyWithDefault(name, pd.getType() instanceof DataproviderPropertyType, true);
+				return DesignConversion.toStringObject(value, pd.getType());
+			}
 		}
 		Function func = apiFunctions.get(name);
 		if (func != null)
