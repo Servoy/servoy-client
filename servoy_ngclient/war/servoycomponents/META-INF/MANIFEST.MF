@@ -21,8 +21,3 @@ Web-Component: True
 Name: colorthefoundset/colorthefoundset.spec
 Web-Component: True
 
-Name: simplelabel/simplelabel.spec
-Web-Component: True
-
-Name: simplehyperlink/simplehyperlink.spec
-Web-Component: True

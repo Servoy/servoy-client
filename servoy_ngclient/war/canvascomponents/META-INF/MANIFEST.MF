@@ -4,3 +4,10 @@ Created-By: 1.7.0_05-b06 (Oracle Corporation)
 
 Name: areachart/areachart.spec
 Web-Component: True
+
+Name: simplelabel/simplelabel.spec
+Web-Component: True
+
+Name: simplehyperlink/simplehyperlink.spec
+Web-Component: True
+

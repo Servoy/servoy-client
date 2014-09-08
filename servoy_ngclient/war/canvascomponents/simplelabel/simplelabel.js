@@ -1,4 +1,4 @@
-angular.module('simplehyperlink',['servoy']).directive('simplehyperlink', function() {  
+angular.module('simplelabel',['servoy']).directive('simplelabel', function() {  
     return {
       restrict: 'E',
       transclude: true,
@@ -8,7 +8,7 @@ angular.module('simplehyperlink',['servoy']).directive('simplehyperlink', functi
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'servoycomponents/simplehyperlink/simplehyperlink.html',
+      templateUrl: 'canvascomponents/simplelabel/simplelabel.html',
       replace: true
     };
   })

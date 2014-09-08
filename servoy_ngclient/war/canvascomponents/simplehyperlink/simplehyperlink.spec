@@ -1,7 +1,7 @@
 {
 	"name": "simplehyperlink",
 	"displayName": "SimpleHyperlink",
-	"definition": "servoycomponents/simplehyperlink/simplehyperlink.js",
+	"definition": "canvascomponents/simplehyperlink/simplehyperlink.js",
 	"libraries": [],
 	"model":
 	{
