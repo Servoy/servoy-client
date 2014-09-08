@@ -272,7 +272,7 @@ public class ComponentFactory
 				{
 					//bind tag expressions
 					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
-					if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%") || ((String)propValue).startsWith("i18n:")))
+					if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
 					{
 						dal.addTaggedProperty(component, level + propName, (String)propValue);
 						return;
