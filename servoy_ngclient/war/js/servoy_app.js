@@ -84,7 +84,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 
 		   //beanData.anchors means anchors changed or must be initialized
-		   if((beanData.anchors !== undefined) && containerSize) {
+		   if(beanData.anchors && containerSize) {
 			   var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
 			   var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
 			   var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
