@@ -3,7 +3,7 @@ angular.module('areachart',['servoy']).directive('areachart', function() {
       restrict: 'E',
       transclude: true,
       controller: function($scope, $element, $attrs) {
-    	  $(window).resize (function(){
+    	  var area = function(){
     		  $('#area-chart').empty ();
 
     		  Morris.Area ({
@@ -25,9 +25,12 @@ angular.module('areachart',['servoy']).directive('areachart', function() {
     			         labels: ['iPhone', 'iPad', 'iPod Touch'],
     			         pointSize: 3,
     			         hideHover: 'auto',
-    			         lineColors: ['#e5412d', '#f0ad4e', '#444']
+    			         lineColors: ['#e5412d', '#f0ad4e', '#888']
     		  });
-    	  });
+    	  };
+    	  
+    	  area();
+    	  $(window).resize (area);
     	 
       },
       templateUrl: 'canvascomponents/areachart/areachart.html',
