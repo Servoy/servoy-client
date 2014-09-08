@@ -185,7 +185,8 @@ public class ComponentFactory
 					webComponent.add(eventName, ((Number)eventValue).intValue());
 				}
 			}
-
+			// just created, it should have no changes.
+			webComponent.clearChanges();
 			return webComponent;
 		}
 		return null;
