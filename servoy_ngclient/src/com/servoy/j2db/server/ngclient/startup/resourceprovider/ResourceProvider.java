@@ -47,6 +47,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.startup.Activator;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -249,6 +250,15 @@ public class ResourceProvider implements Filter
 		@Override
 		public String getPackageName()
 		{
+			try
+			{
+				String bundleName = getManifest().getMainAttributes().getValue("Bundle-Name");
+				if (bundleName != null) return bundleName;
+			}
+			catch (IOException e)
+			{
+				Debug.log(e);
+			}
 			return packageName;
 		}
 
