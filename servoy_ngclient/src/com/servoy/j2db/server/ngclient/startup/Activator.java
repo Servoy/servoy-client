@@ -210,14 +210,17 @@ public class Activator implements BundleActivator
 													break outer;
 												}
 												PropertyDescription prop = spec.getProperty(property);
-												if ("design".equals(prop.getScope()))
+												if (prop != null)
 												{
-													// this is a design property change so a big change
-													bigChange = true;
-													break outer;
+													if ("design".equals(prop.getScope()))
+													{
+														// this is a design property change so a big change
+														bigChange = true;
+														break outer;
+													}
+													webComponent.setFormElement(newFe);
+													webComponent.setProperty(property, newFe.getPropertyValueConvertedForWebComponent(property, webComponent));
 												}
-												webComponent.setFormElement(newFe);
-												webComponent.setProperty(property, newFe.getPropertyValueConvertedForWebComponent(property, webComponent));
 											}
 										}
 									}
