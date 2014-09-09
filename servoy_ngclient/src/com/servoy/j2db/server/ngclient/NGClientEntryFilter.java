@@ -35,7 +35,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
-import com.servoy.j2db.server.ngclient.template.FormWithInlineLayoutGenerator;
+import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
@@ -186,7 +186,7 @@ public class NGClientEntryFilter extends WebEntry
 									if (html && form.getLayoutContainers().hasNext())
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormWithInlineLayoutGenerator.generateLayout(form,
+										FormLayoutGenerator.generateLayout(form,
 											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), w,
 											Utils.getAsBoolean(request.getParameter("design")));
 									}

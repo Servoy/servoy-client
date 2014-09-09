@@ -34,7 +34,7 @@ import com.servoy.j2db.util.Debug;
  * @author jblok, lvostinar
  */
 @SuppressWarnings("nls")
-public class FormWithInlineLayoutGenerator
+public class FormLayoutGenerator
 {
 	public static void generateLayout(Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 	{
