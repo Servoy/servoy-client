@@ -12,3 +12,5 @@ Web-Component: True
 Name: simplehyperlink/simplehyperlink.spec
 Web-Component: True
 
+Name: progressbar/progressbar.spec
+Web-Component: True
