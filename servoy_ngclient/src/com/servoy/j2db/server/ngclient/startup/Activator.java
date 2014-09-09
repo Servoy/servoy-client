@@ -46,6 +46,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -84,7 +85,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
 		 */
 		@Override
@@ -136,7 +137,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.persistence.IPersistChangeListener#persistChanges(java.util.Collection)
 		 */
 		@Override
@@ -145,9 +146,14 @@ public class Activator implements BundleActivator
 			final Map<Form, List<IFormElement>> frms = new HashMap<>();
 			for (IPersist persist : changes)
 			{
-				if (persist instanceof IFormElement)
+				if (persist instanceof IFormElement || persist instanceof Tab)
 				{
 					IPersist parent = persist;
+					if (persist instanceof Tab)
+					{
+						parent = ((Tab)persist).getParent();
+						persist = parent;
+					}
 					while (parent != null)
 					{
 						if (parent instanceof Form)
