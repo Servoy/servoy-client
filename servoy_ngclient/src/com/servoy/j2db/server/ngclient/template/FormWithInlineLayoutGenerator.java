@@ -17,22 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.wicket.markup.MarkupElement;
-import org.apache.wicket.markup.parser.IXmlPullParser;
-import org.apache.wicket.markup.parser.XmlPullParser;
-import org.apache.wicket.markup.parser.XmlTag;
-import org.apache.wicket.util.collections.ArrayListStack;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
-import org.apache.wicket.util.value.IValueMap;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
@@ -45,12 +31,12 @@ import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 
 /**
- * @author jblok
+ * @author jblok, lvostinar
  */
 @SuppressWarnings("nls")
 public class FormWithInlineLayoutGenerator
 {
-	public static void generateLayoutContainers(Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
+	public static void generateLayout(Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
 	{
 		try
 		{
@@ -156,191 +142,191 @@ public class FormWithInlineLayoutGenerator
 		writer.println(">");
 	}
 
-	/**
-	 * @param form
-	 * @param fs
-	 * @param writer
-	 */
-	public static void generate(Form form, ServoyDataConverterContext context, PrintWriter writer)
-	{
-		try
-		{
-			Map<String, FormElement> allFormElements = new HashMap<String, FormElement>();
+//	/**
+//	 * @param form
+//	 * @param fs
+//	 * @param writer
+//	 */
+//	public static void generate(Form form, ServoyDataConverterContext context, PrintWriter writer)
+//	{
+//		try
+//		{
+//			Map<String, FormElement> allFormElements = new HashMap<String, FormElement>();
+//
+//			Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
+//			while (it.hasNext())
+//			{
+//				IFormElement element = it.next();
+//				FormElement fe = ComponentFactory.getFormElement(element, context, null);
+//				allFormElements.put(element.getUUID().toString(), fe);
+//
+//				//make life easy if a real name is used
+//				if (element.getName() != null) allFormElements.put(element.getName(), fe);
+//			}
+//
+//			HTMLParser parser = new HTMLParser(form.getLayoutGrid());
+//			List<MarkupElement> elems = parser.parse();
+//
+//			writer.println(String.format("<div ng-controller=\"%1$s\" ng-style=\"formStyle\" svy-layout-update>", form.getName()));
+//
+//			XmlTag skipUntilClosed = null;
+//			Iterator<MarkupElement> elem_it = elems.iterator();
+//			while (elem_it.hasNext())
+//			{
+//				XmlTag tag = (XmlTag)elem_it.next();
+//				if (skipUntilClosed != null)
+//				{
+//					if (!tag.closes(skipUntilClosed)) continue;
+//					skipUntilClosed = null;
+//					continue;
+//				}
+//
+//				IValueMap attributes = tag.getAttributes();
+//				String id = attributes.getString("id");
+//				FormElement fe = allFormElements.get(id);
+//				if (fe != null)
+//				{
+////					if (fe.getTagname().equals(tag.getName())) does not need to be same, if id matches we replace
+//					{
+//						writer.print(fe.toString());
+//						if (!tag.isOpenClose()) skipUntilClosed = tag;
+//					}
+//				}
+//				else
+//				{
+//					writer.print(tag.toCharSequence());
+//				}
+//			}
+//			writer.println("</div>");
+//		}
+//		catch (Exception e)
+//		{
+//			Debug.error(e);
+//		}
+//	}
 
-			Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
-			while (it.hasNext())
-			{
-				IFormElement element = it.next();
-				FormElement fe = ComponentFactory.getFormElement(element, context, null);
-				allFormElements.put(element.getUUID().toString(), fe);
-
-				//make life easy if a real name is used
-				if (element.getName() != null) allFormElements.put(element.getName(), fe);
-			}
-
-			HTMLParser parser = new HTMLParser(form.getLayoutGrid());
-			List<MarkupElement> elems = parser.parse();
-
-			writer.println(String.format("<div ng-controller=\"%1$s\" ng-style=\"formStyle\" svy-layout-update>", form.getName()));
-
-			XmlTag skipUntilClosed = null;
-			Iterator<MarkupElement> elem_it = elems.iterator();
-			while (elem_it.hasNext())
-			{
-				XmlTag tag = (XmlTag)elem_it.next();
-				if (skipUntilClosed != null)
-				{
-					if (!tag.closes(skipUntilClosed)) continue;
-					skipUntilClosed = null;
-					continue;
-				}
-
-				IValueMap attributes = tag.getAttributes();
-				String id = attributes.getString("id");
-				FormElement fe = allFormElements.get(id);
-				if (fe != null)
-				{
-//					if (fe.getTagname().equals(tag.getName())) does not need to be same, if id matches we replace
-					{
-						writer.print(fe.toString());
-						if (!tag.isOpenClose()) skipUntilClosed = tag;
-					}
-				}
-				else
-				{
-					writer.print(tag.toCharSequence());
-				}
-			}
-			writer.println("</div>");
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-	}
-
-	/**
-	 * Merge of wicket MarkupParser,HTMLHandler,Markup (since not usable without running inside wicket)
-	 * @author Jan Blok
-	 */
-	public static class HTMLParser
-	{
-		/** Map of simple tags. */
-		private static final Map<String, Boolean> doesNotRequireCloseTag = new HashMap<String, Boolean>();
-
-		static
-		{
-			// Tags which are allowed not be closed in HTML
-			doesNotRequireCloseTag.put("p", Boolean.TRUE);
-			doesNotRequireCloseTag.put("br", Boolean.TRUE);
-			doesNotRequireCloseTag.put("img", Boolean.TRUE);
-			doesNotRequireCloseTag.put("input", Boolean.TRUE);
-			doesNotRequireCloseTag.put("hr", Boolean.TRUE);
-			doesNotRequireCloseTag.put("link", Boolean.TRUE);
-			doesNotRequireCloseTag.put("meta", Boolean.TRUE);
-		}
-
-		private final IXmlPullParser xmlParser;
-		private final List<MarkupElement> markupElements;
-
-		public HTMLParser(final String markup) throws IOException, ResourceStreamNotFoundException
-		{
-			xmlParser = new XmlPullParser();
-			xmlParser.parse(markup);
-
-			markupElements = new ArrayList<MarkupElement>();
-		}
-
-		public List<MarkupElement> parse() throws ParseException
-		{
-			// Loop through parser tags
-			MarkupElement me = null;
-			while ((me = xmlParser.nextTag()) != null)
-			{
-				markupElements.add(me);
-			}
-
-			// Loop through tags
-			ArrayListStack<XmlTag> stack = new ArrayListStack<XmlTag>();
-			Iterator<MarkupElement> it = markupElements.iterator();
-			while (it.hasNext())
-			{
-				XmlTag tag = (XmlTag)it.next();
-
-				// Check tag type
-				if (tag.isOpen())
-				{
-					// Push onto stack
-					stack.push(tag);
-				}
-				else if (tag.isClose())
-				{
-					// Check that there is something on the stack
-					if (stack.size() > 0)
-					{
-						// Pop the top tag off the stack
-						XmlTag top = stack.pop();
-
-						// If the name of the current close tag does not match the
-						// tag on the stack then we may have a mismatched close tag
-						boolean mismatch = !top.hasEqualTagName(tag);
-
-						if (mismatch)
-						{
-							// Pop any simple tags off the top of the stack
-							while (mismatch && !requiresCloseTag(top.getName()))
-							{
-								// mark them as open/close
-								top.setType(XmlTag.OPEN_CLOSE);
-
-								// Pop simple tag
-								if (stack.isEmpty())
-								{
-									break;
-								}
-								top = stack.pop();
-
-								// Does new top of stack mismatch too?
-								mismatch = !top.hasEqualTagName(tag);
-							}
-
-							// If adjusting for simple tags did not fix the problem,
-							// it must be a real mismatch.
-							if (mismatch)
-							{
-								throw new ParseException("Tag " + top.toUserDebugString() + " has a mismatched close tag at " + tag.toUserDebugString(),
-									top.getPos());
-							}
-						}
-
-						// Tag matches, so add pointer to matching tag
-						tag.setOpenTag(top);
-					}
-					else
-					{
-						throw new ParseException("Tag " + tag.toUserDebugString() + " does not have a matching open tag", tag.getPos());
-					}
-				}
-				else if (tag.isOpenClose())
-				{
-					// Tag closes itself
-					tag.setOpenTag(tag);
-				}
-			}
-
-			return markupElements;
-		}
-
-		/**
-		 * Gets whether this tag does not require a closing tag.
-		 *
-		 * @param name
-		 *            The tag's name, e.g. a, br, div, etc.
-		 * @return True if this tag does not require a closing tag
-		 */
-		public static boolean requiresCloseTag(final String name)
-		{
-			return doesNotRequireCloseTag.get(name.toLowerCase()) == null;
-		}
-	}
+//	/**
+//	 * Merge of wicket MarkupParser,HTMLHandler,Markup (since not usable without running inside wicket)
+//	 * @author Jan Blok
+//	 */
+//	public static class HTMLParser
+//	{
+//		/** Map of simple tags. */
+//		private static final Map<String, Boolean> doesNotRequireCloseTag = new HashMap<String, Boolean>();
+//
+//		static
+//		{
+//			// Tags which are allowed not be closed in HTML
+//			doesNotRequireCloseTag.put("p", Boolean.TRUE);
+//			doesNotRequireCloseTag.put("br", Boolean.TRUE);
+//			doesNotRequireCloseTag.put("img", Boolean.TRUE);
+//			doesNotRequireCloseTag.put("input", Boolean.TRUE);
+//			doesNotRequireCloseTag.put("hr", Boolean.TRUE);
+//			doesNotRequireCloseTag.put("link", Boolean.TRUE);
+//			doesNotRequireCloseTag.put("meta", Boolean.TRUE);
+//		}
+//
+//		private final IXmlPullParser xmlParser;
+//		private final List<MarkupElement> markupElements;
+//
+//		public HTMLParser(final String markup) throws IOException, ResourceStreamNotFoundException
+//		{
+//			xmlParser = new XmlPullParser();
+//			xmlParser.parse(markup);
+//
+//			markupElements = new ArrayList<MarkupElement>();
+//		}
+//
+//		public List<MarkupElement> parse() throws ParseException
+//		{
+//			// Loop through parser tags
+//			MarkupElement me = null;
+//			while ((me = xmlParser.nextTag()) != null)
+//			{
+//				markupElements.add(me);
+//			}
+//
+//			// Loop through tags
+//			ArrayListStack<XmlTag> stack = new ArrayListStack<XmlTag>();
+//			Iterator<MarkupElement> it = markupElements.iterator();
+//			while (it.hasNext())
+//			{
+//				XmlTag tag = (XmlTag)it.next();
+//
+//				// Check tag type
+//				if (tag.isOpen())
+//				{
+//					// Push onto stack
+//					stack.push(tag);
+//				}
+//				else if (tag.isClose())
+//				{
+//					// Check that there is something on the stack
+//					if (stack.size() > 0)
+//					{
+//						// Pop the top tag off the stack
+//						XmlTag top = stack.pop();
+//
+//						// If the name of the current close tag does not match the
+//						// tag on the stack then we may have a mismatched close tag
+//						boolean mismatch = !top.hasEqualTagName(tag);
+//
+//						if (mismatch)
+//						{
+//							// Pop any simple tags off the top of the stack
+//							while (mismatch && !requiresCloseTag(top.getName()))
+//							{
+//								// mark them as open/close
+//								top.setType(XmlTag.OPEN_CLOSE);
+//
+//								// Pop simple tag
+//								if (stack.isEmpty())
+//								{
+//									break;
+//								}
+//								top = stack.pop();
+//
+//								// Does new top of stack mismatch too?
+//								mismatch = !top.hasEqualTagName(tag);
+//							}
+//
+//							// If adjusting for simple tags did not fix the problem,
+//							// it must be a real mismatch.
+//							if (mismatch)
+//							{
+//								throw new ParseException("Tag " + top.toUserDebugString() + " has a mismatched close tag at " + tag.toUserDebugString(),
+//									top.getPos());
+//							}
+//						}
+//
+//						// Tag matches, so add pointer to matching tag
+//						tag.setOpenTag(top);
+//					}
+//					else
+//					{
+//						throw new ParseException("Tag " + tag.toUserDebugString() + " does not have a matching open tag", tag.getPos());
+//					}
+//				}
+//				else if (tag.isOpenClose())
+//				{
+//					// Tag closes itself
+//					tag.setOpenTag(tag);
+//				}
+//			}
+//
+//			return markupElements;
+//		}
+//
+//		/**
+//		 * Gets whether this tag does not require a closing tag.
+//		 *
+//		 * @param name
+//		 *            The tag's name, e.g. a, br, div, etc.
+//		 * @return True if this tag does not require a closing tag
+//		 */
+//		public static boolean requiresCloseTag(final String name)
+//		{
+//			return doesNotRequireCloseTag.get(name.toLowerCase()) == null;
+//		}
+//	}
 }
