@@ -87,7 +87,6 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_HORIZONTALALIGNMENT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_HORIZONTALALIGNMENT);
 	public static final TypedProperty<Integer> PROPERTY_IMAGEMEDIAID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_IMAGEMEDIAID);
 	public static final TypedProperty<Integer> PROPERTY_JOINTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_JOINTYPE);
-	public static final TypedProperty<String> PROPERTY_LAYOUTGRID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_LAYOUTGRID);
 	public static final TypedProperty<Integer> PROPERTY_LINENUMBEROFFSET = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LINENUMBEROFFSET);
 	public static final TypedProperty<Integer> PROPERTY_LINESIZE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LINESIZE);
 	public static final TypedProperty<Integer> PROPERTY_LOGINFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LOGINFORMID);
@@ -832,12 +831,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		if (old_repository_version < 45)
 		{
 			// properties new in repository version 45, so if version < 45 we need to add them
-			cs.new Element(413, IRepository.FORMS, PROPERTY_LAYOUTGRID.getPropertyName(), IRepository.STRING);
-			cs.new Element(414, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.ELEMENTS);
-		}
-		if (old_repository_version < 46)
-		{
-			// properties new in repository version 46, so if version < 46 we need to add them
+			cs.new Element(413, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(414, IRepository.LAYOUTCONTAINERS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
 			cs.new Element(415, IRepository.LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
 			cs.new Element(416, IRepository.LAYOUTCONTAINERS, PROPERTY_TAGTYPE.getPropertyName(), IRepository.STRING);
 			cs.new Element(417, IRepository.LAYOUTCONTAINERS, PROPERTY_ELEMENTID.getPropertyName(), IRepository.STRING);
@@ -845,7 +840,6 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(419, IRepository.LAYOUTCONTAINERS, PROPERTY_STYLE.getPropertyName(), IRepository.STRING);
 			cs.new Element(420, IRepository.LAYOUTCONTAINERS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(421, IRepository.LAYOUTCONTAINERS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
-			cs.new Element(422, IRepository.LAYOUTCONTAINERS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
 		}
 		//##add property adds here
 		return cs;

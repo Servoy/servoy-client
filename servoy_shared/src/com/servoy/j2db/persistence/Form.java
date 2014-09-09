@@ -194,27 +194,6 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * Set the form layout grid.
-	 *
-	 * @param arg the layout contents
-	 */
-	@ServoyClientSupport(ng = false, wc = false, sc = false)
-	public void setLayoutGrid(String arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUTGRID, arg);
-	}
-
-	/**
-	 * Get the form layout grid.
-	 * @return the layout
-	 */
-	@ServoyClientSupport(ng = false, wc = false, sc = false)
-	public String getLayoutGrid()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUTGRID);
-	}
-
-	/**
 	 * Set show in menu.
 	 *
 	 * @param arg the flag
