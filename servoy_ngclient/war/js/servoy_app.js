@@ -43,14 +43,17 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   }
 			   }
 			   if (changed) {
-				   if (beanConversionInfo && beanConversionInfo[prop]) changes[prop] = $sabloConverters.convertFromClientToServer(now[prop], beanConversionInfo[prop], prev ? prev[prop] : undefined);
-				   else changes[prop] = $sabloUtils.convertClientObject(now[prop])
+				   changes[prop] = now[prop];
 			   }
 		   }
 		   if (changes.location || changes.size || changes.visible || changes.anchors) {
 			   if (beanLayout) {
 				   applyBeanData(now /*formStates[formname].model[beanname]*/, beanLayout, changes, parentSize, changeNotifier);
 			   }
+		   }
+		   for (prop in changes) {
+			   if (beanConversionInfo && beanConversionInfo[prop]) changes[prop] = $sabloConverters.convertFromClientToServer(changes[prop], beanConversionInfo[prop], prev ? prev[prop] : undefined);
+			   else changes[prop] = $sabloUtils.convertClientObject(changes[prop])
 		   }
 		   return changes;
 	   };
