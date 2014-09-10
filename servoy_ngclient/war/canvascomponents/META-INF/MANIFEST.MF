@@ -14,3 +14,7 @@ Web-Component: True
 
 Name: progressbar/progressbar.spec
 Web-Component: True
+
+Name: portletheader/portletheader.spec
+Web-Component: True
+

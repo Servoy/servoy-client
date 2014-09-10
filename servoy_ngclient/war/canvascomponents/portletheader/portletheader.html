@@ -1,0 +1,14 @@
+<div class="portlet-header">
+								<h3>
+									<i ng-class='model.iconStyleClass'></i>
+									{{model.headerText}}
+								</h3>
+
+								<ul class="portlet-tools pull-right" ng-show="model.buttonVisible == true">
+									<li>
+										<button class="btn btn-sm btn-default" svy-click='handlers.onActionMethodID($event)' ng-bind="model.buttonText">
+										</button>
+									</li>
+								</ul>
+
+</div>
