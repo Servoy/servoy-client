@@ -101,7 +101,7 @@ public class SpecGenerator
 			"SELECT16.png",
 			IRepository.FIELDS,
 			IRuntimeCombobox.class,
-			new String[] { "servoydefault/combobox/lib/select2-3.4.5/select2.js", "servoydefault/combobox/lib/select2-3.4.5/select2.css", "servoydefault/combobox/svy_select2.css"
+			new String[] { "{name:'select2.js', version:'3.4.5', url:'servoydefault/combobox/lib/select2-3.4.5/select2.js', mimetype:'text/javascript'}", "{name:'select2.css', version:'3.4.5', url:'servoydefault/combobox/lib/select2-3.4.5/select2.css', mimetype:'text/css'}", "{name:'svy_select2.css', version:'1', url:'servoydefault/combobox/svy_select2.css', mimetype:'text/css'}"
 			// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 			}));
 		specTemplateList.add(new SpecTemplateModel("label", "Label",  "text.gif", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
@@ -109,10 +109,10 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("textfield", "Text Field",  "textinput.png", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("typeahead", "Type Ahead ",  "bhdropdownlisticon.gif", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab Panel",  "tabs.gif", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,
-			new String[] { "servoydefault/tabpanel/accordionpanel.css" },"servoydefault/tabpanel/tabpanel_server.js"));
+			new String[] { "{name:'accordionpanel.css', version:'1', url:'servoydefault/tabpanel/accordionpanel.css', mimetype:'text/css'}" },"servoydefault/tabpanel/tabpanel_server.js"));
 		specTemplateList.add(new SpecTemplateModel("password", "Password Field",  "password_field_16.png", IRepository.FIELDS, IRuntimePassword.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area",  "H1_C16.png", IRepository.FIELDS, IRuntimeHtmlArea.class,
-			new String[] { "servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "servoydefault/htmlarea/lib/ui-tinymce.js" }));
+			new String[] { "{name:'tinymce.min.js', version:'4.0.20', url:'servoydefault/htmlarea/lib/tinymce/tinymce.min.js', mimetype:'text/javascript'}", "{name:'ui-tinymce.js', version:'1', url:'servoydefault/htmlarea/lib/ui-tinymce.js', mimetype:'text/javascript'}" }));
 		specTemplateList.add(new SpecTemplateModel("htmlview", "Html View",  null, IRepository.FIELDS, IRuntimeHtmlArea.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("textarea", "Text Area",  "TEXTAREA16.png", IRepository.FIELDS, IRuntimeTextArea.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("check", "Check",  "CHECKBOX16.png", IRepository.FIELDS, IRuntimeCheck.class, new String[0]));
@@ -125,7 +125,7 @@ public class SpecGenerator
 			"split.gif",
 			IRepository.TABPANELS,
 			com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
-			new String[] { "servoydefault/splitpane/bg-splitter/js/splitter.js", "servoydefault/splitpane/bg-splitter/css/style.css" },
+			new String[] { "{name:'bg-splitter.js', version:'1', url:'servoydefault/splitpane/bg-splitter/js/splitter.js', mimetype:'text/javascript'}", "{name:'bg-splitter.css', version:'1', url:'servoydefault/splitpane/bg-splitter/css/style.css', mimetype:'text/css'}" },
 			null,
 			// @formatter:off
 			new ApiMethod[] {
@@ -146,8 +146,13 @@ public class SpecGenerator
 		));
 		specTemplateList.add(new SpecTemplateModel("portal", "Portal", "portal.gif", IRepository.PORTALS,
 			com.servoy.j2db.ui.IScriptPortalComponentMethods.class, new String[] { "servoydefault/portal/portal.css" }));
-		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", "spinner.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
-			new String[] { "servoydefault/spinner/spinner.css", "//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" }));
+		specTemplateList.add(new SpecTemplateModel(
+			"spinner",
+			"Spinner",
+			"spinner.png",
+			IRepository.FIELDS,
+			com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
+			new String[] { "{name:'svy-spinner.css', version:'1', url:'servoydefault/spinner/spinner.css', mimetype:'text/css'}", "{name:'font-awesome.css', version:'3.2.1', url:'//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css', mimetype:'text/css'}" }));
 		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
 			new String[0]));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,

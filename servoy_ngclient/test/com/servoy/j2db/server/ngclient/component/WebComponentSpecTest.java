@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -66,32 +67,32 @@ public class WebComponentSpecTest
 		String property = "{name:'test',definition:'/test.js', libraries:[],model: {}}";
 
 		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
-		String[] libs = spec.getLibraries();
-		Assert.assertEquals(0, libs.length);
+		JSONArray libs = spec.getLibraries();
+		Assert.assertEquals(0, libs.length());
 	}
 
 
 	@Test
 	public void testLibsWith1Enry() throws JSONException
 	{
-		String property = "{name:'test',definition:'/test.js', libraries:['/test.css'],model: {}}";
+		String property = "{name:'test',definition:'/test.js', libraries:[{name:'test', version:'1', url:'/test.css', mimetype:'text/css'}],model: {}}";
 
 		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
-		String[] libs = spec.getLibraries();
-		Assert.assertEquals(1, libs.length);
-		Assert.assertEquals(libs[0], "/test.css");
+		JSONArray libs = spec.getLibraries();
+		Assert.assertEquals(1, libs.length());
+		Assert.assertEquals(libs.optJSONObject(0).optString("url"), "/test.css");
 	}
 
 	@Test
 	public void testLibsWith2Enry() throws JSONException
 	{
-		String property = "{name:'test',definition:'/test.js', libraries:['/test.css','/something.js'],model: {}}";
+		String property = "{name:'test',definition:'/test.js', libraries:[{name:'test', version:'1', url:'/test.css', mimetype:'text/css'},{name:'something', version:'1', url:'/something.js', mimetype:'text/javascript'}],model: {}}";
 
 		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
-		String[] libs = spec.getLibraries();
-		Assert.assertEquals(2, libs.length);
-		Assert.assertEquals(libs[0], "/test.css");
-		Assert.assertEquals(libs[1], "/something.js");
+		JSONArray libs = spec.getLibraries();
+		Assert.assertEquals(2, libs.length());
+		Assert.assertEquals(libs.optJSONObject(0).optString("url"), "/test.css");
+		Assert.assertEquals(libs.optJSONObject(1).optString("url"), "/something.js");
 	}
 
 	@Test

@@ -6,6 +6,9 @@ Bundle-Name: Canvas Bootstrap
 Name: areachart/areachart.spec
 Web-Component: True
 
+Name: donutchart/donutchart.spec
+Web-Component: True
+
 Name: simplelabel/simplelabel.spec
 Web-Component: True
 
