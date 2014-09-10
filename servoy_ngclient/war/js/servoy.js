@@ -534,9 +534,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         restrict: 'A',
         link: function (scope, element, attrs) {
         	var scrollbarsModelObj= $parse(attrs.svyScrollbars)(scope);
-        	if(scrollbarsModelObj){ //only design time property, no watch
-                element.css($utils.getScrollbarsStyleObj(scrollbarsModelObj));
-        	}
+        	element.css($utils.getScrollbarsStyleObj(scrollbarsModelObj));
          }
     }
 })
