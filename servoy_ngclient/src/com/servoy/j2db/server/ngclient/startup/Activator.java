@@ -21,9 +21,11 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -85,7 +87,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
 		 */
 		@Override
@@ -137,7 +139,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.persistence.IPersistChangeListener#persistChanges(java.util.Collection)
 		 */
 		@Override
@@ -203,7 +205,10 @@ public class Activator implements BundleActivator
 
 										WebComponentSpecification spec = webComponent.getSpecification();
 										Map<String, PropertyDescription> handlers = spec.getHandlers();
-										for (String property : newFe.getRawPropertyValues().keySet())
+										Set<String> allKeys = new HashSet<>();
+										allKeys.addAll(newFe.getRawPropertyValues().keySet());
+										allKeys.addAll(existingFe.getRawPropertyValues().keySet());
+										for (String property : allKeys)
 										{
 											Object currentPropValue = existingFe.getPropertyValue(property);
 											Object newPropValue = newFe.getPropertyValue(property);
