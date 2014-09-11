@@ -2,7 +2,7 @@
 	"name": "slider",
 	"displayName": "Slider",
 	"definition": "servoycomponents/slider/slider.js",
-	"libraries": [{name:'ui-slider/slider.js', version:'1', url:'servoycomponents/slider/ui-slider/slider.js', mimetype:'text/javascript'}, {name:'jquery-ui.slider.js', version:'1.10.4', url:'servoycomponents/slider/js/jquery-ui.slider.min.js', mimetype:'text/javascript'}, {name:'jquery-ui.slider.css', version:'1.10.4', url:'servoycomponents/slider/css/jquery-ui.slider.min.css', mimetype:'text/css'}, {name:'slider/css/slider.css', version:'1', url:'servoycomponents/slider/css/slider.css', mimetype:'text/css'}],
+	"libraries": [{"name":"ui-slider/slider.js", "version":"1", "url":"servoycomponents/slider/ui-slider/slider.js", "mimetype":"text/javascript"}, {"name":"jquery-ui.slider.js", "version":"1.10.4", "url":"servoycomponents/slider/js/jquery-ui.slider.min.js", "mimetype":"text/javascript"}, {"name":"jquery-ui.slider.css", "version":"1.10.4", "url":"servoycomponents/slider/css/jquery-ui.slider.min.css", "mimetype":"text/css"}, {"name":"slider/css/slider.css", "version":"1", "url":"servoycomponents/slider/css/slider.css", "mimetype":"text/css"}],
 	"model":
 	{
 		"animate": "string",

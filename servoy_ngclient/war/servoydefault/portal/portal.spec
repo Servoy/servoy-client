@@ -3,7 +3,7 @@
 	"displayName": "Portal",
 	"icon": "servoydefault/portal/portal.gif",
 	"definition": "servoydefault/portal/portal.js",
-	"libraries": [servoydefault/portal/portal.css],
+	"libraries": [{"name":"svy-portal.css", "version":"1", "url":"servoydefault/portal/portal.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 

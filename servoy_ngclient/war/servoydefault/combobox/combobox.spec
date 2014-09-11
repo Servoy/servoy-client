@@ -3,7 +3,7 @@
 	"displayName": "Combobox ",
 	"icon": "servoydefault/combobox/SELECT16.png",
 	"definition": "servoydefault/combobox/combobox.js",
-	"libraries": [{name:'select2.js', version:'3.4.5', url:'servoydefault/combobox/lib/select2-3.4.5/select2.js', mimetype:'text/javascript'},{name:'select2.css', version:'3.4.5', url:'servoydefault/combobox/lib/select2-3.4.5/select2.css', mimetype:'text/css'},{name:'svy_select2.css', version:'1', url:'servoydefault/combobox/svy_select2.css', mimetype:'text/css'}],
+	"libraries": [{"name":"select2.js", "version":"3.4.5", "url":"servoydefault/combobox/lib/select2-3.4.5/select2.js", "mimetype":"text/javascript"},{"name":"select2.css", "version":"3.4.5", "url":"servoydefault/combobox/lib/select2-3.4.5/select2.css", "mimetype":"text/css"},{"name":"svy_select2.css", "version":"1", "url":"servoydefault/combobox/svy_select2.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 
