@@ -5,14 +5,14 @@
 	"libraries": [],
 	"model":
 	{
-	  "iconStyleClass" : { "type" :"styleclass", "scope" :"design"},
+	  "iconStyleClass" : { "type" :"styleclass"},
 	  "headerText" : { "type" :"string", "default" :"Header"}, 
 	  "buttonText" : { "type" :"string", "default" :"Button"},
 	  "buttonVisible" : "boolean"
 	},
 	"handlers":
 	{
-	    "onActionMethodID" : "function", 
+	    "onActionMethodID" : "function" 
 	}
 	 
 }
