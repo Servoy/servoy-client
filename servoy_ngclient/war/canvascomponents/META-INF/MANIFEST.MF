@@ -23,3 +23,6 @@ Web-Component: True
 
 Name: box/box.spec
 Web-Component: True
+
+Name: menubar/menubar.spec
+Web-Component: True
