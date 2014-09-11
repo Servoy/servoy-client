@@ -6,7 +6,6 @@
 	"model":
 	{
 		"label": {"type":"string"},
-		"max": {"type":"long", "default":100},
 	    "progressbarText":{"type":"string"},
 	    "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]},
 	    "value": {"type":"float", "default":0}
