@@ -21,3 +21,5 @@ Web-Component: True
 Name: portletheader/portletheader.spec
 Web-Component: True
 
+Name: box/box.spec
+Web-Component: True
