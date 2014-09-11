@@ -7,7 +7,7 @@
 	{
 		"label": {"type":"string"},
 	    "progressbarText":{"type":"string"},
-	    "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]},
+	    "styleClass" : { "type" :"styleclass"},
 	    "value": {"type":"float", "default":0}
-	},
+	}
 }
