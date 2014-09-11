@@ -5,6 +5,6 @@
 	"libraries": [],
 	"model":
 	{
-	},
+	}
 	 
 }

@@ -10,5 +10,9 @@
 	        "nextstyle" : { "type" :"styleclass"}, 
 	        "title" : { "type":"tagstring" },
 	        "value" : { "type":"dataprovider", "scope" :"design"}
+	},
+	"handlers":
+	{
+	    "onClick" : "function" 
 	}
 }
