@@ -9,6 +9,6 @@
 	"model":
 	{
 		"dataProviderID" : { "type":"dataprovider", "scope" :"design"},
-		"styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 	
-	},	 
+		"styleClass" : { "type" :"styleclass"}
+	}
 }
