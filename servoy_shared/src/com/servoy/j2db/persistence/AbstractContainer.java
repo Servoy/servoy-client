@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -324,9 +325,9 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	/**
 	 * @return
 	 */
-	public List<IPersist> getFlattenedObjects()
+	public List<IFormElement> getFlattenedObjects()
 	{
-		List<IPersist> flattenedPersists = new ArrayList<IPersist>();
+		List<IFormElement> flattenedPersists = new ArrayList<IFormElement>();
 		Iterator<IPersist> it = getAllObjects();
 		while (it.hasNext())
 		{
@@ -335,12 +336,12 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 			{
 				flattenedPersists.addAll(((LayoutContainer)persist).getFlattenedObjects());
 			}
-			else
+			else if (persist instanceof IFormElement)
 			{
-				flattenedPersists.add(persist);
+				flattenedPersists.add((IFormElement)persist);
 			}
 		}
-		return flattenedPersists;
+		return new SortedList<IFormElement>(Form.FORM_INDEX_COMPARATOR, flattenedPersists);
 	}
 
 }
