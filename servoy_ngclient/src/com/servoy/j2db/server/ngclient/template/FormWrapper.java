@@ -32,6 +32,7 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
@@ -212,10 +213,10 @@ public class FormWrapper
 			excludedComponents = getBodyComponents();
 		}
 
-		List<IPersist> persists = form.getFlattenedObjects();
-		for (IPersist persist : persists)
+		List<IFormElement> persists = form.getFlattenedObjects();
+		for (IFormElement persist : persists)
 		{
-			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
+			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid(persist))
 			{
 				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add((BaseComponent)persist);
 			}
@@ -248,13 +249,13 @@ public class FormWrapper
 
 		int startPos = form.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		List<IPersist> persists = form.getFlattenedObjects();
-		for (IPersist persist : persists)
+		List<IFormElement> persists = form.getFlattenedObjects();
+		for (IFormElement persist : persists)
 		{
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
+			if (formElementValidator.isComponentSpecValid(persist))
 			{
-				Point location = ((BaseComponent)persist).getLocation();
+				Point location = persist.getLocation();
 				if (startPos <= location.y && endPos >= location.y)
 				{
 					if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);

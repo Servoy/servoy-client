@@ -27,6 +27,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
@@ -108,16 +109,13 @@ public class PartWrapper
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		List<IPersist> persists = context.getFlattenedObjects();
-		for (IPersist persist : persists)
+		List<IFormElement> persists = context.getFlattenedObjects();
+		for (IFormElement persist : persists)
 		{
-			if (persist instanceof BaseComponent)
+			Point location = persist.getLocation();
+			if (startPos <= location.y && endPos > location.y)
 			{
-				Point location = ((BaseComponent)persist).getLocation();
-				if (startPos <= location.y && endPos > location.y)
-				{
-					if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
-				}
+				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
 			}
 		}
 		return baseComponents;
