@@ -97,11 +97,12 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-		writer.object().key(CONTENT_VERSION).value(0).key(VALUE).object();
-		DataConversion arrayConversionMarkers = new DataConversion();
 
 		if (formElementValue != null)
 		{
+			writer.object().key(CONTENT_VERSION).value(0).key(VALUE).object();
+			DataConversion arrayConversionMarkers = new DataConversion();
+
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
 				arrayConversionMarkers.pushNode(e.getKey());
@@ -109,15 +110,19 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers);
 				arrayConversionMarkers.popNode();
 			}
-		}
-		writer.endObject();
-		if (arrayConversionMarkers.getConversions().size() > 0)
-		{
-			writer.key("conversions").object();
-			JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
+			writer.endObject();
+			if (arrayConversionMarkers.getConversions().size() > 0)
+			{
+				writer.key("conversions").object();
+				JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
+				writer.endObject();
+			}
 			writer.endObject();
 		}
-		writer.endObject();
+		else
+		{
+			writer.value(JSONObject.NULL);
+		}
 		return writer;
 	}
 

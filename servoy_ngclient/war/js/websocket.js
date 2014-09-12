@@ -46,17 +46,17 @@ webSocketModule.factory('$webSocket',
 						}
 						delete deferredEvents[obj.cmsgid];
 					}
-					
-					 if (obj.msg && obj.msg.services) {
-						 $services.updateStates(obj.msg.services, obj.conversions ? obj.conversions.services : undefined);
-			        }
+
+					if (obj.msg && obj.msg.services) {
+						$services.updateStates(obj.msg.services, (obj.conversions && obj.conversions.msg) ? obj.conversions.msg.services : undefined);
+					}
 
 					if (obj.services) {
 						// services call
 						if (obj.conversions && obj.conversions.services) {
 							obj.services = $sabloConverters.convertFromServerToClient(obj.services, obj.conversions.services)
 						}
-						for ( var index in obj.services) {
+						for (var index in obj.services) {
 							var service = obj.services[index];
 							var serviceInstance = $injector.get(service.name);
 							if (serviceInstance
@@ -249,11 +249,17 @@ webSocketModule.factory('$webSocket',
 					   return;
 				   }
 			};
+			var getChangeNotifier = function(servicename) {
+				return function() {
+					var serviceModel = serviceStates[servicename];
+					sendServiceChanges(serviceModel, serviceModel, servicename);
+				}
+			};
 			var watch = function(servicename) {
-			   return function(newVal, oldVal) {
-					   if (newVal === oldVal) return;
-					   sendServiceChanges(newVal,oldVal,servicename)
-			   }
+				return function(newVal, oldVal) {
+					if (newVal === oldVal) return;
+					sendServiceChanges(newVal,oldVal,servicename);
+				}
 			};
 			return {
 				getServiceState: function(serviceName) {
@@ -269,9 +275,17 @@ webSocketModule.factory('$webSocket',
 		 		        	// current model
 		 		            var serviceState = serviceStates[servicename];
 		 		            if (!serviceState) {
+		 		            	// so no previous service state; set it now
 		 		            	if (conversionInfo && conversionInfo[servicename]) {
 	 		            			// convert all properties, remember type for when a client-server conversion will be needed
 		 		            		services[servicename] = $sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename], serviceStates[servicename])
+		 		            		var changeNotifier = getChangeNotifier(servicename);
+		 		            		for (var pn in conversionInfo[servicename]) {
+		 		            			if (services[servicename][pn] && services[servicename][pn][$sabloConverters.INTERNAL_IMPL]
+		 		            					&& services[servicename][pn][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+		 		            				services[servicename][pn][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(changeNotifier);
+		 		            			}
+		 		            		}
 		 		            		serviceStatesConversionInfo[servicename] = conversionInfo[servicename];
 		 		            	}
 		 		            	serviceStates[servicename] = services[servicename];
@@ -280,11 +294,18 @@ webSocketModule.factory('$webSocket',
 		 		            	var serviceData = services[servicename];
 		 		            	// unregister the watch.
 		 		            	watches[servicename]();
+	 		            		var changeNotifier = (conversionInfo && conversionInfo[servicename]) ? getChangeNotifier(servicename) : undefined;
+
 		 		            	for(var key in serviceData) {
 		 		            		if (conversionInfo && conversionInfo[servicename] && conversionInfo[servicename][key]) {
 		 		            			// convert property, remember type for when a client-server conversion will be needed
 		 		            			if (!serviceStatesConversionInfo[servicename]) serviceStatesConversionInfo[servicename] = {};
 		 		            			serviceData[key] = $sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceStates[servicename][key])
+		 		            			
+		 		            			if ((serviceData[key] !== serviceStates[servicename][key] || serviceStatesConversionInfo[servicename][key] !== conversionInfo[servicename][key]) && serviceData[key]
+		 		            					&& serviceData[key][$sabloConverters.INTERNAL_IMPL] && serviceData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+		 		            				serviceData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(changeNotifier);
+		 		            			}
 		 		            			serviceStatesConversionInfo[servicename][key] = conversionInfo[servicename][key];
 		 		            		}
 		 		            		serviceStates[servicename][key] = serviceData[key];

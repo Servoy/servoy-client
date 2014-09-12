@@ -41,6 +41,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
+import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -183,7 +184,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			}
 			catch (ServoyException e)
 			{
-				if (record != null) Debug.trace(e);
+				if (record != null && !(record instanceof PrototypeState)) Debug.error(e);
 			}
 		}
 

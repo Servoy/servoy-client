@@ -76,10 +76,12 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   for(var key in beanData) {
 			   // remember conversion info for when it will be sent back to server - it might need special conversion as well
 			   if (newConversionInfo && newConversionInfo[key]) {
-				   beanConversionInfo[key] = newConversionInfo[key];
-				   if (beanModel[key] !== beanData[key] && beanData[key] && beanData[key][$sabloConverters.INTERNAL_IMPL] && beanData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+				   // if the value changed and it wants to be in control of it's changes, or if the conversion info for this value changed (thus possibly preparing an old value for being change-aware without changing the value reference)
+				   if ((beanModel[key] !== beanData[key] || beanConversionInfo[key] !== newConversionInfo[key])
+						   	&& beanData[key] && beanData[key][$sabloConverters.INTERNAL_IMPL] && beanData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 					   beanData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(changeNotifier);
 				   }
+				   beanConversionInfo[key] = newConversionInfo[key];
 			   }
 
 			   // also make location and size available in model
