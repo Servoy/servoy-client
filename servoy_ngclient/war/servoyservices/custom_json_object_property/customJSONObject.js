@@ -157,14 +157,16 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 					// watch for add/remove and such operations on object; this is helpful also when 'smart' child values (that have .setChangeNotifier)
 					// get changed completely by reference
 					internalState.objStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newWVal, oldWVal) {
-						if (newWVal == oldWVal) return;
+						if (newWVal === oldWVal) return;
 						var sendAllNeeded = (newWVal === null || oldWVal === null);
 						if (!sendAllNeeded) {
 							// see if the two objects have the same keys
 							var tmp = [];
 							var tzi;
-							for (var tz in newWVal) tmp.push(tz);
+							for (var tz in newWVal) if (angularAutoAddedKeys.indexOf(tz) === -1) tmp.push(tz);
 							for (var tz in oldWVal) {
+								if (angularAutoAddedKeys.indexOf(key) !== -1) continue;
+								
 								if ((tzi = tmp.indexOf(tz)) != -1) tmp.splice(tzi, 1);
 								else {
 									sendAllNeeded = true;
@@ -184,6 +186,8 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 							// we already checked that length and keys are the same above
 							var referencesChanged = false;
 							for (var j in newWVal) {
+								if (angularAutoAddedKeys.indexOf(j) !== -1) continue;
+								
 								if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 									changed = true;
 									internalState.changedIndexes[j] = { old: true };

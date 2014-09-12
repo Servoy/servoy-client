@@ -156,7 +156,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					// watch for add/remove and such operations on array; this is helpful also when 'smart' child values (that have .setChangeNotifier)
 					// get changed completely by reference
 					internalState.arrayStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newWVal, oldWVal) {
-						if (newWVal == oldWVal) return;
+						if (newWVal === oldWVal) return;
 
 						if (newWVal === null || oldWVal === null || newWVal.length !== oldWVal.length) {
 							internalState.allChanged = true;
