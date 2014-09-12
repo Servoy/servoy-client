@@ -169,6 +169,11 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 //				fs.addListDataListener((ListDataListener)sm);
 //			}
 			// JList clears the selection in setModel()
+			if (getModel() != fs)
+			{
+				// stop editing if another foundset
+				removeEditor();
+			}
 			setSelectionModel(EMPTY_SELECTION);
 			super.setModel((ISwingFoundSet)fs);
 			setSelectionModel(((ISwingFoundSet)fs).getSelectionModel());
