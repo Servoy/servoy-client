@@ -89,7 +89,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 
 		   //beanData.anchors means anchors changed or must be initialized
-		   if(beanData.anchors && containerSize) {
+		   if(beanData.anchors && containerSize && $solutionSettings.enableAnchoring) {
 			   var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
 			   var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
 			   var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
@@ -172,7 +172,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 
 		   //we set the following properties iff the bean doesn't have anchors
-		   if (!beanModel.anchors)
+		   if (!beanModel.anchors || !$solutionSettings.enableAnchoring)
 		   {
 			   if (beanModel.location)
 			   {
@@ -529,7 +529,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	solutionTitle: "",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	styleSheetPath: undefined,
-	ltrOrientation : true
+	ltrOrientation : true,
+	enableAnchoring: true
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage) {
 	$servoyInternal.connect();
 	$scope.solutionSettings = $solutionSettings;
