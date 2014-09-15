@@ -1162,20 +1162,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			tableFilterParams.put(serverName, params = new ArrayList<TableFilter>());
 		}
 
-		boolean isI18NRefreshNeeded = false;
-
 		if (!filter.isContainedIn(params)) // do not add the same filter, will add same AND-condition anyway
 		{
 			params.add(filter);
 
 			for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), filter.getDataprovider()))
 			{
-				isI18NRefreshNeeded = isI18NRefreshNeeded || Messages.isI18NTable(affectedtable.getServerName(), affectedtable.getName(), application);
 				fireTableEvent(affectedtable);
 			}
 		}
 
-		if (isI18NRefreshNeeded) ((ClientState)application).refreshI18NMessages();
+		if (Messages.isI18NTable(serverName, table.getName(), application))
+		{
+			((ClientState)application).refreshI18NMessages();
+		}
+
 		return true;
 	}
 
