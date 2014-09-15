@@ -341,21 +341,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   if (msg.sessionid) {
 				   webStorage.session.add("sessionid",msg.sessionid);
 			   }
-			   if (msg.styleSheetPath) {
-				   $solutionSettings.styleSheetPath = msg.styleSheetPath;
-			   }	   
-			   /**
-			    * TODO sesionExpired should not be called forom the protocol , 
-			    * it should be a direct call to a service (also check to see if  noLicense and maintenanceMode can be moved to a service)
-			    * */
-			   if(msg.noLicense){
-				   $sessionService.setNoLicense(msg.noLicense)	        		
-			   }	       
-			   if(msg.maintenanceMode){
-				   $sessionService.setMaintenanceMode(msg.maintenanceMode)    		
-			   }
-
-			   /** end TODO*/
 			   if (msg.windowid) {
 				   $solutionSettings.windowName = msg.windowid;
 				   webStorage.session.add("windowid",msg.windowid);
@@ -627,7 +612,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			var noLic = {
 					viewUrl : 'templates/serverTooBusyView.html',
 					redirectUrl : $window.location.href,
-					redirectTimeout : 0
+					redirectTimeout : -1
 			}
 			if(noLicense.viewUrl) noLic.viewUrl = noLicense.viewUrl 
 			if(noLicense.redirectUrl) noLic.redirectUrl = noLicense.redirectUrl;
@@ -656,7 +641,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		}
 	}
 }])
-.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$servoyInternal', function($window,$timeout,webStorage,$modal,$servoyInternal) {
+.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$servoyInternal','$solutionSettings', function($window,$timeout,webStorage,$modal,$servoyInternal,$solutionSettings) {
 	var showDefaultLoginWindow = function() {
 			$modal.open({
         	  templateUrl: '/templates/login.html',
@@ -667,6 +652,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			});				
 		}
 	return {
+		setStyleSheet: function(path) {
+			$solutionSettings.styleSheetPath = path;
+		},
 		getUserProperty: function(key) {
 			var json = webStorage.local.get("userProperties");
 			if (json) {

@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.PropertyDescription;
@@ -515,17 +514,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			Media styleSheetMedia = solution.getMedia(styleSheetID);
 			if (styleSheetMedia != null)
 			{
-				JSONStringer stringer = new JSONStringer();
-				try
-				{
-					stringer.object().key("styleSheetPath").value(
-						"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName());
-					WebsocketEndpoint.get().sendMessage(stringer.endObject().toString());
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
+				String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName();
+				getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
 			}
 			else
 			{
