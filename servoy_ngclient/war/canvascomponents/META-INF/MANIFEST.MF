@@ -26,3 +26,7 @@ Web-Component: True
 
 Name: menu/menu.spec
 Web-Component: True
+
+Name: topmenu/topmenu.spec
+Web-Component: True
+
