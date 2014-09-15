@@ -146,14 +146,10 @@ public class ResourceProvider implements Filter
 					}
 					if (url == null)
 					{
-						index = pathInfo.indexOf('/', index + 1);
-						if (index > 1)
+						for (IPackageReader reader : serviceReaders)
 						{
-							for (IPackageReader reader : serviceReaders)
-							{
-								url = reader.getUrlForPath(pathInfo.substring(index));
-								if (url != null) break;
-							}
+							url = reader.getUrlForPath(pathInfo.substring(index));
+							if (url != null) break;
 						}
 					}
 				}
@@ -163,7 +159,7 @@ public class ResourceProvider implements Filter
 				URLConnection connection = url.openConnection();
 				long lastModifiedTime = connection.getLastModified() / 1000 * 1000;
 				((HttpServletResponse)response).setDateHeader("Last-Modified", lastModifiedTime);
-				((HttpServletResponse)response).setHeader("Cache-Control",  "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
+				((HttpServletResponse)response).setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate"); //HTTP 1.1
 				long lm = ((HttpServletRequest)request).getDateHeader("If-Modified-Since");
 				if (lm != -1 && lm == lastModifiedTime)
 				{
@@ -234,7 +230,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -245,7 +241,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -281,7 +277,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
