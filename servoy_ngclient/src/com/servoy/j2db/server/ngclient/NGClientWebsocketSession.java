@@ -476,7 +476,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				String view = (tableview ? "tableview" : "recordview");
 				new FormTemplateGenerator(new ServoyDataConverterContext(client), true, false).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
 			}
-			if (client.isEventDispatchThread())
+			if (client.isEventDispatchThread() && forceLoad)
 			{
 				getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
 					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
