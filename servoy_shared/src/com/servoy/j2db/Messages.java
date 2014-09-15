@@ -24,6 +24,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -37,6 +38,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
+import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
@@ -389,14 +391,44 @@ public class Messages
 				}
 			}
 
-			loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, localeProperties, language, loadingType, searchKey,
-				searchText, filterColumn, null, fm);
-			if (columnValueFilter != null)
+			String[] iColumnValueFilter = columnValueFilter;
+			boolean isColumnValueFilterChanged = false;
+			if (filterColumn == null && fm != null)
 			{
-				for (int i = columnValueFilter.length - 1; i >= 0; i--)
+				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+				QuerySelect sql = new QuerySelect(messagesTable);
+				ArrayList<TableFilter> tableFilters = fm.getTableFilterParams(serverName, sql);
+				if (tableFilters != null)
+				{
+					for (TableFilter tableFilter : tableFilters)
+					{
+						Object value = tableFilter.getValue();
+						if (value instanceof Object[])
+						{
+							filterColumn = table.getColumn(tableFilter.getDataprovider());
+							iColumnValueFilter = new String[((Object[])value).length];
+							for (int i = 0; i < ((Object[])value).length; i++)
+							{
+								iColumnValueFilter[i] = ((Object[])value)[i] != null ? ((Object[])value)[i].toString() : null;
+							}
+							isColumnValueFilterChanged = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (!isColumnValueFilterChanged)
+			{
+				loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, localeProperties, language, loadingType,
+					searchKey, searchText, filterColumn, null, fm);
+			}
+			if (iColumnValueFilter != null)
+			{
+				for (int i = iColumnValueFilter.length - 1; i >= 0; i--)
 				{
 					loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, localeProperties, language, loadingType,
-						searchKey, searchText, filterColumn, columnValueFilter[i], fm);
+						searchKey, searchText, filterColumn, iColumnValueFilter[i], fm);
 				}
 			}
 		}
