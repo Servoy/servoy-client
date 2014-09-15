@@ -442,7 +442,7 @@ public class SpecGenerator
 		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":200, \"height\":200}}");
 		portalTypeMapping.put("relatedFoundset", "foundset");
-		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"forFoundsetTypedProperty\": \"relatedFoundset\" }");
+		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"elementConfig\" : {\"forFoundsetTypedProperty\": \"relatedFoundset\"} }");
 		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 
 		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();

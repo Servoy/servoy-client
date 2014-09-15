@@ -487,7 +487,7 @@ public class ComponentFactory
 				}
 				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
 
-				Map<String, Object> portalFormElementProperties = portalFormElement.getRawPropertyValues();
+				Map<String, Object> portalFormElementProperties = new HashMap<>(portalFormElement.getRawPropertyValues());
 				// now put real child component form element values in "childElements"
 				int startPos = form.getPartStartYPos(bodyPart.getID());
 				int endPos = bodyPart.getHeight();
