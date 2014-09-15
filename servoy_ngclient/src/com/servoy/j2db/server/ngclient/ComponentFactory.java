@@ -284,7 +284,10 @@ public class ComponentFactory
 				default :
 					break;
 			}
-			if (propValue != null) putInComponentNode(componentNode, propName, propValue, propertySpec, component); //TODO
+			if (propValue != null)
+			{
+				putInComponentNode(componentNode, propName, propValue, propertySpec, component); //TODO
+			}
 		}
 	}
 
@@ -297,9 +300,7 @@ public class ComponentFactory
 		// TODO should this just a a property.property.property = value called to WebFormComponent?
 		if (componentNode instanceof WebFormComponent)
 		{
-			// TODO this will convert a second time (the first conversion was done in FormElement; is this really needed? cause
-			// converted value reaching conversion again doesn't seem nice
-			((WebFormComponent)componentNode).setProperty(propName, propValue);
+			((WebFormComponent)componentNode).setDefaultProperty(propName, propValue);
 		}
 		else
 		{
