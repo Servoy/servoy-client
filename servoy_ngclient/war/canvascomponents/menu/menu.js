@@ -1,11 +1,11 @@
-angular.module('menubar',['servoy']).directive('menubar', function() {  
+angular.module('menu',['servoy']).directive('menu', function() {  
     return {
       restrict: 'E',
       transclude: true,
       controller: function($scope, $element, $attrs) {
     	 
       },
-      templateUrl: 'canvascomponents/menubar/menubar.html',
+      templateUrl: 'canvascomponents/menu/menu.html',
       replace: true
     };
   })

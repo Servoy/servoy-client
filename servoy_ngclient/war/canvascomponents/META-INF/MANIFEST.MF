@@ -24,5 +24,5 @@ Web-Component: True
 Name: box/box.spec
 Web-Component: True
 
-Name: menubar/menubar.spec
+Name: menu/menu.spec
 Web-Component: True
