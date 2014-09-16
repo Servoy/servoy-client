@@ -39,7 +39,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
@@ -237,17 +236,11 @@ class PersistBasedFormElementImpl
 			int orient = ((TabPanel)persist).getTabOrientation();
 			if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL)
 			{
-				putAndConvertProperty("imageMediaID", "", tabMap, context, tabSpecProperties.getProperty("imageMediaID"), propertyPath);
 				int tabMediaID = tab.getImageMediaID();
 				if (tabMediaID > 0)
 				{
-					Media tabMedia = context.getSolution().getMedia(tabMediaID);
-					if (tabMedia != null)
-					{
-						putAndConvertProperty("imageMediaID", "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" +
-							context.getSolution().getName() + "/" + tabMedia.getName(), tabMap, context, tabSpecProperties.getProperty("imageMediaID"),
-							propertyPath);
-					}
+					putAndConvertProperty("imageMediaID", Integer.valueOf(tabMediaID), tabMap, context, tabSpecProperties.getProperty("imageMediaID"),
+						propertyPath);
 				}
 			}
 			tabList.add(tabMap);
