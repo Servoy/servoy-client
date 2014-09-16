@@ -41,7 +41,7 @@ public class FormLayoutGenerator
 		try
 		{
 			writer.println(String.format(
-				"<div ng-controller=\"%1$s\" svy-formstyle=\"formStyle\" svy-scrollbars='formProperties.scrollbars' svy-layout-update svy-formload>",
+				"<div ng-controller=\"%1$s\" svy-formstyle=\"formStyle\" svy-scrollbars='formProperties.scrollbars' svy-layout-update svy-formload svy-autosave>",
 				form.getName()));
 			Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			while (components.hasNext())

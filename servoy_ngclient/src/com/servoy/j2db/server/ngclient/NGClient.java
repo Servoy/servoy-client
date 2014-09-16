@@ -121,7 +121,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
 	 */
 	@Override
@@ -133,7 +133,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
 	 */
 	@Override
@@ -313,7 +313,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -890,6 +890,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					Debug.error(ex);
 				}
 				return Boolean.FALSE;
+			case "autosave" :
+				getFoundSetManager().getEditRecordList().stopEditing(false);
+				break;
 		}
 
 		return null;
