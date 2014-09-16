@@ -138,11 +138,14 @@ public class FoundsetTypeChangeMonitor
 	}
 
 	/**
-	 * Called when the used foundset instance changes (for example due to use of related foundset)
+	 * Called for example when the used foundset instance changes (for example due to use of related foundset).
+	 * In that case viewPort is set to 0, 0 (so that might have already triggered a notification), but also the server size can change then.
 	 */
-	public void newFoundsetInstance()
+	public void newFoundsetSize()
 	{
-		allChanged();
+		int oldChangeFlags = changeFlags;
+		foundSetSizeChanged();
+		if (oldChangeFlags != changeFlags) notifyChange();
 	}
 
 	/**
@@ -167,7 +170,7 @@ public class FoundsetTypeChangeMonitor
 	public void dataProvidersChanged()
 	{
 		// this normally happens only before initial send of initial form data so it isn't very useful; will we allow dataProviders to change later on?
-		allChanged();
+		if (propertyValue.viewPort.size > 0) allChanged();
 	}
 
 	public void recordsDeleted(int firstRow, int lastRow, FoundsetTypeViewport viewPort)
@@ -380,7 +383,13 @@ public class FoundsetTypeChangeMonitor
 	public void setChangeNotifier(IChangeListener changeNotifier)
 	{
 		this.changeNotifier = changeNotifier;
-		allChanged();
+		if (hasChanges()) changeNotifier.valueChanged();
+	}
+
+	public boolean hasChanges()
+	{
+		return shouldSendAll() || shouldSendFoundsetSize() || shouldSendSelectedIndexes() || shouldSendViewPortBounds() || shouldSendWholeViewPort() ||
+			getViewPortChanges().size() > 0;
 	}
 
 	public void clearChanges()

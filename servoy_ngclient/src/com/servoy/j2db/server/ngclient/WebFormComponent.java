@@ -237,7 +237,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -248,7 +248,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -259,7 +259,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -383,8 +383,9 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	public boolean pushRecord(IRecordInternal record)
 	{
 		boolean changed = false;
-		for (Object x : properties.values())
+		for (String pN : getAllPropertyNames(true))
 		{
+			Object x = getProperty(pN);
 			if (x instanceof IServoyAwarePropertyValue) changed = ((IServoyAwarePropertyValue)x).pushRecord(record) || changed;
 		}
 		return changed;

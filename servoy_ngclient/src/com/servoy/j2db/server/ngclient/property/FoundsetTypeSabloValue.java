@@ -192,10 +192,12 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 		if (newFoundset != foundset)
 		{
+			int oldServerSize = (foundset != null ? foundset.getSize() : 0);
+			int newServerSize = (newFoundset != null ? newFoundset.getSize() : 0);
 			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 			foundset = newFoundset;
 			viewPort.setFoundset(foundset);
-			changeMonitor.newFoundsetInstance();
+			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
 
 			return true;
@@ -267,7 +269,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			{
 				TypedData<Map<String, Object>> rowTypedData = getRowData(i);
 				rowsArray[i - viewPort.getStartIndex()] = rowTypedData.content;
-				if (rowTypedData.contentType != null) rowArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
+				if (rowTypedData.contentType != null) rowArrayTypes.putProperty(String.valueOf(i - viewPort.getStartIndex()), rowTypedData.contentType);
 			}
 
 			if (rowArrayTypes.hasChildProperties())
