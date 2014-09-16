@@ -40,7 +40,7 @@ public class ComponentResourcesExporter
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public static void copyComponents(File tmpWarDir) throws IOException
+	public static void copyDefaultComponentsAndServices(File tmpWarDir) throws IOException
 	{
 		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir);
 	}
