@@ -100,7 +100,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 		if (formElementValue != null)
 		{
-			writer.object().key(CONTENT_VERSION).value(0).key(VALUE).object();
+			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
 			DataConversion arrayConversionMarkers = new DataConversion();
 
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
