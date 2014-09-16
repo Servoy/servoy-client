@@ -263,7 +263,7 @@
   		"active": "boolean",
   		"foreground": "color",
   		"disabled": "boolean",
-  		"imageMediaID": "string",
+  		"imageMediaID": "media",
   		"mnemonic": "string"
   	}
   }

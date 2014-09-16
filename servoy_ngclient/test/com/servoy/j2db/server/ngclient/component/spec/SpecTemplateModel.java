@@ -183,7 +183,7 @@ public class SpecTemplateModel
 			return ",\r\n" + "\"types\": {\r\n" + "  \"tab\": {\r\n" + "  	\"model\": {\r\n" + "  		\"name\": \"string\",\r\n"
 				+ "  		\"containsFormId\": \"form\",\r\n" + "  		\"text\": \"tagstring\",\r\n" + "  		\"relationName\": \"relation\",\r\n"
 				+ "  		\"active\": \"boolean\",\r\n" + "  		\"foreground\": \"color\",\r\n" + "  		\"disabled\": \"boolean\",\r\n"
-				+ "  		\"imageMediaID\": \"string\",\r\n" + "  		\"mnemonic\": \"string\"\r\n" + "  	}\r\n" + "  }\r\n" + "}";
+				+ "  		\"imageMediaID\": \"media\",\r\n" + "  		\"mnemonic\": \"string\"\r\n" + "  	}\r\n" + "  }\r\n" + "}";
 		}
 		if (name.equals("splitpane"))
 		{
