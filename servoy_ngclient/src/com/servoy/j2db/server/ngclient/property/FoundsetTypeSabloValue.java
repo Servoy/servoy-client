@@ -33,6 +33,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.DataConverterContext;
+import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
@@ -411,14 +413,18 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 			// TODO currently we also send globals/form variables through foundset; in the future it should be enough to get it from the record only, not through DataAdapterList.getValueObject!
 			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, formUI.getController().getFormScope(), dataProvider);
-			data.put(dataProvider, value);
+
 			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
 			if (pd == null) pd = NGUtils.getDataProviderPropertyDescription(dataProvider,
 				formUI.getDataConverterContext().getApplication().getFlattenedSolution(), formUI.getController().getForm(), foundset.getTable()); // TODO remove this when component[] properly implements it's dataproviders - when there's no need for foundset to send over globals/form variables
+
 			if (pd != null)
 			{
 				dataTypes.putProperty(dataProvider, pd);
+				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
+					webObject));
 			}
+			data.put(dataProvider, value);
 		}
 		if (!dataTypes.hasChildProperties()) dataTypes = null;
 
