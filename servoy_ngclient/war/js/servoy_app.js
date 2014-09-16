@@ -478,6 +478,18 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   return getSession().callService(serviceName, methodName, argsObject, async)
 		   }
 	   }
+}).directive('svyAutosave',  function ($servoyInternal) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	element.on('click', function(event) {
+        		if (event.target.tagName.toLowerCase() == 'div')
+        		{
+           		   $servoyInternal.callService("applicationServerService", "autosave", true);
+        		}
+        	});
+        }
+      };
 }).directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
     return {
       restrict: 'A', // only activate on element attribute
