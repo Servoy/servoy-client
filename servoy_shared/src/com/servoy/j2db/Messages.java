@@ -123,7 +123,7 @@ public class Messages
 			String i18nDatasource = solution.getI18nDataSource();
 			String[] names = getServerTableNames(i18nDatasource, application.getSettings());
 
-			return names[0] != null && names[0].equals(serverName) && names[1] != null && names[1].equals(tableName);
+			return names[0] != null && names[0].equals(serverName) && names[1] != null && ((tableName == null) || names[1].equals(tableName));
 		}
 		return false;
 	}

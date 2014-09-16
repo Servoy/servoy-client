@@ -1174,7 +1174,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 
-		if (Messages.isI18NTable(serverName, table.getName(), application))
+		if (Messages.isI18NTable(serverName, table != null ? table.getName() : null, application))
 		{
 			((ClientState)application).refreshI18NMessages();
 		}
