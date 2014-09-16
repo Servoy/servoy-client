@@ -52,7 +52,7 @@ import com.servoy.j2db.util.Debug;
 public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends CustomJSONObjectType<SabloT, SabloWT> implements
 	IDesignToFormElement<JSONObject, Map<String, FormElementT>, Map<String, SabloT>>,
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
-	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>
+	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>
 {
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
@@ -200,6 +200,27 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public Object toRhinoValue(Map<String, SabloT> webComponentValue, PropertyDescription pd, WebFormComponent component)
 	{
 		return new RhinoMapOrArrayWrapper(webComponentValue, component, pd.getName(), pd, component.getDataConverterContext());
+	}
+
+	@Override
+	public boolean valueInTemplate(Map<String, FormElementT> object)
+	{
+		if (object != null)
+		{
+			PropertyDescription desc = getCustomJSONTypeDefinition();
+			for (Entry<String, PropertyDescription> entry : desc.getProperties().entrySet())
+			{
+				FormElementT value = object.get(entry.getKey());
+				if (value != null && entry.getValue().getType() instanceof ISupportTemplateValue< ? >)
+				{
+					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value))
+					{
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 }

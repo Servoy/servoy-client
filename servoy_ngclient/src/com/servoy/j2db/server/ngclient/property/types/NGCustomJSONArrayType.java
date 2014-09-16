@@ -53,7 +53,7 @@ import com.servoy.j2db.util.Debug;
  */
 public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
 	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>, ISabloComponentToRhino<Object>,
-	IRhinoToSabloComponent<Object>
+	IRhinoToSabloComponent<Object>, ISupportTemplateValue<List<Object>>
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -193,6 +193,28 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, WebFormComponent component)
 	{
 		return new RhinoMapOrArrayWrapper(webComponentValue, component, pd.getName(), pd, component.getDataConverterContext());
+	}
+
+	@Override
+	public boolean valueInTemplate(List<Object> values)
+	{
+		if (values != null && values.size() > 0)
+		{
+			PropertyDescription desc = getCustomJSONTypeDefinition();
+
+			if (desc.getType() instanceof ISupportTemplateValue)
+			{
+				ISupportTemplateValue<Object> type = (ISupportTemplateValue<Object>)desc.getType();
+				for (Object object : values)
+				{
+					if (!type.valueInTemplate(object))
+					{
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 }

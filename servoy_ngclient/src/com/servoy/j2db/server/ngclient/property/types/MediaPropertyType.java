@@ -20,7 +20,6 @@ import java.awt.Dimension;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
@@ -35,7 +34,6 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
@@ -43,13 +41,19 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IFormElementToTemplateJSON<Object, Object>
+public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";
 
 	private MediaPropertyType()
 	{
+	}
+
+	@Override
+	public boolean valueInTemplate(Object object)
+	{
+		return false;
 	}
 
 	@Override
@@ -62,17 +66,6 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IF
 	public Object parseConfig(JSONObject json)
 	{
 		return json;
-	}
-
-	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers) throws JSONException
-	{
-		// TODO currently we don't write anything here; we could make it implement ISupportsConversion1_FromDesignToFormElement, then it has access to solution we can use that to generate an url for many cases that don't need an application
-		// JSONUtils.addKeyIfPresent(...);
-		// writer.value(getMediaUrl(formElementValue.designValue, solution, null));
-
-		return writer;
 	}
 
 	@Override

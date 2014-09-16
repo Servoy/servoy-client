@@ -59,6 +59,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
@@ -300,7 +301,19 @@ public class ComponentFactory
 		// TODO should this just a a property.property.property = value called to WebFormComponent?
 		if (componentNode instanceof WebFormComponent)
 		{
-			((WebFormComponent)componentNode).setDefaultProperty(propName, propValue);
+			boolean templatevalue = true;
+			if (propertySpec.getType() instanceof ISupportTemplateValue)
+			{
+				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(propValue);
+			}
+			if (templatevalue)
+			{
+				((WebFormComponent)componentNode).setDefaultProperty(propName, propValue);
+			}
+			else
+			{
+				((WebFormComponent)componentNode).setProperty(propName, propValue);
+			}
 		}
 		else
 		{

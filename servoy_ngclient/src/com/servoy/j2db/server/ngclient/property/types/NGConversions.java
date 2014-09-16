@@ -220,6 +220,10 @@ public class NGConversions
 				{
 					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers);
 				}
+				else if (type instanceof ISupportTemplateValue)
+				{
+					if (!((ISupportTemplateValue)type).valueInTemplate(value)) return writer;
+				}
 				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers))
 				{
 					JSONUtils.addKeyIfPresent(writer, key);
