@@ -246,7 +246,7 @@ public class PersistFieldInstanceTest
 		String json = JSONUtils.writeDataWithConversions(changes.content, changes.contentType);
 
 		Assert.assertEquals(
-			"{\"tabs\":{\"ver\":2,\"u\":[{\"i\":0,\"v\":{\"ver\":2,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"tabs\":\"JSON_arr\"}}",
+			"{\"tabs\":{\"vEr\":2,\"u\":[{\"i\":0,\"v\":{\"vEr\":2,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"tabs\":\"JSON_arr\"}}",
 			json);
 
 	}
@@ -274,9 +274,7 @@ public class PersistFieldInstanceTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType);
-		Assert.assertEquals(
-			"{\"anchors\":0,\"atype\":{\"ver\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"location\":{\"x\":0,\"y\":0},\"markupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"size\":{\"width\":0,\"height\":0},\"conversions\":{\"atype\":\"JSON_obj\"}}",
-			json);
+		Assert.assertEquals("{\"markupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
 	}
 
 	@Test
@@ -305,8 +303,6 @@ public class PersistFieldInstanceTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType);
-		Assert.assertEquals(
-			"{\"anchors\":0,\"atype\":{\"ver\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"location\":{\"x\":0,\"y\":0},\"markupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"size\":{\"width\":0,\"height\":0},\"conversions\":{\"atype\":\"JSON_obj\"}}",
-			json);
+		Assert.assertEquals("{\"markupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
 	}
 }

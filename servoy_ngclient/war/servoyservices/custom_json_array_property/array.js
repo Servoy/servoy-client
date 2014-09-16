@@ -5,7 +5,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 	var INDEX = "i";
 	var INITIALIZE = "in";
 	var VALUE = "v";
-	var CONTENT_VERSION = "ver"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile serverside
+	var CONTENT_VERSION = "vEr"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile serverside
 	var NO_OP = "n";
 
 	function getChangeNotifier(propertyValue, idx) {
