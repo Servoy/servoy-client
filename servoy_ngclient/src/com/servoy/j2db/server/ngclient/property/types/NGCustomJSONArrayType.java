@@ -97,7 +97,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 		if (formElementValue != null)
 		{
-			writer.object().key(CONTENT_VERSION).value(0).key(VALUE).array();
+			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).array();
 			DataConversion arrayConversionMarkers = new DataConversion();
 
 			for (int i = 0; i < formElementValue.length; i++)
