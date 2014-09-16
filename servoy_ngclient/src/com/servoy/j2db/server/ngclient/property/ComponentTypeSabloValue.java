@@ -121,7 +121,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (componentIsCreated || parentComponent == null) return;
 
 		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-		if (foundsetPropValue == null) return; // Cannot find linked foundset property; it is possible that that property was not yet attached to the component; we can wait for that to happen before creating components; see foundsetPropertyReady()
 
 		componentIsCreated = true;
 		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
@@ -147,7 +146,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			}
 		}
 
-		registerDataProvidersWithFoundset(foundsetPropValue);
+		if (foundsetPropValue != null) registerDataProvidersWithFoundset(foundsetPropValue);
+		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
 	/**
