@@ -27,6 +27,11 @@ Web-Component: True
 Name: menu/menu.spec
 Web-Component: True
 
-Name: topmenu/topmenu.spec
+Name: menuitem/menuitem.spec
 Web-Component: True
 
+Name: collapseicon/collapseicon.spec
+Web-Component: True
+
+Name: logo/logo.spec
+Web-Component: True

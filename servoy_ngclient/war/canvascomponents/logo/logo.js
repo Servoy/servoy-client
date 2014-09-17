@@ -1,4 +1,4 @@
-angular.module('topmenu',['servoy']).directive('topmenu', function() {
+angular.module('logo',['servoy']).directive('logo', function() {  
     return {
       restrict: 'E',
       transclude: true,
@@ -8,7 +8,7 @@ angular.module('topmenu',['servoy']).directive('topmenu', function() {
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/topmenu/topmenu.html',
+      templateUrl: 'canvascomponents/logo/logo.html',
       replace: true
     };
   })
