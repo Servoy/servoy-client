@@ -274,7 +274,7 @@ public class PersistFieldInstanceTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType);
-		Assert.assertEquals("{\"markupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
+		Assert.assertEquals("{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
 	}
 
 	@Test
@@ -303,6 +303,6 @@ public class PersistFieldInstanceTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType);
-		Assert.assertEquals("{\"markupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
+		Assert.assertEquals("{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
 	}
 }

@@ -141,7 +141,7 @@ public class RuntimeWebComponent implements Scriptable
 			}
 		}
 
-		if ("markupId".equals(name))
+		if ("svyMarkupId".equals(name))
 		{
 			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
 		}

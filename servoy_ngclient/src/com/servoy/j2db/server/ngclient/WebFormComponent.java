@@ -56,7 +56,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
 
-		properties.put("markupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
+		properties.put("svyMarkupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
 		if (fe.getWebComponentSpec(false) != null)
 		{
 			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("tabseq"));
@@ -237,7 +237,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -248,7 +248,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -259,7 +259,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

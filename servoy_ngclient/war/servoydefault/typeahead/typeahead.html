@@ -20,5 +20,5 @@
        typeahead="value.realValue as value.displayValue  | formatFilter:model.format.display:model.format.type
        			  for value in model.valuelistID_filter($viewValue)"
        typeahead-input-formatter="formatLabel($model)"
-       ng-blur="doSvyApply()" id="{{model.markupId}}"
+       ng-blur="doSvyApply()" id="{{model.svyMarkupId}}"
         svy-horizontalalignment='model.horizontalAlignment'/>

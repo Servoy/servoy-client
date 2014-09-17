@@ -235,7 +235,7 @@ var Menu = {
 		}
 		else if (x == undefined && y == undefined)
 		{
-			command.elementId = component.markupId;
+			command.elementId = component.svyMarkupId;
 			command.x = 0;
 			command.y = component.height;
 		}
@@ -246,7 +246,7 @@ var Menu = {
 		}
 		else
 		{
-			command.elementId = component.markupId;
+			command.elementId = component.svyMarkupId;
 			command.x = x;
 			command.y = y;
 		}
