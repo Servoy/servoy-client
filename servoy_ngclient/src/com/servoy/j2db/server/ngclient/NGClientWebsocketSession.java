@@ -144,8 +144,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					if (currentForm != null)
 					{
 						// we have to call setcontroller again so that switchForm is called and the form is loaded into the reloaded/new window.
-						client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
-						sendSolutionCSSURL(client.getSolution());
+						startHandlingEvent();
+						try
+						{
+							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
+							sendSolutionCSSURL(client.getSolution());
+						}
+						finally
+						{
+							stopHandlingEvent();
+						}
 						return;
 					}
 				}
@@ -636,7 +644,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
