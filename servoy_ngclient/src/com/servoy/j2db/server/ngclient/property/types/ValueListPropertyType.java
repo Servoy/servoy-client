@@ -38,7 +38,7 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.Valu
  * @author jcompagner
  *
  */
-public class ValueListPropertyType implements IWrapperType<Object, ValueListPropertyWrapper>
+public class ValueListPropertyType implements IWrapperType<Object, ValueListPropertyWrapper>, ISupportTemplateValue<Object>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(ValueListPropertyType.class.getCanonicalName());
@@ -163,6 +163,12 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 			return jsonValue;
 		}
 
+	}
+
+	@Override
+	public boolean valueInTemplate(Object object)
+	{
+		return false;
 	}
 
 

@@ -37,7 +37,7 @@ import com.servoy.j2db.persistence.Column;
  * @author jcompagner
  *
  */
-public class FormatPropertyType implements IConvertedPropertyType<Object>/* <ComponentFormat> */
+public class FormatPropertyType implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -126,5 +126,11 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 		map.put("display", format.parsedFormat.getDisplayFormat());
 
 		return JSONUtils.toBrowserJSONValue(writer, key, map, null, clientConversion);
+	}
+
+	@Override
+	public boolean valueInTemplate(Object object)
+	{
+		return false;
 	}
 }

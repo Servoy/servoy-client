@@ -33,14 +33,13 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType.DataproviderWrapper;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * @author jcompagner
  *
  */
-public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, IFormElementToTemplateJSON<Object, Object>
+public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, ISupportTemplateValue<Object>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -98,15 +97,6 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 			}
 		}
 		return wrap(newValue, previousValue, dataConverterContext); // the same types as we would expect from java come from JSON as well here, so du usual wrap
-	}
-
-
-	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers) throws JSONException
-	{
-		// TODO use type info instead of null for jsonValue, depending on the type the dataprovider is linked to
-		return JSONUtils.toBrowserJSONValue(writer, key, new DataproviderWrapper(formElementValue).getJsonValue(), null, browserConversionMarkers);
 	}
 
 	@Override
@@ -199,6 +189,12 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 			if (o instanceof DataproviderWrapper) return value.equals(((DataproviderWrapper)o).value);
 			return false;
 		}
+	}
+
+	@Override
+	public boolean valueInTemplate(Object object)
+	{
+		return false;
 	}
 
 }

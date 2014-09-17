@@ -36,7 +36,7 @@ import com.servoy.j2db.util.HtmlUtils;
  * @author jcompagner
  *
  */
-public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>
+public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>, ISupportTemplateValue<String>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -63,7 +63,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		DataConversion browserConversionMarkers) throws JSONException
 	{
 		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
-		if (formElementValue != null)
+		if (formElementValue != null && valueInTemplate((String)formElementValue))
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
 			if (HtmlUtils.startsWithHtml(formElementValue))
@@ -114,6 +114,12 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		return new TagStringWrapper(value, dataConverterContext);
 	}
 
+	@Override
+	public boolean valueInTemplate(String str)
+	{
+		return !(str.contains("%%") || str.startsWith("i18n:"));
+	}
+
 	class TagStringWrapper
 	{
 		final Object value;
@@ -159,5 +165,4 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 			return jsonValue;
 		}
 	}
-
 }

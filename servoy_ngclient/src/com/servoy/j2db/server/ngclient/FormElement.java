@@ -37,7 +37,6 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.JSONUtils;
@@ -52,14 +51,9 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.design.DesignNGClient;
-import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
-import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
@@ -212,7 +206,8 @@ public final class FormElement implements IWebComponentInitializer
 		if (pd != null)
 		{
 			propertyPath.add(key);
-			formElementValues.put(key, NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, context != null ? context.getSolution() : null, this, propertyPath));
+			formElementValues.put(key,
+				NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, context != null ? context.getSolution() : null, this, propertyPath));
 			propertyPath.backOneLevel();
 		}
 		else if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(key))
@@ -243,8 +238,8 @@ public final class FormElement implements IWebComponentInitializer
 					if (pd.getDefaultValue() != null)
 					{
 						propertyPath.add(pd.getName());
-						map.put(pd.getName(), NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd, context != null ? context.getSolution() : null,
-							this, propertyPath));
+						map.put(pd.getName(), NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd,
+							context != null ? context.getSolution() : null, this, propertyPath));
 						propertyPath.backOneLevel();
 					}
 					else if (pd.getType().defaultValue() != null)
@@ -395,8 +390,8 @@ public final class FormElement implements IWebComponentInitializer
 		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(propertyName);
 		if (propertyValues.containsKey(propertyName))
 		{
-			if (propertyDescription != null) return NGConversions.INSTANCE.convertFormElementToSabloComponentValue(getRawPropertyValue(propertyName), propertyDescription, this,
-				component);
+			if (propertyDescription != null) return NGConversions.INSTANCE.convertFormElementToSabloComponentValue(getRawPropertyValue(propertyName),
+				propertyDescription, this, component);
 			else return getPropertyValue(propertyName); // just in case this method gets called for events for example (which are currently stored in the same map)
 		}
 
@@ -524,22 +519,6 @@ public final class FormElement implements IWebComponentInitializer
 		{
 			Object val = getRawPropertyValue(pd.getName());
 			if (val == null) continue;
-
-			if (val != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
-			{
-				IPropertyType type = pd.getType();
-				if (type instanceof DataproviderPropertyType || type instanceof FormatPropertyType || type instanceof ValueListPropertyType ||
-					type instanceof MediaPropertyType)
-				{
-					// TODO move these to type conversions directly (those can return null)
-					continue;
-				}
-				if (type instanceof TagStringPropertyType)
-				{
-					// tagstring if it has tags then it is data then it should be skipped.
-					if (((String)val).contains("%%")) continue;
-				}
-			}
 			properties.put(pd.getName(), val);
 		}
 
@@ -594,7 +573,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
