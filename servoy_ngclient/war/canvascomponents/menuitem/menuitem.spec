@@ -9,6 +9,5 @@
 	        "rightIconClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
 	        "text" : "string",
 	        "url" : "string"
-	},
-	 
+	}
 }
