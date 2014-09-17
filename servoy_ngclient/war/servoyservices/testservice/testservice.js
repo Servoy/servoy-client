@@ -8,3 +8,11 @@ angular.module('testservice',['servoy'])
 		}
 	}
 })
+.run(function($rootScope,$services)
+{
+	var scope = $rootScope.$new(true);
+	scope.state = $services.getServiceState('testservice');
+	scope.$watch('state', function(newvalue,oldvalue) {
+		// handle state changes
+	}, true);
+})
