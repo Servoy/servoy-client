@@ -771,6 +771,8 @@ public class WebEventExecutor extends BaseEventExecutor
 				final List<String> valueChangedIds = new ArrayList<String>();
 				final List<String> invalidValueIds = new ArrayList<String>();
 				final Map<WebCellBasedView, List<Integer>> tableViewsWithChangedRowIds = new HashMap<WebCellBasedView, List<Integer>>();
+
+				// first, get all invalidValue & valueChanged components
 				page.visitChildren(IProviderStylePropertyChanges.class, new Component.IVisitor<Component>()
 				{
 					public Object component(Component component)
@@ -798,6 +800,15 @@ public class WebEventExecutor extends BaseEventExecutor
 								});
 							}
 						}
+						return CONTINUE_TRAVERSAL;
+					}
+				});
+
+				// add changed components to target; if a component is changed, the change check won't go deeper in hierarchy
+				page.visitChildren(IProviderStylePropertyChanges.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
 						if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
 						{
 							if (component.getParent().isVisibleInHierarchy())
