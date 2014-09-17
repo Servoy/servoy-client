@@ -230,7 +230,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -241,7 +241,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -277,13 +277,14 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
 		public URL getUrlForPath(String path)
 		{
-			return Activator.getContext().getBundle().getEntry("/war/" + packageName + path); // path includes /
+			String completePath = path.startsWith("/") ? "/war/" + packageName + path : "/war/" + packageName + '/' + path;
+			return Activator.getContext().getBundle().getEntry(completePath); // path includes /
 		}
 
 		@SuppressWarnings("nls")
