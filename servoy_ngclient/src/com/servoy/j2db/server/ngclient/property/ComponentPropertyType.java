@@ -42,8 +42,8 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.util.Debug;
@@ -56,8 +56,8 @@ import com.servoy.j2db.util.Debug;
 public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue> implements
 	IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
-	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
-	IConvertedPropertyType<ComponentTypeSabloValue>, ISabloComponentToRhino<ComponentTypeSabloValue>
+	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
+	ISabloComponentToRhino<ComponentTypeSabloValue>
 {
 
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType(null);
@@ -144,9 +144,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		List<String> dataproviders = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
 		for (String dataproviderID : dataproviders)
 		{
-			m.put(dataproviderID, (String)formElement.getPropertyValue(dataproviderID)); // TODO if dataprovider type changes to store something else in form element this has to be updated as well
+			String dataproviderIDValue = (String)formElement.getPropertyValue(dataproviderID);
+			if (dataproviderIDValue != null) m.put(dataproviderID, dataproviderIDValue); // TODO if dataprovider type changes to store something else in form element this has to be updated as well
 		}
-		return m.size() > 0 ? m : null;
+		return m;
 	}
 
 	protected List<String> findCallTypesInApiSpecDefinition(Map<String, WebComponentApiDefinition> apis)
