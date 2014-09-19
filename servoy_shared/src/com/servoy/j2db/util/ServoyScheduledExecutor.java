@@ -159,7 +159,7 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 		// hack around the fact that the java 5 Executor will not grow and shrink like we want it to.
 		// java 6 has support for it to also be able to time out core pool threads.
 		// make it also always one bigger if the caller is a scheduler thread it self and the active count => current core size.
-		synchronized (schedulerThreadsCheck)
+		synchronized (this)
 		{
 			int activeCount = super.getActiveCount();
 			int coreSize = super.getCorePoolSize();
