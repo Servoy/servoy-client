@@ -50,7 +50,7 @@ public class FormLayoutStructureGenerator
 				}
 				else if (component instanceof IFormElement)
 				{
-					FormLayoutGenerator.generateFormElement(writer, ComponentFactory.getFormElement((IFormElement)component, context, null), design, true);
+					FormLayoutGenerator.generateFormElement(writer, ComponentFactory.getFormElement((IFormElement)component, context, null), design);
 				}
 			}
 			FormLayoutGenerator.generateEndDiv(writer);
@@ -96,7 +96,7 @@ public class FormLayoutStructureGenerator
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormLayoutGenerator.generateFormElement(writer, ComponentFactory.getFormElement((IFormElement)component, context, null), design, true);
+				FormLayoutGenerator.generateFormElement(writer, ComponentFactory.getFormElement((IFormElement)component, context, null), design);
 			}
 		}
 		writer.print("</");

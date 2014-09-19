@@ -51,7 +51,7 @@ public class FormLayoutGenerator
 					FormElement fe = ComponentFactory.getFormElement(bc, context, null);
 
 					generateFormElementWrapper(writer, fe, design);
-					generateFormElement(writer, fe, design, false);
+					generateFormElement(writer, fe, false);
 					generateEndDiv(writer);
 				}
 
@@ -99,7 +99,7 @@ public class FormLayoutGenerator
 		writer.println(">");
 	}
 
-	public static void generateFormElement(PrintWriter writer, FormElement fe, boolean design, boolean addDesignInfo)
+	public static void generateFormElement(PrintWriter writer, FormElement fe, boolean design)
 	{
 		writer.print("<");
 		writer.print(fe.getTagname());
@@ -115,7 +115,7 @@ public class FormLayoutGenerator
 		writer.print(" svy-handlers='handlers.");
 		writer.print(fe.getName());
 		writer.print("'");
-		if (addDesignInfo && design)
+		if (design)
 		{
 			writer.print(" svy-id='");
 			writer.print(fe.getDesignId());
