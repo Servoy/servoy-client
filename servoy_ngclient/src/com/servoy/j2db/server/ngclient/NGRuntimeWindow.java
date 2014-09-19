@@ -434,6 +434,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		visible = false;
 		getApplication().getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("hide", new Object[] { getName() });
 
+		// assume that just after hiding the window, currentController in js is the main window controller
+		IFormController formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
+		if (formController instanceof IWebFormController) getApplication().getFormManager().setCurrentControllerJS((IWebFormController)formController);
+
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
