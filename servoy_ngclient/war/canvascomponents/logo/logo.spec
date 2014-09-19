@@ -6,6 +6,5 @@
 	"model":
 	{
 	        "url" : "string"
-	},
-	 
+	}
 }

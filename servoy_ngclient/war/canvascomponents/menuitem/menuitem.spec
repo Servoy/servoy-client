@@ -5,8 +5,8 @@
 	"libraries": [],
 	"model":
 	{
-	        "leftIconClass" : { "type" :"styleclass", "scope" :"design", "values" :[]},
-	        "rightIconClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
+	        "leftIconClass" : { "type" :"styleclass"},
+	        "rightIconClass" : { "type" :"styleclass"}, 
 	        "text" : "string",
 	        "url" : "string"
 	}

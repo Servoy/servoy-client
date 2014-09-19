@@ -5,9 +5,8 @@
 	"libraries": [],
 	"model":
 	{
-	        "iconClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
+	        "iconClass" : { "type" :"styleclass"}, 
 	        "target" : "string",
 	        "markupId" : "string"
-	},
-	 
+	}
 }

@@ -5,9 +5,8 @@
 	"libraries": [],
 	"model":
 	{
-	        "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
+	        "styleClass" : { "type" :"styleclass"}, 
 	        "dataProviderID" : { "type":"dataprovider", "scope" :"design"},
 	        "markupId" : "string"
-	},
-	 
+	}
 }
