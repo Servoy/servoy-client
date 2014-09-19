@@ -86,12 +86,22 @@ public class PartWrapper
 
 	public String getName()
 	{
+		return getName(part);
+	}
+
+	public static String getName(Part part)
+	{
 		String name = Part.getDisplayName(part.getPartType());
 		name = name.replace(" ", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return name.toLowerCase();
 	}
 
 	public Collection<BaseComponent> getBaseComponents()
+	{
+		return getBaseComponents(part, context, converterContext);
+	}
+
+	public static Collection<BaseComponent> getBaseComponents(Part part, Form context, IServoyDataConverterContext converterContext)
 	{
 		if (part.getPartType() == Part.BODY)
 		{
@@ -115,13 +125,13 @@ public class PartWrapper
 			Point location = persist.getLocation();
 			if (startPos <= location.y && endPos > location.y)
 			{
-				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
+				if (isSecurityVisible(persist, converterContext)) baseComponents.add((BaseComponent)persist);
 			}
 		}
 		return baseComponents;
 	}
 
-	public boolean isSecurityVisible(IPersist persist)
+	public static boolean isSecurityVisible(IPersist persist, IServoyDataConverterContext converterContext)
 	{
 		if (converterContext.getApplication() == null) return true;
 		int access = converterContext.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());

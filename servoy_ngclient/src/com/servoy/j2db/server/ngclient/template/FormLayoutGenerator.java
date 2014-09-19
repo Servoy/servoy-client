@@ -20,96 +20,87 @@ package com.servoy.j2db.server.ngclient.template;
 import java.io.PrintWriter;
 import java.util.Iterator;
 
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
-import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.LayoutContainer;
-import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
-import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 
 /**
- * @author jblok, lvostinar
+ * @author lvostinar
+ *
  */
-@SuppressWarnings("nls")
 public class FormLayoutGenerator
 {
-	public static void generateLayout(Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design)
+
+	public static void generateRecordViewForm(PrintWriter writer, Form form, IServoyDataConverterContext context, boolean design)
 	{
-		try
+		generateFormStartTag(writer, form);
+		Iterator<Part> it = form.getParts();
+		while (it.hasNext())
 		{
-			writer.println(String.format(
-				"<div ng-controller=\"%1$s\" svy-formstyle=\"formStyle\" svy-scrollbars='formProperties.scrollbars' svy-layout-update svy-formload svy-autosave>",
-				form.getName()));
-			Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-			while (components.hasNext())
+			Part part = it.next();
+			if (!Part.rendersOnlyInPrint(part.getPartType()))
 			{
-				IPersist component = components.next();
-				if (component instanceof LayoutContainer)
+				writer.print("<div ng-style=\"");
+				writer.print(PartWrapper.getName(part));
+				writer.println("Style\">");
+				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context))
 				{
-					generateLayoutContainer((LayoutContainer)component, context, writer, design);
+					FormElement fe = ComponentFactory.getFormElement(bc, context, null);
+
+					generateFormElementWrapper(writer, fe, design);
+					generateFormElement(writer, fe, design, false);
+					generateEndDiv(writer);
 				}
-				else if (component instanceof IFormElement)
-				{
-					generateFormElement((IFormElement)component, context, writer, design);
-				}
+
+				generateEndDiv(writer);
 			}
-			writer.println("</div>");
 		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
+		generateEndDiv(writer);
 	}
 
-	private static void generateLayoutContainer(LayoutContainer container, ServoyDataConverterContext context, PrintWriter writer, boolean design)
+	public static void generateFormStartTag(PrintWriter writer, Form form)
 	{
-		writer.print("<");
-		writer.print(container.getTagType());
-		writer.print(" ");
-		if (container.getElementId() != null)
+		writer.print(String.format(
+			"<div ng-controller=\"%1$s\" svy-formstyle=\"formStyle\" svy-scrollbars='formProperties.scrollbars' svy-layout-update svy-formload svy-autosave",
+			form.getName()));
+		if (form.getStyleClass() != null)
 		{
-			writer.print("id='");
-			writer.print(container.getElementId());
-			writer.print("' ");
-		}
-		if (container.getStyle() != null)
-		{
-			writer.print("style='");
-			writer.print(container.getStyle());
-			writer.print("' ");
-		}
-		if (container.getCssClasses() != null)
-		{
-			writer.print("class='");
-			writer.print(container.getCssClasses());
-			writer.print("' ");
+			writer.print(" class=\"");
+			writer.print("form.getStyleClass()");
+			writer.print("\"");
 		}
 		writer.println(">");
-
-		Iterator<IPersist> components = container.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (components.hasNext())
-		{
-			IPersist component = components.next();
-			if (component instanceof LayoutContainer)
-			{
-				generateLayoutContainer((LayoutContainer)component, context, writer, design);
-			}
-			else if (component instanceof IFormElement)
-			{
-				generateFormElement((IFormElement)component, context, writer, design);
-			}
-		}
-		writer.print("</");
-		writer.print(container.getTagType());
-		writer.print(">");
 	}
 
-	private static void generateFormElement(IFormElement formElement, ServoyDataConverterContext context, PrintWriter writer, boolean design)
+	public static void generateEndDiv(PrintWriter writer)
 	{
-		FormElement fe = ComponentFactory.getFormElement(formElement, context, null);
+		writer.println("</div>");
+	}
+
+	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design)
+	{
+		writer.print("<div ng-style=\"layout.");
+		writer.print(fe.getName());
+		writer.print("\" svy-layout-update=\"");
+		writer.print(fe.getName());
+		writer.print("\"");
+		if (design)
+		{
+			writer.print(" svy-id='");
+			writer.print(fe.getDesignId());
+			writer.print("'");
+			writer.print(" name='");
+			writer.print(fe.getName());
+			writer.print("'");
+		}
+		writer.println(">");
+	}
+
+	public static void generateFormElement(PrintWriter writer, FormElement fe, boolean design, boolean addDesignInfo)
+	{
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -124,209 +115,21 @@ public class FormLayoutGenerator
 		writer.print(" svy-handlers='handlers.");
 		writer.print(fe.getName());
 		writer.print("'");
+		if (addDesignInfo && design)
+		{
+			writer.print(" svy-id='");
+			writer.print(fe.getDesignId());
+			writer.print("'");
+		}
 		writer.print(" svy-apply='handlers.");
 		writer.print(fe.getName());
 		writer.print(".svy_apply'");
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());
 		writer.print(".svy_servoyApi'");
-		if (design)
-		{
-			writer.print(" svy-id='");
-			writer.print(fe.getDesignId());
-			writer.print("'");
-		}
 		writer.println(">");
 		writer.print("</");
 		writer.print(fe.getTagname());
 		writer.println(">");
 	}
-
-//	/**
-//	 * @param form
-//	 * @param fs
-//	 * @param writer
-//	 */
-//	public static void generate(Form form, ServoyDataConverterContext context, PrintWriter writer)
-//	{
-//		try
-//		{
-//			Map<String, FormElement> allFormElements = new HashMap<String, FormElement>();
-//
-//			Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
-//			while (it.hasNext())
-//			{
-//				IFormElement element = it.next();
-//				FormElement fe = ComponentFactory.getFormElement(element, context, null);
-//				allFormElements.put(element.getUUID().toString(), fe);
-//
-//				//make life easy if a real name is used
-//				if (element.getName() != null) allFormElements.put(element.getName(), fe);
-//			}
-//
-//			HTMLParser parser = new HTMLParser(form.getLayoutGrid());
-//			List<MarkupElement> elems = parser.parse();
-//
-//			writer.println(String.format("<div ng-controller=\"%1$s\" ng-style=\"formStyle\" svy-layout-update>", form.getName()));
-//
-//			XmlTag skipUntilClosed = null;
-//			Iterator<MarkupElement> elem_it = elems.iterator();
-//			while (elem_it.hasNext())
-//			{
-//				XmlTag tag = (XmlTag)elem_it.next();
-//				if (skipUntilClosed != null)
-//				{
-//					if (!tag.closes(skipUntilClosed)) continue;
-//					skipUntilClosed = null;
-//					continue;
-//				}
-//
-//				IValueMap attributes = tag.getAttributes();
-//				String id = attributes.getString("id");
-//				FormElement fe = allFormElements.get(id);
-//				if (fe != null)
-//				{
-////					if (fe.getTagname().equals(tag.getName())) does not need to be same, if id matches we replace
-//					{
-//						writer.print(fe.toString());
-//						if (!tag.isOpenClose()) skipUntilClosed = tag;
-//					}
-//				}
-//				else
-//				{
-//					writer.print(tag.toCharSequence());
-//				}
-//			}
-//			writer.println("</div>");
-//		}
-//		catch (Exception e)
-//		{
-//			Debug.error(e);
-//		}
-//	}
-
-//	/**
-//	 * Merge of wicket MarkupParser,HTMLHandler,Markup (since not usable without running inside wicket)
-//	 * @author Jan Blok
-//	 */
-//	public static class HTMLParser
-//	{
-//		/** Map of simple tags. */
-//		private static final Map<String, Boolean> doesNotRequireCloseTag = new HashMap<String, Boolean>();
-//
-//		static
-//		{
-//			// Tags which are allowed not be closed in HTML
-//			doesNotRequireCloseTag.put("p", Boolean.TRUE);
-//			doesNotRequireCloseTag.put("br", Boolean.TRUE);
-//			doesNotRequireCloseTag.put("img", Boolean.TRUE);
-//			doesNotRequireCloseTag.put("input", Boolean.TRUE);
-//			doesNotRequireCloseTag.put("hr", Boolean.TRUE);
-//			doesNotRequireCloseTag.put("link", Boolean.TRUE);
-//			doesNotRequireCloseTag.put("meta", Boolean.TRUE);
-//		}
-//
-//		private final IXmlPullParser xmlParser;
-//		private final List<MarkupElement> markupElements;
-//
-//		public HTMLParser(final String markup) throws IOException, ResourceStreamNotFoundException
-//		{
-//			xmlParser = new XmlPullParser();
-//			xmlParser.parse(markup);
-//
-//			markupElements = new ArrayList<MarkupElement>();
-//		}
-//
-//		public List<MarkupElement> parse() throws ParseException
-//		{
-//			// Loop through parser tags
-//			MarkupElement me = null;
-//			while ((me = xmlParser.nextTag()) != null)
-//			{
-//				markupElements.add(me);
-//			}
-//
-//			// Loop through tags
-//			ArrayListStack<XmlTag> stack = new ArrayListStack<XmlTag>();
-//			Iterator<MarkupElement> it = markupElements.iterator();
-//			while (it.hasNext())
-//			{
-//				XmlTag tag = (XmlTag)it.next();
-//
-//				// Check tag type
-//				if (tag.isOpen())
-//				{
-//					// Push onto stack
-//					stack.push(tag);
-//				}
-//				else if (tag.isClose())
-//				{
-//					// Check that there is something on the stack
-//					if (stack.size() > 0)
-//					{
-//						// Pop the top tag off the stack
-//						XmlTag top = stack.pop();
-//
-//						// If the name of the current close tag does not match the
-//						// tag on the stack then we may have a mismatched close tag
-//						boolean mismatch = !top.hasEqualTagName(tag);
-//
-//						if (mismatch)
-//						{
-//							// Pop any simple tags off the top of the stack
-//							while (mismatch && !requiresCloseTag(top.getName()))
-//							{
-//								// mark them as open/close
-//								top.setType(XmlTag.OPEN_CLOSE);
-//
-//								// Pop simple tag
-//								if (stack.isEmpty())
-//								{
-//									break;
-//								}
-//								top = stack.pop();
-//
-//								// Does new top of stack mismatch too?
-//								mismatch = !top.hasEqualTagName(tag);
-//							}
-//
-//							// If adjusting for simple tags did not fix the problem,
-//							// it must be a real mismatch.
-//							if (mismatch)
-//							{
-//								throw new ParseException("Tag " + top.toUserDebugString() + " has a mismatched close tag at " + tag.toUserDebugString(),
-//									top.getPos());
-//							}
-//						}
-//
-//						// Tag matches, so add pointer to matching tag
-//						tag.setOpenTag(top);
-//					}
-//					else
-//					{
-//						throw new ParseException("Tag " + tag.toUserDebugString() + " does not have a matching open tag", tag.getPos());
-//					}
-//				}
-//				else if (tag.isOpenClose())
-//				{
-//					// Tag closes itself
-//					tag.setOpenTag(tag);
-//				}
-//			}
-//
-//			return markupElements;
-//		}
-//
-//		/**
-//		 * Gets whether this tag does not require a closing tag.
-//		 *
-//		 * @param name
-//		 *            The tag's name, e.g. a, br, div, etc.
-//		 * @return True if this tag does not require a closing tag
-//		 */
-//		public static boolean requiresCloseTag(final String name)
-//		{
-//			return doesNotRequireCloseTag.get(name.toLowerCase()) == null;
-//		}
-//	}
 }
