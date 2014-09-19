@@ -171,6 +171,12 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 		layoutContainer.setName(arg);
 	}
 
+	/**
+	 * Get/set x location. Location is used for ordering in html output.
+	 *
+	 * @sample
+	 * layoutContainer.x = 100;;
+	 */
 	@JSGetter
 	public int getX()
 	{
@@ -184,6 +190,12 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 		layoutContainer.setLocation(new Point(x, layoutContainer.getLocation().y));
 	}
 
+	/**
+	 * Get/set Y location. Location is used for ordering in html output.
+	 *
+	 * @sample
+	 * layoutContainer.y = 100;;
+	 */
 	@JSGetter
 	public int getY()
 	{

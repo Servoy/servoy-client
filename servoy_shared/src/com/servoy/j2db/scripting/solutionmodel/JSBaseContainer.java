@@ -27,6 +27,7 @@ import java.util.List;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
@@ -1090,6 +1091,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * @return a JSField object
 	 */
 	@JSFunction
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	public JSField getField(String name)
 	{
 		if (name == null) return null;
@@ -1120,8 +1122,10 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @param name the specified name of the JSField to remove
 	 *
+	 *
 	 * @return true is the JSField has been successfully removed; false otherwise
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public boolean removeField(String name)
 	{
@@ -1186,6 +1190,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * @return all JSField objects of this form
 	 *
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSField[] getFields()
 	{
@@ -1203,6 +1208,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return a JSButton object
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSButton getButton(String name)
 	{
@@ -1236,6 +1242,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return true if the JSButton has been removed; false otherwise
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public boolean removeButton(String name)
 	{
@@ -1304,6 +1311,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSButton[] getButtons()
 	{
@@ -1355,6 +1363,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return a JSBean object
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSBean getBean(String name)
 	{
@@ -1390,6 +1399,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return true if the JSBean has been removed; false otherwise
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public boolean removeBean(String name)
 	{
@@ -1469,6 +1479,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel)
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSComponent< ? > getComponent(String name)
 	{
@@ -1521,6 +1532,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return true if component has been successfully deleted; false otherwise
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public boolean removeComponent(String name)
 	{
@@ -1570,6 +1582,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return an array of all the JSComponents on the form.
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSComponent< ? >[] getComponents()
 	{
@@ -1588,6 +1601,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return a JSLabel object (or null if the label with the specified name does not exist)
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSLabel getLabel(String name)
 	{
@@ -1630,6 +1644,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @return true if the JSLabel with the given name has successfully been removed; false otherwise
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public boolean removeLabel(String name)
 	{
@@ -1698,6 +1713,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * @return all JSLabels on this form
 	 *
 	 */
+	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
 	public JSLabel[] getLabels()
 	{

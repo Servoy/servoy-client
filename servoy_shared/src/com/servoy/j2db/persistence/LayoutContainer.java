@@ -57,6 +57,9 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE, tagType);
 	}
 
+	/**
+	 * The tag type for html output. Default value is 'div'.
+	 */
 	public String getTagType()
 	{
 		String tag = getTypedProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE);
@@ -72,6 +75,9 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ELEMENTID, id);
 	}
 
+	/**
+	 * The id to be output for html tag.
+	 */
 	public String getElementId()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ELEMENTID);
@@ -82,6 +88,9 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS, cls);
 	}
 
+	/**
+	 * The css classes to be output for html tag.
+	 */
 	public String getCssClasses()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS);
@@ -92,6 +101,9 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLE, style);
 	}
 
+	/**
+	 * The style definition to be output in html tag.
+	 */
 	public String getStyle()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLE);

@@ -93,7 +93,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
 				SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
 				VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
-				JSFieldWithConstants.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
+				JSFieldWithConstants.class, JSLayoutContainer.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
 				JSList.class, JSInsetList.class, //
 				JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
 				JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
@@ -117,8 +117,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Creates a new JSForm Object.
-	 * 
-	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
+	 *
+	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form.
 	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'my_server', 'my_table', 'myStyleName', false, 800, 600)
@@ -136,14 +136,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 * @param tableName the specified name of the table
 	 *
-	 * @param styleName the specified style  
+	 * @param styleName the specified style
 	 *
 	 * @param show_in_menu if true show the name of the new form in the menu; or false for not showing
 	 *
 	 * @param width the width of the form in pixels
 	 *
 	 * @param height the height of the form in pixels
-	 * 
+	 *
 	 * @return a new JSForm object
 	 */
 	@JSFunction
@@ -154,8 +154,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Creates a new JSForm Object.
-	 * 
-	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form. 
+	 *
+	 * NOTE: See the JSForm node for more information about form objects that can be added to the new form.
 	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/my_server/my_table', 'myStyleName', false, 800, 600)
@@ -169,14 +169,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 * @param dataSource the specified name of the datasource for the specified table
 	 *
-	 * @param styleName the specified style  
+	 * @param styleName the specified style
 	 *
 	 * @param show_in_menu if true show the name of the new form in the menu; or false for not showing
 	 *
 	 * @param width the width of the form in pixels
 	 *
 	 * @param height the height of the form in pixels
-	 * 
+	 *
 	 * @return a new JSForm object
 	 */
 	@JSFunction
@@ -211,7 +211,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Creates a new form with the given JSForm as its super form.
-	 * 
+	 *
 	 * @sample
 	 * //creates 2 forms with elements on them; shows the parent form, waits 2 seconds and shows the child form
 	 * var mySuperForm = solutionModel.newForm('mySuperForm', 'db:/my_server/my_table', null, false, 800, 600);
@@ -226,7 +226,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * label2.background = 'green';
 	 * forms['mySuperForm'].controller.recreateUI();
 	 * forms['mySubForm'].controller.show();
-	 * 	
+	 *
 	 * @param name The name of the new form
 	 * @param superForm the super form that will extended from, see JSform.setExtendsForm();
 	 * @return a new JSForm object
@@ -295,13 +295,13 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Gets the style specified by the given name.
-	 * 
+	 *
 	 * @sample
 	 * var style = solutionModel.getStyle('my_existing_style')
 	 * style.content = 'combobox { color: #0000ff;font: italic 10pt "Verdana";}'
-	 * 
+	 *
 	 * @param name the specified name of the style
-	 * 
+	 *
 	 * @return a JSStyle
 	 */
 	@JSFunction
@@ -317,9 +317,9 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Creates a new style with the given css content string under the given name.
-	 * 
-	 * NOTE: Will throw an exception if a style with that name already exists.  
-	 * 
+	 *
+	 * NOTE: Will throw an exception if a style with that name already exists.
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm','db:/my_server/my_table',null,true,1000,800);
 	 * if (form.transparent == false)
@@ -332,9 +332,9 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * forms['myForm'].controller.show();
 	 *
 	 * @param name the name of the new style
-	 * 
+	 *
 	 * @param content the css content of the new style
-	 * 
+	 *
 	 * @return a JSStyle object
 	 */
 	@JSFunction
@@ -355,7 +355,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Makes an exact copy of the given form and gives it the new name.
 	 *
-	 * @sample 
+	 * @sample
 	 * // get an existing form
 	 * var form = solutionModel.getForm("existingForm")
 	 * // make a clone/copy from it
@@ -367,8 +367,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 * @param newName the new name for the form clone
 	 *
-	 * @param jsForm the form to be cloned 
-	 * 
+	 * @param jsForm the form to be cloned
+	 *
 	 * @return a JSForm
 	 */
 	@JSFunction
@@ -393,7 +393,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var field = solutionModel.getForm("formWithField").getField("fieldName");
 	 * // make a clone/copy of the field
 	 * var clone = solutionModel.cloneComponent("clonedField",field);
-	 * 
+	 *
 	 * @param newName the new name of the cloned component
 	 *
 	 * @param component the component to clone
@@ -419,13 +419,13 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var clone = solutionModel.cloneComponent("clonedField",field,form);
 	 * // show it
 	 * forms["targetForm"].controller.show();
-	 * 
+	 *
 	 * @param newName the new name of the cloned component
 	 *
 	 * @param component the component to clone
 	 *
-	 * @param newParentForm the new parent form 
-	 * 
+	 * @param newParentForm the new parent form
+	 *
 	 * @return the exact copy of the given component
 	 */
 	@JSFunction
@@ -449,8 +449,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the specified form during the persistent connected client session.
-	 * 
-	 * NOTE: Make sure you call history.remove first in your Servoy method (script). 
+	 *
+	 * NOTE: Make sure you call history.remove first in your Servoy method (script).
 	 *
 	 * @sample
 	 * //first remove it from the current history, to destroy any active form instance
@@ -462,7 +462,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * }
 	 *
 	 * @param name the specified name of the form to remove
-	 * 
+	 *
 	 * @return true is form has been removed, false if form could not be removed
 	 */
 	@JSFunction
@@ -483,15 +483,15 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the relation specified by name. You cannot remove the the relation if it is touched within the application.
-	 * So even if you remove all the ui elements using it, like tabs, it still can't be removed, because of underlying created and cached data. 
-	 * 
+	 * So even if you remove all the ui elements using it, like tabs, it still can't be removed, because of underlying created and cached data.
+	 *
 	 * @sample
 	 * var success = solutionModel.removeRelation('myRelation');
 	 * if (success) { application.output("Relation has been removed");}
 	 * else {application.output("Relation could not be removed");}
-	 * 
+	 *
 	 * @param name the name of the relation to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
@@ -531,19 +531,19 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the specified global method.
-	 * 
+	 *
 	 * @sample
 	 * var m1 = solutionModel.newGlobalMethod('globals', 'function myglobalmethod1(){application.output("Global Method 1");}');
 	 * var m2 = solutionModel.newGlobalMethod('globals', 'function myglobalmethod2(){application.output("Global Method 2");}');
-	 * 
+	 *
 	 * var success = solutionModel.removeGlobalMethod('globals', 'myglobalmethod1');
 	 * if (success == false) application.output('!!! myglobalmethod1 could not be removed !!!');
-	 * 
+	 *
 	 * var list = solutionModel.getGlobalMethods('globals');
-	 * for (var i = 0; i < list.length; i++) { 
+	 * for (var i = 0; i < list.length; i++) {
 	 * 	application.output(list[i].code);
 	 * }
-	 * 
+	 *
 	 * @param scopeName the scope in which the method is declared
 	 * @param name the name of the global method to be removed
 	 * @return true if the removal was successful, false otherwise
@@ -573,21 +573,21 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the specified global variable.
-	 * 
+	 *
 	 * @sample
 	 * var v1 = solutionModel.newGlobalVariable('globals', 'globalVar1', JSVariable.INTEGER);
 	 * var v2 = solutionModel.newGlobalVariable('globals', 'globalVar2', JSVariable.TEXT);
-	 * 
+	 *
 	 * var success = solutionModel.removeGlobalVariable('globals', 'globalVar1');
 	 * if (success == false) application.output('!!! globalVar1 could not be removed !!!');
-	 * 
+	 *
 	 * var list = solutionModel.getGlobalVariables('globals');
 	 * for (var i = 0; i < list.length; i++) {
 	 * 	application.output(list[i].name + '[ ' + list[i].variableType + ']: ' + list[i].variableType);
 	 * }
-	 * 
+	 *
 	 * @param scopeName the scope in which the variable is declared
-	 * @param name the name of the global variable to be removed 
+	 * @param name the name of the global variable to be removed
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
@@ -605,7 +605,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the media item specified by name.
-	 * 
+	 *
 	 * @sample
 	 * var bytes1 = plugins.file.readFile('D:/Imgs/image1.png');
 	 * var image1 = solutionModel.newMedia('image1.png', bytes1);
@@ -613,24 +613,24 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var image2 = solutionModel.newMedia('image2.jpg',bytes2);
 	 * var bytes3 = plugins.file.readFile('D:/Imgs/image3.jpg');
 	 * var image3 = solutionModel.newMedia('image3.jpg',bytes3);
-	 * 
+	 *
 	 * var f = solutionModel.newForm("newForm",databaseManager.getDataSource('example_data', 'orders'),null,false,500,350);
 	 * var l = f.newLabel('', 20, 70, 300, 200);
 	 * l.imageMedia = image1;
 	 * l.borderType =  solutionModel.createLineBorder(4,'#ff0000');
 	 * forms["newForm"].controller.show();
-	 * 
+	 *
 	 * var status = solutionModel.removeMedia('image1.jpg');
 	 * if (status) application.output("image1.png has been removed");
 	 * else application.output("image1.png has not been removed");
-	 * 
+	 *
 	 * var mediaList = solutionModel.getMediaList();
 	 * for (var i = 0; i < mediaList.length; i++) {
 	 * 	application.output(mediaList[i].getName() + ":" + mediaList[i].mimeType);
 	 * }
-	 * 
+	 *
 	 * @param name the name of the media item to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
@@ -648,15 +648,15 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the specified style.
-	 * 
+	 *
 	 * @sample
 	 * var s = solutionModel.newStyle("smStyle1",'form { background-color: yellow; }');
 	 * var status = solutionModel.removeStyle("smStyle1");
 	 * if (status == false) application.output("Could not remove style.");
 	 * else application.output("Style removed.");
-	 * 
+	 *
 	 * @param name the name of the style to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
@@ -674,16 +674,16 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the specified valuelist.
-	 * 
+	 *
 	 * @sample
 	 * var vlName = "customValueList";
 	 * var vl = solutionModel.newValueList(vlName,JSValueList.CUSTOM_VALUES);
 	 * vl.customValues = "customvalue1\ncustomvalue2";
-	 * 
+	 *
 	 * var status = solutionModel.removeValueList(vlName);
 	 * if (status) application.output("Removal has been done.");
 	 * else application.output("ValueList not removed.");
-	 * 
+	 *
 	 * var vls = solutionModel.getValueLists();
 	 * if (vls != null) {
 	 * 	for (var i = 0; i < vls.length; i++) {
@@ -691,10 +691,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * 	}
 	 * 	application.output("");
 	 * }
-	 * 
-	 * 
+	 *
+	 *
 	 * @param name name of the valuelist to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
@@ -712,28 +712,28 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Removes the calculation specified by name and datasource.
-	 * 
+	 *
 	 * @sample
 	 * var calc1 = solutionModel.newCalculation("function myCalculation1() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
 	 * var calc2 = solutionModel.newCalculation("function myCalculation2() { return '20'; }", "db:/example_data/customers");
-	 * 
+	 *
 	 * var c = solutionModel.getCalculation("myCalculation1", "db:/example_data/customers");
 	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
-	 * 
+	 *
 	 * solutionModel.removeCalculation("myCalculation1", "db:/example_data/customers");
 	 * c = solutionModel.getCalculation("myCalculation1", "db:/example_data/customers");
 	 * if (c != null) {
 	 * 	application.output("myCalculation could not be removed.");
 	 * }
-	 * 
+	 *
 	 * var allCalcs = solutionModel.getCalculations("db:/example_data/customers");
 	 * for (var i = 0; i < allCalcs.length; i++) {
 	 * 	application.output(allCalcs[i]);
 	 * }
-	 * 
+	 *
 	 * @param name the name of the calculation to be removed
 	 * @param datasource the datasource the calculation belongs to
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).removeCalculation(name)
 	 */
@@ -745,7 +745,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.
-	 * 
+	 *
 	 * NOTE: Make sure you call history.remove first in your Servoy method (script) or call form.controller.recreateUI() before the script ends.
 	 *
 	 * @sample
@@ -757,7 +757,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * forms.myForm.controller.recreateUI();
 	 *
 	 * @param name the specified name of the form to revert
-	 * 
+	 *
 	 * @return a JSForm object
 	 */
 	@JSFunction
@@ -782,7 +782,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var styleName = myForm.styleName;
 	 *
 	 * @param name the specified name of the form
-	 * 
+	 *
 	 * @return a JSForm
 	 */
 	@JSFunction
@@ -824,8 +824,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * for (var i in forms)
 	 * 	application.output(forms[i].name)
 	 *
-	 * @param datasource the datasource or servername 
-	 * 
+	 * @param datasource the datasource or servername
+	 *
 	 * @return an array of JSForm type elements
 	 */
 	@JSFunction
@@ -843,10 +843,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * for (var i in forms)
 	 * 	application.output(forms[i].name)
 	 *
-	 * @param server the datasource or servername 
-	 * 
+	 * @param server the datasource or servername
+	 *
 	 * @param tablename the tablename
-	 * 
+	 *
 	 * @return an array of JSForm type elements
 	 */
 	@JSFunction
@@ -896,7 +896,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
 	 *
 	 * @param dataSource table data source
-	 * 
+	 *
 	 * @return a JSDataSourceNode
 	 */
 	@JSFunction
@@ -929,7 +929,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * //myLabel.imageMedia = myMedia
 	 *
 	 * @param name the specified name of the media object
-	 * 
+	 *
 	 * @return a JSMedia element
 	 */
 	@JSFunction
@@ -955,11 +955,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * //myLabel.imageMedia = myMedia
 	 *
 	 * @param name The name of the new media
-	 * 
+	 *
 	 * @param bytes The content
-	 * 
+	 *
 	 * @return a JSMedia object
-	 *  
+	 *
 	 */
 	@JSFunction
 	public JSMedia newMedia(String name, byte[] bytes)
@@ -980,7 +980,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Gets the list of all media objects.
-	 * 
+	 *
 	 * @sample
 	 * var mediaList = solutionModel.getMediaList();
 	 * if (mediaList.length != 0 && mediaList != null) {
@@ -988,9 +988,9 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * 		application.output(mediaList[x]);
 	 * 	}
 	 * }
-	 * 
+	 *
 	 * 	@return a list with all the media objects.
-	 * 	
+	 *
 	 */
 	@JSFunction
 	public JSMedia[] getMediaList()
@@ -1015,7 +1015,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * //myField.valuelist = myValueList
 	 *
 	 * @param name the specified name of the valuelist
-	 * 
+	 *
 	 * @return a JSValueList object
 	 */
 	@JSFunction
@@ -1034,12 +1034,12 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Gets an array of all valuelists for the currently active solution.
 	 *
-	 * @sample 
+	 * @sample
 	 * var valueLists = solutionModel.getValueLists();
 	 * if (valueLists != null && valueLists.length != 0)
 	 * 	for (var i in valueLists)
-	 * 		application.output(valueLists[i].name); 
-	 * 
+	 * 		application.output(valueLists[i].name);
+	 *
 	 * @return an array of JSValueList objects
 	 */
 	@JSFunction
@@ -1074,7 +1074,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param name the specified name for the valuelist
 	 *
 	 * @param type the specified number type for the valuelist; may be JSValueList.CUSTOM_VALUES, JSValueList.DATABASE_VALUES, JSValueList.EMPTY_VALUE_ALWAYS, JSValueList.EMPTY_VALUE_NEVER
-	 * 
+	 *
 	 * @return a JSValueList object
 	 */
 	@JSFunction
@@ -1109,19 +1109,19 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Creates a new global variable with the specified name and number type.
-	 * 
+	 *
 	 * NOTE: The global variable number type is based on the value assigned from the SolutionModel-JSVariable node; for example: JSVariable.INTEGER.
 	 *
-	 * @sample 
-	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', JSVariable.INTEGER); 
+	 * @sample
+	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', JSVariable.INTEGER);
 	 * myGlobalVariable.defaultValue = 12;
 	 * //myGlobalVariable.defaultValue = "{a:'First letter',b:'Second letter'}" // an js object, type must be media.
 	 * //myGlobalVariable.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assign a String as default value.
 	 * @param scopeName the scope in which the variable is created
-	 * @param name the specified name for the global variable 
+	 * @param name the specified name for the global variable
 	 *
 	 * @param type the specified number type for the global variable
-	 * 
+	 *
 	 * @return a JSVariable object
 	 */
 	@JSFunction
@@ -1154,14 +1154,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Gets an existing global variable by the specified name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var globalVariable = solutionModel.getGlobalVariable('globals', 'globalVariableName');
 	 * application.output(globalVariable.name + " has the default value of " + globalVariable.defaultValue);
-	 * 
+	 *
 	 * @param scopeName the scope in which the variable is searched
 	 * @param name the specified name of the global variable
-	 * 
-	 * @return a JSVariable 
+	 *
+	 * @return a JSVariable
 	 */
 	@JSFunction
 	public JSVariable getGlobalVariable(String scopeName, String name)
@@ -1177,12 +1177,12 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Gets an array of all scope names used.
-	 * 
+	 *
 	 * @sample
 	 * var scopeNames = solutionModel.getScopeNames();
 	 * for (var name in scopeNames)
 	 * 	application.output(name);
-	 * 
+	 *
 	 * @return an array of String scope names
 	 */
 	@JSFunction
@@ -1194,14 +1194,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Gets an array of all global variables.
-	 * 
+	 *
 	 * @sample
 	 * var globalVariables = solutionModel.getGlobalVariables('globals');
 	 * for (var i in globalVariables)
 	 * 	application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
-	 * 
+	 *
 	 * @return an array of JSVariable type elements
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSVariable[] getGlobalVariables()
@@ -1213,7 +1213,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @clonedesc getGlobalVariables()
 	 * @sampleas getGlobalVariables()
 	 * @param scopeName limit to global vars of specified scope name
-	 * 
+	 *
 	 * @return an array of JSVariable type elements
 	 */
 	@JSFunction
@@ -1240,12 +1240,12 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Creates a new global method with the specified code in a scope.
 	 *
-	 * @sample 
+	 * @sample
 	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){foundset.newRecord()}')
 	 *
 	 * @param scopeName the scope in which the method is created
 	 * @param code the specified code for the global method
-	 * 
+	 *
 	 * @return a JSMethod object
 	 */
 	@JSFunction
@@ -1281,13 +1281,13 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Gets an existing global method by the specified name.
 	 *
-	 * @sample 
-	 * var method = solutionModel.getGlobalMethod('globals', 'nameOfGlobalMethod'); 
+	 * @sample
+	 * var method = solutionModel.getGlobalMethod('globals', 'nameOfGlobalMethod');
 	 * if (method != null) application.output(method.code);
-	 * 
+	 *
 	 * @param scopeName the scope in which the method is searched
 	 * @param name the name of the specified global method
-	 * 
+	 *
 	 * @return a JSMethod
 	 */
 	@JSFunction
@@ -1305,7 +1305,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Get a JSMethod instance with arguments to be assigned to an event.
 	 *
-	 * @sample 
+	 * @sample
 	 * var str = "John's Bookstore"
 	 * var form = solutionModel.getForm('orders')
 	 * var button = form.getButton('abutton')
@@ -1314,11 +1314,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var quotedString = "'"+utils.stringReplace(str, "'", "\\'")+"'"
 	 * // list all arguments the method has, use nulls for fixed arguments (like event)
 	 * button.onAction = solutionModel.wrapMethodWithArguments(method, [null, true, 42, quotedString])
-	 * 
+	 *
 	 * @param method JSMethod to be assigned to an event
-	 * 
+	 *
 	 * @param args positional arguments
-	 * 
+	 *
 	 * @return a JSMethod
 	 */
 	@JSFunction
@@ -1333,14 +1333,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * The list of all global methods.
-	 * 
+	 *
 	 * @sample
-	 * var methods = solutionModel.getGlobalMethods('globals'); 
-	 * for (var x in methods) 
+	 * var methods = solutionModel.getGlobalMethods('globals');
+	 * for (var x in methods)
 	 * 	application.output(methods[x].getName());
-	 * 
+	 *
 	 * @return an array of JSMethod type elements
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSMethod[] getGlobalMethods()
@@ -1368,12 +1368,12 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Creates a new JSRelation Object with a specified name; includes the primary server and table name, foreign server and table name, and the type of join for the new relation.
-	 * 
+	 *
 	 * @deprecated  As of release 6.0, deprecated because of ambigous parameters.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var rel = solutionModel.newRelation('myRelation', myPrimaryServerName, myPrimaryTableName, myForeignServerName, myForeignTableName, JSRelation.INNER_JOIN);
-	 * application.output(rel.getRelationItems()); 
+	 * application.output(rel.getRelationItems());
 	 *
 	 * @param name the specified name of the new relation
 	 *
@@ -1386,7 +1386,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param foreignTableName the specified name of the foreign table
 	 *
 	 * @param joinType the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
-	 * 
+	 *
 	 * @return a JSRelation object
 	 */
 	@Deprecated
@@ -1401,10 +1401,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * Creates a new JSRelation Object with a specified name; includes the primary server and table name, foreign server and table name, and the type of join for the new relation.
 	 *
 	 * @deprecated  As of release 6.0, deprecated because of ambigous parameters.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var rel = solutionModel.newRelation('myRelation', myPrimaryServerName, myPrimaryTableName, myForeignServerName, myForeignTableName, JSRelation.INNER_JOIN);
-	 * application.output(rel.getRelationItems()); 
+	 * application.output(rel.getRelationItems());
 	 *
 	 * @param name the specified name of the new relation
 	 *
@@ -1415,7 +1415,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param foreignDataSourceOrTable the specified name of the foreign server
 	 *
 	 * @param joinType the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
-	 * 
+	 *
 	 * @return a JSRelation object
 	 */
 	@Deprecated
@@ -1435,9 +1435,9 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Creates a new JSRelation Object with a specified name; includes the primary datasource, foreign datasource and the type of join for the new relation.
 	 *
-	 * @sample 
+	 * @sample
 	 * var rel = solutionModel.newRelation('myRelation', myPrimaryDataSource, myForeignDataSource, JSRelation.INNER_JOIN);
-	 * application.output(rel.getRelationItems()); 
+	 * application.output(rel.getRelationItems());
 	 *
 	 * @param name the specified name of the new relation
 	 *
@@ -1446,7 +1446,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param foreignDataSource the specified name of the foreign datasource
 	 *
 	 * @param joinType the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
-	 * 
+	 *
 	 * @return a JSRelation object
 	 */
 	@JSFunction
@@ -1497,16 +1497,16 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Gets an existing relation by the specified name and returns a JSRelation Object.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var relation = solutionModel.getRelation('name');
 	 * application.output("The primary server name is " + relation.primaryServerName);
-	 * application.output("The primary table name is " + relation.primaryTableName); 
-	 * application.output("The foreign table name is " + relation.foreignTableName); 
+	 * application.output("The primary table name is " + relation.primaryTableName);
+	 * application.output("The foreign table name is " + relation.foreignTableName);
 	 * application.output("The relation items are " + relation.getRelationItems());
-	 * 
+	 *
 	 * @param name the specified name of the relation
-	 * 
+	 *
 	 * @return a JSRelation
 	 */
 	@JSFunction
@@ -1545,14 +1545,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Gets an array of all relations; or an array of all global relations if the specified table is NULL.
 	 *
-	 * @sample 
+	 * @sample
 	 * var relations = solutionModel.getRelations('server_name','table_name');
 	 * if (relations.length != 0)
 	 * 	for (var i in relations)
 	 * 		application.output(relations[i].name);
 	 *
 	 * @param datasource the specified name of the datasource for the specified table
-	 * 
+	 *
 	 * @return an array of all relations (all elements in the array are of type JSRelation)
 	 */
 
@@ -1576,7 +1576,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @sampleas getRelations(String)
 	 * @param servername the specified name of the server for the specified table
 	 * @param tablename the specified name of the table
-	 * 
+	 *
 	 * @return an array of all relations (all elements in the array are of type JSRelation)
 	 */
 	@JSFunction
@@ -1615,9 +1615,9 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Gets all the calculations for the given datasource.
-	 * 
+	 *
 	 * @param datasource The datasource the calculations belong to.
-	 * 
+	 *
 	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).getCalculations()
 	 */
 	@Deprecated
@@ -1628,10 +1628,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Get an existing calculation for the given name and datasource.
-	 * 
+	 *
 	 * @param name The name of the calculation
 	 * @param datasource The datasource the calculation belongs to.
-	 * 
+	 *
 	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).getCalculation(name)
 	 */
 	@Deprecated
@@ -1644,10 +1644,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	/**
 	 * Creates a new calculation for the given code, the type will be the column where it could be build on (if name is a column name),
 	 * else it will default to JSVariable.TEXT;
-	 * 
+	 *
 	 * @param code The code of the calculation, this must be a full function declaration.
-	 * @param datasource The datasource this calculation belongs to. 
-	 * 
+	 * @param datasource The datasource this calculation belongs to.
+	 *
 	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).newCalculation(code)
 	 */
 	@Deprecated
@@ -1658,19 +1658,19 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Creates a new calculation for the given code and the type, if it builds on a column (name is a column name) then type will be ignored.
-	 * 
+	 *
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 * @param type The type of the calculation, one of the JSVariable types.
-	 * @param datasource The datasource this calculation belongs to. 
-	 * 
+	 * @param datasource The datasource this calculation belongs to.
+	 *
 	 * @sample
 	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
 	 * var calc2 = solutionModel.newCalculation("function myCalculation2() { return '20'; }", "db:/example_data/customers");
 	 * var calc3 = solutionModel.newCalculation("function myCalculation3() { return 'Hello World!'; }",	JSVariable.TEXT, "db:/example_data/employees");
-	 * 
+	 *
 	 * var c = solutionModel.getCalculation("myCalculation","db:/example_data/customers");
 	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
-	 * 
+	 *
 	 * var allCalcs = solutionModel.getCalculations("db:/example_data/customers");
 	 * for (var i = 0; i < allCalcs.length; i++) {
 	 * 	application.output(allCalcs[i]);
@@ -1690,7 +1690,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS);
-	 * 
+	 *
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.
 	 * @param leftmargin the specified left margin of the page to be printed.
@@ -1744,16 +1744,16 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a font string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * var component = form.getComponent("someComponent")
 	 * component.fontType = solutionModel.createFont('Arial',SM_FONTSTYLE.BOLD,14);
-	 * 
+	 *
 	 * @param name the name of the font
 	 * @param style the style of the font (PLAIN, BOLD, ITALIC or BOLD+ITALIC)
 	 * @param size the font size
-	 * 
+	 *
 	 */
 	@JSFunction
 	public String createFont(String name, int style, int size)
@@ -1764,16 +1764,16 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create an empty border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createEmptyBorder(1,1,1,1);
-	 *  
+	 *
 	 * @param top_width top width of empty border in pixels
 	 * @param right_width right width of empty border in pixels
 	 * @param bottom_width bottom width of empty border in pixels
 	 * @param left_width left width of empty border in pixels
-	 * 
+	 *
 	 */
 	@JSFunction
 	public String createEmptyBorder(int top_width, int right_width, int bottom_width, int left_width)
@@ -1784,15 +1784,15 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create an etched border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createEtchedBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
-	 * 
+	 *
 	 * @param bevel_type bevel border type
 	 * @param highlight_color bevel border highlight color
 	 * @param shadow_color bevel border shadow color
-	 * 
+	 *
 	 */
 	@JSFunction
 	public String createEtchedBorder(int bevel_type, String highlight_color, String shadow_color)
@@ -1811,11 +1811,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a bevel border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createBevelBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00','#ff0000','#00ff00');
-	 * 
+	 *
 	 * @param bevel_type bevel border type (SM_BEVELTYPE.RAISED or SM_BEVELTYPE.LOWERED)
 	 * @param highlight_outer_color bevel border highlight outer color
 	 * @param highlight_inner_color bevel border highlight inner color
@@ -1842,14 +1842,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a line border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createLineBorder(1,'#ff0000');
-	 *  
+	 *
 	 * @param thick border thickness in pixels
 	 * @param color color of the line border
-	 * 
+	 *
 	 */
 	@JSFunction
 	public String createLineBorder(int thick, String color)
@@ -1860,17 +1860,17 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a titled border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createTitledBorder('Test',solutionModel.createFont('Arial',SM_FONTSTYLE.PLAIN,10),'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
-	 * 
+	 *
 	 * @param title_text the text from border
 	 * @param font title text font string
 	 * @param color border color
 	 * @param title_justification title text justification
 	 * @param title_position bevel title text position
-	 * 
+	 *
 	 */
 	@JSFunction
 	public String createTitledBorder(String title_text, String font, String color, int title_justification, int title_position)
@@ -1885,17 +1885,17 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a matte border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createMatteBorder(1,1,1,1,"#00ff00");
-	 *  
+	 *
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
 	 * @param bottom_width bottom width of matte border in pixels
 	 * @param left_width left width of matte border in pixels
 	 * @param color border color
-	 * 
+	 *
 	 */
 	@JSFunction
 	public String createMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
@@ -1906,14 +1906,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a special matte border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * // create a rectangle border (no rounded corners) and continous line
 	 * form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",0,null);
 	 * // create a border with rounded corners and dashed line (25 pixels drawn, then 25 pixels skipped)
 	 * // form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",10,new Array(25,25));
-	 * 
+	 *
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
 	 * @param bottom_width bottom width of matte border in pixels
@@ -1938,7 +1938,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	/**
 	 * Create a special matte border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * // create a rectangle border (no rounded corners) and continous line
@@ -1946,7 +1946,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * // create a border with rounded corners and dashed line (25 pixels drawn, then 25 pixels skipped)
 	 * // rounding_radius is an array of up to 8 numbers, order is: top-left,top-right,bottom-right,bottom-left (repetead twice - for width and height)
 	 * // form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",new Array(10,10,10,10),new Array(25,25));
-	 * 
+	 *
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
 	 * @param bottom_width bottom width of matte border in pixels
