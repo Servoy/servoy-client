@@ -17,8 +17,9 @@ describe('svyButton component', function() {
 					setFormReadOnly: function (formname, readOnly) {
 						
 					},
-					setFormVisibility: function (formname, visibility,relationname) {
-						
+					showForm: function(formname,relationname,formIndex) {
+					},
+					hideForm: function(formname,relationname,formIndex) {
 					},
 					getFormUrl: function (formId) {
 						

@@ -77,25 +77,13 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        }
        
        function setFormVisible(tab,event) {
-    	   if (!$scope.waitingForServerVisibility[tab.containsFormId])
-    	   {
-    		   var formInWait = tab.containsFormId;
-       		   $scope.waitingForServerVisibility[formInWait] = true;
-    		   var promise = $scope.svyServoyapi.setFormVisibility(tab.containsFormId,true, tab.relationName);
-    		   promise.then(function(ok) {
-    			   delete $scope.waitingForServerVisibility[formInWait];
-    			   if (ok){
-    				   if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
-    				   {
-    					   $scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event instanceof MouseEvent ? event : null);
-    				   }   			
-    				   $scope.model.selectedTab = tab;
-    				   $scope.model.tabIndex = $scope.getTabIndex($scope.model.selectedTab);
-    			   } else {
-    				   // will this ever happen?
-    			   }
-    		   });
-    	   }
+    	   $scope.svyServoyapi.showForm(tab.containsFormId, tab.relationName);
+		   if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
+		   {
+			   $scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event instanceof MouseEvent ? event : null);
+		   }   			
+		   $scope.model.selectedTab = tab;
+		   $scope.model.tabIndex = $scope.getTabIndex($scope.model.selectedTab);
        }
 
        $scope.getTabIndex = function(tab) {
@@ -117,7 +105,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
         	{
         		var formInWait = $scope.model.selectedTab.containsFormId;
         		$scope.waitingForServerVisibility[formInWait] = true;
-        		var promise =  $scope.svyServoyapi.setFormVisibility($scope.model.selectedTab.containsFormId,false);
+        		var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId);
         		promise.then(function(ok) {
         			delete $scope.waitingForServerVisibility[formInWait];
         			if (ok) {

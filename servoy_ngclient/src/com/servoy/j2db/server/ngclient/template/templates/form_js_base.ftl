@@ -75,9 +75,13 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 
 	var servoyApi = function(beanname) {
 		return {
-			setFormVisibility: function(formname, visibility,relationname,formIndex) {
+			showForm: function(formname,relationname,formIndex) {
+				// first just touch the form here so it doesn't happen later on again.
 				$windowService.touchForm(formname)
-				return $servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:visibility,parentForm:$scope.formname,bean:beanname,relation:relationname,formIndex:formIndex})
+				$servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:$scope.formname,bean:beanname,relation:relationname,formIndex:formIndex}, true);
+			},
+			hideForm: function(formname,relationname,formIndex) {
+				return $servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:$scope.formname,bean:beanname,relation:relationname,formIndex:formIndex});
 			},
 			setFormEnabled: function(formname, enabled) {
 				$servoyInternal.callService('formService', 'formenabled', {formname:formname,enabled:enabled},true)

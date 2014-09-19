@@ -17,8 +17,9 @@ describe('svyTabpanel component', function() {
 					setFormReadOnly: function (formname, readOnly) {
 						
 					},
-					setFormVisibility: function (formname, visibility,relationname) {
-						
+					showForm: function(formname,relationname,formIndex) {
+					},
+					hideForm: function(formname,relationname,formIndex) {
 					},
 					getFormUrl: function (formId) {
 						
@@ -109,8 +110,8 @@ describe('svyTabpanel component', function() {
     		  }, 100)    		  
     		  return defered .promise
 			}    	  
-    	  
-    	  $scope.handlers.tabs.svy_servoyApi.setFormVisibility = dellayedOkPromise;    	  
+    	  	$scope.handlers.tabs.svy_servoyApi.showForm = dellayedOkPromise;    
+			$scope.handlers.tabs.svy_servoyApi.hideForm = dellayedOkPromise; 
   	  })
 	});
     
