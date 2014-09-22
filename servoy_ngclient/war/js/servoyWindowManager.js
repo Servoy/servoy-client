@@ -127,11 +127,21 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
        return {x:left,y:top}
     };
     
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $servoyInternal,webStorage,WindowType) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $servoyInternal,webStorage,WindowType) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
 	var sol = $solutionSettings.solutionName+'.'
+	
+	// track main app window size change
+	var mwResizeTimeoutID;
+	$window.addEventListener('resize',function() { 
+		if(mwResizeTimeoutID) $timeout.cancel(mwResizeTimeoutID);
+		mwResizeTimeoutID = $timeout( function() {
+			$servoyInternal.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
+		}, 500);
+	});
+	
 	return {
 		create: function (name,type){
 			// dispose old one

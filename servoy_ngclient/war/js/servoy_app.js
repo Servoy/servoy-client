@@ -345,6 +345,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   $solutionSettings.windowName = msg.windowid;
 				   webStorage.session.add("windowid",msg.windowid);
 			   }
+			   // update the main app window with the right size
+			   wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
+			   
 		   } finally {
 			   ignoreChanges = false;
 		   }
@@ -498,22 +501,24 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
     	  if($attrs['svyLayoutUpdate'].length == 0) {
     		  compModel = $scope.formProperties;
     	  } else {
-    		  compModel = $scope.model[$attrs['svyLayoutUpdate']];
+    		  //compModel = $scope.model[$attrs['svyLayoutUpdate']];
     	  }
     	  if (!compModel) return; // not found, maybe a missing bean
 
-    	  if(($attrs['svyLayoutUpdate'].length == 0) || (compModel.anchors !== undefined)) {
+    	  if(($attrs['svyLayoutUpdate'].length == 0) || compModel.anchors) {
         	  var resizeTimeoutID = null;
         	  $window.addEventListener('resize',function() { 
         		  if(resizeTimeoutID) $timeout.cancel(resizeTimeoutID);
         		  resizeTimeoutID = $timeout( function() {
-        			  if(compModel.location) {
-        				  compModel.location.x = $element.prop('offsetLeft');
-        				  compModel.location.y = $element.prop('offsetTop');
-        			  }
-        			  if(compModel.size) {
-            			  compModel.size.width = $element.prop('offsetWidth');
-            			  compModel.size.height = $element.prop('offsetHeight');  
+        			  if(compModel.visible) {
+	        			  if(compModel.location) {
+	        				  compModel.location.x = $element.offset().left;
+	        				  compModel.location.y = $element.offset().top;
+	        			  }
+	        			  if(compModel.size) {
+	            			  compModel.size.width = $element.width();
+	            			  compModel.size.height = $element.height();  
+	        			  }
         			  }
         		  }, 1000);
         	  });

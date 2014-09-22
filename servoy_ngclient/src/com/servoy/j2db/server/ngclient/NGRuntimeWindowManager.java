@@ -90,11 +90,11 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 			}
 			case "resize" :
 			{
-				String windowName = args.optString("name");
+				String windowName = args.has("name") ? args.optString("name") : null;
 				JSONObject size = args.optJSONObject("size");
-				if (windowName != null && size != null)
+				if (size != null)
 				{
-					NGRuntimeWindow window = getWindow(windowName);
+					NGRuntimeWindow window = windowName == null ? (NGRuntimeWindow)getMainApplicationWindow() : getWindow(windowName);
 					window.updateSize(size.optInt("width"), size.optInt("height"));
 				}
 				break;
@@ -182,6 +182,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 	{
 		String windowsUUID = UUID.randomUUID().toString();
 		mainApplicationWindow = createWindow(windowsUUID, JSWindow.WINDOW, null);
+		mainApplicationWindow.setLocation(0, 0); //default values, that never change
 		setCurrentWindowName(windowsUUID);
 		return windowsUUID;
 	}
