@@ -573,15 +573,17 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         					  backgroundImage:''}
         	
         	scope.$watch(attrs.svyImagemediaid,function(newVal){
+        		// the value from model may be incorrect so take value from ui
+        		var componentSize = {width: element.offsetParent().offsetParent()[0].offsetWidth,height: element.offsetParent().offsetParent()[0].offsetHeight};
         		var image = null;
          		  var mediaOptions = scope.$eval('model.mediaOptions');
         		if(newVal.rollOverImg){ 
-        		  rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, newVal.componentSize);
+        		  rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, componentSize);
         		}else {
         		  rollOverImgStyle = null
         		}
         		if(newVal.img){
-        		  imgStyle =parseImageOptions( newVal.img, mediaOptions, newVal.componentSize)
+        		  imgStyle =parseImageOptions( newVal.img, mediaOptions, componentSize)
           		  element.css(imgStyle)
         		}else {
         		  imgStyle = null;
