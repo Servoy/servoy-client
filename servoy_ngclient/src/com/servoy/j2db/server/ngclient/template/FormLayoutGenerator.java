@@ -69,7 +69,7 @@ public class FormLayoutGenerator
 		if (form.getStyleClass() != null)
 		{
 			writer.print(" class=\"");
-			writer.print("form.getStyleClass()");
+			writer.print(form.getStyleClass());
 			writer.print("\"");
 		}
 		writer.println(">");
