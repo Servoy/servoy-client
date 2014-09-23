@@ -259,12 +259,14 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
         			$solutionSettings.mainForm = form;
         			$solutionSettings.navigatorForm = navigatorForm;
         		}
+        		if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		setTitle: function(name,title) {
 				if(instances[name] && instances[name].type!= WindowType.WINDOW){
 					instances[name].title =title;
 	    		}else{
 	    			$solutionSettings.solutionTitle = title;
+	    			if (!$rootScope.$$phase) $rootScope.$digest();
 	    		}
 		},
 		setInitialBounds:function(name,initialBounds){
@@ -331,11 +333,13 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				eval(controllerCode);
 				formTemplateUrls[formName] = realFormUrl;
 				if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
+				if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		touchForm: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
 					formTemplateUrls[formName] = "";
+					if (!$rootScope.$$phase) $rootScope.$digest();
 			}
 		},
  		getFormUrl: function(formName) {

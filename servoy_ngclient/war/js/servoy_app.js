@@ -617,6 +617,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			if(sessionExpired.viewUrl)	exp.viewUrl= sessionExpired.viewUrl;
 
 			$solutionSettings.sessionExpired = exp;
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		setNoLicense: function (noLicense){
 			var noLic = {
@@ -629,6 +630,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			if(noLicense.redirectTimeout) noLic.redirectTimeout = noLicense.redirectTimeout;
 
 			$solutionSettings.noLicense = noLic;
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		setMaintenanceMode: function (maintenanceMode){
 			var ment = {
@@ -641,13 +643,15 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			if(msg.maintenanceMode.redirectTimeout)	ment.redirectTimeout = maintenanceMode.redirectTimeout;
 
 			$solutionSettings.maintenanceMode = ment;
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		setInternalServerError: function(internalServerError){
 			var error = {viewUrl:'templates/serverInternalErrorView.html'}
 			if(internalServerError.viewUrl)  error.viewUrl = internalServerError.viewUrl;
 			if(internalServerError.stack) error.stack = internalServerError.stack;
 
-			$solutionSettings.internalServerError = error;					
+			$solutionSettings.internalServerError = error;		
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		}
 	}
 }])
@@ -664,6 +668,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	return {
 		setStyleSheet: function(path) {
 			$solutionSettings.styleSheetPath = path;
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		getUserProperty: function(key) {
 			var json = webStorage.local.get("userProperties");

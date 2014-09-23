@@ -73,11 +73,11 @@ webSocketModule.factory('$webSocket',
 							var serviceInstance = $injector.get(service.name);
 							if (serviceInstance
 									&& serviceInstance[service.call]) {
-								// responseValue keeps last services call return
-								// value
-								$rootScope.$apply(function() { 
-									responseValue = serviceInstance[service.call].apply(serviceInstance, service.args);
-								});
+								// responseValue keeps last services call return value
+								responseValue = serviceInstance[service.call].apply(serviceInstance, service.args);
+//								$rootScope.$apply(function() { 
+//									responseValue = serviceInstance[service.call].apply(serviceInstance, service.args);
+//								});
 							}
 						}
 					}
