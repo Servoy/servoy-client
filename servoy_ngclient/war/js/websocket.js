@@ -27,22 +27,34 @@ webSocketModule.factory('$webSocket',
 
 					// data got back from the server
 					if (obj.cmsgid) { // response to event
+						var deferredEvent = deferredEvents[obj.cmsgid];
 						if (obj.exception) {
 							// something went wrong
 							if (obj.conversions && obj.conversions.exception) {
 								obj.exception = $sabloConverters.convertFromServerToClient(obj.exception, obj.conversions.exception)
 							}
-							$rootScope.$apply(function() {
-								deferredEvents[obj.cmsgid]
-										.reject(obj.exception);
-							})
+							if (deferredEvent.scope) {
+								deferredEvent.deferred.reject(obj.exception);
+								deferredEvent.scope.$digest();
+							}
+							else {
+								$rootScope.$apply(function() {
+									deferredEvent.deferred.reject(obj.exception);
+								})
+							}
 						} else {
 							if (obj.conversions && obj.conversions.ret) {
 								obj.ret = $sabloConverters.convertFromServerToClient(obj.ret, obj.conversions.ret)
 							}
-							$rootScope.$apply(function() {
-								deferredEvents[obj.cmsgid].resolve(obj.ret);
-							})
+							if (deferredEvent.scope) {
+								deferredEvent.deferred.resolve(obj.ret);
+								deferredEvent.scope.$digest();
+							}
+							else {
+								$rootScope.$apply(function() {
+									deferredEvent.deferred.resolve(obj.ret);
+								})
+							}
 						}
 						delete deferredEvents[obj.cmsgid];
 					}
@@ -96,11 +108,11 @@ webSocketModule.factory('$webSocket',
 				websocket.send(JSON.stringify(obj))
 			}
 
-			var sendDeferredMessage = function(obj) {
+			var sendDeferredMessage = function(obj,scope) {
 				// TODO: put cmsgid and obj in envelope
 				var deferred = $q.defer();
 				var cmsgid = getNextMessageId()
-				deferredEvents[cmsgid] = deferred;
+				deferredEvents[cmsgid] = {deferred:deferred,scope:scope}
 				var cmd = obj || {}
 				cmd.cmsgid = cmsgid
 				sendMessageObject(cmd)

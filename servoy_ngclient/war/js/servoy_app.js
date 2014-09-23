@@ -427,7 +427,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					   }
 					   var cmd = {cmd:'event',formname:formName,beanname:beanName,event:eventName,args:newargs,changes:data}
 					   if (rowId) cmd.rowId = rowId
-					   return getSession().sendDeferredMessage(cmd)
+					   return getSession().sendDeferredMessage(cmd,formStates[formName])
 				   },
 			   }
 		   },
