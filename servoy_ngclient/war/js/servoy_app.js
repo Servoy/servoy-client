@@ -329,10 +329,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					   }
 					   return;
 				   }
-
-				   return $rootScope.$apply(function() {
+				   try {
 					   return func.apply(funcThis, call.args)
-				   })
+				   } finally {
+					   formState.$digest();
+				   }
 			   }
 			   if (msg.sessionid) {
 				   webStorage.session.add("sessionid",msg.sessionid);
