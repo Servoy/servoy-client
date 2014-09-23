@@ -411,8 +411,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   applyBeanData(model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo)
 			   }
 
-
-			   $rootScope.updatingFormUrl = '';
 			   return state;
 		   },
 
@@ -540,9 +538,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			return $windowService.getFormUrl($solutionSettings.navigatorForm.templateURL);
 		}
 		return $solutionSettings.navigatorForm.templateURL;
-	}	
-	$rootScope.updatingFormUrl = '';
-	
+	}
+
 	$scope.getSessionProblemView = function(){
 		if($solutionSettings.noLicense) return $solutionSettings.noLicense.viewUrl;
 		if($solutionSettings.maintenanceMode) return $solutionSettings.maintenanceMode.viewUrl;

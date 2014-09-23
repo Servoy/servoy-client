@@ -1000,7 +1000,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		}
 		return false
 	}	
-}).directive('svyFormload',  function ($timeout, $servoyInternal) {
+}).directive('svyFormload',  function ($timeout, $servoyInternal, $windowService, $rootScope) {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
@@ -1010,6 +1010,9 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 				// NOTE: this call cannot be make as a service call, as a service call may
 				// already be blocked and waiting for the formload event
 				$servoyInternal.sendRequest({cmd:'formloaded',formname:formname})
+				if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
+					$rootScope.updatingFormUrl = '';
+				}
 				scope.formProperties.size.width = element.prop('offsetWidth');
 				scope.formProperties.size.height = element.prop('offsetHeight');
 			},0);
