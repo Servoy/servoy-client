@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -325,7 +326,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	/**
 	 * @return
 	 */
-	public List<IFormElement> getFlattenedObjects()
+	public List<IFormElement> getFlattenedObjects(Comparator< ? > comparator)
 	{
 		List<IFormElement> flattenedPersists = new ArrayList<IFormElement>();
 		Iterator<IPersist> it = getAllObjects();
@@ -334,14 +335,14 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 			IPersist persist = it.next();
 			if (persist instanceof LayoutContainer)
 			{
-				flattenedPersists.addAll(((LayoutContainer)persist).getFlattenedObjects());
+				flattenedPersists.addAll(((LayoutContainer)persist).getFlattenedObjects(comparator));
 			}
 			else if (persist instanceof IFormElement)
 			{
 				flattenedPersists.add((IFormElement)persist);
 			}
 		}
-		return new SortedList<IFormElement>(Form.FORM_INDEX_COMPARATOR, flattenedPersists);
+		return new SortedList<IFormElement>(comparator, flattenedPersists);
 	}
 
 }
