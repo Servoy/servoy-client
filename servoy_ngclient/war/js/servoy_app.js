@@ -484,7 +484,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         	element.on('click', function(event) {
         		if (event.target.tagName.toLowerCase() == 'div')
         		{
-           		   $servoyInternal.callService("applicationServerService", "autosave", true);
+           		   $servoyInternal.callService("applicationServerService", "autosave",{}, true);
         		}
         	});
         }
