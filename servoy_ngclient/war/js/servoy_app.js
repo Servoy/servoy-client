@@ -345,13 +345,14 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   $solutionSettings.windowName = msg.windowid;
 				   webStorage.session.add("windowid",msg.windowid);
 			   }
-			   // update the main app window with the right size
-			   wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
-			   
 		   } finally {
 			   ignoreChanges = false;
 		   }
 	   };
+	   
+	   // update the main app window with the right size
+	   wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
+	   
 	   }
 	   function getSession() {
 		   if (wsSession == null) throw "Session is not created yet, first call connect()";
