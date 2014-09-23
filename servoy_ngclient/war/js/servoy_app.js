@@ -350,8 +350,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 	   };
 	   
-	   // update the main app window with the right size
-	   wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
+	   wsSession.onopen = function(evt) {
+		   // update the main app window with the right size
+		   wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);  
+	   };
 	   
 	   }
 	   function getSession() {
