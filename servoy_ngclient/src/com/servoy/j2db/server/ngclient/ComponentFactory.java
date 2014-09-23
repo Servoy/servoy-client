@@ -95,45 +95,52 @@ public class ComponentFactory
 			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{
-				int valuelistID = Utils.getAsInteger(fe.getPropertyValue(vlProp.getName()));
+				ValueList val = null;
+				Object propertyValue = fe.getPropertyValue(vlProp.getName());
+				int valuelistID = Utils.getAsInteger(propertyValue);
 				if (valuelistID > 0)
 				{
-					ValueList val = application.getFlattenedSolution().getValueList(valuelistID);
-					if (val != null)
+					val = application.getFlattenedSolution().getValueList(valuelistID);
+				}
+				else
+				{
+					UUID uuid = Utils.getAsUUID(propertyValue, false);
+					if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+				}
+				if (val != null)
+				{
+					IValueList valueList;
+					switch (val.getValueListType())
 					{
-						IValueList valueList;
-						switch (val.getValueListType())
-						{
-							case IValueListConstants.GLOBAL_METHOD_VALUES :
-								valueList = new GlobalMethodValueList(application, val);
-								break;
-							case IValueListConstants.CUSTOM_VALUES :
-								String dataproviderID = (String)fe.getPropertyValue((String)vlProp.getConfig());
-								String format = null;
-								if (dataproviderID != null)
+						case IValueListConstants.GLOBAL_METHOD_VALUES :
+							valueList = new GlobalMethodValueList(application, val);
+							break;
+						case IValueListConstants.CUSTOM_VALUES :
+							String dataproviderID = (String)fe.getPropertyValue((String)vlProp.getConfig());
+							String format = null;
+							if (dataproviderID != null)
+							{
+								Map<String, PropertyDescription> properties = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
+								for (PropertyDescription pd : properties.values())
 								{
-									Map<String, PropertyDescription> properties = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
-									for (PropertyDescription pd : properties.values())
+									// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
+									if (vlProp.getConfig().equals(pd.getConfig()))
 									{
-										// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
-										if (vlProp.getConfig().equals(pd.getConfig()))
-										{
-											format = (String)fe.getPropertyValue(pd.getName());
-											break;
-										}
+										format = (String)fe.getPropertyValue(pd.getName());
+										break;
 									}
 								}
-								ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
-									application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
-								valueList = new CustomValueList(application, val, val.getCustomValues(),
-									(val.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS), fieldFormat.dpType, fieldFormat.parsedFormat);
-								break;
-							default :
-								valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val)
-									: new DBValueList(application, val);
-						}
-						webComponent.setProperty(vlProp.getName(), valueList);
+							}
+							ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
+								application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
+							valueList = new CustomValueList(application, val, val.getCustomValues(),
+								(val.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS), fieldFormat.dpType, fieldFormat.parsedFormat);
+							break;
+						default :
+							valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val)
+								: new DBValueList(application, val);
 					}
+					webComponent.setProperty(vlProp.getName(), valueList);
 				}
 				else
 				{
