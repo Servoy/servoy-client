@@ -213,7 +213,7 @@ public class FormWrapper
 			excludedComponents = getBodyComponents();
 		}
 
-		List<IFormElement> persists = form.getFlattenedObjects();
+		List<IFormElement> persists = form.getFlattenedObjects(Form.FORM_INDEX_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
 			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid(persist))
@@ -249,7 +249,7 @@ public class FormWrapper
 
 		int startPos = form.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		List<IFormElement> persists = form.getFlattenedObjects();
+		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
