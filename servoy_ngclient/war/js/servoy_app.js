@@ -487,7 +487,225 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         	});
         }
       };
-}).directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
+}).directive('svyImagemediaid',  function ($utils,$parse,$timeout) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {     
+        	
+        	var rollOverImgStyle = null; 
+        	var imgStyle = null;
+        	var clearStyle ={ width:'0px',
+        					  height:'0px',
+        					  backgroundImage:''}
+        	
+        	scope.$watch(attrs.svyImagemediaid,function(newVal){
+        		// the value from model may be incorrect so take value from ui
+        		var setImageStyle = function(){
+        			var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+            		var image = null;
+             		  var mediaOptions = scope.$eval('model.mediaOptions');
+            		if(newVal.rollOverImg){ 
+            		  rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, componentSize);
+            		}else {
+            		  rollOverImgStyle = null
+            		}
+            		if(newVal.img){
+            		  imgStyle =parseImageOptions( newVal.img, mediaOptions, componentSize)
+              		  element.css(imgStyle)
+            		}else {
+            		  imgStyle = null;
+            		} 	
+        		}
+        		if (element[0].parentNode.parentNode.offsetWidth >0 && element[0].parentNode.parentNode.offsetHeight >0)
+        		{
+        			//dom is ready
+        			setImageStyle();
+        		}
+        		else
+        		{
+        			$timeout(setImageStyle,200);
+        		}
+        	}, true)
+        	
+        	
+       	function parseImageOptions(image,mediaOptions ,componentSize){
+        	  var bgstyle = {};
+        	  bgstyle['background-image'] = "url('" + image + "')"; 
+       		  bgstyle['background-repeat'] = "no-repeat";
+       		  bgstyle['background-position'] = "left";
+       		  bgstyle['display'] = "inline-block";
+       		  bgstyle['vertical-align'] = "middle"; 
+       		  if(mediaOptions == undefined) mediaOptions = 14; // reduce-enlarge & keep aspect ration
+       		  var mediaKeepAspectRatio = mediaOptions == 0 || ((mediaOptions & 8) == 8);
+
+       		  // default  img size values
+       		  var imgWidth = 16;
+       		  var imgHeight = 16;
+       		  
+       		  if (image.indexOf('imageWidth=') > 0 && image.indexOf('imageHeight=') > 0)
+       		  {
+       			  var vars = {};
+       			  var parts = image.replace(/[?&]+([^=&]+)=([^&]*)/gi,    
+       					  function(m,key,value) {
+       				  vars[key] = value;
+       			  });
+       			  imgWidth = vars['imageWidth'];
+       			  imgHeight = vars['imageHeight'];
+       		  }
+       		  
+       		  var widthChange = imgWidth / componentSize.width;
+       		  var heightChange = imgHeight / componentSize.height;
+       		  
+       		  if (widthChange > 1.01 || heightChange > 1.01 || widthChange < 0.99 || heightChange < 0.99) // resize needed
+       		  {
+ 						if ((mediaOptions & 6) == 6) // reduce-enlarge
+	    				{
+	    					if (mediaKeepAspectRatio)
+	    					{
+	    						if (widthChange > heightChange)
+	    						{
+	    							imgWidth = imgWidth / widthChange;
+	    							imgHeight = imgHeight / widthChange;
+	    						}
+	    						else
+	    						{
+	    							imgWidth = imgWidth / heightChange;
+	    							imgHeight = imgHeight / heightChange;
+	    						}
+	    					}
+	    					else
+	    					{
+	    						imgWidth = componentSize.width;
+	    						imgHeight = componentSize.height;
+	    					}
+	    				}        			  
+	  					else if ((mediaOptions & 2) == 2) // reduce
+   					{
+   						if (widthChange > 1.01 && heightChange > 1.01)
+   						{
+   							if (mediaKeepAspectRatio)
+   							{
+   								if (widthChange > heightChange)
+   								{
+   									imgWidth = imgWidth / widthChange;
+   									imgHeight = imgHeight / widthChange;
+   								}
+   								else
+   								{
+   									imgWidth = imgWidth / heightChange;
+   									imgHeight = imgHeight / heightChange;
+   								}
+   							}
+   							else
+   							{
+	    						imgWidth = componentSize.width;
+	    						imgHeight = componentSize.height;
+   							}
+   						}
+   						else if (widthChange > 1.01)
+   						{
+   							imgWidth = imgWidth / widthChange;
+   							if (mediaKeepAspectRatio)
+   							{
+   								imgHeight = imgHeight / widthChange;
+   							}
+   							else
+   							{
+	    						imgHeight = componentSize.height;
+   							}
+   						}
+   						else if (heightChange > 1.01)
+   						{
+   							imgHeight = imgHeight / heightChange;
+   							if (mediaKeepAspectRatio)
+   							{
+   								imgWidth = imgWidth / heightChange;
+   							}
+   							else
+   							{
+	    						imgWidth = componentSize.width;
+   							}
+   						}
+   					}
+   					else if ((mediaOptions & 4) == 4) // enlarge
+   					{
+   						if (widthChange < 0.99 && heightChange < 0.99)
+   						{
+   							if (mediaKeepAspectRatio)
+   							{
+   								if (widthChange > heightChange)
+   								{
+   									imgWidth = imgWidth / widthChange;
+   									imgHeight = imgHeight / widthChange;
+   								}
+   								else
+   								{
+   									imgWidth = imgWidth / heightChange;
+   									imgHeight = imgHeight / heightChange;
+   								}
+   							}
+   							else
+   							{
+	    						imgWidth = componentSize.width;
+	    						imgHeight = componentSize.height;
+   							}
+   						}
+   						else if (widthChange < 0.99)
+   						{
+   							imgWidth = imgWidth / widthChange;
+   							if (mediaKeepAspectRatio)
+   							{
+   								imgHeight = imgHeight / widthChange;
+   							}
+   							else
+   							{
+	    						imgHeight = componentSize.height;
+   							}
+   						}
+   						else if (heightChange < 0.99)
+   						{
+   							imgHeight = imgHeight / heightChange;
+   							if (mediaKeepAspectRatio)
+   							{
+   								imgWidth = imgWidth / heightChange;
+   							}
+   							else
+   							{
+	    						imgWidth = componentSize.width;
+   							}
+   						}
+   					}
+       		  }	  
+       		  
+       		  bgstyle['background-size'] = mediaKeepAspectRatio ? "contain" : "100% 100%";
+   			  bgstyle['width'] = Math.round(imgWidth) + "px";
+       		  bgstyle['height'] = Math.round(imgHeight) + "px";
+        		        		
+       		  return bgstyle;
+        	}
+        	//get component root node
+        	var componentRoot =null;
+        	componentRoot= element;
+        	while(componentRoot.isolateScope()  == null){
+        		componentRoot = componentRoot.parent()
+        	}
+        	componentRoot.hover(function(){
+        		//over
+        		if(rollOverImgStyle){
+        			element.css(rollOverImgStyle)
+        		}
+        	},function(){
+        		//out
+        		if(imgStyle){
+        			element.css(imgStyle)
+        		}else{
+        			element.css(clearStyle)
+        		}        		
+        	})
+         }
+    }
+})
+.directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
     return {
       restrict: 'A', // only activate on element attribute
       controller: function($scope, $element, $attrs) {
