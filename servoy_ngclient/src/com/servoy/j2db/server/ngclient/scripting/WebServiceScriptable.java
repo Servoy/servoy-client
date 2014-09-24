@@ -75,6 +75,8 @@ public class WebServiceScriptable implements Scriptable
 			}
 			context.setGeneratingSource(false);
 			Script script = context.compileString(Utils.getURLContent(serverScript), name, 1, null);
+			//TODO can this be done if the context did already exisit (so this call comes from inside a scripting call)
+			// should we just take the toplevel scope of the scriptengine?
 			ScriptableObject topLevel = context.initStandardObjects();
 			Scriptable scopeObject = context.newObject(topLevel);
 			apiObject = context.newObject(topLevel);
