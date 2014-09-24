@@ -18,7 +18,9 @@
 package com.servoy.j2db.debug;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.sablo.eventthread.WebsocketSessionEndpoints;
@@ -38,7 +40,7 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
-import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.ILogLevel;
 
@@ -166,9 +168,13 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		if (scopesAndFormsToReload[1].size() > 0)
 		{
 			ComponentFactory.reload();
+			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			for (IFormController controller : scopesAndFormsToReload[1])
 			{
-				((WebFormUI)controller.getFormUI()).init();
+				boolean isVisible = controller.isFormVisible();
+				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables);
+				((WebFormController)controller).initFormUI();
+				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables);
 			}
 			WebsocketSessionEndpoints allendpoints = new WebsocketSessionEndpoints(getWebsocketSession());
 			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null, null);
