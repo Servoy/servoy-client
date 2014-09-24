@@ -66,6 +66,12 @@ public class FormLayoutStructureGenerator
 		writer.print("<");
 		writer.print(container.getTagType());
 		writer.print(" ");
+		if (design)
+		{
+			writer.print(" svy-id='");
+			writer.print(container.getUUID().toString());
+			writer.print("'");
+		}
 		if (container.getElementId() != null)
 		{
 			writer.print("id='");
