@@ -472,11 +472,14 @@ public class ComponentFactory
 			try
 			{
 				String name = "svy_lvp_" + form.getName();
+				int startPos = form.getPartStartYPos(bodyPart.getID());
+				int endPos = bodyPart.getHeight();
+				int bodyheight = endPos - startPos;
 
 				JSONObject portal = new JSONObject();
 				portal.put("name", name);
 				portal.put("multiLine", true);
-				portal.put("rowHeight", bodyPart.getHeight());
+				portal.put("rowHeight", bodyheight);
 				portal.put("anchors", IAnchorConstants.ALL);
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
@@ -484,7 +487,7 @@ public class ComponentFactory
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
 				size.put("width", form.getWidth());
-				size.put("height", bodyPart.getHeight());
+				size.put("height", bodyheight);
 				portal.put("size", size);
 				portal.put("visible", listViewPortal.getVisible());
 				portal.put("enabled", listViewPortal.getEnabled());
@@ -509,8 +512,6 @@ public class ComponentFactory
 
 				Map<String, Object> portalFormElementProperties = new HashMap<>(portalFormElement.getRawPropertyValues());
 				// now put real child component form element values in "childElements"
-				int startPos = form.getPartStartYPos(bodyPart.getID());
-				int endPos = bodyPart.getHeight();
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
 				propertyPath.add(portalFormElement.getName());

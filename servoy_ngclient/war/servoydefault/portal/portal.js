@@ -134,11 +134,13 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  
     	  $scope.pagingOptions = {
     			  pageSizes: [1, 5, 10, 20, 50, 100, 200, 500, 1000],
-    			  pageSize: 1,
+    			  pageSize: -1,
     			  currentPage: 1
     	  };
     	  
     	  function getCurrentPage() {
+    		  //pagesize not yet initialized
+    		  if ($scope.pagingOptions.pageSize < 0) return 1;
     		  // if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
     		  var currentPage = Math.floor(foundset.viewPort.startIndex / $scope.pagingOptions.pageSize) + 1;
     		  if (foundset.viewPort.size > 0 && foundset.viewPort.startIndex % $scope.pagingOptions.pageSize !== 0) {
@@ -155,8 +157,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  };
     	  
     	  function updatePageCount() {
+    		  if ($scope.pagingOptions.pageSize <0) return;
     		  var count = Math.ceil(foundset.serverSize / $scope.pagingOptions.pageSize);
-
     		  // for example if you have 5 per page, viewPort startIndex 5, size 5 (so page 2), foundset size 1000
     		  // and then on server records 3-4 get deleted, you will end up with viewPort startIndex 3, size 5
     		  // because the viewPort property type tries to follow the first record; we want to do the same
