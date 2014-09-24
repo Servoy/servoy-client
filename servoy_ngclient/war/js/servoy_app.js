@@ -740,6 +740,24 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
     	  }
       }
     };   
+}).directive('svyFormload',  function ($timeout, $servoyInternal, $windowService, $rootScope) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	var formname = scope.formname;
+			$timeout(function() {
+				// notify that the form has been loaded
+				// NOTE: this call cannot be make as a service call, as a service call may
+				// already be blocked and waiting for the formload event
+				$servoyInternal.sendRequest({cmd:'formloaded',formname:formname})
+				if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
+					$rootScope.updatingFormUrl = '';
+				}
+				scope.formProperties.size.width = element.prop('offsetWidth');
+				scope.formProperties.size.height = element.prop('offsetHeight');
+			},0);
+        }
+      }
 }).value("$solutionSettings",  {
 	mainForm: {},
 	navigatorForm: {width:0},
