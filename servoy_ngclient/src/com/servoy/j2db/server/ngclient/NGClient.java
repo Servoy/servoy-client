@@ -121,7 +121,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
 	 */
 	@Override
@@ -133,7 +133,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
 	 */
 	@Override
@@ -313,7 +313,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#getFormManager()
 	 */
 	@Override
@@ -733,19 +733,22 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public synchronized void shutDown(boolean force)
 	{
 		super.shutDown(force);
-		if (scheduledExecutorService != null)
+		if (isShutDown())
 		{
-			scheduledExecutorService.shutdownNow();
-			try
+			if (scheduledExecutorService != null)
 			{
-				scheduledExecutorService.awaitTermination(10, TimeUnit.SECONDS);
+				scheduledExecutorService.shutdownNow();
+				try
+				{
+					scheduledExecutorService.awaitTermination(10, TimeUnit.SECONDS);
+				}
+				catch (InterruptedException e)
+				{
+				}
+				scheduledExecutorService = null;
 			}
-			catch (InterruptedException e)
-			{
-			}
-			scheduledExecutorService = null;
+			getWebsocketSession().closeSession();
 		}
-		getWebsocketSession().closeSession();
 	}
 
 	private transient Object[] adsInfo = null;//cache to expensive to get each time
