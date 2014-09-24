@@ -1,18 +1,18 @@
 angular.module('testservice',['servoy'])
 .factory("testservice",function($window,$services) {
-	var state = $services.getServiceState('testservice');
+	var scope = $services.getServiceScope('testservice');
 	return {
 		talk: function() {
-			alert("talk: " + state.text);
-			state.text = "something else"
+			alert("talk: " + scope.model.text);
+			scope.model.text = "something else"
 		}
 	}
 })
 .run(function($rootScope,$services)
 {
-	var scope = $rootScope.$new(true);
-	scope.state = $services.getServiceState('testservice');
-	scope.$watch('state', function(newvalue,oldvalue) {
+	var scope = $services.getServiceScope('testservice')
+	scope.$watch('model', function(newvalue,oldvalue) {
 		// handle state changes
+		console.log(newvalue)
 	}, true);
 })

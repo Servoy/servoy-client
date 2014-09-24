@@ -60,7 +60,7 @@ webSocketModule.factory('$webSocket',
 					}
 
 					if (obj.msg && obj.msg.services) {
-						$services.updateStates(obj.msg.services, (obj.conversions && obj.conversions.msg) ? obj.conversions.msg.services : undefined);
+						$services.updateServiceScopes(obj.msg.services, (obj.conversions && obj.conversions.msg) ? obj.conversions.msg.services : undefined);
 					}
 
 					if (obj.services) {
@@ -75,9 +75,7 @@ webSocketModule.factory('$webSocket',
 									&& serviceInstance[service.call]) {
 								// responseValue keeps last services call return value
 								responseValue = serviceInstance[service.call].apply(serviceInstance, service.args);
-//								$rootScope.$apply(function() { 
-//									responseValue = serviceInstance[service.call].apply(serviceInstance, service.args);
-//								});
+								$services.digest(service.name);
 							}
 						}
 					}
@@ -227,14 +225,14 @@ webSocketModule.factory('$webSocket',
 			};
 		}).factory("$services", function($rootScope, $sabloConverters, $sabloUtils){
 			// serviceName:{} service model
-			var serviceStates = $rootScope.$new(true);
-			var serviceStatesConversionInfo = {};
+			var serviceScopes = $rootScope.$new(true);
+			var serviceScopesConversionInfo = {};
 			var watches = {}
 			var wsSession = null;
 			var sendServiceChanges = function(now, prev, servicename) {
 				   // first build up a list of all the properties both have.
 				   var fulllist = $sabloUtils.getCombinedPropertyNames(now,prev);
-				   var conversionInfo = serviceStatesConversionInfo[servicename];
+				   var conversionInfo = serviceScopesConversionInfo[servicename];
 				   var changes = {}, prop;
 
 				   for (prop in fulllist) {
@@ -263,7 +261,7 @@ webSocketModule.factory('$webSocket',
 			};
 			var getChangeNotifier = function(servicename) {
 				return function() {
-					var serviceModel = serviceStates[servicename];
+					var serviceModel = serviceScopes[servicename];
 					sendServiceChanges(serviceModel, serviceModel, servicename);
 				}
 			};
@@ -274,59 +272,63 @@ webSocketModule.factory('$webSocket',
 				}
 			};
 			return {
-				getServiceState: function(serviceName) {
-					if (!serviceStates[serviceName]) {
-						serviceStates[serviceName] = {};
-						watches[serviceName] = serviceStates.$watch(serviceName,watch(serviceName),true);
+				getServiceScope: function(serviceName) {
+					if (!serviceScopes[serviceName]) {
+						serviceScopes[serviceName] = serviceScopes.$new(true);
+						serviceScopes[serviceName].model = {};
+						watches[serviceName] = serviceScopes[serviceName].$watch("model",watch(serviceName),true);
 					}
-		    		return serviceStates[serviceName];
+		    		return serviceScopes[serviceName];
 				},
-				updateStates: function(services, conversionInfo) {
-					$rootScope.$apply(function() {
-		        		 for(var servicename in services) {
-		 		        	// current model
-		 		            var serviceState = serviceStates[servicename];
-		 		            if (!serviceState) {
-		 		            	// so no previous service state; set it now
-		 		            	if (conversionInfo && conversionInfo[servicename]) {
-	 		            			// convert all properties, remember type for when a client-server conversion will be needed
-		 		            		services[servicename] = $sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename], serviceStates[servicename])
-		 		            		var changeNotifier = getChangeNotifier(servicename);
-		 		            		for (var pn in conversionInfo[servicename]) {
-		 		            			if (services[servicename][pn] && services[servicename][pn][$sabloConverters.INTERNAL_IMPL]
-		 		            					&& services[servicename][pn][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-		 		            				services[servicename][pn][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(changeNotifier);
-		 		            			}
-		 		            		}
-		 		            		serviceStatesConversionInfo[servicename] = conversionInfo[servicename];
-		 		            	}
-		 		            	serviceStates[servicename] = services[servicename];
-		 		            }
-		 		            else {
-		 		            	var serviceData = services[servicename];
-		 		            	// unregister the watch.
-		 		            	watches[servicename]();
-	 		            		var changeNotifier = (conversionInfo && conversionInfo[servicename]) ? getChangeNotifier(servicename) : undefined;
+				updateServiceScopes: function(services, conversionInfo) {
+	        		 for(var servicename in services) {
+	 		        	// current model
+	 		            var serviceScope = serviceScopes[servicename];
+	 		            if (!serviceScope) {
+	 		            	serviceScopes[serviceName] = serviceScopes.$new(true);
+	 		            	// so no previous service state; set it now
+	 		            	if (conversionInfo && conversionInfo[servicename]) {
+ 		            			// convert all properties, remember type for when a client-server conversion will be needed
+	 		            		services[servicename] = $sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename],null)
+	 		            		var changeNotifier = getChangeNotifier(servicename);
+	 		            		for (var pn in conversionInfo[servicename]) {
+	 		            			if (services[servicename][pn] && services[servicename][pn][$sabloConverters.INTERNAL_IMPL]
+	 		            					&& services[servicename][pn][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+	 		            				services[servicename][pn][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(changeNotifier);
+	 		            			}
+	 		            		}
+	 		            		serviceScopesConversionInfo[servicename] = conversionInfo[servicename];
+	 		            	}
+	 		            	serviceScopes[servicename].model = services[servicename];
+	 		            }
+	 		            else {
+	 		            	var serviceData = services[servicename];
+	 		            	// unregister the watch.
+	 		            	watches[servicename]();
+ 		            		var changeNotifier = (conversionInfo && conversionInfo[servicename]) ? getChangeNotifier(servicename) : undefined;
 
-		 		            	for(var key in serviceData) {
-		 		            		if (conversionInfo && conversionInfo[servicename] && conversionInfo[servicename][key]) {
-		 		            			// convert property, remember type for when a client-server conversion will be needed
-		 		            			if (!serviceStatesConversionInfo[servicename]) serviceStatesConversionInfo[servicename] = {};
-		 		            			serviceData[key] = $sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceStates[servicename][key])
-		 		            			
-		 		            			if ((serviceData[key] !== serviceStates[servicename][key] || serviceStatesConversionInfo[servicename][key] !== conversionInfo[servicename][key]) && serviceData[key]
-		 		            					&& serviceData[key][$sabloConverters.INTERNAL_IMPL] && serviceData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-		 		            				serviceData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(changeNotifier);
-		 		            			}
-		 		            			serviceStatesConversionInfo[servicename][key] = conversionInfo[servicename][key];
-		 		            		}
-		 		            		serviceStates[servicename][key] = serviceData[key];
-		 		             	}
-		 		            }
-		 		            // register a new watch
-		 		            watches[servicename] = serviceStates.$watch(servicename,watch(servicename),true);
-		        		 }
-		        	});
+	 		            	for(var key in serviceData) {
+	 		            		if (conversionInfo && conversionInfo[servicename] && conversionInfo[servicename][key]) {
+	 		            			// convert property, remember type for when a client-server conversion will be needed
+	 		            			if (!serviceScopesConversionInfo[servicename]) serviceScopesConversionInfo[servicename] = {};
+	 		            			serviceData[key] = $sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceScope.model[key])
+	 		            			
+	 		            			if ((serviceData[key] !== serviceScope.model[key] || serviceScopesConversionInfo[servicename][key] !== conversionInfo[servicename][key]) && serviceData[key]
+	 		            					&& serviceData[key][$sabloConverters.INTERNAL_IMPL] && serviceData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+	 		            				serviceData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier(changeNotifier);
+	 		            			}
+	 		            			serviceScopesConversionInfo[servicename][key] = conversionInfo[servicename][key];
+	 		            		}
+	 		            		serviceScope.model[key] = serviceData[key];
+	 		             	}
+	 		            }
+	 		            // register a new watch
+	 		            watches[servicename] = serviceScopes[servicename].$watch("model",watch(servicename),true);
+	 		            serviceScopes[servicename].$digest();
+	        		 }
+				},
+				digest: function(servicename) {
+					if (serviceScopes[servicename]) serviceScopes[servicename].$digest();
 				},
 				setSession: function(session) {
 					wsSession = session;

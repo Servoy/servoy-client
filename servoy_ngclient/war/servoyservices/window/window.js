@@ -1,6 +1,6 @@
 angular.module('window',['servoy'])
 .factory("window",function($window,$services) {
-	var state = $services.getServiceState('window');
+	var scope = $services.getServiceScope('window');
 	return {
 		createShortcut: function(shortcutcombination,callback,contextFilter,args) {
 			if (contextFilter instanceof Array)
@@ -9,19 +9,19 @@ angular.module('window',['servoy'])
 				contextFilter = null;
 			}
 			shortcut.add(this.translateSwingShortcut(shortcutcombination),this.getCallbackFunction(callback, contextFilter,args),{'propagate':true,'disable_in_input':false});
-			if (!state.shortcuts) state.shortcuts = [];
-			state.shortcuts.push({'shortcut': shortcutcombination,'callback':callback,'contextFilter':contextFilter,'arguments':args});
+			if (!scope.model.shortcuts) scope.model.shortcuts = [];
+			scope.model.shortcuts.push({'shortcut': shortcutcombination,'callback':callback,'contextFilter':contextFilter,'arguments':args});
 			return true;
 		},
 		removeShortcut: function(shortcutcombination) {
 			shortcut.remove(this.translateSwingShortcut(shortcutcombination));
-			if (state.shortcuts)
+			if (scope.model.shortcuts)
 			{
-				for (var i=0;i<state.shortcuts.length;i++)
+				for (var i=0;i<scope.model.shortcuts.length;i++)
 				{
-					if (state.shortcuts[i].shortcut == shortcutcombination)
+					if (scope.model.shortcuts[i].shortcut == shortcutcombination)
 					{
-						state.shortcuts.splice(i,1);
+						scope.model.shortcuts.splice(i,1);
 						break;
 					}
 				}
@@ -152,9 +152,8 @@ angular.module('window',['servoy'])
 })
 .run(function($rootScope,$services,window,$window, $timeout)
 {
-	var scope = $rootScope.$new(true);
-	scope.state = $services.getServiceState('window');
-	scope.$watch('state', function(newvalue,oldvalue) {
+	var scope = $services.getServiceScope('window');
+	scope.$watch('model', function(newvalue,oldvalue) {
 		if (newvalue && newvalue.shortcuts && newvalue.shortcuts.length > 0 && Object.keys(shortcut.all_shortcuts).length == 0)
 		{
 			// handle just refresh page case, need to reinstall all shortcuts again
@@ -169,8 +168,7 @@ angular.module('window',['servoy'])
 			oMenu.clearContent();
 			oMenu.subscribe('hide', function (event) {
 				$timeout(function(){
-					var state = $services.getServiceState('window');
-					state.popupMenuShowCommand = null;
+					scope.model.popupMenuShowCommand = null;
 					oMenu.destroy();
 				},1);
 			});
