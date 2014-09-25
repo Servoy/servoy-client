@@ -894,7 +894,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		}
 	}
 }])
-.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$servoyInternal','$solutionSettings', function($window,$timeout,webStorage,$modal,$servoyInternal,$solutionSettings) {
+.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$servoyInternal','$solutionSettings','$rootScope', function($window,$timeout,webStorage,$modal,$servoyInternal,$solutionSettings,$rootScope) {
 	var showDefaultLoginWindow = function() {
 			$modal.open({
         	  templateUrl: '/templates/login.html',
