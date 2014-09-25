@@ -619,7 +619,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void closeSession()
 	{
-		if (client.getWebsocketSession() != null && WebsocketEndpoint.exists())
+		if (client.getWebsocketSession() != null)
 		{
 			IWebsocketEndpoint current = WebsocketEndpoint.set(new WebsocketSessionEndpoints(client.getWebsocketSession()));
 			try
@@ -643,7 +643,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
