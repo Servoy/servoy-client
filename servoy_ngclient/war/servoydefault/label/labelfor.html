@@ -19,7 +19,7 @@
 	   svy-tabseq='model.tabSeq'
 	   svy-horizontalalignment='model.horizontalAlignment'
 	   svy-verticalalignment='model.verticalAlignment'>
- 	   		<span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size, rollOverImg:model.rolloverImageMediaID}'/>
+ 	   		<span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size, rollOverImg:model.rolloverImageMediaID, visible: model.visible}'/>
  	   		<span ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'/>
 </div>
 </label>

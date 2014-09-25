@@ -499,31 +499,34 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         					  backgroundImage:''}
         	
         	scope.$watch(attrs.svyImagemediaid,function(newVal){
-        		// the value from model may be incorrect so take value from ui
-        		var setImageStyle = function(){
-        			var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
-            		var image = null;
-             		  var mediaOptions = scope.$eval('model.mediaOptions');
-            		if(newVal.rollOverImg){ 
-            		  rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, componentSize);
-            		}else {
-            		  rollOverImgStyle = null
+        		if (newVal.visible)
+        		{
+        			// the value from model may be incorrect so take value from ui
+            		var setImageStyle = function(){
+            			var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+                		var image = null;
+                 		  var mediaOptions = scope.$eval('model.mediaOptions');
+                		if(newVal.rollOverImg){ 
+                		  rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, componentSize);
+                		}else {
+                		  rollOverImgStyle = null
+                		}
+                		if(newVal.img){
+                		  imgStyle =parseImageOptions( newVal.img, mediaOptions, componentSize)
+                  		  element.css(imgStyle)
+                		}else {
+                		  imgStyle = null;
+                		} 	
             		}
-            		if(newVal.img){
-            		  imgStyle =parseImageOptions( newVal.img, mediaOptions, componentSize)
-              		  element.css(imgStyle)
-            		}else {
-            		  imgStyle = null;
-            		} 	
-        		}
-        		if (element[0].parentNode.parentNode.offsetWidth >0 && element[0].parentNode.parentNode.offsetHeight >0)
-        		{
-        			//dom is ready
-        			setImageStyle();
-        		}
-        		else
-        		{
-        			$timeout(setImageStyle,200);
+            		if (element[0].parentNode.parentNode.offsetWidth >0 && element[0].parentNode.parentNode.offsetHeight >0)
+            		{
+            			//dom is ready
+            			setImageStyle();
+            		}
+            		else
+            		{
+            			$timeout(setImageStyle,200);
+            		}
         		}
         	}, true)
         	
