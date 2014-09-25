@@ -71,7 +71,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		scope.setLocked(false);
 		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
 		{
-			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification));
+			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification, engine.getSolutionScope()));
 		}
 		scope.setLocked(true);
 		if (designerCallback != null)
@@ -129,11 +129,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		super.reportJSInfo(s);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IDebugClient#setCurrent(com.servoy.j2db.persistence.Solution)
-	 */
 	@Override
 	public void setCurrent(Solution current)
 	{
@@ -141,11 +136,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IDebugClient#refreshForI18NChange(boolean)
-	 */
 	@Override
 	public void refreshForI18NChange(boolean recreateForms)
 	{
@@ -153,11 +143,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IDebugClient#refreshPersists(java.util.Collection)
-	 */
 	@Override
 	public void refreshPersists(Collection<IPersist> changes)
 	{
