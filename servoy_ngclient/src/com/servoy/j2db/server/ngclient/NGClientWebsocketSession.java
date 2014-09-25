@@ -618,7 +618,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void closeSession()
 	{
-		if (client.getWebsocketSession() != null)
+		if (client.getWebsocketSession() != null && WebsocketEndpoint.exists())
 		{
 			Map<String, Object> detail = new HashMap<>();
 			String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
@@ -637,7 +637,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
