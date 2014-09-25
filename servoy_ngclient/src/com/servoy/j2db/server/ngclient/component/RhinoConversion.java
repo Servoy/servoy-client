@@ -29,17 +29,11 @@ import org.mozilla.javascript.UniqueTag;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -138,46 +132,6 @@ public class RhinoConversion
 					if (propertyValue instanceof String)
 					{
 						return ComponentFactoryHelper.createBorder((String)propertyValue);
-					}
-					break;
-
-
-				case "media" :
-					Media media = null;
-					if (propertyValue instanceof Integer)
-					{
-						media = converterContext.getSolution().getMedia(((Integer)propertyValue).intValue());
-					}
-					else if (propertyValue instanceof String && ((String)propertyValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
-					{
-						media = converterContext.getSolution().getMedia(((String)propertyValue).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
-					}
-					if (media != null)
-					{
-						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
-							media.getName();
-						Dimension imageSize = ImageLoader.getSize(media.getMediaData());
-						boolean paramsAdded = false;
-						if (imageSize != null)
-						{
-							paramsAdded = true;
-							url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
-						}
-						if (converterContext.getApplication() != null)
-						{
-							Solution sc = converterContext.getSolution().getSolutionCopy(false);
-							if (sc != null && sc.getMedia(media.getName()) != null)
-							{
-								if (paramsAdded) url += "&";
-								else url += "?";
-								url += "uuid=" + converterContext.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
-							}
-						}
-						return url;
-					}
-					else
-					{
-						Debug.log("cannot convert media " + propertyValue);
 					}
 					break;
 				case "formscope" :
