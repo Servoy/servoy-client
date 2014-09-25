@@ -1954,7 +1954,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					//if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer()) scrollPadding = 0;
 					//else scrollPadding = SCROLLBAR_SIZE;
 					return scrollBarDefinitionToOverflowAttribute(scrollbars, isScrollMode(), true, currentData == null || currentData.getSize() == 0) +
-						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; top:" + scrollableHeaderHeight + "px; padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; top:" + scrollableHeaderHeight + "px; padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 			}));
 			tableContainerBody.add(new SimpleAttributeModifier("class", "rowsContainerBody")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -5783,18 +5783,22 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			// if we have list items and none of its component's onRender
 			// causes any change, then we can avoid adding the list to the target
 			Component innerComponent;
-			boolean changedListItem;
+			boolean hasStyleChanger = (getRowBGColorScript() != null) || (getRowSelectedStyle() != null) || (getRowOddStyle() != null) ||
+				(getRowEvenStyle() != null);
 			for (WebCellBasedViewListItem listItem : listComponents)
 			{
-				changedListItem = false;
-				Iterator< ? extends Component> it = listItem.iterator();
-				while (it.hasNext())
+				boolean changedListItem = hasStyleChanger;
+				if (!hasStyleChanger)
 				{
-					innerComponent = CellContainer.getContentsForCell(it.next());
-					if (innerComponent instanceof ISupportOnRender)
+					Iterator< ? extends Component> it = listItem.iterator();
+					while (it.hasNext())
 					{
-						changedListItem = changedListItem || WebOnRenderHelper.doRender((ISupportOnRender)innerComponent);
-						components.remove(innerComponent); // just for safety, remove that also from components, if present
+						innerComponent = CellContainer.getContentsForCell(it.next());
+						if (innerComponent instanceof ISupportOnRender)
+						{
+							changedListItem = changedListItem || WebOnRenderHelper.doRender((ISupportOnRender)innerComponent);
+							components.remove(innerComponent); // just for safety, remove that also from components, if present
+						}
 					}
 				}
 				if (changedListItem)
