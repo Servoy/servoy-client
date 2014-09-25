@@ -52,10 +52,12 @@ public class RuntimeWebComponent implements Scriptable
 	private final Set<String> dataProviderProperties;
 	private final Map<String, Function> apiFunctions;
 	private final WebComponentSpecification webComponentSpec;
+	private Scriptable parentScope;
 
 	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
 	{
 		this.component = component;
+		setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
 		this.specProperties = new HashSet<String>();
 		this.apiFunctions = new HashMap<String, Function>();
 		this.dataProviderProperties = new HashSet<>();
@@ -116,7 +118,7 @@ public class RuntimeWebComponent implements Scriptable
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
 			if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
 			{
-				return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component);
+				return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 			}
 			else
 			{
@@ -251,12 +253,13 @@ public class RuntimeWebComponent implements Scriptable
 	@Override
 	public Scriptable getParentScope()
 	{
-		return null;
+		return parentScope;
 	}
 
 	@Override
 	public void setParentScope(Scriptable parent)
 	{
+		parentScope = parent;
 	}
 
 	@Override

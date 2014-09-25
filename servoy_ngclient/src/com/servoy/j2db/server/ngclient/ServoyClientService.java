@@ -30,9 +30,6 @@ public class ServoyClientService extends ClientService implements IContextProvid
 {
 	private final INGClientWebsocketSession session;
 
-	/**
-	 * @param serviceName
-	 */
 	public ServoyClientService(String serviceName, WebComponentSpecification spec, INGClientWebsocketSession session)
 	{
 		super(serviceName, spec);
@@ -45,11 +42,6 @@ public class ServoyClientService extends ClientService implements IContextProvid
 		return new ServoyDataConverterContext(session.getClient());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.websocket.impl.ClientService#executeAsyncServiceCall(java.lang.String, java.lang.Object[])
-	 */
 	@Override
 	public void executeAsyncServiceCall(String functionName, Object[] arguments)
 	{

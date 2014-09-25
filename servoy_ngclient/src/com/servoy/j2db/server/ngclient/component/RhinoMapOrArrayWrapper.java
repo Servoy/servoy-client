@@ -23,13 +23,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.ChangeAwareList;
+import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IPropertyType;
 
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.IRhinoNativeProxy;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
@@ -39,34 +44,40 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 public final class RhinoMapOrArrayWrapper implements Scriptable
 {
 	private final Object wrappedValue;
-	private final String property;
-	private final int indexProperty;
 	private final PropertyDescription propertyDescription;
-	private final IServoyDataConverterContext converterContext;
 	private Scriptable prototype;
 	private Scriptable parent;
-	private final WebFormComponent baseWebObject;
+	private final BaseWebObject baseWebObject;
 
-	public RhinoMapOrArrayWrapper(Object wrappedValue, WebFormComponent baseWebObject, String property, PropertyDescription propertyDescription,
-		IServoyDataConverterContext converterContext)
+	public RhinoMapOrArrayWrapper(Object wrappedValue, BaseWebObject baseWebObject, PropertyDescription propertyDescription, Scriptable startScriptable)
 	{
 		this.baseWebObject = baseWebObject;
 		this.wrappedValue = wrappedValue;
-		this.property = property;
 		this.propertyDescription = propertyDescription;
-		this.converterContext = converterContext;
-		this.indexProperty = -1;
-	}
+		Object baseObject = null;
+		if (wrappedValue instanceof ChangeAwareList< ? , ? >) baseObject = ((ChangeAwareList)wrappedValue).getBaseList();
+		if (wrappedValue instanceof ChangeAwareMap< ? , ? >) baseObject = ((ChangeAwareMap)wrappedValue).getBaseMap();
 
-	protected RhinoMapOrArrayWrapper(Object wrappedValue, WebFormComponent baseWebObject, int indexProperty, PropertyDescription propertyDescription,
-		IServoyDataConverterContext converterContext)
-	{
-		this.baseWebObject = baseWebObject;
-		this.wrappedValue = wrappedValue;
-		this.indexProperty = indexProperty;
-		this.propertyDescription = propertyDescription;
-		this.converterContext = converterContext;
-		this.property = null;
+		if (baseObject instanceof IRhinoNativeProxy)
+		{
+			// allow it to use for example methods defined in Rhino although it's properties are kept in a Java map or array
+			setPrototype(((IRhinoNativeProxy)baseObject).getBaseRhinoScriptable());
+		}
+		else if (wrappedValue instanceof List)
+		{
+			// allow it to use native JS array methods
+			NativeArray proto = new NativeArray(0);
+			proto.setPrototype(ScriptableObject.getArrayPrototype(startScriptable));
+			setPrototype(proto); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+		}
+		else if (wrappedValue instanceof Map)
+		{
+			// allow it to use native JS array methods
+			NativeObject proto = new NativeObject();
+			proto.setPrototype(ScriptableObject.getObjectPrototype(startScriptable));
+			setPrototype(proto); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+		}
+		parent = ScriptableObject.getTopLevelScope(startScriptable);
 	}
 
 	public Object getWrappedValue()
@@ -97,10 +108,14 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	public Object get(String name, Scriptable start)
 	{
 		Object value = getAsSabloValue(name);
-		if (wrappedValue instanceof List && name.equals("length")) return value;
+		if (wrappedValue instanceof List)
+		{
+			if (name.equals("length")) return value;
+			else return Scriptable.NOT_FOUND; // then it will be searched for in prototype that is a native array prototype
+		}
 
 		PropertyDescription propDesc = propertyDescription.getProperty(name);
-		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, propDesc, baseWebObject);
+		return propDesc != null ? NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, propDesc, baseWebObject, start) : Scriptable.NOT_FOUND;
 	}
 
 	protected Object getSabloValueForIndex(int index)
@@ -112,14 +127,15 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 				return ((List< ? >)wrappedValue).get(index);
 			}
 		}
-		return null;
+		return Scriptable.NOT_FOUND;
 	}
 
 	@Override
 	public Object get(int index, Scriptable start)
 	{
 		Object value = getSabloValueForIndex(index);
-		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, getArrayElementDescription(), baseWebObject);
+		return value == Scriptable.NOT_FOUND ? Scriptable.NOT_FOUND : NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value,
+			getArrayElementDescription(), baseWebObject, start);
 	}
 
 	protected PropertyDescription getArrayElementDescription()
@@ -165,9 +181,17 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	{
 		if (wrappedValue instanceof Map)
 		{
-			Object convertedValue = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name),
-				propertyDescription.getProperty(name), baseWebObject);
-			((Map)wrappedValue).put(name, convertedValue);
+			PropertyDescription pd = propertyDescription.getProperty(name);
+			if (pd != null)
+			{
+				Object convertedValue = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name), pd, baseWebObject);
+				((Map)wrappedValue).put(name, convertedValue);
+			}
+			else
+			{
+				// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+				getPrototype().put(name, start, value);
+			}
 		}
 		else if ("length".equals(name))
 		{
@@ -185,6 +209,11 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 				}
 			}
 		}
+		else
+		{
+			// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+			getPrototype().put(name, start, value);
+		}
 	}
 
 	@Override
@@ -193,13 +222,19 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		if (wrappedValue instanceof List< ? >)
 		{
 			List<Object> lst = (List<Object>)wrappedValue;
-			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getSabloValueForIndex(index), getArrayElementDescription(),
-				baseWebObject);
+			Object prev = getSabloValueForIndex(index);
+			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, prev == Scriptable.NOT_FOUND ? null : prev,
+				getArrayElementDescription(), baseWebObject);
 			while (lst.size() <= index)
 			{
 				lst.add(null);
 			}
 			lst.set(index, val);
+		}
+		else
+		{
+			// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+			getPrototype().put(index, start, value);
 		}
 	}
 
@@ -208,7 +243,20 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	{
 		if (wrappedValue instanceof Map)
 		{
-			((Map)wrappedValue).remove(name);
+			if (((Map)wrappedValue).containsKey(name))
+			{
+				((Map)wrappedValue).remove(name);
+			}
+			else
+			{
+				// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+				getPrototype().delete(name);
+			}
+		}
+		else
+		{
+			// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+			getPrototype().delete(name);
 		}
 	}
 
@@ -218,6 +266,11 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		if (wrappedValue instanceof List< ? >)
 		{
 			((List< ? >)wrappedValue).set(index, null);
+		}
+		else
+		{
+			// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
+			getPrototype().delete(index);
 		}
 	}
 

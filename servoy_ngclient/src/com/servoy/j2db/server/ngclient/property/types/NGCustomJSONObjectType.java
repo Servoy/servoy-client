@@ -25,9 +25,13 @@ import java.util.Map.Entry;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -144,62 +148,62 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public Map<String, SabloT> toSabloComponentValue(Object rhinoValue, Map<String, SabloT> previousComponentValue, PropertyDescription pd,
-		WebFormComponent component)
+	public Map<String, SabloT> toSabloComponentValue(final Object rhinoValue, final Map<String, SabloT> previousComponentValue, PropertyDescription pd,
+		final BaseWebObject componentOrService)
 	{
 		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
 
+		final ChangeAwareMap<SabloT, SabloWT> previousSpecialMap = (ChangeAwareMap<SabloT, SabloWT>)previousComponentValue;
 		if (rhinoValue instanceof RhinoMapOrArrayWrapper)
 		{
 			return (Map<String, SabloT>)((RhinoMapOrArrayWrapper)rhinoValue).getWrappedValue();
+		}
+		else if (previousSpecialMap != null && previousSpecialMap.getBaseMap() instanceof IRhinoNativeProxy &&
+			((IRhinoNativeProxy)previousSpecialMap.getBaseMap()).getBaseRhinoScriptable() == rhinoValue)
+		{
+			return previousComponentValue; // this can get called a lot when a native Rhino wrapper map and proxy are in use; don't create new values each time
+			// something is accessed in the wrapper+converter+proxy map cause that messes up references
 		}
 		else
 		{
 			// if it's some kind of object, convert it (in depth, iterate over children)
 
-			Map<String, Object> rhinoMap = null;
+			Map<String, SabloT> rhinoMap = null;
 
-			if (rhinoValue instanceof Scriptable)
+			if (rhinoValue instanceof NativeObject)
 			{
-				// rhinoValue which is (NativeArray) implements List
-				rhinoMap = new HashMap<>();
-				Scriptable scriptable = (Scriptable)rhinoValue;
-				for (Object id : scriptable.getIds())
-				{
-					rhinoMap.put(String.valueOf(id),
-						id instanceof Number ? scriptable.get(((Number)id).intValue(), scriptable) : scriptable.get((String)id, scriptable));
-				}
-			}
+				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), previousComponentValue,
+					componentOrService, getChildPropsThatNeedWrapping());
+				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, new DataConverterContext(pd, componentOrService));
+				cam.markAllChanged();
+				return cam;
 
-			if (rhinoMap != null)
-			{
-				Map<String, SabloT> convertedMap = new HashMap(rhinoMap.size());
-
-				for (Entry<String, Object> e : rhinoMap.entrySet())
-				{
-					convertedMap.put(
-						e.getKey(),
-						NGConversions.INSTANCE.convertRhinoToSabloComponentValue(e.getValue(),
-							previousComponentValue != null ? previousComponentValue.get(e.getKey()) : null,
-							getCustomJSONTypeDefinition().getProperty(e.getKey()), component));
-				}
-
-				return convertedMap;
+				// if we really want to remove the extra-conversion map above and convert all to a new map we could do it by executing the code below after a toJSON is called (so after a request finishes,
+				// we consider that in the next request the user will only use property reference again taken from service/component, so the new converted map, not anymore the object that was created in JS directly,
+				// but this still won't work if the user really holds on to that old/initial reference and changes it...); actually if the initial value is used, it will not be change-aware anyway...
+//				for (Entry<String, Object> e : rhinoMap.entrySet())
+//				{
+//					convertedMap.put(
+//						e.getKey(),
+//						NGConversions.INSTANCE.convertRhinoToSabloComponentValue(e.getValue(),
+//							previousComponentValue != null ? previousComponentValue.get(e.getKey()) : null,
+//							getCustomJSONTypeDefinition().getProperty(e.getKey()), componentOrService));
+//				}
 			}
 		}
 		return previousComponentValue; // or should we return null or throw exception here? incompatible thing was assigned
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Map<String, SabloT> webComponentValue, PropertyDescription pd, WebFormComponent component)
+	public boolean isValueAvailableInRhino(Map<String, SabloT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
 		return true;
 	}
 
 	@Override
-	public Object toRhinoValue(Map<String, SabloT> webComponentValue, PropertyDescription pd, WebFormComponent component)
+	public Object toRhinoValue(Map<String, SabloT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
-		return new RhinoMapOrArrayWrapper(webComponentValue, component, pd.getName(), pd, component.getDataConverterContext());
+		return webComponentValue == null ? null : new RhinoMapOrArrayWrapper(webComponentValue, componentOrService, pd, startScriptable);
 	}
 
 	@Override

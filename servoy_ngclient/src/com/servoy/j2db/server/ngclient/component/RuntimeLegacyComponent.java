@@ -56,6 +56,7 @@ public class RuntimeLegacyComponent implements Scriptable
 	private static Map<String, String> ScriptNameToSpecName;
 	private Map<Object, Object> clientProperties;
 	private final WebComponentSpecification webComponentSpec;
+	private Scriptable parentScope;
 	static
 	{
 		ScriptNameToSpecName = new HashMap<String, String>();
@@ -74,6 +75,7 @@ public class RuntimeLegacyComponent implements Scriptable
 	public RuntimeLegacyComponent(WebFormComponent component)
 	{
 		this.component = component;
+		setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
 		putCallable = new PutPropertyCallable(this);
 		getCallable = new GetPropertyCallable(this);
 		this.webComponentSpec = component.getFormElement().getWebComponentSpec();
@@ -145,7 +147,7 @@ public class RuntimeLegacyComponent implements Scriptable
 		PropertyDescription pd = webComponentSpec.getProperties().get(name);
 		if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
 		{
-			value = ((ISabloComponentToRhino)pd.getType()).toRhinoValue(component.getProperty(name), pd, component);
+			value = ((ISabloComponentToRhino)pd.getType()).toRhinoValue(component.getProperty(name), pd, component, start);
 		}
 		else
 		{
@@ -258,13 +260,13 @@ public class RuntimeLegacyComponent implements Scriptable
 	@Override
 	public Scriptable getParentScope()
 	{
-		return null;
+		return parentScope;
 	}
 
 	@Override
 	public void setParentScope(Scriptable parent)
 	{
-
+		parentScope = parent;
 	}
 
 	@Override

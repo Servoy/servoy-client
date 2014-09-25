@@ -113,17 +113,12 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		scope.setLocked(false);
 		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
 		{
-			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification));
+			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification, scriptEngine.getSolutionScope()));
 		}
 		scope.setLocked(true);
 		return scriptEngine;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getLocale()
-	 */
 	@Override
 	public Locale getLocale()
 	{
@@ -131,11 +126,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return super.getLocale();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#getTimeZone()
-	 */
 	@Override
 	public TimeZone getTimeZone()
 	{
@@ -311,11 +301,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return super.getSolutionTypeFilter() | SolutionMetaData.NG_CLIENT_ONLY;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ClientState#getFormManager()
-	 */
 	@Override
 	public INGFormManager getFormManager()
 	{

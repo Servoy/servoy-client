@@ -28,9 +28,11 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.CustomJSONArrayType;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -139,60 +141,72 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, WebFormComponent component)
+	public Object toSabloComponentValue(final Object rhinoValue, Object previousComponentValue, PropertyDescription pd, final BaseWebObject componentOrService)
 	{
 		if (rhinoValue == null || rhinoValue == Scriptable.NOT_FOUND) return null;
 
+		final ChangeAwareList<SabloT, SabloWT> previousSpecialArray = (ChangeAwareList<SabloT, SabloWT>)previousComponentValue;
 		if (rhinoValue instanceof RhinoMapOrArrayWrapper)
 		{
 			return ((RhinoMapOrArrayWrapper)rhinoValue).getWrappedValue();
 		}
+		else if (previousSpecialArray != null && previousSpecialArray.getBaseList() instanceof IRhinoNativeProxy &&
+			((IRhinoNativeProxy)previousSpecialArray.getBaseList()).getBaseRhinoScriptable() == rhinoValue)
+		{
+			return previousComponentValue; // this can get called a lot when a native Rhino wrapper list and proxy are in use; don't create new values each time
+			// something is accessed in the wrapper+converter+proxy list cause that messes up references
+		}
 		else
 		{
-			// if it's some kind of array, convert it (in depth, iterate over children)
+			// if it's some kind of array
 
-			ChangeAwareList<SabloT, SabloWT> previousSpecialArray = (ChangeAwareList<SabloT, SabloWT>)previousComponentValue;
-			List<Object> rhinoArray = null;
+			List<SabloT> rhinoArray = null;
 
 			if (rhinoValue instanceof NativeArray)
 			{
-				// rhinoValue which is (NativeArray) implements List
-				rhinoArray = (List)rhinoValue;
+				rhinoArray = new RhinoNativeArrayWrapperList<SabloT, SabloWT>((NativeArray)rhinoValue, getCustomJSONTypeDefinition(), previousSpecialArray,
+					componentOrService);
 			}
 			else if (rhinoValue instanceof NativeJavaArray)
 			{
 				// rhinoValue.unwrap() will be a java static array []
-				rhinoArray = Arrays.asList(((NativeJavaArray)rhinoValue).unwrap());
+				rhinoArray = new RhinoNativeArrayWrapperList<SabloT, SabloWT>(Arrays.asList(((NativeJavaArray)rhinoValue).unwrap()),
+					getCustomJSONTypeDefinition(), previousSpecialArray, componentOrService, (Scriptable)rhinoValue);
 			}
 
 			if (rhinoArray != null)
 			{
-				List<Object> convertedArray = new ArrayList<Object>(rhinoArray.size());
+				ChangeAwareList<SabloT, SabloWT> cal = wrap(rhinoArray, (ChangeAwareList<SabloT, SabloWT>)previousComponentValue, new DataConverterContext(pd,
+					componentOrService));
+				cal.markAllChanged();
+				return cal;
 
-				int i = 0;
-				for (Object rv : rhinoArray)
-				{
-					convertedArray.add(NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rv, previousSpecialArray != null ? previousSpecialArray.get(i)
-						: null, getCustomJSONTypeDefinition(), component));
-					i++;
-				}
-
-				return convertedArray;
+				// if we really want to remove the extra-conversion list above and convert all to a new list we could do it by executing the code below after a toJSON is called (so after a request finishes,
+				// we consider that in the next request the user will only use property reference again taken from service/component, so the new converted list, not anymore the array that was created in JS directly,
+				// but this still won't work if the user really holds on to that old/initial reference and changes it...); actually if the initial value is used, it will not be change-aware anyway...
+//				int i = 0;
+//				for (Object rv : rhinoArray)
+//				{
+//					convertedArray.add(NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rv,
+//						(previousSpecialArray != null && previousSpecialArray.size() > i) ? previousSpecialArray.get(i) : null, getCustomJSONTypeDefinition(),
+//						componentOrService));
+//					i++;
+//				}
 			}
 		}
 		return previousComponentValue; // or should we return null or throw exception here? incompatible thing was assigned
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, WebFormComponent component)
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
 		return true;
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, WebFormComponent component)
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
-		return new RhinoMapOrArrayWrapper(webComponentValue, component, pd.getName(), pd, component.getDataConverterContext());
+		return webComponentValue == null ? null : new RhinoMapOrArrayWrapper(webComponentValue, componentOrService, pd, startScriptable);
 	}
 
 	@Override

@@ -57,9 +57,9 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 			var newValue = currentClientValue;
 
 			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
-			if (angular.isDefined(currentClientValue)) {
+			if (currentClientValue != null && angular.isDefined(currentClientValue)) {
 				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-				if (angular.isDefined(iS)) {
+				if (iS != null && angular.isDefined(iS)) {
 					if (iS.arrayStructureUnwatch) iS.arrayStructureUnwatch();
 					for (var key in iS.elUnwatch) {
 						iS.elUnwatch[key]();

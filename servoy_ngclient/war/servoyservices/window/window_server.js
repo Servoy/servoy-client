@@ -115,15 +115,15 @@ var MenuItem = {
 var Menu = {
 	addMenuItem : function(text,callback,icon,mnemonic,enabled,align)
 	{
-		var newItem = Object.create(MenuItem);;
+		var newItem = Object.create(MenuItem);
 		newItem.text = text;
 		newItem.callback = callback;
 		newItem.icon = icon;
 		newItem.mnemonic = mnemonic;
 		newItem.align = align;
 		newItem.enabled = enabled;
-		this.items.push(newItem);
-		return newItem;
+		return this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
+//		return newItem;
 	},
 	
 	addCheckBox : function(text,callback,icon,mnemonic,enabled,align)
@@ -162,8 +162,8 @@ var Menu = {
 		var newMenu = Object.create(Menu);
 		newMenu.text = text;
 		newMenu.items = new Array();
-		this.items.push(newMenu);
-		return newMenu;
+		return this.items[this.items.push(newMenu) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
+//		return newMenu;
 	},
 	
 	getCheckBox: function(index)
@@ -193,7 +193,7 @@ var Menu = {
 	
 	getItemIndexByText: function(text)
 	{
-		for (var i=0;i<items.length;i++)
+		for (var i = 0; i < items.length; i++)
 		{
 			if (items[i] && items[i].text == text)
 				return i;
@@ -202,7 +202,7 @@ var Menu = {
 	
 	removeAllItems: function()
 	{
-		return this.items.splice(0,this.items.length);
+		return this.items.splice(0, this.items.length);
 	},
 	
 	removeItem:  function(indexes)
@@ -261,9 +261,7 @@ $scope.api.createPopupMenu = function() {
 	popup.items = new Array();
 	if (!$scope.model.popupMenus)
 		$scope.model.popupMenus = [];
-	// dirty hack to mark property changed
-	var menus = $scope.model.popupMenus.slice(0);
-	menus.push(popup);
-	$scope.model.popupMenus = menus;
-	return popup;
+	
+	return $scope.model.popupMenus[$scope.model.popupMenus.push(popup) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser); as window plugin doesn't have API to get the popup menu after it was created, users must get this change-aware version from the beginning as this is the only thing they get and they need to hold on to it
+//	return popup;
 }

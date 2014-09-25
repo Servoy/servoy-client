@@ -20,18 +20,24 @@ package com.servoy.j2db.server.ngclient.scripting;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.IPropertyType;
 
+import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.component.DesignConversion;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -106,10 +112,12 @@ public class WebServiceScriptable implements Scriptable
 	/**
 	 * @param ngClient
 	 * @param serviceSpecification
+	 * @param solutionScope
 	 */
-	public WebServiceScriptable(INGApplication application, WebComponentSpecification serviceSpecification)
+	public WebServiceScriptable(INGApplication application, WebComponentSpecification serviceSpecification, SolutionScope solutionScope)
 	{
 		this.application = application;
+		setParentScope(solutionScope);
 		this.serviceSpecification = serviceSpecification;
 		URL serverScript = serviceSpecification.getServerScript();
 		if (serverScript != null)
@@ -140,10 +148,21 @@ public class WebServiceScriptable implements Scriptable
 		{
 			return new WebServiceFunction(application.getWebsocketSession(), apiFunction, serviceSpecification.getName());
 		}
-		Object value = application.getWebsocketSession().getService(serviceSpecification.getName()).getProperty(name);
+		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+		Object value = service.getProperty(name);
 		PropertyDescription desc = serviceSpecification.getProperty(name);
-		if (desc != null) return DesignConversion.toStringObject(value, desc.getType());
-		return value;
+		if (desc != null)
+		{
+			if (desc.getType() instanceof ISabloComponentToRhino< ? >)
+			{
+				return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, desc, service, start);
+			}
+			else
+			{
+				return DesignConversion.toStringObject(value, desc.getType());
+			}
+		}
+		else return getParentScope().get(name, start);
 	}
 
 	@Override
@@ -155,6 +174,15 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
+		PropertyDescription desc = serviceSpecification.getProperty(name);
+		if (desc != null)
+		{
+			BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+			IPropertyType< ? > type = desc.getType();
+			// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
+			return !(type instanceof ISabloComponentToRhino< ? >) ||
+				((ISabloComponentToRhino)type).isValueAvailableInRhino(service.getProperty(name), desc, service);
+		}
 		WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null) return true;
 		return application.getWebsocketSession().getService(serviceSpecification.getName()).getProperties().content.containsKey(name);
@@ -169,12 +197,24 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
+		PropertyDescription desc = serviceSpecification.getProperty(name);
+		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+		if (desc != null)
+		{
+			Object previousVal = service.getProperty(name);
+			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, desc, service);
+
+			if (val != previousVal) service.setProperty(name, val);
+		}
+		else
+		{
 		WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		// don't allow api to be overwritten.
 		if (apiFunction != null) return;
 		// TODO conversion should happen from string (color representation) to Color object.
 //		DesignConversion.toObject(value, type)
-		application.getWebsocketSession().getService(serviceSpecification.getName()).setProperty(name, value);
+			service.setProperty(name, value);
+		}
 	}
 
 	@Override
@@ -219,7 +259,20 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return serviceSpecification.getAllPropertiesNames().toArray();
+		ArrayList<String> al = new ArrayList<>();
+		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+		for (String name : serviceSpecification.getAllPropertiesNames())
+		{
+			PropertyDescription pd = serviceSpecification.getProperty(name);
+			IPropertyType< ? > type = pd.getType();
+			if (!(type instanceof ISabloComponentToRhino< ? >) ||
+				((ISabloComponentToRhino)type).isValueAvailableInRhino(service.getProperty(name), pd, service))
+			{
+				al.add(name);
+			}
+		}
+		al.addAll(serviceSpecification.getApiFunctions().keySet());
+		return al.toArray();
 	}
 
 	@Override

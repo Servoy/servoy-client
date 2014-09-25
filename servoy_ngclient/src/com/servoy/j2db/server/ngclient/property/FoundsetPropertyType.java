@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -30,8 +31,8 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
@@ -40,9 +41,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  * @author acostescu
  */
 public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue> implements
-	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>,
-	IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>, IConvertedPropertyType<FoundsetTypeSabloValue>,
-	ISabloComponentToRhino<FoundsetTypeSabloValue>
+	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
+	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>
 {
 
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
@@ -106,13 +106,13 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, WebFormComponent component)
+	public boolean isValueAvailableInRhino(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
 		return false;
 	}
 
 	@Override
-	public Object toRhinoValue(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, WebFormComponent component)
+	public Object toRhinoValue(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
 		return Scriptable.NOT_FOUND;
 	}
