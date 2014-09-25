@@ -511,6 +511,7 @@ public class ComponentFactory
 				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
 
 				Map<String, Object> portalFormElementProperties = new HashMap<>(portalFormElement.getRawPropertyValues());
+				portalFormElementProperties.put("offsetY", startPos);
 				// now put real child component form element values in "childElements"
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
