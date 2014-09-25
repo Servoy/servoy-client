@@ -32,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.eventthread.WebsocketSessionEndpoints;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
@@ -620,16 +621,21 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (client.getWebsocketSession() != null && WebsocketEndpoint.exists())
 		{
-			Map<String, Object> detail = new HashMap<>();
-			String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
-			if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
+			IWebsocketEndpoint current = WebsocketEndpoint.set(new WebsocketSessionEndpoints(client.getWebsocketSession()));
 			try
 			{
+				Map<String, Object> detail = new HashMap<>();
+				String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
+				if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
 				getService("$sessionService").executeServiceCall("expireSession", new Object[] { detail });
 			}
 			catch (IOException e)
 			{
 				Debug.log(e);
+			}
+			finally
+			{
+				WebsocketEndpoint.set(current);
 			}
 		}
 		super.closeSession();
