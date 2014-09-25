@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.persistence.Form;
@@ -49,7 +50,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, java.util.Map)
 	 */
 	@Override
@@ -116,18 +117,19 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getMainApplicationWindow()
 	 */
 	@Override
 	protected RuntimeWindow getMainApplicationWindow()
 	{
-		return mainApplicationWindow;
+		String windowId = WebsocketEndpoint.exists() ? WebsocketEndpoint.get().getWindowId() : null;
+		return windowId != null ? getWindow(windowId) : null;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getWindow(java.lang.String)
 	 */
 	@Override
@@ -138,7 +140,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getCurrentWindow()
 	 */
 	@Override
@@ -149,7 +151,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#createWindowInternal(java.lang.String, int, com.servoy.j2db.scripting.RuntimeWindow)
 	 */
 	@Override
@@ -162,7 +164,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getOrderedContainers()
 	 */
 	@Override
@@ -172,16 +174,13 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 		return null;
 	}
 
-
-	private RuntimeWindow mainApplicationWindow;
-
 	/**
 	 *
 	 */
 	public String createMainWindow()
 	{
 		String windowsUUID = UUID.randomUUID().toString();
-		mainApplicationWindow = createWindow(windowsUUID, JSWindow.WINDOW, null);
+		RuntimeWindow mainApplicationWindow = createWindow(windowsUUID, JSWindow.WINDOW, null);
 		mainApplicationWindow.setLocation(0, 0); //default values, that never change
 		setCurrentWindowName(windowsUUID);
 		return windowsUUID;
