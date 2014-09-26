@@ -25,7 +25,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 
 /**
  * A {@link IConverter} implementation for {@link IValueList} instances.
- * 
+ *
  * @author jcompagner
  */
 final class ValuelistValueConverter implements IConverter
@@ -60,6 +60,12 @@ final class ValuelistValueConverter implements IConverter
 			if (component instanceof WebDataLookupField) value = ((WebDataLookupField)component).mapTrimmedToNotTrimmed(value);
 			Object convertedValue = value;
 			if (converter != null) convertedValue = converter.convertToObject(value, locale);
+			if (component instanceof WebDataLookupField && convertedValue instanceof String)
+			{
+				Object realValue = ((WebDataLookupField)component).getValueListRealValue((String)convertedValue);
+				if (realValue != WebDataLookupField.LISTVALUE.NOVALUE) return realValue;
+			}
+
 			int index = list.indexOf(convertedValue);
 			if (index > -1)
 			{
