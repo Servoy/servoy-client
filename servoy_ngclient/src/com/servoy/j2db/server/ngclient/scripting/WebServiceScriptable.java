@@ -88,12 +88,14 @@ public class WebServiceScriptable implements Scriptable
 				Debug.log("toplevel object not found for creating serverside script: " + serverScript);
 				topLevel = context.initStandardObjects();
 			}
-			Scriptable scopeObject = context.newObject(topLevel);
-			apiObject = context.newObject(topLevel);
+			Scriptable execScope = context.newObject(topLevel);
+			execScope.setParentScope(topLevel);
+			Scriptable scopeObject = context.newObject(execScope);
+			apiObject = context.newObject(execScope);
 			scopeObject.put("api", scopeObject, apiObject);
 			scopeObject.put("model", scopeObject, model);
-			topLevel.put("$scope", topLevel, scopeObject);
-			script.exec(context, topLevel);
+			execScope.put("$scope", execScope, scopeObject);
+			script.exec(context, execScope);
 			apiObject.setPrototype(model);
 		}
 		catch (Exception ex)
