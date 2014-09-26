@@ -36,7 +36,7 @@ public abstract class RuntimeWindowManager
 {
 	private static final String MAIN_APPLICATION_WINDOW_NAME = "mainApplicationWindow";
 
-	private final HashMap<String, RuntimeWindow> windows = new HashMap<String, RuntimeWindow>();
+	protected final HashMap<String, RuntimeWindow> windows = new HashMap<String, RuntimeWindow>();
 	private String currentWindowName = null; // this should be null when the main application window is the current window
 	protected IApplication application;
 
@@ -63,8 +63,8 @@ public abstract class RuntimeWindowManager
 	/**
 	 * Create a new user window. If a window with this name already exists, it will be closed/destroyed first.
 	 * @param windowName the name of the window. Must not be null.
-	 * @param parent 
-	 * @param i 
+	 * @param parent
+	 * @param i
 	 * @return the newly created window.
 	 */
 	public RuntimeWindow createWindow(String windowName, int type, JSWindow parent)
