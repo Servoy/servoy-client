@@ -952,7 +952,7 @@ public final class Utils
 				{
 					sb.append(ch);
 				}
-				if (ch == '>')
+				else if (ch == '>')
 				{
 					opened--;
 				}
