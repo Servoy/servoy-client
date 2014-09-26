@@ -39,7 +39,7 @@ angular.module('servoyfileupload',['webStorageModule','angularFileUpload']).dire
     	        
     	        var formname = parent.formname;
     	        while (!formname) {
-    	        	if (parent) {
+    	        	if (parent.$parent) {
     	        		parent = parent.$parent;
     	        		formname = parent.formname;
     	        	}
