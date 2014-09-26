@@ -375,10 +375,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 			{
 				makeSolutionSettings(s);
 			}
-			else
-			{
-				getCurrentContainer().setController(null);
-			}
 		}
 		else if ("mode".equals(name)) //$NON-NLS-1$
 		{
@@ -401,14 +397,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 		// cleanup windows (containers)
 		NGRuntimeWindowManager wm = ((INGApplication)application).getRuntimeWindowManager();
-		wm.getCurrentWindow().setController(null);
-//		NGRuntimeWindow w;
-//		for (String windowName : wm.getOrderedContainers())
-//		{
-//			w = wm.getWindow(windowName);
-//			w.setController(null);
-//			w.destroy();
-//		}
+		wm.destroy();
 	}
 
 	/*
