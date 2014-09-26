@@ -86,7 +86,7 @@ webSocketModule.factory('$webSocket',
 					}
 
 				} catch (e) {
-					$log.error("error in parsing message: " + message.data);
+					$log.error("error (follows below) in parsing/processing message: " + message.data);
 					$log.error(e);
 				} finally {
 					if (obj && obj.smsgid) {

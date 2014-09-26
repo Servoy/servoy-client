@@ -127,16 +127,30 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  var elements = $scope.model.childElements;
     	  $scope.$watch('model.relatedFoundset', function(newVal, oldVal) {
     		  foundset = newVal;
-    	  });
-    	  $scope.$watch('model.childElements', function(newVal, oldVal) {
+    	  })
+    	  $scope.$watchCollection('model.childElements', function(newVal, oldVal) {
     		  elements = $scope.model.childElements;
-    	  });
+    		  if (newVal != oldVal) {
+    			  // either a component was added/removed or the whole array changed
+    			  
+    			  // reset handlers so that the new ones will be used
+    			  onAllCells(function(cellProxy, pk, elementIndex) { delete cellProxy.cellHandlers; });
+    			  // add back apis cause incomming are probably fresh uninitialized ones {}
+    			  onAllCells(function(cellProxy, pk, elementIndex) { updateColumnAPIFromCell(elements[elementIndex].api, cellProxy.cellApi, elementIndex); });
+    		  }
+    	  })
+    	  
+    	  function onAllCells(f) {
+    		  for (var pk in rowProxyObjects)
+    			  for (var elementIndex in rowProxyObjects[pk])
+    				  f(rowProxyObjects[pk][elementIndex], pk, elementIndex);
+    	  }
     	  
     	  $scope.pagingOptions = {
     			  pageSizes: [1, 5, 10, 20, 50, 100, 200, 500, 1000],
     			  pageSize: -1,
     			  currentPage: 1
-    	  };
+    	  }
     	  
     	  function getCurrentPage() {
     		  //pagesize not yet initialized
@@ -154,7 +168,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  currentPage++;
     		  }
     		  return currentPage;
-    	  };
+    	  }
     	  
     	  function updatePageCount() {
     		  if ($scope.pagingOptions.pageSize <0) return;
@@ -444,16 +458,20 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
         		  var columnApi = elements[elementIndex].api;
         		  cellProxies.cellApi = {}; // new cell API object
         		  $scope.$watchCollection(function() { return cellProxies.cellApi; }, function(newCellAPI) {
-        			  // update column API object with new cell available methods
-        			  for (var p in newCellAPI) {
-        				  if (!columnApi[p]) columnApi[p] = linkAPIToAllCellsInColumn(p, elementIndex);
-        			  }
-        			  for (var p in columnApi) {
-        				  if (!newCellAPI[p]) delete columnApi[p];
-        			  }
+        			  updateColumnAPIFromCell(columnApi, newCellAPI, elementIndex);
         		  });
     		  }
     		  return cellProxies.cellApi;
+    	  }
+    	  
+    	  function updateColumnAPIFromCell(columnApi, cellAPI, elementIndex) {
+			  // update column API object with new cell available methods
+			  for (var p in cellAPI) {
+				  if (!columnApi[p]) columnApi[p] = linkAPIToAllCellsInColumn(p, elementIndex);
+			  }
+			  for (var p in columnApi) {
+				  if (!cellAPI[p]) delete columnApi[p];
+			  }
     	  }
 
     	  $scope.cellApplyHandlerWrapper = function(ngGridRow, elementIndex) {
