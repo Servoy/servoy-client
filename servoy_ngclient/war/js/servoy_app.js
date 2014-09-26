@@ -277,7 +277,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					   if (formState.model.svy_default_navigator) {
 						   // this form has a default navigator. also make sure those watches are triggered.
 						  var controllerElement = angular.element('[ng-controller=DefaultNavigatorController]');
-						  if (controllerElement) {
+						  if (controllerElement && controllerElement.scope()) {
 							  controllerElement.scope().$digest();
 						  }
 					   }
