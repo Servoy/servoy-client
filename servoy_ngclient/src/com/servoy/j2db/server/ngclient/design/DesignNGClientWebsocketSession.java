@@ -74,7 +74,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 			// in design the controller should be quickly set in the current generated window.
 			// (only the first form is set as main, for tabs this should be already set)
 			NGRuntimeWindow currentWindow = getClient().getRuntimeWindowManager().getCurrentWindow();
-			if (currentWindow.getController() == null)
+			if (currentWindow != null && currentWindow.getController() == null)
 			{
 				IWebFormController controller = getClient().getFormManager().getForm(realFormName);
 				currentWindow.setController(controller);
