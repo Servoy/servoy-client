@@ -109,13 +109,13 @@ import de.rtner.security.auth.spi.PBKDF2Parameters;
 /**
  * Utility methods
  * Normal Use: static methods <br>
- * 
+ *
  * @author jblok
  */
 public final class Utils
 {
 	/**
-	 * The password hash prefix if it is the new PBKDF2 password or a md5 hash. 
+	 * The password hash prefix if it is the new PBKDF2 password or a md5 hash.
 	 */
 	private static final String PBKDF2_PREFIX = "PBKDF2:"; //$NON-NLS-1$
 
@@ -127,9 +127,9 @@ public final class Utils
 
 	/**
 	 * Change the passed class name to its corresponding file name. E.G. change &quot;Utilities&quot; to &quot;Utilities.class&quot;.
-	 * 
+	 *
 	 * @param name Class name to be changed.
-	 * 
+	 *
 	 * @throws IllegalArgumentException If a null <TT>name</TT> passed.
 	 */
 	public static String changeClassNameToFileName(String name)
@@ -143,9 +143,9 @@ public final class Utils
 
 	/**
 	 * Change the passed file name to its corresponding class name. E.G. change &quot;Utilities.class&quot; to &quot;Utilities&quot;.
-	 * 
+	 *
 	 * @param name Class name to be changed. If this does not represent a Java class then <TT>null</TT> is returned.
-	 * 
+	 *
 	 * @throws IllegalArgumentException If a null <TT>name</TT> passed.
 	 */
 	public static String changeFileNameToClassName(String name)
@@ -166,7 +166,7 @@ public final class Utils
 	/**
 	 * Insert an array into another array at a certain position. Both arrays may be null, resulting array will be extended to fit. Element type will be
 	 * preserved.
-	 * 
+	 *
 	 * @param src
 	 * @param toAdd
 	 * @param position
@@ -208,7 +208,7 @@ public final class Utils
 
 	/**
 	 * Join 2 arrays into 1. Element type will be preserved.
-	 * 
+	 *
 	 * @param array1
 	 * @param array2
 	 * @return the resulting array
@@ -229,7 +229,7 @@ public final class Utils
 
 	/**
 	 * Add an element to an array. Element type will be preserved.
-	 * 
+	 *
 	 * @param array
 	 * @param element
 	 * @param append
@@ -253,16 +253,16 @@ public final class Utils
 
 	/**
 	 * Merge two arrays in 1, the upperArray will be overlaid onto the lowerArray.
-	 * 
+	 *
 	 * <p>
 	 * For example:
-	 * 
+	 *
 	 * <br>
 	 * upper = [x, y] lower = [a,b,c] => overlaid = [x, y, c]
-	 * 
+	 *
 	 * <br>
 	 * upper = [a, b c] lower = [x, y] => overlaid = [a, b, c]
-	 * 
+	 *
 	 * @param upperAarray
 	 * @param lowerAarray
 	 */
@@ -311,7 +311,7 @@ public final class Utils
 
 	/**
 	 * Get a sub-array. Element type will be preserved.
-	 * 
+	 *
 	 * @param array
 	 * @param beginIndex
 	 * @param endIndex
@@ -350,7 +350,7 @@ public final class Utils
 	 */
 	/**
 	 * Try to parse the given string as a long
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @return the parsed long - or 0 (zero) if the parse doesn't succeed
 	 */
@@ -361,7 +361,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a long
-	 * 
+	 *
 	 * @param o the object (String, Number, ...) to parse
 	 * @return the parsed long - or 0 (zero) if the parse doesn't succeed
 	 */
@@ -372,7 +372,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given string as a long
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @param throwOnException whether or not to throw a RuntimeException on failure
 	 * @return the parsed long - or 0 (zero) if the parse doesn't succeed and throwOnException is false
@@ -401,7 +401,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a long
-	 * 
+	 *
 	 * @param o the Object (Number, String, ...) to parse
 	 * @param throwOnException whether or not to throw a RuntimeException on failure
 	 * @return the parsed long - or 0 (zero) if the parse doesn't succeed and throwOnException is false
@@ -422,7 +422,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given string as an integer
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @return the parsed integer - or 0 (zero) if the parse doesn't succeed
 	 */
@@ -441,7 +441,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given string as an integer
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @param throwOnException whether or not to throw a RuntimeException on failure
 	 * @return the parsed integer - or 0 (zero) if the parse doesn't succeed and throwOnException is false
@@ -470,7 +470,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given string as a double
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @return the parsed double - or 0 (zero) if the parse doesn't succeed
 	 */
@@ -489,7 +489,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given string as a double
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @param throwOnFail whether or not to throw a RuntimeException on failure
 	 * @return the parsed double - or 0 (zero) if the parse doesn't succeed and throwOnFail is false
@@ -520,7 +520,7 @@ public final class Utils
 	 */
 	/**
 	 * Try to parse the given string as a boolean
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @return the boolean (false if the parse doesn't succeed)
 	 */
@@ -530,15 +530,15 @@ public final class Utils
 		s = s.toLowerCase();
 
 		boolean retval = false;
-		if (s.startsWith("1")) //$NON-NLS-1$ 
+		if (s.startsWith("1")) //$NON-NLS-1$
 		{
 			retval = true;
 		}
-		else if (s.startsWith("y")) //$NON-NLS-1$ 
+		else if (s.startsWith("y")) //$NON-NLS-1$
 		{
 			retval = true;
 		}
-		else if (s.startsWith("t")) //$NON-NLS-1$ 
+		else if (s.startsWith("t")) //$NON-NLS-1$
 		{
 			retval = true;
 		}
@@ -547,7 +547,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a boolean
-	 * 
+	 *
 	 * @param o the object (Boolean, Number, String, ...) to parse
 	 * @return the boolean (false if the parse doesn't succeed)
 	 */
@@ -581,7 +581,7 @@ public final class Utils
 
 	/**
 	 * Format a given number (Visitor (locale) specific)
-	 * 
+	 *
 	 * @param param the input number
 	 * @param digits number of digits
 	 * @return the formatted number
@@ -593,9 +593,9 @@ public final class Utils
 
 	/**
 	 * Checks whether the <code>string</code> is considered empty. Empty means that the string may contain whitespace, but no visible characters.
-	 * 
+	 *
 	 * "\n\t " is considered empty, while " a" is not.
-	 * 
+	 *
 	 * @param str the string
 	 * @return true if the string is null or ""
 	 */
@@ -618,7 +618,7 @@ public final class Utils
 
 	/**
 	 * Compares two strings no matter if they are null
-	 * 
+	 *
 	 * @param left string
 	 * @param right string
 	 * @return true if they are the same
@@ -630,7 +630,7 @@ public final class Utils
 
 	/**
 	 * Compares two objects no matter if they are null
-	 * 
+	 *
 	 * @param left object
 	 * @param right object
 	 * @return true if they are the same
@@ -646,7 +646,7 @@ public final class Utils
 
 	/**
 	 * Format a given number (Visitor (locale) specific)
-	 * 
+	 *
 	 * @param param the input number
 	 * @param digits number of digits
 	 * @return the formatted number
@@ -662,9 +662,9 @@ public final class Utils
 
 	/**
 	 * Format a given number of miliseconds in a formatted time
-	 * 
+	 *
 	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
-	 * 
+	 *
 	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format (format used from java.text.SimpleDateFormat!)
 	 * @return the formatted time
@@ -677,9 +677,9 @@ public final class Utils
 
 	/**
 	 * Format a given number of miliseconds in a formatted time
-	 * 
+	 *
 	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
-	 * 
+	 *
 	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format
 	 * @return the formatted time
@@ -702,7 +702,7 @@ public final class Utils
 	/**
 	 * Create a Date (time) from a String, returns null on failure<br>
 	 * Example: Timestamp t = Utils.parseDate("23-06-1975 6:08 AM", "dd-MM-yyyy hh:mm a"); <br>
-	 * 
+	 *
 	 * @param datetime the date as formatted string
 	 * @param format the format to be used
 	 * @return the Timestamp object
@@ -718,7 +718,7 @@ public final class Utils
 	/**
 	 * Parse a javascript string into a java string, example parseJSString("'HelloWorld'") returns:HelloWorld
 	 * @param o
-	 * 
+	 *
 	 * @return the parsed object
 	 */
 	public static Object parseJSExpression(Object o)
@@ -728,7 +728,7 @@ public final class Utils
 
 	/**
 	 *   The same as parseJSExpression but try to convert the object to the given type parameter
-	 * @param  type from java.sql.Types  ,  java.sql.Types.OTHER to get the behavior of parseJSExpression(Object o) 
+	 * @param  type from java.sql.Types  ,  java.sql.Types.OTHER to get the behavior of parseJSExpression(Object o)
 	 */
 	public static Object parseJSExpression(Object o, int type)
 	{
@@ -796,13 +796,13 @@ public final class Utils
 		return parsed;
 	}
 
-	/** 
+	/**
 	 * Represent a primitive as js string.
 	 * Booleans and Numbers are converted to their string representation.
 	 * Strings are quoted with single quotes.
-	 * 
+	 *
 	 * @see #parseJSExpression(Object) reverse method
-	 * 
+	 *
 	 * @param o
 	 * @return the result string
 	 */
@@ -823,7 +823,7 @@ public final class Utils
 
 	/**
 	 * Method for replacing part of a string with a string
-	 * 
+	 *
 	 * @param org the orginal string
 	 * @param source the string to search
 	 * @param destination the string to replace
@@ -927,7 +927,7 @@ public final class Utils
 	/**
 		 * Removes all substrings between '<' and corresponding '>'. If the number of '<' characters differs from the number of '>' characters, the behavior is
 		 * undetermined.
-		 * 
+		 *
 		 * @param str the initial string.
 		 * @return a string equal to the given string from which all substrings between '<' and corresponding '>' were removed.
 		 */
@@ -951,7 +951,7 @@ public final class Utils
 				{
 					sb.append(ch);
 				}
-				if (ch == '>')
+				else if (ch == '>')
 				{
 					opened--;
 				}
@@ -962,7 +962,7 @@ public final class Utils
 
 	/**
 	 * Escape quotes in a string, handle already escaped quotes
-	 * 
+	 *
 	 * @param str
 	 * @param quote
 	 */
@@ -999,11 +999,11 @@ public final class Utils
 	 * <p>
 	 * Joins the elements of the provided <code>Iterator</code> into a single String containing the provided elements.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * No delimiter is added before or after the list. Null objects or empty strings within the iteration are represented by empty strings.
 	 * </p>
-	 * 
+	 *
 	 * @param iterator the <code>Iterator</code> of values to join together, may be null
 	 * @param separator the separator character to use
 	 * @return the joined String, <code>null</code> if null iterator input
@@ -1054,7 +1054,7 @@ public final class Utils
 
 	/**
 	 * Converts a Java String to an HTML markup string, but does not convert normal spaces to non-breaking space entities (&lt;nbsp&gt;).
-	 * 
+	 *
 	 * @param s The string to be escaped
 	 * @see Utils#escapeMarkup(String, boolean)
 	 * @return The escaped string
@@ -1069,7 +1069,7 @@ public final class Utils
 	 * Converts a Java String to an HTML markup String by replacing illegal characters with HTML entities where appropriate. Spaces are converted to
 	 * non-breaking spaces (&lt;nbsp&gt;) if escapeSpaces is true, tabs are converted to four non-breaking spaces, less than signs are converted to &amp;lt;
 	 * entities and greater than signs to &amp;gt; entities.
-	 * 
+	 *
 	 * @param s The string to escape
 	 * @param escapeSpaces True to replace ' ' with nonbreaking space
 	 * @return The escaped string
@@ -1084,7 +1084,7 @@ public final class Utils
 	 * Converts a Java String to an HTML markup String by replacing illegal characters with HTML entities where appropriate. Spaces are converted to
 	 * non-breaking spaces (&lt;nbsp&gt;) if escapeSpaces is true, tabs are converted to four non-breaking spaces, less-than signs are converted to &amp;lt;
 	 * entities and greater-than signs to &amp;gt; entities.
-	 * 
+	 *
 	 * @param s The string to escape
 	 * @param escapeSpaces True to replace ' ' with nonbreaking space
 	 * @param convertToHtmlUnicodeEscapes True to convert non-7 bit characters to unicode HTML (&#...)
@@ -1099,7 +1099,7 @@ public final class Utils
 	/**
 	 * Converts a String to multiline HTML markup by replacing newlines with line break entities (&lt;br/&gt;) and multiple occurrences of newline with
 	 * paragraph break entities (&lt;p&gt;).
-	 * 
+	 *
 	 * @param s String to transform
 	 * @return String with all single occurrences of newline replaced with &lt;br/&gt; and all multiple occurrences of newline replaced with &lt;p&gt;.
 	 */
@@ -1156,7 +1156,7 @@ public final class Utils
 
 	/**
 	 * Format a given number (Visitor (locale) specific)
-	 * 
+	 *
 	 * @param param the input number
 	 * @param digits number of digits
 	 * @return the formatted number
@@ -1168,7 +1168,7 @@ public final class Utils
 
 	/**
 	 * Format a given number (Visitor (locale) specific)
-	 * 
+	 *
 	 * @param param the input number
 	 * @param digits number of digits
 	 * @return the formatted number
@@ -1180,7 +1180,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a double
-	 * 
+	 *
 	 * @param o the object (Number, String, ...) to parse
 	 * @return the parsed double - or 0 (zero) if the parse doesn't succeed
 	 */
@@ -1199,7 +1199,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a double
-	 * 
+	 *
 	 * @param o the object (Number, String, ...) to parse
 	 * @param throwOnFail whether or not to throw a RuntimeException on failure
 	 * @return the parsed double - or 0 (zero) if the parse doesn't succeed and throwOnFail is false
@@ -1219,7 +1219,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a float
-	 * 
+	 *
 	 * @param o the object (Number, String, ...) to parse
 	 * @return the parsed float or 0 (zero) if the parse doesn't succeed
 	 */
@@ -1238,7 +1238,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a float
-	 * 
+	 *
 	 * @param o the object (Number, String, ...) to parse
 	 * @param throwOnException whether or not to throw a RuntimeException on failure
 	 * @return the parsed float - or 0 (zero) if the parse doesn't succeed and throwOnException is false
@@ -1258,7 +1258,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given string as a float
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @return the float - or 0 (zero) if the parse doesn't succeed
 	 */
@@ -1277,7 +1277,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given string as a float
-	 * 
+	 *
 	 * @param s the string to parse
 	 * @param throwOnException whether or not to throw a RuntimeException on failure
 	 * @return the float - or 0 (zero) if the parse doesn't succeed if throwOnException is false
@@ -1305,7 +1305,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as a UUID
-	 * 
+	 *
 	 * @param o the object to try
 	 * @param throwOnException whether or not to throw a RuntimeException on failure
 	 * @return UUID or null if o is not recognized
@@ -1364,7 +1364,7 @@ public final class Utils
 
 	/**
 	 * count the numbers in a string
-	 * 
+	 *
 	 * @param s the string with the numbers
 	 * @return the count
 	 */
@@ -1378,7 +1378,7 @@ public final class Utils
 
 	/**
 	 * hardcore try to find the last number in a string
-	 * 
+	 *
 	 * @param s the string with the number
 	 * @return only the digits
 	 */
@@ -1398,7 +1398,7 @@ public final class Utils
 
 	/**
 	 * hardcore try to find a number in a string
-	 * 
+	 *
 	 * @param s the string with the number
 	 * @return only the digits
 	 */
@@ -1421,7 +1421,7 @@ public final class Utils
 
 	/**
 	 * hardcore try to find a number in a string
-	 * 
+	 *
 	 * @param s the string with the number
 	 * @return only the digits
 	 */
@@ -1463,7 +1463,7 @@ public final class Utils
 	 */
 	/**
 	 * Try to parse the given object as an integer
-	 * 
+	 *
 	 * @param o the object (Number, String, ...) to parse
 	 * @return the parsed integer - or 0 (zero) if the parse doesn't succeed
 	 */
@@ -1483,7 +1483,7 @@ public final class Utils
 
 	/**
 	 * Try to parse the given object as an integer
-	 * 
+	 *
 	 * @param o the object (Number, String, ...) to parse
 	 * @param throwOnException whether to throw an exception if parsing failed
 	 * @return the parsed integer - or 0 (zero) if the parse doesn't succeed and throwOnException is false
@@ -1718,9 +1718,9 @@ public final class Utils
 
 	/**
 	 * Hashes the given string with the PKCS/PBKDF2 algoritme see http://en.wikipedia.org/wiki/PBKDF2 for more information
-	 * 
+	 *
 	 * @param textString The string to hash
-	 * @param iterations Number of hash iterations to be done (should be higher then 1000) 
+	 * @param iterations Number of hash iterations to be done (should be higher then 1000)
 	 * @return the hash of the string
 	 */
 	@SuppressWarnings("nls")
@@ -1825,7 +1825,7 @@ public final class Utils
 
 	/**
 	 * will give you the index in the string of the first char in the char array that is found in that string.
-	 * 
+	 *
 	 * @param string
 	 * @param chars
 	 * @return the index of the first char found or -1 if no char is found
@@ -1838,7 +1838,7 @@ public final class Utils
 	/**
 	 * will give you the index in the string of the first char in the char array that is found in that string
 	 * starting at the startIndex
-	 * 
+	 *
 	 * @param string
 	 * @param chars
 	 * @param startIndex
@@ -2037,7 +2037,7 @@ public final class Utils
 
 	/**
 	 * Create a PageFormat object from the dimensions and margins.
-	 * 
+	 *
 	 * @param width the actual paper width - ignoring orientation. It is the width of the paper as seen by the printer.
 	 * @param height the actual paper height - ignoring orientation. It is the height of the paper as seen by the printer.
 	 * @param lm left margin of the page, not paper. So this is the left margin affected by orientation, as used in application.
@@ -2246,7 +2246,7 @@ public final class Utils
 
 	/**
 	 * Convert to string representation, remove trailing '.0' for numbers.
-	 * 
+	 *
 	 * @return the result string
 	 */
 	public static String convertToString(Object o)
@@ -2339,7 +2339,7 @@ public final class Utils
 			//			ByteArrayOutputStream sb = new ByteArrayOutputStream();
 			//			try
 			//			{
-			//				FileInputStream is = new FileInputStream(f); 
+			//				FileInputStream is = new FileInputStream(f);
 			//				BufferedInputStream bis = new BufferedInputStream(is);
 			//				streamCopy(bis, sb);
 			//				closeInputStream(bis);
@@ -2348,7 +2348,7 @@ public final class Utils
 			//			{
 			//				Debug.error(e);
 			//			}
-			//			return sb.toByteArray();		
+			//			return sb.toByteArray();
 		}
 		return null;
 	}
@@ -2634,7 +2634,7 @@ public final class Utils
 
 	/**
 	 * Get the rectangle that surrounds all elements
-	 * 
+	 *
 	 * @param elements
 	 * @return the rectangle
 	 */
@@ -2666,7 +2666,7 @@ public final class Utils
 
 	/**
 	 * Set Calendar time part to 00:00:00:000
-	 * 
+	 *
 	 * @param cal
 	 */
 	public static void applyMinTime(Calendar cal)
@@ -2679,7 +2679,7 @@ public final class Utils
 
 	/**
 	 * Set Calendar time part to 23:59:59:999
-	 * 
+	 *
 	 * @param cal
 	 */
 	public static void applyMaxTime(Calendar cal)
@@ -2756,7 +2756,7 @@ public final class Utils
 
 	/**
 	 * Removes the first map entry based on a map value
-	 * 
+	 *
 	 * @param value the map value to remove the map entry
 	 * @param map a map from which to remove the value and key
 	 * @return the previous value associated with key, or null if there was no mapping for key
@@ -2788,7 +2788,7 @@ public final class Utils
 
 	/**
 	 * Returns the first Key of a map based on the value parameter
-	 *  
+	 *
 	 * @param map
 	 * @param value
 	 * @return the first key of a map based on the value parameter
