@@ -64,7 +64,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents the typeahead/lookup field in the browser.
- * 
+ *
  * @author jcompagner
  */
 public class WebDataLookupField extends WebDataField implements IDisplayRelatedData, IDisplayDependencyData
@@ -339,7 +339,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			/**
 			 * Returns web color representation of int rgba color by
 			 * removing the alpha value
-			 * 
+			 *
 			 * @param color int representation of rgba color
 			 * @return web color of form #rrggbb
 			 */
@@ -483,7 +483,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	/**
 	 * Maps a trimmed value entered by the user to a value stored in the value list. The value stored in the value list may contain some trailing spaces, while
 	 * the value entered by the user is trimmed.
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -544,6 +544,24 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			Debug.error(e);
 			return trimmed;
 		}
+	}
+
+	public static enum LISTVALUE
+	{
+		NOVALUE
+	}
+
+	public Object getValueListRealValue(String displayValue)
+	{
+		for (int i = 0; i < dlm.getSize(); i++)
+		{
+			Object display = dlm.getElementAt(i);
+			if ((displayValue != null && display != null && displayValue.equals(display.toString())) || (displayValue == null && display == null))
+			{
+				return dlm.getRealElementAt(i);
+			}
+		}
+		return LISTVALUE.NOVALUE;
 	}
 
 	private String matchValueListValue(String trimmed, boolean startsWith)
