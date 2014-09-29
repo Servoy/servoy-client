@@ -91,6 +91,42 @@ angular.module('slider',['servoy','ui.slider']).directive('slider', function() {
         	   $element.slider($scope.options);
         	   
            },
+           link: function($scope, $element, $attrs)
+           {
+        	   var style = 
+        	   {
+        	     'position': 'absolute',
+        	     'z-index': 2,
+        	     'border': 'none',
+        	     'cursor': 'pointer'
+        	   }
+        	   var slider_handle = $element.find('.ui-slider-handle');
+        	   if (slider_handle)
+        	   {
+        		   if (slider_handle.parent().hasClass('ui-slider-vertical'))
+        		   {
+        			   style.background = 'url(servoycomponents/slider/css/images/handle-vertical.png) no-repeat';
+        			   style.width = '15px';
+        			   style.height = '24px';
+        			   style.left = '-3px';
+        			   style['margin-left'] = '0';
+        			   style['margin-top'] = '-0.6em';
+        		   }
+        		   else
+        		   {
+        			   style.background = 'url(servoycomponents/slider/css/images/handle.png) no-repeat';
+        			   style.width = '25px';
+        			   style.height = '16px';
+        			   style.top = '-4px';
+        			   style['margin-left'] = '-0.6em';        			   
+        		   }
+        		   slider_handle.css(style);
+        	   }
+        	   
+        	   var slider_range = $element.find('.ui-slider-range');
+        	   if (slider_range) slider_range.css({background: '#ccc url(servoycomponents/slider/css/images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x'})
+        	   
+           },
            replace: true
         }
  	})
