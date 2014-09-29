@@ -4,24 +4,24 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
     CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
     CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $utils, $servoyInternal, $rootScope) {
+.run(function ($sabloConverters, $utils, $servoyInternal) {
 	var PROPERTY_UPDATES = "propertyUpdates";
 	
-	function getChildPropertyChanges(propertyValue, oldBeanModel) {
+	function getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) {
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 
 		var newBeanModel = propertyValue.model;
 		if (angular.isUndefined(oldBeanModel)) oldBeanModel = newBeanModel; // for child components who's custom prop. changed
-		var childChangedNotifier = getBeanPropertyChangeNotifier(propertyValue); 
+		var childChangedNotifier = getBeanPropertyChangeNotifier(propertyValue, componentScope); 
 		var beanConversionInfo = $utils.getInDepthProperty(internalState, 'conversions');
 		
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
 		
-		return $servoyInternal.getComponentChanges(newBeanModel, oldBeanModel, beanConversionInfo, internalState.beanLayout, containerSize, childChangedNotifier);
+		return $servoyInternal.getComponentChanges(newBeanModel, oldBeanModel, beanConversionInfo, internalState.beanLayout, containerSize, childChangedNotifier, componentScope);
 	};
 	
-	function getBeanPropertyChangeNotifier(propertyValue) {
+	function getBeanPropertyChangeNotifier(propertyValue, componentScope) {
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 		return function (oldBeanModel) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
 			if (!internalState.requests) internalState.requests = [];
@@ -30,9 +30,9 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 		};
 	};
 	
-	function watchModel(beanModel, childChangedNotifier) {
+	function watchModel(beanModel, childChangedNotifier, componentScope) {
 		// TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes!
-		return $rootScope.$watch(function() {
+		return componentScope.$watch(function() {
 			return beanModel;
 		}, function(newvalue, oldvalue) {
 			if (oldvalue === newvalue) return;
@@ -41,14 +41,14 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 	}
 	
 	$sabloConverters.registerCustomPropertyHandler('component', {
-		fromServerToClient: function (serverJSONValue, currentClientValue) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
 			var newValue = currentClientValue;
 
 			if (serverJSONValue && serverJSONValue[PROPERTY_UPDATES]) {
 				// granular updates received
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				var beanUpdate = serverJSONValue[PROPERTY_UPDATES];
-				var childChangedNotifier = getBeanPropertyChangeNotifier(newValue); 
+				var childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope); 
 				var beanModel = newValue.model;
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
@@ -57,7 +57,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 
 				var currentConversionInfo = beanUpdate.conversions ? $utils.getOrCreateInDepthProperty(internalState, 'conversions') : undefined;
 
-				$servoyInternal.applyBeanData(beanModel, beanLayout, beanUpdate, containerSize, childChangedNotifier, currentConversionInfo, beanUpdate.conversions);
+				$servoyInternal.applyBeanData(beanModel, beanLayout, beanUpdate, containerSize, childChangedNotifier, currentConversionInfo, beanUpdate.conversions, componentScope);
 			} else {
 				// full contents received
 				newValue = serverJSONValue;
@@ -87,7 +87,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 					internalState.beanLayout = null; // not really useful right now; just to be able to reuse existing form code 
 
 					internalState.modelUnwatch = null;
-					var childChangedNotifier = getBeanPropertyChangeNotifier(newValue); 
+					var childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope); 
 
 					// calling applyBeanData initially to make sure any needed conversions are done on model's properties
 					var beanModel = serverJSONValue.model;
@@ -98,7 +98,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 
 					var currentConversionInfo = beanModel.conversions ? $utils.getOrCreateInDepthProperty(internalState, 'conversions') : undefined;
 
-					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel.conversions);
+					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel.conversions, componentScope);
 					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
 
 					if (!serverJSONValue.api) serverJSONValue.api = {};
@@ -125,7 +125,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 						// alert("Apply called with: (" + rowId + ", " + property + ", " + componentModel[property] + ")");
 					};
 
-					internalState.modelUnwatch = watchModel(beanModel, childChangedNotifier);
+					if (componentScope) internalState.modelUnwatch = watchModel(beanModel, childChangedNotifier, componentScope);
 				}
 			}
 			

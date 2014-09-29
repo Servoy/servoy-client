@@ -1,6 +1,6 @@
 angular.module('custom_json_object_property', ['webSocketModule'])
 // CustomJSONObject type ------------------------------------------
-.run(function ($sabloConverters, $rootScope, $sabloUtils) {
+.run(function ($sabloConverters, $sabloUtils) {
 	var UPDATES = "u";
 	var KEY = "k";
 	var INITIALIZE = "in";
@@ -17,9 +17,9 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 		}
 	}
 	
-	function watchDumbElementForChanges(propertyValue, key) {
+	function watchDumbElementForChanges(propertyValue, key, componentScope) {
 		// if elements are primitives or anyway not something that wants control over changes, just add an in-depth watch
-		return $rootScope.$watch(function() {
+		return componentScope.$watch(function() {
 			return propertyValue[key];
 		}, function(newvalue, oldvalue) {
 			if (oldvalue === newvalue) return;
@@ -54,7 +54,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 	}
 	
 	$sabloConverters.registerCustomPropertyHandler('JSON_obj', {
-		fromServerToClient: function (serverJSONValue, currentClientValue) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
 			var newValue = currentClientValue;
 
 			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
@@ -87,7 +87,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 
 						if (conversionInfo) {
 							internalState.conversionInfo[c] = conversionInfo;
-							newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined);
+							newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope);
 						}
 
 						if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
@@ -122,7 +122,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 
 							if (conversionInfo) {
 								internalState.conversionInfo[key] = conversionInfo;
-								currentClientValue[key] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[key]);
+								currentClientValue[key] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[key], componentScope);
 							} else currentClientValue[key] = val;
 
 							if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
@@ -150,13 +150,13 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 						var elem = newValue[c];
 						if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 							// watch the child's value to see if it changes
-							if (angularAutoAddedKeys.indexOf(key) === -1) internalState.elUnwatch[c] = watchDumbElementForChanges(newValue, c);
+							if (angularAutoAddedKeys.indexOf(key) === -1 && componentScope) internalState.elUnwatch[c] = watchDumbElementForChanges(newValue, c, componentScope);
 						}
 					}
 
 					// watch for add/remove and such operations on object; this is helpful also when 'smart' child values (that have .setChangeNotifier)
 					// get changed completely by reference
-					internalState.objStructureUnwatch = $rootScope.$watchCollection(function() { return newValue; }, function(newWVal, oldWVal) {
+					if (componentScope) internalState.objStructureUnwatch = componentScope.$watchCollection(function() { return newValue; }, function(newWVal, oldWVal) {
 						if (newWVal === oldWVal) return;
 						var sendAllNeeded = (newWVal === null || oldWVal === null);
 						if (!sendAllNeeded) {

@@ -18,7 +18,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 	   }
 
-	   var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier) {
+	   var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier, componentScope) {
 		   // first build up a list of all the properties both have.
 		   var fulllist = $sabloUtils.getCombinedPropertyNames(now,prev);
 		   var changes = {}, prop;
@@ -47,7 +47,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   }
 		   if (changes.location || changes.size || changes.visible || changes.anchors) {
 			   if (beanLayout) {
-				   applyBeanData(now /*formStates[formname].model[beanname]*/, beanLayout, changes, parentSize, changeNotifier);
+				   applyBeanData(now /*formStates[formname].model[beanname]*/, beanLayout, changes, parentSize, changeNotifier, undefined, undefined, componentScope);
 			   }
 		   }
 		   for (prop in changes) {
@@ -59,17 +59,17 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   
 	   var sendChanges = function(now, prev, formname, beanname) {
 		   var changes = getComponentChanges(now, prev, $utils.getInDepthProperty(formStatesConversionInfo, formname, beanname),
-				   formStates[formname].layout[beanname], formStates[formname].properties.designSize, getChangeNotifier(formname, beanname));
+				   formStates[formname].layout[beanname], formStates[formname].properties.designSize, getChangeNotifier(formname, beanname), formStates[formname].getScope());
 		   if (Object.getOwnPropertyNames(changes).length > 0) {
 			   getSession().sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
 		   }
 	   };
 
-	   var applyBeanData = function(beanModel, beanLayout, beanData, containerSize, changeNotifier, beanConversionInfo, newConversionInfo) {
+	   var applyBeanData = function(beanModel, beanLayout, beanData, containerSize, changeNotifier, beanConversionInfo, newConversionInfo, componentScope) {
 		   if (newConversionInfo) { // then means beanConversionInfo should also be defined - we assume that
 			   // beanConversionInfo will be granularly updated in the loop below
 			   // (to not drop other property conversion info when only one property is being applied granularly to the bean)
-			   beanData = $sabloConverters.convertFromServerToClient(beanData, newConversionInfo, beanModel);
+			   beanData = $sabloConverters.convertFromServerToClient(beanData, newConversionInfo, beanModel, componentScope);
 		   }
 
 		   for(var key in beanData) {
@@ -233,7 +233,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   var newFormConversionInfo = (conversionInfo && conversionInfo.forms && conversionInfo.forms[formname]) ? conversionInfo.forms[formname] : undefined;
 	
 				   if(newFormProperties) {
-					   if (newFormConversionInfo && newFormConversionInfo['']) newFormProperties = $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel['']);
+					   if (newFormConversionInfo && newFormConversionInfo['']) newFormProperties = $sabloConverters.convertFromServerToClient(newFormProperties, newFormConversionInfo[''], formModel[''], formState.getScope());
 					   if (!formModel['']) formModel[''] = {};
 					   for(var p in newFormProperties) {
 						   formModel[''][p] = newFormProperties[p]; 
@@ -252,7 +252,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		
 							   var newBeanConversionInfo = newFormConversionInfo ? newFormConversionInfo[beanname] : undefined;
 							   var beanConversionInfo = newBeanConversionInfo ? $utils.getOrCreateInDepthProperty(formStatesConversionInfo, formname, beanname) : undefined; // we could do a get instead of undefined, but normally that value is not needed if the new conversion info is undefined
-							   applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize, getChangeNotifier(formname, beanname), beanConversionInfo, newBeanConversionInfo);
+							   applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize, getChangeNotifier(formname, beanname), beanConversionInfo, newBeanConversionInfo, formState.getScope());
 							   for (var defProperty in deferredProperties) {
 								   for(var key in newFormData[beanname]) {
 									   if (defProperty == (formname + "_" + beanname + "_" + key)) {
@@ -273,7 +273,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 						   formState.addWatches(newFormData);
 					   else if (msg.initialdatarequest)
 					   		formState.addWatches();
-					   formState.$digest();
+					   formState.getScope().$digest();
 					   if (formState.model.svy_default_navigator) {
 						   // this form has a default navigator. also make sure those watches are triggered.
 						  var controllerElement = angular.element('[ng-controller=DefaultNavigatorController]');
@@ -284,7 +284,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   }
 			   }
 	
-			   if (conversionInfo && conversionInfo.call) msg.call = $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call);
+			   if (conversionInfo && conversionInfo.call) msg.call = $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call, undefined, undefined);
 			   if (msg.call) {
 				   // {"call":{"form":"product","element":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}, // optionally "viewIndex":1 
 				   // "{ conversions: {product: {datatextfield1: {0: "Date"}}} }
@@ -332,14 +332,14 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 						   {
 							   formState.model[call.bean].readOnly = formState.model[call.bean].readOnlyBeforeFindMode;
 						   }
-						   formState.$digest();
+						   formState.getScope().$digest();
 					   }
 					   return;
 				   }
 				   try {
 					   return func.apply(funcThis, call.args)
 				   } finally {
-					   formState.$digest();
+					   formState.getScope().$digest();
 				   }
 			   }
 			   if (msg.sessionid) {
@@ -385,7 +385,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   delete formStates[formName];
 		   },
 
-		   initFormState: function(formName, beanDatas, formProperties) {
+		   initFormState: function(formName, beanDatas, formProperties, formScope) {
 			   var state = formStates[formName];
 			   // if the form is already initialized or if the beanDatas are not given, return that 
 			   if (state != null || !beanDatas) return state; 
@@ -415,7 +415,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   var newBeanConversionInfo = beanDatas[beanName].conversions;
 				   var beanConversionInfo = newBeanConversionInfo ? $utils.getOrCreateInDepthProperty(formStatesConversionInfo, formName, beanName) : undefined; // we could do a get instead of undefined, but normally that value is not needed if the new conversion info is undefined
 				   
-				   applyBeanData(model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo)
+				   applyBeanData(model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
 			   }
 
 			   return state;
@@ -433,7 +433,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 					   }
 					   var cmd = {cmd:'event',formname:formName,beanname:beanName,event:eventName,args:newargs,changes:data}
 					   if (rowId) cmd.rowId = rowId
-					   return getSession().sendDeferredMessage(cmd,formStates[formName])
+					   return getSession().sendDeferredMessage(cmd,formStates[formName].getScope())
 				   },
 			   }
 		   },

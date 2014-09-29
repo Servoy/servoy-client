@@ -3,7 +3,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 .value("$foundsetTypeConstants", {
 	ROW_ID_COL_KEY: '_svyRowId'
 })
-.run(function ($sabloConverters, $rootScope, $foundsetTypeConstants, $sabloUtils) {
+.run(function ($sabloConverters, $foundsetTypeConstants, $sabloUtils) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 	var CONVERSIONS = "conversions"; // data conversion info
 
@@ -39,10 +39,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 		}
 	};
 	
-	function addDataWatchToDataprovider(dataprovider, idx, foundsetValue) {
+	function addDataWatchToDataprovider(dataprovider, idx, foundsetValue, componentScope) {
 		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		internalState.unwatchData[idx].push(
-				$rootScope.$watch(function() { return foundsetValue[VIEW_PORT][ROWS][idx][dataprovider]; }, function (newData, oldData) {
+		if (componentScope) internalState.unwatchData[idx].push(
+				componentScope.$watch(function() { return foundsetValue[VIEW_PORT][ROWS][idx][dataprovider]; }, function (newData, oldData) {
 					if (newData !== oldData) { /* this doesn't seem to work correctly for 2 identical Date objects in Chrome when debugging; but it should */
 						var rowIgnoreChangeValue = internalState.ignoreDataChange[idx];
 						var changed = false;
@@ -70,19 +70,19 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 		);
 	}
 	
-	function addDataWatchesToRow(idx, foundsetValue) {
+	function addDataWatchesToRow(idx, foundsetValue, componentScope) {
 		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
 		internalState.unwatchData[idx] = [];
 		var dataprovider;
 		for (dataprovider in foundsetValue[VIEW_PORT][ROWS][idx]) {
-			if (dataprovider !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToDataprovider(dataprovider, idx, foundsetValue);
+			if (dataprovider !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToDataprovider(dataprovider, idx, foundsetValue, componentScope);
 		}
 	}
 
-	function addDataWatchesToRows(foundsetValue) {
+	function addDataWatchesToRows(foundsetValue, componentScope) {
 		var i;
 		for (i = foundsetValue[VIEW_PORT][ROWS].length - 1; i >= 0; i--) {
-			addDataWatchesToRow(i, foundsetValue);
+			addDataWatchesToRow(i, foundsetValue, componentScope);
 		}
 	};
 	
@@ -126,7 +126,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	}
 	
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
-		fromServerToClient: function (serverJSONValue, currentClientValue) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
 			var newValue = currentClientValue;
 			
 			// see if this is an update or whole value and handle it
@@ -160,16 +160,16 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						currentClientValue[VIEW_PORT][ROWS] = viewPortUpdate[ROWS];
 						if (viewPortUpdate[CONVERSIONS]) {
 							// do the actual conversion
-							$sabloConverters.convertFromServerToClient(currentClientValue[VIEW_PORT][ROWS], viewPortUpdate[CONVERSIONS][ROWS]);
+							$sabloConverters.convertFromServerToClient(currentClientValue[VIEW_PORT][ROWS], viewPortUpdate[CONVERSIONS][ROWS], componentScope);
 							// update conversion info
 							updateAllConversionInfo(currentClientValue, viewPortUpdate[CONVERSIONS][ROWS]);
 						}
-						addDataWatchesToRows(currentClientValue);
+						addDataWatchesToRows(currentClientValue, componentScope);
 						rowsIgnoreDataChanged(currentClientValue);
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
 						// partial row updates (remove/insert/update)
 						var rowUpdates = viewPortUpdate[UPDATE_PREFIX + ROWS]; // array of
-						if (viewPortUpdate[CONVERSIONS]) $sabloConverters.convertFromServerToClient(viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS]);
+						if (viewPortUpdate[CONVERSIONS]) $sabloConverters.convertFromServerToClient(viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS], componentScope);
 						
 						// {
 						//   "rows": rowData, // array again
@@ -217,7 +217,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 									rows.splice(currentClientValue[VIEW_PORT][SIZE], rows.length - currentClientValue[VIEW_PORT][SIZE]);
 								}
 								for (j = oldLength; j < rows.length; j++)
-									addDataWatchesToRow(j, currentClientValue);
+									addDataWatchesToRow(j, currentClientValue, componentScope);
 								for (j = rowUpdate.startIndex; j < rows.length; j++) {
 									rowIgnoreDataChanged(j, currentClientValue);
 								}
@@ -256,7 +256,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					if (newValue[VIEW_PORT][CONVERSIONS]) {
 						// relocate conversion info in internal state and convert
 						updateAllConversionInfo(newValue, newValue[VIEW_PORT][CONVERSIONS][ROWS]);
-						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS]);
+						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS], componentScope);
 						delete newValue[VIEW_PORT][CONVERSIONS];
 					}
 					
@@ -281,7 +281,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 					// watch for client selection changes and send them to server
 					internalState.ignoreSelectedChangeValue = newValue[SELECTED_ROW_INDEXES]; // ignore initial watch change
-					internalState.unwatchSelection = $rootScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
+					if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
 						var changed = false;
 						if (internalState.ignoreSelectedChangeValue) {
 							if (internalState.ignoreSelectedChangeValue.length == newSel.length) {
@@ -302,7 +302,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					internalState.unwatchData = {}; // { rowPk: [unwatchDataProvider1Func, ...], ... }
 					internalState.ignoreDataChange = {};
 					rowsIgnoreDataChanged(newValue);
-					addDataWatchesToRows(newValue);
+					addDataWatchesToRows(newValue, componentScope);
 				}
 				
 			}		 

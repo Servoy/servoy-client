@@ -31,7 +31,7 @@ webSocketModule.factory('$webSocket',
 						if (obj.exception) {
 							// something went wrong
 							if (obj.conversions && obj.conversions.exception) {
-								obj.exception = $sabloConverters.convertFromServerToClient(obj.exception, obj.conversions.exception)
+								obj.exception = $sabloConverters.convertFromServerToClient(obj.exception, obj.conversions.exception, undefined, undefined)
 							}
 							if (deferredEvent.scope) {
 								deferredEvent.deferred.reject(obj.exception);
@@ -44,7 +44,7 @@ webSocketModule.factory('$webSocket',
 							}
 						} else {
 							if (obj.conversions && obj.conversions.ret) {
-								obj.ret = $sabloConverters.convertFromServerToClient(obj.ret, obj.conversions.ret)
+								obj.ret = $sabloConverters.convertFromServerToClient(obj.ret, obj.conversions.ret, undefined, undefined)
 							}
 							if (deferredEvent.scope) {
 								deferredEvent.deferred.resolve(obj.ret);
@@ -66,7 +66,7 @@ webSocketModule.factory('$webSocket',
 					if (obj.services) {
 						// services call
 						if (obj.conversions && obj.conversions.services) {
-							obj.services = $sabloConverters.convertFromServerToClient(obj.services, obj.conversions.services)
+							obj.services = $sabloConverters.convertFromServerToClient(obj.services, obj.conversions.services, undefined, undefined)
 						}
 						for (var index in obj.services) {
 							var service = obj.services[index];
@@ -289,7 +289,7 @@ webSocketModule.factory('$webSocket',
 	 		            	// so no previous service state; set it now
 	 		            	if (conversionInfo && conversionInfo[servicename]) {
  		            			// convert all properties, remember type for when a client-server conversion will be needed
-	 		            		services[servicename] = $sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename],null)
+	 		            		services[servicename] = $sabloConverters.convertFromServerToClient(services[servicename], conversionInfo[servicename], undefined, serviceScopes[serviceName])
 	 		            		var changeNotifier = getChangeNotifier(servicename);
 	 		            		for (var pn in conversionInfo[servicename]) {
 	 		            			if (services[servicename][pn] && services[servicename][pn][$sabloConverters.INTERNAL_IMPL]
@@ -311,7 +311,7 @@ webSocketModule.factory('$webSocket',
 	 		            		if (conversionInfo && conversionInfo[servicename] && conversionInfo[servicename][key]) {
 	 		            			// convert property, remember type for when a client-server conversion will be needed
 	 		            			if (!serviceScopesConversionInfo[servicename]) serviceScopesConversionInfo[servicename] = {};
-	 		            			serviceData[key] = $sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceScope.model[key])
+	 		            			serviceData[key] = $sabloConverters.convertFromServerToClient(serviceData[key], conversionInfo[servicename][key], serviceScope.model[key], serviceScope)
 	 		            			
 	 		            			if ((serviceData[key] !== serviceScope.model[key] || serviceScopesConversionInfo[servicename][key] !== conversionInfo[servicename][key]) && serviceData[key]
 	 		            					&& serviceData[key][$sabloConverters.INTERNAL_IMPL] && serviceData[key][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
@@ -340,16 +340,16 @@ webSocketModule.factory('$webSocket',
 			 */
 			var customPropertyConverters = {};
 
-			var convertFromServerToClient = function(serverSentData, conversionInfo, currentClientData) {
+			var convertFromServerToClient = function(serverSentData, conversionInfo, currentClientData, componentScope) {
 				if (typeof conversionInfo === 'string' || typeof conversionInfo === 'number') {
 					var customConverter = customPropertyConverters[conversionInfo];
-					if (customConverter) serverSentData = customConverter.fromServerToClient(serverSentData, currentClientData);
+					if (customConverter) serverSentData = customConverter.fromServerToClient(serverSentData, currentClientData, componentScope);
 					else { //converter not found - will not convert
 						$log.error("cannot find type converter (s->c) for: '" + conversionInfo + "'.");
 					}
 				} else if (conversionInfo) {
 					for (var conKey in conversionInfo) {
-						serverSentData[conKey] = convertFromServerToClient(serverSentData[conKey], conversionInfo[conKey], currentClientData ? currentClientData[conKey] : undefined);
+						serverSentData[conKey] = convertFromServerToClient(serverSentData[conKey], conversionInfo[conKey], currentClientData ? currentClientData[conKey] : undefined, componentScope); // TODO should componentScope really stay the same here? 
 					}
 				}
 				return serverSentData;
@@ -411,6 +411,8 @@ webSocketModule.factory('$webSocket',
 				 *				// @param serverSentJSONValue the JSON value received from the server for the property
 				 *				// @param currentClientValue the JS value that is currently used for that property in the client; can be null/undefined if
 				 *				//        conversion happens for service API call parameters for example...
+				 *				// @param componentScope scope that can be used to add component and property related watches; can be null/undefined if
+				 *				//        conversion happens for service API call parameters for example...
 				 *				// @return the new/updated client side property value; if this returned value is interested in triggering
 				 *				//         updates to server when something changes client side it must have these member functions in this[$sabloConverters.INTERNAL_IMPL]:
 				 *				//				setChangeNotifier: function(changeNotifier) - where changeNotifier is a function that can be called when
@@ -418,7 +420,7 @@ webSocketModule.factory('$webSocket',
 				 *				//                                                          not be called when value is a call parameter for example, but will
 				 *				//                                                          be called when set into a component's/service's property/model
 				 *				//              isChanged: function() - should return true if the value needs to send updates to server // TODO this could be kept track of internally
-				 * 				fromServerToClient: function (serverSentJSONValue, currentClientValue) { (...); return newClientValue; },
+				 * 				fromServerToClient: function (serverSentJSONValue, currentClientValue, componentScope) { (...); return newClientValue; },
 				 * 
 				 *				// Converts from a client property JS value to a JSON that will be sent to the server.
 				 *				// @param newClientData the new JS client side property value
