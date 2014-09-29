@@ -168,7 +168,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			// if it's some kind of object, convert it (in depth, iterate over children)
 
-			Map<String, SabloT> rhinoMap = null;
+			RhinoNativeObjectWrapperMap<SabloT, SabloWT> rhinoMap = null;
 
 			if (rhinoValue instanceof NativeObject)
 			{

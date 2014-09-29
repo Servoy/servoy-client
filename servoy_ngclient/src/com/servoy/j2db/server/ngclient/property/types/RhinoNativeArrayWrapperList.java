@@ -27,6 +27,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.ChangeAwareList.IAttachAware;
+import org.sablo.specification.property.ChangeAwareList.IAttachHandler;
 import org.sablo.specification.property.ConvertedList;
 import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IWrappedBaseListProvider;
@@ -54,14 +56,16 @@ import org.sablo.specification.property.IWrapperType;
  * @param <SabloT> the Sablo value type
  * @param <SabloWT> the Sablo wrapped value type
  */
-public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<SabloT, Object> implements IWrappedBaseListProvider, IRhinoNativeProxy
+public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<SabloT, Object> implements IWrappedBaseListProvider, IRhinoNativeProxy,
+	IAttachAware<SabloWT>
 {
 
-	protected Map<Integer, SabloT> previousComponentValue;
+	protected Map<Integer, SabloT> previousValues;
 	protected BaseWebObject componentOrService;
-	private final PropertyDescription elementTypeDefinition;
-	private final Scriptable rhinoScriptable;
-	private ConvertedList<SabloWT, SabloT> sabloWrappedBaseList;
+	protected final PropertyDescription elementTypeDefinition;
+	protected final Scriptable rhinoScriptable;
+	protected ConvertedList<SabloWT, SabloT> sabloWrappedBaseList;
+	protected IAttachHandler<SabloWT> attachHandler;
 
 	public RhinoNativeArrayWrapperList(NativeArray rhinoArray, PropertyDescription elementTypeDefinition, List<SabloT> previousComponentValue,
 		BaseWebObject componentOrService)
@@ -74,15 +78,21 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 		return rhinoScriptable;
 	}
 
+	@Override
+	public void setAttachHandler(IAttachHandler<SabloWT> attachHandler)
+	{
+		this.attachHandler = attachHandler;
+	}
+
 	public RhinoNativeArrayWrapperList(List<Object> rhinoBasedList, PropertyDescription elementTypeDefinition, List<SabloT> previousComponentValue,
 		BaseWebObject componentOrService, Scriptable rhinoScriptable)
 	{
 		super(rhinoBasedList);
-		this.previousComponentValue = new HashMap<Integer, SabloT>();
+		this.previousValues = new HashMap<Integer, SabloT>();
 		if (previousComponentValue != null)
 		{
 			for (int i = previousComponentValue.size(); i >= 0; i++)
-				this.previousComponentValue.put(Integer.valueOf(i), previousComponentValue.get(i));
+				this.previousValues.put(Integer.valueOf(i), previousComponentValue.get(i));
 		}
 		this.componentOrService = componentOrService;
 		this.elementTypeDefinition = elementTypeDefinition;
@@ -92,9 +102,21 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 	@Override
 	protected SabloT convertFromBase(int i, Object value)
 	{
-		SabloT v = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, (previousComponentValue != null && previousComponentValue.size() > i)
-			? previousComponentValue.get(Integer.valueOf(i)) : null, elementTypeDefinition, componentOrService);
-		previousComponentValue.put(Integer.valueOf(i), v);
+		SabloT old = (previousValues != null && previousValues.size() > i) ? previousValues.get(Integer.valueOf(i)) : null;
+		SabloT v = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, old, elementTypeDefinition, componentOrService);
+
+		// previousComponentValue.get(i) might have been null if native JS Rhino objects/arrays were set there directly
+		// and the parent was also a native object that had previously been already attached to a component (but used via the initial Rhino reference not the Rhino wrapper
+		// so it doesn't trigger anything); in this case getting it now will actually create the ChangeAware instance - which needs to be attached to the component
+		previousValues.put(Integer.valueOf(i), v);
+		if (old != v)
+		{
+			if (attachHandler != null)
+			{
+				attachHandler.detachFromBaseObjectIfNeeded(i, wrap(old));
+				attachHandler.attachToBaseObjectIfNeeded(i);
+			}
+		}
 		return v;
 	}
 
@@ -117,9 +139,7 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 				@Override
 				protected SabloWT convertFromBase(int i, SabloT value)
 				{
-					IWrapperType<SabloT, SabloWT> wt = (IWrapperType<SabloT, SabloWT>)elementTypeDefinition.getType();
-					return wt.wrap(value, null /* we never store the wrapped value here... */, new DataConverterContext(elementTypeDefinition,
-						componentOrService));
+					return wrap(value);
 				}
 
 				@Override
@@ -132,6 +152,12 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 			};
 		}
 		return sabloWrappedBaseList;
+	}
+
+	protected SabloWT wrap(SabloT value)
+	{
+		IWrapperType<SabloT, SabloWT> wt = (IWrapperType<SabloT, SabloWT>)elementTypeDefinition.getType();
+		return wt.wrap(value, null /* we never store the wrapped value here... */, new DataConverterContext(elementTypeDefinition, componentOrService));
 	}
 
 	/**

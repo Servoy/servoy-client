@@ -28,6 +28,8 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.ChangeAwareMap.IAttachAware;
+import org.sablo.specification.property.ChangeAwareMap.IAttachHandler;
 import org.sablo.specification.property.ConvertedMap;
 import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IWrappedBaseMapProvider;
@@ -56,22 +58,24 @@ import org.sablo.specification.property.IWrapperType;
  * @param <SabloWT> the Sablo wrapped value type
  */
 //TODO these ET and WT are improper - as for object type they can represent multiple types (a different set for each child key), but they help to avoid some bugs at compile-time
-public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<SabloT, Object> implements IWrappedBaseMapProvider, IRhinoNativeProxy
+public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<SabloT, Object> implements IWrappedBaseMapProvider, IRhinoNativeProxy,
+	IAttachAware<SabloWT>
 {
 
 	protected Map<String, IWrapperType<SabloT, SabloWT>> childPropsThatNeedWrapping;
-	protected Map<String, SabloT> previousComponentValue;
+	protected Map<String, SabloT> previousValues;
 	protected BaseWebObject componentOrService;
-	private final PropertyDescription customJSONTypeDefinition;
-	private final NativeObject rhinoObject;
-	private ConvertedMap<SabloWT, SabloT> sabloWrappedBaseMap;
+	protected final PropertyDescription customJSONTypeDefinition;
+	protected final NativeObject rhinoObject;
+	protected ConvertedMap<SabloWT, SabloT> sabloWrappedBaseMap;
+	protected IAttachHandler<SabloWT> attachHandler;
 
 	public RhinoNativeObjectWrapperMap(NativeObject rhinoObject, PropertyDescription customJSONTypeDefinition, Map<String, SabloT> previousComponentValue,
 		BaseWebObject componentOrService, Map<String, IWrapperType<SabloT, SabloWT>> childPropsThatNeedWrapping)
 	{
 		super(new NativeObjectProxyMap<String, Object>(rhinoObject));
 		this.childPropsThatNeedWrapping = childPropsThatNeedWrapping;
-		this.previousComponentValue = previousComponentValue != null ? new HashMap<String, SabloT>(previousComponentValue) : new HashMap<String, SabloT>();
+		this.previousValues = previousComponentValue != null ? new HashMap<String, SabloT>(previousComponentValue) : new HashMap<String, SabloT>();
 		this.componentOrService = componentOrService;
 		this.customJSONTypeDefinition = customJSONTypeDefinition;
 		this.rhinoObject = rhinoObject;
@@ -83,11 +87,29 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 	}
 
 	@Override
+	public void setAttachHandler(IAttachHandler<SabloWT> attachHandler)
+	{
+		this.attachHandler = attachHandler;
+	}
+
+	@Override
 	protected SabloT convertFromBase(String key, Object value)
 	{
-		SabloT v = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousComponentValue != null ? previousComponentValue.get(key) : null,
-			customJSONTypeDefinition.getProperty(key), componentOrService);
-		previousComponentValue.put(key, v);
+		SabloT old = previousValues != null ? previousValues.get(key) : null;
+		SabloT v = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, old, customJSONTypeDefinition.getProperty(key), componentOrService);
+
+		// previousComponentValue.get(key) might have been null if native JS Rhino objects/arrays were set there directly
+		// and the parent was also a native object that had previously been already attached to a component (but used via the initial Rhino reference not the Rhino wrapper
+		// so it doesn't trigger anything); in this case getting it now will actually create the ChangeAware instance - which needs to be attached to the component
+		previousValues.put(key, v);
+		if (old != v)
+		{
+			if (attachHandler != null)
+			{
+				attachHandler.detachFromBaseObjectIfNeeded(key, wrap(key, old));
+				attachHandler.attachToBaseObjectIfNeeded(key);
+			}
+		}
 		return v;
 	}
 
@@ -110,9 +132,7 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 				@Override
 				protected SabloWT convertFromBase(String forKey, SabloT value)
 				{
-					IWrapperType<SabloT, SabloWT> wt = childPropsThatNeedWrapping.get(forKey);
-					return wt != null ? wt.wrap(value, null /* we never store the wrapped value here... */,
-						new DataConverterContext(customJSONTypeDefinition.getProperty(forKey), componentOrService)) : (SabloWT)value;
+					return wrap(forKey, value);
 				}
 
 				@Override
@@ -125,6 +145,13 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 			};
 		}
 		return sabloWrappedBaseMap;
+	}
+
+	protected SabloWT wrap(String forKey, SabloT value)
+	{
+		IWrapperType<SabloT, SabloWT> wt = childPropsThatNeedWrapping.get(forKey);
+		return wt != null ? wt.wrap(value, null /* we never store the wrapped value here... */,
+			new DataConverterContext(customJSONTypeDefinition.getProperty(forKey), componentOrService)) : (SabloWT)value;
 	}
 
 	/**
