@@ -411,6 +411,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     				  }
     			  }
     			  
+    			  
+    			  updateTwoWayBindings(element.model);
     			  cellProxies.mergedCellModel = cellModel = cellData;
     		  } 
     		  return cellModel;
