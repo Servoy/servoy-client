@@ -25,7 +25,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 		return function (oldBeanModel) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
 			if (!internalState.requests) internalState.requests = [];
-			internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel) });
+			internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) });
 			if (internalState.notifier) internalState.notifier();
 		};
 	};
