@@ -35,6 +35,9 @@ import org.apache.wicket.util.upload.FileItemIterator;
 import org.apache.wicket.util.upload.FileItemStream;
 import org.apache.wicket.util.upload.FileUploadException;
 import org.apache.wicket.util.upload.ServletFileUpload;
+import org.sablo.eventthread.WebsocketSessionEndpoints;
+import org.sablo.websocket.IWebsocketEndpoint;
+import org.sablo.websocket.WebsocketEndpoint;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -289,24 +292,34 @@ public class MediaResourcesServlet extends HttpServlet
 			{
 				try
 				{
-					ServletFileUpload upload = new ServletFileUpload();
-					FileItemIterator iterator = upload.getItemIterator(req);
-					if (iterator.hasNext())
+					String clientID = paths[1];
+					String formName = paths[2];
+					String elementName = paths[3];
+					String propertyName = paths[4];
+					INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(
+						WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
+					if (wsSession != null)
 					{
-						FileItemStream item = iterator.next();
-						byte[] data = read(item.openStream());
-						String clientID = paths[1];
-						String formName = paths[2];
-						String elementName = paths[3];
-						String propertyName = paths[4];
-
-						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(
-							WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
-						if (wsSession != null)
+						ServletFileUpload upload = new ServletFileUpload();
+						FileItemIterator iterator = upload.getItemIterator(req);
+						if (iterator.hasNext())
 						{
+							FileItemStream item = iterator.next();
+							byte[] data = read(item.openStream());
+
 							IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
 							WebFormComponent webComponent = form.getWebComponent(elementName);
 							form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
+							IWebsocketEndpoint previous = WebsocketEndpoint.set(new WebsocketSessionEndpoints(wsSession));
+							try
+							{
+
+								wsSession.valueChanged();
+							}
+							finally
+							{
+								WebsocketEndpoint.set(previous);
+							}
 						}
 					}
 				}
