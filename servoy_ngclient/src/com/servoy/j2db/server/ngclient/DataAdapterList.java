@@ -434,7 +434,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		String property = map.get(beanProperty);
 		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
 		// but what if it was a global or form variable?
-		if (record.startEditing())
+		if (record == null || record.startEditing())
 		{
 			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, newValue);
 			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChange();
@@ -457,7 +457,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void startEdit(WebFormComponent webComponent, String property)
 	{
 		String dataProvider = beanToDataHolder.get(webComponent.getFormElement()).get(property);
-		if (dataProvider != null && !ScopesUtils.isVariableScope(dataProvider))
+		if (record != null && dataProvider != null && !ScopesUtils.isVariableScope(dataProvider))
 		{
 			record.startEditing();
 		}
