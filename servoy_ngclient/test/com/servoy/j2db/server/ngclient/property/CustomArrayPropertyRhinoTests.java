@@ -51,6 +51,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
 /**
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public class CustomArrayPropertyRhinoTests
 {
 
@@ -83,7 +84,6 @@ public class CustomArrayPropertyRhinoTests
 		PropertyDescription objectTPD = component.getSpecification().getProperty("objectT");
 		PropertyDescription arrayTPD = component.getSpecification().getProperty("arrayT");
 		PropertyDescription activePD = objectTPD.getProperty("active");
-		PropertyDescription activeTypePD = ((CustomJSONPropertyType< ? >)activePD.getType()).getCustomJSONTypeDefinition();
 
 		// just some initial checks and setting a java value
 		assertNull(component.getProperty("arrayT"));
