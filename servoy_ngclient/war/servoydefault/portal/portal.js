@@ -387,7 +387,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     						  if (!skip) {
     							  // 2 way data link between element model and the merged cell model
     							  // it is a bit strange here as 1 element model will be 2 way bound to N cell models
-    							  cellProxies.unwatchProperty[k] = $utils.bindTwoWayObjectProperty(cellData, k, elements[elementIndex].model, k);
+    							  cellProxies.unwatchProperty[k] = $utils.bindTwoWayObjectProperty(cellData, k, elements[elementIndex].model, k, false, $scope);
     							  
     							  // copy initial values
     							  if (angular.isUndefined(cellData[k])) cellData[k] = elements[elementIndex].model[k];
@@ -407,7 +407,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     					  var dataprovider = element.forFoundset.dataLinks[i].dataprovider;
     					  cellData[propertyName] = ngGridRow.getProperty(dataprovider);
     					  // 2 way data link between element separate properties from foundset and the merged cell model
-    					  $utils.bindTwoWayObjectProperty(cellData, propertyName, cellProxies, ["rowEntity", dataprovider]);
+    					  $utils.bindTwoWayObjectProperty(cellData, propertyName, cellProxies, ["rowEntity", dataprovider], false, $scope);
     				  }
     			  }
     			  

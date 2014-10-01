@@ -21,8 +21,12 @@ import java.io.IOException;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.IWebsocketSession;
+
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 
 /**
  * Javascript function to call a client-side function in the web service api.
@@ -48,7 +52,9 @@ public class WebServiceFunction extends WebBaseFunction
 		// No unwrapping here so that javascript objects can also be sent to client
 		try
 		{
-			return session.getService(serviceName).executeServiceCall(definition.getName(), args);
+			PropertyDescription retPD = definition != null ? definition.getReturnType() : null;
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(session.getService(serviceName).executeServiceCall(definition.getName(), args),
+				retPD, (BaseWebObject)session.getService(serviceName), thisObj);
 		}
 		catch (IOException e)
 		{
