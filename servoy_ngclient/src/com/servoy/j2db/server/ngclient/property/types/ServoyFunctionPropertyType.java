@@ -35,6 +35,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
@@ -102,6 +103,10 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 				NativeFunction function = (NativeFunction)object;
 				String functionName = function.getFunctionName();
 				Scriptable parentScope = function.getParentScope();
+				while (parentScope != null && !(parentScope instanceof ScriptVariableScope))
+				{
+					parentScope = parentScope.getParentScope();
+				}
 				if (parentScope instanceof FormScope)
 				{
 					String formName = ((FormScope)parentScope).getFormController().getName();
