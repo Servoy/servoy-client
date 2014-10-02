@@ -1,4 +1,4 @@
-angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', function($utils, $foundsetTypeConstants, $componentTypeConstants, /*timeout can be removed if it was only used for testing*/ $timeout) {  
+angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', function($utils, $foundsetTypeConstants, $componentTypeConstants, /*timeout can be removed if it was only used for testing*/ $timeout, $solutionSettings, $anchorConstants) {  
     return {
       restrict: 'E',
       scope: {
@@ -338,17 +338,82 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  }
     	  
     	  function isInViewPort(absoluteRowIndex) {
-    		  return (absoluteRowIndex >= foundset.viewPort.startIndex && absoluteRowIndex < (foundset.viewPort.startIndex + foundset.viewPort.size));
+			  return (absoluteRowIndex >= foundset.viewPort.startIndex && absoluteRowIndex < (foundset.viewPort.startIndex + foundset.viewPort.size));
     	  }
     	  
     	  $scope.getMultilineComponentWrapperStyle = function(elementIndex) {
-    		  var el = elements[elementIndex]; 
-    		  var elX = el.model.location.x - $scope.model.location.x;
-    		  var elY = el.model.location.y - $scope.model.location.y;
-    		  var style = {position: 'absolute', left: elX + 'px', top: elY + 'px', width: el.model.size.width + 'px', height: el.model.size.height + 'px'};
-    		  if (typeof el.model.visible !== "undefined" && !el.model.visible) style.display = 'none'; // undefined is considered visible by default
+				var elModel = elements[elementIndex].model;
+				var containerModel = $scope.model;
+				var elLayout = {position: 'absolute'};
+
+				if(elModel.anchors && $solutionSettings.enableAnchoring) {
+					var anchoredTop = (elModel.anchors & $anchorConstants.NORTH) != 0; // north
+					var anchoredRight = (elModel.anchors & $anchorConstants.EAST) != 0; // east
+					var anchoredBottom = (elModel.anchors & $anchorConstants.SOUTH) != 0; // south
+					var anchoredLeft = (elModel.anchors & $anchorConstants.WEST) != 0; //west
+
+					if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
+					if (!anchoredTop && !anchoredBottom) anchoredTop = true;
+
+					if (anchoredTop)
+					{
+						elLayout.top = elModel.location.y + 'px';
+					}
+
+					if (anchoredBottom)
+					{
+						elLayout.bottom = containerModel.size.height - elModel.location.y - elModel.size.height;
+						if(elModel.offsetY) {
+							elLayout.bottom = elLayout.bottom - elModel.offsetY;
+						}
+						elLayout.bottom = elLayout.bottom + "px";
+					}
+
+					if (!anchoredTop || !anchoredBottom) elLayout.height = elModel.size.height + 'px';
+
+					if (anchoredLeft)
+					{
+						if ($solutionSettings.ltrOrientation)
+						{
+							elLayout.left =  elModel.location.x + 'px';
+						}
+						else
+						{
+							elLayout.right =  elModel.location.x + 'px';
+						}
+					}
+
+					if (anchoredRight)
+					{
+						if ($solutionSettings.ltrOrientation)
+						{
+							elLayout.right = (containerModel.size.width - elModel.location.x - elModel.size.width) + "px";
+						}
+						else
+						{
+							elLayout.left = (containerModel.size.width - elModel.location.x - elModel.size.width) + "px";
+						}
+					}
+
+					if (!anchoredLeft || !anchoredRight) elLayout.width = elModel.size.width + 'px';
+				}
+				else {
+					if($solutionSettings.ltrOrientation)
+					{
+						elLayout.left = elModel.location.x + 'px';
+					}
+					else
+					{
+						elLayout.right = elModel.location.x + 'px';
+					}
+					elLayout.top = elModel.location.y + 'px';
+					elLayout.width = elModel.size.width + 'px';
+					elLayout.height = elModel.size.height + 'px';		   
+				}
+
+    	    	if (typeof elModel.visible !== "undefined" && !elModel.visible) elLayout.display = 'none'; // undefined is considered visible by default
     		  
-    		  return style;
+				return elLayout;
     	  }
     	  
     	  // merges foundset record dataprovider/tagstring properties into the element's model
