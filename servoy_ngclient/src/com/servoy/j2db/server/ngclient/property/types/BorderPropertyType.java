@@ -38,6 +38,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -235,7 +236,7 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Border formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers) throws JSONException
+		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers);
 	}

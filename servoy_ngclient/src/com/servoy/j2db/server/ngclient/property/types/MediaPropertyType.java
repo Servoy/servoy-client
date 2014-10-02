@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
@@ -34,6 +35,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
@@ -41,7 +43,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>
+public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>, IFormElementToTemplateJSON<Object, Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";
@@ -162,6 +164,32 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IS
 			this.mediaId = mediaId;
 			this.mediaUrl = mediaUrl;
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON#toTemplateJSONValue(org.json.JSONWriter, java.lang.String,
+	 * java.lang.Object, org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion)
+	 */
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
+	{
+		if (servoyDataConverterContext != null)
+		{
+			FlattenedSolution flattenedSolution = servoyDataConverterContext.getSolution();
+			INGApplication application = servoyDataConverterContext.getApplication();
+
+			String url = getMediaUrl(formElementValue, flattenedSolution, application);
+
+			if (url != null)
+			{
+				return toJSON(writer, key, new MediaWrapper(formElementValue, url), browserConversionMarkers);
+			}
+		}
+
+		return writer;
 	}
 
 }

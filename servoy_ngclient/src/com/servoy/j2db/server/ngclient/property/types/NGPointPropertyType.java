@@ -26,14 +26,14 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
 /**
  * @author acostescu
  */
-public class NGPointPropertyType extends PointPropertyType implements IDesignToFormElement<JSONObject, Point, Point>,
-	IFormElementToTemplateJSON<Point, Point>
+public class NGPointPropertyType extends PointPropertyType implements IDesignToFormElement<JSONObject, Point, Point>, IFormElementToTemplateJSON<Point, Point>
 {
 
 	public final static NGPointPropertyType NG_INSTANCE = new NGPointPropertyType();
@@ -46,8 +46,8 @@ public class NGPointPropertyType extends PointPropertyType implements IDesignToF
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Point formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers)
-		throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Point formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers);
 	}

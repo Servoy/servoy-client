@@ -185,7 +185,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			else
 			{
 				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again or send nothing
-				componentPropertyType.toTemplateJSONValue(destinationJSON, null, formElementValue, componentPropertyDescription, conversionMarkers);
+				componentPropertyType.toTemplateJSONValue(destinationJSON, null, formElementValue, componentPropertyDescription, conversionMarkers, null);
 			}
 		}
 		return destinationJSON;

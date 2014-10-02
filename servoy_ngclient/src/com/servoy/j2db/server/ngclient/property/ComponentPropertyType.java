@@ -39,6 +39,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
@@ -172,7 +173,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers) throws JSONException
+		DataConversion conversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
 	{
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 

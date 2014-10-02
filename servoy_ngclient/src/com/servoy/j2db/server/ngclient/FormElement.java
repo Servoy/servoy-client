@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -549,7 +550,7 @@ public final class FormElement implements IWebComponentInitializer
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.writeDataWithConversions(NGConversions.FormElementToJSON.INSTANCE, propertyWriter, properties, /* null */propertyTypes); // don't use property types here as they aren't yet converted...
+			JSONUtils.writeDataWithConversions(new FormElementToJSON(getDataConverterContext()), propertyWriter, properties, /* null */propertyTypes); // don't use property types here as they aren't yet converted...
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)
@@ -573,7 +574,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

@@ -101,8 +101,8 @@ public class NGConversions
 		 * @param browserConversionMarkers client conversion markers that can be set and if set will be used client side to interpret the data properly.
 		 * @return the JSON writer for easily continuing the write process in the caller.
 		 */
-		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers)
-			throws JSONException;
+		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
+			IServoyDataConverterContext servoyDataConverterContext) throws JSONException;
 
 	}
 
@@ -192,9 +192,9 @@ public class NGConversions
 	 * Conversion 2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
 	public JSONWriter convertFormElementToTemplateJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType,
-		DataConversion browserConversionMarkers) throws IllegalArgumentException, JSONException
+		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws IllegalArgumentException, JSONException
 	{
-		return FormElementToJSON.INSTANCE.toJSONValue(writer, key, value, valueType, browserConversionMarkers);
+		return new FormElementToJSON(servoyDataConverterContext).toJSONValue(writer, key, value, valueType, browserConversionMarkers);
 	}
 
 	/**
@@ -202,8 +202,12 @@ public class NGConversions
 	 */
 	public static class FormElementToJSON implements IToJSONConverter
 	{
+		private final IServoyDataConverterContext servoyDataConverterContext;
 
-		public static final FormElementToJSON INSTANCE = new FormElementToJSON();
+		public FormElementToJSON(IServoyDataConverterContext servoyDataConverterContext)
+		{
+			this.servoyDataConverterContext = servoyDataConverterContext;
+		}
 
 		/**
 		 * Converts from FormElement values to template JSON values (sent to browser initially and cached).
@@ -222,7 +226,8 @@ public class NGConversions
 			{
 				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers,
+						servoyDataConverterContext);
 				}
 				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(value))
 				{
