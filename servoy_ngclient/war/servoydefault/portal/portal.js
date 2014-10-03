@@ -191,6 +191,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  if ($scope.gridOptions) {
     			  $scope.gridOptions.$gridScope.showFooter = multiPage;
     			  $scope.gridOptions.$gridScope.enablePaging = multiPage;
+    			  $scope.gridOptions.$gridScope.footerRowHeight = multiPage ?  55 : 0; // we need to calculate needed size somehow
     		  }
     		  // TODO this artificialServerSize does make page count show well, but it obviously breaks total size
     		  // so it's disabled for now...
@@ -615,8 +616,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  enableColumnResize: true,
     			  selectedItems: selectedItemsProxy,
     			  multiSelect: foundset.multiSelect,
-    			  enablePaging: true,
-    			  showFooter: true, // will be changed by watches later; at first it needs to be true to show later
+    			  enablePaging: false,
+    			  showFooter: false,
     			  totalServerItems: 'artificialServerSize', // we sometimes fake a page for the sake of following the first selected record with viewport - so we can't use real size here; see updatePageCount()
     			  pagingOptions: $scope.pagingOptions,
     			  primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
@@ -624,7 +625,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight,
     			  rowHeight: $scope.rowHeight?$scope.rowHeight:20
     	  };
-
+    	  $scope.styleClass = 'svyPortalGridStyle';
+    	  
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
     		  return function() {
     			  $scope.gridOptions.selectItem(rowIdToViewportRelativeRowIndex(rowId), true); // TODO for multiselect - what about modifiers such as CTRL? then it might be false

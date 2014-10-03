@@ -427,7 +427,6 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			data.put(dataProvider, value);
 		}
 		if (!dataTypes.hasChildProperties()) dataTypes = null;
-
 		return new TypedData<Map<String, Object>>(data, dataTypes);
 	}
 

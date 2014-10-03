@@ -137,10 +137,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 		// I guess tagstrings, valuelists, tab seq, ... must be implemented separately and provided as a viewport containing these values as part of 'components'
 		// property, not as part of foundset property
-//		List<String> tagstrings = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), TagStringPropertyType.INSTANCE);
+//		Set<String> tagstrings = formElement.getWebComponentSpec().getProperties(TagStringPropertyType.INSTANCE).keySet();
 //		for (String tagstringPropID : tagstrings)
 //		{
-//			m.put(tagstringPropID, (String)formElement.getProperty(tagstringPropID));
+//			m.put(tagstringPropID, (String)formElement.getPropertyValue(tagstringPropID));
 //		}
 
 		Set<String> dataproviders = formElement.getWebComponentSpec().getProperties(DataproviderPropertyType.INSTANCE).keySet();
