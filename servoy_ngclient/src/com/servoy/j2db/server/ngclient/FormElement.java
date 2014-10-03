@@ -142,6 +142,11 @@ public final class FormElement implements IWebComponentInitializer
 		return dataConverterContext;
 	}
 
+	public void setDataConverterContext(IServoyDataConverterContext dataConverterContext)
+	{
+		this.dataConverterContext = dataConverterContext;
+	}
+
 	/**
 	 * This is part of 'Conversion 1' (see {@link NGConversions})
 	 */
@@ -574,7 +579,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

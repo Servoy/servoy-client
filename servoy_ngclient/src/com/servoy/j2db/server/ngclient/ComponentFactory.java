@@ -452,6 +452,10 @@ public class ComponentFactory
 				persistWrapper = existing;
 			}
 		}
+		else
+		{
+			if (context != persistWrapper.getDataConverterContext()) persistWrapper.setDataConverterContext(context);
+		}
 		return persistWrapper;
 	}
 
