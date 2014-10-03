@@ -375,6 +375,7 @@ public class SpecGenerator
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "relatedFoundset", -1, null));
 				model.add(cs.new Element(-1, IRepository.FIELDS, "childElements", -1, null));
+				model.add(cs.new Element(-1, IRepository.INTEGER, "headerHeight", IRepository.INTEGER, 32));
 			}
 			if (componentSpec.getRepositoryType() == IRepository.TABPANELS)
 			{
@@ -442,6 +443,7 @@ public class SpecGenerator
 		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":200, \"height\":200}}");
 		portalTypeMapping.put("relatedFoundset", "foundset");
+		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
 		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"elementConfig\" : {\"forFoundsetTypedProperty\": \"relatedFoundset\"} }");
 		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 

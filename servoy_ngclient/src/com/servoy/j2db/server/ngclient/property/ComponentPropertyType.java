@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,7 +42,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -143,7 +143,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 //			m.put(tagstringPropID, (String)formElement.getProperty(tagstringPropID));
 //		}
 
-		List<String> dataproviders = WebGridFormUI.getWebComponentPropertyType(formElement.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
+		Set<String> dataproviders = formElement.getWebComponentSpec().getProperties(DataproviderPropertyType.INSTANCE).keySet();
 		for (String dataproviderID : dataproviders)
 		{
 			String dataproviderIDValue = (String)formElement.getPropertyValue(dataproviderID);

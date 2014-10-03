@@ -92,7 +92,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormManager#getCachedFormController(java.lang.String)
 	 */
 	@Override
@@ -103,7 +103,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormManager#setFormReadOnly(java.lang.String, boolean)
 	 */
 	@Override
@@ -239,7 +239,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManager#getForm(java.lang.String)
 	 */
 	@Override
@@ -302,7 +302,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManagerInternal#clearLoginForm()
 	 */
 	@Override
@@ -313,7 +313,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManager#getCurrentForm()
 	 */
 	@Override
@@ -325,7 +325,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManagerInternal#getCurrentMainShowingFormController()
 	 */
 	@Override
@@ -336,7 +336,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IManager#init()
 	 */
 	@Override
@@ -348,7 +348,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IManager#flushCachedItems()
 	 */
 	@Override
@@ -360,7 +360,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
 	@Override
@@ -402,7 +402,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInMainPanel(java.lang.String)
 	 */
 	@Override
@@ -413,7 +413,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInContainer(java.lang.String, com.servoy.j2db.IBasicMainContainer, java.lang.String, boolean,
 	 * java.lang.String)
 	 */
@@ -546,7 +546,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInCurrentContainer(java.lang.String)
 	 */
 	@Override
@@ -557,7 +557,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInDialog(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, boolean, boolean,
 	 * java.lang.String)
 	 */
@@ -594,7 +594,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInFrame(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, java.lang.String)
 	 */
 	@Override
@@ -628,7 +628,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#getCurrentContainer()
 	 */
 	@Override
@@ -639,7 +639,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#getHistory(com.servoy.j2db.IBasicMainContainer)
 	 */
 	@Override
@@ -663,7 +663,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#getMainContainer(java.lang.String)
 	 */
 	@Override
@@ -674,7 +674,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#isCurrentTheMainContainer()
 	 */
 	@Override
@@ -687,7 +687,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, org.json.JSONObject)
 	 */
 	@Override
@@ -831,12 +831,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		final String formName = args.optString("formname");
 
 		IWebFormUI form = getFormAndSetCurrentWindow(formName).getFormUI();
-		if (form instanceof WebGridFormUI)
-		{
-			WebGridFormUI grid = (WebGridFormUI)form;
-			if (args.has("currentPage")) grid.setCurrentPage(args.optInt("currentPage"));
-			if (args.has("pageSize")) grid.setPageSize(args.optInt("pageSize"));
-		}
 		TypedData<Map<String, Map<String, Object>>> properties = form.getAllComponentsProperties();
 		Map<String, Map<String, Map<String, Object>>> formData = new HashMap<String, Map<String, Map<String, Object>>>();
 

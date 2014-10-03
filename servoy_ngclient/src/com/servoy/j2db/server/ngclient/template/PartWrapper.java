@@ -36,8 +36,8 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
+import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.ListViewPortal;
 
 /**
  * @author lvostinar
@@ -110,10 +110,9 @@ public class PartWrapper
 			{
 				case FormController.TABLE_VIEW :
 				case FormController.LOCKED_TABLE_VIEW :
-					return null;
 				case IForm.LIST_VIEW :
 				case FormController.LOCKED_LIST_VIEW :
-					return Arrays.asList(new BaseComponent[] { new ListViewPortal(context) });
+					return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
 			}
 		}
 

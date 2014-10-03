@@ -48,7 +48,9 @@ import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -433,7 +435,7 @@ public class ComponentFactory
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof ListViewPortal) return createListViewPortalFormElement((ListViewPortal)formElement, context);
+			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, context);
 			else return new FormElement(formElement, context, propertyPath);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
@@ -444,7 +446,7 @@ public class ComponentFactory
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof ListViewPortal) persistWrapper = createListViewPortalFormElement((ListViewPortal)formElement, context);
+			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, context);
 			else persistWrapper = new FormElement(formElement, context, propertyPath);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -459,7 +461,7 @@ public class ComponentFactory
 		return persistWrapper;
 	}
 
-	private static FormElement createListViewPortalFormElement(ListViewPortal listViewPortal, IServoyDataConverterContext context)
+	private static FormElement createBodyPortalFormElement(BodyPortal listViewPortal, IServoyDataConverterContext context)
 	{
 		Form form = listViewPortal.getForm();
 		Part bodyPart = null;
@@ -482,15 +484,26 @@ public class ComponentFactory
 
 				JSONObject portal = new JSONObject();
 				portal.put("name", name);
-				portal.put("multiLine", true);
-				portal.put("rowHeight", bodyheight);
-				portal.put("anchors", IAnchorConstants.ALL);
+				portal.put("multiLine", !listViewPortal.isTableview());
+				portal.put("rowHeight", !listViewPortal.isTableview() ? bodyheight : getRowHeight(form));
+				if (listViewPortal.isTableview())
+				{
+					int headerHeight = 30;
+					if (form.hasPart(Part.HEADER))
+					{
+						headerHeight = 0;
+					}
+					portal.put("headerHeight", headerHeight);
+				}
+
+				portal.put("anchors", listViewPortal.isTableview() ? (IAnchorConstants.NORTH + IAnchorConstants.WEST + IAnchorConstants.SOUTH)
+					: IAnchorConstants.ALL);
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
 				location.put("y", 0);
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
-				size.put("width", form.getWidth());
+				size.put("width", listViewPortal.isTableview() ? getGridWidth(form) : form.getWidth());
 				size.put("height", bodyheight);
 				portal.put("size", size);
 				portal.put("visible", listViewPortal.getVisible());
@@ -549,6 +562,67 @@ public class ComponentFactory
 			}
 		}
 
+		return null;
+	}
+
+	private static int getRowHeight(Form form)
+	{
+		int rowHeight = 0;
+		Part part = getBodyPart(form);
+		int startPos = form.getPartStartYPos(part.getID());
+		int endPos = part.getHeight();
+		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		while (it.hasNext())
+		{
+			IPersist persist = it.next();
+			if (persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+			if (persist instanceof BaseComponent)
+			{
+				BaseComponent bc = (BaseComponent)persist;
+				Point location = bc.getLocation();
+				if (startPos <= location.y && endPos >= location.y)
+				{
+					if (rowHeight < bc.getSize().height) rowHeight = bc.getSize().height;
+				}
+			}
+		}
+
+		return rowHeight == 0 ? 20 : rowHeight;
+	}
+
+	private static int getGridWidth(Form form)
+	{
+		int rowWidth = 0;
+		Part part = getBodyPart(form);
+		int startPos = form.getPartStartYPos(part.getID());
+		int endPos = part.getHeight();
+		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		while (it.hasNext())
+		{
+			IPersist persist = it.next();
+			if (persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+			if (persist instanceof BaseComponent)
+			{
+				BaseComponent bc = (BaseComponent)persist;
+				Point location = bc.getLocation();
+				if (startPos <= location.y && endPos >= location.y)
+				{
+					rowWidth += bc.getSize().width + 0.5;//+borders
+				}
+			}
+		}
+		return rowWidth;
+	}
+
+	public static Part getBodyPart(Form form)
+	{
+		for (Part prt : Utils.iterate(form.getParts()))
+		{
+			if (prt.getPartType() == Part.BODY)
+			{
+				return prt;
+			}
+		}
 		return null;
 	}
 

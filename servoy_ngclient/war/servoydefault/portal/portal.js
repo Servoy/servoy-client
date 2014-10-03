@@ -249,7 +249,6 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     		  // allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
     		  $scope.$evalAsync(function () { updateGridSelectionFromFoundset(); });
     	  });
- 
     	  $scope.rowHeight = $scope.model.rowHeight;
     	  
     	  var rowTemplate = ''
@@ -283,7 +282,8 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
         		  $scope.columnDefinitions.push({
         			  displayName: columnTitle,
         			  cellTemplate: cellTemplate,
-        			  visible: el.model.visible
+        			  visible: el.model.visible,
+        			  width: el.model.size.width
         		  });
 
         		  updateColumnVisibility($scope, idx);
@@ -621,7 +621,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     			  pagingOptions: $scope.pagingOptions,
     			  primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
     			  columnDefs: 'columnDefinitions',
-    			  headerRowHeight: $scope.model.multiLine ? 0 : 32,
+    			  headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight,
     			  rowHeight: $scope.rowHeight?$scope.rowHeight:20
     	  };
 

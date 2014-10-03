@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -302,7 +303,7 @@ class PersistBasedFormElementImpl
 
 						propertyPath.add(i);
 						// remove the name of relation prefix from child dataproviders as it only stands in the way later on...
-						List<String> dataProviders = WebGridFormUI.getWebComponentPropertyType(nfe.getWebComponentSpec(), DataproviderPropertyType.INSTANCE);
+						Set<String> dataProviders = nfe.getWebComponentSpec().getProperties(DataproviderPropertyType.INSTANCE).keySet();
 						String relationPrefix = portal.getRelationName() + '.';
 						Map<String, Object> elementProperties = new HashMap<>(nfe.getRawPropertyValues());
 						for (String dpPropertyName : dataProviders)

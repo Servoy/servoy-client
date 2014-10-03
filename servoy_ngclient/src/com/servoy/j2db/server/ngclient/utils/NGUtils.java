@@ -29,6 +29,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.util.Debug;
 
@@ -40,7 +41,8 @@ import com.servoy.j2db.util.Debug;
 public abstract class NGUtils
 {
 
-	public static final PropertyDescription DATAPROVIDER_PD = new PropertyDescription("some dp", DataproviderPropertyType.INSTANCE);
+	public static final PropertyDescription DATAPROVIDER_PD = new PropertyDescription("some dp", DataproviderPropertyType.INSTANCE, new DataproviderConfig(
+		null, null, false));
 
 	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table)
 	{

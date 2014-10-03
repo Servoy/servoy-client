@@ -17,22 +17,25 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Portal;
 
 /**
- * Portal component used to simulate list view form
+ * Special portal component that is used to render body part (can be tableview or listview).
  * @author gboros
  *
  */
-public class ListViewPortal extends Portal
+public class BodyPortal extends Portal
 {
 	private final Form form;
+	private final boolean tableview;
 
-	public ListViewPortal(Form form)
+	public BodyPortal(Form form)
 	{
 		super(null, 0, null);
 		this.form = form;
+		this.tableview = (form.getView() == FormController.TABLE_VIEW || form.getView() == FormController.LOCKED_TABLE_VIEW);
 	}
 
 	public Form getForm()
@@ -43,9 +46,14 @@ public class ListViewPortal extends Portal
 	@Override
 	public boolean equals(Object o)
 	{
-		if (form == null) return ((o instanceof ListViewPortal) && (((ListViewPortal)o).getForm() == null));
-		if (o instanceof ListViewPortal) return form.equals(((ListViewPortal)o).getForm());
+		if (form == null) return ((o instanceof BodyPortal) && (((BodyPortal)o).getForm() == null));
+		if (o instanceof BodyPortal) return form.equals(((BodyPortal)o).getForm());
 		return false;
+	}
+
+	public boolean isTableview()
+	{
+		return tableview;
 	}
 
 	@Override

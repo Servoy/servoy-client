@@ -38,10 +38,9 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.ListViewPortal;
-import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -103,76 +102,6 @@ public class FormWrapper
 		return "angular.module('servoyApp').controller";
 	}
 
-	public String getViewType()
-	{
-		switch (form.getView())
-		{
-			case IFormConstants.VIEW_TYPE_TABLE_LOCKED :
-			case IFormConstants.VIEW_TYPE_TABLE :
-				return "TABLE_VIEW";
-			default :
-				return "RECORD_VIEW";
-		}
-	}
-
-	public int getHeaderHeight()
-	{
-		if (form.hasPart(Part.HEADER))
-		{
-			return 0;
-		}
-		return WebGridFormUI.HEADER_HEIGHT;
-	}
-
-	public int getGridWidth()
-	{
-		int rowWidth = 0;
-		Part part = getBodyPart();
-		int startPos = form.getPartStartYPos(part.getID());
-		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
-		{
-			IPersist persist = it.next();
-			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (persist instanceof BaseComponent)
-			{
-				BaseComponent bc = (BaseComponent)persist;
-				Point location = bc.getLocation();
-				if (startPos <= location.y && endPos >= location.y)
-				{
-					rowWidth += bc.getSize().width + 0.5;//+borders
-				}
-			}
-		}
-		return rowWidth;
-	}
-
-	public int getRowHeight()
-	{
-		int rowHeight = 0;
-		Part part = getBodyPart();
-		int startPos = form.getPartStartYPos(part.getID());
-		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
-		{
-			IPersist persist = it.next();
-			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (persist instanceof BaseComponent)
-			{
-				BaseComponent bc = (BaseComponent)persist;
-				Point location = bc.getLocation();
-				if (startPos <= location.y && endPos >= location.y)
-				{
-					if (rowHeight < bc.getSize().height) rowHeight = bc.getSize().height;
-				}
-			}
-		}
-
-		return rowHeight == 0 ? 20 : rowHeight;
-	}
-
 	private Part getBodyPart()
 	{
 		Part part = null;
@@ -208,7 +137,7 @@ public class FormWrapper
 
 		Collection<BaseComponent> excludedComponents = null;
 
-		if (isListView)
+		if (isListView || isTableView)
 		{
 			excludedComponents = getBodyComponents();
 		}
@@ -221,9 +150,9 @@ public class FormWrapper
 				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add((BaseComponent)persist);
 			}
 		}
-		if (isListView)
+		if (isListView || isTableView)
 		{
-			baseComponents.add(new ListViewPortal(form));
+			baseComponents.add(new BodyPortal(form));
 		}
 		if (form.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{

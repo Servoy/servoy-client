@@ -17,8 +17,15 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.PositionComparator;
 
 /**
  * List view form UI
@@ -27,7 +34,7 @@ import java.util.List;
  */
 public class WebListFormUI extends WebFormUI
 {
-	private ListViewPortal listViewPortal;
+	private BodyPortal listViewPortal;
 
 	/**
 	 * @param formController
@@ -40,14 +47,30 @@ public class WebListFormUI extends WebFormUI
 	@Override
 	protected List<FormElement> getFormElements()
 	{
-		return Arrays.asList(new FormElement[] { ComponentFactory.getFormElement(getPortal(), getDataConverterContext(), null) });
+		Form form = getController().getForm();
+		List<IFormElement> elements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		Iterator<IFormElement> it = elements.iterator();
+		Part body = ComponentFactory.getBodyPart(form);
+		int bodyStartY = form.getPartStartYPos(body.getID());
+		int bodyEndY = body.getHeight();
+		while (it.hasNext())
+		{
+			IFormElement element = it.next();
+			if (bodyStartY <= element.getLocation().y && bodyEndY > element.getLocation().y)
+			{
+				// remove body elements
+				it.remove();
+			}
+		}
+		elements.add(getPortal());
+		return ComponentFactory.getFormElements(new ArrayList<IPersist>(elements).iterator(), getDataConverterContext());
 	}
 
-	protected ListViewPortal getPortal()
+	protected BodyPortal getPortal()
 	{
 		if (listViewPortal == null)
 		{
-			listViewPortal = new ListViewPortal(getController().getForm());
+			listViewPortal = new BodyPortal(getController().getForm());
 		}
 		return listViewPortal;
 	}

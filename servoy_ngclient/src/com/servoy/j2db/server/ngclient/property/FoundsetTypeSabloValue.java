@@ -47,8 +47,6 @@ import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.WebGridFormUI;
-import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -349,7 +347,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 					addViewPortBounds(destinationJSON);
 					somethingChanged = true;
 				}
-				List<RowData> viewPortChanges = changeMonitor.getViewPortChanges();
+				List<com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData> viewPortChanges = changeMonitor.getViewPortChanges();
 				if (viewPortChanges.size() > 0)
 				{
 					if (!somethingChanged) destinationJSON.object();
@@ -493,7 +491,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 						if (foundset != null)
 						{
-							Pair<String, Integer> splitHashAndIndex = WebGridFormUI.splitPKHashAndIndex(rowIDValue);
+							Pair<String, Integer> splitHashAndIndex = splitPKHashAndIndex(rowIDValue);
 							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
 
 							if (recordIndex != -1)
@@ -572,6 +570,14 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		return dataAdapterList;
 	}
 
+	private Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
+	{
+		int index = pkHashAndIndex.lastIndexOf("_");
+		int recordIndex = Integer.parseInt(pkHashAndIndex.substring(index + 1));
+		String pkHash = pkHashAndIndex.substring(0, index);
+		return new Pair<>(pkHash, Integer.valueOf(recordIndex));
+	}
+
 	/**
 	 * Register a list of dataproviders that is needed client-side.
 	 * @param dataProvidersToSend a list of dataproviders that will be sent to the browser as part of the foundset property's viewport data.
@@ -583,7 +589,22 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 	public boolean setEditingRowByPkHash(String pkHashAndIndex)
 	{
-		return WebGridFormUI.setEditingRowByPkHash(foundset, pkHashAndIndex);
+		Pair<String, Integer> splitHashAndIndex = splitPKHashAndIndex(pkHashAndIndex);
+		int recordIndex = splitHashAndIndex.getRight().intValue();
+		IRecordInternal record = foundset.getRecord(recordIndex);
+		String pkHash = splitHashAndIndex.getLeft();
+		if (record != null && !pkHash.equals(record.getPKHashKey()))
+		{
+			recordIndex = foundset.getRecordIndex(pkHash, recordIndex);
+			if (recordIndex != -1)
+			{
+				foundset.setSelectedIndex(recordIndex);
+				return true;
+			}
+			else return false;
+		}
+		else foundset.setSelectedIndex(recordIndex);
+		return true;
 	}
 
 	@Override

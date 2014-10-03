@@ -11,6 +11,7 @@
 	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundsetTypedProperty": "relatedFoundset"} }, 
 	        "enabled" : {"type":"boolean", "default":true}, 
 	        "foreground" : "color", 
+	        "headerHeight" : {"type" :"int",  "default" : 32}, 
 	        "initialSort" : "string", 
 	        "intercellSpacing" : "dimension", 
 	        "location" : "point", 

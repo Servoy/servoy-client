@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +26,7 @@ import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.TypedData;
-
-import com.servoy.j2db.server.ngclient.WebGridFormUI.RowData;
+import org.sablo.websocket.utils.JSONUtils.JSONWritable;
 
 /**
  * This class is responsible for keeping track of what changes need to be sent to the client (whole thing, selection changes, viewport idx/size change, row data changes...)
@@ -401,6 +401,67 @@ public class FoundsetTypeChangeMonitor
 	protected void notifyChange()
 	{
 		if (changeNotifier != null) changeNotifier.valueChanged();
+	}
+
+	public static class RowData implements JSONWritable
+	{
+		public static final int CHANGE = 0;
+		public static final int INSERT = 1;
+		public static final int DELETE = 2;
+
+		private static final RowData EMPTY = new RowData();
+		private final TypedData<List<Map<String, Object>>> rows;
+		private final int startIndex;
+		private final int endIndex;
+
+		private int type;
+
+		private RowData()
+		{
+			rows = null;
+			startIndex = -1;
+			endIndex = -1;
+			type = -1;
+		}
+
+		public RowData(TypedData<List<Map<String, Object>>> rows, int startIndex, int endIndex)
+		{
+			this(rows, startIndex, endIndex, CHANGE);
+		}
+
+		public RowData(TypedData<List<Map<String, Object>>> rows, int startIndex, int endIndex, int type)
+		{
+			this.rows = rows;
+			this.startIndex = startIndex;
+			this.endIndex = endIndex;
+			this.type = type;
+		}
+
+		/**
+		 * @param type the type to set
+		 */
+		public void setType(int type)
+		{
+			this.type = type;
+		}
+
+		public TypedData<Map<String, Object>> toMap()
+		{
+			PropertyDescription rowType = null;
+
+			Map<String, Object> retValue = new HashMap<>();
+			retValue.put("rows", rows.content);
+			if (rows.contentType != null)
+			{
+				rowType = AggregatedPropertyType.newAggregatedProperty();
+				rowType.putProperty("rows", rows.contentType);
+			}
+			retValue.put("startIndex", Integer.valueOf(startIndex));
+			retValue.put("endIndex", Integer.valueOf(endIndex));
+			retValue.put("type", Integer.valueOf(type));
+
+			return new TypedData<Map<String, Object>>(retValue, rowType);
+		}
 	}
 
 //	protected static class RecordChangeDescriptor implements JSONWritable
