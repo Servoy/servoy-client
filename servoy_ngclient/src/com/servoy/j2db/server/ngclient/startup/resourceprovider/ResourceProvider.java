@@ -154,6 +154,12 @@ public class ResourceProvider implements Filter
 					}
 				}
 			}
+
+			if (url == null)
+			{
+				url = org.sablo.startup.Activator.getDefault().getResource(pathInfo);
+			}
+
 			if (url != null)
 			{
 				URLConnection connection = url.openConnection();
