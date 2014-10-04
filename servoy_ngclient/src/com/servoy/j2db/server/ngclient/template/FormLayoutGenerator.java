@@ -28,9 +28,10 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 
 /**
+ * Generates HTML for a absolute layout form
  * @author lvostinar
- *
  */
+@SuppressWarnings("nls")
 public class FormLayoutGenerator
 {
 

@@ -30,6 +30,7 @@ import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Generates HTML for a flow layout form
  * @author jblok, lvostinar
  */
 @SuppressWarnings("nls")
