@@ -211,7 +211,7 @@ angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$found
     	  $scope.$watch('pagingOptions.pageSize', function(newVal, oldVal) {
     		  if (newVal !== oldVal) {
     			  // user requested another page size; get items from server (could be optimised I guess if page size is lower)
-    			  var startIdx = $scope.pagingOptions.currentPage - 1;
+    			  var startIdx = $scope.pagingOptions.currentPage ? $scope.pagingOptions.currentPage - 1 : 0;
     			  foundset.loadRecordsAsync(startIdx * oldVal, newVal);
     			  $scope.pagingOptions.currentPage = Math.floor(startIdx / newVal + 1);
     			  updatePageCount();
