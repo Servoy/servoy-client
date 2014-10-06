@@ -1,4 +1,4 @@
-angular.module('svyCheck',['servoy']).directive('svyCheck', function() {  
+angular.module('servoydefaultCheck',['servoy']).directive('servoydefaultCheck', function() {  
     return {
       restrict: 'E',
       transclude: true,

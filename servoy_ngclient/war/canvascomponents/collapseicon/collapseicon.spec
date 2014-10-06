@@ -1,5 +1,5 @@
 {
-	"name": "collapseicon",
+	"name": "canvascomponents-collapseicon",
 	"displayName": "Collapse Icon",
 	"definition": "canvascomponents/collapseicon/collapseicon.js",
 	"libraries": [],

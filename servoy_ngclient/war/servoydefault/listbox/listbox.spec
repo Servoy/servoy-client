@@ -1,5 +1,5 @@
 {
-	"name": "svy-listbox",
+	"name": "servoydefault-listbox",
 	"displayName": "ListBox",
 	"icon": "servoydefault/listbox/listbox.png",
 	"definition": "servoydefault/listbox/listbox.js",

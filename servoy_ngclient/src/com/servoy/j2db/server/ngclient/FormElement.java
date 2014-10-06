@@ -425,7 +425,7 @@ public final class FormElement implements IWebComponentInitializer
 	 */
 	boolean isGraphicalComponentWithNoAction()
 	{
-		if ("svy-button".equals(componentType) || "svy-label".equals(componentType))
+		if ("servoydefault-button".equals(componentType) || "servoydefault-label".equals(componentType))
 		{
 			Object onAction = getPropertyValue(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName());
 			if (onAction == null || (onAction instanceof Integer && (((Integer)onAction).intValue() <= 0))) return true;

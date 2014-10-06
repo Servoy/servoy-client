@@ -1,5 +1,5 @@
 {
-	"name": "svy-checkgroup",
+	"name": "servoydefault-checkgroup",
 	"displayName": "Check Group",
 	"definition": "servoydefault/checkgroup/checkgroup.js",
 	"libraries": [],

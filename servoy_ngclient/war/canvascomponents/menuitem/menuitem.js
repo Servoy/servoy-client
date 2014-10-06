@@ -1,4 +1,4 @@
-angular.module('menuitem',['servoy']).directive('menuitem', function() {  
+angular.module('canvascomponentsMenuitem',['servoy']).directive('canvascomponentsMenuitem', function() {  
     return {
       restrict: 'E',
       transclude: true,

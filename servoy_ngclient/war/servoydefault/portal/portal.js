@@ -1,4 +1,4 @@
-angular.module('svyPortal',['servoy']).directive('svyPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', function($utils, $foundsetTypeConstants, $componentTypeConstants, /*timeout can be removed if it was only used for testing*/ $timeout, $solutionSettings, $anchorConstants) {  
+angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', function($utils, $foundsetTypeConstants, $componentTypeConstants, /*timeout can be removed if it was only used for testing*/ $timeout, $solutionSettings, $anchorConstants) {  
     return {
       restrict: 'E',
       scope: {

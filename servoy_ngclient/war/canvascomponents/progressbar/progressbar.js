@@ -1,4 +1,4 @@
-angular.module('canvasProgressbar',['servoy']).directive('canvasProgressbar', function() {  
+angular.module('canvascomponentsCanvasProgressbar',['servoy']).directive('canvascomponentsCanvasProgressbar', function() {  
     return {
       restrict: 'E',
       transclude: true,

@@ -1,4 +1,4 @@
-angular.module('svyTextfield',['servoy']).directive('svyTextfield', function($apifunctions) {  
+angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultTextfield', function($apifunctions) {  
 	return {
 		restrict: 'E',
 		transclude: true,

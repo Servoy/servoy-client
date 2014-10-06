@@ -1,5 +1,5 @@
-angular.module('svyRectangle',['servoy'])
-.directive('svyRectangle', function() {
+angular.module('servoydefaultRectangle',['servoy'])
+.directive('servoydefaultRectangle', function() {
     return {
       restrict: 'E',
       transclude: true,

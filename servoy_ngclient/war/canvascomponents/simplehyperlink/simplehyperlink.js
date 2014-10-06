@@ -1,4 +1,4 @@
-angular.module('simplehyperlink',['servoy']).directive('simplehyperlink', function() {  
+angular.module('canvascomponentsSimplehyperlink',['servoy']).directive('canvascomponentsSimplehyperlink', function() {  
     return {
       restrict: 'E',
       transclude: true,

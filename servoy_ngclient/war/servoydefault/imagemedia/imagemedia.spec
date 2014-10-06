@@ -1,5 +1,5 @@
 {
-	"name": "svy-imagemedia",
+	"name": "servoydefault-imagemedia",
 	"displayName": "Image Media",
 	"icon": "servoydefault/imagemedia/IMG16.png",
 	"definition": "servoydefault/imagemedia/imagemedia.js",

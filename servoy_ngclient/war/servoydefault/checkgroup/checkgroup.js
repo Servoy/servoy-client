@@ -1,4 +1,4 @@
-angular.module('svyCheckgroup',['servoy']).directive('svyCheckgroup', function($utils) {  
+angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultCheckgroup', function($utils) {  
     return {
       restrict: 'E',
       transclude: true,

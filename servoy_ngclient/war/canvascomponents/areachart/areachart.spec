@@ -1,5 +1,5 @@
 {
-	"name": "areachart",
+	"name": "canvascomponents-areachart",
 	"displayName": "AreaChart",
 	"definition": "canvascomponents/areachart/areachart.js",
 	"libraries": [

@@ -1,5 +1,5 @@
 {
-	"name": "svy-rectangle",
+	"name": "servoydefault-rectangle",
 	"displayName": "Rectangle",
 	"icon": "servoydefault/rectangle/rectangle.gif",
 	"definition": "servoydefault/rectangle/rectangle.js",

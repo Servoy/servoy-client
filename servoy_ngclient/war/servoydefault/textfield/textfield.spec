@@ -1,5 +1,5 @@
 {
-	"name": "svy-textfield",
+	"name": "servoydefault-textfield",
 	"displayName": "Text Field",
 	"icon": "servoydefault/textfield/textinput.png",
 	"definition": "servoydefault/textfield/textfield.js",

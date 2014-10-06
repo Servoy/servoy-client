@@ -1,4 +1,4 @@
-angular.module('collapseicon',['servoy']).directive('collapseicon', function() {  
+angular.module('canvascomponentsCollapseicon',['servoy']).directive('canvascomponentsCollapseicon', function() {  
     return {
       restrict: 'E',
       transclude: true,

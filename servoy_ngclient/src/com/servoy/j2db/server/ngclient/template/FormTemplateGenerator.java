@@ -94,7 +94,7 @@ public class FormTemplateGenerator
 		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type) == null)
 		{
 			Debug.error("Component spec for " + persist.getName() + " not found; please check your component spec file(s).");
-			return "svy-errorbean";
+			return "servoydefault-errorbean";
 		}
 		return component_type;
 	}
@@ -121,64 +121,64 @@ public class FormTemplateGenerator
 			{
 				if (com.servoy.j2db.component.ComponentFactory.isButton((GraphicalComponent)persist))
 				{
-					return "svy-button";
+					return "servoydefault-button";
 				}
-				return "svy-label";
+				return "servoydefault-label";
 			}
 			if (persist instanceof Field)
 			{
 				switch (((Field)persist).getDisplayType())
 				{
 					case Field.COMBOBOX :
-						return "svy-combobox";
+						return "servoydefault-combobox";
 					case Field.TEXT_FIELD :
-						return "svy-textfield";
+						return "servoydefault-textfield";
 					case Field.RADIOS :
-						return isSingleValueComponent(persist) ? "svy-radio" : "svy-radiogroup";
+						return isSingleValueComponent(persist) ? "servoydefault-radio" : "servoydefault-radiogroup";
 					case Field.CHECKS :
-						return isSingleValueComponent(persist) ? "svy-check" : "svy-checkgroup";
+						return isSingleValueComponent(persist) ? "servoydefault-check" : "servoydefault-checkgroup";
 					case Field.CALENDAR :
-						return "svy-calendar";
+						return "servoydefault-calendar";
 					case Field.TYPE_AHEAD :
-						return "svy-typeahead";
+						return "servoydefault-typeahead";
 					case Field.TEXT_AREA :
-						return "svy-textarea";
+						return "servoydefault-textarea";
 					case Field.PASSWORD :
-						return "svy-password";
+						return "servoydefault-password";
 					case Field.SPINNER :
-						return "svy-spinner";
+						return "servoydefault-spinner";
 					case Field.LIST_BOX :
 					case Field.MULTISELECT_LISTBOX :
-						return "svy-listbox";
+						return "servoydefault-listbox";
 					case Field.IMAGE_MEDIA :
-						return "svy-imagemedia";
+						return "servoydefault-imagemedia";
 					case Field.HTML_AREA :
 						if (((Field)persist).getEditable())
 						{
-							return "svy-htmlarea";
+							return "servoydefault-htmlarea";
 						}
 						else
 						{
-							return "svy-htmlview";
+							return "servoydefault-htmlview";
 						}
 				}
 			}
 			if (persist instanceof TabPanel)
 			{
 				int orient = ((TabPanel)persist).getTabOrientation();
-				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "svy-splitpane";
-				return "svy-tabpanel";
+				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "servoydefault-splitpane";
+				return "servoydefault-tabpanel";
 			}
 			if (persist instanceof Portal)
 			{
-				return "svy-portal";
+				return "servoydefault-portal";
 			}
 			if (persist instanceof RectShape)
 			{
-				return "svy-rectangle";
+				return "servoydefault-rectangle";
 			}
 		}
-		return "svy-errorbean";
+		return "servoydefault-errorbean";
 	}
 
 
@@ -192,7 +192,7 @@ public class FormTemplateGenerator
 		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type) == null)
 		{
 			Debug.error("Component spec for " + beanClassName + " not found; please check your component spec file(s).");
-			return "svy-errorbean";
+			return "servoydefault-errorbean";
 		}
 		return component_type;
 	}

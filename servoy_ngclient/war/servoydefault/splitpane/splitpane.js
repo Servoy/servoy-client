@@ -1,4 +1,4 @@
-angular.module('svySplitpane',['servoy']).directive('svySplitpane', function() {  
+angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function() {  
     return {
       restrict: 'E',
       transclude: true,

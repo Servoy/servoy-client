@@ -1,4 +1,4 @@
-angular.module('areachart',['servoy']).directive('areachart', function() {  
+angular.module('canvascomponentsAreachart',['servoy']).directive('canvascomponentsAreachart', function() {  
     return {
       restrict: 'E',
       transclude: true,

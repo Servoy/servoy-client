@@ -1,4 +1,4 @@
-angular.module('slider',['servoy','ui.slider']).directive('slider', function() {
+angular.module('servoycomponentsSlider',['servoy','ui.slider']).directive('servoycomponentsSlider', function() {
     return {
            restrict : 'E',
            transclude: true,

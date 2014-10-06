@@ -1,4 +1,4 @@
-angular.module('donutchart',['servoy']).directive('donutchart', function($window) {  
+angular.module('canvascomponentsDonutchart',['servoy']).directive('canvascomponentsDonutchart', function($window) {  
     return {
       restrict: 'E',
       transclude: true,

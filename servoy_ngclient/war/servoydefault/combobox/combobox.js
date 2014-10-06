@@ -1,6 +1,6 @@
-angular.module('svyCombobox',['servoy'])
+angular.module('servoydefaultCombobox',['servoy'])
 
-.directive('svyCombobox', ['$svyNGEvents', function($svyNGEvents) {
+.directive('servoydefaultCombobox', ['$svyNGEvents', function($svyNGEvents) {
     return {
       restrict: 'E',
       transclude: true,

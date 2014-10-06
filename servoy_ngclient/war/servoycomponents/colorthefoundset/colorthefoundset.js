@@ -1,4 +1,4 @@
-angular.module('colorthefoundset',['servoy']).directive('colorthefoundset', function($timeout) {  
+angular.module('servoycomponentsColorthefoundset',['servoy']).directive('servoycomponentsColorthefoundset', function($timeout) {  
     return {
       restrict: 'E',
       transclude: true,

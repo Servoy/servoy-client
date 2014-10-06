@@ -1,5 +1,5 @@
 {
-	"name": "svy-spinner",
+	"name": "servoydefault-spinner",
 	"displayName": "Spinner",
 	"icon": "servoydefault/spinner/spinner.png",
 	"definition": "servoydefault/spinner/spinner.js",

@@ -1,5 +1,5 @@
 {
-	"name": "menu",
+	"name": "canvascomponents-menu",
 	"displayName": "Menu",
 	"definition": "canvascomponents/menu/menu.js",
 	"libraries": [],

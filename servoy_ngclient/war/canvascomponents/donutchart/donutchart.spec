@@ -1,5 +1,5 @@
 {
-	"name": "donutchart",
+	"name": "canvascomponents-donutchart",
 	"displayName": "DonutChart",
 	"definition": "canvascomponents/donutchart/donutchart.js",
 	"libraries": [

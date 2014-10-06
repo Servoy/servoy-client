@@ -1,4 +1,4 @@
-angular.module('portletheader',['servoy']).directive('portletheader', function() {  
+angular.module('canvascomponentsPortletheader',['servoy']).directive('canvascomponentsPortletheader', function() {  
     return {
       restrict: 'E',
       transclude: true,

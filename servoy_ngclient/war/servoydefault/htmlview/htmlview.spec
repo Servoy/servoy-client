@@ -1,5 +1,5 @@
 {
-	"name": "svy-htmlview",
+	"name": "servoydefault-htmlview",
 	"displayName": "Html View",
 	"definition": "servoydefault/htmlview/htmlview.js",
 	"libraries": [],

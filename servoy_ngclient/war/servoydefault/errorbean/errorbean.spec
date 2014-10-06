@@ -1,5 +1,5 @@
 {
-	"name": "svy-errorbean",
+	"name": "servoydefault-errorbean",
 	"displayName": "Error Bean",
 	"definition": "servoydefault/errorbean/errorbean.js",
 	"libraries": [],

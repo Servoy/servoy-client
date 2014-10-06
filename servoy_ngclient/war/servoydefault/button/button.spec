@@ -1,5 +1,5 @@
 {
-	"name": "svy-button",
+	"name": "servoydefault-button",
 	"displayName": "Button",
 	"icon": "servoydefault/button/button.gif",
 	"definition": "servoydefault/button/button.js",

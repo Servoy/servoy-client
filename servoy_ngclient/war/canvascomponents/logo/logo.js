@@ -1,4 +1,4 @@
-angular.module('logo',['servoy']).directive('logo', function() {  
+angular.module('canvascomponentsLogo',['servoy']).directive('canvascomponentsLogo', function() {  
     return {
       restrict: 'E',
       transclude: true,

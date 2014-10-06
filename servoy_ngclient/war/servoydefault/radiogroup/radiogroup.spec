@@ -1,5 +1,5 @@
 {
-	"name": "svy-radiogroup",
+	"name": "servoydefault-radiogroup",
 	"displayName": "Radio group",
 	"definition": "servoydefault/radiogroup/radiogroup.js",
 	"libraries": [],

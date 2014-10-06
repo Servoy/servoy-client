@@ -1,4 +1,4 @@
-angular.module('svySpinner',['servoy']).directive('svySpinner',['$utils','formatFilterFilter', function($utils,formatFilter) {  
+angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinner',['$utils','formatFilterFilter', function($utils,formatFilter) {  
     return {
       restrict: 'E',
       transclude: true,

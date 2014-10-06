@@ -1,4 +1,4 @@
-angular.module('simplelabel',['servoy']).directive('simplelabel', function() {  
+angular.module('canvascomponentsSimplelabel',['servoy']).directive('canvascomponentsSimplelabel', function() {  
     return {
       restrict: 'E',
       transclude: true,

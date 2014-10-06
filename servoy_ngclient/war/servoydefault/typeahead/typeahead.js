@@ -1,5 +1,5 @@
-angular.module('svyTypeahead',['servoy'])
-.directive('svyTypeahead',['$timeout','formatFilterFilter', function($timeout,formatFilter) {  
+angular.module('servoydefaultTypeahead',['servoy'])
+.directive('servoydefaultTypeahead',['$timeout','formatFilterFilter', function($timeout,formatFilter) {  
     return {
       restrict: 'E',
       transclude: true,

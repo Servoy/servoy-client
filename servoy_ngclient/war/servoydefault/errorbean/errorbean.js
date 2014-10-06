@@ -1,4 +1,4 @@
-angular.module('svyErrorbean',['servoy']).directive('svyErrorbean', function(formatFilterFilter) {  
+angular.module('servoydefaultErrorbean',['servoy']).directive('servoydefaultErrorbean', function(formatFilterFilter) {  
     return {
       restrict: 'E',
       transclude: true,

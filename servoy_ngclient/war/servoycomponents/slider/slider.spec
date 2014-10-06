@@ -1,5 +1,5 @@
 {
-	"name": "slider",
+	"name": "servoycomponents-slider",
 	"displayName": "Slider",
 	"definition": "servoycomponents/slider/slider.js", 
 	"libraries": [{"name":"jquery-ui.custom.css", "version":"1.9.2", "url":"http://preview.jumpstartthemes.com/canvas-admin/js/libs/css/ui-lightness/jquery-ui-1.9.2.custom.css", "mimetype":"text/css"},

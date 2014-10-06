@@ -1,5 +1,5 @@
 {
-	"name": "simplehyperlink",
+	"name": "canvascomponents-simplehyperlink",
 	"displayName": "SimpleHyperlink",
 	"definition": "canvascomponents/simplehyperlink/simplehyperlink.js",
 	"libraries": [],

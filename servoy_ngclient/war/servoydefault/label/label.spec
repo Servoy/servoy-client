@@ -1,5 +1,5 @@
 {
-	"name": "svy-label",
+	"name": "servoydefault-label",
 	"displayName": "Label",
 	"icon": "servoydefault/label/text.gif",
 	"definition": "servoydefault/label/label.js",

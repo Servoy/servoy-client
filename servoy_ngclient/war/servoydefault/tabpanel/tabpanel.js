@@ -1,4 +1,4 @@
-angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($window) {  
+angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window) {  
     return {
       restrict: 'E',
       transclude: true,

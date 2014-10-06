@@ -1,5 +1,5 @@
 {
-	"name": "svy-textarea",
+	"name": "servoydefault-textarea",
 	"displayName": "Text Area",
 	"icon": "servoydefault/textarea/TEXTAREA16.png",
 	"definition": "servoydefault/textarea/textarea.js",

@@ -1,4 +1,4 @@
-angular.module('box',['servoy']).directive('box', function() {  
+angular.module('canvascomponentsBox',['servoy']).directive('canvascomponentsBox', function() {  
     return {
       restrict: 'E',
       transclude: true,

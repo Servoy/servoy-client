@@ -1,5 +1,5 @@
 {
-	"name": "menuitem",
+	"name": "canvascomponents-menuitem",
 	"displayName": "MenuItem",
 	"definition": "canvascomponents/menuitem/menuitem.js",
 	"libraries": [],

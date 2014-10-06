@@ -1,4 +1,4 @@
-angular.module('svyHtmlview',['servoy']).directive('svyHtmlview', function() {  
+angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlview', function() {  
     return {
       restrict: 'E',
       transclude: true,

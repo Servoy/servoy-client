@@ -146,7 +146,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					if (fe.getTypeName().equals("svy-typeahead"))
+					if (fe.getTypeName().equals("servoydefault-typeahead"))
 					{
 						String dp = (String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName());
 						IWebFormUI formUI = (WebFormUI)parentToAddTo;
@@ -516,7 +516,7 @@ public class ComponentFactory
 
 				PropertyPath propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
-				FormElement portalFormElement = new FormElement("svy-portal", portal, form, name, context, propertyPath);
+				FormElement portalFormElement = new FormElement("servoydefault-portal", portal, form, name, context, propertyPath);
 
 				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
 				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();

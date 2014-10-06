@@ -1,5 +1,5 @@
 {
-	"name": "namepanel2",
+	"name": "servoycomponents-namepanel2",
 	"displayName": "Name panel 2",
 	"definition": "servoycomponents/namepanel2/namepanel2.js",
 	"model":

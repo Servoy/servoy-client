@@ -1,5 +1,5 @@
 {
-	"name": "svy-portal",
+	"name": "servoydefault-portal",
 	"displayName": "Portal",
 	"icon": "servoydefault/portal/portal.gif",
 	"definition": "servoydefault/portal/portal.js",

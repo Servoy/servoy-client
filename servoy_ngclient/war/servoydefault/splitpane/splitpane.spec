@@ -1,5 +1,5 @@
 {
-	"name": "svy-splitpane",
+	"name": "servoydefault-splitpane",
 	"displayName": "Split Pane",
 	"icon": "servoydefault/splitpane/split.gif",
 	"definition": "servoydefault/splitpane/splitpane.js",

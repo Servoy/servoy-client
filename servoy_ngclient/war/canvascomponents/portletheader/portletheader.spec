@@ -1,5 +1,5 @@
 {
-	"name": "portletheader",
+	"name": "canvascomponents-portletheader",
 	"displayName": "Portlet Header",
 	"definition": "canvascomponents/portletheader/portletheader.js",
 	"libraries": [],

@@ -1,5 +1,5 @@
 {
-	"name": "svy-radio",
+	"name": "servoydefault-radio",
 	"displayName": "Radio",
 	"icon": "servoydefault/radio/RADIO16.png",
 	"definition": "servoydefault/radio/radio.js",

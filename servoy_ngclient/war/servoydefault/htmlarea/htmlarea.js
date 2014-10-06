@@ -1,4 +1,4 @@
-angular.module('svyHtmlarea',['servoy','ui.tinymce']).directive('svyHtmlarea', function() {  
+angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function() {  
 	return {
 		restrict: 'E',
 		transclude: true,

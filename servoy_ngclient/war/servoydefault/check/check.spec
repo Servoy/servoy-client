@@ -1,5 +1,5 @@
 {
-	"name": "svy-check",
+	"name": "servoydefault-check",
 	"displayName": "Check",
 	"icon": "servoydefault/check/CHECKBOX16.png",
 	"definition": "servoydefault/check/check.js",

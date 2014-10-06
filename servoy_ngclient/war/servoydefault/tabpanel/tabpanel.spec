@@ -1,5 +1,5 @@
 {
-	"name": "svy-tabpanel",
+	"name": "servoydefault-tabpanel",
 	"displayName": "Tab Panel",
 	"icon": "servoydefault/tabpanel/tabs.gif",
 	"definition": "servoydefault/tabpanel/tabpanel.js",
