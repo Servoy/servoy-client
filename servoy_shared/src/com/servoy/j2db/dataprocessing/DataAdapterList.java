@@ -878,7 +878,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		{
 			value = record.getValue(dataProviderID);
 		}
-		if (value == Scriptable.NOT_FOUND && fs.has(dataProviderID, fs))
+		if ((value == Scriptable.NOT_FOUND || value == null) && fs.has(dataProviderID, fs))
 		{
 			value = fs.get(dataProviderID);
 		}
