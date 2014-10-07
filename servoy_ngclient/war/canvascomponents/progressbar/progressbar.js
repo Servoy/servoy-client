@@ -8,7 +8,6 @@ angular.module('canvascomponentsCanvasProgressbar',['servoy']).directive('canvas
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/progressbar/progressbar.html',
-      replace: true
+      templateUrl: 'canvascomponents/progressbar/progressbar.html'
     };
   })

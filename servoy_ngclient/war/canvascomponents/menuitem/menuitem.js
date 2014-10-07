@@ -8,7 +8,6 @@ angular.module('canvascomponentsMenuitem',['servoy']).directive('canvascomponent
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/menuitem/menuitem.html',
-      replace: true
+      templateUrl: 'canvascomponents/menuitem/menuitem.html'
     };
   })

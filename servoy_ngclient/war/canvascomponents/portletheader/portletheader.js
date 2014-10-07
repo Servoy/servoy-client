@@ -9,7 +9,6 @@ angular.module('canvascomponentsPortletheader',['servoy']).directive('canvascomp
       controller: function($scope, $element, $attrs) {
     	 
       },
-      templateUrl: 'canvascomponents/portletheader/portletheader.html',
-      replace: true
+      templateUrl: 'canvascomponents/portletheader/portletheader.html'
     };
   })

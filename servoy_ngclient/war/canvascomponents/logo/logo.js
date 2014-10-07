@@ -8,7 +8,6 @@ angular.module('canvascomponentsLogo',['servoy']).directive('canvascomponentsLog
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/logo/logo.html',
-      replace: true
+      templateUrl: 'canvascomponents/logo/logo.html'
     };
   })

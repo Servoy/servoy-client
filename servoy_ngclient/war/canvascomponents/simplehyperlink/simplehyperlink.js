@@ -8,7 +8,6 @@ angular.module('canvascomponentsSimplehyperlink',['servoy']).directive('canvasco
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/simplehyperlink/simplehyperlink.html',
-      replace: true
+      templateUrl: 'canvascomponents/simplehyperlink/simplehyperlink.html'
     };
   })

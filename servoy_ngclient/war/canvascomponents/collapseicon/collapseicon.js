@@ -8,7 +8,6 @@ angular.module('canvascomponentsCollapseicon',['servoy']).directive('canvascompo
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/collapseicon/collapseicon.html',
-      replace: true
+      templateUrl: 'canvascomponents/collapseicon/collapseicon.html'
     };
   })

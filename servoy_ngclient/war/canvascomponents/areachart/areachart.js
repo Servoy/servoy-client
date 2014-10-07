@@ -33,7 +33,6 @@ angular.module('canvascomponentsAreachart',['servoy']).directive('canvascomponen
     	  $(window).resize (area);
     	 
       },
-      templateUrl: 'canvascomponents/areachart/areachart.html',
-      replace: true
+      templateUrl: 'canvascomponents/areachart/areachart.html'
     };
   })

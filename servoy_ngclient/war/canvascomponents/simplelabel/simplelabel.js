@@ -8,7 +8,6 @@ angular.module('canvascomponentsSimplelabel',['servoy']).directive('canvascompon
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/simplelabel/simplelabel.html',
-      replace: true
+      templateUrl: 'canvascomponents/simplelabel/simplelabel.html'
     };
   })

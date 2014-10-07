@@ -8,7 +8,6 @@ angular.module('canvascomponentsBox',['servoy']).directive('canvascomponentsBox'
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'canvascomponents/box/box.html',
-      replace: true
+      templateUrl: 'canvascomponents/box/box.html'
     };
   })

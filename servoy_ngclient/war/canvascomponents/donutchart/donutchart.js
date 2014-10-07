@@ -45,7 +45,6 @@ angular.module('canvascomponentsDonutchart',['servoy']).directive('canvascompone
     		    $scope.$digest();
     	  });
       },
-      templateUrl: 'canvascomponents/donutchart/donutchart.html',
-      replace: true
+      templateUrl: 'canvascomponents/donutchart/donutchart.html'
     };
   })

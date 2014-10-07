@@ -5,7 +5,6 @@ angular.module('canvascomponentsMenu',['servoy']).directive('canvascomponentsMen
       controller: function($scope, $element, $attrs) {
     	 
       },
-      templateUrl: 'canvascomponents/menu/menu.html',
-      replace: true
+      templateUrl: 'canvascomponents/menu/menu.html'
     };
   })
