@@ -85,7 +85,7 @@ public class FormTemplateGenerator
 
 	public static boolean isWebcomponentBean(IPersist persist)
 	{
-		return persist instanceof Bean && ((Bean)persist).getBeanClassName() != null && ((Bean)persist).getBeanClassName().indexOf(':') > 0;
+		return persist instanceof Bean && ((Bean)persist).getBeanClassName() != null && ((Bean)persist).getBeanClassName().indexOf('-') > 0;
 	}
 
 	public static String getComponentTypeName(IFormElement persist)
@@ -188,13 +188,12 @@ public class FormTemplateGenerator
 	 */
 	public static String getComponentTypeName(String beanClassName)
 	{
-		String component_type = beanClassName.substring(beanClassName.indexOf(':') + 1);
-		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type) == null)
+		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(beanClassName) == null)
 		{
 			Debug.error("Component spec for " + beanClassName + " not found; please check your component spec file(s).");
 			return "servoydefault-errorbean";
 		}
-		return component_type;
+		return beanClassName;
 	}
 
 	/**
