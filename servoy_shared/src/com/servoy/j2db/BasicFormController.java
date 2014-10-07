@@ -3635,6 +3635,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * //%%prefix%%controller.showPrintPreview(true, null, 125);
 		 *
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_showPrintPreview()
 		{
 			js_showPrintPreview(false, null, 100);
@@ -3645,6 +3646,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @sampleas js_showPrintPreview()
 		 * @param printCurrentRecordOnly to print the current record only
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_showPrintPreview(boolean printCurrentRecordOnly)
 		{
 			js_showPrintPreview(printCurrentRecordOnly, null, 100);
@@ -3658,6 +3660,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param printerJob print to plugin printer job, see pdf printer plugin for example (incase print is used from printpreview)
 		 *
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void js_showPrintPreview(boolean printCurrentRecordOnly, PrinterJob printerJob)
 		{
 			js_showPrintPreview(printCurrentRecordOnly, printerJob, 100);
@@ -3819,6 +3822,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag)
 		{
 			jsFunction_setDesignMode(onDrag, null);
@@ -3832,6 +3836,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, null);
@@ -3846,6 +3851,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, null);
@@ -3861,6 +3867,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, null);
@@ -3877,6 +3884,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick)
 		{
 			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, onDblClick, null);
@@ -3894,6 +3902,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
 		 * @param onrightclick org.mozilla.javascript.Function onRightClick method reference
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick, Function onRightClick)
 		{
 			checkDestroyed();
@@ -3919,6 +3928,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @param designMode boolean sets form in design mode if true, false ends design mode.
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setDesignMode(boolean designMode)
 		{
 			checkDestroyed();
@@ -3933,6 +3943,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @return the design mode state (true/fase)
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public boolean jsFunction_getDesignMode()
 		{
 			checkDestroyed();
@@ -4308,6 +4319,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @param printerName The name of the printer to be used when printing.
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setPreferredPrinter(String printerName)
 		{
 			checkDestroyed();
@@ -4348,6 +4360,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param topmargin the specified top margin of the page to be printed.
 		 * @param bottommargin the specified bottom margin of the page to be printed.
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
 		{
 			jsFunction_setPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, 2);
@@ -4364,6 +4377,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param bottommargin the specified bottom margin of the page to be printed.
 		 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
 			int orientation)
 		{
@@ -4382,6 +4396,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 		 * @param units the specified units for the width and height of the page to be printed; the default is pixels
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
 			int orientation, int units)
 		{
