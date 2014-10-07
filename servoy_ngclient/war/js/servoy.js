@@ -365,6 +365,11 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	        }
 	        if (svyApplyAttrValue) {
 	        	svyApply = parent.$eval(svyApplyAttrValue);
+	        	if (!svyApply && parent.$parent)
+	        	{
+	        		// how do we find the right parent?
+	        		svyApply = parent.$parent.$eval(svyApplyAttrValue);
+	        	}
 	        }
 	        
 	        var formName = null;
@@ -381,8 +386,8 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		    	        } else {
 		    	        	// this shouldn't happen (svy-apply not being set on a web-component...)
 		    	        	if (!formName) formName = searchForFormName(); 
-			        		if (beanModel) $servoyInternal.pushChange(formName,beanname,propertyname,beanModel[propertyname],beanModel.rowId);
-			        		else $servoyInternal.pushChangeDefault(formName,beanname,propertyname);
+			        		if (beanModel) $servoyInternal.pushDPChange(formName,beanname,propertyname,beanModel[propertyname],beanModel.rowId);
+			        		else $log.error("cannot apply new value");
 		    	        }
 		        	}, 0);
 		     });

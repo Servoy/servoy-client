@@ -1,9 +1,8 @@
-angular.module('servoydefaultCombobox',['servoy'])
+angular.module('servoydefaultCombobox',['servoy','ui.select'])
 
-.directive('servoydefaultCombobox', ['$svyNGEvents', function($svyNGEvents) {
+.directive('servoydefaultCombobox', ['$timeout', function($timeout) {
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         model: "=svyModel",
         api:"=svyApi",
@@ -12,38 +11,8 @@ angular.module('servoydefaultCombobox',['servoy'])
       controller: function($scope, $element, $attrs) {
     	   $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
     	   $scope.findMode = false;
-    	   $scope.customClasses = "";
-    	   // uncomment the following comment to use select2 as default; or the other way around
-    	   $scope.isSelect2 = ($scope.model.styleClass && ($scope.model.styleClass.indexOf('select2', 0) == 0)) /**/|| (typeof $scope.model.styleClass == 'undefined')/**/;
       },
       link: function(scope, element, attr) {
-    	  // see http://ivaynberg.github.io/select2/ for what this component allows (also can do typeahead, multi-edit field and so on)
-    	  // we could somehow give to select2() method 'containerCssClass' and 'dropdownCssClass' as well if needed in the future (for more custom styling)
-    	  
-    	  var ngModel = element.children().controller("ngModel");
-    	  var select2Css = null;
-    	  if (scope.model.styleClass && scope.model.styleClass.indexOf('select2 ', 0) == 0) {
-    		  // transform it into a select2 bootstrap combo and append styles
-    		  select2Css = "select2-container-svy-xs " + scope.model.styleClass.substr(8, scope.model.styleClass.length - 8);
-    	  } else if (scope.isSelect2) {
-    		  // transform it into a default select2 bootstrap combo
-    		  select2Css = "select2-container-svy-xs";
-    	  }
-    	  
-    	  if (scope.handlers.onFocusGainedMethodID) {
-     		   element.on("select2-focus", function(event) {
-	              scope.$apply(function() {
-	                scope.handlers.onFocusGainedMethodID(event);
-	              });
-	            });
-    	  }
-    	  if (scope.handlers.onFocusLostMethodID) {
-     		   element.on("select2-blur", function(event) {
-	              scope.$apply(function() {
-	                scope.handlers.onFocusLostMethodID(event);
-	              });
-	            });
-    	  }
     	  
     	  scope.api.setValueListItems = function(values) 
           {
@@ -56,7 +25,6 @@ angular.module('servoydefaultCombobox',['servoy'])
         		  {
         			  item['realValue'] = values[i][1];
         		  }
-        		  valuelistItems.push(item); 
         	  }
         	  scope.model.valuelistID = valuelistItems;
           }
@@ -76,12 +44,10 @@ angular.module('servoydefaultCombobox',['servoy'])
      	 };
      	 var storedTooltip = false;
      	scope.api.onDataChangeCallback = function(event, returnval) {
+     		var ngModel = element.children().controller("ngModel");
 			var stringValue = typeof returnval == 'string'
 			if(!returnval || stringValue) {
 				element[0].focus();
-				// TODO this will set ng-invalid on the tag, but "Select2" added many internal things to it that have 
-				// there own background color and img, so the color of ng-invalid won't be shown here...
-				// even setting ng-invalid class on those doesn't have to work because the background settings that is in select2.css could still override it.
 				ngModel.$setValidity("", false);
 				if (stringValue) {
 					if ( storedTooltip == false)
@@ -95,24 +61,19 @@ angular.module('servoydefaultCombobox',['servoy'])
 				storedTooltip = false;
 			}
 		}
-    	  
-    	  if (select2Css != null) {
-    		  $svyNGEvents.afterNGProcessedDOM(function () {
-    			  // $evalAsync so that the dom is processed already by angular; for example if there's a "<label for=.." linked to this combobox,
-    			  // the select's "id" attr must already be replaced by angular before we call select2
-	    		  $(element).children("select").select2({
-	    			  minimumResultsForSearch: -1, // don't show the search input when there are few items in combobox to choose from
-	    			  containerCss: scope.style,
-	    			  containerCssClass: select2Css
-	    		  });
-	    		  
-		    	  element.on('$destroy', function() {
-		    		  $(element).children("select").select2("destroy");
-		    	  });
-    		  }, true);
-    	  } else scope.customClasses = (scope.model.styleClass ? scope.model.styleClass : "form-control input-sm svy-padding-xs");
+     	
+     	scope.onItemSelect = function(event)
+     	{
+     		$timeout(function() {
+     			if (scope.handlers.onActionMethodID)
+         		{
+         			scope.handlers.onActionMethodID(event);
+         		}
+         		scope.handlers.svy_apply('dataProviderID');
+     		},0);
+     	}
+     	
       },
-      templateUrl: 'servoydefault/combobox/combobox.html',
-      replace: true
+      templateUrl: 'servoydefault/combobox/combobox.html'
     };
 }]);

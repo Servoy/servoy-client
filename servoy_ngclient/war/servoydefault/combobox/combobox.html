@@ -1,28 +1,20 @@
-<div svy-border='isSelect2 ? model.borderType : ""'
-	 	svy-background='isSelect2 ? (model.transparent ? "transparent" : model.background) : ""'
-	 	svy-foreground='isSelect2 ? model.foreground : ""'
-		svy-margin='isSelect2 ? model.margin : ""'
-		ng-style='style'
-		ng-disabled='isSelect2 ? (model.enabled == false) : false'
-		svy-tooltip='isSelect2 ? model.toolTipText : ""'
-		svy-font='isSelect2 ? model.fontType : ""'>
-
-	<select svy-border='model.borderType'
-	 		svy-background='model.transparent ? "transparent" : model.background'
-	 		svy-foreground='model.foreground'
-			svy-margin='model.margin'
-			ng-style='style'
-			ng-disabled='model.enabled == false'
-			svy-change='handlers.onActionMethodID($event)'
-			svy-font='model.fontType'
-			svy-tabseq='model.tabSeq'
-			svy-tooltip='model.toolTipText'
-			ng-class='customClasses'
-			ng-style='style'
-			ng-model='model.dataProviderID'
-			ng-options='value.realValue as value.displayValue | formatFilter:model.format.display:model.format.type
-						for value in model.valuelistID'
-			svy-autoapply id="{{model.svyMarkupId}}">
-	</select>
-
-</div>
+ <ui-select ng-model="model.dataProviderID" theme="bootstrap" 
+ 		id="{{model.svyMarkupId}}" 
+ 		ng-disabled="model.enabled == false"
+ 		svy-border='model.borderType'
+	 	svy-background='model.transparent ? "transparent" : model.background'
+	 	svy-foreground='model.foreground'
+		svy-margin='model.margin'
+		svy-tooltip='model.toolTipText'
+		svy-font='model.fontType'
+		svy-tabseq='model.tabSeq'
+		on-select='onItemSelect($event)'>
+ 			<ui-select-match  placeholder="{{model.placeholderText}}" 
+ 				svy-focusgained='handlers.onFocusGainedMethodID($event)' 	
+ 				svy-focuslost='handlers.onFocusLostMethodID($event)'
+ 				svy-rightclick='handlers.onRightClickMethodID($event)'
+ 				style="height:100%">{{$select.selected.displayValue}}</ui-select-match>
+            <ui-select-choices repeat="item.realValue as item in model.valuelistID">
+              <div ng-bind-html="item.displayValue | htmlFilter"></div>
+            </ui-select-choices>
+     </ui-select>
