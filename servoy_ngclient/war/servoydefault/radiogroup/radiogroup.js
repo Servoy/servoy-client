@@ -54,8 +54,7 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
        	 	}
        	 };
       },
-      templateUrl: 'servoydefault/radiogroup/radiogroup.html',
-      replace: true
+      templateUrl: 'servoydefault/radiogroup/radiogroup.html'
     };
   })
 

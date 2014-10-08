@@ -40,7 +40,6 @@ angular.module('servoydefaultRectangle',['servoy'])
         	  }  
           }
       },
-      templateUrl: 'servoydefault/rectangle/rectangle.html',
-      replace: true
+      templateUrl: 'servoydefault/rectangle/rectangle.html'
     };
 })

@@ -34,8 +34,7 @@ angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassw
       	 	}
       	 }; 
       },
-      templateUrl: 'servoydefault/password/password.html',
-      replace: true
+      templateUrl: 'servoydefault/password/password.html'
     };
   })
 

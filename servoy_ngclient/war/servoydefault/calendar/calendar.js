@@ -99,7 +99,6 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				}
 			}
       },
-      templateUrl: 'servoydefault/calendar/calendar.html',
-      replace: true
+      templateUrl: 'servoydefault/calendar/calendar.html'
     };
   })

@@ -8,7 +8,6 @@ angular.module('servoycomponentsNamepanel',['servoy']).directive('servoycomponen
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'servoycomponents/namepanel/namepanel.html',
-      replace: true
+      templateUrl: 'servoycomponents/namepanel/namepanel.html'
     };
   })

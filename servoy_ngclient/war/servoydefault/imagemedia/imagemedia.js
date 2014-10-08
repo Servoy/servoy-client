@@ -50,7 +50,6 @@ angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultIma
          	 return $element.scrollTop();
           }
       },
-      templateUrl: 'servoydefault/imagemedia/imagemedia.html',
-      replace: true
+      templateUrl: 'servoydefault/imagemedia/imagemedia.html'
     };
   })

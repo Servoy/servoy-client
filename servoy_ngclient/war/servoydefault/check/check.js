@@ -81,7 +81,6 @@ angular.module('servoydefaultCheck',['servoy']).directive('servoydefaultCheck', 
       	 	}
       	 };              
       },
-      templateUrl: 'servoydefault/check/check.html',
-      replace: true
+      templateUrl: 'servoydefault/check/check.html'
     };
 })

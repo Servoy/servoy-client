@@ -121,7 +121,6 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
        	 	}
        	 };
       },
-      templateUrl: 'servoydefault/spinner/spinner.html',
-      replace: true
+      templateUrl: 'servoydefault/spinner/spinner.html'
     };
 }])

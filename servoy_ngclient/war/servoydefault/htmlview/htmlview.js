@@ -24,7 +24,6 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
       	 return $element.scrollTop();
        }
       },
-      templateUrl: 'servoydefault/htmlview/htmlview.html',
-      replace: true
-    };
+      templateUrl: 'servoydefault/htmlview/htmlview.html'
+ };
 })

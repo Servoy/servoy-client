@@ -40,7 +40,6 @@ angular.module('servoycomponentsSignaturefield',['servoy']).directive('servoycom
                $scope.clear = function() {
             	   $scope.model.signatureValue = null;
                }
-           },
-           replace: true
+           }
         }
     })

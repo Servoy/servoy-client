@@ -74,8 +74,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			};
 
 		},
-		templateUrl: 'servoydefault/htmlarea/htmlarea.html',
-		replace: true
+		templateUrl: 'servoydefault/htmlarea/htmlarea.html'
 	};
 }).run(function(uiTinymceConfig){
 	var ServoyTinyMCESettings = {

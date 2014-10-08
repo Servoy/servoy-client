@@ -112,8 +112,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
               else return false
           }
       },
-      templateUrl: 'servoydefault/checkgroup/checkgroup.html',
-      replace: true
+      templateUrl: 'servoydefault/checkgroup/checkgroup.html'
     };
   })
 

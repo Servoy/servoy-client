@@ -292,7 +292,6 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
         	  $scope.pane2MinSize = minSize;
           }           
       },
-      templateUrl: 'servoydefault/splitpane/splitpane.html',
-      replace: true
+      templateUrl: 'servoydefault/splitpane/splitpane.html'
     };
   })

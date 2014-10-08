@@ -38,8 +38,7 @@ angular.module('servoycomponentsInlineeditfield',['servoy']).directive('w', func
             },0);
          };
       },
-      templateUrl: 'servoycomponents/inlineeditfield/inlineeditfield.html',
-      replace: true
+      templateUrl: 'servoycomponents/inlineeditfield/inlineeditfield.html'
     };
   })
 

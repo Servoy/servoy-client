@@ -23,7 +23,6 @@ angular.module('servoydefaultLabel',['servoy'])
           $scope.containerstyle = {overflow:'hidden',position:'absolute'}
           $scope.contentstyle = {width:'100%',overflow:'hidden',position:'absolute',whiteSpace:'nowrap'}
           
-      },
-      replace: true
+      }
     };
 }])

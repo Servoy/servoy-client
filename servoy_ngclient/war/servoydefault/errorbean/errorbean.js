@@ -8,8 +8,7 @@ angular.module('servoydefaultErrorbean',['servoy']).directive('servoydefaultErro
       controller: function($scope, $element, $attrs) {
     	  
       },
-      templateUrl: 'servoydefault/errorbean/errorbean.html',
-      replace: true
+      templateUrl: 'servoydefault/errorbean/errorbean.html'
     };
   })
   

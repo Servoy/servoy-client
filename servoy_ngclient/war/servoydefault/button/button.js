@@ -10,8 +10,7 @@ angular.module('servoydefaultButton',['servoy']).directive('servoydefaultButton'
     	  $scope.containerstyle = {overflow:'hidden',position:'absolute'}
           $scope.contentstyle = {width:'100%',overflow:'hidden',position:'relative',whiteSpace:'nowrap'}
       },
-      templateUrl: 'servoydefault/button/button.html',
-      replace: true
+      templateUrl: 'servoydefault/button/button.html'
     };
   })
   
