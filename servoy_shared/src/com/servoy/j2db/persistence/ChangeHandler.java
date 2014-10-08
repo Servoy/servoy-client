@@ -50,13 +50,13 @@ public class ChangeHandler
 
 	/**
 	 * Create a repositoy object like Form,fields,portals,beans,etc.
-	 * 
+	 *
 	 * @param style the style to use
 	 * @param parent the parent
 	 * @param object_type_id the type
 	 * @return the created object
 	 */
-	IPersist createNewObject(ISupportChilds parent, int object_type_id) throws RepositoryException
+	public IPersist createNewObject(ISupportChilds parent, int object_type_id) throws RepositoryException
 	{
 		final UUID uuid = UUID.randomUUID();
 		final int element_id = factory.getNewElementID(uuid);
