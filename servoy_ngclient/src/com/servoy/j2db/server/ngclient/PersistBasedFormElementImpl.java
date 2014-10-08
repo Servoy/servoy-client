@@ -232,7 +232,10 @@ class PersistBasedFormElementImpl
 			// TODO should this be resolved way later on?
 			// if solution model then this form can change..
 			Form form = context.getSolution().getForm(containsFormID);
-			putAndConvertProperty("containsFormId", form.getName(), tabMap, context, tabSpecProperties.getProperty("containsFormId"), propertyPath);
+			if (form != null)
+			{
+				putAndConvertProperty("containsFormId", form.getName(), tabMap, context, tabSpecProperties.getProperty("containsFormId"), propertyPath);
+			}
 			putAndConvertProperty("disabled", false, tabMap, context, tabSpecProperties.getProperty("disabled"), propertyPath);
 			int orient = ((TabPanel)persist).getTabOrientation();
 			if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL)

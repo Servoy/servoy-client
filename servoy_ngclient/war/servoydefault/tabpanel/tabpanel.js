@@ -21,11 +21,12 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
         $scope.$watch("model.tabIndex", function(newValue) {
         	 if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
         	 var realTabIndex = $scope.model.tabIndex - 1;
-        	 for(var i=0;i<$scope.model.tabs.length;i++) {
-        	 	if (i == realTabIndex) $scope.model.tabs[i].active = true;
-        	 	else $scope.model.tabs[i].active = false;
-        	 	$scope.model.tabs[i].disabled = false;
-        	 }
+        	 if ($scope.model.tabs)
+	        	 for(var i=0;i<$scope.model.tabs.length;i++) {
+	        	 	if (i == realTabIndex) $scope.model.tabs[i].active = true;
+	        	 	else $scope.model.tabs[i].active = false;
+	        	 	$scope.model.tabs[i].disabled = false;
+	        	 }
         });
        $scope.$watch("model.readOnly", function(newValue) {
     	   var activeForm = $scope.getActiveTab()
