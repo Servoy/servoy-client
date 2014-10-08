@@ -42,42 +42,42 @@
              					{                                                                 
  								"name":"name",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"tabText",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"tooltip",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"iconURL",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"fg",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"bg",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"relatedfoundset/relationname",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"index",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        },
@@ -255,7 +255,6 @@
 	},
 "types": {
   "tab": {
-  	"model": {
   		"name": "string",
   		"containsFormId": "form",
   		"text": "tagstring",
@@ -266,7 +265,6 @@
   		"imageMediaID": "media",
   		"mnemonic": "string"
   	}
-  }
 }
 	 
 }

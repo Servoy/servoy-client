@@ -175,7 +175,7 @@
              					{                                                                 
  								"name":"relation",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        },
@@ -217,7 +217,7 @@
              					{                                                                 
  								"name":"relation",
 								"type":"object",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        },
@@ -268,7 +268,6 @@
 	},
 "types": {
   "tab": {
-  	"model": {
   		"name": "string",
   		"containsFormId": "form",
   		"text": "tagstring",
@@ -278,7 +277,6 @@
   		"disabled": "boolean",
   		"mnemonic": "string"
   	}
-  }
 }
 	 
 }

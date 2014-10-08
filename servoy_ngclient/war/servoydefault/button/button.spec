@@ -46,12 +46,12 @@
 								{                                                                 
  								"name":"width",
 								"type":"int",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"height",
 								"type":"int",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        },
@@ -60,7 +60,7 @@
 								{                                                                 
  								"name":"mustExecuteOnFocusGainedMethod",
 								"type":"boolean",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        }

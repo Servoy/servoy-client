@@ -59,12 +59,12 @@
 								{                                                                 
  								"name":"width",
 								"type":"int",
-			            		"optional":"true"
+			            		"optional":true
 			            		},
              					{                                                                 
  								"name":"height",
 								"type":"int",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        }

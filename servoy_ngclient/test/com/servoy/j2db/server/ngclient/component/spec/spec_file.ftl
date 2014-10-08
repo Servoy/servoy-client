@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 {
-	"name": "svy-${name}",
+	"name": "servoydefault-${name}",
 	"displayName": "${displayName}",
 	<#if icon??>"icon": "servoydefault/${name}/${icon}",
 	</#if>"definition": "servoydefault/${name}/${name}.js",
@@ -43,7 +43,7 @@
                                                                  
  								"name":"${param.left}",
 								"type":"${param.right}"<#if (api.isOptionalParameter(param.left)!="false")>,
-			            		"optional":"${api.isOptionalParameter(param.left)}"
+			            		"optional":${api.isOptionalParameter(param.left)}
 			            		}<#else>
 			                	}</#if><#if param_has_next>,
 </#if>             </#list>

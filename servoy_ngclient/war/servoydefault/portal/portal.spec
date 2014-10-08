@@ -50,7 +50,7 @@
 								{                                                                 
  								"name":"addOnTop",
 								"type":"boolean",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        },
@@ -74,7 +74,7 @@
 								{                                                                 
  								"name":"addOnTop",
 								"type":"boolean",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        },

@@ -48,7 +48,7 @@
 								{                                                                 
  								"name":"mustExecuteOnFocusGainedMethod",
 								"type":"boolean",
-			            		"optional":"true"
+			            		"optional":true
 			            		}             
 							 ]
 	        },
