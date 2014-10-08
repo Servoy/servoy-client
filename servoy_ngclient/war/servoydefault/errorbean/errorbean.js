@@ -1,7 +1,6 @@
 angular.module('servoydefaultErrorbean',['servoy']).directive('servoydefaultErrorbean', function(formatFilterFilter) {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
        	model: "=svyModel",
       },

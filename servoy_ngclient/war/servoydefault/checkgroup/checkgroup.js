@@ -1,7 +1,6 @@
 angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultCheckgroup', function($utils) {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         name: "=",
         model: "=svyModel",

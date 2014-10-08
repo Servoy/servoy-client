@@ -2,7 +2,6 @@ angular.module('servoydefaultRectangle',['servoy'])
 .directive('servoydefaultRectangle', function() {
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
       	model: "=svyModel",
       	handlers: "=svyHandlers"

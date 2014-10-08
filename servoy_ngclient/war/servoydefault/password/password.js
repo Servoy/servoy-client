@@ -1,7 +1,6 @@
 angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassword', function() {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         model: "=svyModel",
         api: "=svyApi",

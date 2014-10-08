@@ -1,7 +1,6 @@
 angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlview', function() {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
       	model: "=svyModel",
       	api: "=svyApi",

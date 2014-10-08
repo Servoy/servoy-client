@@ -1,7 +1,6 @@
 angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalendar', function(dateFilter,$log) {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
       	model: "=svyModel",
         handlers: "=svyHandlers",

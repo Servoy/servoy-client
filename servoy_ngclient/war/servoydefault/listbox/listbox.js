@@ -1,7 +1,6 @@
 angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbox', function($parse) {  
 	return {
 		restrict: 'E',
-		transclude: true,
 		scope: {
 			model: "=svyModel",
 			handlers: "=svyHandlers",

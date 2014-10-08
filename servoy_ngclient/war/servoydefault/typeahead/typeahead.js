@@ -2,7 +2,6 @@ angular.module('servoydefaultTypeahead',['servoy'])
 .directive('servoydefaultTypeahead',['$timeout','formatFilterFilter', function($timeout,formatFilter) {  
     return {
       restrict: 'E',
-      transclude: true,
       require: 'ngModel',
       scope: {
         model: "=svyModel",

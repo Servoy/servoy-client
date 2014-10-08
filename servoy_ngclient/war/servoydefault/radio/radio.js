@@ -1,7 +1,6 @@
 angular.module('servoydefaultRadio',['servoy']).directive('servoydefaultRadio', function() {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         name: "=",
         model: "=svyModel",

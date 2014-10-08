@@ -1,7 +1,6 @@
 angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultImagemedia', function($utils, $window, $document) {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         model: "=svyModel",
         handlers: "=svyHandlers",

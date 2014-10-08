@@ -1,7 +1,6 @@
 angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultTextfield', function($apifunctions) {  
 	return {
 		restrict: 'E',
-		transclude: true,
 		require: 'ngModel',
 		scope: {
 			model: "=svyModel",

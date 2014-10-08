@@ -1,7 +1,6 @@
 angular.module('servoydefaultButton',['servoy']).directive('servoydefaultButton', function(formatFilterFilter) {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
        	model: "=svyModel",
        	handlers: "=svyHandlers"

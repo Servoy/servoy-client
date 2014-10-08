@@ -1,7 +1,6 @@
 angular.module('servoycomponentsInlineeditfield',['servoy']).directive('w', function($timeout) {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
     	  model: "=svyModel",
     	  svyApply: '='

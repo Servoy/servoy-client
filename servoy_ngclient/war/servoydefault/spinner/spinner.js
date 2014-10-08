@@ -1,7 +1,6 @@
 angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinner',['$utils','formatFilterFilter', function($utils,formatFilter) {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         name: "=",
         model: "=svyModel",

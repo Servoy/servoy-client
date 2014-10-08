@@ -1,7 +1,6 @@
 angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function() {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         model: "=svyModel",
         svyServoyapi: "=",

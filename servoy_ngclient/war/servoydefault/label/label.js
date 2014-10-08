@@ -10,7 +10,6 @@ angular.module('servoydefaultLabel',['servoy'])
 .directive('servoydefaultLabel', ["formatFilterFilter",'$utils','$parse','$templateCache','$compile',function(formatFilter,$utils,$parse,$templateCache,$compile) {
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
       	model: "=svyModel",
       	handlers: "=svyHandlers"

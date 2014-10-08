@@ -1,7 +1,6 @@
 angular.module('servoydefaultCheck',['servoy']).directive('servoydefaultCheck', function() {  
     return {
       restrict: 'E',
-      transclude: true,
       scope: {
         name: "=",
         model: "=svyModel",
