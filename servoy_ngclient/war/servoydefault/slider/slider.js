@@ -1,4 +1,4 @@
-angular.module('servoycomponentsSlider',['servoy','ui.slider']).directive('servoycomponentsSlider', function() {
+angular.module('servoydefaultSlider',['servoy','ui.slider']).directive('servoydefaultSlider', function() {
     return {
            restrict : 'E',
            scope : {
@@ -6,7 +6,7 @@ angular.module('servoycomponentsSlider',['servoy','ui.slider']).directive('servo
         	   svyApply: '=',
         	   handlers: "=svyHandlers"
            },
-           templateUrl : 'servoycomponents/slider/slider.html',
+           templateUrl : 'servoydefault/slider/slider.html',
            controller: function($scope, $element, $attrs, $parse, $timeout) {
         	   var properties = ['max', 'min', 'step', 'animate', 'enabled', 'orientation', 'range'];
         	   angular.forEach(properties, function(property) {
@@ -104,7 +104,7 @@ angular.module('servoycomponentsSlider',['servoy','ui.slider']).directive('servo
         	   {
         		   if (slider_handle.parent().hasClass('ui-slider-vertical'))
         		   {
-        			   style.background = 'url(servoycomponents/slider/css/images/handle-vertical.png) no-repeat';
+        			   style.background = 'url(servoydefault/slider/css/images/handle-vertical.png) no-repeat';
         			   style.width = '15px';
         			   style.height = '24px';
         			   style.left = '-3px';
@@ -113,7 +113,7 @@ angular.module('servoycomponentsSlider',['servoy','ui.slider']).directive('servo
         		   }
         		   else
         		   {
-        			   style.background = 'url(servoycomponents/slider/css/images/handle.png) no-repeat';
+        			   style.background = 'url(servoydefault/slider/css/images/handle.png) no-repeat';
         			   style.width = '25px';
         			   style.height = '16px';
         			   style.top = '-4px';
@@ -123,7 +123,7 @@ angular.module('servoycomponentsSlider',['servoy','ui.slider']).directive('servo
         	   }
         	   
         	   var slider_range = $element.find('.ui-slider-range');
-        	   if (slider_range) slider_range.css({background: '#ccc url(servoycomponents/slider/css/images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x'})
+        	   if (slider_range) slider_range.css({background: '#ccc url(servoydefault/slider/css/images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x'})
         	   
            },
            replace: true

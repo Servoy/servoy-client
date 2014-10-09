@@ -1,11 +1,12 @@
 {
-	"name": "servoycomponents-slider",
+	"name": "servoydefault-slider",
 	"displayName": "Slider",
-	"definition": "servoycomponents/slider/slider.js", 
+	"icon": "servoydefault/slider/SLIDER16.png",
+	"definition": "servoydefault/slider/slider.js", 
 	"libraries": [{"name":"jquery-ui.custom.css", "version":"1.9.2", "url":"http://preview.jumpstartthemes.com/canvas-admin/js/libs/css/ui-lightness/jquery-ui-1.9.2.custom.css", "mimetype":"text/css"},
-				  {"name":"jquery-ui.slider.js", "version":"1.10.4", "url":"servoycomponents/slider/js/jquery-ui.slider.min.js", "mimetype":"text/javascript"}, 
-	 			  {"name":"jquery-ui.slider.css", "version":"1.10.4", "url":"servoycomponents/slider/css/jquery-ui.slider.min.css", "mimetype":"text/css"},
-				  {"name":"ui-slider/slider.js", "version":"1", "url":"servoycomponents/slider/ui-slider/slider.js", "mimetype":"text/javascript"}],	
+				  {"name":"jquery-ui.slider.js", "version":"1.10.4", "url":"servoydefault/slider/js/jquery-ui.slider.min.js", "mimetype":"text/javascript"}, 
+	 			  {"name":"jquery-ui.slider.css", "version":"1.10.4", "url":"servoydefault/slider/css/jquery-ui.slider.min.css", "mimetype":"text/css"},
+				  {"name":"ui-slider/slider.js", "version":"1", "url":"servoydefault/slider/ui-slider/slider.js", "mimetype":"text/javascript"}],	
 	
 	"model":
 	{
