@@ -43,6 +43,8 @@ import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.WebsocketSessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -58,6 +60,8 @@ import com.servoy.j2db.util.Utils;
 @WebFilter(urlPatterns = { "/*" })
 public class ResourceProvider implements Filter
 {
+	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());
+
 	private static final List<IPackageReader> componentReaders = new ArrayList<>();
 	private static final List<IPackageReader> serviceReaders = new ArrayList<>();
 
@@ -236,7 +240,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -247,7 +251,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -283,7 +287,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -309,6 +313,17 @@ public class ResourceProvider implements Filter
 			{
 				if (is != null) is.close();
 			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
+		 */
+		@Override
+		public void reportError(String specpath, Exception e)
+		{
+			log.error("Cannot parse spec file '" + specpath + "' from package 'URLPackageReader[ " + urlOfManifest + " ]'. ", e);
 		}
 	}
 }
