@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 	
-${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout,$windowService) {
+${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout,$formService) {
 
 	var beans = {
 	<#list baseComponents as bc>
@@ -74,21 +74,19 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 	var servoyApi = function(beanname) {
 		return {
 			showForm: function(formname,relationname,formIndex) {
-				// first just touch the form here so it doesn't happen later on again.
-				$windowService.touchForm(formname)
-				$servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:$scope.formname,bean:beanname,relation:relationname,formIndex:formIndex}, true);
+				$formService.showForm(formname,$scope.formname,beanname,relationname,formIndex);
 			},
 			hideForm: function(formname,relationname,formIndex) {
-				return $servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:$scope.formname,bean:beanname,relation:relationname,formIndex:formIndex});
+				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex);
 			},
 			setFormEnabled: function(formname, enabled) {
-				$servoyInternal.callService('formService', 'formenabled', {formname:formname,enabled:enabled},true)
+				$formService.setFormEnabled(formname,enabled);
 			},
 			setFormReadOnly: function(formname, readOnly) {
-				$servoyInternal.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly},true)
+				$formService.setFormReadOnly(formname,readOnly);
 			},
 			getFormUrl: function(formUrl) {
-				return $windowService.getFormUrl(formUrl);
+				return $formService.getFormUrl(formUrl);
 			}
 		}	
 	}

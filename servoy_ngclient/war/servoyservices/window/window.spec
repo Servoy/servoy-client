@@ -54,7 +54,7 @@
 	            "parameters":[
 	            				{
 		            				"name":"component",
-		            				"type":"component"
+		            				"type":"runtimecomponent"
 	            				},
 	            				{
 		            				"name":"form",
@@ -106,10 +106,9 @@
 	  },
 	  "popupform": {
 	  	"model": {
-	  		"visible": "boolean",
-	  		"componentLocation": "string",
-	  		"form": "string",
-	  		"scope": "string",
+	  		"component": "runtimecomponent",
+	  		"form": "form",
+	  		"scope": "scope",
 	  		"dataProviderID": "string",
 	  		"width": "int",
 	  		"height": "int"

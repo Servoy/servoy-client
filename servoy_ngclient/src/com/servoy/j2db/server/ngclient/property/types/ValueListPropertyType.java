@@ -27,12 +27,11 @@ import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.ValueListPropertyWrapper;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -40,8 +39,6 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.Valu
  */
 public class ValueListPropertyType implements IWrapperType<Object, ValueListPropertyWrapper>, ISupportTemplateValue<Object>
 {
-
-	private static final Logger log = LoggerFactory.getLogger(ValueListPropertyType.class.getCanonicalName());
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
 	public static final String TYPE_NAME = "valuelist";
@@ -67,7 +64,7 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 			}
 			catch (JSONException e)
 			{
-				log.error("JSONException", e);
+				Debug.error("JSONException", e);
 			}
 		}
 		return "";

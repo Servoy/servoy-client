@@ -265,3 +265,23 @@ $scope.api.createPopupMenu = function() {
 	return $scope.model.popupMenus[$scope.model.popupMenus.push(popup) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser); as window plugin doesn't have API to get the popup menu after it was created, users must get this change-aware version from the beginning as this is the only thing they get and they need to hold on to it
 //	return popup;
 }
+
+$scope.api.closeFormPopup = function(retval)
+{
+	if ($scope.model.popupform)
+	{
+		$scope.model.popupform.scope[$scope.model.popupform.dataProviderID] = retval;
+		$scope.api.cancelFormPopup();
+	}
+}
+
+$scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height)
+{
+	$scope.model.popupform = {};
+	$scope.model.popupform.component = component;
+	$scope.model.popupform.form = form;
+	$scope.model.popupform.scope = dataproviderScope;
+	$scope.model.popupform.dataProviderID = dataproviderID;
+	$scope.model.popupform.width = width;
+	$scope.model.popupform.height = height;
+}

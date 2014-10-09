@@ -1,5 +1,5 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services) {
+.factory("window",function($window,$services,$compile,$formService) {
 	var scope = $services.getServiceScope('window');
 	return {
 		createShortcut: function(shortcutcombination,callback,contextFilter,args) {
@@ -84,6 +84,48 @@ angular.module('window',['servoy'])
 				$window.executeInlineScript(callback.formname,callback.script,args);
 			};
 		},
+		showFormPopup : function(component,form,dataproviderScope,dataproviderID,width,height)
+		{
+			$formService.showForm(form);
+			scope.getFormUrl = function(){
+				return $formService.getFormUrl(form);
+			};
+			var body = $('body');
+			var style = 'position:absolute;z-index:999;';
+			if (width && width > 0)
+			{
+				style+= 'width:'+width+'px;'
+			}
+			if (height && height > 0)
+			{
+				style+= 'height:'+height+'px;'
+			}
+			var left = $( window ).width() /2;
+			var top = $( window ).height() /2;
+			if (component)
+			{
+				var position = $('#'+component).offset();
+				left = position.left;
+				top = position.top+$('#'+component).outerHeight();
+			}
+			style+= 'left:'+left+'px;';
+			style+= 'top:'+top+'px;';
+			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()"></div>')(scope);
+			body.append(popup);
+		},
+		cancelFormPopup : function()
+		{
+			if (scope.model.popupform)
+			{
+				$formService.hideForm(scope.model.popupform.form);
+			}
+			var popup = $("#formpopup");
+			if (popup)
+			{
+				popup.remove();
+			}
+			scope.model.popupform = null;
+		},
 		generateMenu: function(items,oMenu)
 		{
 			for (var j=0;j<items.length;j++)
@@ -161,6 +203,10 @@ angular.module('window',['servoy'])
 			{
 				shortcut.add(window.translateSwingShortcut(newvalue.shortcuts[i].shortcut),window.getCallbackFunction(newvalue.shortcuts[i].callback,newvalue.shortcuts[i].contextFilter,newvalue.shortcuts[i].arguments),{'propagate':true,'disable_in_input':false});
 			}
+		}
+		if (newvalue && newvalue.popupform)
+		{
+			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.scope,newvalue.popupform.dataproviderID,newvalue.popupform.width,newvalue.popupform.height);
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{

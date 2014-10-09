@@ -38,6 +38,26 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
+}).factory("$formService",function($servoyInternal,$windowService) {
+	return {
+		showForm: function(formname,parentForm,beanName,relationname,formIndex) {
+			// first just touch the form here so it doesn't happen later on again.
+			$windowService.touchForm(formname)
+			$servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
+		},
+		hideForm: function(formname,parentForm,beanName,relationname,formIndex) {
+			return $servoyInternal.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex});
+		},
+		setFormEnabled: function(formname, enabled) {
+			$servoyInternal.callService('formService', 'formenabled', {formname:formname,enabled:enabled},true)
+		},
+		setFormReadOnly: function(formname, readOnly) {
+			$servoyInternal.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly},true)
+		},
+		getFormUrl: function(formUrl) {
+			return $windowService.getFormUrl(formUrl);
+		}
+	}	
 }).factory("$utils",function($rootScope,$scrollbarConstants,$swingModifiers) {
 	
 	// internal function
