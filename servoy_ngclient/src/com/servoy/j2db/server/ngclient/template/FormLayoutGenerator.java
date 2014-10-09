@@ -96,6 +96,13 @@ public class FormLayoutGenerator
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
+			if (fe.getWebComponentSpec().getFoundTypes().size() > 0)
+			{
+				writer.print(" svy-types='");
+				writer.print(fe.getWebComponentSpec().getFoundTypes().keySet());
+				writer.print("'");
+			}
+
 		}
 		writer.println(">");
 	}
@@ -121,6 +128,7 @@ public class FormLayoutGenerator
 			writer.print(" svy-id='");
 			writer.print(fe.getDesignId());
 			writer.print("'");
+
 		}
 		writer.print(" svy-apply='handlers.");
 		writer.print(fe.getName());
