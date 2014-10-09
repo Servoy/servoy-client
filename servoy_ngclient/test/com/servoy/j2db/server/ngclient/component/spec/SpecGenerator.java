@@ -101,7 +101,7 @@ public class SpecGenerator
 			"SELECT16.png",
 			IRepository.FIELDS,
 			IRuntimeCombobox.class,
-			new String[] { "{\"name\":\"select2.js\", \"version\":\"3.4.5\", \"url\":\"servoydefault/combobox/lib/select2-3.4.5/select2.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"select2.css\", \"version\":\"3.4.5\", \"url\":\"servoydefault/combobox/lib/select2-3.4.5/select2.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"svy_select2.css\", \"version\":\"1\", \"url\":\"servoydefault/combobox/svy_select2.css\", \"mimetype\":\"text/css\"}"
+			new String[] { "{\"name\":\"ui-select.js\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.js\", \"mimetype\":\"text/javascript\"},{\"name\":\"ui-select.css\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.css\", \"mimetype\":\"text/css\"}"
 			// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 			}));
 		specTemplateList.add(new SpecTemplateModel("label", "Label",  "text.gif", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
