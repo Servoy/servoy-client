@@ -42,7 +42,6 @@ public class Types
 		TypesRegistry.addType(BeanPropertyType.INSTANCE);
 		TypesRegistry.addType(FormPropertyType.INSTANCE);
 		TypesRegistry.addType(RuntimeComponentPropertyType.INSTANCE);
-		TypesRegistry.addType(ScopePropertyType.INSTANCE);
 		TypesRegistry.addType(FormatPropertyType.INSTANCE);
 		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
 		TypesRegistry.addType(FormScopePropertyType.INSTANCE);

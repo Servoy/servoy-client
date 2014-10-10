@@ -84,7 +84,7 @@ angular.module('window',['servoy'])
 				$window.executeInlineScript(callback.formname,callback.script,args);
 			};
 		},
-		showFormPopup : function(component,form,dataproviderScope,dataproviderID,width,height)
+		showFormPopup : function(component,form,width,height)
 		{
 			$formService.showForm(form);
 			scope.getFormUrl = function(){
@@ -206,7 +206,7 @@ angular.module('window',['servoy'])
 		}
 		if (newvalue && newvalue.popupform)
 		{
-			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.scope,newvalue.popupform.dataproviderID,newvalue.popupform.width,newvalue.popupform.height);
+			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height);
 		}
 		if (newvalue && newvalue.popupMenuShowCommand)
 		{

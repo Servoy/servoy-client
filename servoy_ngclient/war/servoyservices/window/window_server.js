@@ -270,7 +270,7 @@ $scope.api.closeFormPopup = function(retval)
 {
 	if ($scope.model.popupform)
 	{
-		$scope.model.popupform.scope[$scope.model.popupform.dataProviderID] = retval;
+		$scope.scope[$scope.dataProviderID] = retval;
 		$scope.api.cancelFormPopup();
 	}
 }
@@ -280,8 +280,8 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 	$scope.model.popupform = {};
 	$scope.model.popupform.component = component;
 	$scope.model.popupform.form = form;
-	$scope.model.popupform.scope = dataproviderScope;
-	$scope.model.popupform.dataProviderID = dataproviderID;
+	$scope.scope = dataproviderScope;
+	$scope.dataProviderID = dataproviderID;
 	$scope.model.popupform.width = width;
 	$scope.model.popupform.height = height;
 }

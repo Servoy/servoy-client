@@ -108,8 +108,6 @@
 	  	"model": {
 	  		"component": "runtimecomponent",
 	  		"form": "form",
-	  		"scope": "scope",
-	  		"dataProviderID": "string",
 	  		"width": "int",
 	  		"height": "int"
 	  	}
