@@ -8,7 +8,7 @@
 		"buttontext": {"type":"string", "default":"button"},
 		"tooltiptext": "string",
 		"complexmodel": "complextype",
-		"size" : {"type" :"dimension",  "default" : {"width":230, "height":120}}, 
+		"size" : {"type" :"dimension",  "default" : {"width":230, "height":120}}
 	},
 	"handlers":
 	{
