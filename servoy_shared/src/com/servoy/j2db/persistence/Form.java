@@ -349,6 +349,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the scale
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setPaperPrintScale(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_PAPERPRINTSCALE, arg);
@@ -359,6 +360,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * is inversely proportional. For example, if the paperPrintScale is 50, the printed form will be
 	 * enlarged 200%.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getPaperPrintScale()
 	{
 		int paperPrintScale = getTypedProperty(StaticContentSpecLoader.PROPERTY_PAPERPRINTSCALE).intValue();
@@ -1384,6 +1386,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The default page format for the form.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public String getDefaultPageFormat()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTPAGEFORMAT);
@@ -1395,6 +1398,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param string the format
 	 * @see com.servoy.j2db.util.PersistHelper
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setDefaultPageFormat(String string)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEFAULTPAGEFORMAT, string);
@@ -1436,6 +1440,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.showPrintPreview(false, null, 100)
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnPrintPreviewCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID).intValue();
@@ -1516,6 +1521,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnPrintPreviewCmdMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, i);
@@ -1753,6 +1759,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * return DRAGNDROP.NONE
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDragMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID).intValue();
@@ -1763,6 +1770,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method that is triggered
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDragMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, arg);
@@ -1779,6 +1787,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateparam JSDNDEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDragEndMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID).intValue();
@@ -1789,6 +1798,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method that is triggered
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDragEndMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, arg);
@@ -1811,6 +1821,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *  }
 	 *  return false;
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDragOverMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID).intValue();
@@ -1821,6 +1832,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method that is triggered
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDragOverMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, arg);
@@ -1838,6 +1850,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * return false
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDropMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID).intValue();
@@ -1848,6 +1861,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method that gets triggered
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDropMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, arg);
@@ -1864,6 +1878,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * return true
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnElementFocusGainedMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID).intValue();
@@ -1874,6 +1889,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method that gets triggered
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnElementFocusGainedMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, arg);
@@ -1890,6 +1906,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * return true
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnElementFocusLostMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID).intValue();
@@ -1900,6 +1917,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method that gets triggered
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnElementFocusLostMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID, arg);
@@ -1928,6 +1946,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, arg);
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnRenderMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
@@ -1970,6 +1989,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * }
 	 *
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnRenderMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
