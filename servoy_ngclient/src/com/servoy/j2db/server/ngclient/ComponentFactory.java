@@ -542,6 +542,7 @@ public class ComponentFactory
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos >= loc.y)
 						{
+							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
 							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, context, propertyPath);
 							children.add(type.getFormElementValue(null, pd, propertyPath, fe));

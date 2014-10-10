@@ -228,7 +228,7 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
 
     	  // size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
     	  $scope.$watch('model.relatedFoundset.viewPort.size', function(newVal, oldVal) {
-    		  if (newVal === 0) {
+    		  if (newVal === 0 && $scope.pagingOptions.pageSize > 0) {
     			  // For example when the for record changed, resulting in a related foundset change, viewPort will have to be requested again
     			  // starting from 0 (it is set serverside to 0 - 0 as server doesn't know what we now need);
     			  // The same can happen if all records in the viewport get deleted and there are no more available to fill the gap...

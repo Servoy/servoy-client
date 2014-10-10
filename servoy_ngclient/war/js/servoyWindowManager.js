@@ -355,6 +355,13 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 			}
 			return realFormUrl;
 		},
+		isFormLoaded: function(formName)
+		{
+			var realFormUrl = formTemplateUrls[formName]
+			if (realFormUrl == null || realFormUrl == "")
+				return false;
+			return true;
+		}
 	}
 	
 }).value('WindowType',{
