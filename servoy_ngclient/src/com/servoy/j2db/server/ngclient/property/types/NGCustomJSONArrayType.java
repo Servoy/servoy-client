@@ -78,12 +78,15 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 					propertyPath.add(i);
 					formElementValues[i] = NGConversions.INSTANCE.convertDesignToFormElementValue(designValue.get(i), getCustomJSONTypeDefinition(),
 						flattenedSolution, formElement, propertyPath);
-					propertyPath.backOneLevel();
 				}
 				catch (JSONException e)
 				{
 					Debug.error(e);
 					formElementValues[i] = null;
+				}
+				finally
+				{
+					propertyPath.backOneLevel();
 				}
 			}
 			return formElementValues;

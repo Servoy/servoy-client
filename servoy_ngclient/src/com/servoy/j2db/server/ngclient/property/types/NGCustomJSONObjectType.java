@@ -83,12 +83,15 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 						key,
 						(FormElementT)NGConversions.INSTANCE.convertDesignToFormElementValue(designValue.get(key),
 							getCustomJSONTypeDefinition().getProperty(key), flattenedSolution, formElement, propertyPath));
-					propertyPath.backOneLevel();
 				}
 				catch (JSONException e)
 				{
 					Debug.error(e);
 					formElementValues.put(key, null);
+				}
+				finally
+				{
+					propertyPath.backOneLevel();
 				}
 			}
 			return formElementValues;
