@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.4
+Created-By: 1.7.0_05-b06 (Oracle Corporation)
+
+Name: testservice/testservice.spec
+Web-Service: True
+
+Name: window/window.spec
+Web-Service: True
+
+Name: foundset_custom_property/foundset.spec
+Web-Service: True
+
+Name: component_custom_property/component.spec
+Web-Service: True
+
+Name: custom_json_array_property/array.spec
+Web-Service: True
+
+Name: custom_json_object_property/customJSONObject.spec
+Web-Service: True
+
+Name: custom_properties/custom_properties.spec
+Web-Service: True
+

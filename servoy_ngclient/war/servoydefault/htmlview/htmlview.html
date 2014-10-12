@@ -1,0 +1,14 @@
+<div svy-border='model.borderType' 
+	 svy-background='model.transparent ? "transparent" : model.background'
+	 svy-foreground='model.foreground'
+	 svy-rightclick='handlers.onRightClickMethodID($event)'
+	 ng-style="style"
+     svy-margin='model.margin' 
+     svy-font='model.fontType'
+     svy-tooltip="model.toolTipText"
+     id="{{model.svyMarkupId}}">
+<span  ng-style="bgstyle" 
+	   ng-bind-html='(model.dataProviderID == null && model.text || model.dataProviderID )| htmlFilter'
+	   svy-tabseq='model.tabSeq'
+ 	   ></span>
+ </div>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project  default="run_tests">
+	<property name="basedir" value="."/>
+	<property name="karma.conf" value="./karma.conf.js"/>
+	<property name="karma_run_on_file_change.conf" value="./karma_run_on_file_change.conf.js"/>
+	
+	<!-- checks if used dependencies from package.json are outdated should be used manualy from time to time--> 
+	<target name="check_outdated">
+		<exec executable="bash" dir="${basedir}" osfamily="unix"
+					failonerror="true">
+					<arg value="-c"/>
+					<arg value="npm outdated"/>
+		</exec>
+		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+					failonerror="true">
+					<arg value="/c" />
+					<arg value="npm"/>
+					<arg value="outdated"/>
+		</exec>
+	</target>
+	
+	 <!-- used to run install karma only once -->
+	 <target name="karma_installed_check" >
+	    <condition property="karma.installed">
+	      <available file="./node_modules" type="dir"/>
+	    </condition>
+	 </target>
+	
+	 <target name="install_karma_if_necessary" depends="karma_installed_check" unless="karma.installed">
+	 	 <antcall target="install_karma"/>
+	 </target>
+	
+	
+	<!-- installs karma with it's dependencies  based on package.json file  run only once-->
+	<target name="install_karma">
+		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+			failonerror="true">
+			<arg line="/c npm config set color false" />
+		</exec>
+		<exec executable="bash" dir="${basedir}" osfamily="unix"
+			failonerror="true">
+			<arg value="-c" />
+			<arg value="npm config set color false"/>
+		</exec>
+
+		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+			failonerror="true">
+			<arg line="/c npm install" />
+		</exec>
+		<exec executable="bash" dir="${basedir}" osfamily="unix"
+			failonerror="true">
+			<arg line="-c" />
+			<arg value="npm install"/>
+		</exec>
+	</target>
+	
+	<target name="run_tests" depends="install_karma_if_necessary">
+		<exec executable="cmd" dir="${basedir}" osfamily="windows"
+					failonerror="true">
+					<arg value="/c"/>
+					<arg value="node"/>
+					<arg value="./node_modules/karma/bin/karma"/>
+					<arg value="start"/>
+					<arg value="${karma.conf}"/>
+		</exec>
+		<property name="temp1" value="node ./node_modules/karma/bin/karma start ${karma.conf}"/>
+		<exec executable="bash" dir="${basedir}" osfamily="unix"
+							failonerror="true">
+			                <arg value="-c"/>
+							<arg value="${temp1}"/>
+		</exec>
+	</target>
+
+</project>

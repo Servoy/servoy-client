@@ -1,0 +1,11 @@
+<tabset  ng-class="model.styleClass" id="{{model.svyMarkupId}}">
+    <tab ng-repeat="tab in model.tabs"
+    	 active="tab.active" select="select(tab)" disabled="tab.disabled" >
+      <tab-heading  svy-mnemonic='tab.mnemonic'>
+      	<img ng-hide="tab.imageMediaID == ''"  ng-src='{{tab.imageMediaID}}'/>
+        <span svy-background='model.background' svy-foreground='tab.foreground == null ? model.foreground : tab.foreground'
+        	  ng-bind='tab.text'></span>
+      </tab-heading>
+      <div ng-include="getForm(tab)" style="position:absolute;top:40px;left:0;right:0;bottom:0;"></div>
+    </tab>
+</tabset>

@@ -1,0 +1,62 @@
+/* ----- apply cancel button group  -----*/
+.inlineeditfield-apply-cancel-group{
+    z-index:1;
+    display: none;
+    float:right;
+    text-align:right;
+}
+/* ----- edit button ----*/
+.inlineeditfield-edit-btn{
+   display:none;
+   top:0px;
+   right:0px;
+   position:absolute;
+   text-align:left;
+}
+
+
+
+/* ----- edit mode behavior ----- */
+.inlineeditfield-edit {
+    overflow:auto;
+    width:auto;
+    height:auto;
+
+}
+.inlineeditfield-edit > div[title]{      /*<--- this rule must be thought as a more general case (use a marker class), for ex It could be a readonly textarea */
+   display: none;
+}
+.inlineeditfield-edit input{          /*<--- this rule should also change*/
+   display: inline;
+}
+.inlineeditfield-edit .inlineeditfield-apply-cancel-group{
+   display: inline;
+}
+
+
+/* ----- display mode behavior ----- */
+.inlineeditfield-display{
+    overflow:hidden;
+    width:100%;
+    height:100%;
+    box-sizing:border-box;
+    border: 1px solid transparent; 
+    border-radius: 4px 4px 4px 4px ;
+    position:relative;
+}
+.inlineeditfield-display > div[title]{         /*<--- this rule should also change*/          
+    display: inline;
+}
+
+.inlineeditfield-display input{              /*<--- this rule should also change*/
+    display: none;
+}
+
+
+/* ----- hover behavior ----- */
+.inlineeditfield-display:hover {
+    border-color: #999;
+}
+.inlineeditfield-display:hover .inlineeditfield-edit-btn{
+ display: inline;
+}

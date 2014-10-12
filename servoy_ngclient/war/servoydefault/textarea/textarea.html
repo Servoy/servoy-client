@@ -1,0 +1,20 @@
+<textarea ng-style="style" 
+       svy-font='model.fontType'
+	   svy-background='model.transparent ? "transparent" : model.background'
+	   svy-foreground='model.foreground'
+	   svy-scrollbars='model.scrollbars'
+       svy-margin='model.margin'
+       svy-tabseq='model.tabSeq'
+	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
+	   svy-focuslost='handlers.onFocusLostMethodID($event)'
+	   svy-rightclick='handlers.onRightClickMethodID($event)'
+	   ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
+	   placeholder="{{model.placeholderText}}" svy-border='model.borderType' 
+       ng-model="model.dataProviderID"
+       ng-disabled="model.enabled == false"
+       ng-readonly="model.editable == false"  
+       svy-tooltip='model.toolTipText'
+       svy-autoapply  svy-format="model.format" id="{{model.svyMarkupId}}"
+       svy-horizontalalignment='model.horizontalAlignment'>
+</textarea>
+       

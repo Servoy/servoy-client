@@ -1,0 +1,7 @@
+<div style='padding:40px;' ng-controller="InternalServerErrorController">
+	<div class="bs-callout bs-callout-danger" >
+	<h1>Internal Server error </h1>
+	<p>There was an error at the server side</p>
+	<pre ng-if='error.stack'  ng-bind='error.stack'></pre>
+	</div>
+</div>

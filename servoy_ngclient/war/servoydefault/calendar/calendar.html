@@ -1,0 +1,20 @@
+<div class='input-group date'
+	svy-border='model.borderType'
+	svy-margin='model.margin'
+	svy-tooltip="model.toolTipText">
+	<input type="text" 
+	   svy-background='model.transparent ? "transparent" : model.background'
+	   svy-foreground='model.foreground'
+	   svy-tabseq='model.tabSeq'
+	   svy-selectonenter='model.selectOnEnter'
+	   ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs svy-line-height-normal"'
+	   ng-style='style'
+	   svy-font='model.fontType'
+	   ng-disabled="model.enabled == false"
+	   ng-readonly="model.editable == false"
+       ng-model="editModel"
+       svy-horizontalalignment='model.horizontalAlignment'
+       svy-format="findMode ? '' : model.format" 
+       id="{{model.svyMarkupId}}"/>
+	<span class="input-group-addon" style="padding:0;" ng-show="model.editable && model.enabled"><span class="glyphicon glyphicon-calendar"></span></span>
+</div>

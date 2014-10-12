@@ -1,0 +1,16 @@
+<div ng-class="{'inlineeditfield-edit': editMode,'inlineeditfield-display': editMode == false}" style="background-color:{{model.bgcolor}};" >
+    <div  title="{{model.tooltiptext}}">{{model.dataproviderid}}</div>
+    <input  style="width:100%; height:100%;" type="text"  ng-model="editModel" ng-blur="exitEditMode($event)" />
+    
+    <button type="button" class="btn btn-default btn-xs inlineeditfield-edit-btn" ng-click="edit()">
+        <span class="glyphicon glyphicon-pencil"></span>
+    </button>
+    <div class="btn-group inlineeditfield-apply-cancel-group">
+        <button type="button" class="btn btn-default btn-xs" ng-mousedown="setMouseDown(true)" ng-click="applyChanges()">
+              <span class="glyphicon glyphicon-ok"></span>
+        </button>
+        <button type="button" class="btn btn-default btn-xs" ng-mousedown="setMouseDown(false)" ng-click="exitEditMode()">
+              <span class="glyphicon glyphicon-remove"></span>
+        </button> 
+    </div>
+</div>

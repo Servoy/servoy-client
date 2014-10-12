@@ -1,0 +1,18 @@
+<label class='svy-check-radio' 
+	 ng-click="checkBoxClicked()"  
+	 ng-style="style" 
+	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
+     svy-border="model.borderType" 
+ 	 svy-background="model.transparent ? 'transparent' : model.background" 
+ 	 svy-foreground="model.foreground"
+ 	 svy-horizontalalignment='model.horizontalAlignment' 
+ 	 svy-tooltip='model.toolTipText'>
+	<input type="checkbox"
+		    ng-model ="selection"
+		    ng-disabled="model.enabled == false || model.editable == false"
+			svy-margin="model.margin"
+			svy-tabseq='model.tabSeq'
+			id="{{model.svyMarkupId}}"
+			/>
+	 <span ng-bind="model.text" svy-font="model.fontType"/>
+</label>

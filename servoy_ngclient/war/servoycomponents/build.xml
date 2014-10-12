@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+ <project default="build">
+
+  <target name="build">
+      <jar update="true" destfile="servoycomponents.jar" basedir="." manifest="META-INF/MANIFEST.MF" includes="*/**" excludes="build.xml,servoycomponents.jar,META-INF">
+      </jar>
+  </target>
+</project> 

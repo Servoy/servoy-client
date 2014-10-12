@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app="servoyApp" ng-controller="MainController">
+	<head>
+		<title ng-bind="solutionSettings.solutionTitle"></title>
+		<!-- base 3th party libraries -->
+		<link rel="stylesheet" href="css/bootstrap/css/bootstrap.css"/>
+		<link rel="stylesheet" href="css/ng-grid.css"/>
+		<link rel="stylesheet" href="js/bootstrap-window/css/bootstrap-window.css"/>
+		
+		<script src="js/jquery-1.11.1.js"></script>
+		<script src="js/angular1.3.0-rc.4.js"></script>
+		<script src="js/angular-webstorage.js"></script>
+		<script src="js/angularui/ui-bootstrap-tpls-0.11.2.js"></script>
+		<script src="js/angularui/ng-grid-2.0.7.debug.js"></script>
+		<script src="js/numeral.js"></script>
+		<script src="js/angular-file-upload/dist/angular-file-upload.min.js"></script>
+		<script src="js/bootstrap-window/js/Window.js"></script>    <!-- TODO replace these with bootstrap-window.min.js --> 
+		<script src="js/bootstrap-window/js/WindowManager.js"></script>	<!-- see ^ -->
+		<script src="js/bindonce.js"></script>	
+		<script src="js/boostratp/bootstrap.js"></script>
+		
+		<!-- base servoy libraries -->
+		<link rel="stylesheet" href="css/servoy.css"/>
+		<script src="js/servoy.js"></script>
+		<script src="js/servoyWindowManager.js"></script>
+		<script src="js/servoyformat.js"></script>
+		<script src="js/servoytooltip.js"></script>
+		<script src="js/fileupload.js"></script>
+		<script src="js/servoy-components.js"></script>
+		<script src="sablo/js/websocket.js"></script>
+		<script src="js/servoy_app.js"></script>
+		<script src="js/jquery.maskedinput.js"></script>
+		<link rel="stylesheet" ng-href='{{solutionSettings.styleSheetPath}}'/>
+	</head>
+	<script type="text/javascript">
+		angular.module('servoyApp').run(function($solutionSettings){
+				var orientation = ##orientation##;
+				if (orientation == 2)
+				{
+					$solutionSettings.ltrOrientation = false;
+				}
+				else if (orientation == 3)
+				{
+					language = window.navigator.language?window.navigator.language:window.navigator.browserLanguage;
+					language = language.split('-')[0];
+					if (language == 'iw' || language == 'ar' ||language == 'fa' ||language == 'ur')
+					{
+						$solutionSettings.ltrOrientation = false;
+					}
+					else
+					{
+						$solutionSettings.ltrOrientation = true;
+					}
+				}
+				else
+				{
+					$solutionSettings.ltrOrientation = true;
+				}
+		});
+	</script>
+	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}">
+		<div ng-if='!getSessionProblemView()'>
+			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
+				ng-include="getNavigatorFormUrl()"></div>
+			<div ng-include="getMainFormUrl()" ng-style="getFormStyle(solutionSettings.ltrOrientation)"></div>
+			<div ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
+		</div>
+		<div ng-if='getSessionProblemView()' ng-include='getSessionProblemView()'>		  
+		</div>
+	</body>
+</html>

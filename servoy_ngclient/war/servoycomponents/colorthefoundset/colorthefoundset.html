@@ -1,0 +1,6 @@
+<div class="form-control input-sm svy-padding-xs" style="width: 100%; height: 100%; overflow: hidden">
+	<div ng-repeat="row in model.foundsetToShow.viewPort.rows">
+		<div ng-class="{'blue_age': row.age >= 20,'yellow_age': row.age < 20}">Name: {{row.name}} -- Age: {{row.age}}</div>
+		<img ng-src="{{row.imagem.url}}"/>
+	</div>
+</div>

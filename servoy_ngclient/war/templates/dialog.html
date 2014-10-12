@@ -1,0 +1,22 @@
+<div bindonce bo-class="{'window':!isUndecorated()}" 
+			  bo-style="{'background-color':win.transparent ? 'transparent':'inherit'}" >
+	<div bo-style="{'opacity':win.opacity}">
+		<div  class='window-header'
+			  bo-style="{'display':isUndecorated()? 'none':'block'}">
+			<button type="button" class="close"
+				ng-click="cancel()"
+			    data-dismiss="window" 
+				aria-hidden="true">x</button>
+			<h4 class="window-title"  ng-bind='win.title'></h4>
+		</div>	
+	    <div class="window-body" 
+	    	 bo-style="getBodySize()">
+	    	 <div ng-if="win.navigatorForm.templateURL" ng-style="{'width':win.navigatorForm.size.width+'px'}"
+				  ng-include="getNavigatorFormUrl()"></div>
+	    	 <div ng-include="getFormUrl()"  
+	    	      ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':win.navigatorForm.size.width+'px'}" ></div>	    	 
+	    </div>    
+		<div class="window-footer"
+			 bo-style="{'display':isUndecorated()? 'none':'block'}"></div>
+	</div>
+</div>

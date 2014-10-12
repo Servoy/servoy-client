@@ -1,0 +1,23 @@
+<input ng-style="style" svy-border='model.borderType'
+	   svy-font='model.fontType' 
+	   svy-background='model.transparent ? "transparent" : model.background'
+	   svy-foreground='model.foreground'
+	   svy-margin='model.margin'
+	   svy-tabseq='model.tabSeq'
+	   svy-selectonenter='model.selectOnEnter'
+	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
+	   svy-focuslost='handlers.onFocusLostMethodID($event)'
+	   svy-enter='handlers.onActionMethodID($event)'
+	   svy-rightclick='handlers.onRightClickMethodID($event)'
+	   ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
+	   type="text" 
+       ng-model="model.dataProviderID" svy-formatvldisplay='model.valuelistID'
+       ng-disabled="model.enabled == false"
+       ng-readonly="model.editable == false"  
+       svy-tooltip='model.toolTipText'
+       placeholder="{{model.placeholderText}}"
+       svy-autoapply  
+       svy-format="findMode ? '' : model.format"
+       id="{{model.svyMarkupId}}"
+       svy-horizontalalignment='model.horizontalAlignment'/>
+       

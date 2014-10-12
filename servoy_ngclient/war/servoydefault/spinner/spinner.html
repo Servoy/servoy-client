@@ -1,0 +1,19 @@
+<div svy-tooltip='model.toolTipText'
+>
+	<div class="input-append">
+    <input type="text" class="spinner-input" 
+    	   ng-model="selection" 
+    	   ng-disabled="model.enabled == false"
+    	   readonly
+    	   svy-border='model.borderType'
+    	   svy-background='model.transparent ? "transparent" : model.background'
+    	   svy-foreground='model.foreground'
+		   svy-margin='model.margin' id="{{model.svyMarkupId}}" svy-tabseq='model.tabSeq'>
+    <div class="spinner-buttons">
+      <button tabindex='-1' ng-click="increment()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-up" type="button">
+        <i class="fa fa-angle-up"></i></button>
+      <button tabindex='-1' ng-click="decrement()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-down" type="button">
+        <i class="fa fa-angle-down"></i></button>
+    </div>
+  </div>
+</div>
