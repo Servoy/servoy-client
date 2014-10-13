@@ -39,14 +39,35 @@ public class FormLayoutGenerator
 	{
 		generateFormStartTag(writer, form);
 		Iterator<Part> it = form.getParts();
+
+		if (design)
+		{
+			while (it.hasNext())
+			{
+				Part part = it.next();
+				if (!Part.rendersOnlyInPrint(part.getPartType()))
+				{
+					writer.print("<div ng-style=\"");
+					writer.print(PartWrapper.getName(part));
+					writer.println("Style\">");
+					generateEndDiv(writer);
+				}
+			}
+		}
+
+		it = form.getParts();
 		while (it.hasNext())
 		{
 			Part part = it.next();
 			if (!Part.rendersOnlyInPrint(part.getPartType()))
 			{
-				writer.print("<div ng-style=\"");
-				writer.print(PartWrapper.getName(part));
-				writer.println("Style\">");
+				if (!design)
+				{
+					writer.print("<div ng-style=\"");
+					writer.print(PartWrapper.getName(part));
+					writer.println("Style\">");
+				}
+
 				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context))
 				{
 					FormElement fe = ComponentFactory.getFormElement(bc, context, null);
@@ -56,9 +77,10 @@ public class FormLayoutGenerator
 					generateEndDiv(writer);
 				}
 
-				generateEndDiv(writer);
+				if (!design) generateEndDiv(writer);
 			}
 		}
+
 		generateEndDiv(writer);
 	}
 

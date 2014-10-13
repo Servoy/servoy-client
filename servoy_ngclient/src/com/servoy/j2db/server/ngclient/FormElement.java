@@ -39,6 +39,8 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.websocket.IWebsocketEndpoint;
+import org.sablo.websocket.WebsocketEndpoint;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -51,6 +53,7 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.design.DesignNGClient;
+import com.servoy.j2db.server.ngclient.design.DesignNGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -266,16 +269,25 @@ public final class FormElement implements IWebComponentInitializer
 			Point location = getDesignLocation();
 			if (location != null)
 			{
-				Point newLocation = new Point(location);
-				Part part = flatForm.getPartAt(location.y);
-				if (part != null)
+				// if it is design client, it has no parts
+				IWebsocketEndpoint ep = WebsocketEndpoint.exists() ? WebsocketEndpoint.get() : null;
+				if (ep != null && ep.getWebsocketSession() instanceof DesignNGClientWebsocketSession)
 				{
-					int top = flatForm.getPartStartYPos(part.getID());
-					newLocation.y = newLocation.y - top;
-					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
-					map.put("offsetY", top);
+					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), location);
+					map.put("offsetY", 0);
 				}
-
+				else
+				{
+					Point newLocation = new Point(location);
+					Part part = flatForm.getPartAt(location.y);
+					if (part != null)
+					{
+						int top = flatForm.getPartStartYPos(part.getID());
+						newLocation.y = newLocation.y - top;
+						map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
+						map.put("offsetY", top);
+					}
+				}
 			}
 		}
 	}
