@@ -44,7 +44,6 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
@@ -129,9 +128,9 @@ public class DesignerFilter implements Filter
 								{
 									jsonWriter.key("icon").value(spec.getIcon());
 								}
-								Map<String, IPropertyType< ? >> foundTypes = spec.getFoundTypes();
+								List<String> foundTypes = spec.getPaletteTypeNames();
 								ArrayList<String> types = new ArrayList<String>();
-								for (String typeName : foundTypes.keySet())
+								for (String typeName : foundTypes)
 								{
 									types.add(typeName);
 								}

@@ -229,8 +229,14 @@ public class Activator implements BundleActivator
 														bigChange = true;
 														break outer;
 													}
+													if (property.equals("tabs"))
+													{
+														bigChange = true;
+														break outer;
+													}
 													webComponent.setFormElement(newFe);
 													webComponent.setProperty(property, newFe.getPropertyValueConvertedForWebComponent(property, webComponent));
+
 												}
 											}
 										}

@@ -17,7 +17,7 @@
 	"types": {
 	  "complextype": {
 	  	"model": {
-	  		"firstNameDataprovider": { "type":"dataprovider", "ondatachange": { "onchange":"onAction", "callback":"onAction"}},
+	  		"firstNameDataprovider": { "type":"dataprovider"},
 	  		"lastNameDataprovider": "tagstring"
 	  	}
 	  }

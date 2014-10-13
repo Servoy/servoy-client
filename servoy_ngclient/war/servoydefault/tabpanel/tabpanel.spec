@@ -21,7 +21,7 @@
 	        "tabIndex" : "int", 
 	        "tabOrientation" : {"type" :"int", "scope" :"design", "values" :[{"default" :0}, {"TOP":1}, {"HIDE":-1}]}, 
 	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
-	        "tabs" : "tab[]", 
+	        "tabs" : {"type" : "tab[]", "showInPalette" : true}, 
 	        "transparent" : "boolean", 
 	        "visible" : {"type":"boolean", "default":true} 
 	},
