@@ -27,7 +27,6 @@ import org.sablo.websocket.IClientService;
 import org.sablo.websocket.WebsocketEndpoint;
 import org.sablo.websocket.impl.ClientService;
 
-import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
@@ -81,10 +80,8 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 			}
 			String realUrl = formUrl + "?lm:" + System.currentTimeMillis() + "&sessionId=" + getUuid();
 			StringWriter sw = new StringWriter(512);
-			boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
-			String view = (tableview ? "tableview" : "recordview");
 			// for al js code design flag should be true.
-			new FormTemplateGenerator(new ServoyDataConverterContext(getClient()), true, true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
+			new FormTemplateGenerator(new ServoyDataConverterContext(getClient()), true, true).generate(form, realFormName, "form_recordview_js.ftl", sw);
 			getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
 				new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
 		}
