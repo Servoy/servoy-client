@@ -565,6 +565,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
+		for (WebComponent component : formController.getFormUI().getComponents())
+		{
+			if (component instanceof WebFormComponent)
+			{
+				WebFormComponent wfc = (WebFormComponent)component;
+				if (wfc.getFormElement().getTagname().equals("data-servoydefault-portal"))
+				{
+					webcomponents.add(wfc);
+				}
+			}
+		}
+
 		boolean editable = !Boolean.TRUE.equals(getApplication().getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE));
 		WebComponentApiDefinition findModeCall = new WebComponentApiDefinition("setFindMode");
 		findModeCall.addParameter(new PropertyDescription("mode", TypesRegistry.getType("boolean")));

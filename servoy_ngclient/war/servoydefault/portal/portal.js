@@ -492,7 +492,11 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     			  var retValForSelectedStored = false;
     			  var retValForSelectedCell;
     			  var callOnOneSelectedCellOnly = true;
-    			  if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.apiCallTypes) {
+    			  if (apiFunctionName == 'setFindMode')
+    			  {
+    				  callOnOneSelectedCellOnly = false;
+    			  }
+    			  else if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.apiCallTypes) {
     				  callOnOneSelectedCellOnly = (elements[elementIndex].forFoundset.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
     			  }
     			  
@@ -651,6 +655,29 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     		  }
     		  return cellProxies.cellHandlers;
     	  }
+    	  
+    	 // special method that servoy calls when this component goes into find mode.
+      	 $scope.api.setFindMode = function(findMode, editable) {
+      		 for (var i =0; i < $scope.model.childElements.length; i++)
+      		 {
+      			if ($scope.model.childElements[i].api.setFindMode)
+      			{
+      				$scope.model.childElements[i].api.setFindMode(findMode, editable);
+      			}
+      			else
+      			{
+      				if (findMode)
+      				{
+	      				$scope.model.childElements[i].model.readOnlyBeforeFindMode = $scope.model.childElements[i].model.readOnly;
+	      				$scope.model.childElements[i].model.readOnly = !editable;
+      				}
+      				else
+      				{
+      					$scope.model.childElements[i].model.readOnly = $scope.model.childElements[i].model.readOnlyBeforeFindMode;
+      				}
+      			}
+      		 }
+      	 };
       },
       link: function (scope, element, attrs) {
     	  var sc = element.find('.svyPortalGridStyle').scope();
