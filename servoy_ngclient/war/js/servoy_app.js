@@ -753,17 +753,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         link: function (scope, element, attrs) {
         	var formname = scope.formname;
 			$timeout(function() {
-				//FINDMODE does not work with this check, it gets stuck at formUrl.wait(); // wait for the 'formloaded' event from client in NGClientWebsocketSession
-				//if (!$windowService.isFormLoaded(formname))
-				//{
-					// notify that the form has been loaded
-					// NOTE: this call cannot be make as a service call, as a service call may
-					// already be blocked and waiting for the formload event
-					$servoyInternal.sendRequest({cmd:'formloaded',formname:formname})
-					if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
-						$rootScope.updatingFormUrl = '';
-					}
-				//}
+				// notify that the form has been loaded
+				// NOTE: this call cannot be make as a service call, as a service call may
+				// already be blocked and waiting for the formload event
+				$servoyInternal.sendRequest({cmd:'formloaded',formname:formname})
+				if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
+					$rootScope.updatingFormUrl = '';
+				}
 				scope.formProperties.size.width = element.prop('offsetWidth');
 				scope.formProperties.size.height = element.prop('offsetHeight');
 			},0);
