@@ -108,7 +108,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   if (anchoredBottom)
 			   {
 				   if (beanLayout.bottom == undefined) {
-					   beanLayout.bottom = containerSize.height - beanModel.location.y - beanModel.size.height;
+					   beanLayout.bottom = (beanModel.partHeight ? beanModel.partHeight : containerSize.height) - beanModel.location.y - beanModel.size.height;
 					   if(beanModel.offsetY) {
 						   beanLayout.bottom = beanLayout.bottom - beanModel.offsetY;
 					   }

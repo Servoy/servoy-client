@@ -286,6 +286,7 @@ public final class FormElement implements IWebComponentInitializer
 						newLocation.y = newLocation.y - top;
 						map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
 						map.put("offsetY", top);
+						map.put("partHeight", part.getHeight());
 					}
 				}
 			}
@@ -553,6 +554,9 @@ public final class FormElement implements IWebComponentInitializer
 
 		Object offsetY = getPropertyValue("offsetY");
 		if (offsetY != null) properties.put("offsetY", offsetY);
+
+		Object partHeight = getPropertyValue("partHeight");
+		if (partHeight != null) properties.put("partHeight", partHeight);
 
 		// get types for conversion
 		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
