@@ -387,9 +387,9 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			else
 			{
 				// no change yet we are still asked to send changes; we could send all or just nothing useful
-				destinationJSON.key(NO_OP).value(0);
+				//destinationJSON.key(NO_OP).value(0);
 				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again
-				//toJSON(destinationJSON, conversionMarkers);
+				toJSON(destinationJSON, conversionMarkers);
 			}
 
 			changeMonitor.clearChanges();
