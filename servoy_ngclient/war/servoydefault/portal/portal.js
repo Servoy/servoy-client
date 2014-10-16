@@ -1,4 +1,6 @@
-angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', function($utils, $foundsetTypeConstants, $componentTypeConstants, /*timeout can be removed if it was only used for testing*/ $timeout, $solutionSettings, $anchorConstants) {  
+angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.grid.selection','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
+.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil',
+                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil) {  
     return {
       restrict: 'E',
       scope: {
@@ -6,7 +8,7 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  	handlers: "=svyHandlers",
        		api: "=svyApi"
       },
-      controller: function($scope, $element, $attrs) {
+      link: function($scope, $element, $attrs) {
     	  // START TEST MODELS
 //    	  var textFieldApi = {}; 
 //    	  var preparedActionHandler = function(args, rowId) {
@@ -123,10 +125,23 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  //                                  .cellApplyHandler - is the actual cell element apply handler cache
     	  var rowProxyObjects = {};
     	  
-    	  var foundset = $scope.model.relatedFoundset;
+    	  $scope.pageSize = 25;
+    	  
+    	  $scope.foundset = null;
     	  var elements = $scope.model.childElements;
     	  $scope.$watch('model.relatedFoundset', function(newVal, oldVal) {
-    		  foundset = newVal;
+    		  if (!$scope.foundset && newVal.viewPort.size > 0){
+    		  	// this is the first time after a tab switch, there is data but the portal is not showing yet.
+    		 	$scope.foundset = {viewPort:{rows:[]}}
+    		  	$timeout(function() {
+    		  		$timeout(function() {
+    		  			$scope.foundset = newVal;
+    		  		},1);
+    		  	},1);
+    		  }
+    		  else {
+    		  	$scope.foundset = newVal;
+    		  }
     	  })
     	  $scope.$watchCollection('model.childElements', function(newVal, oldVal) {
     		  elements = $scope.model.childElements;
@@ -146,110 +161,6 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     				  f(rowProxyObjects[pk][elementIndex], pk, elementIndex);
     	  }
     	  
-    	  $scope.pagingOptions = {
-    			  pageSizes: [1, 5, 10, 20, 50, 100, 200, 500, 1000],
-    			  pageSize: -1,
-    			  currentPage: 1
-    	  }
-    	  
-    	  function getCurrentPage() {
-    		  //pagesize not yet initialized
-    		  if ($scope.pagingOptions.pageSize < 0) return 1;
-    		  // if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
-    		  var currentPage = Math.floor(foundset.viewPort.startIndex / $scope.pagingOptions.pageSize) + 1;
-    		  if (foundset.viewPort.size > 0 && foundset.viewPort.startIndex % $scope.pagingOptions.pageSize !== 0) {
-    			  // for example if you have 5 per page, viewPort startIndex 5, size 5 (so page 2), foundset size 1000
-    			  // and then on server records 3-4 get deleted, you will end up with viewPort startIndex 3, size 5
-    			  // because the viewPort property type tries to follow the first record; we want to do the same
-    			  // so show the same page contents instead of auto-switching page to 1 and showing 3 new records and only 2 of the ones
-    			  // that were previously shown to the user; in this case we need to show page 2 (not 1) to allow user to
-    			  // go to first 3 records;
-    			  // something similar may happen when records get added before the current startIndex
-    			  currentPage++;
-    		  }
-    		  return currentPage;
-    	  }
-    	  
-    	  function updatePageCount() {
-    		  if ($scope.pagingOptions.pageSize <0) return;
-    		  var count = Math.ceil(foundset.serverSize / $scope.pagingOptions.pageSize);
-    		  // for example if you have 5 per page, viewPort startIndex 5, size 5 (so page 2), foundset size 1000
-    		  // and then on server records 3-4 get deleted, you will end up with viewPort startIndex 3, size 5
-    		  // because the viewPort property type tries to follow the first record; we want to do the same
-    		  // so show the same page contents instead of auto-switching page to 1 and showing 3 new records and only 2 of the ones
-    		  // that were previously shown to the user; in this case we need to show page 2 (not 1) to allow user to
-    		  // go to first 3 records; this also implies that we have an extra page sometimes
-    		  var emptySpaceOnPreviousPage = foundset.viewPort.startIndex % $scope.pagingOptions.pageSize;
-    		  if (emptySpaceOnPreviousPage !== 0) {
-    			  var wouldBeRecordsOnLastPage = foundset.serverSize % $scope.pagingOptions.pageSize;
-    			  if (wouldBeRecordsOnLastPage == 0) wouldBeRecordsOnLastPage = $scope.pagingOptions.pageSize;
-    			  if (emptySpaceOnPreviousPage + wouldBeRecordsOnLastPage > $scope.pagingOptions.pageSize) count++;
-    			  else emptySpaceOnPreviousPage = 0;
-    		  }
-    		  
-    		  var multiPage = (count > 1);
-    		  if ($scope.gridOptions) {
-    			  $scope.gridOptions.$gridScope.showFooter = multiPage;
-    			  $scope.gridOptions.$gridScope.enablePaging = multiPage;
-    			  $scope.gridOptions.$gridScope.footerRowHeight = multiPage ?  55 : 0; // we need to calculate needed size somehow
-    		  }
-    		  // TODO this artificialServerSize does make page count show well, but it obviously breaks total size
-    		  // so it's disabled for now...
-//    		  $scope.artificialServerSize = foundset.serverSize + emptySpaceOnPreviousPage;
-    		  $scope.artificialServerSize = foundset.serverSize;
-    	  }
-    	  
-    	  $scope.$watch('pagingOptions.currentPage', function(newVal, oldVal) {
-    		  if (newVal !== getCurrentPage()) { // we are using getCurrentPage() here instead of oldVal because of the special situations that rise from not changing user view if records get added/removed before viewPort startIndex
-    			  // user requested another page; get it from server
-				  var startIdx = (newVal - 1) * $scope.pagingOptions.pageSize;
-    			  if (startIdx < foundset.serverSize) foundset.loadRecordsAsync(startIdx, Math.min(foundset.serverSize - startIdx, $scope.pagingOptions.pageSize));
-    			  // TODO show some loading feedback to the user until these records are received
-    		  }
-    	  });
-
-    	  $scope.$watch('pagingOptions.pageSize', function(newVal, oldVal) {
-    		  if (newVal !== oldVal) {
-    			  // user requested another page size; get items from server (could be optimised I guess if page size is lower)
-    			  var startIdx = $scope.pagingOptions.currentPage ? $scope.pagingOptions.currentPage - 1 : 0;
-    			  foundset.loadRecordsAsync(startIdx * oldVal, newVal);
-    			  $scope.pagingOptions.currentPage = Math.floor(startIdx / newVal + 1);
-    			  updatePageCount();
-    			  // TODO show some loading feedback to the user until these records are received
-    		  }
-    	  });
-    	  
-    	  // startIndex can change serverSize if a record was deleted from before it; server viewport follows first record, not first index
-    	  $scope.$watch('model.relatedFoundset.viewPort.startIndex', function(newVal, oldVal) {
-    		  // if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
-    		  $scope.pagingOptions.currentPage = getCurrentPage();
-    		  updatePageCount();
-    	  });
-
-    	  // size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
-    	  $scope.$watch('model.relatedFoundset.viewPort.size', function(newVal, oldVal) {
-    		  if (newVal === 0 && $scope.pagingOptions.pageSize > 0) {
-    			  // For example when the for record changed, resulting in a related foundset change, viewPort will have to be requested again
-    			  // starting from 0 (it is set serverside to 0 - 0 as server doesn't know what we now need);
-    			  // The same can happen if all records in the viewport get deleted and there are no more available to fill the gap...
-    			  var startReq = Math.floor(Math.min(foundset.viewPort.startIndex, Math.max(0, foundset.serverSize - 1)) / $scope.pagingOptions.pageSize) * $scope.pagingOptions.pageSize;
-    			  $scope.model.relatedFoundset.loadRecordsAsync(startReq, Math.min(foundset.serverSize - startReq, $scope.pagingOptions.pageSize));
-    		  }
-    	  });
-
-    	  $scope.$watch('model.relatedFoundset.serverSize', function(newVal, oldVal) {
-    		  if (newVal > 0 && foundset.viewPort.size === 0 && $scope.pagingOptions.pageSize > 0) {
-    			  // initial new foundset show
-    			  $scope.model.relatedFoundset.loadRecordsAsync(0, Math.min(newVal, $scope.pagingOptions.pageSize));
-    		  } else if (foundset.viewPort.startIndex + foundset.viewPort.size < newVal && foundset.viewPort.size < $scope.pagingOptions.pageSize) $scope.model.relatedFoundset.loadExtraRecordsAsync(Math.min(newVal - foundset.viewPort.startIndex - foundset.viewPort.size, $scope.pagingOptions.pageSize - foundset.viewPort.size));
-    		  updatePageCount();
-    	  });
-    	  
-    	  $scope.$watchCollection('model.relatedFoundset.viewPort.rows', function() {
-    		  // TODO check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding watches (we have to keep somewhere references to the removal functions when we register row watches)
-    		  // allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
-    		  $scope.$evalAsync(function () { updateGridSelectionFromFoundset(); });
-    	  });
     	  $scope.rowHeight = $scope.model.rowHeight;
     	  
     	  var rowTemplate = ''
@@ -269,18 +180,19 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     			  if (!columnTitle) columnTitle = "";
     		  }
 
-    		  var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getMergedCellModel(row, ' + idx + ')" svy-api="cellApiWrapper(row, ' + idx + ')" svy-handlers="cellHandlerWrapper(row, ' + idx + ')" svy-apply="cellApplyHandlerWrapper(row, ' + idx + ')"/>' 
+    		  var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx + ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx + ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx + ')" svy-apply="getExternalScopes().cellApplyHandlerWrapper(row, ' + idx + ')"/>' 
     		  if($scope.model.multiLine) { 
     			  if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
     				  $scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
     			  }
-    			  rowTemplate = rowTemplate + '<div ng-style="getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
+    			  rowTemplate = rowTemplate + '<div ng-style="getExternalScopes().getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
     		  }
     		  else {
     			  if($scope.rowHeight == undefined || $scope.rowHeight < el.model.size.height) {
     				  $scope.rowHeight = el.model.size.height;
     			  }
         		  $scope.columnDefinitions.push({
+        			  name:columnTitle,
         			  displayName: columnTitle,
         			  cellTemplate: cellTemplate,
         			  visible: el.model.visible,
@@ -317,8 +229,8 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  }
     	  
     	  function rowIdToViewportRelativeRowIndex(rowId) {
-    		  for (var i = foundset.viewPort.rows.length - 1; i >= 0; i--)
-    			  if (foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY] === rowId) return i;
+    		  for (var i = $scope.foundset.viewPort.rows.length - 1; i >= 0; i--)
+    			  if ($scope.foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY] === rowId) return i;
     		  return -1;
     	  }
 
@@ -327,22 +239,20 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  }
 
     	  function viewPortToAbsolute(rowIndex) {
-    		  return rowIndex >= 0 ? rowIndex + foundset.viewPort.startIndex : -1;
-    	  }
-
-    	  function absoluteToViewPort(rowIndex) {
-    		  return rowIndex - foundset.viewPort.startIndex;
+    		  return rowIndex >= 0 ? rowIndex + $scope.foundset.viewPort.startIndex : -1;
     	  }
 
     	  function isRowIndexSelected(rowIndex) {
-    		  return foundset.selectedRowIndexes.indexOf(rowIndex) >= 0;
+    		  return $scope.foundset.selectedRowIndexes.indexOf(rowIndex) >= 0;
     	  }
     	  
     	  function isInViewPort(absoluteRowIndex) {
-			  return (absoluteRowIndex >= foundset.viewPort.startIndex && absoluteRowIndex < (foundset.viewPort.startIndex + foundset.viewPort.size));
+			  return (absoluteRowIndex >= $scope.foundset.viewPort.startIndex && absoluteRowIndex < ($scope.foundset.viewPort.startIndex + $scope.foundset.viewPort.size));
     	  }
     	  
-    	  $scope.getMultilineComponentWrapperStyle = function(elementIndex) {
+    	  $scope.exScope = {};
+    	  
+    	  $scope.exScope.getMultilineComponentWrapperStyle = function(elementIndex) {
 				var elModel = elements[elementIndex].model;
 				var containerModel = $scope.model;
 				var elLayout = {position: 'absolute'};
@@ -418,8 +328,8 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  }
     	  
     	  // merges foundset record dataprovider/tagstring properties into the element's model
-    	  $scope.getMergedCellModel = function(ngGridRow, elementIndex) {
-    		  var cellProxies = getOrCreateElementProxies(ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY), elementIndex);
+    	  $scope.exScope.getMergedCellModel = function(ngGridRow, elementIndex) {
+    		  var cellProxies = getOrCreateElementProxies(ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY], elementIndex);
     		  var cellModel = cellProxies.mergedCellModel;
     		  
     		  // TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
@@ -471,7 +381,7 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     				  for (var i in element.forFoundset.dataLinks) {
     					  var propertyName = element.forFoundset.dataLinks[i].propertyName;
     					  var dataprovider = element.forFoundset.dataLinks[i].dataprovider;
-    					  cellData[propertyName] = ngGridRow.getProperty(dataprovider);
+    					  cellData[propertyName] = ngGridRow.entity[dataprovider];
     					  // 2 way data link between element separate properties from foundset and the merged cell model
     					  $utils.bindTwoWayObjectProperty(cellData, propertyName, cellProxies, ["rowEntity", dataprovider], false, $scope);
     				  }
@@ -523,8 +433,8 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  // cells provide API calls; one API call (from server) should execute on all cells of that element's column.
     	  // so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
     	  // it will execute on all cells
-    	  $scope.cellApiWrapper = function(ngGridRow, elementIndex) {
-    		  var cellProxies = getOrCreateElementProxies(ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY), elementIndex);
+    	  $scope.exScope.cellApiWrapper = function(ngGridRow, elementIndex) {
+    		  var cellProxies = getOrCreateElementProxies(ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY], elementIndex);
 
     		  if (!cellProxies.cellApi) {
         		  var columnApi = elements[elementIndex].api;
@@ -546,8 +456,8 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
 			  }
     	  }
 
-    	  $scope.cellApplyHandlerWrapper = function(ngGridRow, elementIndex) {
-    		  var rowId = ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY);
+    	  $scope.exScope.cellApplyHandlerWrapper = function(ngGridRow, elementIndex) {
+    		  var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
     		  var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
     		  if (!cellProxies.cellApplyHandler) {
@@ -560,81 +470,119 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  }
 
     	  // bind foundset.selectedRowIndexes to what nggrid has to offer
-    	  var selectedItemsProxy = []; // keeps entire foundset row items from model.relatedFoundset.viewPort.rows
-    	  var unreg = $scope.$on('ngGridEventData', function(){
-        	  for (var idx = 0;  idx < foundset.selectedRowIndexes.length; idx++) {
-        		  var rowIdx = foundset.selectedRowIndexes[idx];
-        		  if (isInViewPort(rowIdx)) $scope.gridOptions.selectRow(absoluteToViewPort(rowIdx), true);
-        	  }
-        	  unreg(); // deregister, as this was only meant to execute as initial show
-    	  });
     	  function updateFoundsetSelectionFromGrid(newNGGridSelectedItems) {
-    		  if (selectedItemsProxy.length == 0 && $scope.model.relatedFoundset.serverSize > 0) return; // we shouldn't try to set no selection if there are records; it will be an invalid request as server doesn't allow that
+    		  if (newNGGridSelectedItems.length == 0 && $scope.model.relatedFoundset.serverSize > 0) return; // we shouldn't try to set no selection if there are records; it will be an invalid request as server doesn't allow that
 			  // update foundset object selection when it changes in ngGrid
     		  var tmpSelectedRowIdxs = {};
 			  for (var idx = 0; idx < newNGGridSelectedItems.length; idx++) {
 				  var absRowIdx = rowIdToAbsoluteRowIndex(newNGGridSelectedItems[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]);
-				  if (!isRowIndexSelected(absRowIdx)) foundset.selectedRowIndexes.push(absRowIdx);
+				  if (!isRowIndexSelected(absRowIdx)) $scope.foundset.selectedRowIndexes.push(absRowIdx);
 				  tmpSelectedRowIdxs['_' + absRowIdx] = true;
 			  }
-			  for (var idx = 0; idx < foundset.selectedRowIndexes.length; idx++) {
-				  if (!tmpSelectedRowIdxs['_' + foundset.selectedRowIndexes[idx]]) {
+			  for (var idx = 0; idx < $scope.foundset.selectedRowIndexes.length; idx++) {
+				  if (!tmpSelectedRowIdxs['_' + $scope.foundset.selectedRowIndexes[idx]]) {
 					  // here we also handle the case when in multiselect there are records selected outside of viewport
 					  // in that case if CTRL was pressed then this $watch should not remove those records from selection
 					  // TODO if CTRL was not pressed in multi-selection, the outside-of-viewPort-selectedIndexes should be cleared as well - but not by this $watch code
-					  if (!foundset.multiSelect || isInViewPort(idx)) foundset.selectedRowIndexes.splice(idx, 1);
+					  if (!$scope.foundset.multiSelect || isInViewPort(idx)) $scope.foundset.selectedRowIndexes.splice(idx, 1);
 				  }
 			  }
 			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 		  }
-    	  var updateGridSelectionFromFoundset = function(newFSSelectedItems) {
-			  // update ngGrid selection when it changes in foundset
-    		  if (!newFSSelectedItems) newFSSelectedItems = foundset.selectedRowIndexes;
-    			  
-    		  var tmpSelectedRowIdxs = {};
-			  for (var idx = 0; idx < selectedItemsProxy.length; idx++) {
-				  var absRowIdx = rowIdToAbsoluteRowIndex(selectedItemsProxy[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]);
-				  if (absRowIdx >= 0) {
-					  if (newFSSelectedItems.indexOf(absRowIdx) < 0) {
-						  $scope.gridOptions.selectItem(absoluteToViewPort(absRowIdx), false); // it seems nggrid doesn't really watch the selection array so we have to do this manually
-					  }
-				  } // else probably the foundset model was changed and ngGrid didn't run it's watches yet to update selectedItems
-				  tmpSelectedRowIdxs['_' + absRowIdx] = true;
-			  }
-			  for (var idx = 0; idx < newFSSelectedItems.length; idx++) {
-				  var rowIdx = newFSSelectedItems[idx];
-				  if (isInViewPort(rowIdx) && !tmpSelectedRowIdxs['_' + rowIdx]) {
-					  $scope.gridOptions.selectItem(absoluteToViewPort(rowIdx), true); // it seems nggrid doesn't really watch the selection array so we have to do this manually
-				  }
-			  }
+    	  var updateGridSelectionFromFoundset = function() {
+    		  $scope.$evalAsync(function () { 
+	    		  var rows = $scope.foundset.viewPort.rows;
+	    		  if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
+		    		  for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
+		          		  var rowIdx = $scope.foundset.selectedRowIndexes[idx];
+		          		  if (isInViewPort(rowIdx)) $scope.gridApi.selection.selectRow(rows[rowIdx]);
+		          	  }
+	    		  } else if (rows.length > 0) {
+	    			  $scope.gridApi.selection.selectRow(rows[0]);
+	    		  }
+    		  });
 			  // it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 		  };
-    	  $scope.$watchCollection(function() { return selectedItemsProxy; }, updateFoundsetSelectionFromGrid);
-    	  $scope.$watchCollection('model.relatedFoundset.selectedRowIndexes', updateGridSelectionFromFoundset);
+    	  $scope.$watchCollection('foundset.selectedRowIndexes', updateGridSelectionFromFoundset);
 
-    	  updatePageCount();
     	  $scope.gridOptions = {
-    			  data: 'model.relatedFoundset.viewPort.rows',
-    			  enableCellSelection: true,
+    			  data: 'foundset.viewPort.rows',
     			  enableRowSelection: true,
-    			  enableColumnResize: true,
-    			  selectedItems: selectedItemsProxy,
-    			  multiSelect: foundset.multiSelect,
-    			  enablePaging: false,
-    			  showFooter: false,
-    			  totalServerItems: 'artificialServerSize', // we sometimes fake a page for the sake of following the first selected record with viewport - so we can't use real size here; see updatePageCount()
-    			  pagingOptions: $scope.pagingOptions,
+    			  enableRowHeaderSelection: false,
+    			  multiSelect: false,
+    			  noUnselect: true,
+    			  enableScrollbars: true,
+    			  useExternalSorting: true,
     			  primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
-    			  columnDefs: 'columnDefinitions',
+    			  columnDefs: $scope.columnDefinitions,
     			  headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight,
     			  rowHeight: $scope.rowHeight?$scope.rowHeight:20
+    	  };
+    	  $scope.gridOptions.onRegisterApi = function( gridApi ) {
+    		  $scope.gridApi = gridApi;
+    		  gridApi.selection.on.rowSelectionChanged($scope,function(row){
+    		        updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
+    		  });
+    		  gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){
+			     $scope.foundset.loadExtraRecordsAsync(Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size));
+			  });
+    		  gridApi.core.on.sortChanged( $scope, function( grid, sortColumns ) {
+    			   // cal the server (through foundset type)
+    			  // $scope.foundset.sort(sortColumns[0], sortColumns[0].sort.direction == uiGridConstants.ASC);
+    		      });
+    		  var requestViewPortSize = -1;
+    		  function testNumberOfRows() {
+       			if (requestViewPortSize == -1 && $scope.foundset.serverSize > $scope.foundset.viewPort.size) {
+          			 var numberOfRows = $scope.gridApi.grid.gridHeight/$scope.gridOptions.rowHeight;
+          			 if ($scope.foundset.viewPort.size  == 0) {
+          				 // its a full reload because viewPort size = 0
+          				requestViewPortSize = 0;
+          				$scope.foundset.loadRecordsAsync(0, Math.min($scope.foundset.serverSize, numberOfRows+$scope.pageSize));
+          			 }
+          			 else if ($scope.foundset.viewPort.size < numberOfRows) {
+          				 // only add extra recors
+          				requestViewPortSize = $scope.foundset.viewPort.size;
+	   	         		$scope.foundset.loadExtraRecordsAsync(Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size));
+	   	         	 }
+          		 }
+       		 }
+    		  $timeout(function(){
+         		 $scope.gridApi.grid.gridWidth = gridUtil.elementWidth($element);
+         		 $scope.gridApi.grid.gridHeight = gridUtil.elementHeight($element);
+         		 $scope.gridApi.grid.refreshCanvas(true);
+         		 testNumberOfRows();
+         		 // reset what ui-grid did if somehow the row height was smaller then the elements height because it didn't layout yet
+         		 $element.children(".svyPortalGridStyle").height('');
+         		 
+           	   $scope.$watch('foundset.multiSelect', function(newVal, oldVal) {
+           		  // if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
+           		  $scope.gridApi.selection.setMultiSelect(newVal);
+           	  });
+
+           	  // size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
+           	  $scope.$watch('foundset.viewPort.size', function(newVal, oldVal) {
+           		  if (requestViewPortSize != newVal) requestViewPortSize = -1;
+           		  testNumberOfRows();
+           	  });
+
+           	  $scope.$watch('foundset.serverSize', function(newVal, oldVal) {
+           		testNumberOfRows();
+           	  });
+           	  
+           	  $scope.$watchCollection('foundset.viewPort.rows', function() {
+           		  // TODO check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding watches (we have to keep somewhere references to the removal functions when we register row watches)
+           		  // allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
+           		  updateGridSelectionFromFoundset();
+           		  $scope.gridApi.infiniteScroll.dataLoaded();
+           	  });
+    		  },0)
     	  };
     	  $scope.styleClass = 'svyPortalGridStyle';
     	  
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
     		  return function() {
     			  $scope.gridOptions.selectItem(rowIdToViewportRelativeRowIndex(rowId), true); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
-    			  updateFoundsetSelectionFromGrid(selectedItemsProxy); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
+    			  updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows()); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
     			  var recordHandler = handler.selectRecordHandler(rowId)
     			  return recordHandler.apply(recordHandler, arguments);
     		  }
@@ -642,7 +590,7 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
     	  // each handler at column level gets it's rowId from the cell's wrapper handler below (to
     	  // make sure that the foundset's selection is correct server-side when cell handler triggers)
     	  $scope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
-    		  var rowId = ngGridRow.getProperty($foundsetTypeConstants.ROW_ID_COL_KEY);
+    		  var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
     		  var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
     		  if (!cellProxies.cellHandlers) {
@@ -678,13 +626,6 @@ angular.module('servoydefaultPortal',['servoy']).directive('servoydefaultPortal'
       			}
       		 }
       	 };
-      },
-      link: function (scope, element, attrs) {
-    	  var sc = element.find('.svyPortalGridStyle').scope();
-    	  scope.$watch(function() { return sc.viewportDimHeight() }, function(newViewportHeight) {
-    		  scope.pagingOptions.pageSize = (scope.rowHeight == 0) ? 1 : Math.max(Math.floor(newViewportHeight / scope.rowHeight), 1);
-    		  scope.pagingOptions.pageSizes = [scope.pagingOptions.pageSize]; // TODO can we make it scoll if we allow clients to change page size manually to other values as well?
-    	  });
       },
       templateUrl: 'servoydefault/portal/portal.html',
       replace: true
