@@ -27,7 +27,6 @@ import com.servoy.base.solutionmodel.IBaseSMField;
  *
  * @since 6.1
  */
-@ServoyClientSupport(ng = true, wc = true, sc = true)
 public interface ISMField extends IBaseSMField, ISMComponent
 {
 
