@@ -42,6 +42,7 @@ public class SQLKeywords
 	"uuid", 
 	"version",//problem for sybase 
 	"release",//problem for sybase 
+	"analyse",
 
 		//begin, hypersonic small list special words
 	"cached", 
