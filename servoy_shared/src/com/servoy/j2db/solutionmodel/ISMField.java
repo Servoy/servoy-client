@@ -17,22 +17,24 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMField;
 
 /**
  * Solution model field component.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
  */
+@ServoyClientSupport(ng = true, wc = true, sc = true)
 public interface ISMField extends IBaseSMField, ISMComponent
 {
 
 	/**
-	 * Flag that tells if the content of the field can be edited or not. 
+	 * Flag that tells if the content of the field can be edited or not.
 	 * The default value of this flag is "true", that is the content can be edited.
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.editable = false;
@@ -49,10 +51,10 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	 * For Date fields a display and edit format can be set by using a pattern from here: http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html, you can also say this must behave like a mask (the edit format)
 	 * A mask only works with when the edit format is exactly that mask (1 char is 1 number/char), because for example MM then only 2 numbers are allowed MMM that displays the month as a string is not supported as a mask.
 	 * Some examples are "dd-MM-yyyy", "MM-dd-yyyy", etc.
-	 * The format property is also used to set the UI Converter, this means that you can convert the value object to something else before it gets set into the field, this can also result in a type change of the data. 
-	 * So a string in scripting/db is converted to a integer in the ui, then you have to set an integer format. 
+	 * The format property is also used to set the UI Converter, this means that you can convert the value object to something else before it gets set into the field, this can also result in a type change of the data.
+	 * So a string in scripting/db is converted to a integer in the ui, then you have to set an integer format.
 	 * This property is applicable only for types: TEXT_FIELD, COMBOBOX, TYPE_AHEAD, CALENDAR and SPINNER.
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.format = '$#.00';
@@ -62,11 +64,11 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	/**
 	 * Horizontal alignment of the text inside the component. Can be one of
 	 * LEFT, CENTER or RIGHT.
-	 * 
+	 *
 	 * Note that this property does not refer to the horizontal alignment
 	 * of the component inside the form.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
 	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
 	 * var hCenteredLabel = form.newLabel('CENTER', 10, 40, 300, 20);
@@ -78,9 +80,9 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public int getHorizontalAlignment();
 
 	/**
-	 * The margins of the component. They are specified in this order, 
+	 * The margins of the component. They are specified in this order,
 	 * separated by commas: top, left, bottom, right.
-	 * 
+	 *
 	 * @sample
 	 * var label = form.newLabel('Label', 10, 10, 150, 150);
 	 * label.background = 'yellow';
@@ -106,7 +108,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	/**
 	 * Flag that tells if the content of the field should be automatically selected
 	 * when the field receives focus. The default value of this field is "false".
-	 * 
+	 *
 	 * @sample
 	 * // Create two fields and set one of them to have "selectOnEnter" true. As you tab
 	 * // through the fields you can notice how the text inside the second field gets
@@ -118,18 +120,18 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public boolean getSelectOnEnter();
 
 	/**
-	 * An index that specifies the position of the component in the tab sequence. The components 
+	 * An index that specifies the position of the component in the tab sequence. The components
 	 * are put into the tab sequence in increasing order of this property. A value of 0 means
 	 * to use the default mechanism of building the tab sequence (based on their location on the form).
 	 * A value of -2 means to remove the component from the tab sequence.
-	 * 
+	 *
 	 * @sample
 	 * // Create three fields. Based on how they are placed, by default they will come one
 	 * // after another in the tab sequence.
 	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * var fieldTwo = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * var fieldThree = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 70, 100, 20);
-	 * // Set the third field come before the first in the tab sequence, and remove the 
+	 * // Set the third field come before the first in the tab sequence, and remove the
 	 * // second field from the tab sequence.
 	 * fieldOne.tabSeq = 2;
 	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
@@ -140,7 +142,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	/**
 	 * The text that is displayed in the column header associated with the component when the form
 	 * is in table view.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/my_table', null, false, 640, 480);
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -152,13 +154,13 @@ public interface ISMField extends IBaseSMField, ISMComponent
 
 	/**
 	 * The text displayed when hovering over the component with a mouse cursor.
-	 * 
+	 *
 	 * NOTE:
 	 * HTML should be used for multi-line tooltips; you can also use any
-	 * valid HTML tags to format tooltip text. For example: 
-	 * <html>This includes<b>bolded text</b> and 
+	 * valid HTML tags to format tooltip text. For example:
+	 * <html>This includes<b>bolded text</b> and
 	 * <font color='blue'>BLUE</font> text as well.</html>
-	 * 
+	 *
 	 * @sample
 	 * var label = form.newLabel('Stop the mouse over me!', 10, 10, 200, 20);
 	 * label.toolTipText = 'I\'m the tooltip. Do you see me?';
@@ -168,7 +170,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getValuelist()
 	 * @see com.servoy.base.solutionmodel.IBaseSMField#getValuelist()
-	 * 
+	 *
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
@@ -210,7 +212,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
 	 * @see com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
 	 * var onDataChangeMethod = form.newMethod('function onDataChange(oldValue, newValue, event) { application.output("Data changed from " + oldValue + " to " + newValue + " at " + event.getTimestamp()); }');
@@ -220,21 +222,23 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	 */
 	public ISMMethod getOnDataChange();
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnRender(ISMMethod method);
 
 	/**
 	 * The method that is executed when the component is rendered.
-	 * 
+	 *
 	 * @sample
 	 * field.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public ISMMethod getOnRender();
 
 	public void setOnRightClick(ISMMethod method);
 
 	/**
 	 * The method that is executed when the component is right clicked.
-	 * 
+	 *
 	 * @see #getOnAction()
 	 */
 	public ISMMethod getOnRightClick();
@@ -242,7 +246,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	/**
 	 * The method that is executed when the component gains focus.
 	 * NOTE: Do not call methods that will influence the focus itself.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
 	 * var onFocusLostMethod = form.newMethod('function onFocusLost(event) { application.output("Focus lost at " + event.getTimestamp()); }');
@@ -256,7 +260,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 
 	/**
 	 * The method that is executed when the component looses focus.
-	 * 
+	 *
 	 * @see #getOnFocusGained()
 	 */
 	public ISMMethod getOnFocusLost();

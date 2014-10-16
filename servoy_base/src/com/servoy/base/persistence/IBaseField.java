@@ -22,12 +22,12 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Base interface for graphical components (for mobile as well as other clients).
- * 
+ *
  * @author rgansevles
  *
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IBaseField extends IBaseFieldCommon
 {
 	/**
@@ -43,11 +43,17 @@ public interface IBaseField extends IBaseFieldCommon
 
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
-	 * 
+	 *
 	 */
 	int getOnDataChangeMethodID();
 
 	void setOnDataChangeMethodID(int arg);
+
+	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	void setOnRenderMethodID(int arg);
+
+	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	int getOnRenderMethodID();
 
 
 }

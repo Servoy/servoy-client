@@ -27,7 +27,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * Portal to view multiple related fields
- * 
+ *
  * @author jblok
  */
 public class Portal extends BaseComponent implements ISupportFormElements, ISupportScrollbars, ISupportTabSeq
@@ -47,7 +47,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the relationID
-	 * 
+	 *
 	 * @param arg the relationID
 	 */
 	public void setRelationName(String arg)
@@ -66,7 +66,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the rowHeight
-	 * 
+	 *
 	 * @param arg the rowHeight
 	 */
 	public void setRowHeight(int arg)
@@ -84,7 +84,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the reorderable
-	 * 
+	 *
 	 * @param arg the reorderable
 	 */
 	public void setReorderable(boolean arg)
@@ -93,7 +93,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * When set, the portal rows can be re-ordered by dragging the column headers.  
+	 * When set, the portal rows can be re-ordered by dragging the column headers.
 	 */
 	public boolean getReorderable()
 	{
@@ -102,7 +102,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the resizeble
-	 * 
+	 *
 	 * @param arg the resizeble
 	 */
 	@Deprecated
@@ -135,7 +135,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the sortable
-	 * 
+	 *
 	 * @param arg the sortable
 	 */
 	public void setSortable(boolean arg)
@@ -153,7 +153,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the multiLine
-	 * 
+	 *
 	 * @param arg the multiLine
 	 */
 	public void setMultiLine(boolean arg)
@@ -162,7 +162,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * When set, portal rows can have a custom layout of fields, buttons, etc. displayed for each 
+	 * When set, portal rows can have a custom layout of fields, buttons, etc. displayed for each
 	 * matching row (rather than the default "grid").
 	 */
 	public boolean getMultiLine()
@@ -171,11 +171,11 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * When set the portal displays vertical lines between the columns. 
-	 * 
-	 * NOTE: 
-	 * In a multi-line portal, a vertical line is only displayed 
-	 * in the selected row; to display a vertical line in all rows, add 
+	 * When set the portal displays vertical lines between the columns.
+	 *
+	 * NOTE:
+	 * In a multi-line portal, a vertical line is only displayed
+	 * in the selected row; to display a vertical line in all rows, add
 	 * a line to the portal.
 	 */
 	public boolean getShowVerticalLines()
@@ -185,7 +185,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the showVerticalLine
-	 * 
+	 *
 	 * @param arg the showVerticalLine
 	 */
 	public void setShowVerticalLines(boolean arg)
@@ -194,11 +194,11 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * When set, the portal displays horizontal lines between the rows. 
-	 * 
-	 * NOTE: 
-	 * In a multi-line portal, a horizontal line is only displayed 
-	 * in the selected row; to display a horizontal line in all rows, add a 
+	 * When set, the portal displays horizontal lines between the rows.
+	 *
+	 * NOTE:
+	 * In a multi-line portal, a horizontal line is only displayed
+	 * in the selected row; to display a horizontal line in all rows, add a
 	 * line to the portal.
 	 */
 	public boolean getShowHorizontalLines()
@@ -208,7 +208,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the showHorizontalLines
-	 * 
+	 *
 	 * @param arg the showHorizontalLines
 	 */
 	public void setShowHorizontalLines(boolean arg)
@@ -218,7 +218,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the intercellSpacing
-	 * 
+	 *
 	 * @param arg the intercellSpacing
 	 */
 	public void setIntercellSpacing(Dimension arg)
@@ -238,7 +238,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Sets the defaultSort.
-	 * 
+	 *
 	 * @param arg The defaultSort to set
 	 */
 	public void setInitialSort(String arg)
@@ -260,7 +260,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Get all fields from this portal
-	 * 
+	 *
 	 * @return iterator with Fields
 	 */
 	public Iterator<Field> getFields()
@@ -270,7 +270,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Create a new Field
-	 * 
+	 *
 	 * @return the new Field
 	 */
 	public Field createNewField(Point location) throws RepositoryException
@@ -289,7 +289,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 */
 	/**
 	 * Get all graphicalComponents from this portal
-	 * 
+	 *
 	 * @return iterator with graphicalComponents
 	 */
 	public Iterator<GraphicalComponent> getGraphicalComponents()
@@ -299,7 +299,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Create a new graphicalComponents
-	 * 
+	 *
 	 * @return the new graphicalComponents
 	 */
 	public GraphicalComponent createNewGraphicalComponent(Point location) throws RepositoryException
@@ -342,7 +342,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the scrollbars (bitset)
-	 * 
+	 *
 	 * @param i the bitset
 	 */
 	public void setScrollbars(int i)
@@ -352,7 +352,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Create a new Shape
-	 * 
+	 *
 	 * @param location
 	 * @return the new shape
 	 */
@@ -368,9 +368,9 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * The calculation dataprovider (such as servoy_row_bgcolor) used to add background 
-	 * color and highlight selected or alternate portal rows. 
-	 * 
+	 * The calculation dataprovider (such as servoy_row_bgcolor) used to add background
+	 * color and highlight selected or alternate portal rows.
+	 *
 	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
 	 */
 	public String getRowBGColorCalculation()
@@ -379,10 +379,10 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * Set the name of the bgcolorcalc. 
-	 * 
+	 * Set the name of the bgcolorcalc.
+	 *
 	 * NOTE: This property has been deprecated and is kept visible for legacy purposes. Use CSS Row Styling & onRender event instead.
-	 * 
+	 *
 	 * @param arg the bgcolorcalc name
 	 */
 	public void setRowBGColorCalculation(String arg)
@@ -397,7 +397,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 
 	/**
 	 * Set the tabSeq
-	 * 
+	 *
 	 * @param arg the tabSeq
 	 */
 	public void setTabSeq(int arg)
@@ -427,11 +427,13 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/**
 	 * The method that is triggered when (non Design Mode) dragging occurs.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDragMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID).intValue();
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDragMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, arg);
@@ -440,11 +442,13 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/**
 	 * The method that is triggered when (non Design Mode) dragging end occurs.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDragEndMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID).intValue();
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDragEndMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, arg);
@@ -453,11 +457,13 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/**
 	 * The method that is triggered when (non Design Mode) dragging over a component occurs.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDragOverMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID).intValue();
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDragOverMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, arg);
@@ -466,16 +472,19 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/**
 	 * The method that is triggered when (non Design Mode) dropping occurs.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnDropMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID).intValue();
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnDropMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, arg);
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnRenderMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
@@ -484,6 +493,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/**
 	 * The method that is executed when the component is rendered.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnRenderMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();

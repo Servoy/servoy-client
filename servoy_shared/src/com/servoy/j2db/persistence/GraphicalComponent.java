@@ -21,11 +21,12 @@ import java.awt.Dimension;
 import java.awt.Insets;
 
 import com.servoy.base.persistence.IBaseGraphicalComponent;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.UUID;
 
 /**
  * This component can be a label (with image),image or button (with image/or text)
- * 
+ *
  * @author jblok
  */
 public class GraphicalComponent extends BaseComponent implements ISupportTextEditing, ISupportTextSetup, ISupportDataProviderID, ISupportTabSeq, ISupportMedia,
@@ -70,7 +71,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the toolTipText
-	 * 
+	 *
 	 * @param arg the toolTipText
 	 */
 	public void setToolTipText(String arg)
@@ -80,11 +81,11 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * The text displayed when hovering over the component with a mouse cursor.
-	 * 
+	 *
 	 * NOTE:
 	 * HTML should be used for multi-line tooltips; you can also use any
-	 * valid HTML tags to format tooltip text. For example: 
-	 * <html>This includes<b>bolded text</b> and 
+	 * valid HTML tags to format tooltip text. For example:
+	 * <html>This includes<b>bolded text</b> and
 	 * <font color='blue'>BLUE</font> text as well.</html>
 	 */
 	public String getToolTipText()
@@ -94,7 +95,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the dataProviderID
-	 * 
+	 *
 	 * @param arg the dataProviderID
 	 */
 	public void setDataProviderID(String arg)
@@ -113,10 +114,10 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	}
 
 	/**
-	 * The keyboard shortcut that activates this component. A letter must be specified, 
+	 * The keyboard shortcut that activates this component. A letter must be specified,
 	 * and the actual shortcut will be combination of ALT + the specified letter.
-	 * 
-	 * This property can be used in two ways. Normally the keyboard shortcut activates 
+	 *
+	 * This property can be used in two ways. Normally the keyboard shortcut activates
 	 * the onClick event of the component. But if the "labelFor" property is set for the
 	 * component, then the keyboard shortcut will move the focus to the component whose
 	 * label this component is.
@@ -144,7 +145,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the text
-	 * 
+	 *
 	 * @param arg the text
 	 */
 	public void setText(String arg)
@@ -159,7 +160,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the verticalAlignment
-	 * 
+	 *
 	 * @param arg the verticalAlignment
 	 */
 	public void setVerticalAlignment(int arg)
@@ -174,7 +175,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the horizontalAlignment
-	 * 
+	 *
 	 * @param arg the horizontalAlignment
 	 */
 	public void setHorizontalAlignment(int arg)
@@ -199,7 +200,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the rolloverImage
-	 * 
+	 *
 	 * @param arg the rolloverImage
 	 */
 	public void setRolloverImageMediaID(int arg)
@@ -209,8 +210,8 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * The roll over image Media object used. It will only work if a property image is also used.
-	 * When the mouse is moved over the component, this image Media will be displayed. 
-	 * When the mouse is moved out of the component, whatever text or image was being initially 
+	 * When the mouse is moved over the component, this image Media will be displayed.
+	 * When the mouse is moved out of the component, whatever text or image was being initially
 	 * displayed will be restored. Note that roll over image is not supported in Smart client for list view and tableview forms.
 	 */
 	public int getRolloverImageMediaID()
@@ -220,7 +221,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the Image
-	 * 
+	 *
 	 * @param arg the Image
 	 */
 	public void setImageMediaID(int arg)
@@ -238,7 +239,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the actionMethodID
-	 * 
+	 *
 	 * @param arg the actionMethodID
 	 */
 	public void setOnActionMethodID(int arg)
@@ -258,7 +259,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * The method that is executed when the component is double clicked.
-	 * 
+	 *
 	 * @templatedescription Perform the element double-click action
 	 * @templatename onDoubleClick
 	 * @templateparam JSEvent event the event that triggered the action
@@ -282,6 +283,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();
 	}
 
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void setOnRenderMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
@@ -290,6 +292,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The method that is executed when the component is rendered.
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public int getOnRenderMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
@@ -308,7 +311,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Sets the margin.
-	 * 
+	 *
 	 * @param arg The margin to set
 	 */
 	public void setMargin(Insets arg)
@@ -323,7 +326,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Sets the displaysTags.
-	 * 
+	 *
 	 * @param arg The displaysTags to set
 	 */
 	public void setDisplaysTags(boolean arg)
@@ -332,9 +335,9 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	}
 
 	/**
-	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.  
+	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.
 	 * This property also applies to buttons and images.
-	 * 
+	 *
 	 * @deprecated Renamed to textRotation.
 	 */
 	@Deprecated
@@ -345,9 +348,9 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Sets the rotation (max 360)
-	 * 
+	 *
 	 * @param i angle in degrees
-	 * 
+	 *
 	 * @deprecated Renamed to textRotation.
 	 */
 	@Deprecated
@@ -359,7 +362,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Sets the rotation (max 360)
-	 * 
+	 *
 	 * @param i angle in degrees
 	 */
 	public void setTextRotation(int i)
@@ -368,7 +371,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	}
 
 	/**
-	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.  
+	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.
 	 * This property also applies to buttons and images.
 	 */
 	public int getTextRotation()
@@ -397,14 +400,14 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * Options to scale the image Media object that is displayed inside the component.
 	 * Can be set to one or a combination of CROP, REDUCE, ENLARGE and KEEPASPECT.
-	 * 
+	 *
 	 * REDUCE will scale down the image if the component is smaller than the image.
-	 * REDUCE combined with KEEPASPECT will reduce the image, but keep its aspect ratio. 
+	 * REDUCE combined with KEEPASPECT will reduce the image, but keep its aspect ratio.
 	 * This is useful when the component has other proportions than the image.
-	 * 
+	 *
 	 * ENLARGE will scale up the image if the component is larger than the image.
 	 * ENLARGE combined with KEEPASPECT will scale up the image while keeping its aspect ratio.
-	 * 
+	 *
 	 * CROP will leave the image at its original size. If the component is smaller than
 	 * the image this will result in only a part of the image showing up.
 	 */
@@ -448,7 +451,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the media options (bitset)
-	 * 
+	 *
 	 * @param i the bitset
 	 */
 	public void setMediaOptions(int i)
@@ -458,7 +461,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the rollover cursor type
-	 * 
+	 *
 	 * @param i cursor type
 	 * @see java.awt.Cursor
 	 */
@@ -469,7 +472,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the tab sequence
-	 * 
+	 *
 	 * @param i
 	 */
 	public void setTabSeq(int i)
@@ -478,7 +481,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	}
 
 	/**
-	 * When set, the element will show the clicked state when selected. 
+	 * When set, the element will show the clicked state when selected.
 	 * Applies to labels and buttons and images only.
 	 */
 	public boolean getShowClick()
@@ -488,7 +491,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the show click
-	 * 
+	 *
 	 * @param arg
 	 */
 	public void setShowClick(boolean arg)
@@ -498,11 +501,11 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * When set the text of an element will showfocus when selected.
-	 * Applies to labels and buttons only. 
-	 * The text property for the element MUST be filled in first. 
+	 * Applies to labels and buttons only.
+	 * The text property for the element MUST be filled in first.
 	 *
-	 * NOTE: The TAB key may also be used to select the element, depending 
-	 * on the operating system being used and the selected LAF. 
+	 * NOTE: The TAB key may also be used to select the element, depending
+	 * on the operating system being used and the selected LAF.
 	 */
 	public boolean getShowFocus()
 	{
@@ -511,7 +514,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * Set the show focus
-	 * 
+	 *
 	 * @param arg
 	 */
 	public void setShowFocus(boolean arg)
