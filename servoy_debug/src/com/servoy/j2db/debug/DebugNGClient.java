@@ -192,7 +192,11 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	public void show(Form form)
 	{
 		// TODO Auto-generated method stub
-
 	}
 
+	@Override
+	protected void showInfoPanel()
+	{
+		//ignore
+	}
 }

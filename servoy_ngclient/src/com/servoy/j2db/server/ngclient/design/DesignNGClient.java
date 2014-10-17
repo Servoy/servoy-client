@@ -144,5 +144,6 @@ public class DesignNGClient extends NGClient
 	@Override
 	protected void showInfoPanel()
 	{
+		//ignore
 	}
 }
