@@ -56,6 +56,11 @@ public class NGClientEntryFilter extends WebEntry
 
 	private String[] locations;
 
+	public NGClientEntryFilter()
+	{
+		super(WebsocketSessionFactory.CLIENT_ENDPOINT);
+	}
+
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
