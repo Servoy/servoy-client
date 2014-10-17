@@ -41,7 +41,7 @@ angular.module('servoydefaultRadio',['servoy']).directive('servoydefaultRadio', 
        	 	}
        	 	else
        	 	{
-       	 		$scope.model.editable = $scope.wasEditable;
+       	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
        	 	}
        	 }; 
       },

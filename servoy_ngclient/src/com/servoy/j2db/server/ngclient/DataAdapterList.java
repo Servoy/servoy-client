@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.json.JSONArray;
@@ -556,35 +554,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void setFindMode(boolean findMode)
 	{
 		this.findMode = findMode;
-		Set<WebFormComponent> webcomponents = new HashSet<>();
-		for (List<Pair<WebFormComponent, String>> lst : recordDataproviderToComponent.values())
-		{
-			for (Pair<WebFormComponent, String> pair : lst)
-			{
-				webcomponents.add(pair.getLeft());
-			}
-		}
 
-		for (WebComponent component : formController.getFormUI().getComponents())
-		{
-			if (component instanceof WebFormComponent)
-			{
-				WebFormComponent wfc = (WebFormComponent)component;
-				if (wfc.getFormElement().getTagname().equals("data-servoydefault-portal"))
-				{
-					webcomponents.add(wfc);
-				}
-			}
-		}
+		getApplication().getWebsocketSession().getService("$servoyInternal").executeAsyncServiceCall(
+			"setFindMode",
+			new Object[] { formController.getName(), Boolean.valueOf(findMode), Boolean.valueOf(!Boolean.TRUE.equals(getApplication().getClientProperty(
+				IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE))) });
 
-		boolean editable = !Boolean.TRUE.equals(getApplication().getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE));
-		WebComponentApiDefinition findModeCall = new WebComponentApiDefinition("setFindMode");
-		findModeCall.addParameter(new PropertyDescription("mode", TypesRegistry.getType("boolean")));
-		findModeCall.addParameter(new PropertyDescription("editable", TypesRegistry.getType("boolean")));
-		Object[] args = new Object[] { Boolean.valueOf(findMode), Boolean.valueOf(editable) };
-		for (WebFormComponent webComponent : webcomponents)
-		{
-			webComponent.invokeApi(findModeCall, args);
-		}
 	}
 }

@@ -93,7 +93,7 @@ angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbo
 					}
 					else
 					{
-						$scope.model.editable = $scope.wasEditable;
+						$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
 					}
 				}; 
 			} 

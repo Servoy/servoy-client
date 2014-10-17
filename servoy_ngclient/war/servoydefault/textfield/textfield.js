@@ -49,7 +49,7 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 				}
 				else
 				{
-					$scope.model.editable = $scope.wasEditable;
+					$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
 				}
 			};
 

@@ -75,7 +75,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
       	 	}
       	 	else
       	 	{
-      	 		$scope.model.editable = $scope.wasEditable;
+      	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
       	 	}
           };
           var ngModel = $element.children().controller("ngModel");

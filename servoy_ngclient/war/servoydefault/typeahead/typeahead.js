@@ -33,9 +33,10 @@ angular.module('servoydefaultTypeahead',['servoy'])
     		  return formatFilter(displayValue, displayFormat ,type);    	 
          }
           $scope.doSvyApply = function (){
-            // only the last ngBlur should take effect
+           
+           // only the last ngBlur should take effect
            if(timeoutPromise) $timeout.cancel(timeoutPromise); 
-              
+           
            timeoutPromise = $timeout(function(){
                  // can be onblur because an item from the dropdown was clicked and right after the user goes elsewhere and another onblur is triggered
                if($scope.model.dataProviderID !=lastAppliedDataProviderID){
@@ -71,7 +72,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
        	 	}
        	 	else
        	 	{
-       	 		$scope.model.editable = $scope.wasEditable;
+       	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
        	 	}
        	 };
        	var storedTooltip = false;

@@ -605,28 +605,39 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
     	  }
     	  
     	 // special method that servoy calls when this component goes into find mode.
-      	 $scope.api.setFindMode = function(findMode, editable) {
-      		 for (var i =0; i < $scope.model.childElements.length; i++)
-      		 {
-      			if ($scope.model.childElements[i].api.setFindMode)
-      			{
-      				$scope.model.childElements[i].api.setFindMode(findMode, editable);
-      			}
-      			else
-      			{
-      				if (findMode)
-      				{
-	      				$scope.model.childElements[i].model.readOnlyBeforeFindMode = $scope.model.childElements[i].model.readOnly;
-	      				$scope.model.childElements[i].model.readOnly = !editable;
-      				}
-      				else
-      				{
-      					$scope.model.childElements[i].model.readOnly = $scope.model.childElements[i].model.readOnlyBeforeFindMode;
-      				}
-      			}
-      		 }
-      	 };
-      },
+    	// special method that servoy calls when this component goes into find mode.
+       	 $scope.api.setFindMode = function(findMode, editable) {
+       		 for (var i =0; i < $scope.model.childElements.length; i++)
+       		 {
+       			if ($scope.model.childElements[i].api.setFindMode)
+       			{
+       				var isEditable;
+       				if (findMode)
+       				{
+ 	      				$scope.model.childElements[i].model.wasEditable = $scope.model.childElements[i].model.editable;
+ 	      				isEditable = editable;
+       				}
+       				else
+       				{
+       					isEditable = $scope.model.childElements[i].model.wasEditable;
+       				}
+       				$scope.model.childElements[i].api.setFindMode(findMode, isEditable);
+       			}
+       			else
+       			{
+       				if (findMode)
+       				{
+ 	      				$scope.model.childElements[i].model.readOnlyBeforeFindMode = $scope.model.childElements[i].model.readOnly;
+ 	      				$scope.model.childElements[i].model.readOnly = !editable;
+       				}
+       				else
+       				{
+       					$scope.model.childElements[i].model.readOnly = $scope.model.childElements[i].model.readOnlyBeforeFindMode;
+       				}
+       			}
+       		 }
+       	 };
+       },
       templateUrl: 'servoydefault/portal/portal.html',
       replace: true
     };

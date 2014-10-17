@@ -116,7 +116,7 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
        	 	}
        	 	else
        	 	{
-       	 		$scope.model.editable = $scope.wasEditable;
+       	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
        	 	}
        	 };
       },

@@ -64,7 +64,7 @@ angular.module('servoydefaultTextarea',['servoy']).directive('servoydefaultTexta
       	 	}
       	 	else
       	 	{
-      	 		$scope.model.editable = $scope.wasEditable;
+      	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
       	 	}
       	 };      
       },

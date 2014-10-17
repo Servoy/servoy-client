@@ -49,7 +49,7 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
        	 	}
        	 	else
        	 	{
-       	 		$scope.model.editable = $scope.wasEditable;
+       	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
        	 	}
        	 };
       },

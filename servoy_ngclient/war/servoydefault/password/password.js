@@ -29,7 +29,7 @@ angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassw
       	 	}
       	 	else
       	 	{
-      	 		$scope.model.editable = $scope.wasEditable;
+      	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
       	 	}
       	 }; 
       },

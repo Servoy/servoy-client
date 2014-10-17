@@ -68,7 +68,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 				}
 				else
 				{
-					$scope.model.editable = $scope.wasEditable;
+					$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
 				}
 			};
 

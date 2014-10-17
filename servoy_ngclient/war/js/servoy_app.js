@@ -314,25 +314,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
 					   var func = funcThis[call.api];
 				   }
 				   if (!func) {
-					   // if setFindMode not present, set editable/readonly state
-					   if (call.api != "setFindMode") 
-					   {
-						   console.warn("bean " + call.bean + " did not provide the api: " + call.api)
-					   }
-					   else
-					   {
-						   if (call.args[0])
-						   {
-							   formState.model[call.bean].readOnlyBeforeFindMode = formState.model[call.bean].readOnly;
-							   formState.model[call.bean].readOnly = true;
-						   }
-						   else
-						   {
-							   formState.model[call.bean].readOnly = formState.model[call.bean].readOnlyBeforeFindMode;
-						   }
-						   formState.getScope().$digest();
-					   }
-					   return;
+					   console.warn("bean " + call.bean + " did not provide the api: " + call.api)
 				   }
 				   try {
 					   return func.apply(funcThis, call.args)
@@ -353,6 +335,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
 			   // update the main app window with the right size
 			   wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);  
 		   };
+		   
 	   }
 	   function getSession() {
 		   if (wsSession == null) throw "Session is not created yet, first call connect()";
@@ -478,6 +461,34 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
 
 		   callService: function(serviceName, methodName, argsObject, async) {
 			   return getSession().callService(serviceName, methodName, argsObject, async)
+		   },
+		   
+		   setFindMode: function(formName, findMode, editable){
+			   
+			   var formState = formStates[formName];
+			   for (beanName in formState.model)
+			   {
+			   		if (beanName != '') 
+			   		{
+			   			if (formState.api[beanName] && formState.api[beanName].setFindMode)
+			   			{
+			   				formState.api[beanName].setFindMode(findMode, editable);
+			   			}
+			   			else
+			   			{
+			   				if (findMode)
+						    {
+							   formState.model[beanName].readOnlyBeforeFindMode = formState.model[beanName].readOnly;
+							   formState.model[beanName].readOnly = true;
+						    }
+						    else
+						    {
+							   formState.model[beanName].readOnly = formState.model[beanName].readOnlyBeforeFindMode;
+						    }
+			   			}
+			   			formState.getScope().$digest();
+			   		}
+			   }
 		   }
 	   }
 }).directive('svyAutosave',  function ($servoyInternal) {

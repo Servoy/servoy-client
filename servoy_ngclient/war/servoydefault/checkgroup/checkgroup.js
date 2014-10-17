@@ -78,7 +78,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
        	 	}
        	 	else
        	 	{
-       	 		$scope.model.editable = $scope.wasEditable;
+       	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
        	 	}
        	 };
           
