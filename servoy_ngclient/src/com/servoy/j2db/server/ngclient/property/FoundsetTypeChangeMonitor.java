@@ -342,14 +342,20 @@ public class FoundsetTypeChangeMonitor
 	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex)
 	{
 		List<Map<String, Object>> rows = new ArrayList<>();
-		PropertyDescription rowTypes = AggregatedPropertyType.newAggregatedProperty();
-		for (int i = startIndex; i <= endIndex; i++)
+		PropertyDescription rowTypes = null;
+		int size = propertyValue.foundset.getSize();
+		int end = Math.min(size, endIndex);
+		if (startIndex <= end)
 		{
-			TypedData<Map<String, Object>> tmp = propertyValue.getRowData(i);
-			rows.add(tmp.content);
-			if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
+			rowTypes = AggregatedPropertyType.newAggregatedProperty();
+			for (int i = startIndex; i <= end; i++)
+			{
+				TypedData<Map<String, Object>> tmp = propertyValue.getRowData(i);
+				rows.add(tmp.content);
+				if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
+			}
+			if (!rowTypes.hasChildProperties()) rowTypes = null;
 		}
-		if (!rowTypes.hasChildProperties()) rowTypes = null;
 		return new TypedData<>(rows, rowTypes);
 	}
 
