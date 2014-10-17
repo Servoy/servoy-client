@@ -192,7 +192,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
     				  $scope.rowHeight = el.model.size.height;
     			  }
         		  $scope.columnDefinitions.push({
-        			  name:columnTitle,
+        			  name:el.name,
         			  displayName: columnTitle,
         			  cellTemplate: cellTemplate,
         			  visible: el.model.visible,
