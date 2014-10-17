@@ -283,7 +283,7 @@ public class FoundsetTypeChangeMonitor
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
 			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
-			if (viewPort.getStartIndex() < (firstRow + (viewPortExpandOnly ? 1 : 0)) && firstRow <= viewPortEndIdx)
+			if (viewPort.getStartIndex() <= (firstRow + (viewPortExpandOnly ? 1 : 0)) && firstRow <= viewPortEndIdx)
 			{
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 
@@ -292,7 +292,7 @@ public class FoundsetTypeChangeMonitor
 					viewPort.getStartIndex(), RowData.INSERT));
 				viewPortRecordChangesUpdated = true;
 			}
-			else if (viewPort.getStartIndex() >= firstRow)
+			else if (viewPort.getStartIndex() > firstRow)
 			{
 				viewPort.slideAndCorrect(lastRow - firstRow + 1);
 			}
