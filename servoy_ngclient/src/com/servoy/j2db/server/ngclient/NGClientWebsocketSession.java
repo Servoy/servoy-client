@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,11 +36,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
-import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IWebsocketEndpoint;
-import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -71,14 +68,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
-	private static ThreadLocal<String> currentWindowName = new ThreadLocal<>();
-
 	private NGClient client;
 
-	private final AtomicInteger handlingEvent = new AtomicInteger(0);
-
 	private final ConcurrentMap<IWebsocketEndpoint, ConcurrentMap<String, Pair<String, Boolean>>> endpointForms = new ConcurrentHashMap<>();
-	private boolean proccessChanges;
 
 	public NGClientWebsocketSession(String uuid)
 	{
@@ -508,67 +500,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-	public void startHandlingEvent()
-	{
-		handlingEvent.incrementAndGet();
-	}
-
-	public void stopHandlingEvent()
-	{
-		handlingEvent.decrementAndGet();
-		valueChanged();
-	}
-
-	@Override
-	public void valueChanged()
-	{
-		// if there is an incoming message or an NGEvent running on event thread, postpone sending until it's done; else push it.
-		if (!proccessChanges && WebsocketEndpoint.exists() && WebsocketEndpoint.get().hasSession() && client != null && handlingEvent.get() == 0)
-		{
-			sendChanges();
-		}
-	}
-
-	/**
-	 *
-	 */
-	private void sendChanges()
-	{
-		try
-		{
-			proccessChanges = true;
-			// TODO this should be changed, because if there are multiple end-points then 1 end-point will get the changes of a form (and flag everything as not changed)
-			// so the other end point will not see those changes if it would show the same form...
-			// i guess the session should have all the containers (like it has all the services) and then the endpoint should just cherry pick what it will send.
-			TypedData<Map<String, Map<String, Map<String, Object>>>> allFormChanges = WebsocketEndpoint.get().getAllComponentsChanges();
-			TypedData<Map<String, Map<String, Object>>> serviceChanges = getServiceChanges();
-			Map<String, Object> data = new HashMap<>(3);
-			PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
-
-			if (!allFormChanges.content.isEmpty())
-			{
-				data.put("forms", allFormChanges.content);
-				if (allFormChanges.contentType != null) dataTypes.putProperty("forms", allFormChanges.contentType);
-			}
-			if (!serviceChanges.content.isEmpty())
-			{
-				data.put("services", serviceChanges.content);
-				if (serviceChanges.contentType != null) dataTypes.putProperty("services", serviceChanges.contentType);
-			}
-			// TOOD see above comment, this should not send to the currently active end-point, but to all end-points
-			// so that any change from 1 end-point request ends up in all the end points.
-			WebsocketEndpoint.get().sendMessage(data, dataTypes, true); // uses ConversionLocation.BROWSER_UPDATE
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
-		finally
-		{
-			proccessChanges = false;
-		}
-	}
-
 	@Override
 	protected Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
 		Map<String, Object> callContributions)
@@ -584,6 +515,20 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			call.put("propertyPath", componentContext.getPropertyPath());
 		}
 		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sablo.websocket.BaseWebsocketSession#valueChanged()
+	 */
+	@Override
+	public void valueChanged()
+	{
+		if (client != null)
+		{
+			super.valueChanged();
+		}
 	}
 
 	@Override

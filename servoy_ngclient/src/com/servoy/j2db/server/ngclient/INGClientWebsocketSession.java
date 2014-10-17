@@ -31,12 +31,6 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 {
 	INGApplication getClient();
 
-	void startHandlingEvent();
-
-	void stopHandlingEvent();
-
-	void closeSession();
-
 	/**
 	 * @param form
 	 * @param name

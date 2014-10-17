@@ -49,7 +49,7 @@ public class NGEvent extends Event
 	@Override
 	protected void beforeExecute()
 	{
-		client.getWebsocketSession().startHandlingEvent();
+		super.beforeExecute();
 		previous = client.getRuntimeWindowManager().getCurrentWindowName();
 		client.getRuntimeWindowManager().setCurrentWindowName(WebsocketEndpoint.get().getWindowId());
 	}
@@ -63,24 +63,21 @@ public class NGEvent extends Event
 	protected void afterExecute()
 	{
 		client.getRuntimeWindowManager().setCurrentWindowName(previous);
-		client.getWebsocketSession().stopHandlingEvent();
+		super.afterExecute();
 	}
 
 	@Override
 	public void willSuspend()
 	{
-		super.willSuspend();
 		suspendedWindowName = client.getRuntimeWindowManager().getCurrentWindowName();
 		client.getRuntimeWindowManager().setCurrentWindowName(previous);
-		client.getWebsocketSession().stopHandlingEvent();
-
+		super.willSuspend();
 	}
 
 	@Override
 	public void willResume()
 	{
 		super.willResume();
-		client.getWebsocketSession().startHandlingEvent();
 		previous = client.getRuntimeWindowManager().getCurrentWindowName();
 		client.getRuntimeWindowManager().setCurrentWindowName(suspendedWindowName);
 	}
