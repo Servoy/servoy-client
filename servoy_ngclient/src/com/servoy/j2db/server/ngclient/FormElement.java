@@ -68,6 +68,8 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public final class FormElement implements IWebComponentInitializer
 {
+	public static final String ERROR_BEAN = "servoydefault-errorbean";
+
 	private final Form form;
 	private Map<String, Object> propertyValues;
 	private final String componentType;

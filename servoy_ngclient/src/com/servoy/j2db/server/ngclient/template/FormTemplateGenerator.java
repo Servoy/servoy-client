@@ -38,6 +38,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -94,7 +95,7 @@ public class FormTemplateGenerator
 		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(component_type) == null)
 		{
 			Debug.error("Component spec for " + persist.getName() + " not found; please check your component spec file(s).");
-			return "servoydefault-errorbean";
+			return FormElement.ERROR_BEAN;
 		}
 		return component_type;
 	}
@@ -178,7 +179,7 @@ public class FormTemplateGenerator
 				return "servoydefault-rectangle";
 			}
 		}
-		return "servoydefault-errorbean";
+		return FormElement.ERROR_BEAN;
 	}
 
 
@@ -191,7 +192,7 @@ public class FormTemplateGenerator
 		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(beanClassName) == null)
 		{
 			Debug.error("Component spec for " + beanClassName + " not found; please check your component spec file(s).");
-			return "servoydefault-errorbean";
+			return FormElement.ERROR_BEAN;
 		}
 		return beanClassName;
 	}

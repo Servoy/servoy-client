@@ -170,7 +170,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	private int contributeComponentToElementsScope(ElementScope elementsScope, int counter, FormElement fe, WebComponentSpecification componentSpec,
 		WebFormComponent component)
 	{
-		if (!fe.getName().startsWith("svy_"))
+		if (!fe.getName().startsWith("svy_") && !FormElement.ERROR_BEAN.equals(componentSpec.getName()))
 		{
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
 			elementsScope.put(fe.getName(), formController.getFormScope(), runtimeComponent);
