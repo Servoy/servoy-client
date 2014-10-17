@@ -283,16 +283,23 @@ public class FoundsetTypeChangeMonitor
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
 			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
-			if (viewPort.getStartIndex() < (firstRow + (viewPortExpandOnly ? 1 : 0)) && firstRow <= viewPortEndIdx)
+			if (viewPort.getStartIndex() <= (firstRow + (viewPortExpandOnly ? 1 : 0)) && firstRow <= viewPortEndIdx)
 			{
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 
 				// add records that were inserted in viewPort
 				viewPortChanges.add(new RowData(getRowData(firstRow, lastViewPortInsert), firstRow - viewPort.getStartIndex(), lastViewPortInsert -
 					viewPort.getStartIndex(), RowData.INSERT));
+				// if this is a scrolling view (start index always 0, and the view port size is exactly the foundset for now just update the view port size
+				// can this be done for an actual paging component? (if foundset is size 10, pagesize = 10 and they are on the first page) (TODO check)
+				if (viewPort.getStartIndex() == 0 && viewPort.getSize() == propertyValue.foundset.getSize() - (lastRow - firstRow + 1))
+				{
+					viewPort.size = propertyValue.foundset.getSize();
+					viewPortBoundsOnlyChanged();
+				}
 				viewPortRecordChangesUpdated = true;
 			}
-			else if (viewPort.getStartIndex() >= firstRow)
+			else if (viewPort.getStartIndex() > firstRow)
 			{
 				viewPort.slideAndCorrect(lastRow - firstRow + 1);
 			}
@@ -335,14 +342,20 @@ public class FoundsetTypeChangeMonitor
 	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex)
 	{
 		List<Map<String, Object>> rows = new ArrayList<>();
-		PropertyDescription rowTypes = AggregatedPropertyType.newAggregatedProperty();
-		for (int i = startIndex; i <= endIndex; i++)
+		PropertyDescription rowTypes = null;
+		int size = propertyValue.foundset.getSize();
+		int end = Math.min(size, endIndex);
+		if (startIndex <= end)
 		{
-			TypedData<Map<String, Object>> tmp = propertyValue.getRowData(i);
-			rows.add(tmp.content);
-			if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
+			rowTypes = AggregatedPropertyType.newAggregatedProperty();
+			for (int i = startIndex; i <= end; i++)
+			{
+				TypedData<Map<String, Object>> tmp = propertyValue.getRowData(i);
+				rows.add(tmp.content);
+				if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
+			}
+			if (!rowTypes.hasChildProperties()) rowTypes = null;
 		}
-		if (!rowTypes.hasChildProperties()) rowTypes = null;
 		return new TypedData<>(rows, rowTypes);
 	}
 

@@ -97,12 +97,12 @@ public class FoundsetTypeViewport
 		correctViewportBoundsIfNeededInternal();
 		if (positiveOrNegativeRecordNo >= 0)
 		{
-			this.size += positiveOrNegativeRecordNo;
+			this.size = Math.min(size + positiveOrNegativeRecordNo, foundset.getSize());
 			changeMonitor.recordsInserted(this.startIndex + oldSize, this.startIndex + this.size - 1, this, true);
 		}
 		else
 		{
-			this.startIndex += positiveOrNegativeRecordNo;
+			this.startIndex = Math.max(positiveOrNegativeRecordNo + startIndex, 0);
 			changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
 		}
 
