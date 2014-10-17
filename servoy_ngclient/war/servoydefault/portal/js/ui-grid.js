@@ -3842,6 +3842,23 @@ angular.module('ui.grid')
 
         self.rows.splice( self.rows.indexOf(deletedRows[i]), 1 );
       }
+      
+      // is it possible you only get partial data?
+      if (self.rows.length == newRawData.length) {
+    	  for(var i=0;i<newRawData.length;i++) {
+    		  var gridData = self.rows[i];
+    		  if (!self.options.rowEquality(gridData.entity, newRawData[i])) {
+    			  for(var k=i+1;k<self.rows.length;k++) {
+    				  if (self.options.rowEquality(self.rows[k].entity, newRawData[i])) {
+    					  self.rows[i] = self.rows[k];
+    					  self.rows[k] = gridData;
+    					  break;
+    				  }
+    			  }
+    		  }
+    	  }
+      }
+      
     }
     // Empty data set
     else {
