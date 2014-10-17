@@ -545,7 +545,7 @@ public class ComponentFactory
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
 							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, context, propertyPath);
-							children.add(type.getFormElementValue(null, pd, propertyPath, fe));
+							children.add(type.getFormElementValue(null, pd, propertyPath, fe, context.getSolution()));
 							propertyPath.backOneLevel();
 						}
 					}

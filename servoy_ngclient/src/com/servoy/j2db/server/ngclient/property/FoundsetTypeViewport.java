@@ -34,7 +34,6 @@ public class FoundsetTypeViewport
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected IFoundSetInternal foundset;
 	protected IFoundSetEventListener foundsetEventListener;
-	private String ignoreUpdateOnPkHash;
 
 	/**
 	 * Creates a new viewport object.
@@ -45,7 +44,7 @@ public class FoundsetTypeViewport
 		this.changeMonitor = changeMonitor;
 	}
 
-	public void setFoundset(IFoundSetInternal newFoundset)
+	protected void setFoundset(IFoundSetInternal newFoundset)
 	{
 		if (foundset != null) foundset.removeFoundSetEventListener(getFoundsetEventListener());
 		if (newFoundset != null) newFoundset.addFoundSetEventListener(getFoundsetEventListener());
@@ -166,10 +165,7 @@ public class FoundsetTypeViewport
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
 						{
-							// ignore update if that update was triggered by change from the browser through the foundset property
-							if (ignoreUpdateOnPkHash == null || event.getFirstRow() != event.getLastRow() ||
-								!foundset.getRecord(event.getFirstRow()).getPKHashKey().equals(ignoreUpdateOnPkHash)) changeMonitor.recordsUpdated(
-								event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this);
+							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this);
 						}
 					}
 				}
@@ -178,7 +174,7 @@ public class FoundsetTypeViewport
 		return foundsetEventListener;
 	}
 
-	public void dispose()
+	protected void dispose()
 	{
 		if (foundset != null) foundset.removeFoundSetEventListener(getFoundsetEventListener());
 	}
@@ -189,7 +185,7 @@ public class FoundsetTypeViewport
 	 *
 	 * @param delta can be a positive or negative value.
 	 */
-	public void slideAndCorrect(int delta)
+	protected void slideAndCorrect(int delta)
 	{
 		int oldStartIndex = startIndex;
 		int oldSize = size;
@@ -198,22 +194,6 @@ public class FoundsetTypeViewport
 		correctViewportBoundsIfNeededInternal();
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
-	}
-
-	/**
-	 * Ignores update record events for the record with given pkHash.
-	 */
-	public void pauseRowUpdateListener(String pkHash)
-	{
-		this.ignoreUpdateOnPkHash = pkHash;
-	}
-
-	/**
-	 * Resumes listening normally to row updates.
-	 */
-	public void resumeRowUpdateListener()
-	{
-		this.ignoreUpdateOnPkHash = null;
 	}
 
 }

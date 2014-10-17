@@ -19,8 +19,9 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -30,16 +31,20 @@ import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ISmartPropertyValue;
+import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 
 /**
  * Value used at runtime in Sablo component.
@@ -54,13 +59,16 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	protected boolean componentIsCreated = false;
 
+	protected String forFoundsetTypedPropertyName;
+	protected PropertyChangeListener forFoundsetPropertyListener;
+	protected ViewportDataChangeMonitor viewPortChangeMonitor;
+
 	protected WebFormComponent parentComponent;
-	protected PropertyChangeListener forFoundsetListener;
 	protected IChangeListener monitor;
 	protected PropertyDescription componentPropertyDescription;
-	protected String forFoundsetTypedPropertyName;
 
 	protected final ComponentTypeFormElementValue formElementValue;
+
 
 	public ComponentTypeSabloValue(ComponentTypeFormElementValue formElementValue, PropertyDescription componentPropertyDescription,
 		String forFoundsetTypedPropertyName)
@@ -81,15 +89,15 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			childComponent.dispose();
 		}
-		createComponentsIfNeededAndPossible();
+		createComponentIfNeededAndPossible();
 		if (forFoundsetTypedPropertyName != null)
 		{
-			this.parentComponent.addPropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetListener = new PropertyChangeListener()
+			this.parentComponent.addPropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener = new PropertyChangeListener()
 			{
 				@Override
 				public void propertyChange(PropertyChangeEvent evt)
 				{
-					if (evt.getNewValue() != null) createComponentsIfNeededAndPossible();
+					if (evt.getNewValue() != null) createComponentIfNeededAndPossible();
 				}
 			});
 		}
@@ -98,7 +106,16 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	@Override
 	public void detach()
 	{
-		if (forFoundsetListener != null) parentComponent.removePropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetListener);
+		if (forFoundsetPropertyListener != null)
+		{
+			parentComponent.removePropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener);
+
+			FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+			if (foundsetPropValue != null && viewPortChangeMonitor != null)
+			{
+				foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+			}
+		}
 	}
 
 	private FoundsetTypeSabloValue getFoundsetValue()
@@ -114,7 +131,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		return null;
 	}
 
-	protected void createComponentsIfNeededAndPossible()
+	protected void createComponentIfNeededAndPossible()
 	{
 		// this method should get called only after init() got called on all properties from this component (including this one)
 		// so now we should be able to find a potentially linked foundset property value
@@ -132,7 +149,11 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
-				monitor.valueChanged();
+				// if some property changed that is not record-based
+				if (forFoundsetTypedPropertyName == null || !formElementValue.recordBasedProperties.contains(evt.getPropertyName()))
+				{
+					monitor.valueChanged();
+				}
 			}
 		});
 		childComponent.setComponentContext(new ComponentContext(formElementValue.propertyPath));
@@ -146,21 +167,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			}
 		}
 
-		if (foundsetPropValue != null) registerDataProvidersWithFoundset(foundsetPropValue);
-		if (childComponent.hasChanges()) monitor.valueChanged();
-	}
-
-	/**
-	 * Let linked foundset property know which dataprovider/tagstrings it should send client-side.
-	 */
-	protected void registerDataProvidersWithFoundset(FoundsetTypeSabloValue foundsetPropValue)
-	{
 		if (foundsetPropValue != null)
 		{
-			HashSet<String> allDataProviders = new HashSet<String>();
-			allDataProviders.addAll(formElementValue.dataLinks.values());
-			foundsetPropValue.includeDataProviders(allDataProviders);
+			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider(dal, childComponent,
+				formElementValue.recordBasedProperties));
+			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 		}
+		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
@@ -168,23 +181,105 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
-		// TODO if the components property type is not linked to a foundset then somehow the dataproviders/tagstring must also be sent when needed
-		// but if it is linked to a foundset those should only be sent through the foundset!
 		if (childComponent != null)
 		{
 			TypedData<Map<String, Object>> changes = childComponent.getChanges();
-			if (changes.content.size() > 0)
+
+			// if the components property type is not linked to a foundset then the dataproviders/tagstring must also be sent when needed
+			// but if it is linked to a foundset those should only be sent through the viewport
+			if (forFoundsetTypedPropertyName != null)
+			{
+				// remove properties that are per record basis from the "per all model"
+				for (String propertyName : formElementValue.recordBasedProperties)
+				{
+					changes.content.remove(propertyName);
+					changes.contentType.putProperty(propertyName, null);
+				}
+			}
+
+			boolean modelChanged = (changes.content.size() > 0);
+			boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+
+			if (modelChanged || viewPortChanged)
 			{
 				destinationJSON.object();
-				destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES);
+				destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
 				destinationJSON.object();
+			}
+
+			if (modelChanged)
+			{
+				destinationJSON.key(ComponentPropertyType.MODEL_KEY);
+				destinationJSON.object();
+				// send component model (when linked to foundset only props that are not record related)
 				JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType);
+				destinationJSON.endObject();
+			}
+
+			if (viewPortChanged)
+			{
+				// something in the viewport containing per-record component property values changed - send updates
+				if (viewPortChangeMonitor.shouldSendWholeViewport())
+				{
+
+					FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
+
+					TypedData<List<Map<String, Object>>> rowsArray = viewPortChangeMonitor.getRowDataProvider().getRowData(
+						foundsetPropertyViewPort.getStartIndex(), foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1,
+						getFoundsetValue().getFoundset());
+
+					Map<String, Object> viewPort = new HashMap<>();
+					PropertyDescription viewPortTypes = null;
+					viewPort.put(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.content);
+					if (rowsArray.contentType != null && rowsArray.contentType.hasChildProperties())
+					{
+						viewPortTypes = AggregatedPropertyType.newAggregatedProperty();
+						viewPortTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.contentType);
+					}
+					// convert for websocket traffic (for example Date objects will turn into long)
+					JSONUtils.writeDataWithConversions(destinationJSON, viewPort, viewPortTypes);
+				}
+				else
+				// viewPortChanges.size() > 0
+				{
+					List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+					Map<String, Object> vpChanges = new HashMap<>();
+					PropertyDescription vpChangeTypes = null;
+					Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
+
+					vpChanges.put(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changesArray);
+
+					PropertyDescription changeArrayTypes = AggregatedPropertyType.newAggregatedProperty();
+					for (int i = viewPortChanges.size() - 1; i >= 0; i--)
+					{
+						TypedData<Map<String, Object>> rowTypedData = viewPortChanges.get(i).toMap();
+						changesArray[i] = rowTypedData.content;
+						if (rowTypedData.contentType != null) changeArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
+					}
+
+					if (changeArrayTypes.hasChildProperties())
+					{
+						vpChangeTypes = AggregatedPropertyType.newAggregatedProperty();
+						vpChangeTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changeArrayTypes);
+					}
+
+					// convert for websocket traffic (for example Date objects will turn into long)
+					JSONUtils.writeDataWithConversions(destinationJSON, vpChanges, vpChangeTypes);
+
+					viewPortChangeMonitor.clearChanges();
+				}
+			}
+
+			if (modelChanged || viewPortChanged)
+			{
 				destinationJSON.endObject();
 				destinationJSON.endObject();
 			}
 			else
 			{
 				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again or send nothing
+				// TODO HERE WE need to make a distinction between initial request data (which should send all WebFormComponent properties as well as viewport)
+				// and full to JSON (which is needed in some cases for custom json objects and custom json arrays of components) - which should send both template values and form component values and viewport somehow...
 				componentPropertyType.toTemplateJSONValue(destinationJSON, null, formElementValue, componentPropertyDescription, conversionMarkers, null);
 			}
 		}
@@ -243,9 +338,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				else if (update.has("propertyChanges"))
 				{
 					// { propertyChanges : {
-					//	 	beanIndex: ...,
-					// 		changes: ...
+					// 		prop1: ...,
+					// 		prop2: ...
 					// }}
+
 					JSONObject changes = update.getJSONObject("propertyChanges");
 
 					Iterator<String> keys = changes.keys();
@@ -256,6 +352,66 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						childComponent.putBrowserProperty(key, object);
 					}
 				}
+				else if (update.has("viewportDataChanged"))
+				{
+					// component is linked to a foundset and the value of a property that depends on the record changed client side;
+					// in this case update DataAdapterList with the correct record and then set the value on the component
+					FoundsetTypeSabloValue foundsetPropertyValue = getFoundsetValue();
+					if (foundsetPropertyValue != null && foundsetPropertyValue.getFoundset() != null)
+					{
+						IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
+						JSONObject change = update.getJSONObject("viewportDataChanged");
+
+						String rowIDValue = change.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
+						String propertyName = change.getString(FoundsetTypeSabloValue.DATAPROVIDER_KEY);
+						Object value = change.get(FoundsetTypeSabloValue.VALUE_KEY);
+
+						Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
+						int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+
+						if (recordIndex != -1)
+						{
+							foundsetPropertyValue.getDataAdapterList().setRecord(foundset.getRecord(recordIndex), false);
+
+							viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
+							try
+							{
+								childComponent.putBrowserProperty(propertyName, value);
+							}
+							catch (JSONException e)
+							{
+								Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " +
+									value + " failed.", e);
+							}
+							finally
+							{
+								viewPortChangeMonitor.resumeRowUpdateListener();
+							}
+						}
+						else
+						{
+							Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName +
+								"' to value '" + value + ". Record not found.");
+						}
+					}
+					else
+					{
+						Debug.error("Component updates received for record linked property, but component is not linked to a foundset: " +
+							update.get("viewportDataChanged"));
+					}
+				}
+//				var r = {};
+//				r[$foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][$foundsetTypeConstants.ROW_ID_COL_KEY];
+//				r.dp = dataprovider;
+//				r.value = newData;
+//
+//				// convert new data if necessary
+//				var conversionInfo = internalState[CONVERSIONS] ? internalState[CONVERSIONS][r[$foundsetTypeConstants.ROW_ID_COL_KEY]] : undefined;
+//				if (conversionInfo && conversionInfo[dataprovider]) r.value = $sabloConverters.convertFromClientToServer(r.value, conversionInfo[dataprovider], oldData);
+//				else r.value = $sabloUtils.convertClientObject(r.value);
+//
+//				internalState.requests.push({viewportDataChanged: r});
+
 			}
 		}
 		catch (Exception ex)

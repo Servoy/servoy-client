@@ -27,6 +27,8 @@ import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -34,12 +36,13 @@ import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType.DataproviderWrapper;
 import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * @author jcompagner
  *
  */
-public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, ISupportTemplateValue<Object>
+public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, ISupportTemplateValue<Object>, IRecordAwareType<Object>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -97,6 +100,18 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 			}
 		}
 		return wrap(newValue, previousValue, dataConverterContext); // the same types as we would expect from java come from JSON as well here, so du usual wrap
+	}
+
+	@Override
+	public boolean isLinkedToRecord(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		if (formElementValue == null) return false;
+
+		String dataProvider = (String)formElementValue;
+		if (dataProvider.contains(".")) return true; // related record access through dataprovider (for now I see that we don't support JS variables with dots in dataproviders - or we always treat them as related so that won't work)
+
+		// false for globals or form variables; true for the rest - the rest should mean record based dataprovider
+		return !ScopesUtils.isVariableScope(dataProvider) && formElement.getForm().getScriptVariable(dataProvider) == null;
 	}
 
 	@Override

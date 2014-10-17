@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,7 +41,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.IRecordAwareType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -76,7 +75,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	public final static int CALL_ON_SELECTED_RECORD = 0;
 	public final static int CALL_ON_ALL_RECORDS = 1;
 
-	protected static final String PROPERTY_UPDATES = "propertyUpdates";
+	protected static final String PROPERTY_UPDATES_KEY = "propertyUpdates";
+	protected static final String MODEL_KEY = "model";
+	protected static final String MODEL_VIEWPORT_KEY = "model_vp";
+	protected static final String MODEL_VIEWPORT_CHANGES_KEY = "model_vp_ch";
 	// END keys and values used in JSON
 
 	protected int uniqueId = 1;
@@ -95,7 +97,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 			FormElement element = new FormElement((String)designValue.get(TYPE_NAME_KEY), (JSONObject)designValue.get(DEFINITION_KEY), fe.getForm(),
 				fe.getName() + (uniqueId++), fe.getDataConverterContext(), propertyPath);
 
-			return getFormElementValue(designValue.optJSONArray(API_CALL_TYPES_KEY), pd, propertyPath, element);
+			return getFormElementValue(designValue.optJSONArray(API_CALL_TYPES_KEY), pd, propertyPath, element, flattenedSolution);
 		}
 		catch (JSONException e)
 		{
@@ -104,11 +106,11 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		}
 	}
 
-	public ComponentTypeFormElementValue getFormElementValue(JSONArray callTypes, PropertyDescription pd, PropertyPath propertyPath, FormElement element)
-		throws JSONException
+	public ComponentTypeFormElementValue getFormElementValue(JSONArray callTypes, PropertyDescription pd, PropertyPath propertyPath, FormElement element,
+		FlattenedSolution flattenedSolution) throws JSONException
 	{
 		List<String> apisOnAll = null;
-		Map<String, String> dataLinks = null;
+		List<String> recordBasedProperties = null;
 		if (forFoundsetTypedPropertyName(pd) != null)
 		{
 			if (callTypes == null) apisOnAll = findCallTypesInApiSpecDefinition(element.getWebComponentSpec().getApiFunctions());
@@ -121,9 +123,9 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 					if (o.getInt(CALL_ON_KEY) == CALL_ON_ALL_RECORDS) apisOnAll.add(o.getString(FUNCTION_NAME_KEY));
 				}
 			}
-			dataLinks = findDataLinks(element);
-		} // else dataLinks and apisOnAll are not relevant
-		return new ComponentTypeFormElementValue(element, apisOnAll, dataLinks, propertyPath.currentPathCopy());
+			recordBasedProperties = findRecordAwareProperties(element, flattenedSolution);
+		} // else viewPortData and apisOnAll are not relevant
+		return new ComponentTypeFormElementValue(element, apisOnAll, recordBasedProperties, propertyPath.currentPathCopy());
 	}
 
 	public String forFoundsetTypedPropertyName(PropertyDescription pd)
@@ -131,23 +133,24 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		return pd.getConfig() instanceof ComponentTypeConfig ? ((ComponentTypeConfig)pd.getConfig()).forFoundsetTypedProperty : null;
 	}
 
-	protected Map<String, String> findDataLinks(FormElement formElement)
+	protected List<String> findRecordAwareProperties(FormElement formElement, FlattenedSolution flattenedSolution)
 	{
-		Map<String, String> m = new HashMap<>();
+		List<String> m = new ArrayList<>();
 
-		// I guess tagstrings, valuelists, tab seq, ... must be implemented separately and provided as a viewport containing these values as part of 'components'
-		// property, not as part of foundset property
-//		Set<String> tagstrings = formElement.getWebComponentSpec().getProperties(TagStringPropertyType.INSTANCE).keySet();
-//		for (String tagstringPropID : tagstrings)
-//		{
-//			m.put(tagstringPropID, (String)formElement.getPropertyValue(tagstringPropID));
-//		}
-
-		Set<String> dataproviders = formElement.getWebComponentSpec().getProperties(DataproviderPropertyType.INSTANCE).keySet();
-		for (String dataproviderID : dataproviders)
+		// tagstrings, valuelists, tab seq, ... must be implemented separately and provided as a
+		// viewport containing these values as part of 'components' property
+		Set<Entry<String, PropertyDescription>> propertyDescriptors = formElement.getWebComponentSpec().getProperties().entrySet();
+		for (Entry<String, PropertyDescription> propertyDescriptorEntry : propertyDescriptors)
 		{
-			String dataproviderIDValue = (String)formElement.getPropertyValue(dataproviderID);
-			if (dataproviderIDValue != null) m.put(dataproviderID, dataproviderIDValue); // TODO if dataprovider type changes to store something else in form element this has to be updated as well
+			if (propertyDescriptorEntry.getValue().getType() instanceof IRecordAwareType)
+			{
+				IRecordAwareType type = (IRecordAwareType< ? >)propertyDescriptorEntry.getValue().getType();
+				if (type.isLinkedToRecord(formElement.getPropertyValue(propertyDescriptorEntry.getKey()), propertyDescriptorEntry.getValue(),
+					flattenedSolution, formElement))
+				{
+					m.add(propertyDescriptorEntry.getKey());
+				}
+			}
 		}
 		return m;
 	}
@@ -200,15 +203,9 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (forFoundsetTypedPropertyName(pd) != null)
 		{
 			writer.key("forFoundset").object();
-			if (formElementValue.dataLinks != null)
+			if (formElementValue.recordBasedProperties != null)
 			{
-				writer.key("dataLinks").array();
-				for (Entry<String, String> dl : formElementValue.dataLinks.entrySet())
-				{
-					writer.object().key("propertyName").value(dl.getKey());
-					writer.key("dataprovider").value(dl.getValue()).endObject();
-				}
-				writer.endArray();
+				writer.key("viewPortData").array().endArray(); // this will contain record based properties for the foundset's viewPort
 			}
 			if (formElementValue.apisOnAll != null)
 			{

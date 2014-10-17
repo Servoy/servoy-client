@@ -13,7 +13,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 //    	  var textFieldApi = {}; 
 //    	  var preparedActionHandler = function(args, rowId) {
 //				alert('clicked:\n  selected = ' + $scope.model.relatedFoundset.selectedRowIndexes
-// 						+ '\n  Text field value (Row 2): ' + $scope.model.relatedFoundset.viewPort.rows[1].nameColumn
+// 						+ '\n  Text field value (Row 2): ' + $scope.model.childElements[1].modelViewport[1].dataProviderID
 // 						+ '\n  Selected text in text field (for selected row): ' + $scope.model.childElements[1].api.getSelectedText()
 // 						+ '\n  Button 2 text: ' + $scope.model.childElements[0].model.text);
 //				alert('rowID received as argument for on action = ' + rowId);
@@ -64,6 +64,13 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 //    			             			"tabSeq":1,
 //    			             			"name":"datatextfield1c",
 //    			             		},
+//  	  							modelViewport: [
+//       								{ _svyRowId: 'someRowIdHASH1', dataProviderID: "Bubu" },
+//       								{ _svyRowId: 'someRowIdHASH2', dataProviderID: "Yogy" },
+//       								{ _svyRowId: 'someRowIdHASH3', dataProviderID: "Ranger" },
+//       								{ _svyRowId: 'someRowIdHASH4', dataProviderID: "Watcher" },
+//       								{ _svyRowId: 'someRowIdHASH5', dataProviderID: "Hatcher" }
+//									],
 //    			             		api: textFieldApi,
 //    			             		apply: function(property, componentModel, rowId) {
 //    			            			// $servoyInternal.pushDPChange("product", "datatextfield1c", property, componentModel, rowId);
@@ -71,9 +78,6 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 //    			            		},
 //    			             		handlers: {},
 //    			             		forFoundset: {
-//    			             			dataLinks: [
-//    			             			            { propertyName: "dataProviderID", dataprovider: "nameColumn" }
-//    			             			],
 //    			             			apiCallTypes: {
 //    			             				setValueListItems: $componentTypeConstants.CALL_ON_ALL_RECORDS_IF_TEMPLATE,
 //    			             			}
@@ -86,11 +90,12 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 //    					  startIndex: 15,
 //    					  size: 5,
 //    					  rows: [
-//    					         	{ _svyRowId: 'someRowIdHASH1', nameColumn: "Bubu" },
-//    					         	{ _svyRowId: 'someRowIdHASH2', nameColumn: "Yogy" },
-//    					         	{ _svyRowId: 'someRowIdHASH3', nameColumn: "Ranger" },
-//    					         	{ _svyRowId: 'someRowIdHASH4', nameColumn: "Watcher" },
-//    					         	{ _svyRowId: 'someRowIdHASH5', nameColumn: "Hatcher" }
+//									// empty values here as data is available as part of component 'modelViewport' now; will be as shown below if foundset is explicitly requested for columns at designtime
+//    					         	{ /*_svyRowId: 'someRowIdHASH1', nameColumn: "Bubu"*/ },
+//    					         	{ /*_svyRowId: 'someRowIdHASH2', nameColumn: "Yogy"*/ },
+//    					         	{ /*_svyRowId: 'someRowIdHASH3', nameColumn: "Ranger"*/ },
+//    					         	{ /*_svyRowId: 'someRowIdHASH4', nameColumn: "Watcher"*/ },
+//    					         	{ /*_svyRowId: 'someRowIdHASH5', nameColumn: "Hatcher"*/ }
 //    					  ],
 //    					  loadRecordsAsync: function(startIndex, size) {
 //    						  alert('Load async requested: ' + startIndex + ', ' + size);

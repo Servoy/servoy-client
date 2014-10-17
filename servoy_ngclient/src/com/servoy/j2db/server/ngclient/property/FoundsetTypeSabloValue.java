@@ -62,11 +62,15 @@ import com.servoy.j2db.util.Utils;
 public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 {
 
+
 	/**
 	 * Column that is always automatically sent for each record in a foundset's viewport. It's value
 	 * uniquely identifies that record.
 	 */
 	public static final String ROW_ID_COL_KEY = "_svyRowId";
+
+	public static final String DATAPROVIDER_KEY = "dp";
+	public static final String VALUE_KEY = "value";
 
 	// START keys and values used in JSON
 	public static final String UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
@@ -81,6 +85,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	public static final String NO_OP = "noOP";
 
 	public static final String CONVERSIONS = "conversions";
+
 	// END keys and values used in JSON
 
 	protected FoundsetTypeViewport viewPort;
@@ -95,14 +100,36 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected FoundsetPropertySelectionListener listSelectionListener;
 
+	protected ViewportRowDataProvider rowDataProvider;
+
+
 	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName)
 	{
 		this.designJSONValue = designJSONValue;
 		this.propertyName = propertyName;
 
-		changeMonitor = new FoundsetTypeChangeMonitor(this);
+		rowDataProvider = new ViewportRowDataProvider()
+		{
+
+			@Override
+			protected void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes)
+			{
+				FoundsetTypeSabloValue.this.populateRowData(record, data, dataTypes);
+			}
+		};
+		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
 		viewPort = new FoundsetTypeViewport(changeMonitor);
 		// nothing to do here; foundset is not initialized until it's attached to a component
+	}
+
+	public FoundsetTypeViewport getViewPort()
+	{
+		return viewPort;
+	}
+
+	public IFoundSetInternal getFoundset()
+	{
+		return foundset;
 	}
 
 	@Override
@@ -257,23 +284,16 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 //	    ]
 		if (foundset != null)
 		{
+			TypedData<List<Map<String, Object>>> rowsArray = rowDataProvider.getRowData(viewPort.getStartIndex(), viewPort.getStartIndex() +
+				viewPort.getSize() - 1, foundset);
+
 			Map<String, Object> rows = new HashMap<>();
 			PropertyDescription rowTypes = null;
-			Map<String, Object>[] rowsArray = new Map[viewPort.getSize()];
-			rows.put(ROWS, rowsArray);
-
-			PropertyDescription rowArrayTypes = AggregatedPropertyType.newAggregatedProperty();
-			for (int i = viewPort.getStartIndex() + viewPort.getSize() - 1; i >= viewPort.getStartIndex(); i--)
-			{
-				TypedData<Map<String, Object>> rowTypedData = getRowData(i);
-				rowsArray[i - viewPort.getStartIndex()] = rowTypedData.content;
-				if (rowTypedData.contentType != null) rowArrayTypes.putProperty(String.valueOf(i - viewPort.getStartIndex()), rowTypedData.contentType);
-			}
-
-			if (rowArrayTypes.hasChildProperties())
+			rows.put(ROWS, rowsArray.content);
+			if (rowsArray.contentType != null && rowsArray.contentType.hasChildProperties())
 			{
 				rowTypes = AggregatedPropertyType.newAggregatedProperty();
-				rowTypes.putProperty(ROWS, rowArrayTypes);
+				rowTypes.putProperty(ROWS, rowsArray.contentType);
 			}
 			// convert for websocket traffic (for example Date objects will turn into long)
 			JSONUtils.writeDataWithConversions(destinationJSON, rows, rowTypes);
@@ -397,37 +417,27 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		}
 	}
 
-	protected TypedData<Map<String, Object>> getRowData(int foundsetIndex)
+	protected void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes)
 	{
-		Map<String, Object> data = new HashMap<>();
-		PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
-
-		// write viewport row contents
-		IRecordInternal record = foundset.getRecord(foundsetIndex);
-		data.put(ROW_ID_COL_KEY, record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
-		IWebFormUI formUI = ((WebComponent)webObject).findParent(IWebFormUI.class);
 		Iterator<String> it = dataProviders.iterator();
-		while (it.hasNext())
+		if (!it.hasNext()) data.clear(); // clear unique pk like string ROW_ID_COL_KEY
+		else
 		{
-			String dataProvider = it.next();
-
-			// TODO currently we also send globals/form variables through foundset; in the future it should be enough to get it from the record only, not through DataAdapterList.getValueObject!
-			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, formUI.getController().getFormScope(), dataProvider);
-
-			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
-			if (pd == null) pd = NGUtils.getDataProviderPropertyDescription(dataProvider,
-				formUI.getDataConverterContext().getApplication().getFlattenedSolution(), formUI.getController().getForm(), foundset.getTable()); // TODO remove this when component[] properly implements it's dataproviders - when there's no need for foundset to send over globals/form variables
-
-			if (pd != null)
+			while (it.hasNext())
 			{
-				dataTypes.putProperty(dataProvider, pd);
-				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
-					webObject));
+				String dataProvider = it.next();
+				Object value = record.getValue(dataProvider);
+				PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
+
+				if (pd != null)
+				{
+					dataTypes.putProperty(dataProvider, pd);
+					if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
+						webObject));
+				}
+				data.put(dataProvider, value);
 			}
-			data.put(dataProvider, value);
 		}
-		if (!dataTypes.hasChildProperties()) dataTypes = null;
-		return new TypedData<Map<String, Object>>(data, dataTypes);
 	}
 
 	public void browserUpdatesReceived(Object jsonValue)
@@ -480,13 +490,13 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 							}
 						}
 					}
-					else if (update.has("dataChanged"))
+					else if (update.has("viewportDataChanged"))
 					{
 						// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
 						JSONObject dataChangeJSON = (JSONObject)update.get("dataChanged");
 						String rowIDValue = dataChangeJSON.getString(ROW_ID_COL_KEY);
-						String dataProviderName = dataChangeJSON.getString("dp");
-						Object value = dataChangeJSON.get("value");
+						String dataProviderName = dataChangeJSON.getString(DATAPROVIDER_KEY);
+						Object value = dataChangeJSON.get(VALUE_KEY);
 
 						if (foundset != null)
 						{
@@ -500,39 +510,33 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 								// convert Dates where it's needed
 
 								PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable()); // this should be enough for when only foundset dataproviders are used
-								if (dataProviderPropDesc == null)
-								{
-									dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName,
-										formUI.getDataConverterContext().getApplication().getFlattenedSolution(), formUI.getController().getForm(),
-										foundset.getTable());
-								}
-
 								value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, null);
 
-								viewPort.pauseRowUpdateListener(splitHashAndIndex.getLeft());
+								changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
+								boolean wasEditing = record.isEditing();
 								try
 								{
-									if (foundset.getTable().getColumnType(dataProviderName) != 0)
+									if (wasEditing || record.startEditing())
 									{
-										record.startEditing(); // we could have used here JS put but that method is not in the interface
-										record.setValue(dataProviderName, value);
+										try
+										{
+											record.setValue(dataProviderName, value);
+										}
+										catch (IllegalArgumentException e)
+										{
+											// TODO handle the validaton errors.
+											formUI.getController().getApplication().reportError(
+												"Validation for " + dataProviderName + " for value: " + value + " failed.", e);
+										}
 									}
-									else
-									{
-										// TODO currently we also send globals/form variables through foundset;
-										// in the future it should be enough to set it in the record only!
-										// not through DataAdapterList
-										com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formUI.getController().getFormScope(),
-											dataProviderName, value);
-									}
+									// else cannot start editing; finally block will deal with it (send old value back to client as new one can't be pushed)
 								}
 								finally
 								{
-									viewPort.resumeRowUpdateListener();
-									// if server denies the new selection as invalid and doesn't change selection, send it to the client so that it doesn't keep invalid selection
-									// TODO use here record directly instead of dataAdapterList when we no longer work with variables, just foundset data in this property (when that is implemented in components property)
-									if (!Utils.equalObjects(com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record,
-										formUI.getController().getFormScope(), dataProviderName), value))
+									if (!wasEditing && record.isEditing()) record.stopEditing();
+									changeMonitor.resumeRowUpdateListener();
+									// if server denies the new value as invalid and doesn't change it, send it to the client so that it doesn't keep invalid value
+									if (!Utils.equalObjects(record.getValue(dataProviderName), value))
 									{
 										changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort);
 									}
@@ -569,12 +573,22 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		return dataAdapterList;
 	}
 
-	private Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
+	public static Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
 	{
 		int index = pkHashAndIndex.lastIndexOf("_");
 		int recordIndex = Integer.parseInt(pkHashAndIndex.substring(index + 1));
 		String pkHash = pkHashAndIndex.substring(0, index);
 		return new Pair<>(pkHash, Integer.valueOf(recordIndex));
+	}
+
+	public void addViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
+	{
+		changeMonitor.addViewportDataChangeMonitor(viewPortChangeMonitor);
+	}
+
+	public void removeViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
+	{
+		changeMonitor.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 	}
 
 	/**

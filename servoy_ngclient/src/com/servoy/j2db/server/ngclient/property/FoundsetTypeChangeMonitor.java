@@ -35,6 +35,7 @@ import org.sablo.websocket.utils.JSONUtils.JSONWritable;
  */
 public class FoundsetTypeChangeMonitor
 {
+
 	/**
 	 * The whole foundset property needs to get sent to the client.
 	 */
@@ -45,10 +46,6 @@ public class FoundsetTypeChangeMonitor
 	 */
 	protected static final int SEND_VIEWPORT_BOUNDS = 0b00010;
 	/**
-	 * ViewPort bounds and data changed; for example client requested completely new viewPort bounds.
-	 */
-	protected static final int SEND_WHOLE_VIEWPORT = 0b00100;
-	/**
 	 * Foundset size changed (add/remove of records).
 	 */
 	protected static final int SEND_FOUNDSET_SIZE = 0b01000;
@@ -57,12 +54,15 @@ public class FoundsetTypeChangeMonitor
 
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
-	protected List<RowData> viewPortChanges = new ArrayList<>();
+	protected ViewportDataChangeMonitor viewPortDataChangeMonitor;
+	protected List<ViewportDataChangeMonitor> viewPortDataChangeMonitors = new ArrayList<>();
 	protected FoundsetTypeSabloValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
 
-	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue)
+	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue, ViewportRowDataProvider rowDataProvider)
 	{
 		this.propertyValue = propertyValue;
+		viewPortDataChangeMonitor = new ViewportDataChangeMonitor(null, rowDataProvider);
+		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
 	}
 
 	/**
@@ -111,13 +111,15 @@ public class FoundsetTypeChangeMonitor
 	{
 		if (!shouldSendAll())
 		{
-			int oldChangeFlags = changeFlags;
-			changeFlags = changeFlags | SEND_WHOLE_VIEWPORT;
-			if (oldChangeFlags != changeFlags)
+			boolean changed = !viewPortDataChangeMonitor.shouldSendWholeViewport();
+			for (ViewportDataChangeMonitor vdcm : viewPortDataChangeMonitors)
+			{
+				vdcm.viewPortCompletelyChanged();
+			}
+			if (changed)
 			{
 				// clear all more granular changes as whole viewport will be sent
 				changeFlags = changeFlags & (~SEND_VIEWPORT_BOUNDS); // clear flag
-				viewPortChanges.clear();
 				notifyChange();
 			}
 		}
@@ -130,9 +132,12 @@ public class FoundsetTypeChangeMonitor
 	{
 		int oldChangeFlags = changeFlags;
 		changeFlags = SEND_ALL; // clears all others as well
+		for (ViewportDataChangeMonitor vdcm : viewPortDataChangeMonitors)
+		{
+			vdcm.viewPortCompletelyChanged();
+		}
 		if (oldChangeFlags != changeFlags)
 		{
-			viewPortChanges.clear();
 			notifyChange();
 		}
 	}
@@ -253,8 +258,11 @@ public class FoundsetTypeChangeMonitor
 
 				// add new records if available
 				// we need to replace same amount of records in current viewPort; append rows if available
-				viewPortChanges.add(new RowData(getRowData(viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx), relativeFirstRow,
-					relativeLastRow, RowData.DELETE));
+				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+				{
+					vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx,
+						propertyValue.foundset, RowData.DELETE);
+				}
 				viewPortRecordChangesUpdated = true;
 			}
 			else if (slideBy != 0)
@@ -288,8 +296,11 @@ public class FoundsetTypeChangeMonitor
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
 
 				// add records that were inserted in viewPort
-				viewPortChanges.add(new RowData(getRowData(firstRow, lastViewPortInsert), firstRow - viewPort.getStartIndex(), lastViewPortInsert -
-					viewPort.getStartIndex(), RowData.INSERT));
+				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+				{
+					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.foundset,
+						RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
+				}
 				// if this is a scrolling view (start index always 0, and the view port size is exactly the foundset for now just update the view port size
 				// can this be done for an actual paging component? (if foundset is size 10, pagesize = 10 and they are on the first page) (TODO check)
 				if (viewPort.getStartIndex() == 0 && viewPort.getSize() == propertyValue.foundset.getSize() - (lastRow - firstRow + 1))
@@ -325,8 +336,11 @@ public class FoundsetTypeChangeMonitor
 				int lastViewPortIndex = Math.min(viewPort.getStartIndex() + viewPort.getSize() - 1, lastRow);
 				if (firstViewPortIndex <= lastViewPortIndex)
 				{
-					viewPortChanges.add(new RowData(getRowData(firstViewPortIndex, lastViewPortIndex), firstViewPortIndex - viewPort.getStartIndex(),
-						lastViewPortIndex - viewPort.getStartIndex(), RowData.CHANGE));
+					for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
+					{
+						vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex,
+							lastViewPortIndex, propertyValue.foundset, RowData.CHANGE);
+					}
 					viewPortRecordChangesUpdated = true;
 				}
 			}
@@ -337,26 +351,6 @@ public class FoundsetTypeChangeMonitor
 	protected boolean belongsToInterval(int x, int intervalStartInclusive, int intervalEndInclusive)
 	{
 		return intervalStartInclusive <= x && x <= intervalEndInclusive;
-	}
-
-	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex)
-	{
-		List<Map<String, Object>> rows = new ArrayList<>();
-		PropertyDescription rowTypes = null;
-		int size = propertyValue.foundset.getSize();
-		int end = Math.min(size, endIndex);
-		if (startIndex <= end)
-		{
-			rowTypes = AggregatedPropertyType.newAggregatedProperty();
-			for (int i = startIndex; i <= end; i++)
-			{
-				TypedData<Map<String, Object>> tmp = propertyValue.getRowData(i);
-				rows.add(tmp.content);
-				if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
-			}
-			if (!rowTypes.hasChildProperties()) rowTypes = null;
-		}
-		return new TypedData<>(rows, rowTypes);
 	}
 
 	public boolean shouldSendAll()
@@ -381,12 +375,12 @@ public class FoundsetTypeChangeMonitor
 
 	public boolean shouldSendWholeViewPort()
 	{
-		return (changeFlags & SEND_WHOLE_VIEWPORT) != 0;
+		return viewPortDataChangeMonitor.shouldSendWholeViewport();
 	}
 
 	public List<RowData> getViewPortChanges()
 	{
-		return viewPortChanges;
+		return viewPortDataChangeMonitor.getViewPortChanges();
 	}
 
 	/**
@@ -408,7 +402,7 @@ public class FoundsetTypeChangeMonitor
 	public void clearChanges()
 	{
 		changeFlags = 0;
-		viewPortChanges.clear();
+		viewPortDataChangeMonitor.clearChanges();
 	}
 
 	protected void notifyChange()
@@ -475,6 +469,32 @@ public class FoundsetTypeChangeMonitor
 
 			return new TypedData<Map<String, Object>>(retValue, rowType);
 		}
+	}
+
+	public void addViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
+	{
+		if (!viewPortDataChangeMonitors.contains(viewPortChangeMonitor)) viewPortDataChangeMonitors.add(viewPortChangeMonitor);
+	}
+
+	public void removeViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
+	{
+		viewPortDataChangeMonitors.remove(viewPortChangeMonitor);
+	}
+
+	/**
+	 * Ignores update record events for the record with given pkHash.
+	 */
+	protected void pauseRowUpdateListener(String pkHash)
+	{
+		viewPortDataChangeMonitor.pauseRowUpdateListener(pkHash);
+	}
+
+	/**
+	 * Resumes listening normally to row updates.
+	 */
+	protected void resumeRowUpdateListener()
+	{
+		viewPortDataChangeMonitor.resumeRowUpdateListener();
 	}
 
 //	protected static class RecordChangeDescriptor implements JSONWritable

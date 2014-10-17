@@ -4,16 +4,23 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
     CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
     CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $utils, $servoyInternal) {
-	var PROPERTY_UPDATES = "propertyUpdates";
+.run(function ($sabloConverters, $utils, $viewportModule, $servoyInternal) {
+	var PROPERTY_UPDATES_KEY = "propertyUpdates";
+
+	var MODEL_KEY = "model";
+	var MODEL_VIEWPORT_KEY = "model_vp";
+	var MODEL_VIEWPORT_CHANGES_KEY = "model_vp_ch";
+	var MODEL_VIEWPORT = "modelViewport";
 	
+	var CONVERSIONS = 'conversions';
+
 	function getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) {
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 
 		var newBeanModel = propertyValue.model;
 		if (angular.isUndefined(oldBeanModel)) oldBeanModel = newBeanModel; // for child components who's custom prop. changed
 		var childChangedNotifier = getBeanPropertyChangeNotifier(propertyValue, componentScope); 
-		var beanConversionInfo = $utils.getInDepthProperty(internalState, 'conversions');
+		var beanConversionInfo = $utils.getInDepthProperty(internalState, CONVERSIONS);
 		
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
@@ -44,20 +51,42 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
 			var newValue = currentClientValue;
 
-			if (serverJSONValue && serverJSONValue[PROPERTY_UPDATES]) {
+			if (serverJSONValue && serverJSONValue[PROPERTY_UPDATES_KEY]) {
 				// granular updates received
-				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-				var beanUpdate = serverJSONValue[PROPERTY_UPDATES];
-				var childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope); 
-				var beanModel = newValue.model;
+				var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+				var beanUpdate = serverJSONValue[PROPERTY_UPDATES_KEY];
+
+				var modelBeanUpdate = beanUpdate[MODEL_KEY];
+				var wholeViewportUpdate = beanUpdate[MODEL_VIEWPORT_KEY];
+				var viewportUpdate = beanUpdate[MODEL_VIEWPORT_CHANGES_KEY];
+				
+				if (modelBeanUpdate) {
+					var childChangedNotifier = getBeanPropertyChangeNotifier(currentClientValue, componentScope); 
+					var beanModel = currentClientValue.model;
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
-				var beanLayout = internalState.beanLayout;
-				var containerSize = {width: 0, height: 0};
+					var beanLayout = internalState.beanLayout;
+					var containerSize = {width: 0, height: 0};
 
-				var currentConversionInfo = beanUpdate.conversions ? $utils.getOrCreateInDepthProperty(internalState, 'conversions') : undefined;
+					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $utils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
 
-				$servoyInternal.applyBeanData(beanModel, beanLayout, beanUpdate, containerSize, childChangedNotifier, currentConversionInfo, beanUpdate.conversions, componentScope);
+					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifier, currentConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
+				}
+				
+				// if component is linked to a foundset, then record - dependent property values are sent over as as viewport representing values for the foundset property's viewport
+				if (wholeViewportUpdate) {
+					if (!angular.isDefined(currentClientValue[MODEL_VIEWPORT])) currentClientValue[MODEL_VIEWPORT] = [];
+
+					$viewportModule.updateWholeViewport(currentClientValue, MODEL_VIEWPORT,
+							internalState, wholeViewportUpdate, beanUpdate[CONVERSIONS] && beanUpdate[CONVERSIONS][MODEL_VIEWPORT_KEY] ?
+							beanUpdate[CONVERSIONS][MODEL_VIEWPORT_KEY] : undefined, componentScope);
+				} else if (viewportUpdate) {
+					$viewportModule.updateViewportGranularly(currentClientValue, MODEL_VIEWPORT, internalState, viewportUpdate,
+							beanUpdate[CONVERSIONS] && beanUpdate[CONVERSIONS][MODEL_VIEWPORT_CHANGES_KEY] ?
+							beanUpdate[CONVERSIONS][MODEL_VIEWPORT_CHANGES_KEY] : undefined, componentScope);
+				} else {
+					log.error("Can't interpret component server update correctly: " + serverJSONValue);
+				}
 			} else {
 				// full contents received
 				newValue = serverJSONValue;
@@ -96,10 +125,13 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 					internalState.beanLayout = {};
 					var containerSize = {width: 0, height: 0};
 
-					var currentConversionInfo = beanModel.conversions ? $utils.getOrCreateInDepthProperty(internalState, 'conversions') : undefined;
+					var currentConversionInfo = beanModel[CONVERSIONS] ? $utils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
 
-					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel.conversions, componentScope);
+					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel[CONVERSIONS], componentScope);
 					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
+					
+					// TODO when component property will be able to send itself entirely we need to handle viewport conversions here as well; for
+					// now it is sent entirely only as part of the template - when there is no viewport available (no app. even)
 
 					if (!serverJSONValue.api) serverJSONValue.api = {};
 					if (serverJSONValue.handlers)

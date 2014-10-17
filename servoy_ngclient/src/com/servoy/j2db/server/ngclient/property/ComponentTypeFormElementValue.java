@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.List;
-import java.util.Map;
 
 import com.servoy.j2db.server.ngclient.FormElement;
 
@@ -33,18 +32,22 @@ public class ComponentTypeFormElementValue
 
 	protected final FormElement element;
 	protected final List<String> apisOnAll; // here are the api's that should be called on all records, not only selected one when called on a foundset linked component
-	protected final Map<String, String> dataLinks;
+
+	/**
+	 * These represent the property names of the component that change together with data; for example foundset record linked dataproviders.
+	 */
+	protected final List<String> recordBasedProperties;
 	protected final Object[] propertyPath;
 
 	/**
 	 * @param apisOnAll can be null if the component is not linked to a foundset
-	 * @param dataLinks can be null if the component is not linked to a foundset
+	 * @param recordBasedProperties can be null if the component is not linked to a foundset
 	 */
-	public ComponentTypeFormElementValue(FormElement element, List<String> apisOnAll, Map<String, String> dataLinks, Object[] propertyPath)
+	public ComponentTypeFormElementValue(FormElement element, List<String> apisOnAll, List<String> recordBasedProperties, Object[] propertyPath)
 	{
 		this.element = element;
 		this.apisOnAll = apisOnAll;
-		this.dataLinks = dataLinks;
+		this.recordBasedProperties = recordBasedProperties;
 		this.propertyPath = propertyPath;
 	}
 

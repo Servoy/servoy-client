@@ -3,7 +3,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 .value("$foundsetTypeConstants", {
 	ROW_ID_COL_KEY: '_svyRowId'
 })
-.run(function ($sabloConverters, $foundsetTypeConstants, $sabloUtils) {
+.run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 	var CONVERSIONS = "conversions"; // data conversion info
 
@@ -15,115 +15,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var SIZE = "size";
 	var ROWS = "rows";
 	
-	var CHANGE = 0;
-	var INSERT = 1;
-	var DELETE = 2;
-	
 	var NO_OP = "noOP";
-	
-	function rowIgnoreDataChanged(idx, foundsetValue) {
-		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		var rowIgnoreChangeValue = internalState.ignoreDataChange[idx] = {};
-		var dataprovider;
-		for (dataprovider in foundsetValue[VIEW_PORT][ROWS][idx]) {
-			if (dataprovider !== $foundsetTypeConstants.ROW_ID_COL_KEY) {
-				rowIgnoreChangeValue[dataprovider] = foundsetValue[VIEW_PORT][ROWS][idx][dataprovider];
-			}
-		}
-	}
-
-	function rowsIgnoreDataChanged(foundsetValue) {
-		var i;
-		for (i = foundsetValue[VIEW_PORT][ROWS].length - 1; i >= 0; i--) {
-			rowIgnoreDataChanged(i, foundsetValue);
-		}
-	};
-	
-	function addDataWatchToDataprovider(dataprovider, idx, foundsetValue, componentScope) {
-		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		if (componentScope) internalState.unwatchData[idx].push(
-				componentScope.$watch(function() { return foundsetValue[VIEW_PORT][ROWS][idx][dataprovider]; }, function (newData, oldData) {
-					if (newData !== oldData) { /* this doesn't seem to work correctly for 2 identical Date objects in Chrome when debugging; but it should */
-						var rowIgnoreChangeValue = internalState.ignoreDataChange[idx];
-						var changed = false;
-						if (rowIgnoreChangeValue && angular.isDefined(rowIgnoreChangeValue[dataprovider])) {
-							changed = (rowIgnoreChangeValue[dataprovider] !== newData);
-							delete rowIgnoreChangeValue[dataprovider];
-						} else changed = true;
-
-						if (changed) {
-							var r = {};
-							r[$foundsetTypeConstants.ROW_ID_COL_KEY] = foundsetValue[VIEW_PORT][ROWS][idx][$foundsetTypeConstants.ROW_ID_COL_KEY];
-							r.dp = dataprovider;
-							r.value = newData;
-
-							// convert new data if necessary
-							var conversionInfo = internalState[CONVERSIONS] ? internalState[CONVERSIONS][r[$foundsetTypeConstants.ROW_ID_COL_KEY]] : undefined;
-							if (conversionInfo && conversionInfo[dataprovider]) r.value = $sabloConverters.convertFromClientToServer(r.value, conversionInfo[dataprovider], oldData);
-							else r.value = $sabloUtils.convertClientObject(r.value);
-
-							internalState.requests.push({dataChanged: r});
-							if (internalState.changeNotifier) internalState.changeNotifier();
-						}
-					}
-				})
-		);
-	}
-	
-	function addDataWatchesToRow(idx, foundsetValue, componentScope) {
-		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		internalState.unwatchData[idx] = [];
-		var dataprovider;
-		for (dataprovider in foundsetValue[VIEW_PORT][ROWS][idx]) {
-			if (dataprovider !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToDataprovider(dataprovider, idx, foundsetValue, componentScope);
-		}
-	}
-
-	function addDataWatchesToRows(foundsetValue, componentScope) {
-		var i;
-		for (i = foundsetValue[VIEW_PORT][ROWS].length - 1; i >= 0; i--) {
-			addDataWatchesToRow(i, foundsetValue, componentScope);
-		}
-	};
-	
-	function removeDataWatchesFromRow(idx, foundsetValue) {
-		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		if (internalState.unwatchData) {
-			for (j = internalState.unwatchData[idx].length - 1; j >= 0; j--)
-				internalState.unwatchData[idx][j]();
-			delete internalState.unwatchData[idx];
-		}
-	};
-
-	function removeDataWatchesFromRows(foundsetValue) {
-		var i;
-		for (i = foundsetValue[VIEW_PORT][ROWS].length - 1; i >= 0; i--) {
-			removeDataWatchesFromRow(i, foundsetValue);
-		}
-	};
-	
-	// TODO we could keep only one row conversion instead of conversion info for all cells... 
-	function removeRowConversionInfo(idx, foundsetValue) {
-		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		if (angular.isDefined(internalState[CONVERSIONS])) {
-			delete internalState[CONVERSIONS][foundsetValue[VIEW_PORT][ROWS][idx][$foundsetTypeConstants.ROW_ID_COL_KEY]];
-		}
-	}
-	
-	function updateRowConversionInfo(idx, foundsetValue, serverConversionInfo) {
-		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		if (angular.isUndefined(internalState[CONVERSIONS])) {
-			internalState[CONVERSIONS] = {};
-			internalState[CONVERSIONS][foundsetValue[VIEW_PORT][ROWS][idx][$foundsetTypeConstants.ROW_ID_COL_KEY]] = serverConversionInfo;
-		}
-	}
-	
-	function updateAllConversionInfo(foundsetValue, serverConversionInfo) {
-		var internalState = foundsetValue[$sabloConverters.INTERNAL_IMPL];
-		var i;
-		for (i = foundsetValue[VIEW_PORT][ROWS].length - 1; i >= 0; i--)
-			updateRowConversionInfo(i, foundsetValue, serverConversionInfo[i]);
-	}
 	
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
@@ -156,95 +48,13 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						currentClientValue[VIEW_PORT][SIZE] = viewPortUpdate[SIZE];
 					}
 					if (angular.isDefined(viewPortUpdate[ROWS])) {
-						removeDataWatchesFromRows(currentClientValue);
-						currentClientValue[VIEW_PORT][ROWS] = viewPortUpdate[ROWS];
-						if (viewPortUpdate[CONVERSIONS]) {
-							// do the actual conversion
-							$sabloConverters.convertFromServerToClient(currentClientValue[VIEW_PORT][ROWS], viewPortUpdate[CONVERSIONS][ROWS], componentScope);
-							// update conversion info
-							updateAllConversionInfo(currentClientValue, viewPortUpdate[CONVERSIONS][ROWS]);
-						}
-						addDataWatchesToRows(currentClientValue, componentScope);
-						rowsIgnoreDataChanged(currentClientValue);
+						$viewportModule.updateWholeViewport(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[ROWS],
+								viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][ROWS] ? viewPortUpdate[CONVERSIONS][ROWS] : undefined, componentScope);
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
-						// partial row updates (remove/insert/update)
-						var rowUpdates = viewPortUpdate[UPDATE_PREFIX + ROWS]; // array of
-						if (viewPortUpdate[CONVERSIONS]) $sabloConverters.convertFromServerToClient(viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS], componentScope);
-						
-						// {
-						//   "rows": rowData, // array again
-						//   "startIndex": ...,
-						//   "endIndex": ...,
-						//   "type": ... // ONE OF CHANGE = 0; INSERT = 1; DELETE = 2;
-						// }
-						
-						// apply them one by one
-						var i;
-						var j;
-						var rows = currentClientValue[VIEW_PORT][ROWS];
-						for (i = 0; i < rowUpdates.length; i++) {
-							var rowUpdate = rowUpdates[i];
-							if (rowUpdate.type == CHANGE) {
-								for (j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++) {
-									// rows[j] = rowUpdate.rows[j - rowUpdate.startIndex];
-									// because of a bug in ngGrid that doesn't detect array item changes if array length doesn't change
-									// we will reuse the existing row object as a workaround for updating (a case was filed for that bug as it's breaking scenarios with
-									// delete and insert as well)
-									var dpName;
-									for (dpName in rowUpdate.rows[j - rowUpdate.startIndex]) rows[j][dpName] = rowUpdate.rows[j - rowUpdate.startIndex][dpName];
-									
-									if (viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS][j - rowUpdate.startIndex]) {
-										updateRowConversionInfo(j, currentClientValue, viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS][j - rowUpdate.startIndex]);
-									}
-									rowIgnoreDataChanged(j, currentClientValue);
-								}
-							} else if (rowUpdate.type == INSERT) {
-								var oldLength = rows.length;
-								for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) {
-									rows.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
-									if (viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS][j]) {
-										updateRowConversionInfo(rowUpdate.startIndex, currentClientValue, viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS][j]);
-									}
-								}
-								// insert might have made obsolete some records in cache; remove those
-								if (rows.length > currentClientValue[VIEW_PORT][SIZE]) {
-									// remove conversion info for these rows as well
-									if (internalState[CONVERSIONS]) {
-										for (j = currentClientValue[VIEW_PORT][SIZE]; j < rows.length; j++)
-											removeRowConversionInfo(j, currentClientValue);
-									}
-									
-									rows.splice(currentClientValue[VIEW_PORT][SIZE], rows.length - currentClientValue[VIEW_PORT][SIZE]);
-								}
-								for (j = oldLength; j < rows.length; j++)
-									addDataWatchesToRow(j, currentClientValue, componentScope);
-								for (j = rowUpdate.startIndex; j < rows.length; j++) {
-									rowIgnoreDataChanged(j, currentClientValue);
-								}
-							} else if (rowUpdate.type == DELETE) {
-								var oldLength = rows.length;
-								if (internalState[CONVERSIONS]) {
-									// delete conversion info for deleted rows
-									for (j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++)
-										removeRowConversionInfo(j, currentClientValue);
-								}
-								rows.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
-								for (j = 0; j < rowUpdate.rows.length; j++) {
-									rows.push(rowUpdate.rows[j]);
-									if (viewPortUpdate[CONVERSIONS]) {
-										var c = viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS][j];
-										if (angular.isDefined(c)) updateRowConversionInfo(rows.length - 1, currentClientValue, c);
-									}
-								}
-								for (j = rows.length; j < oldLength; j++)
-									removeDataWatchesFromRow(j, currentClientValue);
-								for (j = rowUpdate.startIndex; j < rows.length; j++) {
-									rowIgnoreDataChanged(j, currentClientValue);
-								}
-							}
-						}
+						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] ? viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] : undefined, componentScope);
 					}
 				}
+				
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && serverJSONValue[NO_OP] !== 0) {
 					newValue = serverJSONValue; // not updates - so whole thing received
@@ -255,7 +65,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
 					if (newValue[VIEW_PORT][CONVERSIONS]) {
 						// relocate conversion info in internal state and convert
-						updateAllConversionInfo(newValue, newValue[VIEW_PORT][CONVERSIONS][ROWS]);
+						$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][CONVERSIONS][ROWS]);
 						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS], componentScope);
 						delete newValue[VIEW_PORT][CONVERSIONS];
 					}
@@ -300,9 +110,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					
 					// watch for client dataProvider changes and send them to server
 					internalState.unwatchData = {}; // { rowPk: [unwatchDataProvider1Func, ...], ... }
-					internalState.ignoreDataChange = {};
-					rowsIgnoreDataChanged(newValue);
-					addDataWatchesToRows(newValue, componentScope);
+					$viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope);
 				}
 				
 			}		 
@@ -314,7 +122,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection();
 					delete currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection;
 				}
-				removeDataWatchesFromRows(currentClientValue);
+				$viewportModule.removeDataWatchesFromRows(currentClientValue[VIEW_PORT][ROWS].length, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
 			}
 
 			return newValue;

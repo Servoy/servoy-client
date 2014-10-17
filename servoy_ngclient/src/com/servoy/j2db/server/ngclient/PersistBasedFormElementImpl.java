@@ -322,7 +322,7 @@ class PersistBasedFormElementImpl
 						}
 						if (dpChanged) nfe.updatePropertyValuesDontUse(elementProperties);
 
-						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe);
+						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe, context.getSolution());
 						propertyPath.backOneLevel();
 					}
 				}
