@@ -50,7 +50,6 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -343,7 +342,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getDesignId()
 	{
-		if (dataConverterContext != null && dataConverterContext.getApplication() instanceof DesignNGClient)
+		if (dataConverterContext != null && dataConverterContext.getApplication().isInDesigner())
 		{
 			return persistImpl.getPersist().getUUID().toString();
 		}
