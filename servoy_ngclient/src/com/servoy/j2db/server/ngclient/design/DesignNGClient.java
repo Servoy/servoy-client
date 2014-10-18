@@ -146,4 +146,10 @@ public class DesignNGClient extends NGClient
 	{
 		//ignore
 	}
+
+	@Override
+	public boolean isInDesigner()
+	{
+		return true;
+	}
 }

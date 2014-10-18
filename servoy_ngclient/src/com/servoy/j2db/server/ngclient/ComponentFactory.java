@@ -38,8 +38,6 @@ import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.IWebsocketEndpoint;
-import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
@@ -62,7 +60,6 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.server.ngclient.design.DesignNGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -430,11 +427,8 @@ public class ComponentFactory
 
 	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
 	{
-		IWebsocketEndpoint ep = WebsocketEndpoint.exists() ? WebsocketEndpoint.get() : null;
-		boolean isDesignClient = (ep != null && ep.getWebsocketSession() instanceof DesignNGClientWebsocketSession);
-
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (isDesignClient || (context.getSolution().getSolutionCopy(false) != null))
+		if (context.getApplication().isInDesigner() || (context.getSolution().getSolutionCopy(false) != null))
 		{
 			if (propertyPath == null)
 			{

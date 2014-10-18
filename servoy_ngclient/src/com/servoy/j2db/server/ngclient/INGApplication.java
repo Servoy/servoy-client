@@ -25,7 +25,6 @@ import com.servoy.j2db.IApplication;
  * Client with websocket-client specific features.
  *
  * @author rgansevles
- *
  */
 public interface INGApplication extends IApplication
 {
@@ -37,4 +36,5 @@ public interface INGApplication extends IApplication
 
 	NGRuntimeWindowManager getRuntimeWindowManager();
 
+	boolean isInDesigner();
 }

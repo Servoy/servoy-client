@@ -39,8 +39,6 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.IWebsocketEndpoint;
-import org.sablo.websocket.WebsocketEndpoint;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -53,7 +51,6 @@ import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.design.DesignNGClient;
-import com.servoy.j2db.server.ngclient.design.DesignNGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -105,7 +102,7 @@ public final class FormElement implements IWebComponentInitializer
 		Map<String, Object> map = persistImpl.getFormElementPropertyValues(context, specProperties, propertyPath);
 
 		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
-		adjustLocationRelativeToPart(context.getSolution(), map);
+		adjustLocationRelativeToPart(context.getSolution(), map, context.getApplication().isInDesigner());
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
@@ -137,7 +134,7 @@ public final class FormElement implements IWebComponentInitializer
 		}
 
 		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
-		adjustLocationRelativeToPart(context.getSolution(), map);
+		adjustLocationRelativeToPart(context.getSolution(), map, context.getApplication().isInDesigner());
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
@@ -263,7 +260,7 @@ public final class FormElement implements IWebComponentInitializer
 		}
 	}
 
-	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map)
+	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map, boolean isInDesginer)
 	{
 		if (map != null && form != null)
 		{
@@ -272,8 +269,7 @@ public final class FormElement implements IWebComponentInitializer
 			if (location != null)
 			{
 				// if it is design client, it has no parts
-				IWebsocketEndpoint ep = WebsocketEndpoint.exists() ? WebsocketEndpoint.get() : null;
-				if (ep != null && ep.getWebsocketSession() instanceof DesignNGClientWebsocketSession)
+				if (isInDesginer)
 				{
 					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), location);
 					map.put("offsetY", 0);
