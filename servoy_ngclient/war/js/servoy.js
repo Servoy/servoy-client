@@ -88,39 +88,49 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	}
 	
 	// expression for angular scope.$watch that can watch 1 item multiple levels deep in an object
-	function getInDepthWatchExpression(parentObj, propertyNameOrArrayOfNestedNames) {
+	function getInDepthWatchExpression(parentObj, propertyNameOrArrayOfNestedNamesOrFuncs) {
 		var expression;
-		if ($.isArray(propertyNameOrArrayOfNestedNames)) {
+		if ($.isArray(propertyNameOrArrayOfNestedNamesOrFuncs)) {
 			expression = function() {
 				var r = parentObj;
 				var i = 0;
-				while (i < propertyNameOrArrayOfNestedNames.length && angular.isDefined(r)) {
-					r = r[propertyNameOrArrayOfNestedNames[i]];
+				while (i < propertyNameOrArrayOfNestedNamesOrFuncs.length && angular.isDefined(r)) {
+					var locator = propertyNameOrArrayOfNestedNamesOrFuncs[i];
+					if (typeof locator == "function") locator = locator();
+					r = r[locator];
 					i++;
 				}
 				return r;
 			}
 		}
-		else expression = function() { return parentObj[propertyNameOrArrayOfNestedNames] };
+		else expression = function() { return parentObj[propertyNameOrArrayOfNestedNamesOrFuncs] };
 
 		return expression;
 	};
 	
-	function getInDepthSetter(parentObj, propertyNameOrArrayOfNestedNames) {
+	function getInDepthSetter(parentObj, propertyNameOrArrayOfNestedNamesOrFuncs) {
 		var setterFunc;
-		if ($.isArray(propertyNameOrArrayOfNestedNames)) {
+		if ($.isArray(propertyNameOrArrayOfNestedNamesOrFuncs)) {
 			setterFunc = function(newValue) {
 				var r = parentObj;
 				var i = 0;
-				while (i < propertyNameOrArrayOfNestedNames.length - 1 && angular.isDefined(r)) {
-					r = r[propertyNameOrArrayOfNestedNames[i]];
+				while (i < propertyNameOrArrayOfNestedNamesOrFuncs.length - 1 && angular.isDefined(r)) {
+					var locator = propertyNameOrArrayOfNestedNamesOrFuncs[i];
+					if (typeof locator == "function") locator = locator();
+
+					r = r[locator];
 					i++;
 				}
-				if (angular.isDefined(r)) r[propertyNameOrArrayOfNestedNames[propertyNameOrArrayOfNestedNames.length - 1]] = newValue;
+				if (angular.isDefined(r)) {
+					var locator = propertyNameOrArrayOfNestedNamesOrFuncs[propertyNameOrArrayOfNestedNamesOrFuncs.length - 1];
+					if (typeof locator == "function") locator = locator();
+
+					r[locator] = newValue;
+				}
 				// else auto-create path?
 			}
 		}
-		else setterFunc = function(newValue) { parentObj[propertyNameOrArrayOfNestedNames] = newValue };
+		else setterFunc = function(newValue) { parentObj[propertyNameOrArrayOfNestedNamesOrFuncs] = newValue };
 
 		return setterFunc;
 	};

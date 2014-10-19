@@ -4,7 +4,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
     CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
     CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $utils, $viewportModule, $servoyInternal) {
+.run(function ($sabloConverters, $utils, $viewportModule, $servoyInternal, $log) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -59,6 +59,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 				var modelBeanUpdate = beanUpdate[MODEL_KEY];
 				var wholeViewportUpdate = beanUpdate[MODEL_VIEWPORT_KEY];
 				var viewportUpdate = beanUpdate[MODEL_VIEWPORT_CHANGES_KEY];
+				var done = false;
 				
 				if (modelBeanUpdate) {
 					var childChangedNotifier = getBeanPropertyChangeNotifier(currentClientValue, componentScope); 
@@ -71,6 +72,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $utils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
 
 					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifier, currentConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
+					done = true;
 				}
 				
 				// if component is linked to a foundset, then record - dependent property values are sent over as as viewport representing values for the foundset property's viewport
@@ -80,12 +82,16 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 					$viewportModule.updateWholeViewport(currentClientValue, MODEL_VIEWPORT,
 							internalState, wholeViewportUpdate, beanUpdate[CONVERSIONS] && beanUpdate[CONVERSIONS][MODEL_VIEWPORT_KEY] ?
 							beanUpdate[CONVERSIONS][MODEL_VIEWPORT_KEY] : undefined, componentScope);
+					done = true;
 				} else if (viewportUpdate) {
 					$viewportModule.updateViewportGranularly(currentClientValue, MODEL_VIEWPORT, internalState, viewportUpdate,
 							beanUpdate[CONVERSIONS] && beanUpdate[CONVERSIONS][MODEL_VIEWPORT_CHANGES_KEY] ?
 							beanUpdate[CONVERSIONS][MODEL_VIEWPORT_CHANGES_KEY] : undefined, componentScope);
-				} else {
-					log.error("Can't interpret component server update correctly: " + serverJSONValue);
+					done = true;
+				}
+				
+				if (!done) {
+					$log.error("Can't interpret component server update correctly: " + JSON.stringify(serverJSONValue, undefined, 2));
 				}
 			} else {
 				// full contents received

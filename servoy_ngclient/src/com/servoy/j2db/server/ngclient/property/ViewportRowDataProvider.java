@@ -57,14 +57,20 @@ public abstract class ViewportRowDataProvider
 	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex, IFoundSetInternal foundset)
 	{
 		List<Map<String, Object>> rows = new ArrayList<>();
-		PropertyDescription rowTypes = AggregatedPropertyType.newAggregatedProperty();
-		for (int i = startIndex; i <= endIndex; i++)
+		PropertyDescription rowTypes = null;
+		int size = foundset.getSize();
+		int end = Math.min(size, endIndex);
+		if (startIndex <= end)
 		{
-			TypedData<Map<String, Object>> tmp = getRowData(i, foundset);
-			rows.add(tmp.content);
-			if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
+			rowTypes = AggregatedPropertyType.newAggregatedProperty();
+			for (int i = startIndex; i <= endIndex; i++)
+			{
+				TypedData<Map<String, Object>> tmp = getRowData(i, foundset);
+				rows.add(tmp.content);
+				if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
+			}
+			if (!rowTypes.hasChildProperties()) rowTypes = null;
 		}
-		if (!rowTypes.hasChildProperties()) rowTypes = null;
 		return new TypedData<>(rows, rowTypes);
 	}
 

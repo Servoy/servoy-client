@@ -26,7 +26,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 //    	  preparedActionHandler.selectRecordHandler = function(rowId) {
 //  				return function () { return preparedActionHandler(arguments, rowId); }
 //    	  }
-//    	  
+
 //    	  $scope.model = {
 //    			  "location":{"x":10,"y":116},
 //    			  "size":{"width":727,"height":335},
@@ -100,13 +100,13 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 //    					  loadRecordsAsync: function(startIndex, size) {
 //    						  alert('Load async requested: ' + startIndex + ', ' + size);
 //    						  $scope.model.relatedFoundset.viewPort.startIndex = startIndex;
-//    						  $scope.model.relatedFoundset.viewPort.rows =  [
-//    						          					         	{ _svyRowId: 'someRowIdHASH6', nameColumn: "ABC Bubu" },
-//    						        					         	{ _svyRowId: 'someRowIdHASH7', nameColumn: "ABC Yogy" },
-//    						        					         	{ _svyRowId: 'someRowIdHASH8', nameColumn: "ABC Ranger" },
-//    						        					         	{ _svyRowId: 'someRowIdHASH9', nameColumn: "ABC Watcher" },
-//    						        					         	{ _svyRowId: 'someRowIdHASH10', nameColumn: "ABC Hatcher" }
-//    						        					  ];
+//			//$scope.model.relatedFoundset.viewPort.rows =  [
+//			//        					         	{ _svyRowId: 'someRowIdHASH6', nameColumn: "ABC Bubu" },
+//			//      					         	{ _svyRowId: 'someRowIdHASH7', nameColumn: "ABC Yogy" },
+//			//      					         	{ _svyRowId: 'someRowIdHASH8', nameColumn: "ABC Ranger" },
+//			//      					         	{ _svyRowId: 'someRowIdHASH9', nameColumn: "ABC Watcher" },
+//			//      					         	{ _svyRowId: 'someRowIdHASH10', nameColumn: "ABC Hatcher" }
+//			//      					  ];
 //    					  },
 //    					  loadExtraRecordsAsync: function(negativeOrPositiveCount) {
 //    						  // TODO implement
@@ -116,7 +116,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 //    				  multiSelect: false,
 //    			  }
 //    	  };
-//    	  
+
 //    	  $timeout(function() {
 //    		  if (textFieldApi.requestFocus) textFieldApi.requestFocus();
 //    	  }, 5000);
@@ -176,8 +176,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
     		  var columnTitle = el.model.text;
     		  if (!columnTitle) {
     			  // TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
-    			  if (el.forFoundset && el.forFoundset.dataLinks && el.forFoundset.dataLinks.length > 0) {
-    				  columnTitle = el.forFoundset.dataLinks[0].dataprovider;
+					if (el.forFoundset && el.forFoundset.recordBasedProperties && el.forFoundset.recordBasedProperties.length > 0) {
+						columnTitle = el.forFoundset.recordBasedProperties[0];
     				  if (columnTitle && columnTitle.indexOf('.') >= 0) {
     					  columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
     				  }
@@ -211,7 +211,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
     	  if($scope.model.multiLine) {
     		  $scope.columnDefinitions.push({
     			  width: '100%',
-    			  cellTemplate: rowTemplate 
+					cellTemplate: rowTemplate,
+					name: "unique"
     		  });
     	  }
     	  
@@ -332,16 +333,13 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 				return elLayout;
     	  }
     	  
-    	  // merges foundset record dataprovider/tagstring properties into the element's model
+			// merges component model and modelViewport (for record dependent properties like dataprovider/tagstring/...) the cell's element's model
     	  $scope.exScope.getMergedCellModel = function(ngGridRow, elementIndex) {
-    		  var cellProxies = getOrCreateElementProxies(ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY], elementIndex);
+				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
+				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
     		  var cellModel = cellProxies.mergedCellModel;
     		  
-    		  // TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
-    		  cellProxies.rowEntity = ngGridRow.entity; // so that 2 way bindings below work even if the instance of
-    		  // 'ngGridRow.entity' changes (for example a 'CHANGE' row update from server could do that)
-    		  // instance from the one that was when the cached proxy for that pkHash got created
-    			  
     		  if (!cellModel) {
         		  var element = elements[elementIndex];
 
@@ -358,9 +356,9 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
     					  if (!cellProxies.unwatchProperty[k]) {
     						  // skip this for special - row-by-row changing properties; it is handled separately later in code
     						  var skip = false;
-    						  if (elements[elementIndex].forFoundset) {
-    							  for (var i in elements[elementIndex].forFoundset.dataLinks) {
-    								  skip = (elements[elementIndex].forFoundset.dataLinks[i].propertyName == k);
+								if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.recordBasedProperties) {
+									for (var i in elements[elementIndex].forFoundset.recordBasedProperties) {
+										skip = (elements[elementIndex].forFoundset.recordBasedProperties[i] === k);
     								  if (skip) break;
     							  }
     						  }
@@ -382,13 +380,13 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
     			  
     			  // properties like tagstring and dataprovider are not set directly on the component but are more linked to the current record
     			  // so we will take these from the foundset record and apply them to child elements
-    			  if (element.forFoundset) {
-    				  for (var i in element.forFoundset.dataLinks) {
-    					  var propertyName = element.forFoundset.dataLinks[i].propertyName;
-    					  var dataprovider = element.forFoundset.dataLinks[i].dataprovider;
-    					  cellData[propertyName] = ngGridRow.entity[dataprovider];
-    					  // 2 way data link between element separate properties from foundset and the merged cell model
-    					  $utils.bindTwoWayObjectProperty(cellData, propertyName, cellProxies, ["rowEntity", dataprovider], false, $scope);
+					if (element.forFoundset && element.forFoundset.recordBasedProperties) {
+						for (var i in element.forFoundset.recordBasedProperties) {
+							var propertyName = element.forFoundset.recordBasedProperties[i];
+							if (angular.isDefined(element.modelViewport) && angular.isDefined(element.modelViewport[rowIdToViewportRelativeRowIndex(rowId)]))
+								cellData[propertyName] = element.modelViewport[rowIdToViewportRelativeRowIndex(rowId)][propertyName];
+							// 2 way data link between element record based properties from modelViewport and the merged cell model
+							$utils.bindTwoWayObjectProperty(cellData, propertyName, elements, [elementIndex, "modelViewport", function() { return rowIdToViewportRelativeRowIndex(rowId); }, propertyName], false, $scope);
     				  }
     			  }
     			  
@@ -586,15 +584,15 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
     	  
     	  function linkHandlerToRowIdWrapper(handler, rowId) {
     		  return function() {
-    			  $scope.gridOptions.selectItem(rowIdToViewportRelativeRowIndex(rowId), true); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
-    			  updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows()); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
+					$scope.gridApi.selection.selectRow(rowIdToViewportRelativeRowIndex(rowId)); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
+					updateFoundsetSelectionFromGrid($scope.gridApi.selection.getSelectedRows()); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
     			  var recordHandler = handler.selectRecordHandler(rowId)
     			  return recordHandler.apply(recordHandler, arguments);
     		  }
     	  }
     	  // each handler at column level gets it's rowId from the cell's wrapper handler below (to
     	  // make sure that the foundset's selection is correct server-side when cell handler triggers)
-    	  $scope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
+			$scope.exScope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
     		  var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
     		  var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 

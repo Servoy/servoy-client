@@ -62,7 +62,6 @@ import com.servoy.j2db.util.Utils;
 public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 {
 
-
 	/**
 	 * Column that is always automatically sent for each record in a foundset's viewport. It's value
 	 * uniquely identifies that record.
@@ -420,23 +419,19 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	protected void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes)
 	{
 		Iterator<String> it = dataProviders.iterator();
-		if (!it.hasNext()) data.clear(); // clear unique pk like string ROW_ID_COL_KEY
-		else
+		while (it.hasNext())
 		{
-			while (it.hasNext())
-			{
-				String dataProvider = it.next();
-				Object value = record.getValue(dataProvider);
-				PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
+			String dataProvider = it.next();
+			Object value = record.getValue(dataProvider);
+			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
 
-				if (pd != null)
-				{
-					dataTypes.putProperty(dataProvider, pd);
-					if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
-						webObject));
-				}
-				data.put(dataProvider, value);
+			if (pd != null)
+			{
+				dataTypes.putProperty(dataProvider, pd);
+				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
+					webObject));
 			}
+			data.put(dataProvider, value);
 		}
 	}
 

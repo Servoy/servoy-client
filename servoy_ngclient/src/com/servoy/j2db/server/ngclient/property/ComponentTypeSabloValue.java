@@ -193,21 +193,30 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				for (String propertyName : formElementValue.recordBasedProperties)
 				{
 					changes.content.remove(propertyName);
-					changes.contentType.putProperty(propertyName, null);
+					if (changes.contentType != null) changes.contentType.putProperty(propertyName, null);
 				}
 			}
 
 			boolean modelChanged = (changes.content.size() > 0);
 			boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+			boolean nothingChanged = !(modelChanged || viewPortChanged);
 
-			if (modelChanged || viewPortChanged)
+//			if (modelChanged || viewPortChanged)
+//			{
+			try
 			{
-				destinationJSON.object();
-				destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
+
 				destinationJSON.object();
 			}
+			catch (JSONException e)
+			{
+				System.out.println("a");
+			}
+			destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
+			destinationJSON.object();
+//			}
 
-			if (modelChanged)
+			if (modelChanged || nothingChanged)
 			{
 				destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 				destinationJSON.object();
@@ -216,10 +225,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				destinationJSON.endObject();
 			}
 
-			if (viewPortChanged)
+			if (viewPortChanged || nothingChanged)
 			{
 				// something in the viewport containing per-record component property values changed - send updates
-				if (viewPortChangeMonitor.shouldSendWholeViewport())
+				if (viewPortChangeMonitor.shouldSendWholeViewport() || nothingChanged)
 				{
 
 					FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
@@ -266,22 +275,22 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					// convert for websocket traffic (for example Date objects will turn into long)
 					JSONUtils.writeDataWithConversions(destinationJSON, vpChanges, vpChangeTypes);
 
-					viewPortChangeMonitor.clearChanges();
 				}
+				viewPortChangeMonitor.clearChanges();
 			}
 
-			if (modelChanged || viewPortChanged)
-			{
-				destinationJSON.endObject();
-				destinationJSON.endObject();
-			}
-			else
-			{
-				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again or send nothing
-				// TODO HERE WE need to make a distinction between initial request data (which should send all WebFormComponent properties as well as viewport)
-				// and full to JSON (which is needed in some cases for custom json objects and custom json arrays of components) - which should send both template values and form component values and viewport somehow...
-				componentPropertyType.toTemplateJSONValue(destinationJSON, null, formElementValue, componentPropertyDescription, conversionMarkers, null);
-			}
+//			if (modelChanged || viewPortChanged)
+//			{
+			destinationJSON.endObject();
+			destinationJSON.endObject();
+//			}
+//			else
+//			{
+//				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again or send nothing
+//				// TODO HERE WE need to make a distinction between initial request data (which should send all WebFormComponent properties as well as viewport)
+//				// and full to JSON (which is needed in some cases for custom json objects and custom json arrays of components) - which should send both template values and form component values and viewport somehow...
+//				componentPropertyType.toTemplateJSONValue(destinationJSON, null, formElementValue, componentPropertyDescription, conversionMarkers, null);
+//			}
 		}
 		return destinationJSON;
 	}

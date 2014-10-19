@@ -202,14 +202,20 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 		if (forFoundsetTypedPropertyName(pd) != null)
 		{
+			writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
 			writer.key("forFoundset").object();
 			if (formElementValue.recordBasedProperties != null)
 			{
-				writer.key("viewPortData").array().endArray(); // this will contain record based properties for the foundset's viewPort
+				writer.key("recordBasedProperties").array();
+				for (String propertyName : formElementValue.recordBasedProperties)
+				{
+					writer.value(propertyName);
+				}
+				writer.endArray();
 			}
 			if (formElementValue.apisOnAll != null)
 			{
-				writer.key("apiCallTypes").array();
+				writer.key(API_CALL_TYPES_KEY).array();
 				for (String methodName : formElementValue.apisOnAll)
 				{
 					writer.object().key(methodName).value(CALL_ON_ALL_RECORDS).endObject();
