@@ -1,4 +1,4 @@
- <ui-select ng-model="model.dataProviderID" theme="bootstrap" 
+ <ui-select ng-model="model.dataProviderID" theme="bootstrap" search-enabled="false"
  		id="{{model.svyMarkupId}}" 
  		ng-disabled="model.enabled == false"
  		svy-border='model.borderType'
@@ -13,7 +13,7 @@
  				svy-focusgained='handlers.onFocusGainedMethodID($event)' 	
  				svy-focuslost='handlers.onFocusLostMethodID($event)'
  				svy-rightclick='handlers.onRightClickMethodID($event)'
- 				style="height:100%">{{$select.selected.displayValue}}</ui-select-match>
+ 				ng-style="style">{{$select.selected.displayValue}}</ui-select-match>
             <ui-select-choices repeat="item.realValue as item in model.valuelistID">
               <div ng-bind-html="item.displayValue | htmlFilter"></div>
             </ui-select-choices>
