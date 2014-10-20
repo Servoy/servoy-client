@@ -169,7 +169,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 			$scope.rowHeight = $scope.model.rowHeight;
 
 			var rowTemplate = ''
-				$scope.columnDefinitions = [];
+			$scope.columnDefinitions = [];
 			for (var idx = 0; idx < elements.length; idx++) {
 				var el = elements[idx]; 
 				var elY = el.model.location.y - $scope.model.location.y;
@@ -183,7 +183,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 						}
 					}
 					if (!columnTitle) columnTitle = "";
-				}
+				} 
 
 				var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx + ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx + ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx + ')" svy-apply="getExternalScopes().cellApplyHandlerWrapper(row, ' + idx + ')"/>' 
 				if($scope.model.multiLine) { 
@@ -521,9 +521,11 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					useExternalSorting: true,
 					primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
 					columnDefs: $scope.columnDefinitions,
-					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight,
-							rowHeight: $scope.rowHeight?$scope.rowHeight:20
+					rowHeight: $scope.rowHeight?$scope.rowHeight:20
 			};
+			if ($scope.model.headerHeight == 0 || $scope.model.multiLine) {
+				$scope.gridOptions.headerTemplate = '<div/>';
+			}
 			$scope.gridOptions.onRegisterApi = function( gridApi ) {
 				$scope.gridApi = gridApi;
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
