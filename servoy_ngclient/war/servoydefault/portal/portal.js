@@ -201,7 +201,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 						displayName: columnTitle,
 						cellTemplate: cellTemplate,
 						visible: el.model.visible,
-						width: el.model.size.width
+						width: el.model.size.width,
+						editableCellTemplate: cellTemplate
 					});
 
 					updateColumnVisibility($scope, idx);
