@@ -19,8 +19,8 @@ angular.module('servoydefaultLabel',['servoy'])
     	  $element.html($templateCache.get($scope.model.labelFor && ($attrs.headercell == undefined) ? "template/servoydefault/label/labelfor.html" : "template/servoydefault/label/label.html"));
           $compile($element.contents())($scope);
     	  
-          $scope.containerstyle = {overflow:'hidden'}
-          $scope.contentstyle = {width:'100%',overflow:'hidden',whiteSpace:'nowrap'}
+          $scope.containerstyle = {overflow:'hidden',position:'absolute'}
+          $scope.contentstyle = {width:'100%',overflow:'hidden',position:'absolute',whiteSpace:'nowrap'}
           
       }
     };
