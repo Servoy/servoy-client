@@ -24,6 +24,8 @@ import org.sablo.specification.property.IWrapperType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -36,7 +38,8 @@ import com.servoy.j2db.util.HtmlUtils;
  * @author jcompagner
  *
  */
-public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>, ISupportTemplateValue<String>
+public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>,
+	ISupportTemplateValue<String>, IRecordAwareType<String>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -164,5 +167,12 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 
 			return jsonValue;
 		}
+	}
+
+	@Override
+	public boolean isLinkedToRecord(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		if (formElementValue == null) return false;
+		return formElementValue.contains("%%");
 	}
 }
