@@ -89,10 +89,7 @@ describe('svyButton component', function() {
 		var buttonComponent = $compile(template)($scope);             
 		// Now run a $digest cycle to update your template with new data
 		$scope.$digest();
-		console.log("before");
-		
 		buttonComponent[0].triggermouseover();
-		console.log("after");
 		jasmine.clock().tick(1000);
 		var tooltip = document.getElementById('mktipmsg');
 		expect(tooltip.style.display != 'none').toBe(true); 
