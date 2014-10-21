@@ -543,15 +543,17 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					enableRowHeaderSelection: false,
 					multiSelect: false,
 					noUnselect: true,
-					enableScrollbars: true,
+					enableScrollbars: false,
+					enableVerticalScrollbar: 2,
+					enableHorizontalScrollbar: 2,
+					followSourceArray:true,
 					useExternalSorting: true,
 					primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
 					columnDefs: $scope.columnDefinitions,
-					rowHeight: $scope.rowHeight?$scope.rowHeight:20
+					rowHeight: $scope.rowHeight?$scope.rowHeight:20,
+					hideHeader:$scope.model.headerHeight == 0 || $scope.model.multiLine,
+					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight
 			};
-			if ($scope.model.headerHeight == 0 || $scope.model.multiLine) {
-				$scope.gridOptions.headerTemplate = '<div/>';
-			}
 			$scope.gridOptions.onRegisterApi = function( gridApi ) {
 				$scope.gridApi = gridApi;
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){

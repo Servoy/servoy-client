@@ -147,3 +147,9 @@ label.svy-check-radio span{
 	background-color: #dff0d8;
 	border-color: #d6e9c6;
 }
+.ui-grid-row .ui-grid-cell {
+ position:relative;
+}
+.ui-grid-render-container {
+ position:inherit;	
+}
