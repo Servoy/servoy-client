@@ -101,7 +101,7 @@ public final class FormElement implements IWebComponentInitializer
 		Map<String, Object> map = persistImpl.getFormElementPropertyValues(context, specProperties, propertyPath);
 
 		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
-		adjustLocationRelativeToPart(context.getSolution(), map, context.getApplication().isInDesigner());
+		adjustLocationRelativeToPart(context, map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
@@ -133,7 +133,7 @@ public final class FormElement implements IWebComponentInitializer
 		}
 
 		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
-		adjustLocationRelativeToPart(context.getSolution(), map, context.getApplication().isInDesigner());
+		adjustLocationRelativeToPart(context, map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
@@ -259,15 +259,17 @@ public final class FormElement implements IWebComponentInitializer
 		}
 	}
 
-	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map, boolean isInDesginer)
+	private void adjustLocationRelativeToPart(IServoyDataConverterContext context, Map<String, Object> map)
 	{
 		if (map != null && form != null)
 		{
+			FlattenedSolution fs = context.getSolution();
 			Form flatForm = fs.getFlattenedForm(form);
 			Point location = getDesignLocation();
 			if (location != null)
 			{
 				// if it is design client, it has no parts
+				boolean isInDesginer = (context.getApplication() != null && context.getApplication().isInDesigner());
 				if (isInDesginer)
 				{
 					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), location);
@@ -342,7 +344,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getDesignId()
 	{
-		if (dataConverterContext != null && dataConverterContext.getApplication().isInDesigner())
+		if (dataConverterContext != null && dataConverterContext.getApplication() != null && dataConverterContext.getApplication().isInDesigner())
 		{
 			return persistImpl.getPersist().getUUID().toString();
 		}

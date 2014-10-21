@@ -428,7 +428,7 @@ public class ComponentFactory
 	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (context.getApplication().isInDesigner() || (context.getSolution().getSolutionCopy(false) != null))
+		if ((context.getApplication() != null && context.getApplication().isInDesigner()) || (context.getSolution().getSolutionCopy(false) != null))
 		{
 			if (propertyPath == null)
 			{
