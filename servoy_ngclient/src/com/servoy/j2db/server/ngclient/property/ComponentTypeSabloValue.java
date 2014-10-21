@@ -185,17 +185,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			TypedData<Map<String, Object>> changes = childComponent.getChanges();
 
-			// if the components property type is not linked to a foundset then the dataproviders/tagstring must also be sent when needed
-			// but if it is linked to a foundset those should only be sent through the viewport
-			if (forFoundsetTypedPropertyName != null)
-			{
-				// remove properties that are per record basis from the "per all model"
-				for (String propertyName : formElementValue.recordBasedProperties)
-				{
-					changes.content.remove(propertyName);
-					if (changes.contentType != null) changes.contentType.putProperty(propertyName, null);
-				}
-			}
+			removeRecordDependentProperties(changes);
 
 			boolean modelChanged = (changes.content.size() > 0);
 			boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
@@ -203,15 +193,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 //			if (modelChanged || viewPortChanged)
 //			{
-			try
-			{
-
-				destinationJSON.object();
-			}
-			catch (JSONException e)
-			{
-				System.out.println("a");
-			}
+			destinationJSON.object();
 			destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
 			destinationJSON.object();
 //			}
@@ -221,7 +203,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 				destinationJSON.object();
 				// send component model (when linked to foundset only props that are not record related)
-				JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType);
+				if (modelChanged) JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType);
+				else
+				{
+					TypedData<Map<String, Object>> allProps = childComponent.getProperties();
+					removeRecordDependentProperties(allProps);
+					JSONUtils.writeDataWithConversions(destinationJSON, allProps.content, allProps.contentType);
+				}
+
 				destinationJSON.endObject();
 			}
 
@@ -293,6 +282,21 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 //			}
 		}
 		return destinationJSON;
+	}
+
+	protected void removeRecordDependentProperties(TypedData<Map<String, Object>> changes)
+	{
+		// if the components property type is not linked to a foundset then the dataproviders/tagstring must also be sent when needed
+		// but if it is linked to a foundset those should only be sent through the viewport
+		if (forFoundsetTypedPropertyName != null)
+		{
+			// remove properties that are per record basis from the "per all model"
+			for (String propertyName : formElementValue.recordBasedProperties)
+			{
+				changes.content.remove(propertyName);
+				if (changes.contentType != null) changes.contentType.putProperty(propertyName, null);
+			}
+		}
 	}
 
 	public void browserUpdatesReceived(Object jsonValue)
@@ -368,40 +372,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					FoundsetTypeSabloValue foundsetPropertyValue = getFoundsetValue();
 					if (foundsetPropertyValue != null && foundsetPropertyValue.getFoundset() != null)
 					{
-						IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 						JSONObject change = update.getJSONObject("viewportDataChanged");
 
 						String rowIDValue = change.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 						String propertyName = change.getString(FoundsetTypeSabloValue.DATAPROVIDER_KEY);
 						Object value = change.get(FoundsetTypeSabloValue.VALUE_KEY);
 
-						Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
-						int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-
-						if (recordIndex != -1)
-						{
-							foundsetPropertyValue.getDataAdapterList().setRecord(foundset.getRecord(recordIndex), false);
-
-							viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
-							try
-							{
-								childComponent.putBrowserProperty(propertyName, value);
-							}
-							catch (JSONException e)
-							{
-								Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " +
-									value + " failed.", e);
-							}
-							finally
-							{
-								viewPortChangeMonitor.resumeRowUpdateListener();
-							}
-						}
-						else
-						{
-							Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName +
-								"' to value '" + value + ". Record not found.");
-						}
+						updatePropertyValueForRecord(foundsetPropertyValue, rowIDValue, propertyName, value);
 					}
 					else
 					{
@@ -409,23 +386,112 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							update.get("viewportDataChanged"));
 					}
 				}
-//				var r = {};
-//				r[$foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][$foundsetTypeConstants.ROW_ID_COL_KEY];
-//				r.dp = dataprovider;
-//				r.value = newData;
-//
-//				// convert new data if necessary
-//				var conversionInfo = internalState[CONVERSIONS] ? internalState[CONVERSIONS][r[$foundsetTypeConstants.ROW_ID_COL_KEY]] : undefined;
-//				if (conversionInfo && conversionInfo[dataprovider]) r.value = $sabloConverters.convertFromClientToServer(r.value, conversionInfo[dataprovider], oldData);
-//				else r.value = $sabloUtils.convertClientObject(r.value);
-//
-//				internalState.requests.push({viewportDataChanged: r});
+				else if (update.has("svyApply"))
+				{
+					// { svyApply: {
+					// 		rowId: rowId,
+					// 		propertyName: property,
+					// 		propertyValue: propertyValue
+					// }}
+					JSONObject changeAndApply = update.getJSONObject("svyApply");
 
+					String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
+					String propertyName = changeAndApply.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
+					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
+
+					IDataAdapterList dal;
+					if (formElementValue.recordBasedProperties.contains(propertyName))
+					{
+						// changes component record and sets value
+						updatePropertyValueForRecord(getFoundsetValue(), rowIDValue, propertyName, value);
+						dal = getFoundsetValue().getDataAdapterList();
+					}
+					else
+					{
+						childComponent.putBrowserProperty(propertyName, value);
+						IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+						dal = formUI.getDataAdapterList();
+					}
+
+					// apply change to record/dp
+					dal.pushChanges(childComponent, propertyName);
+				}
+				else if (update.has("svyStartEdit"))
+				{
+					// { svyStartEdit: {
+					//   rowId: rowId,
+					//   propertyName: property
+					// }}
+					JSONObject startEditData = update.getJSONObject("svyStartEdit");
+
+					String rowIDValue = startEditData.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
+					String propertyName = startEditData.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
+
+					IDataAdapterList dal;
+					if (formElementValue.recordBasedProperties.contains(propertyName))
+					{
+						IFoundSetInternal foundset = getFoundsetValue().getFoundset();
+
+						Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
+						int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+
+						dal = getFoundsetValue().getDataAdapterList();
+						if (recordIndex != -1)
+						{
+							dal.setRecord(foundset.getRecord(recordIndex), false);
+						}
+						else
+						{
+							Debug.error("Cannot find record for foundset linked record dependent component property - startEdit (" + rowIDValue +
+								"); property '" + propertyName, new RuntimeException());
+						}
+					}
+					else
+					{
+						IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+						dal = formUI.getDataAdapterList();
+					}
+
+					dal.startEdit(childComponent, propertyName);
+				}
 			}
 		}
 		catch (Exception ex)
 		{
 			Debug.error(ex);
+		}
+	}
+
+	protected void updatePropertyValueForRecord(FoundsetTypeSabloValue foundsetPropertyValue, String rowIDValue, String propertyName, Object value)
+	{
+		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
+
+		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
+		int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+
+		if (recordIndex != -1)
+		{
+			foundsetPropertyValue.getDataAdapterList().setRecord(foundset.getRecord(recordIndex), false);
+
+			viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
+			try
+			{
+				childComponent.putBrowserProperty(propertyName, value);
+			}
+			catch (JSONException e)
+			{
+				Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.",
+					e);
+			}
+			finally
+			{
+				viewPortChangeMonitor.resumeRowUpdateListener();
+			}
+		}
+		else
+		{
+			Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName + "' to value '" +
+				value + ". Record not found.", new RuntimeException());
 		}
 	}
 }

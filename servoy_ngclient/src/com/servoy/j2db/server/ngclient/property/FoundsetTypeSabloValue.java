@@ -508,10 +508,9 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 								value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, null);
 
 								changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
-								boolean wasEditing = record.isEditing();
 								try
 								{
-									if (wasEditing || record.startEditing())
+									if (record.startEditing())
 									{
 										try
 										{
@@ -528,7 +527,6 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 								}
 								finally
 								{
-									if (!wasEditing && record.isEditing()) record.stopEditing();
 									changeMonitor.resumeRowUpdateListener();
 									// if server denies the new value as invalid and doesn't change it, send it to the client so that it doesn't keep invalid value
 									if (!Utils.equalObjects(record.getValue(dataProviderName), value))

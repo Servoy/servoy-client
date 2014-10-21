@@ -79,6 +79,9 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	protected static final String MODEL_KEY = "model";
 	protected static final String MODEL_VIEWPORT_KEY = "model_vp";
 	protected static final String MODEL_VIEWPORT_CHANGES_KEY = "model_vp_ch";
+
+	public static final String PROPERTY_NAME_KEY = "pn";
+	public static final String VALUE_KEY = "v";
 	// END keys and values used in JSON
 
 	protected int uniqueId = 1;

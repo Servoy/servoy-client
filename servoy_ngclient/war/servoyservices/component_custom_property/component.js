@@ -1,10 +1,10 @@
-angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
+angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'foundset_custom_property'])
 // Component type ------------------------------------------
 .value("$componentTypeConstants", {
     CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
     CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $utils, $viewportModule, $servoyInternal, $log) {
+.run(function ($sabloConverters, $utils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -12,6 +12,9 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 	var MODEL_VIEWPORT_CHANGES_KEY = "model_vp_ch";
 	var MODEL_VIEWPORT = "modelViewport";
 	
+	var PROPERTY_NAME_KEY = "pn";
+	var VALUE_KEY = "v";
+
 	var CONVERSIONS = 'conversions';
 
 	function getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) {
@@ -157,11 +160,47 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp'])
 							})(key);
 						}
 					}
+					
+					/** rowId is only needed if the component is linked to a foundset */
 					serverJSONValue.apply =  function(property, componentModel, rowId) {
-						// TODO when dataproviders will get sent through components; right now it goes through foundset
-						// $servoyInternal.pushDPChange("product", "datatextfield1c", property, componentModel, rowId);
-						// alert("Apply called with: (" + rowId + ", " + property + ", " + componentModel[property] + ")");
+						if (!internalState.requests) internalState.requests = [];
+						
+						var conversionInfo = internalState[CONVERSIONS];
+						var propertyValue = componentModel[property];
+
+						if (conversionInfo && conversionInfo[property]) {
+							propertyValue = $sabloConverters.convertFromClientToServer(propertyValue, conversionInfo[property], undefined);
+						} else {
+							propertyValue = $sabloUtils.convertClientObject(propertyValue);
+						}
+
+						var req = { svyApply: {} };
+						
+						req.svyApply[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
+						req.svyApply[PROPERTY_NAME_KEY] = property;
+						req.svyApply[VALUE_KEY] = propertyValue;
+
+						internalState.requests.push(req);
+						if (internalState.notifier) internalState.notifier();
 					};
+					
+					// TODO move apply above into servoyApi as well
+					// here we don't specify any of the following as all those can be forwarded by the parent component from it's own servoyApi:
+					// showForm, hideForm, setFormEnabled, setFormReadOnly,	getFormUrl
+					serverJSONValue.servoyApi = {
+							/** rowId is only needed if the component is linked to a foundset */
+							startEdit: function(property, rowId) {
+								if (!internalState.requests) internalState.requests = [];
+
+								var req = { svyStartEdit: {} };
+								
+								req.svyStartEdit[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
+								req.svyStartEdit[PROPERTY_NAME_KEY] = property;
+
+								internalState.requests.push(req);
+								if (internalState.notifier) internalState.notifier();
+							}
+					}
 
 					if (componentScope) internalState.modelUnwatch = watchModel(beanModel, childChangedNotifier, componentScope);
 				}

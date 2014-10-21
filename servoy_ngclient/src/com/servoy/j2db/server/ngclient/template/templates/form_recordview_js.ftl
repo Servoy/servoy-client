@@ -87,8 +87,11 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 			},
 			getFormUrl: function(formUrl) {
 				return $formService.getFormUrl(formUrl);
+			},
+			startEdit: function(propertyName) {
+				$servoyInternal.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
 			}
-		}	
+		}
 	}
 
 	$scope.handlers = {

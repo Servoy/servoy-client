@@ -41,9 +41,9 @@ public class ViewportDataChangeMonitor
 
 	protected List<RowData> viewPortChanges = new ArrayList<>();
 
-	protected ViewportRowDataProvider rowDataProvider;
+	protected final ViewportRowDataProvider rowDataProvider;
 
-	protected IChangeListener monitor;
+	protected final IChangeListener monitor;
 
 	protected String ignoreUpdateOnPkHash;
 

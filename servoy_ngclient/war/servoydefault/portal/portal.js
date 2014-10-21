@@ -6,7 +6,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 		scope: {
 			model: "=svyModel",
 			handlers: "=svyHandlers",
-			api: "=svyApi"
+			api: "=svyApi",
+			servoyApi: "=svyServoyapi"
 		},
 		link: function($scope, $element, $attrs) {
 			// START TEST MODELS
@@ -185,7 +186,12 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					if (!columnTitle) columnTitle = "";
 				} 
 
-				var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name + '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx + ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx + ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx + ')" svy-apply="getExternalScopes().cellApplyHandlerWrapper(row, ' + idx + ')"/>' 
+				var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
+					+ '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx
+					+ ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx
+					+ ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx
+					+ ')" svy-apply="getExternalScopes().cellApplyHandlerWrapper(row, ' + idx
+					+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"/>';
 				if($scope.model.multiLine) { 
 					if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
 						$scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
@@ -473,6 +479,26 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					};
 				}
 				return cellProxies.cellApplyHandler;
+			}
+
+			$scope.exScope.cellServoyApiWrapper = function(ngGridRow, elementIndex) {
+				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
+
+				if (!cellProxies.cellServoyApi) {
+					var columnServoyApi = elements[elementIndex].servoyApi;
+					cellProxies.cellServoyApi = {
+							showForm: $scope.servoyApi.showForm,
+							hideForm: $scope.servoyApi.hideForm,
+							setFormEnabled: $scope.servoyApi.setFormEnabled,
+							setFormReadOnly: $scope.servoyApi.setFormReadOnly,
+							getFormUrl: $scope.servoyApi.getFormUrl,
+							startEdit: function(property) {
+								return columnServoyApi.startEdit(property,rowId);
+							}
+					}
+				}
+				return cellProxies.cellServoyApi;
 			}
 
 			// bind foundset.selectedRowIndexes to what nggrid has to offer
