@@ -563,7 +563,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), "{\"type\" :\"tabseq\", \"scope\" :\"design\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "{\"type\" :\"mediaoptions\", \"scope\" :\"design\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");
-		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"showInPalette\":true}");
+		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"droppable\":true}");
 		repoTypeMappingExceptions.put("tabIndex", "int");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{\"type\" :\"insets\", \"scope\" :\"design\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR.getPropertyName(), "{\"type\" :\"int\", \"scope\" :\"design\"}");
