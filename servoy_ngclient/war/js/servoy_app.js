@@ -553,7 +553,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
        		  bgstyle['background-repeat'] = "no-repeat";
        		  bgstyle['background-position'] = "left";
        		  bgstyle['display'] = "inline-block";
-       		  bgstyle['vertical-align'] = "middle"; 
+       		  //bgstyle['vertical-align'] = "middle"; 
        		  if(mediaOptions == undefined) mediaOptions = 14; // reduce-enlarge & keep aspect ration
        		  var mediaKeepAspectRatio = mediaOptions == 0 || ((mediaOptions & 8) == 8);
 

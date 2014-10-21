@@ -673,7 +673,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         	else
         	{
         		style['top'] = '50%';
-        		style['transform'] = 'translateY(-50%)';
+//      		style['transform'] = 'translateY(-50%)';
         	}
             element.css(style);
          }
