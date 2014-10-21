@@ -295,4 +295,12 @@ public class NGClientEntryFilter extends WebEntry
 	{
 		return new WebsocketSessionFactory();
 	}
+
+	@Override
+	protected Collection<String> getCSSContributions()
+	{
+		ArrayList<String> css = new ArrayList<String>();
+		css.add("css/servoy.css");
+		return css;
+	}
 }
