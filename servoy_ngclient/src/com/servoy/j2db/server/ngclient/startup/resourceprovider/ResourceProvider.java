@@ -21,11 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Manifest;
 
 import javax.servlet.Filter;
@@ -62,30 +64,55 @@ public class ResourceProvider implements Filter
 {
 	private static final Logger log = LoggerFactory.getLogger(ResourceProvider.class.getCanonicalName());
 
-	private static final List<IPackageReader> componentReaders = new ArrayList<>();
-	private static final List<IPackageReader> serviceReaders = new ArrayList<>();
+	private static final Map<String, IPackageReader> componentReaders = new ConcurrentHashMap<>();
+	private static final Map<String, IPackageReader> serviceReaders = new ConcurrentHashMap<>();
+
+	/**
+	 * @param reader
+	 * @return
+	 */
+	private static String getName(IPackageReader reader)
+	{
+		String name = reader.getName();
+		int index = name.lastIndexOf('/');
+		if (index == -1) index = name.lastIndexOf('\\');
+		if (index != -1) name = name.substring(index + 1);
+		return name;
+	}
 
 	public static void addComponentResources(Collection<IPackageReader> readers)
 	{
-		componentReaders.addAll(readers);
+		for (IPackageReader reader : readers)
+		{
+			componentReaders.put(getName(reader), reader);
+		}
 		initSpecProvider();
 	}
 
 	public static void removeComponentResources(Collection<IPackageReader> readers)
 	{
-		componentReaders.removeAll(readers);
+		for (IPackageReader reader : readers)
+		{
+			componentReaders.remove(getName(reader));
+		}
 		initSpecProvider();
 	}
 
 	public static void addServiceResources(Collection<IPackageReader> readers)
 	{
-		serviceReaders.addAll(readers);
+		for (IPackageReader reader : readers)
+		{
+			serviceReaders.put(getName(reader), reader);
+		}
 		initSpecProvider();
 	}
 
 	public static void removeServiceResources(Collection<IPackageReader> readers)
 	{
-		serviceReaders.removeAll(readers);
+		for (IPackageReader reader : readers)
+		{
+			serviceReaders.remove(getName(reader));
+		}
 		initSpecProvider();
 	}
 
@@ -99,8 +126,8 @@ public class ResourceProvider implements Filter
 
 		registerTypes();
 
-		ArrayList<IPackageReader> componentPackages = new ArrayList<>(componentReaders);
-		ArrayList<IPackageReader> servicePackages = new ArrayList<>(serviceReaders);
+		ArrayList<IPackageReader> componentPackages = new ArrayList<>(componentReaders.values());
+		ArrayList<IPackageReader> servicePackages = new ArrayList<>(serviceReaders.values());
 		Enumeration<URL> findEntries = Activator.getContext().getBundle().findEntries("/war/", "MANIFEST.MF", true);
 		while (findEntries.hasMoreElements())
 		{
@@ -146,17 +173,27 @@ public class ResourceProvider implements Filter
 				int index = pathInfo.indexOf('/', 1);
 				if (index > 1 && !pathInfo.substring(index).equals("/"))
 				{
-					for (IPackageReader reader : componentReaders)
+					String packageName = URLDecoder.decode(pathInfo.substring(0, index), "UTF8");
+					packageName = packageName.startsWith("/") ? packageName.substring(1) : packageName;
+					IPackageReader reader = componentReaders.get(packageName);
+					if (reader != null)
 					{
 						url = reader.getUrlForPath(pathInfo.substring(index));
-						if (url != null) break;
+						if (url == null)
+						{
+							Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the component package");
+						}
 					}
-					if (url == null)
+					else
 					{
-						for (IPackageReader reader : serviceReaders)
+						reader = serviceReaders.get(packageName);
+						if (reader != null)
 						{
 							url = reader.getUrlForPath(pathInfo.substring(index));
-							if (url != null) break;
+							if (url == null)
+							{
+								Debug.error("url '" + pathInfo.substring(index) + "' for package: '" + packageName + "' is not found in the service package");
+							}
 						}
 					}
 				}
@@ -243,7 +280,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -254,7 +291,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -290,7 +327,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -320,7 +357,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
