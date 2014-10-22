@@ -219,7 +219,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 				$scope.columnDefinitions.push({
 					width: '100%',
 					cellTemplate: rowTemplate,
-					name: "unique"
+					name: "unique",
+					editableCellTemplate: rowTemplate
 				});
 			}
 
@@ -324,13 +325,13 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 				else {
 					if($solutionSettings.ltrOrientation)
 					{
-						elLayout.left = elModel.location.x + 'px';
+						elLayout.left = (elModel.location.x - $scope.model.location.x) + 'px';
 					}
 					else
 					{
-						elLayout.right = elModel.location.x + 'px';
+						elLayout.right = (elModel.location.x - $scope.model.location.x) + 'px';
 					}
-					elLayout.top = elModel.location.y + 'px';
+					elLayout.top = (elModel.location.y - $scope.model.location.y) + 'px';
 					elLayout.width = elModel.size.width + 'px';
 					elLayout.height = elModel.size.height + 'px';		   
 				}
