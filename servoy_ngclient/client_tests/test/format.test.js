@@ -10,7 +10,7 @@ describe('servoy $formatUtils', function() {
 	    it("should corecly format numbers", function() {
 	    	inject(function($formatterUtils){ 
 	    	var formatFun = $formatterUtils.format;
-	    	var MILLSIGN =  '\u2030';  //‰
+	    	var MILLSIGN =  '\u2030';  //ï¿½
 	        expect(formatFun(10.49,'0.000','NUMBER')).toEqual("10.490")
 	        expect(formatFun(10,'-0000.000','NUMBER')).toEqual("-10.000")
 	        expect(formatFun(10.49,'#.###','NUMBER')).toEqual("10.49")
@@ -28,7 +28,7 @@ describe('servoy $formatUtils', function() {
 	    it("should corecly UNformat  numbers", function() {
 	    	inject(function($formatterUtils){ 
 	    	var unFormatFun = $formatterUtils.unformat;
-	    	var MILLSIGN =  '\u2030';  //‰
+	    	var MILLSIGN =  '\u2030';  //ï¿½
 	        expect(unFormatFun("10.49",'0.000','NUMBER')).toEqual(10.49)
 	        expect(unFormatFun("+%1049.00",'+%00.00','NUMBER')).toEqual(10.49)
 	        expect(unFormatFun("-10.000",'-0000.000','NUMBER')).toEqual(10)
@@ -46,7 +46,7 @@ describe('servoy $formatUtils', function() {
 	    it("should corecly format dates", function() {
 	    	inject(function($formatterUtils){ 
 	    	var formatFun = $formatterUtils.format;
-	    	var MILLSIGN =  '\u2030';  //‰
+	    	var MILLSIGN =  '\u2030';  //ï¿½
 	        expect(formatFun(new Date(2014,10,1,23,23,14,500),'dd-MM-yyyy HH:mma s  G S','DATETIME')).toEqual("01-11-2014 23:23PM 14  AD 500")
 	        expect(formatFun(new Date(2014,10,2,23,23,14),'dd-MM-yyyy w HH:mma  W','DATETIME')).toEqual("02-11-2014 44 23:23PM  1")
 	        expect(formatFun(new Date(2014,10,3,15,23,14),'dd-MM-yyyy Z D','DATETIME')).toEqual("03-11-2014 +0100 307")// TODO fix timezone issues

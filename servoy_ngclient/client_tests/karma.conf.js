@@ -8,7 +8,8 @@ module.exports = function(config){
     files : [
        'lib/jquery.js',
        'lib/angular.js',
-       'lib/angular-mocks.js',       
+       'lib/angular-mocks.js',  
+       '../../sablo/META-INF/resources/sablo/js/websocket.js',
        'lib/phantomjs.polyfill.js',
        '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',
@@ -16,7 +17,9 @@ module.exports = function(config){
        '../war/servoydefault/*/*.html'
     ],
     exclude : [
-	  '../war/servoydefault/tabpanel/tabpanel_server.js'
+	  '../war/servoydefault/tabpanel/tabpanel_server.js',
+	  '../war/js/**/*.min.js',
+	  '../war/js/**/angular1.3.0.js'
       /*'app/lib/angular/angular-loader.js',
       'app/lib/angular/*.min.js',
       'app/lib/angular/angular-scenario.js'*/
@@ -24,7 +27,7 @@ module.exports = function(config){
     ngHtml2JsPreprocessor: {
         // setting this option will create only a single module that contains templates
         // from all the files, so you can load them all with module('foo')
-        moduleName: 'svyTemplates',
+        moduleName: 'servoy-components',
         
         cacheIdFromPath: function(filepath) {
             return filepath.replace(/.*?\/servoydefault\/(.*)/,"servoydefault/$1");

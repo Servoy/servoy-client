@@ -705,8 +705,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
         	//get component root node
         	var componentRoot =null;
         	componentRoot= element;
-        	while(componentRoot.isolateScope()  == null){
-        		componentRoot = componentRoot.parent()
+			while(!componentRoot.isolateScope() && componentRoot.size() > 0){
+				componentRoot = componentRoot.parent();
         	}
         	componentRoot.hover(function(){
         		//over

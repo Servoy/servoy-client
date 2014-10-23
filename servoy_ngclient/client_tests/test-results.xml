@@ -1,64 +1,64 @@
 <?xml version="1.0"?>
 <testsuites>
-  <testsuite name="PhantomJS 1.9.7 (Windows 7)" package="" timestamp="2014-05-30T11:28:20" id="0" hostname="Ovidiu-Servoy" tests="32" errors="0" failures="1" time="0.235">
+  <testsuite name="PhantomJS 1.9.7 (Windows 8)" package="" timestamp="2014-10-23T12:39:09" id="0" hostname="pc" tests="32" errors="0" failures="1" time="0.301">
     <properties>
-      <property name="browser.fullName" value="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34"/>
+      <property name="browser.fullName" value="Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34"/>
     </properties>
-    <testcase name="should show tooltip when mouseover" time="0.041" classname="PhantomJS 1.9.7 (Windows 7).[object Object]"/>
-    <testcase name="should have onclick" time="0.009" classname="PhantomJS 1.9.7 (Windows 7).[object Object]"/>
-    <testcase name="should have double and right click" time="0.007" classname="PhantomJS 1.9.7 (Windows 7).[object Object]"/>
-    <testcase name="should have onaction" time="0.011" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object]"/>
-    <testcase name="should have focusgained and focuslost" time="0.015" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object]"/>
-    <testcase name="test action trigger only on enter key" time="0.009" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object]"/>
-    <testcase name="should corecly format numbers" time="0.004" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should corecly UNformat  numbers" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should corecly format dates" time="0.004" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object]">
+    <testcase name="should show tooltip when mouseover" time="0.045" classname="PhantomJS 1.9.7 (Windows 8).[object Object]"/>
+    <testcase name="should have onclick" time="0.012" classname="PhantomJS 1.9.7 (Windows 8).[object Object]"/>
+    <testcase name="should have double and right click" time="0.007" classname="PhantomJS 1.9.7 (Windows 8).[object Object]"/>
+    <testcase name="should have onaction" time="0.015" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object]"/>
+    <testcase name="should have focusgained and focuslost" time="0.008" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object]"/>
+    <testcase name="test action trigger only on enter key" time="0.014" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object]"/>
+    <testcase name="should corecly format numbers" time="0.005" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should corecly UNformat  numbers" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should corecly format dates" time="0.005" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object]">
       <failure type="">Expected &apos;03-11-2014 +0200 307&apos; to equal &apos;03-11-2014 +0100 307&apos;.
 Error: Expected &apos;03-11-2014 +0200 307&apos; to equal &apos;03-11-2014 +0100 307&apos;.
-    at d:/Workspace/servoy_ngclient/client_tests/test/format.test.js:52
-    at invoke (d:/Workspace/servoy_ngclient/client_tests/lib/angular.js:3762)
-    at workFn (d:/Workspace/servoy_ngclient/client_tests/lib/angular-mocks.js:2144)
-    at d:/Workspace/servoy_ngclient/client_tests/lib/angular-mocks.js:2130
-    at d:/Workspace/servoy_ngclient/client_tests/test/format.test.js:58
-    at d:/Workspace/servoy_ngclient/client_tests/node_modules/karma-jasmine/lib/adapter.js:171
-    at http://localhost:9876/karma.js:189
-    at http://localhost:9876/context.html:191
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/test/format.test.js:52
+    at invoke (D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/lib/angular.js:3762)
+    at workFn (D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/lib/angular-mocks.js:2144)
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/lib/angular-mocks.js:2130
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/test/format.test.js:58
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/node_modules/karma-jasmine/lib/adapter.js:171
+    at http://localhost:9877/karma.js:189
+    at http://localhost:9877/context.html:199
 </failure>
       <failure type="">Expected &apos;04/11/2014 +0200 308&apos; to equal &apos;04/11/2014 +0100 308&apos;.
 Error: Expected &apos;04/11/2014 +0200 308&apos; to equal &apos;04/11/2014 +0100 308&apos;.
-    at d:/Workspace/servoy_ngclient/client_tests/test/format.test.js:53
-    at invoke (d:/Workspace/servoy_ngclient/client_tests/lib/angular.js:3762)
-    at workFn (d:/Workspace/servoy_ngclient/client_tests/lib/angular-mocks.js:2144)
-    at d:/Workspace/servoy_ngclient/client_tests/lib/angular-mocks.js:2130
-    at d:/Workspace/servoy_ngclient/client_tests/test/format.test.js:58
-    at d:/Workspace/servoy_ngclient/client_tests/node_modules/karma-jasmine/lib/adapter.js:171
-    at http://localhost:9876/karma.js:189
-    at http://localhost:9876/context.html:191
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/test/format.test.js:53
+    at invoke (D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/lib/angular.js:3762)
+    at workFn (D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/lib/angular-mocks.js:2144)
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/lib/angular-mocks.js:2130
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/test/format.test.js:58
+    at D:/encrypt/git_trunk/servoy-client/servoy_ngclient/client_tests/node_modules/karma-jasmine/lib/adapter.js:171
+    at http://localhost:9877/karma.js:189
+    at http://localhost:9877/context.html:199
 </failure>
     </testcase>
-    <testcase name="should corecly format strings" time="0.002" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-background" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-foreground" time="0.008" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-border" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply  at design time svy-margin" time="0.005" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-font" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-tabseq" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-tabseq" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-click,svy-dblclick,svy-rightclick,svy-focusgained,svy-focuslost" time="0.004" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-enter" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-mnemonic" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-textrotation" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-selectonenter" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-rollovercursor" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-imagemediaid" time="0.013" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should apply svy-format" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should filter based on format" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should undernine mnemonic based on parameter letter" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should corecly change tab when clicked on tab2" time="0.024" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="should corecly change tab when changed via scripting with tabIndex" time="0.015" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="tab panel api test" time="0.017" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="it should not register anything" time="0.002" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
-    <testcase name="it should register" time="0.003" classname="PhantomJS 1.9.7 (Windows 7).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should corecly format strings" time="0.002" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-background" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-foreground" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-border" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply  at design time svy-margin" time="0.01" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-font" time="0.005" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-tabseq" time="0.01" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-tabseq" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-click,svy-dblclick,svy-rightclick,svy-focusgained,svy-focuslost" time="0.005" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-enter" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-mnemonic" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-textrotation" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-selectonenter" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-rollovercursor" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-format" time="0.003" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should filter based on format" time="0.003" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should undernine mnemonic based on parameter letter" time="0.003" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should apply svy-imagemediaid" time="0.008" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should corecly change tab when clicked on tab2" time="0.051" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="should corecly change tab when changed via scripting with tabIndex" time="0.016" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="tab panel api test" time="0.026" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="it should not register anything" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
+    <testcase name="it should register" time="0.004" classname="PhantomJS 1.9.7 (Windows 8).[object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object] [object Object]"/>
     <system-out><![CDATA[
 ]]></system-out>
     <system-err/>
