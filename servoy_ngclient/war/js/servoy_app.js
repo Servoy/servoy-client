@@ -534,15 +534,16 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
                 		  imgStyle = null;
                 		} 	
             		}
-            		if (element[0].parentNode.parentNode.offsetWidth >0 && element[0].parentNode.parentNode.offsetHeight >0)
-            		{
-            			//dom is ready
-            			setImageStyle();
-            		}
-            		else
-            		{
-            			$timeout(setImageStyle,200);
-            		}
+            		angular.element(element[0]).ready(setImageStyle);
+//            		if (element[0].parentNode.parentNode.offsetWidth >0 && element[0].parentNode.parentNode.offsetHeight >0)
+//            		{
+//            			//dom is ready
+//            			setImageStyle();
+//            		}
+//            		else
+//            		{
+//            			$timeout(setImageStyle,200);
+//            		}
         		}
         	}, true)
         	

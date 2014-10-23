@@ -46,7 +46,7 @@ describe('styles helpers', function() {
 				componentSize:{width: 16, height: 16},
 				rollOverImg:null, visible:true};
 		template.data('$isolateScope',isolatedScope);
-		var myDiv = $compile(template[0])(isolatedScope);
+		var myDiv = $compile(template)(isolatedScope);
 		isolatedScope.$digest();
 		expect(myDiv[0].firstElementChild.style.backgroundImage).toContain('image1.png')
 		// change image at runtime
