@@ -145,9 +145,14 @@ public class SpecGenerator
 			}
 			// @formatter:on
 		));
-		specTemplateList.add(new SpecTemplateModel("portal", "Portal", "portal.gif", IRepository.PORTALS,
+		specTemplateList.add(new SpecTemplateModel(
+			"portal",
+			"Portal",
+			"portal.gif",
+			IRepository.PORTALS,
 			com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-			new String[] { "{\"name\":\"svy-portal.css\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" }));
+			new String[] { "{\"name\":\"svy-portal.css\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"},\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},\n\t\t\t\t"
+				+ "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel(
 			"spinner",
 			"Spinner",
