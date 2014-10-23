@@ -344,7 +344,8 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getDesignId()
 	{
-		if (dataConverterContext != null && dataConverterContext.getApplication() != null && dataConverterContext.getApplication().isInDesigner())
+		if (persistImpl != null && dataConverterContext != null && dataConverterContext.getApplication() != null &&
+			dataConverterContext.getApplication().isInDesigner())
 		{
 			return persistImpl.getPersist().getUUID().toString();
 		}
