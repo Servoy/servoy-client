@@ -29,7 +29,6 @@
 	        "onDataChangeMethodID" : "function", 
 	        "onFocusGainedMethodID" : "function", 
 	        "onFocusLostMethodID" : "function", 
-	        "onRenderMethodID" : "function", 
 	        "onRightClickMethodID" : "function" 
 	},
 	"api":

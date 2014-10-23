@@ -45,6 +45,7 @@ import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ContentSpec.Element;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.ui.IScriptScriptLabelMethods;
@@ -358,7 +359,7 @@ public class SpecGenerator
 			{
 				if (BaseComponent.isEventProperty(element.getName()))
 				{
-					handlers.add(element);
+					if (!element.getName().equals(IContentSpecConstants.PROPERTY_ONRENDERMETHODID)) handlers.add(element);
 				}
 				else if (isAllowedProperty(componentSpec.getName(), element.getName()) && getSpecTypeFromRepoType(componentSpec.getName(), element) != null)
 				{

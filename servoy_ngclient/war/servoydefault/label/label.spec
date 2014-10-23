@@ -36,7 +36,6 @@
 	{
 	        "onActionMethodID" : "function", 
 	        "onDoubleClickMethodID" : "function", 
-	        "onRenderMethodID" : "function", 
 	        "onRightClickMethodID" : "function" 
 	},
 	"api":

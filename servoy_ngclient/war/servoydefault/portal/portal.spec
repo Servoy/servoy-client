@@ -39,8 +39,7 @@
 	        "onDragEndMethodID" : "function", 
 	        "onDragMethodID" : "function", 
 	        "onDragOverMethodID" : "function", 
-	        "onDropMethodID" : "function", 
-	        "onRenderMethodID" : "function" 
+	        "onDropMethodID" : "function" 
 	},
 	"api":
 	{
