@@ -105,7 +105,13 @@ angular.module('ui.slider', []).value('uiSliderConfig',{}).directive('uiSlider',
                     }, true);
 
                     function destroy(){
-                        elm.slider('destroy');
+                    	try {
+                    		elm.slider('destroy');
+                    	}
+                    	catch(err) {
+                    		// it may throw an error if it is not yet initialized, but there is currently
+                    		// no way to detect this, so, just simply ignore exceptions on destroy
+                    	}
                     }
                     elm.bind('$destroy', destroy);
                 };

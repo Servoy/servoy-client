@@ -334,7 +334,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
       restrict: 'A', // only activate on element attribute
       require: '?ngModel', // get a hold of NgModelController
       link: function(scope, element, attrs, ngModel) {
-        if(!ngModel) return; // do nothing if no ng-model
+        if(!ngModel || element.attr("svy-autoapply-disabled")) return; // do nothing if no ng-model
 
         var dataproviderString = attrs.ngModel;
         var index = dataproviderString.indexOf('.');
