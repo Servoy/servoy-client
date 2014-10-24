@@ -110,9 +110,17 @@ public final class FormElement implements IWebComponentInitializer
 		PropertyPath propertyPath)
 	{
 		this.dataConverterContext = context;
-		persistImpl = null;
+		this.persistImpl = null;
 		this.form = form;
-		this.componentType = componentTypeString;
+
+		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentTypeString) == null)
+		{
+			this.componentType = FormElement.ERROR_BEAN;
+		}
+		else
+		{
+			this.componentType = componentTypeString;
+		}
 		this.uniqueIdWithinForm = uniqueIdWithinForm;
 
 		propertyValues = new HashMap<String, Object>();
@@ -134,6 +142,10 @@ public final class FormElement implements IWebComponentInitializer
 
 		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
 		adjustLocationRelativeToPart(context, map);
+		if (this.componentType == FormElement.ERROR_BEAN)
+		{
+			map.put("toolTipText", "component type: " + componentTypeString + " not found");
+		}
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
@@ -595,7 +607,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
