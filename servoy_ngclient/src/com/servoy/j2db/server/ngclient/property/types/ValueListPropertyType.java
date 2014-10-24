@@ -86,7 +86,7 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 		if (object != null)
 		{
 			// TODO we should have type info here to send instead of null for real/display values
-			JSONUtils.toBrowserJSONValue(writer, key, object.getJsonValue(), null, clientConversion);
+			JSONUtils.toBrowserJSONFullValue(writer, key, object.getJsonValue(), null, clientConversion);
 		}
 		return writer;
 	}

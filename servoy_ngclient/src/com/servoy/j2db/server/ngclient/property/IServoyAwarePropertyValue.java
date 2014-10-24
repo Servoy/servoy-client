@@ -20,10 +20,13 @@ package com.servoy.j2db.server.ngclient.property;
 import org.sablo.specification.property.ISmartPropertyValue;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.server.ngclient.property.types.IRecordAwareType;
 
 /**
  * Complex properties that are to be used within Servoy beans - interested in Servoy specific behavior.
- * 
+ *
+ * Usually this value's property type implements {@link IRecordAwareType}.
+ *
  * @author acostescu
  */
 public interface IServoyAwarePropertyValue extends ISmartPropertyValue
@@ -34,6 +37,6 @@ public interface IServoyAwarePropertyValue extends ISmartPropertyValue
 	 * It can only be called after {@link ISmartPropertyValue#attachToComponent(org.sablo.IChangeListener, org.sablo.WebComponent)}
 	 * @param record the new record
 	 */
-	boolean pushRecord(IRecordInternal record);
+	void pushRecord(IRecordInternal record);
 
 }

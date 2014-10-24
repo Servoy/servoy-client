@@ -26,12 +26,15 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.IRecordAwareType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -43,7 +46,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  */
 public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue> implements
 	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
-	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>
+	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
+	IRecordAwareType<JSONObject>
 {
 
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
@@ -96,12 +100,23 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
 	{
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
 			sabloValue.changesToJSON(writer, clientConversion);
+		}
+		return null;
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	{
+		if (sabloValue != null)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			sabloValue.toJSON(writer, clientConversion);
 		}
 		return null;
 	}
@@ -116,6 +131,12 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public Object toRhinoValue(FoundsetTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
 		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean isLinkedToRecord(JSONObject formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		return true;
 	}
 
 }

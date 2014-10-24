@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +40,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -54,6 +56,8 @@ import com.servoy.j2db.util.Pair;
 @SuppressWarnings("nls")
 public class ComponentTypeSabloValue implements ISmartPropertyValue
 {
+
+	public static final String NO_OP = "n";
 
 	protected WebFormComponent childComponent;
 
@@ -176,112 +180,172 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
-	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
-		throws JSONException
+	/**
+	 * Writes a diff update between the value it has in the template and the initial data requested after runtime components were created or during a page refresh.
+	 */
+	public JSONWriter initialToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
-		if (childComponent != null)
+		destinationJSON.object();
+		destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
+		destinationJSON.object();
+
+		// model content
+		TypedData<Map<String, Object>> allProps = childComponent.getProperties();
+		removeRecordDependentProperties(allProps);
+		JSONUtils.writeDataWithConversions(destinationJSON, allProps.content, allProps.contentType);
+
+		// viewport content
+		writeWholeViewportToJSON(destinationJSON);
+
+		destinationJSON.endObject();
+		destinationJSON.endObject();
+
+		return destinationJSON;
+	}
+
+	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
+	{
+		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
+
+		TypedData<Map<String, Object>> changes = childComponent.getChanges();
+
+		removeRecordDependentProperties(changes);
+
+		boolean modelChanged = (changes.content.size() > 0);
+		boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+
+		destinationJSON.object();
+		if (modelChanged || viewPortChanged)
 		{
-			TypedData<Map<String, Object>> changes = childComponent.getChanges();
-
-			removeRecordDependentProperties(changes);
-
-			boolean modelChanged = (changes.content.size() > 0);
-			boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
-			boolean nothingChanged = !(modelChanged || viewPortChanged);
-
-//			if (modelChanged || viewPortChanged)
-//			{
-			destinationJSON.object();
 			destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
 			destinationJSON.object();
-//			}
-
-			if (modelChanged || nothingChanged)
-			{
-				destinationJSON.key(ComponentPropertyType.MODEL_KEY);
-				destinationJSON.object();
-				// send component model (when linked to foundset only props that are not record related)
-				if (modelChanged) JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType);
-				else
-				{
-					TypedData<Map<String, Object>> allProps = childComponent.getProperties();
-					removeRecordDependentProperties(allProps);
-					JSONUtils.writeDataWithConversions(destinationJSON, allProps.content, allProps.contentType);
-				}
-
-				destinationJSON.endObject();
-			}
-
-			if (viewPortChanged || nothingChanged)
-			{
-				// something in the viewport containing per-record component property values changed - send updates
-				if (viewPortChangeMonitor.shouldSendWholeViewport() || nothingChanged)
-				{
-
-					FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
-
-					TypedData<List<Map<String, Object>>> rowsArray = viewPortChangeMonitor.getRowDataProvider().getRowData(
-						foundsetPropertyViewPort.getStartIndex(), foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1,
-						getFoundsetValue().getFoundset());
-
-					Map<String, Object> viewPort = new HashMap<>();
-					PropertyDescription viewPortTypes = null;
-					viewPort.put(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.content);
-					if (rowsArray.contentType != null && rowsArray.contentType.hasChildProperties())
-					{
-						viewPortTypes = AggregatedPropertyType.newAggregatedProperty();
-						viewPortTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.contentType);
-					}
-					// convert for websocket traffic (for example Date objects will turn into long)
-					JSONUtils.writeDataWithConversions(destinationJSON, viewPort, viewPortTypes);
-				}
-				else
-				// viewPortChanges.size() > 0
-				{
-					List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
-					Map<String, Object> vpChanges = new HashMap<>();
-					PropertyDescription vpChangeTypes = null;
-					Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
-
-					vpChanges.put(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changesArray);
-
-					PropertyDescription changeArrayTypes = AggregatedPropertyType.newAggregatedProperty();
-					for (int i = viewPortChanges.size() - 1; i >= 0; i--)
-					{
-						TypedData<Map<String, Object>> rowTypedData = viewPortChanges.get(i).toMap();
-						changesArray[i] = rowTypedData.content;
-						if (rowTypedData.contentType != null) changeArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
-					}
-
-					if (changeArrayTypes.hasChildProperties())
-					{
-						vpChangeTypes = AggregatedPropertyType.newAggregatedProperty();
-						vpChangeTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changeArrayTypes);
-					}
-
-					// convert for websocket traffic (for example Date objects will turn into long)
-					JSONUtils.writeDataWithConversions(destinationJSON, vpChanges, vpChangeTypes);
-
-				}
-				viewPortChangeMonitor.clearChanges();
-			}
-
-//			if (modelChanged || viewPortChanged)
-//			{
-			destinationJSON.endObject();
-			destinationJSON.endObject();
-//			}
-//			else
-//			{
-//				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again or send nothing
-//				// TODO HERE WE need to make a distinction between initial request data (which should send all WebFormComponent properties as well as viewport)
-//				// and full to JSON (which is needed in some cases for custom json objects and custom json arrays of components) - which should send both template values and form component values and viewport somehow...
-//				componentPropertyType.toTemplateJSONValue(destinationJSON, null, formElementValue, componentPropertyDescription, conversionMarkers, null);
-//			}
 		}
+
+		if (modelChanged)
+		{
+			destinationJSON.key(ComponentPropertyType.MODEL_KEY);
+			destinationJSON.object();
+			// send component model (when linked to foundset only props that are not record related)
+			JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType);
+			destinationJSON.endObject();
+		}
+
+		if (viewPortChanged)
+		{
+			// something in the viewport containing per-record component property values changed - send updates
+			if (viewPortChangeMonitor.shouldSendWholeViewport())
+			{
+				writeWholeViewportToJSON(destinationJSON);
+			}
+			else
+			// viewPortChanges.size() > 0
+			{
+				List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				Map<String, Object> vpChanges = new HashMap<>();
+				PropertyDescription vpChangeTypes = null;
+				Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
+
+				vpChanges.put(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changesArray);
+
+				PropertyDescription changeArrayTypes = AggregatedPropertyType.newAggregatedProperty();
+				for (int i = viewPortChanges.size() - 1; i >= 0; i--)
+				{
+					TypedData<Map<String, Object>> rowTypedData = viewPortChanges.get(i).toMap();
+					changesArray[i] = rowTypedData.content;
+					if (rowTypedData.contentType != null) changeArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
+				}
+
+				if (changeArrayTypes.hasChildProperties())
+				{
+					vpChangeTypes = AggregatedPropertyType.newAggregatedProperty();
+					vpChangeTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changeArrayTypes);
+				}
+
+				// convert for websocket traffic (for example Date objects will turn into long)
+				JSONUtils.writeDataWithConversions(destinationJSON, vpChanges, vpChangeTypes);
+
+			}
+			viewPortChangeMonitor.clearChanges();
+		}
+
+		if (modelChanged || viewPortChanged)
+		{
+			destinationJSON.endObject();
+		}
+		else
+		{
+			// no change yet we are still asked to send changes (so not full value); send a dummy NO_OP
+			destinationJSON.key(NO_OP).value(true);
+		}
+		destinationJSON.endObject();
+
 		return destinationJSON;
+	}
+
+	protected void writeWholeViewportToJSON(JSONWriter destinationJSON) throws JSONException
+	{
+		if (forFoundsetTypedPropertyName != null)
+		{
+			FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
+
+			TypedData<List<Map<String, Object>>> rowsArray = viewPortChangeMonitor.getRowDataProvider().getRowData(foundsetPropertyViewPort.getStartIndex(),
+				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset());
+
+			Map<String, Object> viewPort = new HashMap<>();
+			PropertyDescription viewPortTypes = null;
+			viewPort.put(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.content);
+			if (rowsArray.contentType != null && rowsArray.contentType.hasChildProperties())
+			{
+				viewPortTypes = AggregatedPropertyType.newAggregatedProperty();
+				viewPortTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.contentType);
+			}
+			// convert for websocket traffic (for example Date objects will turn into long)
+			JSONUtils.writeDataWithConversions(destinationJSON, viewPort, viewPortTypes);
+		}
+	}
+
+	/**
+	 * Writes the entire value of this property as JSON. This includes the template values, not just the runtime component properties.
+	 * This is currently needed and can get called if the property is nested inside other complex properties (json object/array) that sometimes
+	 * might want/need to send again the entire content.
+	 */
+	public JSONWriter fullToJSON(JSONWriter writer, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType) throws JSONException
+	{
+		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
+
+		// create children of component as specified by this property
+		FormElement fe = formElementValue.element;
+
+		writer.object();
+
+		// get template values
+		TypedData<Map<String, Object>> modelProperties = fe.propertiesForTemplateJSON();
+		// update them with runtime values
+		TypedData<Map<String, Object>> changes = childComponent.getChanges();
+		removeRecordDependentProperties(changes);
+		for (Entry<String, Object> changeEntry : changes.content.entrySet())
+		{
+			modelProperties.content.put(changeEntry.getKey(), changeEntry.getValue());
+			if (changes.contentType != null)
+			{
+				PropertyDescription type = changes.contentType.getProperty(changeEntry.getKey());
+				if (type != null)
+				{
+					if (modelProperties.contentType == null) modelProperties.contentType = AggregatedPropertyType.newAggregatedProperty();
+					modelProperties.contentType.putProperty(changeEntry.getKey(), type);
+				}
+			}
+		}
+
+		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, fe, modelProperties);
+
+		writeWholeViewportToJSON(writer);
+
+		writer.endObject();
+
+		return writer;
 	}
 
 	protected void removeRecordDependentProperties(TypedData<Map<String, Object>> changes)

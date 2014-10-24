@@ -45,6 +45,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -57,7 +58,8 @@ import com.servoy.j2db.util.Debug;
 public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends CustomJSONObjectType<SabloT, SabloWT> implements
 	IDesignToFormElement<JSONObject, Map<String, FormElementT>, Map<String, SabloT>>,
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
-	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>
+	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>,
+	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>
 {
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
@@ -132,6 +134,13 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			writer.value(JSONObject.NULL);
 		}
 		return writer;
+	}
+
+	@Override
+	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareMap<SabloT, SabloWT> changeAwareMap, DataConversion conversionMarkers)
+		throws JSONException
+	{
+		return toJSON(writer, key, changeAwareMap, conversionMarkers, true, InitialToJSONConverter.INSTANCE);
 	}
 
 	@Override

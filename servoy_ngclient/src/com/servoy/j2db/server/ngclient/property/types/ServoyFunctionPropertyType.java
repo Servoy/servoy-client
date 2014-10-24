@@ -129,6 +129,6 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 		{
 			Debug.error(ex);
 		}
-		return JSONUtils.toBrowserJSONValue(writer, key, map, null, clientConversion);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion);
 	}
 }

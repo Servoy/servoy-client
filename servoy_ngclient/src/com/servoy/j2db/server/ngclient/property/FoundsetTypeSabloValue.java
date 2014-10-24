@@ -62,6 +62,8 @@ import com.servoy.j2db.util.Utils;
 public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 {
 
+	public static final String FOUNDSET_SELECTOR = "foundsetSelector";
+
 	/**
 	 * Column that is always automatically sent for each record in a foundset's viewport. It's value
 	 * uniquely identifies that record.
@@ -81,7 +83,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	public static final String START_INDEX = "startIndex";
 	public static final String SIZE = "size";
 	public static final String ROWS = "rows";
-	public static final String NO_OP = "noOP";
+	public static final String NO_OP = "n";
 
 	public static final String CONVERSIONS = "conversions";
 
@@ -148,7 +150,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			JSONObject spec = (JSONObject)designJSONValue;
 
 			// foundsetSelector as defined in component design XML.
-			foundsetSelector = spec.optString("foundsetSelector");
+			foundsetSelector = spec.optString(FOUNDSET_SELECTOR);
 			updateFoundset(null);
 
 			JSONArray dataProvidersJSON = spec.optJSONArray("dataProviders");
@@ -181,7 +183,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	 *
 	 * @return true if the foundset was update, false otherwise.
 	 */
-	protected boolean updateFoundset(IRecordInternal record)
+	protected void updateFoundset(IRecordInternal record)
 	{
 		IFoundSetInternal newFoundset = null;
 		if (record != null)
@@ -224,10 +226,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
 			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
-
-			return true;
 		}
-		return false;
 	}
 
 	protected FoundsetPropertySelectionListener getListSelectionListener()
@@ -240,9 +239,9 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	}
 
 	@Override
-	public boolean pushRecord(IRecordInternal record)
+	public void pushRecord(IRecordInternal record)
 	{
-		return updateFoundset(record);
+		updateFoundset(record);
 	}
 
 	@Override
@@ -406,10 +405,8 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			if (somethingChanged) destinationJSON.endObject();
 			else
 			{
-				// no change yet we are still asked to send changes; we could send all or just nothing useful
-				//destinationJSON.key(NO_OP).value(0);
-				// TODO send all for now - when the separate tagging interface for granular updates vs full updates is added we can send NO_OP again
-				toJSON(destinationJSON, conversionMarkers);
+				// no change yet we are still asked to send changes (so not full value); send a dummy NO_OP
+				destinationJSON.object().key(NO_OP).value(true).endObject();
 			}
 
 			changeMonitor.clearChanges();
@@ -558,8 +555,8 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	 */
 	public IDataAdapterList getDataAdapterList()
 	{
-		// TODO remove this or replace it with something else that can feed records to component properties
 		// this method gets called by linked component type property/properties
+		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
 		if (dataAdapterList == null)
 		{
 			dataAdapterList = new DataAdapterList(((WebComponent)webObject).findParent(IWebFormUI.class).getController());

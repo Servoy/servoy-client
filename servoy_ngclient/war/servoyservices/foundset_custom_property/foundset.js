@@ -15,7 +15,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var SIZE = "size";
 	var ROWS = "rows";
 	
-	var NO_OP = "noOP";
+	var NO_OP = "n";
 	
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
@@ -56,7 +56,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
-				if (!updates && serverJSONValue[NO_OP] !== 0) {
+				if (!updates && !serverJSONValue[NO_OP]) {
 					newValue = serverJSONValue; // not updates - so whole thing received
 					$sabloConverters.prepareInternalState(newValue);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface

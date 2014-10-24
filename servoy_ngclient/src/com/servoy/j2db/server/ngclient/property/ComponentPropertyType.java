@@ -34,6 +34,8 @@ import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.ISupportsGranularUpdates;
+import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -42,6 +44,8 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IRecordAwareType;
+import com.servoy.j2db.server.ngclient.property.types.ITemplateValueUpdaterType;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -58,7 +62,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
-	ISabloComponentToRhino<ComponentTypeSabloValue>
+	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>
 {
 
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType(null);
@@ -186,12 +190,36 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		// create children of component as specified by this property
 		FormElement fe = formElementValue.element;
 		JSONUtils.addKeyIfPresent(writer, key);
+
 		writer.object();
 
+		writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName(pd), fe, fe.propertiesForTemplateJSON());
+
+		writer.endObject();
+
+		return writer;
+	}
+
+	protected void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType, FormElement fe,
+		TypedData<Map<String, Object>> propertiesTypedData) throws JSONException
+	{
 		writer.key("componentDirectiveName").value(fe.getTypeName());
 		writer.key("name").value(fe.getName());
 		writer.key("model");
-		fe.propertiesAsTemplateJSON(writer); // full to json always uses design values
+
+		try
+		{
+			writer.object();
+			JSONUtils.writeDataWithConversions(new FormElementToJSON(fe.getDataConverterContext()), writer, propertiesTypedData.content,
+				propertiesTypedData.contentType);
+			writer.endObject();
+		}
+		catch (JSONException | IllegalArgumentException e)
+		{
+			Debug.error("Problem detected when handling a component's (" + fe.getTagname() + ") properties / events.", e);
+			throw e;
+		}
+
 		writer.key("handlers").object();
 		for (String handleMethodName : fe.getHandlers())
 		{
@@ -203,7 +231,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		}
 		writer.endObject();
 
-		if (forFoundsetTypedPropertyName(pd) != null)
+		if (forFoundsetPropertyType != null)
 		{
 			writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
 			writer.key("forFoundset").object();
@@ -227,10 +255,6 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 			}
 			writer.endObject();
 		}
-
-		writer.endObject();
-
-		return writer;
 	}
 
 	@Override
@@ -253,12 +277,35 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
+	public JSONWriter initialToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	{
+		// this sends a diff update between the value it has in the template and the initial data requested after runtime components were created or during a page refresh.
+		if (sabloValue != null)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			sabloValue.initialToJSON(writer, clientConversion);
+		}
+		return writer;
+	}
+
+	@Override
+	public JSONWriter changesToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	{
+		if (sabloValue != null)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			sabloValue.changesToJSON(writer, clientConversion);
+		}
+		return writer;
+	}
+
+	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
 	{
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.changesToJSON(writer, clientConversion, this);
+			sabloValue.fullToJSON(writer, clientConversion, this);
 		}
 		return writer;
 	}

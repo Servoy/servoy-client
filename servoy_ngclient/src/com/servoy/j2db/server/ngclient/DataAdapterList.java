@@ -51,6 +51,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 {
 	private final Map<String, Map<WebFormComponent, List<String>>> dataProviderToComponentWithTags = new HashMap<>();
 	private final Map<String, List<Pair<WebFormComponent, String>>> recordDataproviderToComponent = new HashMap<>();
+	protected final List<WebFormComponent> recordAwareComponents = new ArrayList<WebFormComponent>();
+
 	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
 	private final IWebFormController formController;
 	private final EventExecutor executor;
@@ -176,6 +178,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			list = new ArrayList<Pair<WebFormComponent, String>>();
 			recordDataproviderToComponent.put(dp, list);
 		}
+//		recordAwareComponents.add(component);
 		list.add(new Pair<WebFormComponent, String>(component, beanDataProvider));
 
 		Map<String, String> map = beanToDataHolder.get(component.getFormElement());
@@ -207,6 +210,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					dataProviderToComponentWithTags.put(dp, map);
 				}
 
+//				recordAwareComponents.add(component);
 				List<String> props = map.get(component);
 				if (props == null)
 				{
@@ -218,6 +222,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				return dp;
 			}
 		});
+	}
+
+	public void addRecordAwareComponent(WebFormComponent component)
+	{
+		if (!recordAwareComponents.contains(component)) recordAwareComponents.add(component);
+	}
+
+	public void removeRecordAwareComponent(WebFormComponent component)
+	{
+		recordAwareComponents.remove(component);
 	}
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)
@@ -238,6 +252,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				this.record.removeModificationListener(this);
 			}
 			this.record = (IRecordInternal)record;
+
+			// let complex properties of all web components know that the current record has changed
+			for (WebFormComponent comp : recordAwareComponents)
+			{
+				comp.pushRecord(this.record);
+			}
+
 			if (this.record != null)
 			{
 				pushChangedValues(null, fireChangeEvent, false);
@@ -390,13 +411,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						changed = true;
 					}
 				}
-			}
-
-			// let complex properties of all web components know that the current record has changed
-			for (WebComponent comp : webComponents)
-			{
-				WebFormComponent wc = (WebFormComponent)comp;
-				changed = wc.pushRecord(record) || changed;
 			}
 		}
 

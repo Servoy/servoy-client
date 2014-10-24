@@ -120,7 +120,7 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 		if (object != null)
 		{
 			// TODO use type info instead of null for jsonValue, depending on the type the dataprovider is linked to
-			JSONUtils.toBrowserJSONValue(writer, key, object.getJsonValue(), null, clientConversion);
+			JSONUtils.toBrowserJSONFullValue(writer, key, object.getJsonValue(), null, clientConversion);
 		}
 		return writer;
 	}

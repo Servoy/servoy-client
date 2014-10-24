@@ -125,7 +125,7 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 		map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());
 		map.put("display", format.parsedFormat.getDisplayFormat());
 
-		return JSONUtils.toBrowserJSONValue(writer, key, map, null, clientConversion);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion);
 	}
 
 	@Override

@@ -77,7 +77,7 @@ public class DatasetPropertyType implements IConvertedPropertyType<IDataSet>
 			}
 		}
 
-		return JSONUtils.toBrowserJSONValue(writer, key, array, null, clientConversion);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, array, null, clientConversion);
 	}
 
 	@Override

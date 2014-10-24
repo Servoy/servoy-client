@@ -24,6 +24,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.IRecordAwareType;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -57,6 +58,15 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 		this.dataAdapterList = dataAdapterList;
 
 		properties.put("svyMarkupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
+		for (PropertyDescription pd : fe.getWebComponentSpec().getProperties().values())
+		{
+			if (pd.getType() instanceof IRecordAwareType)
+			{
+				((DataAdapterList)dataAdapterList).addRecordAwareComponent(this);
+				break;
+			}
+		}
+
 		if (fe.getWebComponentSpec(false) != null)
 		{
 			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("tabseq"));
@@ -235,33 +245,18 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 		return "<" + getName() + ">";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
-	 */
 	@Override
 	public void intervalAdded(ListDataEvent e)
 	{
 		valueListChanged(e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
-	 */
 	@Override
 	public void intervalRemoved(ListDataEvent e)
 	{
 		valueListChanged(e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
-	 */
 	@Override
 	public void contentsChanged(ListDataEvent e)
 	{
@@ -380,21 +375,20 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	 * Notifies this component that the record it displays has changed.
 	 * @return true if any property value changed due to the execution of this method, or false otherwise.
 	 */
-	public boolean pushRecord(IRecordInternal record)
+	public void pushRecord(IRecordInternal record)
 	{
-		boolean changed = false;
 		for (String pN : getAllPropertyNames(true))
 		{
 			Object x = getProperty(pN);
-			if (x instanceof IServoyAwarePropertyValue) changed = ((IServoyAwarePropertyValue)x).pushRecord(record) || changed;
+			if (x instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)x).pushRecord(record);
 		}
-		return changed;
 	}
 
 	@Override
 	public void dispose()
 	{
 		propertyChangeSupport = null;
+		((DataAdapterList)dataAdapterList).removeRecordAwareComponent(this);
 		super.dispose();
 	}
 

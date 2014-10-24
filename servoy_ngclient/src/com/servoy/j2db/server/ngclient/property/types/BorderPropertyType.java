@@ -77,7 +77,7 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 	public JSONWriter toJSON(JSONWriter writer, String key, Border value, DataConversion clientConversion) throws JSONException
 	{
 		Map<String, Object> javaResult = writeBorderToJson(value);
-		return JSONUtils.toBrowserJSONValue(writer, key, javaResult, null, clientConversion);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, javaResult, null, clientConversion);
 	}
 
 	private Map<String, Object> writeBorderToJson(Border value)

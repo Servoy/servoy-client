@@ -109,19 +109,16 @@ public class FoundsetTypeChangeMonitor
 	 */
 	public void viewPortCompletelyChanged()
 	{
-		if (!shouldSendAll())
+		boolean changed = !viewPortDataChangeMonitor.shouldSendWholeViewport();
+		for (ViewportDataChangeMonitor vdcm : viewPortDataChangeMonitors)
 		{
-			boolean changed = !viewPortDataChangeMonitor.shouldSendWholeViewport();
-			for (ViewportDataChangeMonitor vdcm : viewPortDataChangeMonitors)
-			{
-				vdcm.viewPortCompletelyChanged();
-			}
-			if (changed)
-			{
-				// clear all more granular changes as whole viewport will be sent
-				changeFlags = changeFlags & (~SEND_VIEWPORT_BOUNDS); // clear flag
-				notifyChange();
-			}
+			vdcm.viewPortCompletelyChanged();
+		}
+		if (!shouldSendAll() && changed)
+		{
+			// clear all more granular changes as whole viewport will be sent
+			changeFlags = changeFlags & (~SEND_VIEWPORT_BOUNDS); // clear flag
+			notifyChange();
 		}
 	}
 

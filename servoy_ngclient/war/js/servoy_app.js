@@ -341,6 +341,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
 		   if (wsSession == null) throw "Session is not created yet, first call connect()";
 		   return wsSession;
 	   }
+	
+	function callService(serviceName, methodName, argsObject, async) {
+		return getSession().callService(serviceName, methodName, argsObject, async)
+	}
+
 	   return {
 		   connect: connect,
 		   // used by custom property component[] to implement nested component logic
@@ -370,6 +375,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
 			   var state = formStates[formName];
 			   // if the form is already initialized or if the beanDatas are not given, return that 
 			   if (state != null || !beanDatas) return state; 
+
+			// send the special request initial data for this form 
+			// this can also make the form (IFormUI instance) on the server if that is not already done
+			callService('formService', 'initialrequestdata', {formname:formName}, true);
 
 			   // init all the objects for the beans.
 			   var model = {};
@@ -459,9 +468,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
 			   return deferred.promise;
 		   },
 
-		   callService: function(serviceName, methodName, argsObject, async) {
-			   return getSession().callService(serviceName, methodName, argsObject, async)
-		   },
+		callService: callService,
 		   
 		   setFindMode: function(formName, findMode, editable){
 			   

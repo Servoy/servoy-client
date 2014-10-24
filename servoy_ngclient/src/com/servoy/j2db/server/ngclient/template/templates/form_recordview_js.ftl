@@ -36,9 +36,6 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 
 	var formProperties = ${propertiesString}
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope);
-	// send the special request initial data for this form 
-	// this can also make the form (IFormUI instance) on the server if that is not already done
-	$servoyInternal.callService('formService', 'initialrequestdata', {formname:'${name}'},true)
 	
 	$scope.model = formState.model;
 	$scope.api = formState.api;

@@ -26,6 +26,7 @@ import java.util.Set;
 import org.sablo.eventthread.WebsocketSessionEndpoints;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
@@ -165,7 +166,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null, null);
 			try
 			{
-				allendpoints.sendMessage(null, null, true);
+				allendpoints.sendMessage(null, null, true, FullValueToJSONConverter.INSTANCE);
 			}
 			catch (IOException e)
 			{

@@ -17,6 +17,8 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 	var CONVERSIONS = 'conversions';
 
+	var NO_OP = "n";
+
 	function getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) {
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 
@@ -96,7 +98,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				if (!done) {
 					$log.error("Can't interpret component server update correctly: " + JSON.stringify(serverJSONValue, undefined, 2));
 				}
-			} else {
+			} else if (!angular.isDefined(serverJSONValue) || !serverJSONValue[NO_OP]) {
 				// full contents received
 				newValue = serverJSONValue;
 				
