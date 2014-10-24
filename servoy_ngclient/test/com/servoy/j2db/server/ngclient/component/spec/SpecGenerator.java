@@ -159,7 +159,7 @@ public class SpecGenerator
 			"spinner.png",
 			IRepository.FIELDS,
 			com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
-			new String[] { "{\"name\":\"svy-spinner.css\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome.css\", \"version\":\"3.2.1\", \"url\":\"//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
+			new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"3.2.1\", \"url\":\"servoydefault/spinner/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
 			new String[0]));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,
