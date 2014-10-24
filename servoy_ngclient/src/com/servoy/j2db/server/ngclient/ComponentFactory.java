@@ -583,7 +583,11 @@ public class ComponentFactory
 				Point location = bc.getLocation();
 				if (startPos <= location.y && endPos >= location.y)
 				{
-					if (rowHeight < bc.getSize().height) rowHeight = bc.getSize().height;
+					if (rowHeight == 0)
+					{
+						rowHeight = bc.getSize().height;
+						break;
+					}
 				}
 			}
 		}

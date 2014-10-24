@@ -295,6 +295,7 @@ class PersistBasedFormElementImpl
 			{
 				Object[] componentFormElementValues = new Object[components.size()]; // of ComponentTypeFormElementValue type (this array of objects corresponds to CustomJSONArrayType form element value
 				int i = 0;
+				int rowHeight = 0;
 				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
 				propertyPath.add("childElements");
 				for (IPersist component : components)
@@ -324,12 +325,21 @@ class PersistBasedFormElementImpl
 
 						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe, context.getSolution());
 						propertyPath.backOneLevel();
+
+						if (portal.getMultiLine())
+						{
+							int componentRowHeight = ((IFormElement)component).getLocation().y - portal.getLocation().y +
+								((IFormElement)component).getSize().height;
+							if (rowHeight < componentRowHeight) rowHeight = componentRowHeight;
+						}
 					}
 				}
 				propertyPath.backOneLevel();
 				map.put("childElements", componentFormElementValues);
-			}
 
+				int definedRowHeight = portal.getRowHeight();
+				map.put("rowHeight", Integer.valueOf(definedRowHeight > 0 ? definedRowHeight : (portal.getMultiLine() ? rowHeight : 20)));
+			}
 		}
 		catch (IllegalArgumentException e)
 		{
