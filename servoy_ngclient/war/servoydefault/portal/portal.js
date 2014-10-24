@@ -168,10 +168,12 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 			}
 
 			var rowTemplate = ''
+			var rowWidth = 0;
 			$scope.columnDefinitions = [];
 			for (var idx = 0; idx < elements.length; idx++) {
 				var el = elements[idx]; 
 				var elY = el.model.location.y - $scope.model.location.y;
+				var elX = el.model.location.x - $scope.model.location.x;
 				var columnTitle = el.model.text;
 				if (!columnTitle) {
 					// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
@@ -191,6 +193,9 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					+ ')" svy-apply="getExternalScopes().cellApplyHandlerWrapper(row, ' + idx
 					+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"/>';
 				if($scope.model.multiLine) { 
+					if (rowWidth < (elX + el.model.size.width) ) {
+						rowWidth = elX + el.model.size.width;
+					}
 					rowTemplate = rowTemplate + '<div ng-style="getExternalScopes().getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
 				}
 				else {
@@ -209,7 +214,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 
 			if($scope.model.multiLine) {
 				$scope.columnDefinitions.push({
-					width: '100%',
+					width: rowWidth,
 					cellTemplate: rowTemplate,
 					name: "unique",
 					editableCellTemplate: rowTemplate
