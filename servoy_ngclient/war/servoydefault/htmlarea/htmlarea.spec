@@ -3,7 +3,7 @@
 	"displayName": "Html Area",
 	"icon": "servoydefault/htmlarea/H1_C16.png",
 	"definition": "servoydefault/htmlarea/htmlarea.js",
-	"libraries": [{"name":"tinymce.min.js", "version":"4.0.20", "url":"servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "mimetype":"text/javascript"},{"name":"ui-tinymce.js", "version":"1", "url":"servoydefault/htmlarea/lib/ui-tinymce.js", "mimetype":"text/javascript"}],
+	"libraries": [{"name":"tinymce", "version":"4.0.20", "url":"servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "mimetype":"text/javascript"},{"name":"ui-tinymce", "version":"1", "url":"servoydefault/htmlarea/lib/ui-tinymce.js", "mimetype":"text/javascript"}],
 	"model":
 	{
 	        "background" : "color", 

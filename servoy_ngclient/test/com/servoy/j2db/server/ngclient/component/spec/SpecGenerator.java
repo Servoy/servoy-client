@@ -93,7 +93,7 @@ public class SpecGenerator
 			"Calendar_C16.png",
 			IRepository.FIELDS,
 			IRuntimeCalendar.class,
-			new String[] { "{\"name\":\"moment.js\", \"version\":\"2.6.0\", \"url\": \"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker.js\", \"version\":\"3.0.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker.css\", \"version\":\"3.0.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css\", \"mimetype\":\"text/css\"}" }));
+			new String[] { "{\"name\":\"moment\", \"version\":\"2.6.0\", \"url\": \"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"3.0.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"3.0.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check Group",  null, IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel(
 			"combobox",
@@ -102,7 +102,7 @@ public class SpecGenerator
 			"SELECT16.png",
 			IRepository.FIELDS,
 			IRuntimeCombobox.class,
-			new String[] { "{\"name\":\"ui-select.js\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.js\", \"mimetype\":\"text/javascript\"},{\"name\":\"ui-select.css\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.css\", \"mimetype\":\"text/css\"}"
+			new String[] { "{\"name\":\"ui-select\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.js\", \"mimetype\":\"text/javascript\"},{\"name\":\"ui-select\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.css\", \"mimetype\":\"text/css\"}"
 			// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 			}));
 		specTemplateList.add(new SpecTemplateModel("label", "Label",  "text.gif", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
@@ -110,10 +110,10 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("textfield", "Text Field",  "textinput.png", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("typeahead", "Type Ahead ",  "bhdropdownlisticon.gif", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab Panel",  "tabs.gif", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,
-			new String[] { "{\"name\":\"accordionpanel.css\", \"version\":\"1\", \"url\":\"servoydefault/tabpanel/accordionpanel.css\", \"mimetype\":\"text/css\"}" },"servoydefault/tabpanel/tabpanel_server.js"));
+			new String[] { "{\"name\":\"accordionpanel\", \"version\":\"1\", \"url\":\"servoydefault/tabpanel/accordionpanel.css\", \"mimetype\":\"text/css\"}" },"servoydefault/tabpanel/tabpanel_server.js"));
 		specTemplateList.add(new SpecTemplateModel("password", "Password Field",  "password_field_16.png", IRepository.FIELDS, IRuntimePassword.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area",  "H1_C16.png", IRepository.FIELDS, IRuntimeHtmlArea.class,
-			new String[] { "{\"name\":\"tinymce.min.js\", \"version\":\"4.0.20\", \"url\":\"servoydefault/htmlarea/lib/tinymce/tinymce.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"ui-tinymce.js\", \"version\":\"1\", \"url\":\"servoydefault/htmlarea/lib/ui-tinymce.js\", \"mimetype\":\"text/javascript\"}" }));
+			new String[] { "{\"name\":\"tinymce\", \"version\":\"4.0.20\", \"url\":\"servoydefault/htmlarea/lib/tinymce/tinymce.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"ui-tinymce\", \"version\":\"1\", \"url\":\"servoydefault/htmlarea/lib/ui-tinymce.js\", \"mimetype\":\"text/javascript\"}" }));
 		specTemplateList.add(new SpecTemplateModel("htmlview", "Html View",  null, IRepository.FIELDS, IRuntimeHtmlArea.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("textarea", "Text Area",  "TEXTAREA16.png", IRepository.FIELDS, IRuntimeTextArea.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("check", "Check",  "CHECKBOX16.png", IRepository.FIELDS, IRuntimeCheck.class, new String[0]));
@@ -126,7 +126,7 @@ public class SpecGenerator
 			"split.gif",
 			IRepository.TABPANELS,
 			com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
-			new String[] { "{\"name\":\"bg-splitter.js\", \"version\":\"1\", \"url\":\"servoydefault/splitpane/bg-splitter/js/splitter.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bg-splitter.css\", \"version\":\"1\", \"url\":\"servoydefault/splitpane/bg-splitter/css/style.css\", \"mimetype\":\"text/css\"}" },
+			new String[] { "{\"name\":\"bg-splitter\", \"version\":\"1\", \"url\":\"servoydefault/splitpane/bg-splitter/js/splitter.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bg-splitter\", \"version\":\"1\", \"url\":\"servoydefault/splitpane/bg-splitter/css/style.css\", \"mimetype\":\"text/css\"}" },
 			null,
 			// @formatter:off
 			new ApiMethod[] {
@@ -151,7 +151,7 @@ public class SpecGenerator
 			"portal.gif",
 			IRepository.PORTALS,
 			com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-			new String[] { "{\"name\":\"svy-portal.css\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"},\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},\n\t\t\t\t"
+			new String[] { "{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"},\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},\n\t\t\t\t"
 				+ "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel(
 			"spinner",
