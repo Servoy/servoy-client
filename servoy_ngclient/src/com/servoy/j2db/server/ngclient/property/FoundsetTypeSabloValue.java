@@ -222,6 +222,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			foundset = newFoundset;
 			viewPort.setFoundset(foundset);
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
+			changeMonitor.selectionChanged();
 			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
 
 			return true;
