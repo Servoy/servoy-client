@@ -167,8 +167,11 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 						f(rowProxyObjects[pk][elementIndex], pk, elementIndex);
 			}
 
+			$scope.rowHeight = $scope.model.rowHeight;
+
 			var rowTemplate = ''
 			var rowWidth = 0;
+			
 			$scope.columnDefinitions = [];
 			for (var idx = 0; idx < elements.length; idx++) {
 				var el = elements[idx]; 
@@ -193,12 +196,18 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					+ ')" svy-apply="getExternalScopes().cellApplyHandlerWrapper(row, ' + idx
 					+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"/>';
 				if($scope.model.multiLine) { 
+					if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
+						$scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
+					}
 					if (rowWidth < (elX + el.model.size.width) ) {
 						rowWidth = elX + el.model.size.width;
 					}
 					rowTemplate = rowTemplate + '<div ng-style="getExternalScopes().getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
 				}
 				else {
+					if($scope.rowHeight == undefined) {
+						$scope.rowHeight = el.model.size.height;
+					}
 					$scope.columnDefinitions.push({
 						name:el.name,
 						displayName: columnTitle,
@@ -548,7 +557,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					useExternalSorting: true,
 					primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
 					columnDefs: $scope.columnDefinitions,
-					rowHeight: $scope.model.rowHeight ? $scope.model.rowHeight : 20,
+					rowHeight: $scope.rowHeight?$scope.rowHeight:20,
 					hideHeader:$scope.model.headerHeight == 0 || $scope.model.multiLine,
 					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight
 			};
