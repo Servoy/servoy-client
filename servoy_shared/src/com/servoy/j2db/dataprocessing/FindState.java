@@ -48,7 +48,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * This class is passed as value by the JEditListModel(==FormModel) and represents 1 row
- * 
+ *
  * @author jblok
  */
 public class FindState implements Scriptable, IRecordInternal, Serializable, IJSRecord
@@ -110,7 +110,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	/**
 	 * Store columns, aggregates and calculations in find state. Default find will ignore calculations and aggregates but onSearch method may use them in
 	 * customized searches.
-	 * 
+	 *
 	 * @param dataProviderID
 	 * @return
 	 */
@@ -124,7 +124,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	/**
 	 * called by data adapter for a new value (calcs MUST recalc)
-	 * 
+	 *
 	 * @param dataProviderID the data requested for
 	 */
 	public Object getValue(String dataProviderID)
@@ -141,7 +141,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
-			// Do return the global values, needed for global relations. 
+			// Do return the global values, needed for global relations.
 			return parent.getDataProviderValue(dataProviderID);
 		}
 
@@ -219,7 +219,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 			}
 		}
 
-		Debug.log("Ignoring unknown data provider '" + dataProviderID + "' in find mode"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		Debug.log("Ignoring unknown data provider '" + dataProviderID + "' in find mode"); //$NON-NLS-1$ //$NON-NLS-2$
 		return null;
 	}
 
@@ -508,7 +508,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 						String reason = "";
 						if (r.isGlobal()) reason = "global relation";
 						else if (r.isMultiServer()) reason = "multi server";
-						else if (r.isValid()) reason = "server/table not valid/loaded";
+						else if (!r.isValid()) reason = "server/table not valid/loaded";
 						else
 						{
 							reason = "relation primary datasource: " + r.getPrimaryDataSource() + " != findstate primary datasource: " + parent.getDataSource();
@@ -707,7 +707,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Component#toString()
 	 */
 	@Override
@@ -779,7 +779,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	/**
 	 * @author rgansevles
-	 * 
+	 *
 	 */
 	public static class RelatedFindState
 	{
