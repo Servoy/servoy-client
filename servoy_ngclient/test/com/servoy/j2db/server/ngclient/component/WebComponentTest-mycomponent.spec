@@ -1,5 +1,5 @@
 {
-	"name": "mycomponent",
+	"name": "my-component",
 	"displayName": "My Component",
 	"definition": "mycomponent.js",
 	"libraries": [],

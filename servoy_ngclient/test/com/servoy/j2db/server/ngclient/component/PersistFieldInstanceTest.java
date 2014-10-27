@@ -259,7 +259,7 @@ public class PersistFieldInstanceTest
 
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
-		Bean bean = form.createNewBean("mycustombean", "TestComponents:mycomponent");
+		Bean bean = form.createNewBean("mycustombean", "my-component");
 		bean.setInnerHTML("{atype:{name:'name',text:'i18n:servoy.button.ok'}}");
 		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
@@ -290,7 +290,7 @@ public class PersistFieldInstanceTest
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
 
-		Bean bean = form.createNewBean("mycustombean", "TestComponents:mycomponent");
+		Bean bean = form.createNewBean("mycustombean", "my-component");
 		bean.setInnerHTML("{atype:{name:'name',form:'tabform'}}");
 		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
