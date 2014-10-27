@@ -36,6 +36,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -145,7 +146,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public Map<String, SabloT> toSabloComponentValue(Map<String, FormElementT> formElementValue, PropertyDescription pd, FormElement formElement,
-		WebFormComponent component)
+		WebFormComponent component, DataAdapterList dal)
 	{
 		if (formElementValue != null)
 		{
@@ -153,7 +154,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
 				map.put(e.getKey(), (SabloT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(),
-					getCustomJSONTypeDefinition().getProperty(e.getKey()), formElement, component));
+					getCustomJSONTypeDefinition().getProperty(e.getKey()), formElement, component, dal));
 			}
 			return map;
 		}

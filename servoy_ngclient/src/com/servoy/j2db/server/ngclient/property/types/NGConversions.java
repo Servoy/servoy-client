@@ -29,6 +29,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -122,7 +123,7 @@ public class NGConversions
 		 * @param component the component to which the returned value will be assigned as a property
 		 * @return the converted value, ready to be put in the web component property
 		 */
-		T toSabloComponentValue(F formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component);
+		T toSabloComponentValue(F formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList);
 
 	}
 
@@ -291,14 +292,15 @@ public class NGConversions
 	/**
 	 * Conversion 3 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
-	public Object convertFormElementToSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component)
+	public Object convertFormElementToSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
+		DataAdapterList dal)
 	{
 		IPropertyType< ? > type = pd.getType();
 		if (formElementValue != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 		{
 			if (type instanceof IFormElementToSabloComponent)
 			{
-				return ((IFormElementToSabloComponent)type).toSabloComponentValue(formElementValue, pd, formElement, component);
+				return ((IFormElementToSabloComponent)type).toSabloComponentValue(formElementValue, pd, formElement, component, dal);
 			}
 			return formElementValue;
 		}

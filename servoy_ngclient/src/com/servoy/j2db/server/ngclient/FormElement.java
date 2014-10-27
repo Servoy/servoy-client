@@ -410,7 +410,7 @@ public final class FormElement implements IWebComponentInitializer
 	 *
 	 * This uses 'Conversion 3' (see {@link NGConversions})
 	 */
-	public Object getPropertyValueConvertedForWebComponent(String propertyName, WebFormComponent component)
+	public Object getPropertyValueConvertedForWebComponent(String propertyName, WebFormComponent component, DataAdapterList dal)
 	{
 //		// TODO remove this delegation when going with tree structure , this is needed for DataAdapterList which 'thinks' everything is flat
 //		String[] split = name.split("\\.");
@@ -423,7 +423,7 @@ public final class FormElement implements IWebComponentInitializer
 		if (propertyValues.containsKey(propertyName))
 		{
 			if (propertyDescription != null) return NGConversions.INSTANCE.convertFormElementToSabloComponentValue(getRawPropertyValue(propertyName),
-				propertyDescription, this, component);
+				propertyDescription, this, component, dal);
 			else return getPropertyValue(propertyName); // just in case this method gets called for events for example (which are currently stored in the same map)
 		}
 

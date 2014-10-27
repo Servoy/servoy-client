@@ -49,6 +49,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Tab;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -87,7 +88,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
 		 */
 		@Override
@@ -139,7 +140,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.persistence.IPersistChangeListener#persistChanges(java.util.Collection)
 		 */
 		@Override
@@ -235,7 +236,9 @@ public class Activator implements BundleActivator
 														break outer;
 													}
 													webComponent.setFormElement(newFe);
-													webComponent.setProperty(property, newFe.getPropertyValueConvertedForWebComponent(property, webComponent));
+													webComponent.setProperty(property, newFe.getPropertyValueConvertedForWebComponent(property, webComponent,
+														formUI.getDataAdapterList() instanceof DataAdapterList ? (DataAdapterList)formUI.getDataAdapterList()
+															: null));
 
 												}
 											}
@@ -293,15 +296,15 @@ public class Activator implements BundleActivator
 					@Override
 					public IWebsocketSession createSession(String uuid) throws Exception
 					{
-								if (designerSession == null || !designerSession.isValid())
-								{
-									final IDesignerSolutionProvider solutionProvider = ApplicationServerRegistry.getServiceRegistry().getService(
-										IDesignerSolutionProvider.class);
-									designerSession = new DesignNGClientWebsocketSession(uuid);
-									DesignNGClient client = new DeveloperDesignClient(designerSession, solutionProvider);
-									designerSession.setClient(client);
-								}
-								return designerSession;
+						if (designerSession == null || !designerSession.isValid())
+						{
+							final IDesignerSolutionProvider solutionProvider = ApplicationServerRegistry.getServiceRegistry().getService(
+								IDesignerSolutionProvider.class);
+							designerSession = new DesignNGClientWebsocketSession(uuid);
+							DesignNGClient client = new DeveloperDesignClient(designerSession, solutionProvider);
+							designerSession.setClient(client);
+						}
+						return designerSession;
 					}
 				});
 			}

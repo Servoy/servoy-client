@@ -165,7 +165,7 @@ public class ComponentFactory
 			for (String propName : fe.getRawPropertyValues().keySet())
 			{
 				if (componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
-				Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent);
+				Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
 				if (value == null) continue;
 				fillProperties(fe.getForm(), fe, value, componentSpec.getProperty(propName), (DataAdapterList)dataAdapterList, webComponent, webComponent, "",
 					application);
@@ -238,17 +238,6 @@ public class ComponentFactory
 						}
 						break;
 					}
-					case "tagstring" : // array of taggstring is not supported yet (DAL does not support arrays)
-					{
-						Debug.error("Array of tagstring currently not supported dataprovider");
-						//bind tag expressions
-						//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
-						if (propValue != null && propValue instanceof String && (((String)propValue).contains("%%")) || ((String)propValue).startsWith("i18n:"))
-						{
-							dal.addTaggedProperty(component, level + propertySpec.getName(), (String)propValue);
-						}
-						break;
-					}
 					default :
 					{
 						processedArray.add(propValue);
@@ -274,17 +263,6 @@ public class ComponentFactory
 					if (dataproviderID instanceof String)
 					{
 						dal.add(component, (String)dataproviderID, level + propName);
-						return;
-					}
-					break;
-				}
-				case "tagstring" : // array of taggstring is not supported yet (DAL does not support arrays)
-				{
-					//bind tag expressions
-					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
-					if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
-					{
-						dal.addTaggedProperty(component, level + propName, (String)propValue);
 						return;
 					}
 					break;

@@ -25,10 +25,13 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType.TagStringWrapper;
 import com.servoy.j2db.util.HtmlUtils;
@@ -39,7 +42,7 @@ import com.servoy.j2db.util.HtmlUtils;
  *
  */
 public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>,
-	ISupportTemplateValue<String>, IRecordAwareType<String>
+	ISupportTemplateValue<String>, IRecordAwareType<String>, IFormElementToSabloComponent<Object, Object>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -97,12 +100,6 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 			writer.value(object.getJsonValue());
 		}
 		return writer;
-	}
-
-	@Override
-	public TagStringWrapper defaultValue()
-	{
-		return null;
 	}
 
 	@Override
@@ -174,5 +171,38 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	{
 		if (formElementValue == null) return false;
 		return formElementValue.contains("%%");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sablo.specification.property.IPropertyType#defaultValue()
+	 */
+	@Override
+	public Object defaultValue()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent#toSabloComponentValue(java.lang.Object,
+	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
+	 * com.servoy.j2db.server.ngclient.DataAdapterList)
+	 */
+	@Override
+	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
+	{
+
+		if (formElementValue != null && formElementValue instanceof String && (((String)formElementValue).contains("%%")) ||
+			((String)formElementValue).startsWith("i18n:"))
+		{
+			dataAdapterList.addTaggedProperty(component, pd.getName(), (String)formElementValue);
+		}
+
+		return formElementValue;
 	}
 }
