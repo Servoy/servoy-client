@@ -330,20 +330,11 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			})});
 	};
 }).directive('svyAutoapply', function($servoyInternal,$parse,$log) {
-<<<<<<< Upstream, based on origin/master
     return {
       restrict: 'A', // only activate on element attribute
       require: '?ngModel', // get a hold of NgModelController
       link: function(scope, element, attrs, ngModel) {
         if(!ngModel || element.attr("svy-autoapply-disabled")) return; // do nothing if no ng-model
-=======
-	return {
-		restrict: 'A', // only activate on element attribute
-		require: '?ngModel', // get a hold of NgModelController
-		link: function(scope, element, attrs, ngModel) {
-			if(!ngModel) return; // do nothing if no ng-model
->>>>>>> 0a562a7 Implemented SVY-7148 : Add a clear separation for types between FULL toJSON and CHANGES toJSON
-
 			var dataproviderString = attrs.ngModel;
 			var index = dataproviderString.indexOf('.');
 			if (index > 0) {

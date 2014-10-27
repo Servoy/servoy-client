@@ -243,7 +243,7 @@ public class PersistFieldInstanceTest
 
 		Assert.assertEquals(1, changes.content.size());
 
-		String json = JSONUtils.writeDataWithConversions(changes.content, changes.contentType);
+		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType);
 
 		Assert.assertEquals(
 			"{\"tabs\":{\"vEr\":2,\"u\":[{\"i\":0,\"v\":{\"vEr\":2,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"tabs\":\"JSON_arr\"}}",
