@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
@@ -80,7 +81,8 @@ public class FormTemplateGenerator
 		}
 		catch (TemplateException e)
 		{
-			throw new RuntimeException(e);
+			NGClientWebsocketSession.sendInternalError(e);
+			Debug.error(e);
 		}
 	}
 
