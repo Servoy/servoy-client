@@ -485,12 +485,12 @@ angular.module('servoyApp', ['servoy','webStorageModule','servoy-components', 'w
 			   			{
 			   				if (findMode)
 						    {
-							   formState.model[beanName].readOnlyBeforeFindMode = formState.model[beanName].readOnly;
+							   formState.model[beanName].svy_readOnlyBeforeFindMode = formState.model[beanName].readOnly;
 							   formState.model[beanName].readOnly = true;
 						    }
 						    else
 						    {
-							   formState.model[beanName].readOnly = formState.model[beanName].readOnlyBeforeFindMode;
+							   formState.model[beanName].readOnly = formState.model[beanName].svy_readOnlyBeforeFindMode;
 						    }
 			   			}
 			   			formState.getScope().$digest();

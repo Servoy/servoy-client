@@ -675,12 +675,12 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 						var isEditable;
 						if (findMode)
 						{
-							$scope.model.childElements[i].model.wasEditable = $scope.model.childElements[i].model.editable;
+							$scope.model.childElements[i].model.svy_wasEditable = $scope.model.childElements[i].model.editable;
 							isEditable = editable;
 						}
 						else
 						{
-							isEditable = $scope.model.childElements[i].model.wasEditable;
+							isEditable = $scope.model.childElements[i].model.svy_wasEditable;
 						}
 						$scope.model.childElements[i].api.setFindMode(findMode, isEditable);
 					}
@@ -688,12 +688,12 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					{
 						if (findMode)
 						{
-							$scope.model.childElements[i].model.readOnlyBeforeFindMode = $scope.model.childElements[i].model.readOnly;
+							$scope.model.childElements[i].model.svy_readOnlyBeforeFindMode = $scope.model.childElements[i].model.readOnly;
 							$scope.model.childElements[i].model.readOnly = !editable;
 						}
 						else
 						{
-							$scope.model.childElements[i].model.readOnly = $scope.model.childElements[i].model.readOnlyBeforeFindMode;
+							$scope.model.childElements[i].model.readOnly = $scope.model.childElements[i].model.svy_readOnlyBeforeFindMode;
 						}
 					}
 				}
