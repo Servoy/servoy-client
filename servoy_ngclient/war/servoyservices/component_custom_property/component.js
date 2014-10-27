@@ -36,7 +36,6 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	function getBeanPropertyChangeNotifier(propertyValue, componentScope) {
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 		return function (oldBeanModel) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
-			if (!internalState.requests) internalState.requests = [];
 			internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) });
 			if (internalState.notifier) internalState.notifier();
 		};
@@ -107,7 +106,6 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
 					var executeHandler = function(type,event,row) {
-						if (!internalState.requests) internalState.requests = [];
 						var newargs = $utils.getEventArgs(event,type);
 						internalState.requests.push({ handlerExec: {
 							eventType: type,
@@ -124,6 +122,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					internalState.isChanged = function() { return internalState.requests && (internalState.requests.length > 0); }
 
 					// private impl
+					internalState.requests = [];
 					internalState.beanLayout = null; // not really useful right now; just to be able to reuse existing form code 
 
 					internalState.modelUnwatch = null;
@@ -165,8 +164,6 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					
 					/** rowId is only needed if the component is linked to a foundset */
 					serverJSONValue.apply =  function(property, componentModel, rowId) {
-						if (!internalState.requests) internalState.requests = [];
-						
 						var conversionInfo = internalState[CONVERSIONS];
 						var propertyValue = componentModel[property];
 
@@ -192,8 +189,6 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					serverJSONValue.servoyApi = {
 							/** rowId is only needed if the component is linked to a foundset */
 							startEdit: function(property, rowId) {
-								if (!internalState.requests) internalState.requests = [];
-
 								var req = { svyStartEdit: {} };
 								
 								req.svyStartEdit[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
@@ -225,7 +220,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				var internalState = newClientData[$sabloConverters.INTERNAL_IMPL];
 				if (internalState.isChanged()) {
 					var tmp = internalState.requests;
-					internalState.requests = null;
+					internalState.requests = [];
 					return tmp;
 				}
 			}
