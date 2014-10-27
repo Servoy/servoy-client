@@ -4,7 +4,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
     CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
     CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $utils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants) {
+.run(function ($sabloConverters, $sabloUtils, $utils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
