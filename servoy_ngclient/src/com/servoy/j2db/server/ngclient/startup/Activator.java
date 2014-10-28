@@ -88,7 +88,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
 		 */
 		@Override
@@ -140,7 +140,7 @@ public class Activator implements BundleActivator
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.persistence.IPersistChangeListener#persistChanges(java.util.Collection)
 		 */
 		@Override
@@ -161,7 +161,7 @@ public class Activator implements BundleActivator
 					{
 						if (parent instanceof Form)
 						{
-							List<IFormElement> list = frms.get(persist);
+							List<IFormElement> list = frms.get(parent);
 							if (list == null)
 							{
 								list = new ArrayList<>();
