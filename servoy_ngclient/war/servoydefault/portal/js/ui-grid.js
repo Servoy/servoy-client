@@ -1,4 +1,4 @@
-/*! ui-grid - v - 2014-10-21
+/*! ui-grid - v3.0.0-rc.12-6bc8d14 - 2014-10-28
 * Copyright (c) 2014 ; License: MIT */
 (function () {
   'use strict';
@@ -14583,8 +14583,8 @@ module.filter('px', function() {
   });
 
 
-  module.service('uiGridResizeColumnsService', ['gridUtil','$q',
-    function (gridUtil,$q) {
+  module.service('uiGridResizeColumnsService', ['gridUtil', '$q',
+    function (gridUtil, $q) {
 
       var service = {
         defaultGridOptions: function(gridOptions){
@@ -14641,6 +14641,41 @@ module.filter('px', function() {
           }
 
           return $q.all(promises);
+        },
+        
+        registerPublicApi: function (grid) {
+            /**
+             *  @ngdoc object
+             *  @name ui.grid.resizeColumns.api:PublicApi
+             *  @description Public Api for column resize feature.
+             */
+            var publicApi = {
+              events: {
+                /**
+                 * @ngdoc event
+                 * @name columnSizeChanged
+                 * @eventOf  ui.grid.resizeColumns.api:PublicApi
+                 * @description raised when column is resized
+                 * <pre>
+                 *      gridApi.colResizable.on.columnSizeChanged(scope,function(colDef, deltaChange){})
+                 * </pre>
+                 * @param {object} colDef the column that was resized
+                 * @param {integer} delta of the column size change
+                 */
+                colResizable: {
+                  columnSizeChanged: function (colDef, deltaChange) {
+                  }
+                }
+              }
+            };
+            grid.api.registerEventsFromObject(publicApi.events);
+        },
+        
+        fireColumnSizeChanged: function (grid, colDef, deltaChange) {
+            if (!grid.api.colResizable) {
+                service.registerPublicApi(grid);
+              }
+            grid.api.colResizable.raise.columnSizeChanged(colDef, deltaChange);
         }
       };
 
@@ -14693,11 +14728,10 @@ module.filter('px', function() {
       scope: false,
       compile: function () {
         return {
-          pre: function ($scope, $elm, $attrs, uiGridCtrl) {
-
+          pre: function ($scope, $elm, $attrs, uiGridCtrl) {            
             uiGridResizeColumnsService.defaultGridOptions(uiGridCtrl.grid.options);
             uiGridCtrl.grid.registerColumnBuilder( uiGridResizeColumnsService.colResizerColumnBuilder);
-
+            uiGridResizeColumnsService.registerPublicApi(uiGridCtrl.grid);
           },
           post: function ($scope, $elm, $attrs, uiGridCtrl) {
           }
@@ -14802,7 +14836,7 @@ module.filter('px', function() {
      </doc:scenario>
    </doc:example>
    */  
-  module.directive('uiGridColumnResizer', ['$document', 'gridUtil', 'uiGridConstants', 'columnBounds', function ($document, gridUtil, uiGridConstants, columnBounds) {
+  module.directive('uiGridColumnResizer', ['$document', 'gridUtil', 'uiGridConstants', 'columnBounds', 'uiGridResizeColumnsService', function ($document, gridUtil, uiGridConstants, columnBounds, uiGridResizeColumnsService) {
     var resizeOverlay = angular.element('<div class="ui-grid-resize-overlay"></div>');
 
     var resizer = {
@@ -14964,6 +14998,8 @@ module.filter('px', function() {
 
           buildColumnsAndRefresh(xDiff);
 
+          uiGridResizeColumnsService.fireColumnSizeChanged(uiGridCtrl.grid, col.colDef, xDiff);
+
           $document.off('mouseup', mouseup);
           $document.off('mousemove', mousemove);
         }
@@ -15067,6 +15103,8 @@ module.filter('px', function() {
           resizeAroundColumn(col);
 
           buildColumnsAndRefresh(xDiff);
+          
+          uiGridResizeColumnsService.fireColumnSizeChanged(uiGridCtrl.grid, col.colDef, xDiff);
         });
 
         $elm.on('$destroy', function() {
@@ -16433,24 +16471,43 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/ui-grid',
-    "<div ui-i18n=\"en\" class=\"ui-grid\"><!-- TODO (c0bra): add \"scoped\" attr here, eventually? --><style ui-grid-style>.grid{{ grid.id }} {\n" +
-    "      /* Styles for the grid */\n" +
-    "    }\n" +
+    "<div ui-i18n=\"en\" class=\"ui-grid\"><!-- TODO (c0bra): add \"scoped\" attr here, eventually? --><style ui-grid-style>.grid{{ grid.id }} {\r" +
     "\n" +
-    "    .grid{{ grid.id }} .ui-grid-row, .grid{{ grid.id }} .ui-grid-cell, .grid{{ grid.id }} .ui-grid-cell .ui-grid-vertical-bar {\n" +
-    "      height: {{ grid.options.rowHeight }}px;\n" +
-    "    }\n" +
+    "      /* Styles for the grid */\r" +
     "\n" +
-    "    .grid{{ grid.id }} .ui-grid-row:last-child .ui-grid-cell {\n" +
-    "      border-bottom-width: {{ ((grid.getTotalRowHeight() < grid.getViewportHeight()) && '1') || '0' }}px;\n" +
-    "    }\n" +
+    "    }\r" +
     "\n" +
-    "    {{ grid.verticalScrollbarStyles }}\n" +
-    "    {{ grid.horizontalScrollbarStyles }}\n" +
+    "\r" +
     "\n" +
-    "    .ui-grid[dir=rtl] .ui-grid-viewport {\n" +
-    "      padding-left: {{ grid.verticalScrollbarWidth }}px;\n" +
-    "    }\n" +
+    "    .grid{{ grid.id }} .ui-grid-row, .grid{{ grid.id }} .ui-grid-cell, .grid{{ grid.id }} .ui-grid-cell .ui-grid-vertical-bar {\r" +
+    "\n" +
+    "      height: {{ grid.options.rowHeight }}px;\r" +
+    "\n" +
+    "    }\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    .grid{{ grid.id }} .ui-grid-row:last-child .ui-grid-cell {\r" +
+    "\n" +
+    "      border-bottom-width: {{ ((grid.getTotalRowHeight() < grid.getViewportHeight()) && '1') || '0' }}px;\r" +
+    "\n" +
+    "    }\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    {{ grid.verticalScrollbarStyles }}\r" +
+    "\n" +
+    "    {{ grid.horizontalScrollbarStyles }}\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    .ui-grid[dir=rtl] .ui-grid-viewport {\r" +
+    "\n" +
+    "      padding-left: {{ grid.verticalScrollbarWidth }}px;\r" +
+    "\n" +
+    "    }\r" +
+    "\n" +
+    "\r" +
     "\n" +
     "    {{ grid.customStyles }}</style><div ui-grid-menu-button ng-if=\"grid.options.enableGridMenu\"></div><div ui-grid-render-container container-id=\"'body'\" col-container-name=\"'body'\" row-container-name=\"'body'\" bind-scroll-horizontal=\"true\" bind-scroll-vertical=\"true\" enable-horizontal-scrollbar=\"grid.options.enableScrollbars || grid.options.enableHorizontalScrollbar\" enable-vertical-scrollbar=\"grid.options.enableScrollbars || grid.options.enableVerticalScrollbar\"></div><div ui-grid-column-menu ng-if=\"grid.options.enableColumnMenus\"></div><div ng-transclude></div></div>"
   );
@@ -16467,16 +16524,26 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/uiGridColumnMenu',
-    "<div class=\"ui-grid-column-menu\"><div ui-grid-menu menu-items=\"menuItems\"><!-- <div class=\"ui-grid-column-menu\">\n" +
-    "    <div class=\"inner\" ng-show=\"menuShown\">\n" +
-    "      <ul>\n" +
-    "        <div ng-show=\"grid.options.enableSorting\">\n" +
-    "          <li ng-click=\"sortColumn($event, asc)\" ng-class=\"{ 'selected' : col.sort.direction == asc }\"><i class=\"ui-grid-icon-sort-alt-up\"></i> Sort Ascending</li>\n" +
-    "          <li ng-click=\"sortColumn($event, desc)\" ng-class=\"{ 'selected' : col.sort.direction == desc }\"><i class=\"ui-grid-icon-sort-alt-down\"></i> Sort Descending</li>\n" +
-    "          <li ng-show=\"col.sort.direction\" ng-click=\"unsortColumn()\"><i class=\"ui-grid-icon-cancel\"></i> Remove Sort</li>\n" +
-    "        </div>\n" +
-    "      </ul>\n" +
-    "    </div>\n" +
+    "<div class=\"ui-grid-column-menu\"><div ui-grid-menu menu-items=\"menuItems\"><!-- <div class=\"ui-grid-column-menu\">\r" +
+    "\n" +
+    "    <div class=\"inner\" ng-show=\"menuShown\">\r" +
+    "\n" +
+    "      <ul>\r" +
+    "\n" +
+    "        <div ng-show=\"grid.options.enableSorting\">\r" +
+    "\n" +
+    "          <li ng-click=\"sortColumn($event, asc)\" ng-class=\"{ 'selected' : col.sort.direction == asc }\"><i class=\"ui-grid-icon-sort-alt-up\"></i> Sort Ascending</li>\r" +
+    "\n" +
+    "          <li ng-click=\"sortColumn($event, desc)\" ng-class=\"{ 'selected' : col.sort.direction == desc }\"><i class=\"ui-grid-icon-sort-alt-down\"></i> Sort Descending</li>\r" +
+    "\n" +
+    "          <li ng-show=\"col.sort.direction\" ng-click=\"unsortColumn()\"><i class=\"ui-grid-icon-cancel\"></i> Remove Sort</li>\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "      </ul>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
     "  </div> --></div></div>"
   );
 
@@ -16522,7 +16589,8 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/expandableRow',
-    "<div ui-grid-expandable-row ng-if=\"expandableRow.shouldRenderExpand()\" class=\"expandableRow\" style=\"float:left; margin-top: 1px; margin-bottom: 1px\" ng-style=\"{width: (grid.renderContainers.body.getCanvasWidth() - grid.verticalScrollbarWidth) + 'px'\n" +
+    "<div ui-grid-expandable-row ng-if=\"expandableRow.shouldRenderExpand()\" class=\"expandableRow\" style=\"float:left; margin-top: 1px; margin-bottom: 1px\" ng-style=\"{width: (grid.renderContainers.body.getCanvasWidth() - grid.verticalScrollbarWidth) + 'px'\r" +
+    "\n" +
     "     , height: grid.options.expandableRowHeight + 'px'}\"></div>"
   );
 
@@ -16533,8 +16601,10 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/expandableScrollFiller',
-    "<div ng-if=\"expandableRow.shouldRenderFiller()\" style=\"float:left; margin-top: 2px; margin-bottom: 2px\" ng-style=\"{ width: (grid.getViewportWidth()) + 'px',\n" +
-    "              height: grid.options.expandableRowHeight + 'px', 'margin-left': grid.options.rowHeader.rowHeaderWidth + 'px' }\"><i class=\"ui-grid-icon-spin5 ui-grid-animate-spin\" ng-style=\"{ 'margin-top': ( grid.options.expandableRowHeight/2 - 5) + 'px',\n" +
+    "<div ng-if=\"expandableRow.shouldRenderFiller()\" style=\"float:left; margin-top: 2px; margin-bottom: 2px\" ng-style=\"{ width: (grid.getViewportWidth()) + 'px',\r" +
+    "\n" +
+    "              height: grid.options.expandableRowHeight + 'px', 'margin-left': grid.options.rowHeader.rowHeaderWidth + 'px' }\"><i class=\"ui-grid-icon-spin5 ui-grid-animate-spin\" ng-style=\"{ 'margin-top': ( grid.options.expandableRowHeight/2 - 5) + 'px',\r" +
+    "\n" +
     "            'margin-left' : ((grid.getViewportWidth() - grid.options.rowHeader.rowHeaderWidth)/2 - 5) + 'px' }\"></i></div>"
   );
 
