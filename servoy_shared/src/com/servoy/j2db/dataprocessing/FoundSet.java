@@ -3724,9 +3724,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public int getRecordIndex(IRecord record)
 	{
-		if (isInFindMode())
+		int cacheIndex = pksAndRecords.getCachedRecords().indexOf(record);
+		if (cacheIndex >= 0 || isInFindMode())
 		{
-			return pksAndRecords.getCachedRecords().indexOf(record);
+			return cacheIndex;
 		}
 		return record == null ? -1 : getRecordIndex(record.getPK());
 	}
