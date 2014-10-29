@@ -1,4 +1,4 @@
-/*! ui-grid - v3.0.0-rc.12-6bc8d14 - 2014-10-28
+/*! ui-grid - v3.0.0-rc.12-57d8508 - 2014-10-29
 * Copyright (c) 2014 ; License: MIT */
 (function () {
   'use strict';
@@ -14583,8 +14583,8 @@ module.filter('px', function() {
   });
 
 
-  module.service('uiGridResizeColumnsService', ['gridUtil', '$q',
-    function (gridUtil, $q) {
+  module.service('uiGridResizeColumnsService', ['gridUtil', '$q', '$timeout',
+    function (gridUtil, $q, $timeout) {
 
       var service = {
         defaultGridOptions: function(gridOptions){
@@ -14672,10 +14672,9 @@ module.filter('px', function() {
         },
         
         fireColumnSizeChanged: function (grid, colDef, deltaChange) {
-            if (!grid.api.colResizable) {
-                service.registerPublicApi(grid);
-              }
+          $timeout(function () {
             grid.api.colResizable.raise.columnSizeChanged(colDef, deltaChange);
+          });
         }
       };
 
