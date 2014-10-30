@@ -15,10 +15,13 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.awt.Color;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
+import javax.swing.BorderFactory;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -43,6 +46,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFor
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -70,6 +74,65 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 	@Override
 	public Border fromJSON(Object newValue, Border previousValue, IDataConverterContext dataConverterContext)
 	{
+		if (newValue == null) return null;
+		JSONObject object = (JSONObject)newValue;
+		String type = object.optString("type");
+		if (type == null) return null;
+		JSONObject borderStyle = object.optJSONObject("borderStyle");
+		switch (type)
+		{
+			case ComponentFactoryHelper.BEVEL_BORDER :
+			{
+				int borderType = "outset".equals(borderStyle.optString("borderStyle")) ? BevelBorder.RAISED : BevelBorder.LOWERED;
+				String borderColor = borderStyle.optString("borderColor");
+				StringTokenizer st = new StringTokenizer(borderColor, " ");
+				Color hiOut = null;
+				Color hiin = null;
+				Color shOut = null;
+				Color shIn = null;
+				if (st.hasMoreTokens()) hiOut = PersistHelper.createColor(st.nextToken());
+				if (st.hasMoreTokens()) hiin = PersistHelper.createColor(st.nextToken());
+				if (st.hasMoreTokens()) shOut = PersistHelper.createColor(st.nextToken());
+				if (st.hasMoreTokens()) shIn = PersistHelper.createColor(st.nextToken());
+				return BorderFactory.createBevelBorder(borderType, hiOut, hiin, shOut, shIn);
+			}
+			case ComponentFactoryHelper.COMPOUND_BORDER :
+			{
+				return BorderFactory.createCompoundBorder();
+			}
+			case ComponentFactoryHelper.EMPTY_BORDER :
+			{
+				return BorderFactory.createEmptyBorder();
+			}
+			case ComponentFactoryHelper.ETCHED_BORDER :
+			{
+				return BorderFactory.createEtchedBorder();
+			}
+			case ComponentFactoryHelper.LINE_BORDER :
+			{
+				Color borderColor = PersistHelper.createColor(borderStyle.optString("borderColor"));
+				String width = borderStyle.optString("borderWidth");
+				if (width != null) width = width.substring(0, width.length() - 2);
+				return BorderFactory.createLineBorder(borderColor, Utils.getAsInteger(width));
+			}
+			case ComponentFactoryHelper.MATTE_BORDER :
+			{
+				return BorderFactory.createMatteBorder(0, 0, 0, 0, (Color)null);
+			}
+			case ComponentFactoryHelper.ROUNDED_BORDER :
+			{
+				return new RoundedBorder(0, 0, 0, 0, null, null, null, null);
+			}
+			case ComponentFactoryHelper.SPECIAL_MATTE_BORDER :
+			{
+				return new SpecialMatteBorder(0, 0, 0, 0, null, null, null, null);
+			}
+			case ComponentFactoryHelper.TITLED_BORDER :
+			{
+				return BorderFactory.createTitledBorder("test");
+			}
+
+		}
 		return null;
 	}
 
