@@ -48,6 +48,7 @@ import org.sablo.specification.WebComponentSpecification;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HTTPUtils;
 
 /**
  * Filter for designer editor
@@ -71,6 +72,9 @@ public class DesignerFilter implements Filter
 				WebComponentSpecProvider provider = WebComponentSpecProvider.getInstance();
 
 				((HttpServletResponse)servletResponse).setContentType("application/json");
+
+				if (servletResponse instanceof HttpServletResponse) HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
+
 				try
 				{
 					JSONWriter jsonWriter = new JSONWriter(servletResponse.getWriter());
