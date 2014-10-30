@@ -7,7 +7,7 @@
 	"model":
 	{
 	        "background" : "color", 
-	        "borderType" : "border", 
+	        "borderType" : {"type":"border","stringformat":true}, 
 	        "containsFormID" : "form", 
 	        "enabled" : {"type":"boolean", "default":true}, 
 	        "foreground" : "color", 

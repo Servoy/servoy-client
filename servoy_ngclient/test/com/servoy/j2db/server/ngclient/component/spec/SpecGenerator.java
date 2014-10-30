@@ -417,7 +417,7 @@ public class SpecGenerator
 		// general type mappings
 		repoTypeMapping.put(IRepository.BOOLEAN, "boolean");
 		repoTypeMapping.put(IRepository.STRING, "string");
-		repoTypeMapping.put(IRepository.BORDER, "border");
+		repoTypeMapping.put(IRepository.BORDER, "{\"type\":\"border\",\"stringformat\":true}");
 		repoTypeMapping.put(IRepository.TABS, "tabs[]");
 		repoTypeMapping.put(IRepository.COLOR, "color");
 		repoTypeMapping.put(IRepository.INTEGER, "int");

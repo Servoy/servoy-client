@@ -6,7 +6,7 @@
 	"model":
 	{
 	        "background" : "color", 
-	        "borderType" : "border", 
+	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type":"dataprovider", "scope" :"design", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "editable" : {"type":"boolean", "default":true}, 
 	        "enabled" : {"type":"boolean", "default":true}, 

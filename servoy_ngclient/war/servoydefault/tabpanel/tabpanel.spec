@@ -8,7 +8,7 @@
 	"model":
 	{
 	        "background" : "color", 
-	        "borderType" : "border", 
+	        "borderType" : {"type":"border","stringformat":true}, 
 	        "enabled" : {"type":"boolean", "default":true}, 
 	        "fontType" : "font", 
 	        "foreground" : "color", 

@@ -288,7 +288,7 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		return Boolean.valueOf(json == null || !json.has("stringformat") || json.optBoolean("stringformat"));
+		return json != null && Boolean.valueOf(json.optBoolean("stringformat"));
 	}
 
 	@Override

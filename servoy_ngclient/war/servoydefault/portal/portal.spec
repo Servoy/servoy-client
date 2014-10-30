@@ -9,7 +9,7 @@
 	"model":
 	{
 	        "background" : "color", 
-	        "borderType" : "border", 
+	        "borderType" : {"type":"border","stringformat":true}, 
 	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundsetTypedProperty": "relatedFoundset"} }, 
 	        "enabled" : {"type":"boolean", "default":true}, 
 	        "foreground" : "color", 
