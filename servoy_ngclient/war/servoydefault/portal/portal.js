@@ -297,11 +297,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 
 					if (anchoredBottom)
 					{
-						elLayout.bottom = containerModel.size.height - elModel.location.y - elModel.size.height;
-						if(elModel.offsetY) {
-							elLayout.bottom = elLayout.bottom - elModel.offsetY;
-						}
-						elLayout.bottom = elLayout.bottom + "px";
+						elLayout.bottom = containerModel.size.height - elModel.location.y - elModel.size.height + "px";
 					}
 
 					if (!anchoredTop || !anchoredBottom) elLayout.height = elModel.size.height + 'px';
