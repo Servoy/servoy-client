@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
@@ -186,7 +187,22 @@ public class NGConversions
 		IPropertyType< ? > type = pd.getType();
 		if (type instanceof IDesignToFormElement)
 		{
-			return ((IDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
+			if (designValue instanceof String && ((String)designValue).startsWith("{"))
+			{
+				try
+				{
+					return ((IDesignToFormElement)type).toFormElementValue(new JSONObject((String)designValue), pd, flattenedSolution, formElement,
+						propertyPath);
+				}
+				catch (Exception e)
+				{
+					Debug.error("Can't convert '" + designValue + "' from design value to a form value", e);
+				}
+			}
+			else
+			{
+				return ((IDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
+			}
 		}
 		return designValue;
 	}
