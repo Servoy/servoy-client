@@ -99,9 +99,9 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
 	          		  var displayFormat = undefined;
 	          		  var type = undefined;
 	          		  if($scope.model.format && $scope.model.format.display) displayFormat = $scope.model.format.display;
-	          		  if($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;	          		
-	          		  return formatFilter(item.displayValue, displayFormat ,type);
+	          		  if($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;
 	          		  $scope.counter = i;
+	          		  return formatFilter(item.displayValue, displayFormat ,type);
 	          	  }
 	          }
           }
