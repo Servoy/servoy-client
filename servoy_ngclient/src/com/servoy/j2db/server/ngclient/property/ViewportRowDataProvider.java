@@ -59,7 +59,7 @@ public abstract class ViewportRowDataProvider
 		List<Map<String, Object>> rows = new ArrayList<>();
 		PropertyDescription rowTypes = null;
 		int size = foundset.getSize();
-		int end = Math.min(size, endIndex);
+		int end = Math.min(size - 1, endIndex);
 		if (startIndex <= end)
 		{
 			rowTypes = AggregatedPropertyType.newAggregatedProperty();
