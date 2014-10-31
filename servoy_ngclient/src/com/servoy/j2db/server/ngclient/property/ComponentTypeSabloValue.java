@@ -142,6 +142,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (componentIsCreated || parentComponent == null) return;
 
 		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+		if (foundsetPropValue == null && forFoundsetTypedPropertyName != null) return;
 
 		componentIsCreated = true;
 		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
