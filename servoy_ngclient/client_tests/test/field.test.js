@@ -53,6 +53,7 @@ describe('servoydefaultTextfield component', function() {
 	   // 1. Include your application module for testing.
 	  module(function ($provide) {
 		  $provide.factory('$servoyInternal', function() {});
+		  $provide.factory('$sabloInternal', function() {});
 	  });
       module('servoydefaultTextfield');
 	  
