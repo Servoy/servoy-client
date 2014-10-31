@@ -1,4 +1,4 @@
-angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.bootstrap'])
+angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','ui.bootstrap'])
 .directive('ngBlur', ['$parse', function($parse) {
     return function(scope, element, attr) {
         var fn = $parse(attr['ngBlur']);
