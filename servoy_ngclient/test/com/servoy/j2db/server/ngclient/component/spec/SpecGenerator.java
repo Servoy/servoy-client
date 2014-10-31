@@ -383,6 +383,11 @@ public class SpecGenerator
 				model.add(cs.new Element(-1, IRepository.FIELDS, "childElements", -1, null));
 				model.add(cs.new Element(-1, IRepository.INTEGER, "headerHeight", IRepository.INTEGER, 32));
 			}
+			if ("label".equals(componentSpec.getName()) || "button".equals(componentSpec.getName()))
+			{
+				ContentSpec cs = new ContentSpec();
+				model.add(cs.new Element(-1, IRepository.GRAPHICALCOMPONENTS, "directEditPropertyName", IRepository.STRING, null));
+			}
 			if (componentSpec.getRepositoryType() == IRepository.TABPANELS)
 			{
 				ContentSpec cs = new ContentSpec();
@@ -444,6 +449,7 @@ public class SpecGenerator
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"scope\" :\"design\", \"values\" :[{\"LEFT\":2}, {\"CENTER\":0},{\"RIGHT\":4}], \"default\" : 0}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
+		buttonTypeMapping.put("directEditPropertyName", "{\"type\" :\"string\",  \"default\" : \"text\"}");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
 
 		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
@@ -492,6 +498,7 @@ public class SpecGenerator
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"scope\" :\"design\", \"values\" :[{\"TOP\":1}, {\"CENTER\":0} ,{\"BOTTOM\":3}], \"default\" : 0}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
+		labelMapping.put("directEditPropertyName", "{\"type\" :\"string\",  \"default\" : \"text\"}");
 		componentRepoTypeMappingExceptions.put("label", labelMapping);
 
 		HashMap<String, String> listboxTypeMapping = new HashMap<String, String>();
