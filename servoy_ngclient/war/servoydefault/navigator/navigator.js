@@ -46,7 +46,7 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
       replace: true
       
     };
-}).controller('DefaultNavigatorController', function ($scope, $servoyInternal , $solutionSettings,$servoyWindowManager){  // special case using internal api
+}).controller('DefaultNavigatorController', function ($scope, $sabloInternal , $solutionSettings,$servoyWindowManager){  // special case using internal api
 	
 	$scope.default_navi = {};
 	$scope.$solutionSettings = $solutionSettings;// this should be placed in the window scope similar to DialogInstanceCtrl (But main window doesn't have a window controller)
@@ -56,7 +56,7 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
 	$scope.$watch(modelToWatch, function (newVal, oldVal, scope) {
 		    if(newVal) {
 		    	var name = newVal.name
-		    	$servoyInternal.getFormState(name).then(function(formState){
+		    	$sabloInternal.getFormState(name).then(function(formState){
 			    	$scope.default_navi.model = formState.model.svy_default_navigator;
 			    	$scope.default_navi.handlers = formState.handlers.svy_default_navigator;
 		    	})
