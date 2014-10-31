@@ -9,7 +9,7 @@ module.exports = function(config){
        'lib/jquery.js',
        'lib/angular.js',
        'lib/angular-mocks.js',  
-       '../../sablo/META-INF/resources/sablo/js/websocket.js',
+       '../../sablo/META-INF/resources/sablo/js/*.js',
        'lib/phantomjs.polyfill.js',
        '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',
