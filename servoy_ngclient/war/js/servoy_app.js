@@ -227,39 +227,36 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				   // "{ conversions: {product: {datatextfield1: {0: "Date"}}} }
 				   var call = msg.call;
 				   $sabloInternal.getFormState(call.form).then(function(formState) {
-				   if (call.viewIndex != undefined) {
-					   var funcThis = formState.api[call.bean][call.viewIndex]; 
-					   if (funcThis)
+					   if (call.viewIndex != undefined) {
+						   var funcThis = formState.api[call.bean][call.viewIndex]; 
+						   if (funcThis)
+						   {
+							   var func = funcThis[call.api];
+						   }
+						   else
+						   {
+							   console.warn("cannot call " + call.api + " on " + call.bean + " because viewIndex "+ call.viewIndex +" api is not found")
+						   }
+					   }
+					   else if (call.propertyPath != undefined)
 					   {
+						   // handle nested components; the property path is an array of string or int keys going
+						   // through the form's model starting with the root bean name, then it's properties (that could be nested)
+						   // then maybe nested child properties and so on 
+						   var obj = formState.model;
+						   var pn;
+						   for (pn in call.propertyPath) obj = obj[call.propertyPath[pn]];
+						   var func = obj.api[call.api];
+					   }
+					   else {
+						   var funcThis = formState.api[call.bean];
 						   var func = funcThis[call.api];
 					   }
-					   else
-					   {
-						   console.warn("cannot call " + call.api + " on " + call.bean + " because viewIndex "+ call.viewIndex +" api is not found")
+					   if (!func) {
+						   console.warn("bean " + call.bean + " did not provide the api: " + call.api)
+						   return null
 					   }
-				   }
-				   else if (call.propertyPath != undefined)
-				   {
-					   // handle nested components; the property path is an array of string or int keys going
-					   // through the form's model starting with the root bean name, then it's properties (that could be nested)
-					   // then maybe nested child properties and so on 
-					   var obj = formState.model;
-					   var pn;
-					   for (pn in call.propertyPath) obj = obj[call.propertyPath[pn]];
-					   var func = obj.api[call.api];
-				   }
-				   else {
-					   var funcThis = formState.api[call.bean];
-					   var func = funcThis[call.api];
-				   }
-				   if (!func) {
-					   console.warn("bean " + call.bean + " did not provide the api: " + call.api)
-				   }
-				   try {
 					   return func.apply(funcThis, call.args)
-				   } finally {
-					   formState.getScope().$digest();
-				   }
 				   });
 			   }
 			   if (msg.sessionid) {
