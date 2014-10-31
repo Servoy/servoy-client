@@ -26,7 +26,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * A normal field (data display)
- * 
+ *
  * @author jblok
  */
 // this class should not have @ServoyClientSypport annotation directly, methods are annotated via their interfaces
@@ -71,7 +71,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the toolTipText
-	 * 
+	 *
 	 * @param arg the toolTipText
 	 */
 	public void setToolTipText(String arg)
@@ -89,7 +89,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the editable
-	 * 
+	 *
 	 * @param arg the editable
 	 */
 	public void setEditable(boolean arg)
@@ -98,7 +98,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	}
 
 	/**
-	 * Flag that tells if the content of the field can be edited or not. 
+	 * Flag that tells if the content of the field can be edited or not.
 	 * The default value of this flag is "true", that is the content can be edited.
 	 */
 	public boolean getEditable()
@@ -122,7 +122,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the onChangeMethodID
-	 * 
+	 *
 	 * @param arg the onChangeMethodID
 	 */
 	public void setOnDataChangeMethodID(int arg)
@@ -132,8 +132,8 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
-	 * 
-	 * @templatedescription Handle changed data
+	 *
+	 * @templatedescription Handle changed data, return false if the value should not be accepted. (in NGClient you can return also a string, instead of false, which will be shown as a tooltip)
 	 * @templatename onDataChange
 	 * @templatetype Boolean
 	 * @templateparam ${dataproviderType} oldValue old value
@@ -155,7 +155,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * @sameas com.servoy.j2db.persistence.GraphicalComponent#getOnRightClickMethodID()
-	 * 
+	 *
 	 * @templatedescription Perform the element right-click action
 	 * @templatename onRightClick
 	 * @templateparam JSEvent event the event that triggered the action
@@ -181,7 +181,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the enterMethodID
-	 * 
+	 *
 	 * @param arg the enterMethodID
 	 */
 	public void setOnFocusGainedMethodID(int arg)
@@ -210,7 +210,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * The method that is executed when the component looses focus.
-	 * 
+	 *
 	 * @templatedescription  Handle focus lost event of the element
 	 * @templatename onFocusLost
 	 * @templateparam JSEvent event the event that triggered the action
@@ -223,7 +223,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the scrollable
-	 * 
+	 *
 	 * @param arg the scrollable
 	 */
 	public void setScrollbars(int arg)
@@ -238,7 +238,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the selectOnEnter
-	 * 
+	 *
 	 * @param arg the selectOnEnter
 	 */
 	public void setSelectOnEnter(boolean arg)
@@ -257,7 +257,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the tabSeq
-	 * 
+	 *
 	 * @param arg the tabSeq
 	 */
 	public void setTabSeq(int arg)
@@ -272,7 +272,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the horizontalAlignment
-	 * 
+	 *
 	 * @param arg the horizontalAlignment
 	 */
 	public void setHorizontalAlignment(int arg)
@@ -287,7 +287,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the verticalAlignment
-	 * 
+	 *
 	 * @param arg the verticalAlignment
 	 */
 	public void setVerticalAlignment(int arg)
@@ -302,7 +302,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the valuelist_id
-	 * 
+	 *
 	 * @param arg the valuelist_id
 	 */
 	public void setValuelistID(int arg)
@@ -317,7 +317,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the dataProviderID
-	 * 
+	 *
 	 * @param arg the dataProviderID
 	 */
 	public void setDataProviderID(String arg)
@@ -332,13 +332,13 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Set the relationID
-	 * 
+	 *
 	 * @param arg the relationID public void setRelationID(int arg) { relationID = arg; } public int getRelationID() { return relationID; }
 	 */
 
 	/**
 	 * Set the actionMethodID
-	 * 
+	 *
 	 * @param arg the actionMethodID
 	 */
 	public void setOnActionMethodID(int arg)
@@ -348,7 +348,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * @sameas com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
-	 * 
+	 *
 	 * @templatedescription Perform the element default action
 	 * @templatename onAction
 	 * @templateparam JSEvent event the event that triggered the action
@@ -399,7 +399,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Sets the margin.
-	 * 
+	 *
 	 * @param arg The margin to set
 	 */
 	public void setMargin(Insets arg)
@@ -430,7 +430,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Sets the displaysTags.
-	 * 
+	 *
 	 * @param arg The displaysTags to set
 	 */
 	public void setDisplaysTags(boolean arg)
@@ -449,7 +449,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Sets the text.
-	 * 
+	 *
 	 * @param arg The text to set
 	 */
 	public void setText(String arg)
@@ -464,7 +464,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 
 	/**
 	 * Sets the placeholder text.
-	 * 
+	 *
 	 * @param arg The text to set
 	 */
 	public void setPlaceholderText(String arg)
