@@ -38,7 +38,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -517,23 +516,6 @@ public final class FormElement implements IWebComponentInitializer
 		return handlers;
 	}
 
-	public Collection<String> getValuelistProperties()
-	{
-		List<String> valuelistProperties = new ArrayList<>();
-		WebComponentSpecification componentSpec = getWebComponentSpec();
-		Map<String, PropertyDescription> properties = componentSpec.getProperties(TypesRegistry.getType("valuelist"));
-
-		for (PropertyDescription pd : properties.values())
-		{
-			if (getPropertyValue(pd.getName()) != null)
-			{
-				valuelistProperties.add(pd.getName());
-			}
-		}
-
-		return valuelistProperties;
-	}
-
 	// called by ftl template
 	public String getPropertiesString() throws JSONException
 	{
@@ -617,7 +599,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

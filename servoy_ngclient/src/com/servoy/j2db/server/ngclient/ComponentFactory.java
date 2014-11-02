@@ -37,16 +37,9 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.ISmartPropertyValue;
-import org.sablo.specification.property.types.TypesRegistry;
 
-import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
-import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.DBValueList;
-import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
-import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
@@ -58,8 +51,6 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -93,72 +84,6 @@ public class ComponentFactory
 			// TODO anything to do here for custom special types?
 			WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList);
 			if (parentToAddTo != null) parentToAddTo.add(webComponent);
-
-			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
-			for (PropertyDescription vlProp : valuelistProps.values())
-			{
-				ValueList val = null;
-				Object propertyValue = fe.getPropertyValue(vlProp.getName());
-				int valuelistID = Utils.getAsInteger(propertyValue);
-				if (valuelistID > 0)
-				{
-					val = application.getFlattenedSolution().getValueList(valuelistID);
-				}
-				else
-				{
-					UUID uuid = Utils.getAsUUID(propertyValue, false);
-					if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
-				}
-				if (val != null)
-				{
-					IValueList valueList;
-					switch (val.getValueListType())
-					{
-						case IValueListConstants.GLOBAL_METHOD_VALUES :
-							valueList = new GlobalMethodValueList(application, val);
-							break;
-						case IValueListConstants.CUSTOM_VALUES :
-							String dataproviderID = (String)fe.getPropertyValue((String)vlProp.getConfig());
-							String format = null;
-							if (dataproviderID != null)
-							{
-								Map<String, PropertyDescription> properties = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
-								for (PropertyDescription pd : properties.values())
-								{
-									// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
-									if (vlProp.getConfig().equals(pd.getConfig()))
-									{
-										format = (String)fe.getPropertyValue(pd.getName());
-										break;
-									}
-								}
-							}
-							ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
-								application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
-							valueList = new CustomValueList(application, val, val.getCustomValues(),
-								(val.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS), fieldFormat.dpType, fieldFormat.parsedFormat);
-							break;
-						default :
-							valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val)
-								: new DBValueList(application, val);
-					}
-					webComponent.setProperty(vlProp.getName(), valueList);
-				}
-				else
-				{
-					if (fe.getTypeName().equals("servoydefault-typeahead"))
-					{
-						String dp = (String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName());
-						IWebFormUI formUI = (WebFormUI)parentToAddTo;
-						if (dp != null && formUI.getController().getTable() != null && formUI.getController().getTable().getColumnType(dp) != 0)
-						{
-							ColumnBasedValueList vl = new ColumnBasedValueList(application, fe.getForm().getServerName(), fe.getForm().getTableName(),
-								(String)fe.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
-							webComponent.setProperty(vlProp.getName(), vl);
-						}
-					}
-				}
-			}
 
 			WebComponentSpecification componentSpec = fe.getWebComponentSpec(false);
 
@@ -267,8 +192,6 @@ public class ComponentFactory
 					}
 					break;
 				}
-				case "valuelist" : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
-					return;
 				default :
 					break;
 			}
@@ -348,8 +271,6 @@ public class ComponentFactory
 				}
 				break;
 			}
-			case "valuelist" : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
-				break;
 			default :
 			{
 				if ((propertySpec.getType() instanceof ICustomType) && ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition() != null &&
@@ -619,21 +540,5 @@ public class ComponentFactory
 		persistWrappers.clear();
 		WebComponentSpecProvider.reload();
 	}
-
-	/**
-	 * @param valuelist
-	 * @return
-	 */
-	public static boolean isSingleValue(ValueList valuelist)
-	{
-		if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES &&
-			valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS && valuelist.getCustomValues() != null &&
-			!valuelist.getCustomValues().contains("\n") && !valuelist.getCustomValues().contains("\r"))
-		{
-			return true;
-		}
-		return false;
-	}
-
 
 }

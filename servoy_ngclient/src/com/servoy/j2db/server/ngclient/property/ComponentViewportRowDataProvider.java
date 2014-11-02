@@ -23,7 +23,6 @@ import java.util.Map;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 
 /**
@@ -36,27 +35,48 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 {
 
-	protected final IDataAdapterList dal;
+	protected final FoundsetDataAdapterList dal;
 	protected final WebFormComponent component;
-	protected List<String> recordBasedProperties;
+	protected final List<String> recordBasedProperties;
+	protected final ComponentTypeSabloValue componentTypeSabloValue;
 
-	public ComponentViewportRowDataProvider(IDataAdapterList dal, WebFormComponent component, List<String> recordBasedProperties)
+	public ComponentViewportRowDataProvider(FoundsetDataAdapterList dal, WebFormComponent component, List<String> recordBasedProperties,
+		ComponentTypeSabloValue componentTypeSabloValue)
 	{
 		this.dal = dal;
 		this.component = component;
 		this.recordBasedProperties = recordBasedProperties;
+		this.componentTypeSabloValue = componentTypeSabloValue;
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes)
+	protected void populateRowData(IRecordInternal record, String columnName, Map<String, Object> data, PropertyDescription dataTypes)
 	{
-		dal.setRecord(record, false);
+		dal.setRecordQuietly(record);
 
-		for (String propertyName : recordBasedProperties)
+		if (columnName != null)
 		{
-			PropertyDescription t = component.getSpecification().getProperty(propertyName);
-			if (t != null) dataTypes.putProperty(propertyName, t);
-			data.put(propertyName, component.getRawProperties().get(propertyName));
+			// cell update
+			populateCellData(data, dataTypes, columnName);
+		}
+		else
+		{
+			// full row
+			for (String propertyName : recordBasedProperties)
+			{
+				populateCellData(data, dataTypes, propertyName);
+			}
+		}
+	}
+
+	private void populateCellData(Map<String, Object> data, PropertyDescription dataTypes, String propertyName)
+	{
+		PropertyDescription t = component.getSpecification().getProperty(propertyName);
+		Object val = component.getRawProperties().get(propertyName);
+		if (t != null && val != null)
+		{
+			dataTypes.putProperty(propertyName, t);
+			data.put(propertyName, val);
 		}
 	}
 

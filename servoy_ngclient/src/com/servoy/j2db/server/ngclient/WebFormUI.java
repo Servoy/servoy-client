@@ -42,6 +42,7 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertySabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -1036,10 +1037,11 @@ public class WebFormUI extends Container implements IWebFormUI
 			Map<String, PropertyDescription> valuelistProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{
-				Object vl = comp.getProperty(vlProp.getName());
-				if (vl instanceof IValueList && ((IValueList)vl).getValueList() == valuelist.getValueList())
+				ValueListPropertySabloValue propertyValue = (ValueListPropertySabloValue)comp.getProperty(vlProp.getName());
+				IValueList vl = propertyValue.getValueList();
+				if (vl.getValueList() == valuelist.getValueList())
 				{
-					comp.setProperty(vlProp.getName(), valuelist);
+					propertyValue.setValueList(valuelist);
 				}
 			}
 		}

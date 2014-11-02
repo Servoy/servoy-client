@@ -15,29 +15,47 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.DBValueList;
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.LookupListModel;
-import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.ValueListPropertyWrapper;
+import com.servoy.j2db.dataprocessing.RelatedValueList;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
- * @author jcompagner
+ * Property type that handles valuelist typed properties.
  *
+ * @author acostescu
+ * @author jcompagner
  */
-public class ValueListPropertyType implements IWrapperType<Object, ValueListPropertyWrapper>, ISupportTemplateValue<Object>
+public class ValueListPropertyType implements IConvertedPropertyType<ValueListPropertySabloValue>,
+	IFormElementToSabloComponent<Object, ValueListPropertySabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -71,102 +89,116 @@ public class ValueListPropertyType implements IWrapperType<Object, ValueListProp
 	}
 
 	@Override
-	public ValueListPropertyWrapper fromJSON(Object newValue, ValueListPropertyWrapper previousValue, IDataConverterContext dataConverterContext)
-	{
-		if (previousValue != null)
-		{
-			return previousValue;
-		}
-		return wrap(newValue, previousValue, dataConverterContext); // TODO I think this is not supported actually; so it could return null instead
-	}
-
-	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ValueListPropertyWrapper object, DataConversion clientConversion) throws JSONException
-	{
-		if (object != null)
-		{
-			// TODO we should have type info here to send instead of null for real/display values
-			JSONUtils.toBrowserJSONFullValue(writer, key, object.getJsonValue(), null, clientConversion);
-		}
-		return writer;
-	}
-
-	@Override
-	public ValueListPropertyWrapper defaultValue()
-	{
-		return null;
-	}
-
-	@Override
-	public Object unwrap(ValueListPropertyWrapper value)
-	{
-		return value != null ? value.value : null;
-	}
-
-	@Override
-	public ValueListPropertyWrapper wrap(Object value, ValueListPropertyWrapper previousValue, IDataConverterContext dataConverterContext)
-	{
-		// first time it creates the wrapper then, it will always be a Wrapper (skips if statement)
-		if (value instanceof ValueListPropertyWrapper) return (ValueListPropertyWrapper)value;
-//		if (value instanceof LookupListModel)
-//		{
-//			return new ValueListPropertyWrapper(value);
-//		}
-		return new ValueListPropertyWrapper(value);
-	}
-
-	class ValueListPropertyWrapper
-	{
-
-		final Object value;
-		Object jsonValue;
-
-		ValueListPropertyWrapper(Object value)
-		{
-			this.value = value;
-		}
-
-		Object getJsonValue() // TODO this should return TypedData<List<Map<String, Object>>> instead
-		{
-			if (value instanceof IValueList)
-			{
-				IValueList list = (IValueList)value;
-				List<Map<String, Object>> array = new ArrayList<>(list.getSize());
-				for (int i = 0; i < list.getSize(); i++)
-				{
-					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("realValue", list.getRealElementAt(i));
-					Object displayValue = list.getElementAt(i);
-					map.put("displayValue", displayValue != null ? displayValue : "");
-					array.add(map);
-				}
-				jsonValue = array;
-			}
-			else if (value instanceof LookupListModel)
-			{
-				LookupListModel listModel = (LookupListModel)value;
-				List<Map<String, Object>> array = new ArrayList<>(listModel.getSize());
-				for (int i = 0; i < listModel.getSize(); i++)
-				{
-					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("realValue", listModel.getRealElementAt(i));
-					Object displayValue = listModel.getElementAt(i);
-					map.put("displayValue", displayValue != null ? displayValue : "");
-					array.add(map);
-				}
-				jsonValue = array;
-			}
-
-			return jsonValue;
-		}
-
-	}
-
-	@Override
 	public boolean valueInTemplate(Object object)
 	{
 		return false;
 	}
 
+	@Override
+	public ValueListPropertySabloValue defaultValue()
+	{
+		return null;
+	}
+
+	@Override
+	public ValueListPropertySabloValue fromJSON(Object newJSONValue, ValueListPropertySabloValue previousSabloValue, IDataConverterContext dataConverterContext)
+	{
+		// handle any valuelist specific websocket incomming traffic
+		if (previousSabloValue != null && newJSONValue instanceof String)
+		{
+			// currently the only thing that can come from client is a filter request...
+			previousSabloValue.filterValuelist((String)newJSONValue);
+		}
+		else Debug.error("Got a client update for valuelist property, but valuelist is null or value can't be interpreted: " + newJSONValue + ".");
+
+		return previousSabloValue;
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, String key, ValueListPropertySabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	{
+		if (sabloValue != null)
+		{
+			// TODO we should have type info here to send instead of null for real/display values
+			sabloValue.toJSON(writer, key, clientConversion);
+		}
+		return writer;
+	}
+
+	@Override
+	public ValueListPropertySabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement,
+		WebFormComponent component, DataAdapterList dataAdapterList)
+	{
+		ValueList val = null;
+		IValueList valueList = null;
+
+		int valuelistID = Utils.getAsInteger(formElementValue);
+		INGApplication application = dataAdapterList.getApplication();
+		if (valuelistID > 0)
+		{
+			val = application.getFlattenedSolution().getValueList(valuelistID);
+		}
+		else
+		{
+			UUID uuid = Utils.getAsUUID(formElementValue, false);
+			if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+		}
+
+		String dataproviderID = (pd.getConfig() != null ? (String)formElement.getPropertyValue((String)pd.getConfig()) : null);
+
+		if (val != null)
+		{
+			switch (val.getValueListType())
+			{
+				case IValueListConstants.GLOBAL_METHOD_VALUES :
+					valueList = new GlobalMethodValueList(application, val);
+					break;
+				case IValueListConstants.CUSTOM_VALUES :
+					String format = null;
+					if (dataproviderID != null)
+					{
+						Map<String, PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
+						for (PropertyDescription formatPd : properties.values())
+						{
+							// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
+							if (pd.getConfig().equals(formatPd.getConfig()))
+							{
+								format = (String)formElement.getPropertyValue(formatPd.getName());
+								break;
+							}
+						}
+					}
+					ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
+						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
+					valueList = new CustomValueList(application, val, val.getCustomValues(),
+						(val.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS), fieldFormat.dpType, fieldFormat.parsedFormat);
+					break;
+				default :
+					valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val) : new DBValueList(
+						application, val);
+			}
+		}
+		else
+		{
+			if (formElement.getTypeName().equals("servoydefault-typeahead"))
+			{
+				String dp = (String)formElement.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName());
+				IWebFormUI formUI = component.findParent(WebFormUI.class);
+				if (dp != null && formUI.getController().getTable() != null && formUI.getController().getTable().getColumnType(dp) != 0)
+				{
+					valueList = new ColumnBasedValueList(application, formElement.getForm().getServerName(), formElement.getForm().getTableName(),
+						(String)formElement.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
+				}
+			}
+		}
+
+		return valueList != null ? new ValueListPropertySabloValue(valueList, dataAdapterList, dataproviderID) : null;
+	}
+
+	@Override
+	public boolean isLinkedToData(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		return true;
+	}
 
 }

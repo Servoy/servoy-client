@@ -30,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
+import org.sablo.IDirtyPropertyListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.specification.property.types.AggregatedPropertyType;
@@ -45,6 +46,7 @@ import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 
@@ -141,22 +143,36 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		// so now we should be able to find a potentially linked foundset property value
 		if (componentIsCreated || parentComponent == null) return;
 
-		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+		final FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+
+		if (foundsetPropValue == null && forFoundsetTypedPropertyName != null) return;
 		if (foundsetPropValue == null && forFoundsetTypedPropertyName != null) return;
 
 		componentIsCreated = true;
 		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
-		IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
+		final IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
 
 		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent);
-		childComponent.addPropertyChangeListener(null, new PropertyChangeListener()
+		childComponent.setDirtyPropertyListener(new IDirtyPropertyListener()
 		{
 			@Override
-			public void propertyChange(PropertyChangeEvent evt)
+			public void propertyFlaggedAsDirty(String propertyName)
 			{
-				// if some property changed that is not record-based
-				if (forFoundsetTypedPropertyName == null || !formElementValue.recordBasedProperties.contains(evt.getPropertyName()))
+				// this gets called whenever a property is flagged as dirty/changed/to be sent to browser
+				if (forFoundsetTypedPropertyName != null && formElementValue.recordBasedProperties.contains(propertyName))
 				{
+					if (!((FoundsetDataAdapterList)dal).keepQuiet) // if forFoundsetTypedPropertyName != null we are using a foundset DAL, so just cast
+			{
+						// for example valuelist properties can get filtered based on client sent filter in which case the property does change without
+						// any actual change in the record; in this case we need to mark it correctly in viewport as a change
+						int idx = foundsetPropValue.getFoundset().getRecordIndex(dal.getRecord());
+						int relativeIdx = idx - foundsetPropValue.getViewPort().getStartIndex();
+						viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset());
+					} // else this change was probably determined by the fact that we reuse components, changing the record in the DAL to get data for a specific row
+				}
+				else
+				{
+					// non-record related prop. changed...
 					monitor.valueChanged();
 				}
 			}
@@ -174,8 +190,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (foundsetPropValue != null)
 		{
-			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider(dal, childComponent,
-				formElementValue.recordBasedProperties));
+			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
+				formElementValue.recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 		}
 		if (childComponent.hasChanges()) monitor.valueChanged();
@@ -195,7 +211,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		// model content
 		TypedData<Map<String, Object>> allProps = childComponent.getProperties();
 		removeRecordDependentProperties(allProps);
-		JSONUtils.writeDataWithConversions(destinationJSON, allProps.content, allProps.contentType);
+		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType);
 
 		// viewport content
 		writeWholeViewportToJSON(destinationJSON);
@@ -489,12 +505,12 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					// }}
 					JSONObject startEditData = update.getJSONObject("svyStartEdit");
 
-					String rowIDValue = startEditData.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 					String propertyName = startEditData.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
 
 					IDataAdapterList dal;
-					if (formElementValue.recordBasedProperties.contains(propertyName))
+					if (forFoundsetTypedPropertyName != null && formElementValue.recordBasedProperties.contains(propertyName))
 					{
+						String rowIDValue = startEditData.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 						IFoundSetInternal foundset = getFoundsetValue().getFoundset();
 
 						Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
@@ -503,7 +519,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						dal = getFoundsetValue().getDataAdapterList();
 						if (recordIndex != -1)
 						{
-							dal.setRecord(foundset.getRecord(recordIndex), false);
+							((FoundsetDataAdapterList)dal).setRecordQuietly(foundset.getRecord(recordIndex));
 						}
 						else
 						{
@@ -536,7 +552,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (recordIndex != -1)
 		{
-			foundsetPropertyValue.getDataAdapterList().setRecord(foundset.getRecord(recordIndex), false);
+			foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
 			viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 			try

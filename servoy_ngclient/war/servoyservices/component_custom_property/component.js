@@ -37,7 +37,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 		return function (oldBeanModel) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
 			internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) });
-			if (internalState.notifier) internalState.notifier();
+			if (internalState.changeNotifier) internalState.changeNotifier();
 		};
 	};
 	
@@ -55,8 +55,21 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
 			var newValue = currentClientValue;
 
+			// remove watches to avoid an unwanted detection of received changes
+			if (currentClientValue != null && angular.isDefined(currentClientValue)) {
+				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+				if (iS.modelUnwatch) {
+					iS.modelUnwatch();
+					iS.modelUnwatch = null;
+				}
+				if (currentClientValue[MODEL_VIEWPORT]) $viewportModule.removeDataWatchesFromRows(currentClientValue[MODEL_VIEWPORT].length, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
+			}
+
+			var childChangedNotifier; 
 			if (serverJSONValue && serverJSONValue[PROPERTY_UPDATES_KEY]) {
 				// granular updates received
+				childChangedNotifier = getBeanPropertyChangeNotifier(currentClientValue, componentScope); 
+				
 				var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 				var beanUpdate = serverJSONValue[PROPERTY_UPDATES_KEY];
 
@@ -66,7 +79,6 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				var done = false;
 				
 				if (modelBeanUpdate) {
-					var childChangedNotifier = getBeanPropertyChangeNotifier(currentClientValue, componentScope); 
 					var beanModel = currentClientValue.model;
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
@@ -102,6 +114,8 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				newValue = serverJSONValue;
 				
 				if (newValue) {
+					childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope);
+					
 					$sabloConverters.prepareInternalState(newValue);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
@@ -112,12 +126,12 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							args:newargs,
 							rowId : row
 						}});
-						if (internalState.notifier) internalState.notifier();
+						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
 
 					// implement what $sabloConverters need to make this work
 					internalState.setChangeNotifier = function(changeNotifier) {
-						internalState.notifier = changeNotifier; 
+						internalState.changeNotifier = changeNotifier; 
 					}
 					internalState.isChanged = function() { return internalState.requests && (internalState.requests.length > 0); }
 
@@ -126,7 +140,6 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					internalState.beanLayout = null; // not really useful right now; just to be able to reuse existing form code 
 
 					internalState.modelUnwatch = null;
-					var childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope); 
 
 					// calling applyBeanData initially to make sure any needed conversions are done on model's properties
 					var beanModel = serverJSONValue.model;
@@ -180,7 +193,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						req.svyApply[VALUE_KEY] = propertyValue;
 
 						internalState.requests.push(req);
-						if (internalState.notifier) internalState.notifier();
+						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
 					
 					// TODO move apply above into servoyApi as well
@@ -191,26 +204,22 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							startEdit: function(property, rowId) {
 								var req = { svyStartEdit: {} };
 								
-								req.svyStartEdit[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
+								if (rowId) req.svyStartEdit[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
 								req.svyStartEdit[PROPERTY_NAME_KEY] = property;
 
 								internalState.requests.push(req);
-								if (internalState.notifier) internalState.notifier();
+								if (internalState.changeNotifier) internalState.changeNotifier();
 							}
 					}
 
-					if (componentScope) internalState.modelUnwatch = watchModel(beanModel, childChangedNotifier, componentScope);
 				}
 			}
 			
-			if (angular.isDefined(currentClientValue) && newValue !== currentClientValue) {
-				// the client side object will change completely, and the old one probably has watches defined...
-				// unregister those
-				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL]; // not using internalState to not override closure var of current/new value that will be used by nested functions
-				if (iS.modelUnwatch) {
-					iS.modelUnwatch();
-					iS.modelUnwatch = null;
-				}
+			// restore/add model watch
+			if (angular.isDefined(newValue) && newValue !== null) {
+				var iS = newValue[$sabloConverters.INTERNAL_IMPL];
+				if (newValue[MODEL_VIEWPORT]) $viewportModule.addDataWatchesToRows(newValue[MODEL_VIEWPORT], iS, componentScope);
+				if (componentScope) iS.modelUnwatch = watchModel(newValue.model, childChangedNotifier, componentScope);
 			}
 			return newValue;
 		},

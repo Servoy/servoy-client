@@ -21,6 +21,15 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
 			var newValue = currentClientValue;
 			
+			// remove watches so that this update won't trigger them
+			if (currentClientValue != null && angular.isDefined(currentClientValue)) {
+				if (currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection) {
+					currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection();
+					delete currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection;
+				}
+				if (currentClientValue[VIEW_PORT][ROWS]) $viewportModule.removeDataWatchesFromRows(currentClientValue[VIEW_PORT][ROWS].length, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
+			}
+			
 			// see if this is an update or whole value and handle it
 			if (!serverJSONValue) {
 				newValue = serverJSONValue;
@@ -91,38 +100,30 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 					// watch for client selection changes and send them to server
 					internalState.ignoreSelectedChangeValue = newValue[SELECTED_ROW_INDEXES]; // ignore initial watch change
-					if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
-						var changed = false;
-						if (internalState.ignoreSelectedChangeValue) {
-							if (internalState.ignoreSelectedChangeValue.length == newSel.length) {
-								var i;
-								for (i = 0; i < internalState.ignoreSelectedChangeValue.length; i++)
-									if (internalState.ignoreSelectedChangeValue[i] !== newSel[i]) { changed = true; break; }
-							} else changed = true;
-							internalState.ignoreSelectedChangeValue = null;
+				}
+				
+			}
+			
+			// restore/add watches
+			if (angular.isDefined(newValue) && newValue !== null) {
+				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
+				if (newValue[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope);
+				if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
+					var changed = false;
+					if (internalState.ignoreSelectedChangeValue) {
+						if (internalState.ignoreSelectedChangeValue.length == newSel.length) {
+							var i;
+							for (i = 0; i < internalState.ignoreSelectedChangeValue.length; i++)
+								if (internalState.ignoreSelectedChangeValue[i] !== newSel[i]) { changed = true; break; }
 						} else changed = true;
+						internalState.ignoreSelectedChangeValue = null;
+					} else changed = true;
 
-						if (changed) {
-							internalState.requests.push({newClientSelection: newSel});
-							if (internalState.changeNotifier) internalState.changeNotifier();
-						}
-					});
-					
-					// watch for client dataProvider changes and send them to server
-					internalState.unwatchData = {}; // { rowPk: [unwatchDataProvider1Func, ...], ... }
-					$viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope);
-				}
-				
-			}		 
-			if (angular.isDefined(currentClientValue) && newValue !== currentClientValue) {
-				// the client side object will change completely, and the old one probably has watches defined...
-				// unregister those
-				
-				if (currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection) {
-					currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection();
-					delete currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection;
-				}
-				$viewportModule.removeDataWatchesFromRows(currentClientValue[VIEW_PORT][ROWS].length, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
+					if (changed) {
+						internalState.requests.push({newClientSelection: newSel});
+						if (internalState.changeNotifier) internalState.changeNotifier();
+					}
+				});
 			}
 
 			return newValue;

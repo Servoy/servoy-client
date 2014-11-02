@@ -22,6 +22,7 @@ import java.io.Writer;
 
 import org.sablo.specification.WebComponentSpecProvider;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Bean;
@@ -37,7 +38,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
@@ -200,7 +200,6 @@ public class FormTemplateGenerator
 	}
 
 	/**
-	 * @param persist
 	 * @return false if the persist has no valuelist or at most one value in the valuelist, true otherwise
 	 */
 	private static boolean isSingleValueComponent(IFormElement persist)
@@ -222,7 +221,7 @@ public class FormTemplateGenerator
 				});
 
 				ValueList valuelist = fs.getValueList(field.getValuelistID());
-				return ComponentFactory.isSingleValue(valuelist);
+				return isSingleValue(valuelist);
 			}
 			catch (Exception e)
 			{
@@ -232,5 +231,15 @@ public class FormTemplateGenerator
 		return true;
 	}
 
+	private static boolean isSingleValue(ValueList valuelist)
+	{
+		if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES &&
+			valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS && valuelist.getCustomValues() != null &&
+			!valuelist.getCustomValues().contains("\n") && !valuelist.getCustomValues().contains("\r"))
+		{
+			return true;
+		}
+		return false;
+	}
 
 }

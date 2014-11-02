@@ -60,6 +60,7 @@ import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.Types;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertySabloValue;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -190,8 +191,9 @@ public class PersistFieldInstanceTest
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 		Object property = wc.getProperty("valuelistID");
-		Assert.assertTrue(property != null ? property.getClass().getName() : "null", property instanceof CustomValueList);
-		Assert.assertEquals("#,###.00", ((CustomValueList)property).getFormat().getDisplayFormat());
+		Assert.assertTrue(property != null ? property.getClass().getName() : "null", property instanceof ValueListPropertySabloValue &&
+			((ValueListPropertySabloValue)property).getValueList() instanceof CustomValueList);
+		Assert.assertEquals("#,###.00", ((CustomValueList)((ValueListPropertySabloValue)property).getValueList()).getFormat().getDisplayFormat());
 	}
 
 	@Test
@@ -246,7 +248,7 @@ public class PersistFieldInstanceTest
 		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType);
 
 		Assert.assertEquals(
-			"{\"tabs\":{\"vEr\":2,\"u\":[{\"i\":0,\"v\":{\"vEr\":2,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"tabs\":\"JSON_arr\"}}",
+			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"tabs\":\"JSON_arr\"}}",
 			json);
 
 	}

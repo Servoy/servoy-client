@@ -44,7 +44,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.IRecordAwareType;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.ITemplateValueUpdaterType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -150,10 +150,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		Set<Entry<String, PropertyDescription>> propertyDescriptors = formElement.getWebComponentSpec().getProperties().entrySet();
 		for (Entry<String, PropertyDescription> propertyDescriptorEntry : propertyDescriptors)
 		{
-			if (propertyDescriptorEntry.getValue().getType() instanceof IRecordAwareType)
+			if (propertyDescriptorEntry.getValue().getType() instanceof IDataLinkedType)
 			{
-				IRecordAwareType type = (IRecordAwareType< ? >)propertyDescriptorEntry.getValue().getType();
-				if (type.isLinkedToRecord(formElement.getPropertyValue(propertyDescriptorEntry.getKey()), propertyDescriptorEntry.getValue(),
+				IDataLinkedType type = (IDataLinkedType< ? >)propertyDescriptorEntry.getValue().getType();
+				if (type.isLinkedToData(formElement.getPropertyValue(propertyDescriptorEntry.getKey()), propertyDescriptorEntry.getValue(),
 					flattenedSolution, formElement))
 				{
 					m.add(propertyDescriptorEntry.getKey());

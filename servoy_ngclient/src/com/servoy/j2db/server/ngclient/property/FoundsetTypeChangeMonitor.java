@@ -414,7 +414,6 @@ public class FoundsetTypeChangeMonitor
 		public static final int INSERT = 1;
 		public static final int DELETE = 2;
 
-		private static final RowData EMPTY = new RowData();
 		private final TypedData<List<Map<String, Object>>> rows;
 		private final int startIndex;
 		private final int endIndex;

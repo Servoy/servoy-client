@@ -44,8 +44,6 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
-import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
@@ -95,7 +93,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	protected BaseWebObject webObject; // (the component)
 	protected Set<String> dataProviders = new HashSet<>();
 	protected String foundsetSelector;
-	protected IDataAdapterList dataAdapterList;
+	protected FoundsetDataAdapterList dataAdapterList;
 	protected String propertyName;
 
 	protected FoundsetTypeChangeMonitor changeMonitor;
@@ -113,8 +111,9 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		{
 
 			@Override
-			protected void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes)
+			protected void populateRowData(IRecordInternal record, String columnName, Map<String, Object> data, PropertyDescription dataTypes)
 			{
+				// we ignore columnName as foundset type is currently not able to send column level updates;
 				FoundsetTypeSabloValue.this.populateRowData(record, data, dataTypes);
 			}
 		};
@@ -239,7 +238,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	}
 
 	@Override
-	public void pushRecord(IRecordInternal record)
+	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
 		updateFoundset(record);
 	}
@@ -553,13 +552,13 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	 * When this foundset is used in combination with child "components" properties, those properties will need
 	 * a dataAdapterList that is being fed records from this foundset.
 	 */
-	public IDataAdapterList getDataAdapterList()
+	public FoundsetDataAdapterList getDataAdapterList()
 	{
 		// this method gets called by linked component type property/properties
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
 		if (dataAdapterList == null)
 		{
-			dataAdapterList = new DataAdapterList(((WebComponent)webObject).findParent(IWebFormUI.class).getController());
+			dataAdapterList = new FoundsetDataAdapterList(((WebComponent)webObject).findParent(IWebFormUI.class).getController());
 		}
 		return dataAdapterList;
 	}

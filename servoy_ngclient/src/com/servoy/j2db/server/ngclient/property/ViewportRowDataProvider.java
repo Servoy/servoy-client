@@ -37,9 +37,9 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 public abstract class ViewportRowDataProvider
 {
 
-	protected abstract void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes);
+	protected abstract void populateRowData(IRecordInternal record, String columnName, Map<String, Object> data, PropertyDescription dataTypes);
 
-	protected TypedData<Map<String, Object>> getRowData(int foundsetIndex, IFoundSetInternal foundset)
+	protected TypedData<Map<String, Object>> getRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset)
 	{
 		Map<String, Object> data = new HashMap<>();
 		PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
@@ -48,13 +48,18 @@ public abstract class ViewportRowDataProvider
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
 		data.put(FoundsetTypeSabloValue.ROW_ID_COL_KEY, record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
 
-		populateRowData(record, data, dataTypes);
+		populateRowData(record, columnName, data, dataTypes);
 
 		if (!dataTypes.hasChildProperties()) dataTypes = null;
 		return new TypedData<Map<String, Object>>(data, dataTypes);
 	}
 
 	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex, IFoundSetInternal foundset)
+	{
+		return getRowData(startIndex, endIndex, null, foundset);
+	}
+
+	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex, String columnName, IFoundSetInternal foundset)
 	{
 		List<Map<String, Object>> rows = new ArrayList<>();
 		PropertyDescription rowTypes = null;
@@ -65,7 +70,7 @@ public abstract class ViewportRowDataProvider
 			rowTypes = AggregatedPropertyType.newAggregatedProperty();
 			for (int i = startIndex; i <= endIndex; i++)
 			{
-				TypedData<Map<String, Object>> tmp = getRowData(i, foundset);
+				TypedData<Map<String, Object>> tmp = getRowData(i, columnName, foundset);
 				rows.add(tmp.content);
 				if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
 			}

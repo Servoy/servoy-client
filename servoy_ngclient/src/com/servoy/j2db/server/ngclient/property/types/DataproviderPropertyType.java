@@ -42,7 +42,7 @@ import com.servoy.j2db.util.ScopesUtils;
  * @author jcompagner
  *
  */
-public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, ISupportTemplateValue<Object>, IRecordAwareType<Object>
+public class DataproviderPropertyType implements IWrapperType<Object, DataproviderWrapper>, ISupportTemplateValue<Object>, IDataLinkedType<Object>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -103,7 +103,7 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 	}
 
 	@Override
-	public boolean isLinkedToRecord(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public boolean isLinkedToData(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
 		if (formElementValue == null) return false;
 

@@ -361,13 +361,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			   });
 		   },
 
-		   filterList: function(formname,beanname,property,filter)  {
-			   var deferred = $q.defer();
-			   deferredProperties[formname + "_" + beanname + "_" + property] = deferred;
-			   $sabloInternal.sendRequest({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter})
-			   return deferred.promise;
-		   },
-		   
 		   setFindMode: function(formName, findMode, editable){
 			   
 			   var formState = formStates[formName];

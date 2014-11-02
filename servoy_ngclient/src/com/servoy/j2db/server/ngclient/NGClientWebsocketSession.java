@@ -43,14 +43,10 @@ import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.LookupListModel;
-import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -186,7 +182,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 */
 	public void handleMessage(final JSONObject obj)
 	{
-		startHandlingEvent();
 		if (client != null) J2DBGlobals.setServiceProvider(client);
 		try
 		{
@@ -251,42 +246,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 					break;
 				}
-				case "valuelistfilter" :
-				{
-					String formName = obj.getString("formname");
-					IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-					WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
-
-					Object property = webComponent.getProperty(obj.getString("property"));
-					LookupListModel lstModel = null;
-					if (property instanceof CustomValueList)
-					{
-						lstModel = new LookupListModel(client, (CustomValueList)property);
-						webComponent.setProperty(obj.getString("property"), lstModel);
-					}
-					else if (property instanceof LookupValueList)
-					{
-						lstModel = new LookupListModel(client, (LookupValueList)property);
-						webComponent.setProperty(obj.getString("property"), lstModel);
-					}
-					else if (property instanceof ColumnBasedValueList)
-					{
-						lstModel = ((ColumnBasedValueList)property).getListModel();
-						webComponent.setProperty(obj.getString("property"), lstModel);
-					}
-					else if (property instanceof LookupListModel)
-					{
-						lstModel = (LookupListModel)property;
-					}
-
-					if (lstModel != null)
-					{
-						lstModel.fill(webComponent.dataAdapterList.getRecord(),
-							(String)webComponent.getFormElement().getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()),
-							obj.getString("filter"), false);
-					}
-					break;
-				}
 				case "formloaded" :
 					formCreated(obj.getString("formname"));
 					break;
@@ -299,7 +258,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		finally
 		{
-			stopHandlingEvent();
 			J2DBGlobals.setServiceProvider(null);
 		}
 	}

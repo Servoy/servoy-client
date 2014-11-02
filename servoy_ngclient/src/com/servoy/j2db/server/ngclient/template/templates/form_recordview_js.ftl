@@ -23,17 +23,6 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloInt
 	</#list>
 	}
 
-	<#list baseComponents as bc>
-		<#list bc.valuelistProperties as vlprop>
-	beans['${bc.name}'].${vlprop}_filter = function(filterString) {
-		if (filterString) {
-			return $servoyInternal.filterList('${name}','${bc.name}','${vlprop}',filterString);
-		}
-		return $scope.model['${bc.name}'].${vlprop}
-	}
-	    </#list>
-	</#list>
-
 	var formProperties = ${propertiesString}
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope);
 	

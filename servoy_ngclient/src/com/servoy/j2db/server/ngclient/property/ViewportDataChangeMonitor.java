@@ -108,6 +108,24 @@ public class ViewportDataChangeMonitor
 	}
 
 	/**
+	 * This gets called when the value of a cell in the viewport was changed.
+	 * @param relativeFirstRow viewPort relative start index for given operation.
+	 * @param relativeLastRow viewPort relative end index for given operation (inclusive).
+	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
+	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
+	 */
+	public void queueCellChange(int relativeRowIndex, int absoluteRowIndex, String columnName, IFoundSetInternal foundset)
+	{
+		if (!shouldSendWholeViewport())
+		{
+			boolean changed = (viewPortChanges.size() == 0);
+			viewPortChanges.add(new RowData(rowDataProvider.getRowData(absoluteRowIndex, absoluteRowIndex, columnName, foundset), relativeRowIndex,
+				relativeRowIndex, RowData.CHANGE));
+			if (changed && monitor != null) monitor.valueChanged();
+		}
+	}
+
+	/**
 	 * Ignores update record events for the record with given pkHash.
 	 */
 	protected void pauseRowUpdateListener(String pkHash)

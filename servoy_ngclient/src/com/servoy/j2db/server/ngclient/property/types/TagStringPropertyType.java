@@ -42,7 +42,7 @@ import com.servoy.j2db.util.HtmlUtils;
  *
  */
 public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>,
-	ISupportTemplateValue<String>, IRecordAwareType<String>, IFormElementToSabloComponent<Object, Object>
+	ISupportTemplateValue<String>, IDataLinkedType<String>, IFormElementToSabloComponent<Object, Object>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -167,7 +167,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	}
 
 	@Override
-	public boolean isLinkedToRecord(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public boolean isLinkedToData(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
 		if (formElementValue == null) return false;
 		return formElementValue.contains("%%");

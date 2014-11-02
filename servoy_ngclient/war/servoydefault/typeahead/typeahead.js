@@ -19,7 +19,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
         	 var displayFormat = undefined;
     		  var type = undefined;
     		  var displayValue = model;
-    		  if ($scope.model.valuelistID !== undefined)
+    		  if ($scope.model.valuelistID)
     		  {
 	     		  for (var i=0; i< $scope.model.valuelistID.length; i++) {
 	     			  if (model === $scope.model.valuelistID[i].realValue) {

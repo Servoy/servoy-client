@@ -24,26 +24,26 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 
 /**
- * Interface for types that can have their value linked to data in a record.
- * For example dataprovider types and be linked to nothing, to a global or form variable or to a record dataprovider.
+ * Interface for types that can have their value linked to data in a record or in a form/global variable.
+ * For example dataprovider types can be linked to nothing, to a global or form variable or to a record dataprovider.
  *
- * The type can report whether or not a (runtime - sablo component property) value is or is not dependent on the foundset's record.
+ * The type can report whether or not a (runtime - sablo component property) value is or is not dependent on the foundset's record or scripting variables.
  * This way components that are linked to foundsets can know what to send for all records and what to send for each record to the browser.
  *
- * Usually this type of property also uses {@link IServoyAwarePropertyValue}.
+ * Usually this type of property also uses {@link IServoyAwarePropertyValue} as a runtime (sablo) property value.
  *
  * By default, types that do not implement this interface are considered to not depend on record data.
  *
  * @author acostescu
  * @see IServoyAwarePropertyValue
  */
-public interface IRecordAwareType<FormElementT>
+public interface IDataLinkedType<FormElementT>
 {
 
 	/**
 	 * @param value this is the template/form element value of the property.
-	 * @return true if this value depends on foundset record value and false if not.
+	 * @return true if this value depends on foundset record or scripting variables and false if not.
 	 */
-	boolean isLinkedToRecord(FormElementT formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement);
+	boolean isLinkedToData(FormElementT formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement);
 
 }

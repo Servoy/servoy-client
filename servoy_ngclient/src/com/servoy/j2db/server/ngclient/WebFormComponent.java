@@ -8,9 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
-
 import org.json.JSONException;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
@@ -18,13 +15,11 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
-import com.servoy.j2db.server.ngclient.property.types.IRecordAwareType;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -34,7 +29,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class WebFormComponent extends Container implements ListDataListener, IContextProvider
+public class WebFormComponent extends Container implements IContextProvider
 {
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
@@ -60,7 +55,7 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 		properties.put("svyMarkupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
 		for (PropertyDescription pd : fe.getWebComponentSpec().getProperties().values())
 		{
-			if (pd.getType() instanceof IRecordAwareType)
+			if (pd.getType() instanceof IDataLinkedType)
 			{
 				((DataAdapterList)dataAdapterList).addRecordAwareComponent(this);
 				break;
@@ -170,26 +165,13 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	protected void onPropertyChange(String propertyName, Object oldValue, Object propertyValue)
 	{
 		super.onPropertyChange(propertyName, oldValue, propertyValue);
-		if (oldValue instanceof IValueList)
-		{
-			((IValueList)oldValue).removeListDataListener(this);
-		}
-		else if (oldValue instanceof LookupListModel)
-		{
-			((LookupListModel)oldValue).removeListDataListener(this);
-		}
-		if (propertyValue instanceof IValueList)
-		{
-			((IValueList)propertyValue).addListDataListener(this);
-		}
-		else if (propertyValue instanceof LookupListModel)
-		{
-			((LookupListModel)propertyValue).addListDataListener(this);
-		}
 
 		if (propertyChangeSupport != null) propertyChangeSupport.firePropertyChange(propertyName, oldValue, propertyValue);
 	}
 
+	/**
+	 * These listeners will be triggered when the property changes by reference.
+	 */
 	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener)
 	{
 		if (propertyChangeSupport == null) propertyChangeSupport = new PropertyChangeSupport(this);
@@ -243,38 +225,6 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	public String toString()
 	{
 		return "<" + getName() + ">";
-	}
-
-	@Override
-	public void intervalAdded(ListDataEvent e)
-	{
-		valueListChanged(e);
-	}
-
-	@Override
-	public void intervalRemoved(ListDataEvent e)
-	{
-		valueListChanged(e);
-	}
-
-	@Override
-	public void contentsChanged(ListDataEvent e)
-	{
-		valueListChanged(e);
-	}
-
-	/**
-	 * @param e
-	 */
-	private void valueListChanged(ListDataEvent e)
-	{
-		for (String propName : properties.keySet())
-		{
-			if (getProperty(propName) == e.getSource())
-			{
-				flagPropertyChanged(propName);
-			}
-		}
 	}
 
 	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
@@ -372,15 +322,15 @@ public class WebFormComponent extends Container implements ListDataListener, ICo
 	}
 
 	/**
-	 * Notifies this component that the record it displays has changed.
-	 * @return true if any property value changed due to the execution of this method, or false otherwise.
+	 * Notifies this component that the record or dataprovider values that it displays have changed.
 	 */
-	public void pushRecord(IRecordInternal record)
+	public void pushDataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
 		for (String pN : getAllPropertyNames(true))
 		{
 			Object x = getProperty(pN);
-			if (x instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)x).pushRecord(record);
+			if (x instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)x).dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP,
+				fireChangeEvent);
 		}
 	}
 

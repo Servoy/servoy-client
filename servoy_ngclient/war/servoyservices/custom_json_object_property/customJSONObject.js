@@ -98,15 +98,13 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 				} else if (serverJSONValue && serverJSONValue[UPDATES]) {
 					// granular updates received;
 					
-					if (serverJSONValue[INITIALIZE]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION] - 1); // this can happen when an object value was set completely in browser and the child values need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child values
+					if (serverJSONValue[INITIALIZE]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // this can happen when an object value was set completely in browser and the child values need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child values
 					
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 
 					// if something changed browser-side, increasing the content version thus not matching next expected version,
 					// we ignore this update and expect a fresh full copy of the object from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)
-					if (internalState[CONTENT_VERSION] + 1 == serverJSONValue[CONTENT_VERSION]) {
-
-						internalState[CONTENT_VERSION] = serverJSONValue[CONTENT_VERSION];
+					if (internalState[CONTENT_VERSION] == serverJSONValue[CONTENT_VERSION]) {
 						var updates = serverJSONValue[UPDATES];
 						var conversionInfos = serverJSONValue.conversions;
 						var i;
@@ -210,11 +208,12 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 			if (newClientData && (internalState = newClientData[$sabloConverters.INTERNAL_IMPL])) {
 				var internalState = newClientData[$sabloConverters.INTERNAL_IMPL];
 				if (internalState.isChanged()) {
-					++internalState[CONTENT_VERSION]; // we also increase the content version number - server should only be expecting updates for the next version number
+					var changes = {};
+					changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
 					if (internalState.allChanged) {
+						// structure might have changed; increase version number
+						++internalState[CONTENT_VERSION]; // we also increase the content version number - server should only be expecting updates for the next version number
 						// send all
-						var changes = {};
-						changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
 						var toBeSentObj = changes[VALUE] = {};
 						for (var key in newClientData) {
 							if (angularAutoAddedKeys.indexOf(key) !== -1) continue;
@@ -228,8 +227,6 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 						return changes;
 					} else {
 						// send only changed keys
-						var changes = {};
-						changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
 						var changedElements = changes[UPDATES] = [];
 						for (var key in internalState.changedKeys) {
 							var newVal = newClientData[key];

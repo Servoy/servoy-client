@@ -78,9 +78,8 @@ public class FoundsetTypeViewport
 
 		correctViewportBoundsIfNeededInternal();
 
-		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortCompletelyChanged();
+		if (oldStartIndex != this.startIndex || oldSize != this.size) changeMonitor.viewPortCompletelyChanged();
 	}
-
 
 	/**
 	 * Extends the viewport - useful for sending more records to client without re-sending the whole viewport.

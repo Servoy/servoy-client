@@ -199,7 +199,7 @@ public class CustomArrayPropertyRhinoTests
 
 		changes = component.getChanges();
 		assertEquals(
-			"{\"arrayT\":{\"vEr\":4,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"conversions\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"conversions\":{\"active\":\"JSON_arr\"}}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"arrayT\":\"JSON_arr\"}}",
+			"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"conversions\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"conversions\":{\"active\":\"JSON_arr\"}}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"arrayT\":\"JSON_arr\"}}",
 			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType));
 
 		// now simulate another request cycle that makes some change to the property from javascript
