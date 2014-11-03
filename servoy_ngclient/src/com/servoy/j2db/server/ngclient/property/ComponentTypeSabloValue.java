@@ -146,7 +146,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		final FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
 
 		if (foundsetPropValue == null && forFoundsetTypedPropertyName != null) return;
-		if (foundsetPropValue == null && forFoundsetTypedPropertyName != null) return;
 
 		componentIsCreated = true;
 		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
@@ -162,7 +161,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				if (forFoundsetTypedPropertyName != null && formElementValue.recordBasedProperties.contains(propertyName))
 				{
 					if (!((FoundsetDataAdapterList)dal).keepQuiet) // if forFoundsetTypedPropertyName != null we are using a foundset DAL, so just cast
-			{
+					{
 						// for example valuelist properties can get filtered based on client sent filter in which case the property does change without
 						// any actual change in the record; in this case we need to mark it correctly in viewport as a change
 						int idx = foundsetPropValue.getFoundset().getRecordIndex(dal.getRecord());
