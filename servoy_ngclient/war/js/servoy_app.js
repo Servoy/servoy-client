@@ -221,12 +221,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				});
 			}
 
+			if (msg.sessionid) {
+				webStorage.session.add("sessionid",msg.sessionid);
+			}
+			if (msg.windowid) {
+				$solutionSettings.windowName = msg.windowid;
+				webStorage.session.add("windowid",msg.windowid);
+			}
+			
 			if (conversionInfo && conversionInfo.call) msg.call = $sabloConverters.convertFromServerToClient(msg.call, conversionInfo.call, undefined, undefined);
 			if (msg.call) {
 				// {"call":{"form":"product","element":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}, // optionally "viewIndex":1 
 				// "{ conversions: {product: {datatextfield1: {0: "Date"}}} }
 				var call = msg.call;
-				$sabloInternal.getFormState(call.form).then(function(formState) {
+				return $sabloInternal.getFormState(call.form).then(function(formState) {
 					if (call.viewIndex != undefined) {
 						var funcThis = formState.api[call.bean][call.viewIndex]; 
 						if (funcThis)
@@ -258,13 +266,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					}
 					return func.apply(funcThis, call.args)
 				});
-			}
-			if (msg.sessionid) {
-				webStorage.session.add("sessionid",msg.sessionid);
-			}
-			if (msg.windowid) {
-				$solutionSettings.windowName = msg.windowid;
-				webStorage.session.add("windowid",msg.windowid);
 			}
 		});
 
