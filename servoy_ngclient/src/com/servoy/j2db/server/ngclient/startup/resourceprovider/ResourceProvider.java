@@ -77,6 +77,11 @@ public class ResourceProvider implements Filter
 		int index = name.lastIndexOf('/');
 		if (index == -1) index = name.lastIndexOf('\\');
 		if (index != -1) name = name.substring(index + 1);
+		// strip off the zip or jar extension
+		if (name.toLowerCase().endsWith(".jar") || name.toLowerCase().endsWith(".zip"))
+		{
+			name = name.substring(0, name.length() - 4);
+		}
 		return name;
 	}
 
@@ -280,7 +285,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -291,7 +296,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -327,7 +332,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -357,7 +362,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
