@@ -1,4 +1,4 @@
-angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.grid.selection','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
+angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
 .directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil',
                                    function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil) {  
 	return {
@@ -215,7 +215,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 						cellTemplate: cellTemplate,
 						visible: el.model.visible,
 						width: el.model.size.width,
-						editableCellTemplate: cellTemplate,
+						cellEditableCondition: false,
 						enableColumnResizing: isResizable,
 					});					
 					updateColumnDefinition($scope, idx);
@@ -227,7 +227,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid' ,'ui.grid.edit','ui.gri
 					width: rowWidth,
 					cellTemplate: rowTemplate,
 					name: "unique",
-					editableCellTemplate: rowTemplate
+					cellEditableCondition: false,
 				});
 			}
 
