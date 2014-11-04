@@ -111,10 +111,12 @@ angular.module('window',['servoy'])
 			style+= 'left:'+left+'px;';
 			style+= 'top:'+top+'px;';
 			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()"></div>')(scope);
+			body.on('click',this.cancelFormPopup);
 			body.append(popup);
 		},
 		cancelFormPopup : function()
 		{
+			$('body').off('click',this.cancelFormPopup);
 			if (scope.model.popupform)
 			{
 				$formService.hideForm(scope.model.popupform.form);
