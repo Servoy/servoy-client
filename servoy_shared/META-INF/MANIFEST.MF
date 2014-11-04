@@ -23,8 +23,6 @@ Bundle-ClassPath: .,
  lib/xstream.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_base;visibility:=reexport,
- javax.servlet;bundle-version="3.0.0",
- javax.servlet.jsp;bundle-version="2.2.0",
  slf4j.api;bundle-version="1.6.1",
  org.apache.commons.io;bundle-version="2.4.0",
  log4j;bundle-version="1.2.17",
@@ -272,4 +270,6 @@ Export-Package: com.servoy.extension,
  org.xhtmlrenderer.css.util,
  org.xhtmlrenderer.css.value,
  org.xhtmlrenderer.util
-Import-Package: org.w3c.dom
+Import-Package: javax.servlet;version="3.0.0",
+ javax.servlet.http;version="3.0.0",
+ org.w3c.dom
