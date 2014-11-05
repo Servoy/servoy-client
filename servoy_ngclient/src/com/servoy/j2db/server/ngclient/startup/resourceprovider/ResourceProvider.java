@@ -285,7 +285,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -296,7 +296,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -332,7 +332,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -362,13 +362,24 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
 		public void reportError(String specpath, Exception e)
 		{
 			log.error("Cannot parse spec file '" + specpath + "' from package 'URLPackageReader[ " + urlOfManifest + " ]'. ", e);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
+		 */
+		@Override
+		public URL getPackageURL()
+		{
+			return null;
 		}
 	}
 }
