@@ -1,6 +1,6 @@
 angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
-.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil',
-                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil) {  
+.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil','uiGridConstants',
+                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil,uiGridConstants) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -550,9 +550,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					enableRowHeaderSelection: false,
 					multiSelect: false,
 					noUnselect: true,
-					enableScrollbars: false,
-					enableVerticalScrollbar: 2,
-					enableHorizontalScrollbar: 2,
+					enableVerticalScrollbar: uiGridConstants.scrollbars.WHEN_NEEDED,
+					enableHorizontalScrollbar: uiGridConstants.scrollbars.ALWAYS,
 					followSourceArray:true,
 					useExternalSorting: true,
 					primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
