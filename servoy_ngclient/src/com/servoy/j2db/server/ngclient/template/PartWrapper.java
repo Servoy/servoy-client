@@ -38,6 +38,7 @@ import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.util.OrientationApplier;
 
 /**
  * @author lvostinar
@@ -50,12 +51,39 @@ public class PartWrapper
 	private final Form context;
 	IServoyDataConverterContext converterContext;
 
-	public PartWrapper(Part part, Form context, IServoyDataConverterContext converterContext)
+	public PartWrapper(Part part, Form context, IServoyDataConverterContext converterContext, final boolean design)
 	{
 		this.part = part;
 		this.context = context;
 		this.converterContext = converterContext;
-		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)context.getAncestor(IRepository.SOLUTIONS), context, null);
+		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)context.getAncestor(IRepository.SOLUTIONS), context, null)
+		{
+			@Override
+			protected void fillPartLayoutCSS(TextualStyle partStyle, Part part, int spaceUsedOnlyInPrintAbove, int spaceUsedOnlyInPrintBelow)
+			{
+				if (design)
+				{
+					if (orientation.equals(OrientationApplier.RTL))
+					{
+						partStyle.setProperty("right", defaultNavigatorShift + "px");
+						partStyle.setProperty("left", "0px");
+					}
+					else
+					{
+						partStyle.setProperty("left", defaultNavigatorShift + "px");
+						partStyle.setProperty("right", "0px");
+					}
+
+					int top = f.getPartStartYPos(part.getID());
+					partStyle.setProperty("top", (top - spaceUsedOnlyInPrintAbove) + "px");
+					partStyle.setProperty("height", (part.getHeight() - top) + "px");
+				}
+				else
+				{
+					super.fillPartLayoutCSS(partStyle, part, spaceUsedOnlyInPrintAbove, spaceUsedOnlyInPrintBelow);
+				}
+			}
+		};
 		layoutProvider.setDefaultNavigatorShift(0);
 	}
 

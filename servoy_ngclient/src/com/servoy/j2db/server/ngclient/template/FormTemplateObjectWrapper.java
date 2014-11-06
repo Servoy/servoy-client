@@ -73,7 +73,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		}
 		else if (obj instanceof Part)
 		{
-			wrapped = new PartWrapper((Part)obj, flattenedForm, context);
+			wrapped = new PartWrapper((Part)obj, flattenedForm, context, design);
 		}
 		else if (obj instanceof IFormElement)
 		{
