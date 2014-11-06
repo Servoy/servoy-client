@@ -29,7 +29,6 @@ import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -157,9 +156,9 @@ public class NGClientEntryFilter extends WebEntry
 								}
 							});
 						}
-						catch (RepositoryException e)
+						catch (Exception e)
 						{
-							Debug.error(e);
+							Debug.error("error loading solution: " + solutionName + " for clientid: " + clientUUID, e);
 						}
 					}
 
