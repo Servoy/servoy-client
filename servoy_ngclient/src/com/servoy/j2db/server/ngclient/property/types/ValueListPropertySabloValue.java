@@ -42,6 +42,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Runtime value stored in WebFormComponents for properties of type {@link ValueListPropertyType}.
@@ -134,6 +135,10 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 	@Override
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
+		if (dataProvider == null || Utils.equalObjects(dataProvider, dataproviderID))
+		{
+			revertFilter();
+		}
 		if (dataProvider == null || !isFormDP && !isGlobalDP)
 		{
 			valueList.fill(record);
@@ -145,6 +150,17 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 	{
 		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
 		JSONUtils.toBrowserJSONFullValue(writer, key, getJavaValueForJSON(), null, clientConversion);
+	}
+
+	private void revertFilter()
+	{
+		if (filteredValuelist != null)
+		{
+			filteredValuelist.removeListDataListener(this);
+			valueList.addListDataListener(this);
+			filteredValuelist = null;
+
+		}
 	}
 
 	/**
