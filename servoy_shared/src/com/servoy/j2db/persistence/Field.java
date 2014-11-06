@@ -133,7 +133,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
 	 *
-	 * @templatedescription Handle changed data, return false if the value should not be accepted. (in NGClient you can return also a string, instead of false, which will be shown as a tooltip)
+	 * @templatedescription Handle changed data, return false if the value should not be accepted. In NGClient you can return also a (i18n) string, instead of false, which will be shown as a tooltip.
 	 * @templatename onDataChange
 	 * @templatetype Boolean
 	 * @templateparam ${dataproviderType} oldValue old value
