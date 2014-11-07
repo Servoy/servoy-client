@@ -1,4 +1,4 @@
-angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultImagemedia', function($utils, $window, $document) {  
+angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultImagemedia', function($window, $document) {  
     return {
       restrict: 'E',
       scope: {

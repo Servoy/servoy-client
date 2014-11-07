@@ -4,7 +4,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
     CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
     CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $sabloUtils, $utils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -25,7 +25,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		var newBeanModel = propertyValue.model;
 		if (angular.isUndefined(oldBeanModel)) oldBeanModel = newBeanModel; // for child components who's custom prop. changed
 		var childChangedNotifier = getBeanPropertyChangeNotifier(propertyValue, componentScope); 
-		var beanConversionInfo = $utils.getInDepthProperty(internalState, CONVERSIONS);
+		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 		
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
@@ -85,7 +85,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					var beanLayout = internalState.beanLayout;
 					var containerSize = {width: 0, height: 0};
 
-					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $utils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
+					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
 
 					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifier, currentConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
 					done = true;
@@ -120,7 +120,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
 					var executeHandler = function(type,event,row) {
-						var newargs = $utils.getEventArgs(event,type);
+						var newargs = $sabloUtils.getEventArgs(event,type);
 						internalState.requests.push({ handlerExec: {
 							eventType: type,
 							args:newargs,
@@ -148,7 +148,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					internalState.beanLayout = {};
 					var containerSize = {width: 0, height: 0};
 
-					var currentConversionInfo = beanModel[CONVERSIONS] ? $utils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
+					var currentConversionInfo = beanModel[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
 
 					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel[CONVERSIONS], componentScope);
 					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only

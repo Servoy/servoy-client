@@ -39,7 +39,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloInt
 	
 	var getExecutor = function(beanName,eventType) {
 		var callExecutor = function(args, rowId) {
-			return $servoyInternal.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
+			return $sabloInternal.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 		}
 		var wrapper = function() {
 			return callExecutor(arguments, null);

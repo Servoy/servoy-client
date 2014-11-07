@@ -7,7 +7,7 @@ angular.module('servoydefaultLabel',['servoy'])
 		$templateCache.put("template/servoydefault/label/labelfor.html", result.data);
     });	
 }])
-.directive('servoydefaultLabel', ["formatFilterFilter",'$utils','$parse','$templateCache','$compile',function(formatFilter,$utils,$parse,$templateCache,$compile) {
+.directive('servoydefaultLabel', ['$parse','$templateCache','$compile',function($parse,$templateCache,$compile) {
     return {
       restrict: 'E',
       scope: {

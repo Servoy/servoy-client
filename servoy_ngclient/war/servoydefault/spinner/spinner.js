@@ -1,4 +1,4 @@
-angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinner',['$utils','formatFilterFilter', function($utils,formatFilter) {  
+angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinner',['formatFilterFilter', function(formatFilter) {  
     return {
       restrict: 'E',
       scope: {
