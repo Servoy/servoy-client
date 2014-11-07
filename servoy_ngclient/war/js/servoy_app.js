@@ -1,13 +1,13 @@
 var controllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
-}).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloInternal) {
+}).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication) {
 	   
 	   var deferredProperties = {};
 	   
 	   var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier, componentScope) {
 		
-		 var changes = $sabloInternal.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifier, componentScope)
+		 var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifier, componentScope)
 		 if (changes.location || changes.size || changes.visible || changes.anchors) {
 			   if (beanLayout) {
 				   applyBeanData(now, beanLayout, changes, parentSize, changeNotifier, undefined, undefined, componentScope);
@@ -17,18 +17,18 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	   };
 	   
 	   var sendChanges = function(now, prev, formname, beanname) {
-		   $sabloInternal.getFormState(formname).then(function (formState) {
-			   var changes = getComponentChanges(now, prev, $sabloUtils.getInDepthProperty($sabloInternal.getFormStatesConversionInfo(), formname, beanname),
-					   formState.layout[beanname], formState.properties.designSize, $sabloInternal.getChangeNotifier(formname, beanname), formState.getScope());
+		   $sabloApplication.getFormState(formname).then(function (formState) {
+			   var changes = getComponentChanges(now, prev, $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname),
+					   formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifier(formname, beanname), formState.getScope());
 			   if (Object.getOwnPropertyNames(changes).length > 0) {
-				   $sabloInternal.sendRequest({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
+				   $sabloApplication.sendRequest({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
 			   }
 		   })
 	   };
 	   
 	   var applyBeanData = function(beanModel, beanLayout, beanData, containerSize, changeNotifier, beanConversionInfo, newConversionInfo, componentScope) {
 		   
-		   $sabloInternal.applyBeanData(beanModel, beanData, containerSize, changeNotifier, beanConversionInfo, newConversionInfo, componentScope)
+		   $sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifier, beanConversionInfo, newConversionInfo, componentScope)
 		   applyBeanLayout(beanModel, beanLayout, beanData, containerSize)
 	   }
 	   
@@ -159,15 +159,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   if (!solName) $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec($window.location.pathname)[1];
 		   else $solutionSettings.solutionName  = solName;
 		   $solutionSettings.windowName = webStorage.session.get("windowid");
-		   var wsSession = $sabloInternal.connect('/solutions/'+$solutionSettings.solutionName, [webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName])
+		   var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, [webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName])
 		   wsSession.onMessageObject(function (msg, conversionInfo) {
 			   // data got back from the server
 			   for(var formname in msg.forms) {
 				   // current model
-				   if (!$sabloInternal.hasFormstateLoaded(formname)) continue;
+				   if (!$sabloApplication.hasFormstateLoaded(formname)) continue;
 				   // if the formState is on the server but not here anymore, skip it. 
 				   // this can happen with a refresh on the browser.
-				   $sabloInternal.getFormState(formname).then(function (formState) {
+				   $sabloApplication.getFormState(formname).then(function (formState) {
 					   var formModel = formState.model;
 					   var layout = formState.layout;
 					   var newFormData = msg.forms[formname];
@@ -218,7 +218,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   
 		   initFormState: function(formName, beanDatas, formProperties, formScope) {
 			   
-			   var state = $sabloInternal.initFormState(formName, beanDatas, formProperties, formScope)
+			   var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope)
 			   
 			   if (!state || state.layout) return state; // already initialized
 			   
@@ -238,9 +238,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				   layout[beanName] = { position: 'absolute' }
 				   
 				   var newBeanConversionInfo = beanDatas[beanName].conversions;
-				   var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloInternal.getFormStatesConversionInfo(), formName, beanName) : undefined; // we could do a get instead of undefined, but normally that value is not needed if the new conversion info is undefined
+				   var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : undefined; // we could do a get instead of undefined, but normally that value is not needed if the new conversion info is undefined
 				   
-				   applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, $sabloInternal.getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
+				   applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, $sabloApplication.getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
 			   }
 
 			   return state;
@@ -252,7 +252,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   // for example components that use nested elements/components such as portal can give here the new value
 		   // based on the way they feed the model to child components - so they can use other objects then server known models
 		   pushDPChange: function(formname, beanname, property, componentModel, rowId) {
-			   $sabloInternal.getFormState(formname).then(function (formState) {
+			   $sabloApplication.getFormState(formname).then(function (formState) {
 				   var changes = {}
 
 				   if (componentModel) {
@@ -265,7 +265,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					   }
 				   }
 				   // default model, simple direct form child component
-				   var formStatesConversionInfo = $sabloInternal.getFormStatesConversionInfo()
+				   var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo()
 				   var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
 
 				   if (conversionInfo && conversionInfo[property]) {
@@ -274,7 +274,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					   changes[property] = $sabloUtils.convertClientObject(formState.model[beanname][property]);
 				   }
 
-				   $sabloInternal.sendRequest({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
+				   $sabloApplication.sendRequest({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
 			   });
 		   },
 
@@ -306,14 +306,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			   }
 		   }
 	   }
-}).directive('svyAutosave',  function ($sabloInternal) {
+}).directive('svyAutosave',  function ($sabloApplication) {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
         	element.on('click', function(event) {
         		if (event.target.tagName.toLowerCase() == 'div')
         		{
-        			$sabloInternal.callService("applicationServerService", "autosave",{}, true);
+        			$sabloApplication.callService("applicationServerService", "autosave",{}, true);
         		}
         	});
         }
@@ -572,7 +572,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     	  }
       }
     };   
-}).directive('svyFormload',  function ($timeout, $sabloInternal, $windowService, $rootScope) {
+}).directive('svyFormload',  function ($timeout, $sabloApplication, $windowService, $rootScope) {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
@@ -581,7 +581,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				// notify that the form has been loaded
 				// NOTE: this call cannot be make as a service call, as a service call may
 				// already be blocked and waiting for the formload event
-				$sabloInternal.sendRequest({cmd:'formloaded',formname:formname})
+				$sabloApplication.sendRequest({cmd:'formloaded',formname:formname})
 				if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
 					$rootScope.updatingFormUrl = '';
 				}
@@ -662,10 +662,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},$solutionSettings.maintenanceMode.redirectTimeout*1000)
 	}
 }])
-.controller("LoginController", function($scope, $modalInstance, $sabloInternal, $rootScope, webStorage) {
+.controller("LoginController", function($scope, $modalInstance, $sabloApplication, $rootScope, webStorage) {
 	$scope.model = {'remember' : true };
 	$scope.doLogin = function() {
-		var promise = $sabloInternal.callService("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
+		var promise = $sabloApplication.callService("applicationServerService", "login", {'username' : $scope.model.username, 'password' : $scope.model.password, 'remember': $scope.model.remember}, false);
 		promise.then(function(ok) {
 			if(ok) {
 				if(ok.username) webStorage.local.add('servoy_username', ok.username);
@@ -726,7 +726,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 }])
-.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$sabloInternal','$solutionSettings','$rootScope', function($window,$timeout,webStorage,$modal,$sabloInternal,$solutionSettings,$rootScope) {
+.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$sabloApplication','$solutionSettings','$rootScope', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope) {
 	var showDefaultLoginWindow = function() {
 			$modal.open({
         	  templateUrl: '/templates/login.html',
@@ -810,7 +810,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		showDefaultLogin: function() {
 			if(webStorage.local.get('servoy_username') && webStorage.local.get('servoy_password')) {
-				var promise = $sabloInternal.callService("applicationServerService", "login", {'username' : webStorage.local.get('servoy_username'), 'password' : webStorage.local.get('servoy_password'), 'encrypted': true}, false);
+				var promise = $sabloApplication.callService("applicationServerService", "login", {'username' : webStorage.local.get('servoy_username'), 'password' : webStorage.local.get('servoy_password'), 'encrypted': true}, false);
 				promise.then(function(ok) {
 					if(!ok) {
 						webStorage.local.remove('servoy_username');
@@ -825,8 +825,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	}
 	
 }])
-.run(function($window, $sabloInternal) {
+.run(function($window, $sabloApplication) {
 	$window.executeInlineScript = function(formname, script, params) {
-		$sabloInternal.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)
+		$sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)
 	}
 })

@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 	
-${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloInternal,$timeout,$formService) {
+${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService) {
 
 	var beans = {
 	<#list baseComponents as bc>
@@ -39,7 +39,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloInt
 	
 	var getExecutor = function(beanName,eventType) {
 		var callExecutor = function(args, rowId) {
-			return $sabloInternal.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
+			return $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 		}
 		var wrapper = function() {
 			return callExecutor(arguments, null);
@@ -75,7 +75,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloInt
 				return $formService.getFormUrl(formUrl);
 			},
 			startEdit: function(propertyName) {
-				$sabloInternal.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
+				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
 			}
 		}
 	}

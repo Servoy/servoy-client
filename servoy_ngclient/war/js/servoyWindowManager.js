@@ -127,7 +127,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
        return {x:left,y:top}
     };
     
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $servoyInternal, $sabloInternal, webStorage, WindowType) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $servoyInternal, $sabloApplication, webStorage, WindowType) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
@@ -138,7 +138,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	$window.addEventListener('resize',function() { 
 		if(mwResizeTimeoutID) $timeout.cancel(mwResizeTimeoutID);
 		mwResizeTimeoutID = $timeout( function() {
-			$sabloInternal.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
+			$sabloApplication.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
 		}, 500);
 	});
 	
@@ -181,12 +181,12 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 				     onResize:function($event,size){
 				    	win.size = size;				    	
 				    	if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
-				    	$sabloInternal.callService("$windowService", "resize", {name:win.name,size:win.size},true);
+				    	$sabloApplication.callService("$windowService", "resize", {name:win.name,size:win.size},true);
 				     },
 				     onMove:function($event,location){
 				    	 win.location = {x:location.left,y:location.top};
 				    	 if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win.location)
-				    	 $sabloInternal.callService("$windowService", "move", {name:win.name,location:win.location},true);
+				    	 $sabloApplication.callService("$windowService", "move", {name:win.name,location:win.location},true);
 				     },
 				     toFront:function(){
 				    	 $servoyWindowManager.BSWindowManager.setFocused(this.bsWindowInstance)
@@ -329,7 +329,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
         		$window.location.reload(true);
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
-				$sabloInternal.clearformState(formName)
+				$sabloApplication.clearformState(formName)
 				eval(controllerCode);
 				formTemplateUrls[formName] = realFormUrl;
 				if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
@@ -346,7 +346,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
 					formTemplateUrls[formName] = "";
-					$sabloInternal.callService("$windowService", "touchForm", {name:formName},true);
+					$sabloApplication.callService("$windowService", "touchForm", {name:formName},true);
 			}
 			else if (realFormUrl.length == 0)
 			{
@@ -389,10 +389,10 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 		}
 		return {'width':width+'px','height':height+'px'}
 	}
-	$sabloInternal.callService('formService', 'formvisibility', {formname:windowInstance.form.name,visible:true})
+	$sabloApplication.callService('formService', 'formvisibility', {formname:windowInstance.form.name,visible:true})
 	
 	$scope.cancel = function () {
-		var promise = $sabloInternal.callService("$windowService", "windowClosing", {window:windowInstance.name},false);
+		var promise = $sabloApplication.callService("$windowService", "windowClosing", {window:windowInstance.name},false);
 		promise.then(function(ok) {
     		if (ok) {
     			$windowService.hide(windowInstance.name);

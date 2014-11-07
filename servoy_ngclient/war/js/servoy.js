@@ -21,21 +21,21 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$formService",function($sabloInternal,$windowService) {
+}).factory("$formService",function($sabloApplication,$windowService) {
 	return {
 		showForm: function(formname,parentForm,beanName,relationname,formIndex) {
 			// first just touch the form here so it doesn't happen later on again.
 			$windowService.touchForm(formname)
-			$sabloInternal.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
+			$sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex) {
-			return $sabloInternal.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex});
+			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex});
 		},
 		setFormEnabled: function(formname, enabled) {
-			$sabloInternal.callService('formService', 'formenabled', {formname:formname,enabled:enabled},true)
+			$sabloApplication.callService('formService', 'formenabled', {formname:formname,enabled:enabled},true)
 		},
 		setFormReadOnly: function(formname, readOnly) {
-			$sabloInternal.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly},true)
+			$sabloApplication.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly},true)
 		},
 		getFormUrl: function(formUrl) {
 			return $windowService.getFormUrl(formUrl);
@@ -235,7 +235,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
             	onChangeFunction(scope, { $cmd: event });
             })});
     };
-}).directive('svyAutoapply', function($servoyInternal, $sabloInternal, $parse, $log) {
+}).directive('svyAutoapply', function($servoyInternal, $sabloApplication, $parse, $log) {
     return {
       restrict: 'A', // only activate on element attribute
       require: '?ngModel', // get a hold of NgModelController
@@ -340,7 +340,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		    		 } else {
 		    			 // this shouldn't happen (svy-servoyApi.startEdit not being set on a web-component...)
 		    			 if (!formName) formName = searchForFormName(); 
-		    			 $sabloInternal.callService("formService", "startEdit", {formname:formName,beanname:beanname,property:propertyname},true)
+		    			 $sabloApplication.callService("formService", "startEdit", {formname:formName,beanname:beanname,property:propertyname},true)
 		    		 }
 		    	 }, 0);
 		     });
