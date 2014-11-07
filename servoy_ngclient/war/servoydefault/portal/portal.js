@@ -1,6 +1,6 @@
 angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
-.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil','uiGridConstants',
-                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil,uiGridConstants) {  
+.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil','uiGridConstants','$scrollbarConstants',
+                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil,uiGridConstants,$scrollbarConstants) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -550,8 +550,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					enableRowHeaderSelection: false,
 					multiSelect: false,
 					noUnselect: true,
-					enableVerticalScrollbar: uiGridConstants.scrollbars.WHEN_NEEDED,
-					enableHorizontalScrollbar: uiGridConstants.scrollbars.ALWAYS,
+					enableVerticalScrollbar: uiGridConstants.scrollbars.NEVER,
+					enableHorizontalScrollbar: uiGridConstants.scrollbars.NEVER,
 					followSourceArray:true,
 					useExternalSorting: true,
 					primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
@@ -560,7 +560,22 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					hideHeader:$scope.model.headerHeight == 0 || $scope.model.multiLine,
 					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight
 			};
-
+			
+			if ($scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
+					$scope.gridOptions.enableVerticalScrollbar = uiGridConstants.scrollbars.ALWAYS;
+			else if ( $scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_AS_NEEDED)
+					$scope.gridOptions.enableVerticalScrollbar = uiGridConstants.scrollbars.WHEN_NEEDED;
+			
+			if ($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
+					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.ALWAYS;
+			else if ( $scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.WHEN_NEEDED;
+			
+			if ($scope.model.scrollbars === 0) {
+				$scope.gridOptions.enableVerticalScrollbar = uiGridConstants.scrollbars.WHEN_NEEDED;
+				$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.WHEN_NEEDED;
+			}
+			
 			$scope.gridOptions.onRegisterApi = function( gridApi ) {
 				$scope.gridApi = gridApi;
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
