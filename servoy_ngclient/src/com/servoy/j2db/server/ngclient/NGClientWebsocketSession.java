@@ -211,16 +211,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			String event = obj.getString("cmd");
 			switch (event)
 			{
-				case "datapush" :
-				{
-					pushChanges(obj, false);
-					break;
-				}
-				case "svypush" :
-				{
-					pushChanges(obj, true);
-					break;
-				}
 				case "event" :
 				{
 					getEventDispatcher().addEvent(new Runnable()
@@ -282,33 +272,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			J2DBGlobals.setServiceProvider(null);
 		}
-	}
-
-	private void pushChanges(final JSONObject obj, final boolean apply)
-	{
-		getEventDispatcher().addEvent(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					IWebFormUI form = client.getFormManager().getFormAndSetCurrentWindow(obj.getString("formname")).getFormUI();
-
-					pushChanges(obj);
-					if (apply)
-					{
-						WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
-						form.getDataAdapterList().pushChanges(webComponent, obj.getString("property"));
-					}
-				}
-				catch (JSONException e)
-				{
-					Debug.error(e);
-					sendInternalError(e);
-				}
-			}
-		});
 	}
 
 	/**

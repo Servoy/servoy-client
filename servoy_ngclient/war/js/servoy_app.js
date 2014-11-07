@@ -21,7 +21,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			   var changes = getComponentChanges(now, prev, $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname),
 					   formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifier(formname, beanname), formState.getScope());
 			   if (Object.getOwnPropertyNames(changes).length > 0) {
-				   $sabloApplication.sendRequest({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
+				   $sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes}, true)
 			   }
 		   })
 	   };
@@ -273,8 +273,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				   } else {
 					   changes[property] = $sabloUtils.convertClientObject(formState.model[beanname][property]);
 				   }
-
-				   $sabloApplication.sendRequest({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
+				   $sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
 			   });
 		   },
 

@@ -72,6 +72,23 @@ public class NGFormServiceHandler extends FormServiceHandler
 	{
 		switch (methodName)
 		{
+			case "svyPush" :
+			{
+				String formName = args.getString("formname");
+				IWebFormUI form = (IWebFormUI)getWebsocketSession().getForm(formName);
+				if (form == null)
+				{
+					log.warn("svyPush for unknown form '" + formName + "'");
+				}
+				else
+				{
+					dataPush(args);
+					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
+					form.getDataAdapterList().pushChanges(webComponent, args.getString("property"));
+				}
+				break;
+			}
+
 			case "startEdit" :
 			{
 				IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(args.optString("formname")).getFormUI();
