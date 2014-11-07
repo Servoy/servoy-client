@@ -50,18 +50,22 @@ public class PartWrapper
 	private final AbstractFormLayoutProvider layoutProvider;
 	private final Form context;
 	IServoyDataConverterContext converterContext;
+	private final boolean isFlowLayout;
 
 	public PartWrapper(Part part, Form context, IServoyDataConverterContext converterContext, final boolean design)
 	{
 		this.part = part;
 		this.context = context;
 		this.converterContext = converterContext;
+
+		isFlowLayout = context.getLayoutContainers().hasNext();
+
 		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)context.getAncestor(IRepository.SOLUTIONS), context, null)
 		{
 			@Override
 			protected void fillPartLayoutCSS(TextualStyle partStyle, Part part, int spaceUsedOnlyInPrintAbove, int spaceUsedOnlyInPrintBelow)
 			{
-				if (design)
+				if (design && !isFlowLayout)
 				{
 					if (orientation.equals(OrientationApplier.RTL))
 					{
