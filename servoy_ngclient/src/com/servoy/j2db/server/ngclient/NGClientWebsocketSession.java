@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.eventthread.WebsocketSessionEndpoints;
@@ -38,8 +39,10 @@ import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.IClientService;
+import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.WebsocketEndpoint;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
@@ -81,6 +84,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public NGClient getClient()
 	{
 		return client;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sablo.websocket.BaseWebsocketSession#getForm(java.lang.String)
+	 */
+	@Override
+	public Container getForm(String formName)
+	{
+		return (Container)client.getFormManager().getForm(formName).getFormUI();
 	}
 
 	@Override
@@ -177,6 +191,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
+
+	@Override
+	protected IServerService createFormService()
+	{
+		return new NGFormServiceHandler(this);
+	}
+
 	/**
 	 * @param message
 	 */
@@ -233,7 +254,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								}
 								if (obj.has("cmsgid")) // client wants response
 								{
-									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), error == null ? result : error, null, error == null);
+									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), error == null ? result : error, null,
+										FullValueToJSONConverter.INSTANCE, error == null);
 								}
 							}
 							catch (JSONException | IOException e)

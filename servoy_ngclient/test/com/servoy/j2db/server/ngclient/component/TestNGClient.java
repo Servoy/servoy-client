@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONObject;
+import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.PropertyDescription;
@@ -399,6 +400,18 @@ class TestClientWebsocketSession implements INGClientWebsocketSession
 
 	@Override
 	public IClientService getService(String name)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sablo.websocket.IWebsocketSession#getForm(java.lang.String)
+	 */
+	@Override
+	public Container getForm(String formName)
 	{
 		// TODO Auto-generated method stub
 		return null;

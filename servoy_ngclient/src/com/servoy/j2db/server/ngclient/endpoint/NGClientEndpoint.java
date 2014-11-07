@@ -29,8 +29,10 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.sablo.websocket.WebsocketEndpoint;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 
 /**
  * WebsocketEndpoint for NGClient.
@@ -82,5 +84,16 @@ public class NGClientEndpoint extends WebsocketEndpoint
 		{
 			log.error("IOException happened", t);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sablo.websocket.WebsocketEndpoint#getToJSONConverter()
+	 */
+	@Override
+	protected IToJSONConverter getToJSONConverter()
+	{
+		return InitialToJSONConverter.INSTANCE;
 	}
 }

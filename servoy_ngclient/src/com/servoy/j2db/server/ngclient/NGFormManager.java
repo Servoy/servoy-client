@@ -19,23 +19,14 @@ package com.servoy.j2db.server.ngclient;
 
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.websocket.IServerService;
-import org.sablo.websocket.TypedData;
-import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.ClientState;
@@ -45,8 +36,6 @@ import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
@@ -58,19 +47,16 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
-import com.servoy.j2db.util.SecuritySupport;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
  *
  */
-public class NGFormManager extends BasicFormManager implements INGFormManager, IServerService
+public class NGFormManager extends BasicFormManager implements INGFormManager
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 
@@ -82,7 +68,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 	{
 		super(application);
 		this.createdFormControllers = new ConcurrentHashMap<>();
-		application.getWebsocketSession().registerServerService("formService", this);
 	}
 
 	public final INGApplication getApplication()
@@ -92,7 +77,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormManager#getCachedFormController(java.lang.String)
 	 */
 	@Override
@@ -103,7 +88,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormManager#setFormReadOnly(java.lang.String, boolean)
 	 */
 	@Override
@@ -239,7 +224,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManager#getForm(java.lang.String)
 	 */
 	@Override
@@ -302,7 +287,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManagerInternal#clearLoginForm()
 	 */
 	@Override
@@ -313,7 +298,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManager#getCurrentForm()
 	 */
 	@Override
@@ -325,7 +310,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormManagerInternal#getCurrentMainShowingFormController()
 	 */
 	@Override
@@ -336,7 +321,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IManager#init()
 	 */
 	@Override
@@ -348,7 +333,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IManager#flushCachedItems()
 	 */
 	@Override
@@ -360,7 +345,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
 	@Override
@@ -402,7 +387,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInMainPanel(java.lang.String)
 	 */
 	@Override
@@ -413,7 +398,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInContainer(java.lang.String, com.servoy.j2db.IBasicMainContainer, java.lang.String, boolean,
 	 * java.lang.String)
 	 */
@@ -546,7 +531,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInCurrentContainer(java.lang.String)
 	 */
 	@Override
@@ -557,7 +542,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInDialog(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, boolean, boolean,
 	 * java.lang.String)
 	 */
@@ -594,7 +579,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInFrame(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, java.lang.String)
 	 */
 	@Override
@@ -628,7 +613,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#getCurrentContainer()
 	 */
 	@Override
@@ -639,7 +624,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#getHistory(com.servoy.j2db.IBasicMainContainer)
 	 */
 	@Override
@@ -663,7 +648,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#getMainContainer(java.lang.String)
 	 */
 	@Override
@@ -674,7 +659,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormManager#isCurrentTheMainContainer()
 	 */
 	@Override
@@ -683,154 +668,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		// main containers should be the once without a parent  (so tabs in browser but no dialogs)
 		// so setTitle should also just set it on the current main window of the active endpoint
 		return ((NGRuntimeWindow)getCurrentContainer()).getParent() == null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, org.json.JSONObject)
-	 */
-	@Override
-	public Object executeMethod(String methodName, final JSONObject args) throws Exception
-	{
-		INGClientWebsocketSession websocketSession = getApplication().getWebsocketSession();
-		switch (methodName)
-		{
-			case "startEdit" :
-			{
-				IWebFormUI form = getFormAndSetCurrentWindow(args.optString("formname")).getFormUI();
-				form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"));
-				break;
-			}
-			case "executeInlineScript" :
-			{
-				try
-				{
-					String formName = args.optString("formname", null);
-					if (formName == null)
-					{
-						formName = getCurrentForm().getName();
-					}
-					else
-					{
-						formName = SecuritySupport.decrypt(Settings.getInstance(), formName);
-					}
-					IWebFormUI form = getFormAndSetCurrentWindow(formName).getFormUI();
-					form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"), args.optJSONArray("params"));
-				}
-				catch (Exception ex)
-				{
-					Debug.error("Cannot execute inline script", ex);
-				}
-				break;
-			}
-			case "initialrequestdata" :
-			{
-				Pair<Map<String, Map<String, Map<String, Object>>>, PropertyDescription> requestData = requestData(args);
-				Map<String, Map<String, Map<String, Object>>> formData = requestData.getLeft();
-				PropertyDescription formsDataTypes = requestData.getRight();
-				try
-				{
-					Map<String, Map<String, Map<String, Map<String, Object>>>> singletonMap = new HashMap<String, Map<String, Map<String, Map<String, Object>>>>();//.singletonMap("forms", formData);
-					singletonMap.put("forms", formData);
-					singletonMap.put("initialdatarequest", new HashMap<String, Map<String, Map<String, Object>>>());
-					WebsocketEndpoint.get().sendMessage(formData.size() == 0 ? null : singletonMap, formsDataTypes, true, InitialToJSONConverter.INSTANCE);
-				}
-				catch (IOException e)
-				{
-					Debug.error(e);
-				}
-				break;
-			}
-			case "formreadOnly" :
-			{
-				IWebFormController form = getForm(args.optString("formname"));
-				if (form != null)
-				{
-					((WebFormController)form).setReadOnly(args.optBoolean("readOnly", false));
-				}
-				break;
-			}
-			case "formenabled" :
-			{
-				IWebFormController form = getForm(args.optString("formname"));
-				if (form != null)
-				{
-					((WebFormController)form).setComponentEnabled(args.optBoolean("enabled", true));
-				}
-				break;
-			}
-			case "formvisibility" :
-			{
-				IWebFormController parentForm = null;
-				IWebFormController controller = null;
-				String formName = args.optString("formname");
-				if (args.has("parentForm") && !args.isNull("parentForm"))
-				{
-					parentForm = getFormAndSetCurrentWindow(args.optString("parentForm"));
-					controller = getForm(formName);
-				}
-				else
-				{
-					controller = getFormAndSetCurrentWindow(formName);
-				}
-				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				boolean isVisible = args.getBoolean("visible");
-				boolean ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
-				if (ok && parentForm != null)
-				{
-					WebFormComponent containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
-					if (containerComponent != null)
-					{
-						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
-					}
-					if (args.has("relation") && !args.isNull("relation"))
-					{
-						String relation = args.getString("relation");
-						FoundSet parentFs = parentForm.getFormModel();
-						IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
-						if (selectedRecord != null)
-						{
-							controller.loadRecords(selectedRecord.getRelatedFoundSet(relation));
-						}
-						else
-						{
-							controller.loadRecords(null); // make sure its empty
-						}
-						parentForm.getFormUI().getDataAdapterList().addRelatedForm(controller, relation);
-					}
-				}
-				Utils.invokeLater(getApplication(), invokeLaterRunnables);
-				Form form = application.getFormManager().getPossibleForm(formName);
-				if (form != null) ((INGApplication)application).getWebsocketSession().touchForm(application.getFlattenedSolution().getFlattenedForm(form),
-					formName, true);
-				return Boolean.valueOf(ok);
-			}
-
-		}
-		return null;
-	}
-
-	private Pair<Map<String, Map<String, Map<String, Object>>>, PropertyDescription> requestData(final JSONObject args)
-	{
-		final String formName = args.optString("formname");
-
-		IWebFormUI form = getFormAndSetCurrentWindow(formName).getFormUI();
-		TypedData<Map<String, Map<String, Object>>> properties = form.getAllComponentsProperties();
-		Map<String, Map<String, Map<String, Object>>> formData = new HashMap<String, Map<String, Map<String, Object>>>();
-
-		formData.put(formName, properties.content);
-
-		PropertyDescription formDataTypes;
-		PropertyDescription formsDataTypes = null;
-		if (properties.contentType != null)
-		{
-			formDataTypes = AggregatedPropertyType.newAggregatedProperty();
-			formDataTypes.putProperty(formName, properties.contentType);
-			formsDataTypes = AggregatedPropertyType.newAggregatedProperty();
-			formsDataTypes.putProperty("forms", formDataTypes);
-		}
-		return new Pair<>(formData, formsDataTypes);
 	}
 
 	@Override

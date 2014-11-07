@@ -276,7 +276,6 @@ public class NGConversions
 		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers)
 			throws JSONException, IllegalArgumentException
 		{
-			boolean written = false;
 			if (value != null && valueType != null)
 			{
 				IPropertyType< ? > type = valueType.getType();
@@ -296,7 +295,7 @@ public class NGConversions
 			}
 
 			// for most values that don't support template value + updates use full value to JSON
-			if (!written) super.toJSONValue(writer, key, value, valueType, browserConversionMarkers);
+			super.toJSONValue(writer, key, value, valueType, browserConversionMarkers);
 
 			return writer;
 		}
