@@ -22,6 +22,8 @@
        
 	// the api defined in the spec file
        $scope.api.addTab = function(form, nameArg, tabText, tooltip, iconURL, fg, bg, relation, index) {
+    	   
+    	   if (!$scope.model.tabs) $scope.model.tabs = [];
     	   var insertPosition = (index == undefined) ? $scope.model.tabs.length : ((index == -1 || index > $scope.model.tabs.length) ? $scope.model.tabs.length : index);
     	   for(var i = $scope.model.tabs.length; i > insertPosition; i--) {
     		   $scope.model.tabs[i] = $scope.model.tabs[i - 1]; 

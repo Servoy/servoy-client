@@ -351,6 +351,10 @@ public final class FormElement implements IWebComponentInitializer
 		{
 			name = "svy_" + uniqueIdWithinForm;
 		}
+		if (Character.isDigit(name.charAt(0)))
+		{
+			name = "_" + name;
+		}
 		return name.replace('-', '_');
 	}
 
