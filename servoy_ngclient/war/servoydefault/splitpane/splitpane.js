@@ -184,7 +184,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
        			   active: false,
        			   disabled: false,
        			   foreground: null };        	  
-       	      $scope.svyServoyapi.showForm($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,0);        	  
+       	      $scope.svyServoyapi.showForm($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);        	  
         	  return true;
           }
           
