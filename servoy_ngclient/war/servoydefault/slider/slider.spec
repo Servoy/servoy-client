@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-slider",
 	"displayName": "Slider",
+	"version": 1,
 	"icon": "servoydefault/slider/SLIDER16.png",
 	"definition": "servoydefault/slider/slider.js", 
 	"libraries": [{"name":"jquery-ui.custom", "version":"1.9.2", "url":"servoydefault/slider/css/jquery-ui-1.9.2.custom.css", "mimetype":"text/css"},
