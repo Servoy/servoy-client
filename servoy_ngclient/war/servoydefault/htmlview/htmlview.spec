@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-htmlview",
 	"displayName": "Html View",
+	"version": 1,
 	"definition": "servoydefault/htmlview/htmlview.js",
 	"libraries": [],
 	"model":

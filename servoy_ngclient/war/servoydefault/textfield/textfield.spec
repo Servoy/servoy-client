@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-textfield",
 	"displayName": "Text Field",
+	"version": 1,
 	"icon": "servoydefault/textfield/textinput.png",
 	"definition": "servoydefault/textfield/textfield.js",
 	"libraries": [],

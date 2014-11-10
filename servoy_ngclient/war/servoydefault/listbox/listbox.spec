@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-listbox",
 	"displayName": "ListBox",
+	"version": 1,
 	"icon": "servoydefault/listbox/listbox.png",
 	"definition": "servoydefault/listbox/listbox.js",
 	"libraries": [],

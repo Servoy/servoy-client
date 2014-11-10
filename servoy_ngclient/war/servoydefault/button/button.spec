@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-button",
 	"displayName": "Button",
+	"version": 1,
 	"icon": "servoydefault/button/button.gif",
 	"definition": "servoydefault/button/button.js",
 	"libraries": [],

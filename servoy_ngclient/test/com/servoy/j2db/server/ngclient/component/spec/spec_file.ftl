@@ -17,6 +17,7 @@
 {
 	"name": "servoydefault-${name}",
 	"displayName": "${displayName}",
+	"version": ${version},
 	<#if icon??>"icon": "servoydefault/${name}/${icon}",
 	</#if>"definition": "servoydefault/${name}/${name}.js",
 	<#if serverScript??>"serverscript": "${serverScript}",

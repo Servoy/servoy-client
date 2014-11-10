@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-radiogroup",
 	"displayName": "Radio group",
+	"version": 1,
 	"definition": "servoydefault/radiogroup/radiogroup.js",
 	"libraries": [],
 	"model":

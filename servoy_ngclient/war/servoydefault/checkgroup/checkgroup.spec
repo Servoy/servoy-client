@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-checkgroup",
 	"displayName": "Check Group",
+	"version": 1,
 	"definition": "servoydefault/checkgroup/checkgroup.js",
 	"libraries": [],
 	"model":

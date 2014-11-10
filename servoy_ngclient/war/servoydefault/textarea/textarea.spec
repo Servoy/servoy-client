@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-textarea",
 	"displayName": "Text Area",
+	"version": 1,
 	"icon": "servoydefault/textarea/TEXTAREA16.png",
 	"definition": "servoydefault/textarea/textarea.js",
 	"libraries": [],

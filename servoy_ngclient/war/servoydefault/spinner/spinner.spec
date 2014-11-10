@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-spinner",
 	"displayName": "Spinner",
+	"version": 1,
 	"icon": "servoydefault/spinner/spinner.png",
 	"definition": "servoydefault/spinner/spinner.js",
 	"libraries": [{"name":"svy-spinner", "version":"1", "url":"servoydefault/spinner/spinner.css", "mimetype":"text/css"},{"name":"font-awesome", "version":"3.2.1", "url":"servoydefault/spinner/font-awesome.css", "mimetype":"text/css"}],

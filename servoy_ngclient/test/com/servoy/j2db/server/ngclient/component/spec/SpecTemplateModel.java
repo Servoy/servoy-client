@@ -36,6 +36,7 @@ public class SpecTemplateModel
 
 	public static final int ADD = 1;
 	public static final int REPLACE = 2;
+	private static final int VERSION = 1;
 
 	private final String name;
 	private final String serverScript;
@@ -47,16 +48,29 @@ public class SpecTemplateModel
 	private final int repositoryType;
 	private List<Element> handlers;
 	private List<Element> model;
+	private final int version;
+
+	SpecTemplateModel(String name, String displayName, int version, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries)
+	{
+		this(name, displayName, version, icon, repositoryType, apiInterface, libaries, null);
+	}
 
 	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries)
 	{
-		this(name, displayName, icon, repositoryType, apiInterface, libaries, null);
+		this(name, displayName, VERSION, icon, repositoryType, apiInterface, libaries, null);
 	}
 
 	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript)
 	{
+		this(name, displayName, VERSION, icon, repositoryType, apiInterface, libaries, serverScript);
+	}
+
+	SpecTemplateModel(String name, String displayName, int version, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries,
+		String serverScript)
+	{
 		this.name = name;
 		this.displayName = displayName;
+		this.version = version;
 		this.icon = icon;
 		this.apiInterface = apiInterface;
 		this.repositoryType = repositoryType;
@@ -67,7 +81,13 @@ public class SpecTemplateModel
 	SpecTemplateModel(String name, String displayName, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries, String serverScript,
 		ApiMethod[] extraApiMethods)
 	{
-		this(name, displayName, icon, repositoryType, apiInterface, libaries, serverScript);
+		this(name, displayName, VERSION, icon, repositoryType, apiInterface, libaries, serverScript, extraApiMethods);
+	}
+
+	SpecTemplateModel(String name, String displayName, int version, String icon, int repositoryType, Class< ? > apiInterface, String[] libaries,
+		String serverScript, ApiMethod[] extraApiMethods)
+	{
+		this(name, displayName, version, icon, repositoryType, apiInterface, libaries, serverScript);
 		apis.addAll(Arrays.asList(extraApiMethods));
 	}
 
@@ -192,5 +212,10 @@ public class SpecTemplateModel
 				+ "  		\"foreground\": \"color\",\r\n" + "  		\"disabled\": \"boolean\",\r\n" + "  		\"mnemonic\": \"string\"\r\n" + "  	}\r\n}";
 		}
 		return null;
+	}
+
+	public int getVersion()
+	{
+		return version;
 	}
 }

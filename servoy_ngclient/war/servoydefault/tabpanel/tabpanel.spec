@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-tabpanel",
 	"displayName": "Tab Panel",
+	"version": 1,
 	"icon": "servoydefault/tabpanel/tabs.gif",
 	"definition": "servoydefault/tabpanel/tabpanel.js",
 	"serverscript": "servoydefault/tabpanel/tabpanel_server.js",

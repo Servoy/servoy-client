@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-portal",
 	"displayName": "Portal",
+	"version": 1,
 	"icon": "servoydefault/portal/portal.gif",
 	"definition": "servoydefault/portal/portal.js",
 	"libraries": [{"name":"svy-portal", "version":"1", "url":"servoydefault/portal/portal.css", "mimetype":"text/css"},

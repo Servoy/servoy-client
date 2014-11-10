@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-calendar",
 	"displayName": "Calendar",
+	"version": 1,
 	"icon": "servoydefault/calendar/Calendar_C16.png",
 	"definition": "servoydefault/calendar/calendar.js",
 	"libraries": [{"name":"moment", "version":"2.6.0", "url": "servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js", "mimetype":"text/javascript"},{"name":"bootstrap-datetimepicker", "version":"3.0.0", "url":"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js", "mimetype":"text/javascript"},{"name":"bootstrap-datetimepicker", "version":"3.0.0", "url":"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css", "mimetype":"text/css"}],

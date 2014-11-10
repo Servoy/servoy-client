@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-radio",
 	"displayName": "Radio",
+	"version": 1,
 	"icon": "servoydefault/radio/RADIO16.png",
 	"definition": "servoydefault/radio/radio.js",
 	"libraries": [],

@@ -1,6 +1,7 @@
 {
 	"name": "servoydefault-rectangle",
 	"displayName": "Rectangle",
+	"version": 1,
 	"icon": "servoydefault/rectangle/rectangle.gif",
 	"definition": "servoydefault/rectangle/rectangle.js",
 	"libraries": [],
