@@ -1,4 +1,4 @@
-angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
+angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
 .directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil','uiGridConstants','$scrollbarConstants',
                                    function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil,uiGridConstants,$scrollbarConstants) {  
 	return {
@@ -209,6 +209,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						$scope.rowHeight = el.model.size.height;
 					}
 					var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0) 
+					var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
 					$scope.columnDefinitions.push({
 						name:el.name,
 						displayName: columnTitle,
@@ -216,6 +217,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						visible: el.model.visible,
 						width: el.model.size.width,
 						cellEditableCondition: false,
+						enableColumnMoving: isMovable,
 						enableColumnResizing: isResizable,
 					});					
 					updateColumnDefinition($scope, idx);
@@ -550,6 +552,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					enableRowHeaderSelection: false,
 					multiSelect: false,
 					noUnselect: true,
+					enableColumnMoving : $scope.model.reorderable,
 					enableVerticalScrollbar: uiGridConstants.scrollbars.NEVER,
 					enableHorizontalScrollbar: uiGridConstants.scrollbars.NEVER,
 					followSourceArray:true,
