@@ -19,16 +19,18 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.sablo.services.FormServiceHandler;
-import org.sablo.websocket.TypedData;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
@@ -37,7 +39,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * FormService implementation to handle methods at form level.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -62,11 +64,12 @@ public class NGFormServiceHandler extends FormServiceHandler
 		return getWebsocketSession().getClient();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.services.FormServiceHandler#executeMethod(java.lang.String, org.json.JSONObject)
-	 */
+	@Override
+	protected IToJSONConverter getInitialRequestDataConverter()
+	{
+		return InitialToJSONConverter.INSTANCE;
+	}
+
 	@Override
 	public Object executeMethod(String methodName, JSONObject args) throws Exception
 	{
@@ -192,13 +195,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.services.FormServiceHandler#requestData(java.lang.String)
-	 */
 	@Override
-	protected TypedData<Map<String, Map<String, Object>>> requestData(String formName)
+	protected JSONStringer requestData(String formName) throws JSONException
 	{
 		getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 		return super.requestData(formName);

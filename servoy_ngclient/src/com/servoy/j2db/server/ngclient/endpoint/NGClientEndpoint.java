@@ -29,14 +29,12 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.sablo.websocket.WebsocketEndpoint;
-import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 
 /**
  * WebsocketEndpoint for NGClient.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -51,8 +49,7 @@ public class NGClientEndpoint extends WebsocketEndpoint
 
 	@Override
 	@OnOpen
-	public void start(Session newSession, @PathParam("sessionid")
-	String sessionid, @PathParam("windowid")
+	public void start(Session newSession, @PathParam("sessionid") String sessionid, @PathParam("windowid")
 	final String windowid, @PathParam("solutionName")
 	final String solutionName) throws Exception
 	{
@@ -86,14 +83,4 @@ public class NGClientEndpoint extends WebsocketEndpoint
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.WebsocketEndpoint#getToJSONConverter()
-	 */
-	@Override
-	protected IToJSONConverter getToJSONConverter()
-	{
-		return InitialToJSONConverter.INSTANCE;
-	}
 }
