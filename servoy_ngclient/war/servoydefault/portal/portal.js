@@ -189,12 +189,15 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					if (!columnTitle) columnTitle = "";
 				} 
 
+				var portal_svy_name = $element[0].getAttribute('data-svy-name');
 				var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
 					+ '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx
 					+ ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx
 					+ ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx
 					+ ')" svy-apply="getExternalScopes().cellApplyHandlerWrapper(row, ' + idx
-					+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"/>';
+					+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"';
+				if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
+				cellTemplate += '/>';
 				if($scope.model.multiLine) { 
 					if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
 						$scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;

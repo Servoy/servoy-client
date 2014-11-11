@@ -26,6 +26,8 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Generates HTML for a absolute layout form
@@ -86,9 +88,12 @@ public class FormLayoutGenerator
 
 	public static void generateFormStartTag(PrintWriter writer, Form form)
 	{
-		writer.print(String.format(
-			"<div ng-controller=\"%1$s\" svy-formstyle=\"formStyle\" svy-scrollbars='formProperties.scrollbars' svy-layout-update svy-formload svy-autosave",
-			form.getName()));
+		writer.print(String.format("<div ng-controller=\"%1$s\" ", form.getName()));
+		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+		{
+			writer.print(String.format("data-svy-name=\"%1$s\" ", form.getName()));
+		}
+		writer.print("svy-formstyle=\"formStyle\" svy-scrollbars='formProperties.scrollbars' svy-layout-update svy-formload svy-autosave");
 		if (form.getStyleClass() != null)
 		{
 			writer.print(" class=\"");
@@ -136,6 +141,12 @@ public class FormLayoutGenerator
 		writer.print(" name='");
 		writer.print(fe.getName());
 		writer.print("'");
+		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+		{
+			writer.print(" data-svy-name='");
+			writer.print(fe.getForm().getName() + "." + fe.getName());
+			writer.print("'");
+		}
 		writer.print(" svy-model='model.");
 		writer.print(fe.getName());
 		writer.print("'");
