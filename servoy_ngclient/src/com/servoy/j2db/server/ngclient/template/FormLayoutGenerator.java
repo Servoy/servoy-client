@@ -143,8 +143,13 @@ public class FormLayoutGenerator
 		writer.print("'");
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
+			String elementName = fe.getName();
+			if (elementName.startsWith("svy_") && fe.getPersistIfAvailable() != null)
+			{
+				elementName = "svy_" + fe.getPersistIfAvailable().getUUID().toString();
+			}
 			writer.print(" data-svy-name='");
-			writer.print(fe.getForm().getName() + "." + fe.getName());
+			writer.print(fe.getForm().getName() + "." + elementName);
 			writer.print("'");
 		}
 		writer.print(" svy-model='model.");
