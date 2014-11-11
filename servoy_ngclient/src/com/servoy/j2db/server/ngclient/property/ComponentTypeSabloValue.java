@@ -445,14 +445,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						childComponent.putBrowserProperty(key, object);
 					}
 				}
-				else if (update.has("viewportDataChanged"))
+				else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
 				{
 					// component is linked to a foundset and the value of a property that depends on the record changed client side;
 					// in this case update DataAdapterList with the correct record and then set the value on the component
 					FoundsetTypeSabloValue foundsetPropertyValue = getFoundsetValue();
 					if (foundsetPropertyValue != null && foundsetPropertyValue.getFoundset() != null)
 					{
-						JSONObject change = update.getJSONObject("viewportDataChanged");
+						JSONObject change = update.getJSONObject(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
 
 						String rowIDValue = change.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 						String propertyName = change.getString(FoundsetTypeSabloValue.DATAPROVIDER_KEY);
@@ -463,7 +463,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					else
 					{
 						Debug.error("Component updates received for record linked property, but component is not linked to a foundset: " +
-							update.get("viewportDataChanged"));
+							update.get(ViewportDataChangeMonitor.VIEWPORT_CHANGED));
 					}
 				}
 				else if (update.has("svyApply"))

@@ -33,6 +33,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowDat
  */
 public class ViewportDataChangeMonitor
 {
+	public static final String VIEWPORT_CHANGED = "viewportDataChanged";
 
 	/**
 	 * ViewPort bounds and data changed; for example client requested completely new viewPort bounds.

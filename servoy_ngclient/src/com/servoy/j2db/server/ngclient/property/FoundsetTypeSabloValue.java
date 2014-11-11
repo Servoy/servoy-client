@@ -482,10 +482,10 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 							}
 						}
 					}
-					else if (update.has("viewportDataChanged"))
+					else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
 					{
 						// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
-						JSONObject dataChangeJSON = (JSONObject)update.get("dataChanged");
+						JSONObject dataChangeJSON = (JSONObject)update.get(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
 						String rowIDValue = dataChangeJSON.getString(ROW_ID_COL_KEY);
 						String dataProviderName = dataChangeJSON.getString(DATAPROVIDER_KEY);
 						Object value = dataChangeJSON.get(VALUE_KEY);
