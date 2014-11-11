@@ -19,11 +19,10 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -91,7 +90,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	protected IFoundSetInternal foundset;
 	protected final Object designJSONValue;
 	protected BaseWebObject webObject; // (the component)
-	protected Set<String> dataProviders = new HashSet<>();
+	protected Map<String, String> dataproviders = new HashMap<>();
 	protected String foundsetSelector;
 	protected FoundsetDataAdapterList dataAdapterList;
 	protected String propertyName;
@@ -144,28 +143,23 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 //			foundsetSelector: 'string',
 //			dataProviders: 'dataprovider[]'
 //		}
-		try
+		JSONObject spec = (JSONObject)designJSONValue;
+
+		// foundsetSelector as defined in component design XML.
+		foundsetSelector = spec.optString(FOUNDSET_SELECTOR);
+		updateFoundset(null);
+
+		JSONObject dataProvidersJSON = spec.optJSONObject("dataproviders");
+		if (dataProvidersJSON != null)
 		{
-			JSONObject spec = (JSONObject)designJSONValue;
-
-			// foundsetSelector as defined in component design XML.
-			foundsetSelector = spec.optString(FOUNDSET_SELECTOR);
-			updateFoundset(null);
-
-			JSONArray dataProvidersJSON = spec.optJSONArray("dataProviders");
-			if (dataProvidersJSON != null)
+			Map<String, String> dataproviders = new HashMap<>(dataProvidersJSON.length());
+			Iterator keys = dataProvidersJSON.keys();
+			while (keys.hasNext())
 			{
-				Set<String> dataProvidersSet = new HashSet<>(dataProvidersJSON.length());
-				for (int i = 0; i < dataProvidersJSON.length(); i++)
-				{
-					dataProvidersSet.add(dataProvidersJSON.getString(i));
-				}
-				includeDataProviders(dataProvidersSet);
+				String key = (String)keys.next();
+				dataproviders.put(key, dataProvidersJSON.optString(key));
 			}
-		}
-		catch (JSONException e)
-		{
-			Debug.error(e);
+			includeDataProviders(dataproviders);
 		}
 	}
 
@@ -415,20 +409,21 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 	protected void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes)
 	{
-		Iterator<String> it = dataProviders.iterator();
+		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
 		while (it.hasNext())
 		{
-			String dataProvider = it.next();
+			Entry<String, String> entry = it.next();
+			String dataProvider = entry.getValue();
 			Object value = record.getValue(dataProvider);
 			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
 
 			if (pd != null)
 			{
-				dataTypes.putProperty(dataProvider, pd);
+				dataTypes.putProperty(entry.getKey(), pd);
 				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
 					webObject));
 			}
-			data.put(dataProvider, value);
+			data.put(entry.getKey(), value);
 		}
 	}
 
@@ -487,7 +482,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 						// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
 						JSONObject dataChangeJSON = (JSONObject)update.get(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
 						String rowIDValue = dataChangeJSON.getString(ROW_ID_COL_KEY);
-						String dataProviderName = dataChangeJSON.getString(DATAPROVIDER_KEY);
+						String dataProviderName = dataproviders.get(dataChangeJSON.getString(DATAPROVIDER_KEY));
 						Object value = dataChangeJSON.get(VALUE_KEY);
 
 						if (foundset != null)
@@ -585,9 +580,10 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	 * Register a list of dataproviders that is needed client-side.
 	 * @param dataProvidersToSend a list of dataproviders that will be sent to the browser as part of the foundset property's viewport data.
 	 */
-	public void includeDataProviders(Set<String> dataProvidersToSend)
+	public void includeDataProviders(Map<String, String> dataProvidersToSend)
 	{
-		if (dataProviders.addAll(dataProvidersToSend)) changeMonitor.dataProvidersChanged();
+		dataproviders.putAll(dataProvidersToSend);
+		changeMonitor.dataProvidersChanged();
 	}
 
 	public boolean setEditingRowByPkHash(String pkHashAndIndex)
