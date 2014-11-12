@@ -67,7 +67,7 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  *
  */
-public abstract class AbstractSoluionTest
+public abstract class AbstractSolutionTest
 {
 
 	private static IPackageReader[] getReaders(File[] packages, IPackageReader customComponents)
@@ -102,7 +102,7 @@ public abstract class AbstractSoluionTest
 	/**
 	 *
 	 */
-	public AbstractSoluionTest()
+	public AbstractSolutionTest()
 	{
 		super();
 	}

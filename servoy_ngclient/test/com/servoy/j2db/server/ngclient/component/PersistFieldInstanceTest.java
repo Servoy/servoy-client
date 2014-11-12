@@ -53,7 +53,7 @@ import com.servoy.j2db.util.ServoyException;
  *
  */
 @SuppressWarnings("nls")
-public class PersistFieldInstanceTest extends AbstractSoluionTest
+public class PersistFieldInstanceTest extends AbstractSolutionTest
 {
 
 	@Override

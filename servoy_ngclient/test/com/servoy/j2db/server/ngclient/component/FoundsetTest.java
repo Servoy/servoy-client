@@ -46,7 +46,7 @@ import com.servoy.j2db.util.ServoyException;
  *
  */
 @SuppressWarnings("nls")
-public class FoundsetTest extends AbstractSoluionTest
+public class FoundsetTest extends AbstractSolutionTest
 {
 
 	@Override
