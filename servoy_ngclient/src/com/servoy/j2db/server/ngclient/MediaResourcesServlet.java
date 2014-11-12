@@ -309,11 +309,10 @@ public class MediaResourcesServlet extends HttpServlet
 
 							IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
 							WebFormComponent webComponent = form.getWebComponent(elementName);
-							form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
 							IWebsocketEndpoint previous = WebsocketEndpoint.set(new WebsocketSessionEndpoints(wsSession));
 							try
 							{
-
+								form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
 								wsSession.valueChanged();
 							}
 							finally

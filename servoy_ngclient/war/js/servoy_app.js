@@ -222,7 +222,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   
 		   initFormState: function(formName, beanDatas, formProperties, formScope) {
 			   
-			   var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope)
+			   var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope, function(initialFormData){
+				   for (var beanName in initialFormData) {
+					   if (beanName != '') {
+						   applyBeanLayout(state.model[beanName], layout[beanName], initialFormData[beanName], formProperties.designSize)
+					   }
+				   }
+			   })
 			   
 			   if (!state || state.layout) return state; // already initialized
 			   
