@@ -19,37 +19,46 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
-import org.json.JSONObject;
-import org.sablo.Container;
-import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.websocket.IClientService;
-import org.sablo.websocket.IServerService;
-import org.sablo.websocket.IWebsocketEndpoint;
+import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.ClientLogin;
 import com.servoy.j2db.Credentials;
+import com.servoy.j2db.dataprocessing.Blob;
+import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IClientHost;
+import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.ISQLStatement;
+import com.servoy.j2db.dataprocessing.ITrackingSQLStatement;
 import com.servoy.j2db.dataprocessing.IUserClient;
-import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.dataprocessing.QueryData;
+import com.servoy.j2db.dataprocessing.TableFilter;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.ngclient.INGApplication;
-import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ISQLQuery;
+import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.query.ISQLUpdate;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author Johan
@@ -68,14 +77,311 @@ final class TestNGClient extends NGClient
 	 */
 	TestNGClient(TestRepository tr) throws Exception
 	{
-		super(new TestClientWebsocketSession());
+		super(new NGClientWebsocketSession("1")
+		{
+			/*
+			 * (non-Javadoc)
+			 *
+			 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#createDispatcher()
+			 */
+			@Override
+			protected IEventDispatcher createDispatcher()
+			{
+				return new IEventDispatcher()
+				{
+
+					@Override
+					public void run()
+					{
+					}
+
+					@Override
+					public void suspend(Object object)
+					{
+					}
+
+					@Override
+					public void resume(Object object)
+					{
+					}
+
+					@Override
+					public boolean isEventDispatchThread()
+					{
+						return true;
+					}
+
+					@Override
+					public void destroy()
+					{
+					}
+
+					@Override
+					public void addEvent(Runnable event)
+					{
+						event.run();
+					}
+				};
+			}
+		});
 		this.tr = tr;
-		((TestClientWebsocketSession)getWebsocketSession()).setClient(this);
+		((NGClientWebsocketSession)getWebsocketSession()).setClient(this);
+		WebsocketSessionManager.addSession(getWebsocketSession());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
+	 * @see com.servoy.j2db.ClientState#createDataServer()
+	 */
+	@Override
+	protected IDataServer createDataServer()
+	{
+		return new IDataServer()
+		{
+
+			private IDataSet set;
+
+			@Override
+			public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void setGlobalMaintenanceMode(boolean maintenanceMode) throws RemoteException
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void logMessage(String msg) throws RemoteException
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public boolean isInServerMaintenanceMode() throws RemoteException
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public boolean isInGlobalMaintenanceMode() throws RemoteException
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException,
+				RepositoryException
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect,
+				String transaction_id, ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String startTransaction(String clientId, String server_name) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException,
+				RemoteException
+			{
+				return new IDataSet[] { set };
+			}
+
+			@Override
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
+				Object[] questiondata, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+			{
+				return set;
+			}
+
+			@Override
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+				boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+			{
+				return set;
+			}
+
+			@Override
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
+				Object[] questiondata, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+			{
+				return set;
+			}
+
+			@Override
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException,
+				RemoteException
+			{
+				return set;
+			}
+
+			@Override
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+			{
+				if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getColumns().size() == 1)
+				{
+					// pk select
+					BufferedDataSet ds = new BufferedDataSet();
+					for (int i = 0; i < set.getRowCount(); i++)
+					{
+						ds.addRow(new Object[] { set.getRow(i)[0] });
+					}
+					return ds;
+				}
+				return set;
+			}
+
+			@Override
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
+				Object[] questiondata, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+			{
+				return set;
+			}
+
+			@Override
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+				boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+			{
+				return set;
+			}
+
+			@Override
+			public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+				ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+			{
+				return set;
+			}
+
+			@Override
+			public boolean notifyDataChange(String client_id, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
+				throws RemoteException
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
+				String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public ITable insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid, int[] types,
+				String[] pkNames) throws ServoyException, RemoteException
+			{
+				this.set = set;
+				Table table = new Table(serverName, serverName, true, ITable.TABLE, null, null);
+				table.setDataSource(dataSource);
+				for (int i = 0; i < set.getColumnCount(); i++)
+				{
+					Column col = new Column(table, set.getColumnNames()[i], set.getColumnTypes()[i], 50, 50, true);
+					table.addColumn(col);
+					if (Arrays.binarySearch(pkNames, col.getName()) >= 0)
+					{
+						col.setDatabasePK(true);
+					}
+				}
+				return table;
+			}
+
+			@Override
+			public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
+				boolean forceQualifyColumns) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
+				throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
+				ArrayList<TableFilter> filters) throws RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
+				Object[] questiondata) throws RemoteException, RepositoryException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+			{
+				// TODO Auto-generated method stub
+
+			}
+		};
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see com.servoy.j2db.server.ngclient.NGClient#getLocale()
 	 */
 	@Override
@@ -86,7 +392,7 @@ final class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#createRepository()
 	 */
 	@Override
@@ -118,8 +424,7 @@ final class TestNGClient extends NGClient
 			@Override
 			public SolutionMetaData getSolutionDefinition(String solutionName, int solutionTypeFilter) throws RemoteException, RepositoryException
 			{
-				// TODO Auto-generated method stub
-				return null;
+				return (SolutionMetaData)tr.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
 			}
 
 			@Override
@@ -208,212 +513,5 @@ final class TestNGClient extends NGClient
 	@Override
 	protected void createPluginManager()
 	{
-	}
-}
-
-/**
- * @author jcompagner
- *
- */
-class TestClientWebsocketSession implements INGClientWebsocketSession
-{
-	private INGApplication client;
-
-	/**
-	 * @param client the client to set
-	 */
-	public void setClient(INGApplication client)
-	{
-		this.client = client;
-	}
-
-	@Override
-	public void valueChanged()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void registerEndpoint(IWebsocketEndpoint endpoint)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onOpen(String argument)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isValid()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void handleMessage(JSONObject obj)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public String getUuid()
-	{
-		return null;
-	}
-
-	@Override
-	public List<IWebsocketEndpoint> getRegisteredEnpoints()
-	{
-		// TODO Auto-generated method stub
-		return Collections.emptyList();
-	}
-
-	@Override
-	public IEventDispatcher getEventDispatcher()
-	{
-		return new IEventDispatcher()
-		{
-
-			@Override
-			public void run()
-			{
-			}
-
-			@Override
-			public void suspend(Object object)
-			{
-			}
-
-			@Override
-			public void resume(Object object)
-			{
-			}
-
-			@Override
-			public boolean isEventDispatchThread()
-			{
-				return true;
-			}
-
-			@Override
-			public void destroy()
-			{
-			}
-
-			@Override
-			public void addEvent(Runnable event)
-			{
-				event.run();
-			}
-		};
-	}
-
-	@Override
-	public void deregisterEndpoint(IWebsocketEndpoint endpoint)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateForm(Form form, String name)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void touchForm(Form flattenedForm, String realInstanceName, boolean async)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stopHandlingEvent()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void startHandlingEvent()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void solutionLoaded(Solution flattenedSolution)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public INGApplication getClient()
-	{
-		return client;
-	}
-
-	@Override
-	public void formCreated(String formName)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void closeSession()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void registerServerService(String name, IServerService service)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public IServerService getServerService(String name)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IClientService getService(String name)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.IWebsocketSession#getForm(java.lang.String)
-	 */
-	@Override
-	public Container getForm(String formName)
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

@@ -19,100 +19,46 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
-import org.sablo.specification.WebComponentPackage;
-import org.sablo.specification.WebComponentPackage.IPackageReader;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.persistence.Bean;
-import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.IValidateName;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.RootObjectMetaData;
-import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertySabloValue;
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author jcompagner
  *
  */
 @SuppressWarnings("nls")
-public class PersistFieldInstanceTest
+public class PersistFieldInstanceTest extends AbstractSoluionTest
 {
-	private static IPackageReader[] getReaders(File[] packages, IPackageReader customComponents)
+
+	@Override
+	protected InMemPackageReader getTestComponents() throws IOException
 	{
-		ArrayList<IPackageReader> readers = new ArrayList<>();
-		if (customComponents != null) readers.add(customComponents);
-		for (File f : packages)
-		{
-			if (f.exists())
-			{
-				if (f.isDirectory()) readers.add(new WebComponentPackage.DirPackageReader(f));
-				else readers.add(new WebComponentPackage.JarPackageReader(f));
-			}
-			else
-			{
-				Debug.error("A web component package location does not exist: " + f.getAbsolutePath()); //$NON-NLS-1$
-			}
-		}
-		return readers.toArray(new IPackageReader[readers.size()]);
-	}
-
-
-	IValidateName validator = new IValidateName()
-	{
-		@Override
-		public void checkName(String nameToCheck, int skip_element_id, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
-		{
-		}
-	};
-
-	private Solution solution;
-	private NGClient client;
-
-	@Before
-	public void buildSolution() throws Exception
-	{
-		Types.registerTypes();
-
-		File[] locations = new File[2];
-		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		locations[0] = new File(f.getAbsoluteFile() + "/../war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
-		locations[1] = new File(f.getAbsoluteFile() + "/../war/servoycomponents/");
-
 		InputStream is = getClass().getResourceAsStream("WebComponentTest.manifest");
 		byte[] bytes = new byte[is.available()];
 		is.read(bytes);
@@ -128,34 +74,25 @@ public class PersistFieldInstanceTest
 		HashMap<String, String> components = new HashMap<>();
 		components.put("mycomponent.spec", comp);
 		InMemPackageReader inMemPackageReader = new InMemPackageReader(manifest, components);
+		return inMemPackageReader;
+	}
 
-		WebComponentSpecProvider.init(getReaders(locations, inMemPackageReader));
+	@Override
+	protected void fillTestSolution() throws RepositoryException
+	{
+		solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
+		ValueList valuelist = solution.createNewValueList(validator, "test");
+		valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
+	}
 
-		WebServiceSpecProvider.init(getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null));
-
-		final TestRepository tr = new TestRepository();
-		try
-		{
-
-
-			UUID uuid = UUID.randomUUID();
-			final RootObjectMetaData metadata = tr.createRootObjectMetaData(tr.getElementIdForUUID(uuid), uuid, "Test", IRepository.SOLUTIONS, 1, 1);
-
-			solution = (Solution)tr.createRootObject(metadata);
-			solution.setChangeHandler(new ChangeHandler(tr));
-			solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
-			ValueList valuelist = solution.createNewValueList(validator, "test");
-			valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
-
-			ApplicationServerRegistry.setApplicationServerSingleton(new TestApplicationServer());
-			client = new TestNGClient(tr);
-			client.setUseLoginSolution(false);
-			client.loadSolutionsAndModules((SolutionMetaData)metadata);
-		}
-		catch (RepositoryException e)
-		{
-			e.printStackTrace();
-		}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
+	 */
+	@Override
+	protected void setupData() throws ServoyException
+	{
 	}
 
 	@Test
