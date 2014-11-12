@@ -167,7 +167,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				   if (!$sabloApplication.hasFormstateLoaded(formname)) continue;
 				   // if the formState is on the server but not here anymore, skip it. 
 				   // this can happen with a refresh on the browser.
-					$sabloApplication.getFormState(formname).then(function (formState) {
+				   $sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo));
+			   }
+			   
+			   function getFormMessageHandler(formname, msg, conversionInfo) {
+				   return function (formState) {
 						   var formModel = formState.model;
 						   var layout = formState.layout;
 						   var newFormData = msg.forms[formname];
@@ -192,7 +196,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								   } 
 							   }
 						   }
-					});
+			   		}
 			   }
 			   
 			   if (msg.sessionid) {
