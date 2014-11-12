@@ -34,8 +34,9 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
     	  }
     	  $scope.$watch('model.maxIndex', function (newVal, oldVal, scope) 
     	  {
-	    	$scope.slider_model.min = model.maxIndex > 0? -1*model.maxIndex:0;
-	        $scope.slider_model.max = model.maxIndex > 0? -1:0;
+    		if(!newVal) return;
+	    	$scope.slider_model.min = $scope.model.maxIndex > 0? -1*$scope.model.maxIndex:0;
+	        $scope.slider_model.max = $scope.model.maxIndex > 0? -1:0;
     	  });
     	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
     		  if(!newVal) return;
