@@ -195,7 +195,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			}
 		}
 
-		if (newFoundset == null && foundsetSelector != null)
+		if (newFoundset == null && foundsetSelector != null && !"".equals(foundsetSelector))
 		{
 			try
 			{
