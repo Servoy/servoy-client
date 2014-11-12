@@ -167,36 +167,32 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				   if (!$sabloApplication.hasFormstateLoaded(formname)) continue;
 				   // if the formState is on the server but not here anymore, skip it. 
 				   // this can happen with a refresh on the browser.
-				   $sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo));
-			   }
-			   
-			   function getFormMessageHandler(formname, msg, conversionInfo) {
-				   return function (formState) {
-					   var formModel = formState.model;
-					   var layout = formState.layout;
-					   var newFormData = msg.forms[formname];
-
-					   for (var beanname in newFormData) {
-						   // copy over the changes, skip for form properties (beanname empty)
-						   if (beanname != '') {
-							   if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined)) {	
-								   //size or location were changed at runtime, we need to update components with anchors
-								   newFormData[beanname].anchors = formModel[beanname].anchors;
-							   }
-
-							   applyBeanLayout(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize)
-							   
-							   for (var defProperty in deferredProperties) {
-								   for(var key in newFormData[beanname]) {
-									   if (defProperty == (formname + "_" + beanname + "_" + key)) {
-										   deferredProperties[defProperty].resolve(newFormData[beanname][key]);
-										   delete deferredProperties[defProperty];
-									   }
+					$sabloApplication.getFormState(formname).then(function (formState) {
+						   var formModel = formState.model;
+						   var layout = formState.layout;
+						   var newFormData = msg.forms[formname];
+	
+						   for (var beanname in newFormData) {
+							   // copy over the changes, skip for form properties (beanname empty)
+							   if (beanname != '') {
+								   if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined)) {	
+									   //size or location were changed at runtime, we need to update components with anchors
+									   newFormData[beanname].anchors = formModel[beanname].anchors;
 								   }
-							   } 
+	
+								   applyBeanLayout(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize)
+								   
+								   for (var defProperty in deferredProperties) {
+									   for(var key in newFormData[beanname]) {
+										   if (defProperty == (formname + "_" + beanname + "_" + key)) {
+											   deferredProperties[defProperty].resolve(newFormData[beanname][key]);
+											   delete deferredProperties[defProperty];
+										   }
+									   }
+								   } 
+							   }
 						   }
-					   }
-				   }
+					});
 			   }
 			   
 			   if (msg.sessionid) {
@@ -282,31 +278,31 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   },
 
 		   setFindMode: function(formName, findMode, editable){
-			   
-			   var formState = formStates[formName];
-			   for (beanName in formState.model)
-			   {
-			   		if (beanName != '') 
-			   		{
-			   			if (formState.api[beanName] && formState.api[beanName].setFindMode)
-			   			{
-			   				formState.api[beanName].setFindMode(findMode, editable);
-			   			}
-			   			else
-			   			{
-			   				if (findMode)
-						    {
-							   formState.model[beanName].svy_readOnlyBeforeFindMode = formState.model[beanName].readOnly;
-							   formState.model[beanName].readOnly = true;
-						    }
-						    else
-						    {
-							   formState.model[beanName].readOnly = formState.model[beanName].svy_readOnlyBeforeFindMode;
-						    }
-			   			}
-			   			formState.getScope().$digest();
-			   		}
-			   }
+			   $sabloApplication.getFormState(formName).then(function (formState) {
+				   for (beanName in formState.model)
+				   {
+				   		if (beanName != '') 
+				   		{
+				   			if (formState.api[beanName] && formState.api[beanName].setFindMode)
+				   			{
+				   				formState.api[beanName].setFindMode(findMode, editable);
+				   			}
+				   			else
+				   			{
+				   				if (findMode)
+							    {
+								   formState.model[beanName].svy_readOnlyBeforeFindMode = formState.model[beanName].readOnly;
+								   formState.model[beanName].readOnly = true;
+							    }
+							    else
+							    {
+								   formState.model[beanName].readOnly = formState.model[beanName].svy_readOnlyBeforeFindMode;
+							    }
+				   			}
+							formState.getScope().$apply();
+				   		}
+				   }
+			   });
 		   }
 	   }
 }).directive('svyAutosave',  function ($sabloApplication) {

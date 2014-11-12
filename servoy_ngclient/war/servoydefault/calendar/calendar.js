@@ -16,15 +16,15 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
           
           //convert from servoy model to ui input
           $scope.$watch('model.dataProviderID', function(){
-             if($scope.model.dataProviderID && !($scope.model.dataProviderID instanceof Date)) {$log.error("calendar expects it's dataprovider as Date");}
-            $scope.editModel = dateFilter($scope.model.dataProviderID,dateFormat);
+	        	if($scope.model.dataProviderID && !($scope.model.dataProviderID instanceof Date)) {$log.error("calendar expects it's dataprovider as Date");}
+	            $scope.editModel = dateFilter($scope.model.dataProviderID,dateFormat);
             //$element.data('DateTimePicker').setValue($scope.model.dataProviderID); // set default date for widget open
-          })
+          });
 
           //convert from UI input to servoy model
           $scope.pushChange = function (d){
               // test for prevInputType == findmode if that is set
-              if (!findMode) {  
+              if (!$scope.findMode) {  
             	$scope.model.dataProviderID = d;
               } else {
                 $scope.model.dataProviderID = $scope.editModel;
@@ -64,11 +64,11 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
         	  })        		        	 
           });
           
-          var findMode = false;
+          $scope.findMode = false;
           // special method that servoy calls when this component goes into find mode.
           $scope.api.setFindMode = function(mode, editable) {
-        	findMode = mode;
-        	if (findMode)
+        	$scope.findMode = mode;
+        	if ($scope.findMode)
       	 	{
       	 		$scope.wasEditable = $scope.model.editable;
       	 		if (!$scope.model.editable) $scope.model.editable = editable;
