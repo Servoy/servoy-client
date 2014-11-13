@@ -15,35 +15,41 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.property;
+package com.servoy.j2db.server.ngclient.property.types;
 
-public class DataproviderConfig
+/**
+ * @author jcompagner
+ *
+ */
+public class TagStringConfig
 {
-	private final String onDataChange;
-	private final String onDataChangeCallback;
-	private final boolean parseHtml;
-	private final String forFoundset;
 
-	public DataproviderConfig(String onDataChange, String onDataChangeCallback, String forFoundset, boolean parseHtml)
+	private final boolean hideTags;
+	private final String forFoundSet;
+
+	/**
+	 * @param valueOf
+	 * @param optString
+	 */
+	public TagStringConfig(boolean hideTags, String forFoundSet)
 	{
-		this.onDataChange = onDataChange;
-		this.onDataChangeCallback = onDataChangeCallback;
-		this.forFoundset = forFoundset;
-		this.parseHtml = parseHtml;
+		this.hideTags = hideTags;
+		this.forFoundSet = forFoundSet;
 	}
 
-	public String getOnDataChange()
+	/**
+	 * @return the hideTags
+	 */
+	public boolean isHideTags()
 	{
-		return onDataChange;
+		return hideTags;
 	}
 
-	public String getOnDataChangeCallback()
+	/**
+	 * @return the forFoundSet
+	 */
+	public String getForFoundSet()
 	{
-		return onDataChangeCallback;
-	}
-
-	public boolean hasParseHtml()
-	{
-		return parseHtml;
+		return forFoundSet;
 	}
 }

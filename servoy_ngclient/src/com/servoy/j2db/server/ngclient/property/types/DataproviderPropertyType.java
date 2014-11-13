@@ -64,6 +64,7 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 
 		String onDataChange = null;
 		String onDataChangeCallback = null;
+		String forFoundSet = null;
 		boolean hasParseHtml = false;
 		if (json != null)
 		{
@@ -74,9 +75,10 @@ public class DataproviderPropertyType implements IWrapperType<Object, Dataprovid
 				onDataChangeCallback = onDataChangeObj.optString("callback", null);
 			}
 			hasParseHtml = json.optBoolean("parsehtml");
+			forFoundSet = json.optString("forFoundSet");
 		}
 
-		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml);
+		return new DataproviderConfig(onDataChange, onDataChangeCallback, forFoundSet, hasParseHtml);
 	}
 
 	@Override

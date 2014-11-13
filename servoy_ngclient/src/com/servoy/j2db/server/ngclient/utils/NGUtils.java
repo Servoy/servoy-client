@@ -42,7 +42,7 @@ public abstract class NGUtils
 {
 
 	public static final PropertyDescription DATAPROVIDER_PD = new PropertyDescription("some dp", DataproviderPropertyType.INSTANCE, new DataproviderConfig(
-		null, null, false));
+		null, null, null, false));
 
 	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table)
 	{
