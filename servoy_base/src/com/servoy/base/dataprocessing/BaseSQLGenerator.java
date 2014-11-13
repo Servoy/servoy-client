@@ -32,7 +32,7 @@ import com.servoy.base.util.ILogger;
 
 /**
  * Create 'queries' applicable both in mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -47,8 +47,10 @@ public class BaseSQLGenerator
 		ITypeConverter typeConverter, BaseColumn firstForeignPKColumn, ILogger logger)
 	{
 		IBaseSQLCondition or = null;
+
 		//filter on the || (=or)
-		for (String element : raw.toString().split("\\|\\|")) //$NON-NLS-1$
+		String[] rawElements = raw instanceof String[] ? (String[])raw : raw.toString().split("\\|\\|"); //$NON-NLS-1$
+		for (String element : rawElements)
 		{
 			String data = element;
 			if (!(c instanceof BaseColumn) || ((BaseColumn)c).getType() != Types.CHAR)
@@ -88,7 +90,7 @@ public class BaseSQLGenerator
 					switch (first)
 					{
 						case '!' : // ! negation
-							if (data.startsWith("!!")) //$NON-NLS-1$ 
+							if (data.startsWith("!!")) //$NON-NLS-1$
 							{
 								parsing = false;
 							}
@@ -101,7 +103,7 @@ public class BaseSQLGenerator
 							break;
 
 						case '#' : // # case insensitive (Text) or day search (Date)
-							if (data.startsWith("##")) //$NON-NLS-1$ 
+							if (data.startsWith("##")) //$NON-NLS-1$
 							{
 								parsing = false;
 							}
@@ -113,7 +115,7 @@ public class BaseSQLGenerator
 							break;
 
 						case '^' : // ^ or ^= nullchecks
-							if (data.startsWith("^^")) //$NON-NLS-1$ 
+							if (data.startsWith("^^")) //$NON-NLS-1$
 							{
 								data = data.substring(1);
 							}
@@ -134,32 +136,32 @@ public class BaseSQLGenerator
 						default :
 
 							// unary operators
-							if (data.startsWith("<=") || data.startsWith("=<")) //$NON-NLS-1$ //$NON-NLS-2$ 
+							if (data.startsWith("<=") || data.startsWith("=<")) //$NON-NLS-1$ //$NON-NLS-2$
 							{
 								operator = IBaseSQLCondition.LTE_OPERATOR;
 								data = data.substring(2);
 							}
-							else if (data.startsWith(">=") || data.startsWith("=>")) //$NON-NLS-1$ //$NON-NLS-2$ 
+							else if (data.startsWith(">=") || data.startsWith("=>")) //$NON-NLS-1$ //$NON-NLS-2$
 							{
 								operator = IBaseSQLCondition.GTE_OPERATOR;
 								data = data.substring(2);
 							}
-							else if (data.startsWith("==")) //$NON-NLS-1$ 
+							else if (data.startsWith("==")) //$NON-NLS-1$
 							{
 								operator = IBaseSQLCondition.EQUALS_OPERATOR;
 								data = data.substring(2);
 							}
-							else if (data.startsWith("<")) //$NON-NLS-1$ 
+							else if (data.startsWith("<")) //$NON-NLS-1$
 							{
 								operator = IBaseSQLCondition.LT_OPERATOR;
 								data = data.substring(1);
 							}
-							else if (data.startsWith(">")) //$NON-NLS-1$ 
+							else if (data.startsWith(">")) //$NON-NLS-1$
 							{
 								operator = IBaseSQLCondition.GT_OPERATOR;
 								data = data.substring(1);
 							}
-							else if (data.startsWith("=")) //$NON-NLS-1$ 
+							else if (data.startsWith("=")) //$NON-NLS-1$
 							{
 								operator = IBaseSQLCondition.EQUALS_OPERATOR;
 								data = data.substring(1);
@@ -218,7 +220,7 @@ public class BaseSQLGenerator
 						case IColumnTypeConstants.NUMBER :
 							Object initialObj = raw instanceof String ? data : raw;
 							Object objRightType = typeConverter.getAsRightType(dataProviderType, c.getFlags(), initialObj, formatString, c.getLength(), false);
-							// Now get asRightType with RAW and not with the string. 
+							// Now get asRightType with RAW and not with the string.
 							// Because if it is already a Number then it shouldn't be converted to String and then back
 							if (initialObj != null && objRightType == null)
 							{
@@ -246,7 +248,7 @@ public class BaseSQLGenerator
 							boolean dateSearch = hash;
 							Date date;
 							Date tmp = null;
-							if (data.equalsIgnoreCase("now")) //$NON-NLS-1$ 
+							if (data.equalsIgnoreCase("now")) //$NON-NLS-1$
 							{
 								date = (Date)typeConverter.getAsRightType(dataProviderType, c.getFlags(), tmp = new Date(), c.getLength(), false);
 							}
@@ -257,7 +259,7 @@ public class BaseSQLGenerator
 							}
 							else
 							{
-								// Now get asRightType with RAW and not with the string. 
+								// Now get asRightType with RAW and not with the string.
 								// Because if it is already a Date then it shouldn't be converted to String and then back
 								Object initialObj1 = ((raw instanceof String) ? data : raw);
 								Object tst = typeConverter.getAsRightType(dataProviderType, c.getFlags(), initialObj1, formatString, c.getLength(), false);
@@ -300,7 +302,7 @@ public class BaseSQLGenerator
 							if (data2 != null)
 							{
 								dateSearch = hash;
-								if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$ 
+								if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$
 								{
 									date = (Date)typeConverter.getAsRightType(dataProviderType, c.getFlags(), (tmp != null ? tmp : new Date()), c.getLength(),
 										false);
