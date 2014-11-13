@@ -59,6 +59,7 @@ import com.servoy.j2db.util.HTTPUtils;
 public class DesignerFilter implements Filter
 {
 	private static List<String> ignoreList = Arrays.asList(new String[] { "servoydefault-checkgroup", FormElement.ERROR_BEAN, "servoydefault-navigator", "servoydefault-radiogroup", "servoydefault-htmlview", "colorthefoundset" });
+	private static final String DROPPABLE = "droppable";
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
@@ -133,7 +134,7 @@ public class DesignerFilter implements Filter
 								{
 									jsonWriter.key("icon").value(spec.getIcon());
 								}
-								List<String> foundTypes = spec.getPaletteTypeNames();
+								List<String> foundTypes = getPalleteTypeNames(spec);
 								ArrayList<String> types = new ArrayList<String>();
 								for (String typeName : foundTypes)
 								{
@@ -163,6 +164,36 @@ public class DesignerFilter implements Filter
 			Debug.error(e);
 			throw e;
 		}
+	}
+
+	private List<String> getPalleteTypeNames(WebComponentSpecification spec)
+	{
+		ArrayList<String> result = new ArrayList<String>();
+		Map<String, PropertyDescription> properties = spec.getProperties();
+		for (PropertyDescription propertyDescription : properties.values())
+		{
+			Object configObject = propertyDescription.getConfig();
+			if (configObject != null)
+			{
+				try
+				{
+					JSONObject jsonConfig = new JSONObject(configObject.toString());
+					Object property;
+
+					property = jsonConfig.get(DROPPABLE);
+					if (property != null)
+					{
+						String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
+						if (spec.getFoundTypes().containsKey(simpleTypeName)) result.add(simpleTypeName);
+					}
+				}
+				catch (JSONException e)
+				{
+					Debug.log(e);
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
