@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -51,6 +52,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.MimeTypes;
@@ -306,13 +308,18 @@ public class MediaResourcesServlet extends HttpServlet
 						{
 							FileItemStream item = iterator.next();
 							byte[] data = read(item.openStream());
+							HashMap<String, Object> fileData = new HashMap<String, Object>();
+							fileData.put("", data);
+							fileData.put(IMediaFieldConstants.FILENAME, item.getName());
+							fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
 
 							IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
 							WebFormComponent webComponent = form.getWebComponent(elementName);
 							IWebsocketEndpoint previous = WebsocketEndpoint.set(new WebsocketSessionEndpoints(wsSession));
 							try
 							{
-								form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
+
+								form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData);
 								wsSession.valueChanged();
 							}
 							finally

@@ -3,6 +3,7 @@ package com.servoy.j2db.server.ngclient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -401,12 +402,34 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		// but what if it was a global or form variable?
 		if (record == null || record.startEditing())
 		{
-			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, newValue);
+			Object v;
+			// if the value is a map, then it means, that a set of related properties needs to be updated,
+			// ex. newValue = {"" : "image_data", "_filename": "pic.jpg", "_mimetype": "image/jpeg"}
+			// will update property with "image_data", property_filename with "pic.jpg" and property_mimetype with "image/jpeg"
+			if (newValue instanceof HashMap)
+			{
+				v = ((HashMap< ? , ? >)newValue).get(""); // defining value
+				Iterator<Entry< ? , ? >> newValueIte = ((HashMap)newValue).entrySet().iterator();
+				while (newValueIte.hasNext())
+				{
+					Entry< ? , ? > e = newValueIte.next();
+					if (!"".equals(e.getKey()))
+					{
+						com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property + e.getKey(),
+							e.getValue());
+					}
+				}
+			}
+			else
+			{
+				v = newValue;
+			}
+			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, v);
 			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChange();
 			if (onDataChange != null && webComponent.hasEvent(onDataChange))
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange);
-				Object returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, newValue, event });
+				Object returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
