@@ -177,14 +177,14 @@ public class DesignerFilter implements Filter
 			{
 				try
 				{
-					JSONObject jsonConfig = new JSONObject(configObject.toString());
-					Object property;
-
-					property = jsonConfig.get(DROPPABLE);
-					if (property != null)
+					if (configObject instanceof JSONObject && ((JSONObject)configObject).has(DROPPABLE))
 					{
-						String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
-						if (spec.getFoundTypes().containsKey(simpleTypeName)) result.add(simpleTypeName);
+						Object droppable = ((JSONObject)configObject).get(DROPPABLE);
+						if (droppable instanceof Boolean && (Boolean)droppable)
+						{
+							String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
+							if (spec.getFoundTypes().containsKey(simpleTypeName)) result.add(simpleTypeName);
+						}
 					}
 				}
 				catch (JSONException e)
