@@ -1,6 +1,10 @@
 angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
-.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', '$timeout', '$solutionSettings', '$anchorConstants', 'gridUtil','uiGridConstants','$scrollbarConstants',
-                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, $timeout, $solutionSettings, $anchorConstants,gridUtil,uiGridConstants,$scrollbarConstants) {  
+.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
+                                   '$timeout', '$solutionSettings', '$anchorConstants', 
+                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService",
+                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, 
+                                		   $timeout, $solutionSettings, $anchorConstants,
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -590,11 +594,24 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){
 					$scope.foundset.loadExtraRecordsAsync(Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size));
 				});
-				gridApi.core.on.sortChanged( $scope, function( grid, sortColumns ) {
+				gridApi.colMovable.on.columnPositionChanged ($scope, function(colDef, originalPosition, newPosition) {
+					var reorderedColumns = $scope.gridApi.grid.columns;
+					for (var k = 0; k < reorderedColumns.length; k++) {
+					    console.log(reorderedColumns[k].x);
+						for(var i = 0; i < $scope.model.childElements.length; i++) {
+							if(reorderedColumns[k].name == $scope.model.childElements[i].name) {
+								console.log($scope.model.childElements[i].name + " " + $scope.model.childElements[i].model.location.x);
+								$scope.model.childElements[i].model.location.x = k;
+								break;
+							}
+						}
+					}
+				});
+				gridApi.core.on.sortChanged ($scope, function( grid, sortColumns ) {
 					// cal the server (through foundset type)
 					// $scope.foundset.sort(sortColumns[0], sortColumns[0].sort.direction == uiGridConstants.ASC);
 				});
-				gridApi.colResizable.on.columnSizeChanged($scope, function(colDef, deltaChange) {
+				gridApi.colResizable.on.columnSizeChanged ($scope, function(colDef, deltaChange) {
 					for(var i = 0; i < $scope.model.childElements.length; i++) {
 						if(colDef.name == $scope.model.childElements[i].name) {
 							$scope.model.childElements[i].model.size.width += deltaChange;
