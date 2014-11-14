@@ -61,7 +61,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		return new TagStringConfig(json.optBoolean("hidetags"), json.optString("forFoundSet"));
+		return new TagStringConfig(json != null && json.optBoolean("hidetags"), json == null ? "" : json.optString("forFoundSet"));
 	}
 
 	@Override
