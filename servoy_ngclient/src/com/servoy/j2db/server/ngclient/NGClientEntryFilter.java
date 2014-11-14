@@ -55,6 +55,7 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String FORMS_PATH = "forms/";
 
 	private String[] locations;
+	private String[] services;
 
 	public NGClientEntryFilter()
 	{
@@ -79,6 +80,18 @@ public class NGClientEntryFilter extends WebEntry
 				Debug.error("Exception during init components.properties reading", e);
 			}
 
+			try
+			{
+				InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/services.properties");
+				Properties properties = new Properties();
+				properties.load(is);
+				services = properties.getProperty("locations").split(";");
+			}
+			catch (Exception e)
+			{
+				Debug.error("Exception during init services.properties reading", e);
+			}
+
 			Types.registerTypes();
 
 			super.init(fc);
@@ -89,6 +102,12 @@ public class NGClientEntryFilter extends WebEntry
 	public String[] getWebComponentBundleNames()
 	{
 		return locations;
+	}
+
+	@Override
+	public String[] getServiceBundleNames()
+	{
+		return services;
 	}
 
 	/**
