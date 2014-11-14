@@ -3,6 +3,7 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -293,6 +294,17 @@ public class NGClientEntryFilter extends WebEntry
 	protected IWebsocketSessionFactory createSessionFactory()
 	{
 		return new WebsocketSessionFactory();
+	}
+
+	@Override
+	protected URL getIndexPageResource(HttpServletRequest request) throws IOException
+	{
+		String uri = request.getRequestURI();
+		if (uri != null && uri.endsWith("index.html"))
+		{
+			return getClass().getResource("index.html");
+		}
+		return super.getIndexPageResource(request);
 	}
 
 	@Override
