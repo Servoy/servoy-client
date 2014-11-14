@@ -7,9 +7,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.sablo.Container;
+import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -31,7 +33,6 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class WebFormComponent extends Container implements IContextProvider
 {
-	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
 	private FormElement formElement;
 
@@ -77,15 +78,12 @@ public class WebFormComponent extends Container implements IContextProvider
 					{
 						return tabSeq1 - tabSeq2;
 					}
-					else
-					{
-						return o1.getName().compareTo(o2.getName());
-					}
+					return o1.getName().compareTo(o2.getName());
 				}
 			}, tabSeqProps.values());
 			for (PropertyDescription pd : sortedList)
 			{
-				calculatedTabSequence.add(new Pair<>(pd.getName(), Utils.getAsInteger(getInitialProperty(pd.getName()))));
+				calculatedTabSequence.add(new Pair<>(pd.getName(), Integer.valueOf(Utils.getAsInteger(getInitialProperty(pd.getName())))));
 			}
 			nextAvailableTabSequence = getMaxTabSequence() + 1;
 			if (fe.isGraphicalComponentWithNoAction())
@@ -158,7 +156,7 @@ public class WebFormComponent extends Container implements IContextProvider
 	@Override
 	protected Object convertPropertyValue(String propertyName, Object oldValue, Object propertyValue) throws JSONException
 	{
-		return (dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue) : propertyValue);
+		return dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue) : propertyValue;
 	}
 
 	@Override
@@ -190,35 +188,23 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	public void add(String eventType, int functionID)
 	{
-		events.put(eventType, Integer.valueOf(functionID));
+		addEventHandler(eventType, new FormcomponentEventHandler(eventType, functionID));
 	}
 
-	public boolean hasEvent(String eventType)
-	{
-		return events.containsKey(eventType);
-	}
-
-	/**
-	 * Executes a handler on the component. If the component has accessible set to false in form security settings an error message is returned.
-	 * */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sablo.BaseWebObject#getEventHandler(java.lang.String)
+	 */
 	@Override
-	public Object executeEvent(String eventType, Object[] args)
+	public IEventHandler getEventHandler(String eventType)
 	{
-		// verify if component is accessible due to security options
-		IPersist persist = formElement.getPersistIfAvailable();
-		if (persist != null)
+		IEventHandler handler = super.getEventHandler(eventType);
+		if (handler == null)
 		{
-			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
-			if (!((access & IRepository.ACCESSIBLE) != 0)) throw new RuntimeException("Security error. Component '" + this.getProperty("name") +
-				"' is not accessible.");
+			throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
 		}
-
-		Integer eventId = events.get(eventType);
-		if (eventId != null)
-		{
-			return dataAdapterList.executeEvent(this, eventType, eventId.intValue(), args);
-		}
-		throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
+		return handler;
 	}
 
 	@Override
@@ -242,13 +228,14 @@ public class WebFormComponent extends Container implements IContextProvider
 			if (formIndex > 0)
 			{
 				int currentIndex = -1;
-				for (IWebFormUI currentForm : visibleForms.keySet())
+
+				for (Entry<IWebFormUI, Integer> entry : visibleForms.entrySet())
 				{
-					int index = visibleForms.get(currentForm);
+					int index = entry.getValue().intValue();
 					if (index < formIndex && index > currentIndex)
 					{
 						currentIndex = index;
-						startIndex = currentForm.getNextAvailableTabSequence();
+						startIndex = entry.getKey().getNextAvailableTabSequence();
 					}
 				}
 			}
@@ -298,10 +285,7 @@ public class WebFormComponent extends Container implements IContextProvider
 		int maxTabSequence = -200;
 		for (Pair<String, Integer> pair : calculatedTabSequence)
 		{
-			if (maxTabSequence < pair.getRight())
-			{
-				maxTabSequence = pair.getRight();
-			}
+			maxTabSequence = Math.max(maxTabSequence, pair.getRight().intValue());
 		}
 		return maxTabSequence;
 	}
@@ -357,5 +341,31 @@ public class WebFormComponent extends Container implements IContextProvider
 		return false;
 	}
 
+	public class FormcomponentEventHandler implements IEventHandler
+	{
+		private final String eventType;
+		private final int functionID;
+
+		public FormcomponentEventHandler(String eventType, int functionID)
+		{
+			this.eventType = eventType;
+			this.functionID = functionID;
+		}
+
+		@Override
+		public Object executeEvent(Object[] args)
+		{
+			// verify if component is accessible due to security options
+			IPersist persist = formElement.getPersistIfAvailable();
+			if (persist != null)
+			{
+				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
+				if (!((access & IRepository.ACCESSIBLE) != 0)) throw new RuntimeException("Security error. Component '" + getProperty("name") +
+					"' is not accessible.");
+			}
+
+			return dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
+		}
+	}
 
 }

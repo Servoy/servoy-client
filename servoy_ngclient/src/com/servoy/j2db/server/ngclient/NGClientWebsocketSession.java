@@ -21,13 +21,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.Container;
 import org.sablo.WebComponent;
@@ -42,7 +39,6 @@ import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.WebsocketEndpoint;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
@@ -211,53 +207,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			String event = obj.getString("cmd");
 			switch (event)
 			{
-				case "event" :
-				{
-					getEventDispatcher().addEvent(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							try
-							{
-								JSONArray jsargs = obj.getJSONArray("args");
-								IWebFormUI form = client.getFormManager().getFormAndSetCurrentWindow(obj.getString("formname")).getFormUI();
-								WebFormComponent webComponent = form.getWebComponent(obj.getString("beanname"));
-								String eventType = obj.getString("event");
-								Object[] args = new Object[jsargs == null ? 0 : jsargs.length()];
-								for (int i = 0; jsargs != null && i < jsargs.length(); i++)
-								{
-									args[i] = jsargs.get(i);
-								}
-
-								String error = null;
-								Object result = null;
-								pushChanges(obj);
-								try
-								{
-									result = webComponent.executeEvent(eventType, args);
-								}
-								catch (Exception e)
-								{
-									Debug.error(e);
-									error = e.getMessage();
-								}
-								if (obj.has("cmsgid")) // client wants response
-								{
-									WebsocketEndpoint.get().sendResponse(obj.get("cmsgid"), error == null ? result : error, null,
-										FullValueToJSONConverter.INSTANCE, error == null);
-								}
-							}
-							catch (JSONException | IOException e)
-							{
-								Debug.error(e);
-								sendInternalError(e);
-							}
-						}
-					});
-
-					break;
-				}
 				case "formloaded" :
 					formCreated(obj.getString("formname"));
 					break;
@@ -271,30 +220,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		finally
 		{
 			J2DBGlobals.setServiceProvider(null);
-		}
-	}
-
-	/**
-	 * @param obj
-	 * @throws JSONException
-	 */
-	private void pushChanges(JSONObject obj) throws JSONException
-	{
-		JSONObject changes = obj.getJSONObject("changes");
-		if (changes.length() > 0)
-		{
-			String formName = obj.getString("formname");
-			IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-			String beanName = obj.optString("beanname");
-
-			WebComponent webComponent = beanName.length() > 0 ? form.getWebComponent(beanName) : (WebComponent)form;
-			Iterator<String> keys = changes.keys();
-			while (keys.hasNext())
-			{
-				String key = keys.next();
-				Object object = changes.get(key);
-				webComponent.putBrowserProperty(key, object);
-			}
 		}
 	}
 
