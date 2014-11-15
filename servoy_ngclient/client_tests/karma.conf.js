@@ -8,8 +8,9 @@ module.exports = function(config){
     files : [
        'lib/jquery.js',
        'lib/angular.js',
-       'lib/angular-mocks.js',  
-       '../../sablo/META-INF/resources/sablo/js/*.js',
+       'lib/angular-mocks.js',
+       /*'../../../sablo/sablo/META-INF/resources/sablo/js/*.js',*/ /* use this when running from Git */
+       '../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
        'lib/phantomjs.polyfill.js',
        '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',

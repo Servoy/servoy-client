@@ -115,34 +115,29 @@ describe('styles helpers', function() {
 	    expect(myDiv[0].style.fontWeight).toBe("bold");
 	  });
   	
- 	it("should apply svy-tabseq", function() {
-  		var template= '<div name="myTag" svy-tabseq="myModel"></div>' 
-  	    var myDiv = $compile(template)($scope);
-  		$scope.myModel =3
-  		//check style before
-  	   expect(myDiv[0].tabIndex).toBe(-1);   
-		$scope.$digest();
-		//checks style after
-	  	 expect(myDiv[0].tabIndex).toBe(3); 
-	   // runtime change 
-	   $scope.myModel = 5
-	   $scope.$digest();		
-	  	expect(myDiv[0].tabIndex).toBe(5);
-	  });
- 	it("should apply svy-tabseq", function() {
-  		var template= '<div name="myTag" svy-tabseq="myModel"></div>' 
-  	    var myDiv = $compile(template)($scope);
-  		$scope.myModel =3
-  		//check style before
-  	   expect(myDiv[0].tabIndex).toBe(-1);   
-		$scope.$digest();
-		//checks style after
-	  	 expect(myDiv[0].tabIndex).toBe(3); 
-	   // runtime change 
-	   $scope.myModel = 5
-	   $scope.$digest();		
-	  	expect(myDiv[0].tabIndex).toBe(5);
-	  });
+  	it("should apply sibling svy-tabseq", function() {
+  		var template= '<div svy-tabseq="0" svy-tabseq-config="{root: true}"><div name="myTag" svy-tabseq="myModel1"></div><div name="myOtherTag" svy-tabseq="myModel2"></div><div name="myOtherOtherTag" svy-tabseq="myModel3"></div></div>'; 
+  		$scope.myModel1 = -2;
+  		$scope.myModel2 = -2;
+  		$scope.myModel3 = -2;
+  		var myDiv = $compile(template)($scope);
+  		expect(myDiv.children()[0].tabIndex).toBe(-1);
+  		expect(myDiv.children()[1].tabIndex).toBe(-1);
+  		expect(myDiv.children()[2].tabIndex).toBe(-1);
+  		$scope.myModel1 = 5;
+  		$scope.myModel2 = -2;
+  		$scope.myModel3 = 3;
+  		$scope.$digest();
+  		expect(myDiv.children()[0].tabIndex).toBe(2);
+  		expect(myDiv.children()[1].tabIndex).toBe(-1);
+  		expect(myDiv.children()[2].tabIndex).toBe(1);
+  		// runtime change 
+  		$scope.myModel2 = 2;
+  		$scope.$digest();		
+  		expect(myDiv.children()[0].tabIndex).toBe(3);
+  		expect(myDiv.children()[1].tabIndex).toBe(1);
+  		expect(myDiv.children()[2].tabIndex).toBe(2);
+  	});
  	it("should apply svy-click,svy-dblclick,svy-rightclick,svy-focusgained,svy-focuslost", function() {
   		// is is a design time property, model is sent before
  		var events=['click','dblclick','contextmenu','blur','focus']
