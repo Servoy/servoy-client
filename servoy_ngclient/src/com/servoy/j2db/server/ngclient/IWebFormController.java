@@ -33,13 +33,11 @@ public interface IWebFormController extends IFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#getFoundSet()
 	 */
 	@Override
 	public IFoundSetInternal getFoundSet();
-
-	void recalculateTabIndex();
 
 	void setParentFormController(IWebFormController parentFormController);
 

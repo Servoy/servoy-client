@@ -2,29 +2,20 @@ package com.servoy.j2db.server.ngclient;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
-import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.SortedList;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Servoy extension to work with webcomponents on a form
@@ -36,13 +27,8 @@ public class WebFormComponent extends Container implements IContextProvider
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
 	private FormElement formElement;
 
-	// list of all tabseq properties ordered by design time value; tabseq will be updated with runtime value
-	private final List<Pair<String, Integer>> calculatedTabSequence = new ArrayList<Pair<String, Integer>>();
-
 	protected IDataAdapterList dataAdapterList;
 
-	// the next available tab sequence number (after this component and all its subtree)
-	protected int nextAvailableTabSequence;
 	protected PropertyChangeSupport propertyChangeSupport;
 	protected IWebFormUI parentForm;
 	protected ComponentContext componentContext;
@@ -60,36 +46,6 @@ public class WebFormComponent extends Container implements IContextProvider
 			{
 				((DataAdapterList)dataAdapterList).addRecordAwareComponent(this);
 				break;
-			}
-		}
-
-		if (fe.getWebComponentSpec(false) != null)
-		{
-			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(TypesRegistry.getType("tabseq"));
-			List<PropertyDescription> sortedList = new SortedList<PropertyDescription>(new Comparator<PropertyDescription>()
-			{
-
-				@Override
-				public int compare(PropertyDescription o1, PropertyDescription o2)
-				{
-					int tabSeq1 = Utils.getAsInteger(WebFormComponent.this.getInitialProperty(o1.getName()));
-					int tabSeq2 = Utils.getAsInteger(WebFormComponent.this.getInitialProperty(o2.getName()));
-					if (tabSeq1 != tabSeq2)
-					{
-						return tabSeq1 - tabSeq2;
-					}
-					return o1.getName().compareTo(o2.getName());
-				}
-			}, tabSeqProps.values());
-			for (PropertyDescription pd : sortedList)
-			{
-				calculatedTabSequence.add(new Pair<>(pd.getName(), Integer.valueOf(Utils.getAsInteger(getInitialProperty(pd.getName())))));
-			}
-			nextAvailableTabSequence = getMaxTabSequence() + 1;
-			if (fe.isGraphicalComponentWithNoAction())
-			{
-				// hack for legacy behavior
-				properties.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), Integer.valueOf(-1));
 			}
 		}
 	}
@@ -193,7 +149,7 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.BaseWebObject#getEventHandler(java.lang.String)
 	 */
 	@Override
@@ -224,75 +180,7 @@ public class WebFormComponent extends Container implements IContextProvider
 		{
 			form.setParentContainer(this);
 			visibleForms.put(form, Integer.valueOf(formIndex));
-			int startIndex = getMaxTabSequence();
-			if (formIndex > 0)
-			{
-				int currentIndex = -1;
-
-				for (Entry<IWebFormUI, Integer> entry : visibleForms.entrySet())
-				{
-					int index = entry.getValue().intValue();
-					if (index < formIndex && index > currentIndex)
-					{
-						currentIndex = index;
-						startIndex = entry.getKey().getNextAvailableTabSequence();
-					}
-				}
-			}
-			int maxTabIndex = form.recalculateTabIndex(startIndex, null);
-			if (maxTabIndex > nextAvailableTabSequence)
-			{
-				// add a 50 numbers gap
-				nextAvailableTabSequence = Math.max(maxTabIndex, startIndex + 50);
-				// go up in the tree
-				if (getParent() != null)
-				{
-					((IWebFormUI)getParent()).recalculateTabIndex(nextAvailableTabSequence, new TabSequencePropertyWithComponent(this,
-						calculatedTabSequence.get(0).getLeft()));
-				}
-			}
 		}
-	}
-
-	public void recalculateTabSequence(int availableSequence)
-	{
-		if (nextAvailableTabSequence < availableSequence)
-		{
-			// go up in the tree
-			if (getParent() != null)
-			{
-				((IWebFormUI)getParent()).recalculateTabIndex(availableSequence, new TabSequencePropertyWithComponent(this,
-					calculatedTabSequence.get(0).getLeft()));
-			}
-		}
-	}
-
-	public void setCalculatedTabSequence(int tabSequence, String propertyName)
-	{
-		for (Pair<String, Integer> pair : calculatedTabSequence)
-		{
-			if (Utils.equalObjects(propertyName, pair.getLeft()))
-			{
-				pair.setRight(Integer.valueOf(tabSequence));
-			}
-		}
-		this.nextAvailableTabSequence = getMaxTabSequence() + 1;
-		setProperty(propertyName, Integer.valueOf(tabSequence));
-	}
-
-	private int getMaxTabSequence()
-	{
-		int maxTabSequence = -200;
-		for (Pair<String, Integer> pair : calculatedTabSequence)
-		{
-			maxTabSequence = Math.max(maxTabSequence, pair.getRight().intValue());
-		}
-		return maxTabSequence;
-	}
-
-	public int getNextAvailableTabSequence()
-	{
-		return nextAvailableTabSequence;
 	}
 
 	public int getFormIndex(IWebFormUI form)

@@ -50,11 +50,7 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	void setReadOnly(boolean readOnly);
 
-	int recalculateTabIndex(int startIndex, TabSequencePropertyWithComponent startComponent);
-
 	void setParentContainer(WebFormComponent parentContainer);
-
-	int getNextAvailableTabSequence();
 
 	public String getParentWindowName();
 

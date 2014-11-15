@@ -430,12 +430,6 @@ public final class FormElement implements IWebComponentInitializer
 			else return getPropertyValue(propertyName); // just in case this method gets called for events for example (which are currently stored in the same map)
 		}
 
-		if (StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName().equals(propertyName) && isGraphicalComponentWithNoAction())
-		{
-			// legacy behavior
-			return Integer.valueOf(-1);
-		}
-
 		if (propertyDescription != null)
 		{
 			// we want a defaut value to be set anyway because it was sent into template
@@ -603,7 +597,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

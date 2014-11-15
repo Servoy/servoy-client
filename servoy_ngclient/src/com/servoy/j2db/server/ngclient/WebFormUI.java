@@ -8,7 +8,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,6 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.ElementScope;
@@ -44,7 +42,6 @@ import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertySabloValue;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
 @SuppressWarnings("nls")
@@ -69,9 +66,6 @@ public class WebFormUI extends Container implements IWebFormUI
 	private Object parentContainerOrWindowName;
 
 	protected IDataAdapterList dataAdapterList;
-
-	// the next available tab sequence number (after this component and all its subtree)
-	protected int nextAvailableTabSequence;
 
 	public WebFormUI(IWebFormController formController)
 	{
@@ -203,6 +197,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		events.put(eventType, Integer.valueOf(functionID));
 	}
 
+	@Override
 	public boolean hasEvent(String eventType)
 	{
 		return events.containsKey(eventType);
@@ -379,74 +374,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	@Override
-	public int recalculateTabIndex(int startIndex, TabSequencePropertyWithComponent startComponent)
-	{
-		int currentIndex = startIndex;
-		List<TabSequencePropertyWithComponent> tabSeqComponents = getTabSeqComponents();
-		int startIndexInList = 0;
-		if (startComponent != null)
-		{
-			startIndexInList = tabSeqComponents.indexOf(startComponent);
-		}
-		for (int i = Math.max(0, startIndexInList); i < tabSeqComponents.size(); i++)
-		{
-			tabSeqComponents.get(i).setCalculatedTabSequence(currentIndex++);
-		}
-		if (startComponent != null && parentContainerOrWindowName instanceof WebFormComponent)
-		{
-			// upwards traversal
-			((WebFormComponent)parentContainerOrWindowName).recalculateTabSequence(currentIndex);
-		}
-		nextAvailableTabSequence = currentIndex;
-		return currentIndex;
-	}
-
-	protected List<TabSequencePropertyWithComponent> getTabSeqComponents()
-	{
-		SortedList<TabSequencePropertyWithComponent> tabSeqComponents = new SortedList<TabSequencePropertyWithComponent>(
-			new Comparator<TabSequencePropertyWithComponent>()
-			{
-				@Override
-				public int compare(TabSequencePropertyWithComponent o1, TabSequencePropertyWithComponent o2)
-				{
-					int seq1 = o1.getTabSequence();
-					int seq2 = o2.getTabSequence();
-
-					if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
-					{
-						//delegate to Yx
-						int yxCompare = PositionComparator.XY_BOUNDS_COMPARATOR.compare(o1, o2);
-						// if they are at the same position, and are different persist, just use UUID to decide the sequence
-						return yxCompare == 0 ? o1.getComponent().getName().compareTo(o2.getComponent().getName()) : yxCompare;
-					}
-					else if (seq1 == ISupportTabSeq.DEFAULT)
-					{
-						return 1;
-					}
-					else if (seq2 == ISupportTabSeq.DEFAULT)
-					{
-						return -1;
-					}
-					return seq1 - seq2;
-				}
-
-			});
-		for (WebComponent component : components.values())
-		{
-			WebFormComponent comp = (WebFormComponent)component;
-			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("tabseq"));
-			for (PropertyDescription pd : tabSeqProps.values())
-			{
-				if (Utils.getAsInteger(comp.getInitialProperty(pd.getName())) >= 0)
-				{
-					tabSeqComponents.add(new TabSequencePropertyWithComponent(comp, pd.getName()));
-				}
-			}
-		}
-		return tabSeqComponents;
-	}
-
 	public void setParentContainer(WebFormComponent parentContainer)
 	{
 		this.parentContainerOrWindowName = parentContainer;
@@ -476,22 +403,12 @@ public class WebFormUI extends Container implements IWebFormUI
 		this.parentContainerOrWindowName = parentWindowName;
 	}
 
-	public int getNextAvailableTabSequence()
-	{
-		return nextAvailableTabSequence;
-	}
-
 	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		setVisible(visible);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setLocation(java.awt.Point)
-	 */
 	@Override
 	public void setLocation(Point location)
 	{
@@ -499,11 +416,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getLocation()
-	 */
 	@Override
 	public Point getLocation()
 	{
@@ -511,11 +423,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setSize(java.awt.Dimension)
-	 */
 	@Override
 	public void setSize(Dimension size)
 	{
@@ -523,11 +430,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getSize()
-	 */
 	@Override
 	public Dimension getSize()
 	{
@@ -535,11 +437,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setForeground(java.awt.Color)
-	 */
 	@Override
 	public void setForeground(Color foreground)
 	{
@@ -547,11 +444,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getForeground()
-	 */
 	@Override
 	public Color getForeground()
 	{
@@ -559,11 +451,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setBackground(java.awt.Color)
-	 */
 	@Override
 	public void setBackground(Color background)
 	{
@@ -571,11 +458,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getBackground()
-	 */
 	@Override
 	public Color getBackground()
 	{
@@ -583,11 +465,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setFont(java.awt.Font)
-	 */
 	@Override
 	public void setFont(Font font)
 	{
@@ -595,11 +472,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getFont()
-	 */
 	@Override
 	public Font getFont()
 	{
@@ -607,11 +479,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setBorder(javax.swing.border.Border)
-	 */
 	@Override
 	public void setBorder(Border border)
 	{
@@ -619,11 +486,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getBorder()
-	 */
 	@Override
 	public Border getBorder()
 	{
@@ -631,11 +493,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String name)
 	{
@@ -643,11 +500,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setOpaque(boolean)
-	 */
 	@Override
 	public void setOpaque(boolean opaque)
 	{
@@ -655,11 +507,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#isOpaque()
-	 */
 	@Override
 	public boolean isOpaque()
 	{
@@ -667,11 +514,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setCursor(java.awt.Cursor)
-	 */
 	@Override
 	public void setCursor(Cursor cursor)
 	{
@@ -679,11 +521,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#setToolTipText(java.lang.String)
-	 */
 	@Override
 	public void setToolTipText(String tooltip)
 	{
@@ -691,11 +528,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
-	 */
 	@Override
 	public String getToolTipText()
 	{
@@ -703,11 +535,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.IComponent#getId()
-	 */
 	@Override
 	public String getId()
 	{
@@ -715,11 +542,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#showYesNoQuestionDialog(com.servoy.j2db.IApplication, java.lang.String, java.lang.String)
-	 */
 	@Override
 	public boolean showYesNoQuestionDialog(IApplication application, String dlgMessage, String string)
 	{
@@ -741,11 +563,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#printPreview(boolean, boolean, int, java.awt.print.PrinterJob)
-	 */
 	@Override
 	public void printPreview(boolean showDialogs, boolean printCurrentRecordOnly, int zoomFactor, PrinterJob printerJob)
 	{
@@ -753,11 +570,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#print(boolean, boolean, boolean, java.awt.print.PrinterJob)
-	 */
 	@Override
 	public void print(boolean showDialogs, boolean printCurrentRecordOnly, boolean showPrinterSelectDialog, PrinterJob printerJob)
 	{
@@ -765,11 +577,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#printXML(boolean)
-	 */
 	@Override
 	public String printXML(boolean printCurrentRecordOnly)
 	{
@@ -777,11 +584,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#showSortDialog(com.servoy.j2db.IApplication, java.lang.String)
-	 */
 	@Override
 	public void showSortDialog(IApplication application, String options)
 	{
@@ -789,11 +591,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#getFormWidth()
-	 */
 	@Override
 	public int getFormWidth()
 	{
@@ -802,11 +599,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#getPartHeight(int)
-	 */
 	@Override
 	public int getPartHeight(int partType)
 	{
@@ -842,11 +634,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return new JSDataSet(formController.getApplication(), set);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#changeFocusIfInvalid(java.util.List)
-	 */
 	@Override
 	public void changeFocusIfInvalid(List<Runnable> invokeLaterRunnables)
 	{
@@ -854,11 +641,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicFormUI#prepareForSave(boolean)
-	 */
 	@Override
 	public void prepareForSave(boolean looseFocus)
 	{
@@ -866,11 +648,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#start(com.servoy.j2db.IApplication)
-	 */
 	@Override
 	public void start(IApplication app)
 	{
@@ -878,11 +655,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#stop()
-	 */
 	@Override
 	public void stop()
 	{
@@ -890,11 +662,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#editCellAt(int)
-	 */
 	@Override
 	public boolean editCellAt(int row)
 	{
@@ -902,11 +669,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#stopUIEditing(boolean)
-	 */
 	@Override
 	public boolean stopUIEditing(boolean looseFocus)
 	{
@@ -914,11 +676,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#isEditing()
-	 */
 	@Override
 	public boolean isEditing()
 	{
@@ -926,11 +683,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#requestFocus()
-	 */
 	@Override
 	public void requestFocus()
 	{
@@ -938,11 +690,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#ensureIndexIsVisible(int)
-	 */
 	@Override
 	public void ensureIndexIsVisible(int index)
 	{
@@ -950,11 +697,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#setEditable(boolean)
-	 */
 	@Override
 	public void setEditable(boolean findMode)
 	{
@@ -962,11 +704,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#getVisibleRect()
-	 */
 	@Override
 	public Rectangle getVisibleRect()
 	{
@@ -974,11 +711,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IView#setVisibleRect(java.awt.Rectangle)
-	 */
 	@Override
 	public void setVisibleRect(Rectangle scrollPosition)
 	{
@@ -986,11 +718,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#setRowBGColorScript(java.lang.String, java.util.List)
-	 */
 	@Override
 	public void setRowBGColorScript(String bgColorScript, List<Object> args)
 	{
@@ -998,11 +725,6 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorScript()
-	 */
 	@Override
 	public String getRowBGColorScript()
 	{
@@ -1010,11 +732,6 @@ public class WebFormUI extends Container implements IWebFormUI
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorArgs()
-	 */
 	@Override
 	public List<Object> getRowBGColorArgs()
 	{

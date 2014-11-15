@@ -153,11 +153,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return formUI;
 	}
 
-	public void recalculateTabIndex()
-	{
-		formUI.recalculateTabIndex(1, null);
-	}
-
 	@Override
 	public void showNavigator(List<Runnable> invokeLaterRunnables)
 	{
@@ -391,11 +386,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#setTabSequence(java.lang.Object[])
-	 */
 	@Override
 	public void setTabSequence(Object[] arrayOfElements)
 	{
@@ -403,11 +393,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getTabSequence()
-	 */
 	@Override
 	public String[] getTabSequence()
 	{

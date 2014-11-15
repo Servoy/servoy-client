@@ -565,8 +565,9 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					followSourceArray:true,
 					useExternalSorting: true,
 					primaryKey: $foundsetTypeConstants.ROW_ID_COL_KEY, // not currently documented in ngGrid API but is used internally and useful - see ngGrid source code
+					rowTemplate: 'svy-ui-grid/ui-grid-row',
 					columnDefs: $scope.columnDefinitions,
-					rowHeight: $scope.rowHeight?$scope.rowHeight:20,
+					rowHeight: $scope.rowHeight ? $scope.rowHeight : 20,
 					hideHeader:$scope.model.headerHeight == 0 || $scope.model.multiLine,
 					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight
 			};
@@ -749,4 +750,11 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 		templateUrl: 'servoydefault/portal/portal.html',
 		replace: true
 	};
+}])
+.run(['$templateCache', function($templateCache) {
+	
+  $templateCache.put('svy-ui-grid/ui-grid-row',
+    "<div svy-tabseq=\"rowRenderIndex\" svy-tabseq-config=\"{container: true}\"><div ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div></div>"
+  );
+
 }]);

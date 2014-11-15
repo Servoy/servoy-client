@@ -87,7 +87,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
 
-					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifier, currentConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
+					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifier, modelUpdateConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
 					done = true;
 				}
 				

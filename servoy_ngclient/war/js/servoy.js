@@ -595,16 +595,6 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
          }
     }
 })
-.directive('svyTabseq',  function () {
-	return {
-		restrict: 'A',
-		link: function (scope, element, attrs) {
-			scope.$watch(attrs.svyTabseq,function(newVal){
-				element.attr('tabIndex',newVal ? newVal : 0);
-			})
-		}
-	};
-})
 .directive('svySelectonenter',  function ($timeout) {
 	return {
 		restrict: 'A',
