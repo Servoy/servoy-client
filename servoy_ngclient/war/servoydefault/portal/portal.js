@@ -598,10 +598,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				gridApi.colMovable.on.columnPositionChanged ($scope, function(colDef, originalPosition, newPosition) {
 					var reorderedColumns = $scope.gridApi.grid.columns;
 					for (var k = 0; k < reorderedColumns.length; k++) {
-					    console.log(reorderedColumns[k].x);
 						for(var i = 0; i < $scope.model.childElements.length; i++) {
 							if(reorderedColumns[k].name == $scope.model.childElements[i].name) {
-								console.log($scope.model.childElements[i].name + " " + $scope.model.childElements[i].model.location.x);
 								$scope.model.childElements[i].model.location.x = k;
 								break;
 							}
