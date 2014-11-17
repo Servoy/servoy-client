@@ -84,7 +84,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#getForm(java.lang.String)
 	 */
 	@Override
@@ -197,6 +197,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	/**
 	 * @param message
 	 */
+	@Override
 	public void handleMessage(final JSONObject obj)
 	{
 		if (client != null) J2DBGlobals.setServiceProvider(client);
@@ -366,6 +367,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				Debug.error("Cannot find solution styleSheet in media lib.");
 			}
 		}
+		else
+		{
+			getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { });
+		}
 	}
 
 	@Override
@@ -387,7 +392,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#valueChanged()
 	 */
 	@Override
@@ -426,7 +431,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
