@@ -4,7 +4,8 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
       scope: {
         model: "=svyModel",
         handlers: "=svyHandlers",
-        api: "=svyApi"
+        api: "=svyApi",
+        svyApply: "="
       },
       controller: function($scope, $element, $attrs) {
           $scope.notNullOrEmpty = $utils.notNullOrEmpty // TODO remove the need for this

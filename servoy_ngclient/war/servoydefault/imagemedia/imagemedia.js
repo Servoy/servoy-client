@@ -3,8 +3,8 @@ angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultIma
       restrict: 'E',
       scope: {
         model: "=svyModel",
-        handlers: "=svyHandlers",
-        api: "=svyApi"
+        api: "=svyApi",
+        svyApply: "="
       },
       controller: function($scope, $element, $attrs) {  
 
@@ -33,7 +33,7 @@ angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultIma
     	  
     	  $scope.clear = function() {
     		  $scope.model.dataProviderID = null;
-    		  $scope.handlers.svy_apply('dataProviderID');
+    		  $scope.svyApply('dataProviderID');
     	  }
     	  
           $scope.api.setScroll = function(x, y) {

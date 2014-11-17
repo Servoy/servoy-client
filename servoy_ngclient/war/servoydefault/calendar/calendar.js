@@ -4,7 +4,8 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
       scope: {
       	model: "=svyModel",
         handlers: "=svyHandlers",
-        api: "=svyApi"
+        api: "=svyApi",
+        svyApply: "="
       },
       link: function($scope, $element, $attrs) {
           $scope.style = {width:'100%',height:'100%',overflow:'hidden',paddingTop:'0',paddingBottom:'0'}
@@ -29,7 +30,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
               } else {
                 $scope.model.dataProviderID = $scope.editModel;
               }
-            $scope.handlers.svy_apply('dataProviderID');
+            $scope.svyApply('dataProviderID');
           }
           
           var dateFormat = 'yyyy-MM-dd'

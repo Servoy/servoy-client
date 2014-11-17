@@ -4,8 +4,8 @@ angular.module('servoydefaultCheck',['servoy']).directive('servoydefaultCheck', 
       scope: {
         name: "=",
         model: "=svyModel",
-        handlers: "=svyHandlers",
-        api: "=svyApi"
+        api: "=svyApi",
+        svyApply: "="
       },
       link: function($scope, $element, $attrs) {
           $scope.style = {width:'100%',height:'100%'}
@@ -31,7 +31,7 @@ angular.module('servoydefaultCheck',['servoy']).directive('servoydefaultCheck', 
         	  {
         		  $scope.model.dataProviderID = $scope.model.dataProviderID > 0 ?  0 :  1;
         	  }
-        	  $scope.handlers.svy_apply('dataProviderID')
+        	  $scope.svyApply('dataProviderID')
           }
           
           $scope.api.setValueListItems = function(values) 

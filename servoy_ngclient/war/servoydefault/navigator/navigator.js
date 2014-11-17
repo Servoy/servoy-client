@@ -3,7 +3,8 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
       restrict: 'E',
       scope: {
         model: "=svyModel",
-        handlers: "=svyHandlers"
+        handlers: "=svyHandlers",
+        svyApply: "="
       },
       controller: function($scope)
       {
@@ -16,7 +17,7 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
     		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
     	  }
 
-    	  $scope.slider_handlers.svyApply = $scope.handlers.svy_apply;
+    	  $scope.slider_handlers.svyApply = $scope.svyApply;
     	  $scope.slider_handlers.onStopMethodID = function(event, value) {
     		  $scope.setIndex(value);
     	  };    	  

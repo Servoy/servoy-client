@@ -6,7 +6,8 @@ angular.module('servoydefaultCombobox',['servoy','ui.select'])
       scope: {
         model: "=svyModel",
         api:"=svyApi",
-        handlers: "=svyHandlers"
+        handlers: "=svyHandlers",
+        svyApply: "="
       },
       controller: function($scope, $element, $attrs) {
     	  var minHeight =  $scope.model.size.height+'px';
@@ -70,7 +71,7 @@ angular.module('servoydefaultCombobox',['servoy','ui.select'])
          		{
          			scope.handlers.onActionMethodID(event);
          		}
-         		scope.handlers.svy_apply('dataProviderID');
+         		scope.svyApply('dataProviderID');
      		},0);
      	}
      	

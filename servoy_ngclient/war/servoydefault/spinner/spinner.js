@@ -4,8 +4,8 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
       scope: {
         name: "=",
         model: "=svyModel",
-        handlers: "=svyHandlers",
-        api: "=svyApi"
+        api: "=svyApi",
+        svyApply: "="
       },
       link: function($scope, $element, $attrs) {
     	  $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
@@ -54,7 +54,7 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
         		  $scope.counter = $scope.counter < $scope.model.valuelistID.length-1 ? $scope.counter + 1 : 0;
         		  $scope.model.dataProviderID = $scope.model.valuelistID[$scope.counter].realValue
         	  }
-        	  $scope.handlers.svy_apply('dataProviderID')
+        	  $scope.svyApply('dataProviderID')
           }
           
           $scope.decrement = function()
@@ -64,7 +64,7 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
         		  $scope.counter = $scope.counter > 0 ? $scope.counter - 1 : $scope.model.valuelistID.length-1;
         		  $scope.model.dataProviderID = $scope.model.valuelistID[$scope.counter].realValue
         	  }
-        	  $scope.handlers.svy_apply('dataProviderID')
+        	  $scope.svyApply('dataProviderID')
           }
           
           $scope.api.setValueListItems = function(values) 

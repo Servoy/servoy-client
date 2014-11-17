@@ -14,7 +14,7 @@
          svy-horizontaldirection='model.scrollbars'>
          <input type="radio" ng-model="model.dataProviderID"  
            ng-value="item.realValue"  
-	       ng-change="handlers.svy_apply('dataProviderID')"  
+	       ng-change="svyApply('dataProviderID')"  
 	       ng-disabled="model.enabled == false || model.editable == false" 
 	       svy-tabseq='model.tabSeq'
 	       svy-click='handlers.onActionMethodID($event)'
