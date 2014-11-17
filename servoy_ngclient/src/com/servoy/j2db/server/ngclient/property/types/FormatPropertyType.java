@@ -21,6 +21,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
@@ -30,6 +31,10 @@ import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 
 /**
  * TODO is format really mapped on a special object (like ParsedFormat)
@@ -37,13 +42,15 @@ import com.servoy.j2db.persistence.Column;
  * @author jcompagner
  *
  */
-public class FormatPropertyType implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>
+public class FormatPropertyType implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>,
+	IFormElementDefaultValueToSabloComponent<Object, Object>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
 
 	public static final FormatPropertyType INSTANCE = new FormatPropertyType();
 	public static final String TYPE_NAME = "format";
+	private static Object DESIGN_DEFAULT = new Object();
 
 	private FormatPropertyType()
 	{
@@ -76,7 +83,7 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 	@Override
 	public Object/* ComponentFormat */defaultValue()
 	{
-		return null;
+		return DESIGN_DEFAULT;
 	}
 
 	@Override
@@ -132,5 +139,39 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 	public boolean valueInTemplate(Object object)
 	{
 		return false;
+	}
+
+	@Override
+	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
+	{
+		return getSabloValue(formElementValue, pd, formElement, component, dataAdapterList);
+	}
+
+	@Override
+	public Object toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList)
+	{
+		return getSabloValue(null, pd, formElement, component, dataAdapterList);
+	}
+
+	private Object getSabloValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
+	{
+		if (formElementValue == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || formElementValue == DESIGN_DEFAULT)
+		{
+			formElementValue = null;
+		}
+		if (formElementValue instanceof String || formElementValue == null)
+		{
+			// get dataproviderId
+			String dataproviderId = (String)formElement.getPropertyValue((String)pd.getConfig());
+			ComponentFormat format = ComponentFormat.getComponentFormat(
+				(String)formElementValue,
+				dataproviderId,
+				dataAdapterList.getApplication().getFlattenedSolution().getDataproviderLookup(dataAdapterList.getApplication().getFoundSetManager(),
+					dataAdapterList.getForm().getForm()), dataAdapterList.getApplication());
+			return format;
+		}
+		return formElementValue;
 	}
 }

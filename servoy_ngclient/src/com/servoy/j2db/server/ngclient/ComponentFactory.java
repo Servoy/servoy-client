@@ -39,7 +39,6 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.ISmartPropertyValue;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
@@ -249,19 +248,6 @@ public class ComponentFactory
 		Object ret = null;
 		switch (propertySpec.getType().getName())
 		{
-			case "format" :
-			{
-				Object propValue = formElementProperty;
-				if (propValue instanceof String)
-				{
-					// get dataproviderId
-					String dataproviderId = (String)fe.getPropertyValue((String)propertySpec.getConfig());
-					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
-						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElNodeForm), application);
-					ret = format;
-				}
-				break;
-			}
 			case "bean" :
 			{
 				Object propValue = formElementProperty;

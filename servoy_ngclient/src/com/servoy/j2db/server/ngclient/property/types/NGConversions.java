@@ -100,7 +100,7 @@ public class NGConversions
 		 * @param key if this value will be part of a JSON object, key is non-null and you MUST do writer.key(...) before adding the converted value. This
 		 * is useful for cases when you don't want the value written at all in resulting JSON in which case you don't write neither key or value. If
 		 * key is null and you want to write the converted value write only the converted value to the writer, ignore the key.
-		 * @param formElementValue the value to be converted and written.
+		 * @param formElementValue the value to be converted and written. Can also be IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER
 		 * @param pd the property description for this property.
 		 * @param browserConversionMarkers client conversion markers that can be set and if set will be used client side to interpret the data properly.
 		 * @return the JSON writer for easily continuing the write process in the caller.
@@ -127,6 +127,21 @@ public class NGConversions
 		T toSabloComponentValue(F formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList);
 
 	}
+
+	public static interface IFormElementDefaultValueToSabloComponent<F, T> extends IFormElementToSabloComponent<F, T>
+	{
+
+		/**
+		 * Converts from a FormElement default value to a Sablo default value to be set in the web component.
+		 * @param pd the spec description of the property
+		 * @param formElement the form element
+		 * @param component the component to which the returned value will be assigned as a property
+		 * @return the converted value, ready to be put in the web component property
+		 */
+		T toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList);
+
+	}
+
 
 	/**
 	 * Conversion 4.1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
@@ -241,18 +256,18 @@ public class NGConversions
 			throws JSONException, IllegalArgumentException
 		{
 			IPropertyType< ? > type = (valueType != null ? valueType.getType() : null);
-			if (value != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+			if (type instanceof IFormElementToTemplateJSON)
 			{
-				if (type instanceof IFormElementToTemplateJSON)
-				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers,
-						servoyDataConverterContext);
-				}
-				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(value))
-				{
-					return writer;
-				}
-				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers))
+				writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers,
+					servoyDataConverterContext);
+			}
+			else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(value))
+			{
+				return writer;
+			}
+			else if (value != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+			{
+				if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers))
 				{
 					JSONUtils.addKeyIfPresent(writer, key);
 					writer.value(value);
@@ -318,6 +333,10 @@ public class NGConversions
 				return ((IFormElementToSabloComponent)type).toSabloComponentValue(formElementValue, pd, formElement, component, dal);
 			}
 			return formElementValue;
+		}
+		else if (type instanceof IFormElementDefaultValueToSabloComponent)
+		{
+			return ((IFormElementDefaultValueToSabloComponent)type).toSabloComponentDefaultValue(pd, formElement, component, dal);
 		}
 		else
 		{
