@@ -414,6 +414,7 @@ public class ComponentFactory
 
 				Map<String, Object> portalFormElementProperties = new HashMap<>(portalFormElement.getRawPropertyValues());
 				portalFormElementProperties.put("offsetY", startPos);
+				portalFormElementProperties.put("partHeight", bodyPart.getHeight());
 				// now put real child component form element values in "childElements"
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
