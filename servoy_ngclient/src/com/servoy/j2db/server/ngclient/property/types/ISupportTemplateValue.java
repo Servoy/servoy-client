@@ -20,7 +20,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 /**
  * Types can implement this interface to tell the system that the type does or does not support values in the template.
  * Default the system will see this value as true (so all types do support that values are going through the template).
- * The value can also be IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER
+ *
  *
  * @author jcompagner
  *
