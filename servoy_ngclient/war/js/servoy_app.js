@@ -735,7 +735,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 }])
-.factory("$applicationService",['$window','$timeout','webStorage','$modal', '$sabloApplication','$solutionSettings','$rootScope', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope) {
+.factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope) {
 	var showDefaultLoginWindow = function() {
 			$modal.open({
         	  templateUrl: '/templates/login.html',
@@ -747,7 +747,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	return {
 		setStyleSheet: function(path) {
-			$solutionSettings.styleSheetPath = path;
+			$solutionSettings.styleSheetPath = path +"?t="+Date.now();
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		getUserProperty: function(key) {
