@@ -256,18 +256,19 @@ public class NGConversions
 			throws JSONException, IllegalArgumentException
 		{
 			IPropertyType< ? > type = (valueType != null ? valueType.getType() : null);
-			if (type instanceof IFormElementToTemplateJSON)
-			{
-				writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers,
-					servoyDataConverterContext);
-			}
-			else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(value))
+
+			if (!(type instanceof IFormElementToTemplateJSON) && type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(value))
 			{
 				return writer;
 			}
 			else if (value != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 			{
-				if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers))
+				if (type instanceof IFormElementToTemplateJSON)
+				{
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, value, valueType, browserConversionMarkers,
+						servoyDataConverterContext);
+				}
+				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers))
 				{
 					JSONUtils.addKeyIfPresent(writer, key);
 					writer.value(value);
