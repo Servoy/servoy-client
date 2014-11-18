@@ -431,11 +431,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
         link: function (scope, element, attrs) {
         	  scope.$watch(attrs.svyBorder,function(newVal){
         		  if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
+        		  
+        		  if (element.parent().is("fieldset")){ 
+        			  $(element.parent()).replaceWith($(element));//unwrap fieldset
+        		  }
         		  if(newVal.type == "TitledBorder"){
         			  element.wrap('<fieldset style="padding:5px;margin:0px;border:1px solid silver;width:100%;height:100%"></fieldset>')
         			  element.parent().prepend("<legend align='"+newVal.titleJustiffication+"' style='border-bottom:0px; margin:0px;width:auto;color:"+
         					  newVal.color+";font:"+newVal.font+"'>"+newVal.title+"</legend>")
-        			  // TODO unwrap fieldset if borderType changes for example from TitledBorder to LineBorder
         		  }else if(newVal.borderStyle){ 
         			  element.css('border','')
         			  element.css(newVal.borderStyle)

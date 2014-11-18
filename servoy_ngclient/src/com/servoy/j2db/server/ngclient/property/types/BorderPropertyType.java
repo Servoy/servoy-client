@@ -16,6 +16,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.types.FontPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -57,6 +59,22 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesignToFormElement<JSONObject, Border, Border>,
 	IFormElementToTemplateJSON<Border, Border>
 {
+	private static final String TYPE = "type";
+	private static final String BORDER_RADIUS = "borderRadius";
+	private static final String TITLE_POSITION = "titlePosition";
+	private static final String TITLE_JUSTIFICATION = "titleJustification";
+	private static final String TITLE = "title";
+	private static final String BORDER_RIGHT_COLOR = "borderRightColor";
+	private static final String BORDER_LEFT_COLOR = "borderLeftColor";
+	private static final String BORDER_BOTTOM_COLOR = "borderBottomColor";
+	private static final String BORDER_TOP_COLOR = "borderTopColor";
+	private static final String BORDER_RIGHT_WIDTH = "borderRightWidth";
+	private static final String BORDER_BOTTOM_WIDTH = "borderBottomWidth";
+	private static final String BORDER_LEFT_WIDTH = "borderLeftWidth";
+	private static final String BORDER_TOP_WIDTH = "borderTopWidth";
+	private static final String BORDER_COLOR = "borderColor";
+	private static final String BORDER_WIDTH = "borderWidth";
+	private static final String BORDER_STYLE = "borderStyle";
 
 	public static final BorderPropertyType INSTANCE = new BorderPropertyType();
 	public static final String TYPE_NAME = "border";
@@ -76,60 +94,129 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 	{
 		if (newValue == null) return null;
 		JSONObject object = (JSONObject)newValue;
-		String type = object.optString("type");
+		String type = object.optString(TYPE);
 		if (type == null) return null;
-		JSONObject borderStyle = object.optJSONObject("borderStyle");
+		JSONObject borderStyle = object.optJSONObject(BORDER_STYLE);
 		switch (type)
 		{
 			case ComponentFactoryHelper.BEVEL_BORDER :
 			{
-				int borderType = "outset".equals(borderStyle.optString("borderStyle")) ? BevelBorder.RAISED : BevelBorder.LOWERED;
-				String borderColor = borderStyle.optString("borderColor");
+				int borderType = "outset".equals(borderStyle.optString(BORDER_STYLE)) ? BevelBorder.RAISED : BevelBorder.LOWERED;
+				String borderColor = borderStyle.optString(BORDER_COLOR);
 				StringTokenizer st = new StringTokenizer(borderColor, " ");
 				Color hiOut = null;
 				Color hiin = null;
 				Color shOut = null;
 				Color shIn = null;
 				if (st.hasMoreTokens()) hiOut = PersistHelper.createColor(st.nextToken());
-				if (st.hasMoreTokens()) hiin = PersistHelper.createColor(st.nextToken());
 				if (st.hasMoreTokens()) shOut = PersistHelper.createColor(st.nextToken());
 				if (st.hasMoreTokens()) shIn = PersistHelper.createColor(st.nextToken());
+				if (st.hasMoreTokens()) hiin = PersistHelper.createColor(st.nextToken());
 				return BorderFactory.createBevelBorder(borderType, hiOut, hiin, shOut, shIn);
-			}
-			case ComponentFactoryHelper.COMPOUND_BORDER :
-			{
-				return BorderFactory.createCompoundBorder();
 			}
 			case ComponentFactoryHelper.EMPTY_BORDER :
 			{
-				return BorderFactory.createEmptyBorder();
+				Insets insets = PersistHelper.createInsets(borderStyle.optString(BORDER_WIDTH).replaceAll("px ", ","));
+				return BorderFactory.createEmptyBorder(insets.top, insets.right, insets.bottom, insets.left);
 			}
 			case ComponentFactoryHelper.ETCHED_BORDER :
 			{
-				return BorderFactory.createEtchedBorder();
+
+				StringTokenizer st = new StringTokenizer(borderStyle.optString(BORDER_COLOR), " ");
+				Color hi = null;
+				Color sh = null;
+				if (st.hasMoreTokens()) hi = PersistHelper.createColor(st.nextToken());
+				if (st.hasMoreTokens()) sh = PersistHelper.createColor(st.nextToken());
+				int t = borderStyle.optString(BORDER_STYLE).equals("ridge") ? EtchedBorder.RAISED : EtchedBorder.LOWERED;
+				return BorderFactory.createEtchedBorder(t, hi, sh);
 			}
 			case ComponentFactoryHelper.LINE_BORDER :
 			{
-				Color borderColor = PersistHelper.createColor(borderStyle.optString("borderColor"));
-				String width = borderStyle.optString("borderWidth");
+				Color borderColor = PersistHelper.createColor(borderStyle.optString(BORDER_COLOR));
+				String width = borderStyle.optString(BORDER_WIDTH);
 				if (width != null) width = width.substring(0, width.length() - 2);
 				return BorderFactory.createLineBorder(borderColor, Utils.getAsInteger(width));
 			}
 			case ComponentFactoryHelper.MATTE_BORDER :
 			{
-				return BorderFactory.createMatteBorder(0, 0, 0, 0, (Color)null);
+				Insets insets = PersistHelper.createInsets(borderStyle.optString(BORDER_WIDTH).replaceAll("px ", ","));
+				Color borderColor = PersistHelper.createColor(borderStyle.optString(BORDER_COLOR));
+				return BorderFactory.createMatteBorder(insets.top, insets.right, insets.bottom, insets.left, borderColor);
 			}
 			case ComponentFactoryHelper.ROUNDED_BORDER :
 			{
-				return new RoundedBorder(0, 0, 0, 0, null, null, null, null);
+				float top = Utils.getAsFloat(borderStyle.optString(BORDER_TOP_WIDTH).replace("px", ""));
+				float left = Utils.getAsFloat(borderStyle.optString(BORDER_LEFT_WIDTH).replace("px", ""));
+				float bottom = Utils.getAsFloat(borderStyle.optString(BORDER_BOTTOM_WIDTH).replace("px", ""));
+				float right = Utils.getAsFloat(borderStyle.optString(BORDER_RIGHT_WIDTH).replace("px", ""));
+				Color topColor = PersistHelper.createColor(borderStyle.optString(BORDER_TOP_COLOR));
+				Color bottomColor = PersistHelper.createColor(borderStyle.optString(BORDER_BOTTOM_COLOR));
+				Color leftColor = PersistHelper.createColor(borderStyle.optString(BORDER_LEFT_COLOR));
+				Color rightColor = PersistHelper.createColor(borderStyle.optString(BORDER_RIGHT_COLOR));
+				RoundedBorder border = new RoundedBorder(top, left, bottom, right, topColor, leftColor, bottomColor, rightColor);
+				border.setBorderStyles(borderStyle.optString(BORDER_STYLE).replaceAll(" ", ";"));
+				border.setRoundingRadius(borderStyle.optString(BORDER_RADIUS).replaceAll("px", ";").replaceAll(" ", "").replaceAll("/", ""));
+				return border;
 			}
 			case ComponentFactoryHelper.SPECIAL_MATTE_BORDER :
 			{
-				return new SpecialMatteBorder(0, 0, 0, 0, null, null, null, null);
+				float top = Utils.getAsFloat(borderStyle.optString(BORDER_TOP_WIDTH).replace("px", ""));
+				float left = Utils.getAsFloat(borderStyle.optString(BORDER_LEFT_WIDTH).replace("px", ""));
+				float bottom = Utils.getAsFloat(borderStyle.optString(BORDER_BOTTOM_WIDTH).replace("px", ""));
+				float right = Utils.getAsFloat(borderStyle.optString(BORDER_RIGHT_WIDTH).replace("px", ""));
+				Color topColor = PersistHelper.createColor(borderStyle.optString(BORDER_TOP_COLOR));
+				Color bottomColor = PersistHelper.createColor(borderStyle.optString(BORDER_BOTTOM_COLOR));
+				Color leftColor = PersistHelper.createColor(borderStyle.optString(BORDER_LEFT_COLOR));
+				Color rightColor = PersistHelper.createColor(borderStyle.optString(BORDER_RIGHT_COLOR));
+				return new SpecialMatteBorder(top, left, bottom, right, topColor, leftColor, bottomColor, rightColor);
 			}
 			case ComponentFactoryHelper.TITLED_BORDER :
 			{
-				return BorderFactory.createTitledBorder("test");
+				String borderTitle = object.optString(TITLE);
+				int titleJustification = TitledBorder.DEFAULT_JUSTIFICATION;
+				switch (object.optString(TITLE_JUSTIFICATION))
+				{
+					case "left" :
+						titleJustification = TitledBorder.LEFT;
+						break;
+					case "right" :
+						titleJustification = TitledBorder.RIGHT;
+						break;
+					case "center" :
+						titleJustification = TitledBorder.CENTER;
+						break;
+					case "leading" :
+						titleJustification = TitledBorder.LEADING;
+						break;
+					case "trailing" :
+						titleJustification = TitledBorder.TRAILING;
+				}
+				int titlePosition = TitledBorder.DEFAULT_POSITION;
+				switch (object.optString(TITLE_POSITION))
+				{
+					case "Above top" :
+						titlePosition = TitledBorder.ABOVE_TOP;
+						break;
+					case "Top" :
+						titlePosition = TitledBorder.TOP;
+						break;
+					case "Below top" :
+						titlePosition = TitledBorder.BELOW_TOP;
+						break;
+					case "Above bottom" :
+						titlePosition = TitledBorder.ABOVE_BOTTOM;
+						break;
+					case "Below bottom" :
+						titlePosition = TitledBorder.BELOW_BOTTOM;
+						break;
+					case "Bottom" :
+						titlePosition = TitledBorder.BOTTOM;
+						break;
+				}
+
+				Font titleFont = FontPropertyType.INSTANCE.fromJSON(object.optJSONObject("font"), null, dataConverterContext);//TODO previous value
+				Color titleColor = PersistHelper.createColor(object.optString("color"));
+				return BorderFactory.createTitledBorder(null, borderTitle, titleJustification, titlePosition, titleFont, titleColor);
 			}
 
 		}
@@ -149,47 +236,47 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 		if (value instanceof SpecialMatteBorder)
 		{
 			SpecialMatteBorder border = (SpecialMatteBorder)value;
-			map.put("type", ((border instanceof RoundedBorder) ? ComponentFactoryHelper.ROUNDED_BORDER : ComponentFactoryHelper.SPECIAL_MATTE_BORDER));
+			map.put(TYPE, ((border instanceof RoundedBorder) ? ComponentFactoryHelper.ROUNDED_BORDER : ComponentFactoryHelper.SPECIAL_MATTE_BORDER));
 			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
+			map.put(BORDER_STYLE, borderStyle);
 
-			borderStyle.put("borderTopWidth", border.getTop() + "px");
-			borderStyle.put("borderRightWidth", border.getRight() + "px");
-			borderStyle.put("borderBottomWidth", border.getBottom() + "px");
-			borderStyle.put("borderLeftWidth", border.getLeft() + "px");
-			borderStyle.put("borderTopColor", border.getTopColor());
-			borderStyle.put("borderRightColor", border.getRightColor());
-			borderStyle.put("borderBottomColor", border.getBottomColor());
-			borderStyle.put("borderLeftColor", border.getLeftColor());
+			borderStyle.put(BORDER_TOP_WIDTH, border.getTop() + "px");
+			borderStyle.put(BORDER_RIGHT_WIDTH, border.getRight() + "px");
+			borderStyle.put(BORDER_BOTTOM_WIDTH, border.getBottom() + "px");
+			borderStyle.put(BORDER_LEFT_WIDTH, border.getLeft() + "px");
+			borderStyle.put(BORDER_TOP_COLOR, border.getTopColor());
+			borderStyle.put(BORDER_RIGHT_COLOR, border.getRightColor());
+			borderStyle.put(BORDER_BOTTOM_COLOR, border.getBottomColor());
+			borderStyle.put(BORDER_LEFT_COLOR, border.getLeftColor());
 
 			if (border instanceof RoundedBorder)
 			{
 				float[] radius = ((RoundedBorder)border).getRadius();
-				borderStyle.put("borderRadius", radius[0] + "px " + radius[2] + "px " + radius[4] + "px " + radius[6] + "px /" + radius[1] + "px " + radius[3] +
+				borderStyle.put(BORDER_RADIUS, radius[0] + "px " + radius[2] + "px " + radius[4] + "px " + radius[6] + "px /" + radius[1] + "px " + radius[3] +
 					"px " + radius[5] + "px " + radius[7] + "px");
 				String styles[] = ((RoundedBorder)border).getBorderStyles();
-				borderStyle.put("borderStyle", styles[0] + " " + styles[1] + " " + styles[2] + " " + styles[3] + " ");
+				borderStyle.put(BORDER_STYLE, styles[0] + " " + styles[1] + " " + styles[2] + " " + styles[3]);
 			}
 			else
 			{
-				borderStyle.put("borderRadius", border.getRoundingRadius() + "px"); //$NON-NLS-1$
+				borderStyle.put(BORDER_RADIUS, border.getRoundingRadius() + "px"); //$NON-NLS-1$
 				//retval += "," + SpecialMatteBorder.createDashString(border.getDashPattern()); //$NON-NLS-1$
 				if (border.getDashPattern() != null)
 				{
-					borderStyle.put("borderStyle", "dashed");
+					borderStyle.put(BORDER_STYLE, "dashed");
 				}
 				else
 				{
-					borderStyle.put("borderStyle", "solid");
+					borderStyle.put(BORDER_STYLE, "solid");
 				}
 			}
 		}
 		else if (value instanceof EtchedBorder)
 		{
 			EtchedBorder border = (EtchedBorder)value;
-			map.put("type", ComponentFactoryHelper.ETCHED_BORDER);
+			map.put(TYPE, ComponentFactoryHelper.ETCHED_BORDER);
 			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
+			map.put(BORDER_STYLE, borderStyle);
 			String hi = PersistHelper.createColorString(border.getHighlightColor());
 			String sh = PersistHelper.createColorString(border.getShadowColor());
 			if (border.getEtchType() != EtchedBorder.RAISED)
@@ -198,17 +285,17 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 				hi = sh;
 				sh = tmp;
 			}
-			borderStyle.put("borderColor", hi + " " + sh + " " + sh + " " + hi);
-			borderStyle.put("borderStyle", border.getEtchType() == EtchedBorder.RAISED ? "ridge" : "groove");
-			borderStyle.put("borderWidth", "2px");
+			borderStyle.put(BORDER_COLOR, hi + " " + sh + " " + sh + " " + hi);
+			borderStyle.put(BORDER_STYLE, border.getEtchType() == EtchedBorder.RAISED ? "ridge" : "groove");
+			borderStyle.put(BORDER_WIDTH, "2px");
 		}
 		else if (value instanceof BevelBorder)
 		{
 			BevelBorder border = (BevelBorder)value;
-			map.put("type", ComponentFactoryHelper.BEVEL_BORDER);
+			map.put(TYPE, ComponentFactoryHelper.BEVEL_BORDER);
 			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
-			borderStyle.put("borderStyle", border.getBevelType() == BevelBorder.RAISED ? "outset" : "inset");
+			map.put(BORDER_STYLE, borderStyle);
+			borderStyle.put(BORDER_STYLE, border.getBevelType() == BevelBorder.RAISED ? "outset" : "inset");
 
 			String hiOut = PersistHelper.createColorString(border.getHighlightOuterColor());
 			String hiin = PersistHelper.createColorString(border.getHighlightInnerColor());
@@ -223,46 +310,46 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 				hiin = shIn;
 				shIn = temp;
 			}
-			borderStyle.put("borderColor", hiOut + " " + shOut + " " + shIn + " " + hiin);
-			borderStyle.put("borderWidth", "2px");
+			borderStyle.put(BORDER_COLOR, hiOut + " " + shOut + " " + shIn + " " + hiin);
+			borderStyle.put(BORDER_WIDTH, "2px");
 		}
 		else if (value instanceof LineBorder)
 		{
 			LineBorder border = (LineBorder)value;
-			map.put("type", ComponentFactoryHelper.LINE_BORDER);
+			map.put(TYPE, ComponentFactoryHelper.LINE_BORDER);
 			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
+			map.put(BORDER_STYLE, borderStyle);
 			int thick = border.getThickness();
-			borderStyle.put("borderColor", border.getLineColor());
-			borderStyle.put("borderStyle", "solid");
-			borderStyle.put("borderWidth", thick + "px");
+			borderStyle.put(BORDER_COLOR, border.getLineColor());
+			borderStyle.put(BORDER_STYLE, "solid");
+			borderStyle.put(BORDER_WIDTH, thick + "px");
 		}
 		else if (value instanceof MatteBorder)
 		{
 			MatteBorder border = (MatteBorder)value;
-			map.put("type", ComponentFactoryHelper.MATTE_BORDER);
+			map.put(TYPE, ComponentFactoryHelper.MATTE_BORDER);
 			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
+			map.put(BORDER_STYLE, borderStyle);
 			Insets in = border.getBorderInsets();
-			borderStyle.put("borderWidth", in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
-			borderStyle.put("borderColor", border.getMatteColor());
-			borderStyle.put("borderStyle", "solid");
+			borderStyle.put(BORDER_WIDTH, in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
+			borderStyle.put(BORDER_COLOR, border.getMatteColor());
+			borderStyle.put(BORDER_STYLE, "solid");
 		}
 		else if (value instanceof EmptyBorder)
 		{
 			EmptyBorder border = (EmptyBorder)value;
-			map.put("type", ComponentFactoryHelper.EMPTY_BORDER);
+			map.put(TYPE, ComponentFactoryHelper.EMPTY_BORDER);
 			Map<String, Object> borderStyle = new HashMap<>();
-			map.put("borderStyle", borderStyle);
+			map.put(BORDER_STYLE, borderStyle);
 			Insets in = border.getBorderInsets();
-			borderStyle.put("borderWidth", in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
-			borderStyle.put("borderColor", "rgba(0,0,0,0)");
+			borderStyle.put(BORDER_WIDTH, in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
+			borderStyle.put(BORDER_COLOR, "rgba(0,0,0,0)");
 		}
 		else if (value instanceof TitledBorder)
 		{
 			TitledBorder border = (TitledBorder)value;
-			map.put("type", ComponentFactoryHelper.TITLED_BORDER);
-			map.put("title", border.getTitle());
+			map.put(TYPE, ComponentFactoryHelper.TITLED_BORDER);
+			map.put(TITLE, border.getTitle());
 
 			map.put("font", border.getTitleFont());
 			map.put("color", border.getTitleColor());
@@ -279,8 +366,34 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 				case TitledBorder.CENTER :
 					titleJust = "center";
 					break;
+				case TitledBorder.LEADING :
+					titleJust = "leading";
+					break;
+				case TitledBorder.TRAILING :
+					titleJust = "trailing";
+					break;
 			}
-			map.put("titleJustiffication", titleJust);
+			map.put(TITLE_JUSTIFICATION, titleJust);
+			String titlePosition = "Top";
+			switch (border.getTitlePosition())
+			{
+				case TitledBorder.ABOVE_TOP :
+					titlePosition = "Above top";
+					break;
+				case TitledBorder.BELOW_TOP :
+					titlePosition = "Below top";
+					break;
+				case TitledBorder.ABOVE_BOTTOM :
+					titlePosition = "Above bottom";
+					break;
+				case TitledBorder.BELOW_BOTTOM :
+					titlePosition = "Below bottom";
+					break;
+				case TitledBorder.BOTTOM :
+					titlePosition = "Bottom";
+					break;
+			}
+			map.put(TITLE_POSITION, titlePosition);
 		}
 		return map;
 	}

@@ -48,7 +48,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * Helper class.
- * 
+ *
  * @author jblok
  */
 public class ComponentFactoryHelper
@@ -261,7 +261,8 @@ public class ComponentFactoryHelper
 						}
 						else
 						{
-							currentBorder = BorderFactory.createTitledBorder(J2DBGlobals.getServiceProvider().getI18NMessageIfPrefixed(title));
+							currentBorder = BorderFactory.createTitledBorder(J2DBGlobals.getServiceProvider() != null
+								? J2DBGlobals.getServiceProvider().getI18NMessageIfPrefixed(title) : title);
 						}
 						((TitledBorder)currentBorder).setTitleJustification(justification);
 						((TitledBorder)currentBorder).setTitlePosition(position);
