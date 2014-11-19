@@ -59,7 +59,7 @@ import com.servoy.j2db.util.HTTPUtils;
 public class DesignerFilter implements Filter
 {
 	private static List<String> ignoreList = Arrays.asList(new String[] { "servoydefault-checkgroup", FormElement.ERROR_BEAN, "servoydefault-navigator", "servoydefault-radiogroup", "servoydefault-htmlview", "colorthefoundset" });
-	private static final String DROPPABLE = "droppable";
+	public static final String DROPPABLE = "droppable";
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
