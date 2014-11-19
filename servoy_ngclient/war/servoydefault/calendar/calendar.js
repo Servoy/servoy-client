@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalendar', function(dateFilter,$log) {  
+angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalendar', function($log) {  
     return {
       restrict: 'E',
       scope: {
@@ -8,78 +8,69 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
         svyApply: "="
       },
       link: function($scope, $element, $attrs) {
-          $scope.style = {width:'100%',height:'100%',overflow:'hidden',paddingTop:'0',paddingBottom:'0'}
+    	  var child = $element.children();
+    	  var ngModel = child.controller("ngModel");
+         
+    	  $scope.style = {width:'100%',height:'100%',overflow:'hidden',paddingTop:'0',paddingBottom:'0'}
           
-          $scope.editModel =''; // use string edit model 
+    	  child.datetimepicker();
+          
           $scope.$watch('model.format', function(){
               setDateFormat($scope.model.format);
           })
           
-          //convert from servoy model to ui input
-          $scope.$watch('model.dataProviderID', function(){
-	        	if($scope.model.dataProviderID && !($scope.model.dataProviderID instanceof Date)) {$log.error("calendar expects it's dataprovider as Date");}
-	            $scope.editModel = dateFilter($scope.model.dataProviderID,dateFormat);
-            //$element.data('DateTimePicker').setValue($scope.model.dataProviderID); // set default date for widget open
-          });
+       // when model change, update our view, set the date in the datepicker
+          ngModel.$render = function() {
+        	  var x = child.data('DateTimePicker');
+	          if (x)  x.date(ngModel.$viewValue); // set default date for widget open
+	          else {
+	        	  // in find mode 
+	        	  child.children("input").val(ngModel.$viewValue);
+	          }
+          };
 
-          //convert from UI input to servoy model
-          $scope.pushChange = function (d){
-              // test for prevInputType == findmode if that is set
-              if (!$scope.findMode) {  
-            	$scope.model.dataProviderID = d;
-              } else {
-                $scope.model.dataProviderID = $scope.editModel;
-              }
-            $scope.svyApply('dataProviderID');
-          }
-          
-          var dateFormat = 'yyyy-MM-dd'
+          var dateFormat = 'YYYY-MM-DD'
           //helper function
           function setDateFormat(format){
-        	var hasDate = true;
-        	var hasTime = false;
         	if(format && format.display){
-        		dateFormat = format.display;
-            	if(format.display.match(/.*y.*/gi) != null){
-                    //contains years
-            		if( format.display.match(/.*H+.*m+.*/gi) != null){
-                        hasDate = true;
-                        hasTime = true;
-                    }
-            	} else if(format.display.match(/.*H+.*m+.*/gi) != null){
-            		hasDate = false;
-            		hasTime = true;
-            	}
+        		dateFormat = moment().toMomentFormatString(format.display);
         	}
-        	$($element).datetimepicker({
-        		pickDate: hasDate,
-        		pickTime: hasTime,
-        		format: dateFormat
-        	});
+        	var x = child.data('DateTimePicker');
+        	x.format(dateFormat);
+        	x.date(ngModel.$viewValue);
           }
 
-          $($element).on("dp.change",function (e) {
-        	  $scope.$apply(function(){
-        		  $scope.editModel = dateFilter(new Date(e.date._d),dateFormat);
-        		  $scope.pushChange(new Date(e.date._d));
-        	  })        		        	 
+          $element.on("change.dp",function (e) {
+        	  if ($scope.findMode) {
+        		  ngModel.$setViewValue(child.children("input").val());        		  
+        	  }
+        	  else {
+	        	  if (e.date) ngModel.$setViewValue(e.date.toDate());
+	        	  else ngModel.$setViewValue(null);
+        	  }
+        	  $scope.svyApply('dataProviderID');
           });
           
-          $scope.findMode = false;
+      	  $scope.findMode = false;
           // special method that servoy calls when this component goes into find mode.
           $scope.api.setFindMode = function(mode, editable) {
         	$scope.findMode = mode;
         	if ($scope.findMode)
       	 	{
+        		child.data('DateTimePicker').destroy();
       	 		$scope.wasEditable = $scope.model.editable;
       	 		if (!$scope.model.editable) $scope.model.editable = editable;
       	 	}
       	 	else
       	 	{
+      	 		child.datetimepicker();
+      	 		var x = child.data('DateTimePicker');
+      	 		x.format(dateFormat);
+      	 		console.log(ngModel.$viewValue)
+            	x.date(ngModel.$viewValue);
       	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
       	 	}
           };
-          var ngModel = $element.children().controller("ngModel");
           var storedTooltip = false;
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
