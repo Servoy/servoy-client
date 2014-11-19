@@ -138,7 +138,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	public String forFoundsetTypedPropertyName(PropertyDescription pd)
 	{
-		return pd.getConfig() instanceof ComponentTypeConfig ? ((ComponentTypeConfig)pd.getConfig()).forFoundsetTypedProperty : null;
+		return pd.getConfig() instanceof ComponentTypeConfig ? ((ComponentTypeConfig)pd.getConfig()).forFoundset : null;
 	}
 
 	protected List<String> findRecordAwareProperties(FormElement formElement, FlattenedSolution flattenedSolution)
@@ -153,8 +153,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 			if (propertyDescriptorEntry.getValue().getType() instanceof IDataLinkedType)
 			{
 				IDataLinkedType type = (IDataLinkedType< ? >)propertyDescriptorEntry.getValue().getType();
-				if (type.isLinkedToData(formElement.getPropertyValue(propertyDescriptorEntry.getKey()), propertyDescriptorEntry.getValue(),
-					flattenedSolution, formElement))
+				if (type.isLinkedToData(formElement.getPropertyValue(propertyDescriptorEntry.getKey()), propertyDescriptorEntry.getValue(), flattenedSolution,
+					formElement))
 				{
 					m.add(propertyDescriptorEntry.getKey());
 				}
@@ -326,8 +326,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
-		String tmp = config.optString("forFoundsetTypedProperty");
-		return tmp == null ? null : new ComponentTypeConfig(tmp);
+		String tmp = config.optString("forFoundset");
+		return tmp == null || tmp.length() == 0 ? null : new ComponentTypeConfig(tmp);
 	}
 
 }

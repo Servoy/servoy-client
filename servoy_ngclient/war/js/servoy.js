@@ -252,25 +252,20 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	        var beanname;
 	        var parent = scope.$parent;
 
-    	    // TODO deprecate svy_cn? remove from codebase if possible
-	        if(beanModel.svy_cn === undefined) {
-	        	beanname = element.attr("name");
-		        if (! beanname) {
-			        var nameParentEl = element.parents("[name]").first(); 
-		        	if (nameParentEl) beanname = nameParentEl.attr("name");
-		        }
-		        if (! beanname) {
-		        	for(key in parent.model) {
-		        		if (parent.model[key] === beanModel) {
-		        			beanname = key;
-		        			break;
-		        		}
-		        	}
-		        }
-	        } else {
-	        	beanname = beanModel.svy_cn;
+	        beanname = element.attr("name");
+	        if (! beanname) {
+	        	var nameParentEl = element.parents("[name]").first(); 
+	        	if (nameParentEl) beanname = nameParentEl.attr("name");
 	        }
-	        
+	        if (! beanname) {
+	        	for(key in parent.model) {
+	        		if (parent.model[key] === beanModel) {
+	        			beanname = key;
+	        			break;
+	        		}
+	        	}
+	        }
+
 	        if (!beanname) {
 	        	$log.error("[svy-autoapply] bean name not found for model string: " + dataproviderString);
 	        	return;
@@ -318,16 +313,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		     element.bind('change', function() {
 		        	// model has not been updated yet
 		        	setTimeout(function() { 
-		        		var beanModel = modelFunction(scope);
 		        		// use svyApply rather then pushChange because svyApply might get intercepted by components such as portals
 		        		// that have nested child web components
 		    	        if (svyApply) {
 		    	        	svyApply(propertyname);
 		    	        } else {
 		    	        	// this shouldn't happen (svy-apply not being set on a web-component...)
-		    	        	if (!formName) formName = searchForFormName(); 
-			        		if (beanModel) $servoyInternal.pushDPChange(formName,beanname,propertyname,beanModel[propertyname],beanModel.rowId);
-			        		else $log.error("cannot apply new value");
+			        		$log.error("cannot apply new value");
 		    	        }
 		        	}, 0);
 		     });
@@ -747,8 +739,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			//scope: false,
 			compile: function compile(tElement, tAttrs, transclude) {
 				var templateFragment = " ";
-				angular.forEach(tAttrs.$attr, function(value, key) {
-					if (key != 'tagname') templateFragment += ' ' + key + '="' + tAttrs[key] + '"';
+				$.each(tElement.get()[0].attributes, function(i, attrib){
+					if (attrib.name != 'tagname') templateFragment += ' ' + attrib.name + '="' + attrib.value + '"';
 				});
 				templateFragment += "/>";
 			

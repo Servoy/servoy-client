@@ -128,10 +128,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		if (parentComponent != null)
 		{
-			String foundsetPropName = forFoundsetTypedPropertyName;
-			if (foundsetPropName != null)
+			if (forFoundsetTypedPropertyName != null)
 			{
-				return (FoundsetTypeSabloValue)parentComponent.getProperty(foundsetPropName);
+				return (FoundsetTypeSabloValue)parentComponent.getProperty(forFoundsetTypedPropertyName);
 			}
 		}
 		return null;
@@ -210,7 +209,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		// model content
 		TypedData<Map<String, Object>> allProps = childComponent.getProperties();
 		removeRecordDependentProperties(allProps);
+		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
+		destinationJSON.object();
 		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType);
+		destinationJSON.endObject();
 
 		// viewport content
 		writeWholeViewportToJSON(destinationJSON);
@@ -469,20 +471,20 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				else if (update.has("svyApply"))
 				{
 					// { svyApply: {
-					// 		rowId: rowId,
+					// 		rowId: rowId, // only when linked to foundset
 					// 		propertyName: property,
 					// 		propertyValue: propertyValue
 					// }}
 					JSONObject changeAndApply = update.getJSONObject("svyApply");
 
-					String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 					String propertyName = changeAndApply.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
 					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
 
 					IDataAdapterList dal;
-					if (formElementValue.recordBasedProperties.contains(propertyName))
+					if (forFoundsetTypedPropertyName != null && formElementValue.recordBasedProperties.contains(propertyName))
 					{
 						// changes component record and sets value
+						String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 						updatePropertyValueForRecord(getFoundsetValue(), rowIDValue, propertyName, value);
 						dal = getFoundsetValue().getDataAdapterList();
 					}
@@ -499,7 +501,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				else if (update.has("svyStartEdit"))
 				{
 					// { svyStartEdit: {
-					//   rowId: rowId,
+					//   rowId: rowId, // only if linked to foundset
 					//   propertyName: property
 					// }}
 					JSONObject startEditData = update.getJSONObject("svyStartEdit");

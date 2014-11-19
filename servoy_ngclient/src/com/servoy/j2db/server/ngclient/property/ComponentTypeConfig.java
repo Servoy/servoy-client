@@ -19,21 +19,21 @@ package com.servoy.j2db.server.ngclient.property;
 
 /**
  * .spec file configuration of 'component' typed properties. It can link a component or an array of components to a 'foundset'
- * typed property.<br> //TODO implement the single component part
+ * typed property.<br>
  * Example:<br><br>
- * 
- * childElements : { type: 'component[]', forFoundsetTypedProperty: 'relatedFoundset' }
- * 
+ *
+ * childElements : { type: 'component[]', forFoundset: 'relatedFoundset' }
+ *
  * @author acostescu
  */
 public class ComponentTypeConfig
 {
 
-	final String forFoundsetTypedProperty;
+	final String forFoundset;
 
-	public ComponentTypeConfig(String forFoundsetTypedProperty)
+	public ComponentTypeConfig(String forFoundsetTypedPropertyName)
 	{
-		this.forFoundsetTypedProperty = forFoundsetTypedProperty;
+		this.forFoundset = forFoundsetTypedPropertyName;
 	}
 
 }

@@ -51,8 +51,8 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	}
 
 	var getApply = function(beanname) {
-		var wrapper = function(property, componentModel, rowId) {
-			$servoyInternal.pushDPChange("${name}", beanname, property, componentModel, rowId);
+		var wrapper = function(property) {
+			$servoyInternal.pushDPChange("${name}", beanname, property);
 		}
 		return wrapper;
 	}

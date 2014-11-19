@@ -11,7 +11,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundsetTypedProperty": "relatedFoundset"} }, 
+	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundset": "relatedFoundset"} }, 
 	        "enabled" : {"type":"boolean", "default":true}, 
 	        "foreground" : "color", 
 	        "headerHeight" : {"type" :"int",  "default" : 32}, 

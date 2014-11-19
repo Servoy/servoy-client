@@ -178,6 +178,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					/** rowId is only needed if the component is linked to a foundset */
 					serverJSONValue.apply =  function(property, componentModel, rowId) {
 						var conversionInfo = internalState[CONVERSIONS];
+						if (!componentModel) componentModel = serverJSONValue.model; // if it's not linked to foundset componentModel will be undefined
 						var propertyValue = componentModel[property];
 
 						if (conversionInfo && conversionInfo[property]) {
@@ -188,7 +189,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 						var req = { svyApply: {} };
 						
-						req.svyApply[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
+						if (rowId) req.svyApply[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
 						req.svyApply[PROPERTY_NAME_KEY] = property;
 						req.svyApply[VALUE_KEY] = propertyValue;
 

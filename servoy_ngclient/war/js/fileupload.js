@@ -12,24 +12,19 @@ angular.module('servoyfileupload',['webStorageModule','angularFileUpload']).dire
     	        var propertyname = dataproviderString.substring(index+1);
     	        var beanname;
     	        var parent = $scope.$parent;
-    	        
-    	        // TODO deprecate svy_cn? remove from codebase if possible
-    	        if(beanModel.svy_cn === undefined) {
-    	        	beanname = $element.attr("name");
-    	        	if (! beanname) {
-    	        		var nameParentEl = $element.parents("[name]").first(); 
-    	        		if (nameParentEl) beanname = nameParentEl.attr("name");
-    	        	}
-    	        	if (! beanname) {
-    	        		for(key in parent.model) {
-    	        			if (parent.model[key] === beanModel) {
-    	        				beanname = key;
-    	        				break;
-    	        			}
+
+    	        beanname = $element.attr("name");
+    	        if (! beanname) {
+    	        	var nameParentEl = $element.parents("[name]").first(); 
+    	        	if (nameParentEl) beanname = nameParentEl.attr("name");
+    	        }
+    	        if (! beanname) {
+    	        	for(key in parent.model) {
+    	        		if (parent.model[key] === beanModel) {
+    	        			beanname = key;
+    	        			break;
     	        		}
     	        	}
-    	        } else {
-    	        	beanname = beanModel.svy_cn;
     	        }
     	        
     	        if (!beanname) {

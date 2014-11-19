@@ -259,21 +259,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   // used by form template js
 		   sendChanges: sendChanges,
 
-		   // for example components that use nested elements/components such as portal can give here the new value
-		   // based on the way they feed the model to child components - so they can use other objects then server known models
-		   pushDPChange: function(formname, beanname, property, componentModel, rowId) {
+		   pushDPChange: function(formname, beanname, property) {
 			   $sabloApplication.getFormState(formname).then(function (formState) {
 				   var changes = {}
 
-				   if (componentModel) {
-					   // probably a nested component (inside another component); the component might even be linked to a different foundset
-					   //changes[property] = $sabloUtils.convertClientObject(componentModel[property]);
-					   if (rowId){
-						   changes.rowId = rowId;
-					   } else if (componentModel.rowId) {
-						   changes.rowId = componentModel.rowId;
-					   }
-				   }
 				   // default model, simple direct form child component
 				   var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo()
 				   var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);

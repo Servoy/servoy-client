@@ -7,7 +7,7 @@ describe('servoydefaultTabpanel component', function() {
 	var $timeout
 	var handlersMock = {			
 			tabs: {
-				svy_apply : function(property, beanModel, rowId){
+				svy_apply : function(property){
 					 
 				},
 				svy_servoyApi: {
