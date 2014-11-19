@@ -309,7 +309,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								   formState.model[beanName].readOnly = formState.model[beanName].svy_readOnlyBeforeFindMode;
 							    }
 				   			}
-							formState.getScope().$apply();
 				   		}
 				   }
 			   });
