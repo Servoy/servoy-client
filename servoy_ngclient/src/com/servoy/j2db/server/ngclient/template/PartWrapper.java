@@ -151,7 +151,8 @@ public class PartWrapper
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		List<IFormElement> persists = context.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		List<IFormElement> persists = context.getFlattenedObjects(context.getLayoutContainers().hasNext() ? PositionComparator.XY_PERSIST_COMPARATOR
+			: Form.FORM_INDEX_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
 			Point location = persist.getLocation();
