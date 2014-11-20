@@ -738,14 +738,33 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			restrict: 'E',
 			//scope: false,
 			compile: function compile(tElement, tAttrs, transclude) {
-				var templateFragment = " ";
-				$.each(tElement.get()[0].attributes, function(i, attrib){
-					if (attrib.name != 'tagname') templateFragment += ' ' + attrib.name + '="' + attrib.value + '"';
-				});
-				templateFragment += "/>";
+				var templateFragment;
+				if (angular.isDefined(tAttrs.componentPropertyValue)) {
+					// automatically add standard attributes for webcomponent based on 'component' property value content
+					var componentTypedPropertyValue = tAttrs.componentPropertyValue;
+					templateFragment = ' name="' + componentTypedPropertyValue + '.name" svy-model="'
+						+ componentTypedPropertyValue + '.model" svy-api="'+ componentTypedPropertyValue + '.api" svy-handlers="'
+						+ componentTypedPropertyValue + '.handlers" svy-apply="' + componentTypedPropertyValue + '.apply" svy-servoyApi="'
+						+ componentTypedPropertyValue + '.servoyApi"/>';
+				} else {
+					templateFragment = " ";
+					// more generic - just forward all attributes to the new template
+					angular.forEach(tAttrs.$attr, function(value, key) {
+						if (key != 'tagname') templateFragment += ' ' + tAttrs.$attr[key] + '="' + tAttrs[key] + '"';
+					});
+
+					templateFragment += "/>";
+				}
 			
 				return function (scope, element, attr, controller, transcludeFn) {
-					var tagName = scope.$eval(tAttrs.tagname);
+					var tagName;
+					if (angular.isDefined(attr.componentPropertyValue)) {
+						// automatically get tagName of webcomponent from 'component' property value content
+						tagName = scope.$eval(attr.componentPropertyValue + ".componentDirectiveName");
+					} else {
+						// more generic - attribute specified tag name
+						tagName = scope.$eval(tAttrs.tagname);
+					}
 					var templateElement = angular.element('<' + tagName + templateFragment);
 					templateElement.append(tElement.html());
 					var el = $compile(templateElement)(scope);
