@@ -1,5 +1,5 @@
 angular.module('servoydefaultTypeahead',['servoy'])
-.directive('servoydefaultTypeahead',['$timeout','formatFilterFilter', function($timeout,formatFilter) {  
+.directive('servoydefaultTypeahead',['formatFilterFilter', function(formatFilter) {  
     return {
       restrict: 'E',
       require: 'ngModel',
@@ -12,9 +12,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
       link: function($scope, $element, $attrs,ngModel) {
     	  $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
     	  $scope.findMode = false;
-          var timeoutPromise = null;
-          var lastAppliedDataProviderID = null;
-          
+
          $scope.formatLabel = function (model){
         	 var displayFormat = undefined;
     		  var type = undefined;
@@ -33,17 +31,21 @@ angular.module('servoydefaultTypeahead',['servoy'])
     		  return formatFilter(displayValue, displayFormat ,type);    	 
          }
           $scope.doSvyApply = function (){
-           
-           // only the last ngBlur should take effect
-           if(timeoutPromise) $timeout.cancel(timeoutPromise); 
-           
-           timeoutPromise = $timeout(function(){
-                 // can be onblur because an item from the dropdown was clicked and right after the user goes elsewhere and another onblur is triggered
-               if($scope.model.dataProviderID !=lastAppliedDataProviderID){
-                $scope.svyApply('dataProviderID')
-               }
-               lastAppliedDataProviderID = $scope.model.dataProviderID
-            },100);
+        	  if($element.parent().find('.dropdown-menu').attr('aria-hidden') == "true") {
+	    		  if ($scope.model.valuelistID) {
+	    			  var hasMatchingDisplayValue = false;
+		     		  for (var i=0; i< $scope.model.valuelistID.length; i++) {
+		     			  if ($element.val() === $scope.model.valuelistID[i].displayValue) {
+		     				 hasMatchingDisplayValue = true;
+		     				 break;
+		     			  }
+		     		  }
+		     		  if(!hasMatchingDisplayValue) {
+		     			 $scope.model.dataProviderID = null;
+		     		  }
+	    		  }
+	        	  $scope.svyApply('dataProviderID');
+        	 }
           }
           
           $scope.api.setValueListItems = function(values) 

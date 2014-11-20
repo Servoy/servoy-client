@@ -161,7 +161,9 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 		{
 			formElementValue = null;
 		}
-		if (formElementValue instanceof String || formElementValue == null)
+		
+		// for now ignore format for elements with valuelist, as those may have different display value type
+		if (formElement.getPropertyValue("valuelistID") == null && (formElementValue instanceof String || formElementValue == null))
 		{
 			// get dataproviderId
 			String dataproviderId = (String)formElement.getPropertyValue((String)pd.getConfig());
