@@ -43,7 +43,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
     	   }
        });
        $scope.getTemplateUrl = function() {
-    	   if ($scope.model.tabOrientation == -1) return "servoydefault/tabpanel/tablesspanel.html";
+    	   if ($scope.model.tabOrientation == -1 || ($scope.model.tabOrientation == 0 && $scope.model.tabs.length == 1)) return "servoydefault/tabpanel/tablesspanel.html";
     	   else if($scope.model.tabOrientation == -4) return "servoydefault/tabpanel/accordionpanel.html"
     	   else return "servoydefault/tabpanel/tabpanel.html";
        }
