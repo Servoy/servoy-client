@@ -735,7 +735,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	return {
 		setStyleSheet: function(path) {
-			$solutionSettings.styleSheetPath = path +"?t="+Date.now();
+			if (angular.isDefined(path)) {
+				$solutionSettings.styleSheetPath = path +"?t="+Date.now();
+			} else {
+				delete $solutionSettings.styleSheetPath;
+			}
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		getUserProperty: function(key) {
