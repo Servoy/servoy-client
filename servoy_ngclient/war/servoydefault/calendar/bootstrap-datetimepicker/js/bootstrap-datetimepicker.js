@@ -300,11 +300,12 @@
                         vertical = options.widgetPositioning.vertical,
                         horizontal = options.widgetPositioning.horizontal;
 
-                    if (element.is('input')) {
-                        parent.append(widget);
-                    } else {
-                        element.children().first().after(widget);
-                    }
+                      $(document.body).append(widget)
+//                    if (element.is('input')) {
+//                        parent.append(widget);
+//                    } else {
+//                        element.children().first().after(widget);
+//                    }
 
                     // Top and bottom logic
                     if (vertical === 'auto') {
@@ -338,21 +339,23 @@
                     }
 
                     // find the first parent element that has a relative css positioning
-                    if (parent.css('position') !== 'relative') {
-                        parent = parent.parents().filter(function () {
-                            return $(this).css('position') === 'relative';
-                        }).first();
-                    }
-
-                    if (parent.length === 0) {
-                        throw new Error('datetimepicker component should be placed within a relative positioned container');
-                    }
-
+//                    if (parent.css('position') !== 'relative') {
+//                        parent = parent.parents().filter(function () {
+//                            return $(this).css('position') === 'relative';
+//                        }).first();
+//                    }
+//
+//                    if (parent.length === 0) {
+//                        throw new Error('datetimepicker component should be placed within a relative positioned container');
+//                    }
+                    var rect = element[0].getBoundingClientRect();
+                    var left = rect.left + rect.width - (widget.width() + 5);
+                    if (left < 0) left = 0;
                     widget.css({
-                        top: vertical === 'top' ? 'auto' : offset.top + element.outerHeight(),
-                        bottom: vertical === 'top' ? offset.top + element.outerHeight() : 'auto',
-                        left: horizontal === 'left' ? parent.css('padding-left') : 'auto',
-                        right: horizontal === 'left' ? 'auto' : parent.css('padding-right')
+                        top: vertical === 'top' ? rect.top - widget.height() -15 : rect.top + element.outerHeight(),
+                        bottom: 'auto',
+                        left: left,
+                        right: 'auto'
                     });
                 },
 
