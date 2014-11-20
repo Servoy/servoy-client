@@ -22,7 +22,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
        // when model change, update our view, set the date in the datepicker
           ngModel.$render = function() {
         	  var x = child.data('DateTimePicker');
-	          if (x)  x.date(ngModel.$viewValue); // set default date for widget open
+	          if (x) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 	          else {
 	        	  // in find mode 
 	        	  child.children("input").val(ngModel.$viewValue);
