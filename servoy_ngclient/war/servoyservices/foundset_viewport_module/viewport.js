@@ -167,7 +167,13 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 							if (angular.isUndefined(internalState[CONVERSIONS])) {
 								internalState[CONVERSIONS] = {};
 							}
-							if (angular.isDefined(rowId)) internalState[CONVERSIONS][rowId][dpName] = rowConversionUpdate[dpName]; // TODO should we use index here instead of rowId?
+							if (angular.isDefined(rowId)) {
+								   if (angular.isUndefined(internalState[CONVERSIONS][rowId]))
+								   {
+									   internalState[CONVERSIONS][rowId] = {};
+								   }
+								    internalState[CONVERSIONS][rowId][dpName] = rowConversionUpdate[dpName];
+							}
 						}
 					}
 				}
