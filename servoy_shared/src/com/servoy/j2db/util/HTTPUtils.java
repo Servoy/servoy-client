@@ -82,9 +82,10 @@ public class HTTPUtils
 	 */
 	public static boolean checkAndSetUnmodified(HttpServletRequest servletRequest, HttpServletResponse servletResponse, long lastModifiedTime)
 	{
-		servletResponse.setDateHeader(LAST_MODIFIED, lastModifiedTime);
+		long l = lastModifiedTime / 1000 * 1000;
+		servletResponse.setDateHeader(LAST_MODIFIED, l);
 		long lm = servletRequest.getDateHeader(IF_MODIFIED_SINCE);
-		if (lm != -1 && lm == lastModifiedTime)
+		if (lm != -1 && lm == l)
 		{
 			servletResponse.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 			return true;

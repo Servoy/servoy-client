@@ -164,7 +164,7 @@ public class MediaResourcesServlet extends HttpServlet
 			entry = entryIte.next();
 			if (dynamicID.equals(entry.getValue().getName()))
 			{
-				if (HTTPUtils.checkAndSetUnmodified(request, response, entry.getValue().getLastModifiedTimeStamp() / 1000 * 1000)) return true;
+				if (HTTPUtils.checkAndSetUnmodified(request, response, entry.getValue().getLastModifiedTimeStamp())) return true;
 
 				return sendData(response, entry.getKey(), entry.getValue().getContentType(), null);
 			}
@@ -211,7 +211,7 @@ public class MediaResourcesServlet extends HttpServlet
 	private boolean sendData(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs, Media media) throws IOException
 	{
 		// cache resources on client until changed
-		if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime() / 1000 * 1000)) return true;
+		if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime())) return true;
 
 		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName());
 	}
