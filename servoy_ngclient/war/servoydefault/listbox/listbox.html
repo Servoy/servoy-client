@@ -9,6 +9,8 @@
 		ng-style="style"
 		svy-font='model.fontType'
 		svy-change='handlers.onActionMethodID($event)'
+		svy-focusgained='handlers.onFocusGainedMethodID($event)'
+	   	svy-focuslost='handlers.onFocusLostMethodID($event)'
 		ng-model="convertModel"
 		ng-disabled="model.enabled == false || model.editable == false"
 		svy-tooltip='model.toolTipText'

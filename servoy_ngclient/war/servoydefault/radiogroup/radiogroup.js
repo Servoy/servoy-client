@@ -53,6 +53,12 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
        	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
        	 	}
        	 };
+       	 
+       	 $scope.radioClicked = function($event)
+       	 {
+       		$scope.svyApply('dataProviderID');
+       		$scope.handlers.onFocusLostMethodID($event);
+       	 }
       },
       templateUrl: 'servoydefault/radiogroup/radiogroup.html'
     };

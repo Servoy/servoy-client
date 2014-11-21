@@ -32,6 +32,23 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 								$scope.svyApply('dataProviderID');
 							})    	                
 						});
+						
+						 ed.on('click',function(e) {
+							 $scope.handlers.onActionMethodID(createEvent(e));
+					     });
+						 ed.on('focus',function(e) {
+							 $scope.handlers.onFocusGainedMethodID(createEvent(e));
+					     });
+						 ed.on('blur',function(e) {
+							 $scope.handlers.onFocusLostMethodID(createEvent(e));
+					     });
+						 
+						 var createEvent = function(e)
+						 {
+							 var ev = new MouseEvent(e.type);
+							 ev.initMouseEvent(e.type, e.bubbles, e.cancelable,null,e.detail, e.screenX, e.screenY, e.clientX, e.clientY, e.ctrlKey, e.altKey, e.shiftKey, e.metaKey, e.button, null);
+							 return ev;
+						 }
 					}
 			}
 

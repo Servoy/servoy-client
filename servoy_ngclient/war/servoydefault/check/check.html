@@ -1,5 +1,4 @@
 <label class='svy-check-radio' 
-	 ng-click="checkBoxClicked()"  
 	 ng-style="style" 
 	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
      svy-border="model.borderType" 
@@ -12,6 +11,10 @@
 		    ng-disabled="model.enabled == false || model.editable == false"
 			svy-margin="model.margin"
 			svy-tabseq='model.tabSeq'
+			ng-click="checkBoxClicked()"
+			svy-click='handlers.onActionMethodID($event)'
+            svy-focusgained='handlers.onFocusGainedMethodID($event)'
+	   	    svy-focuslost='handlers.onFocusLostMethodID($event)'
 			id="{{model.svyMarkupId}}"
 			/>
 	 <span ng-bind="model.text" svy-font="model.fontType"/>

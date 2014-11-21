@@ -9,13 +9,14 @@
      ng-style="style" svy-tooltip='model.toolTipText' >
   <label class='svy-check-radio'
   		 ng-repeat="item in  model.valuelistID  | filter:notNullOrEmpty('realValue')"
-  		 ng-click="checkBoxClicked($index)"
   		 svy-horizontaldirection='model.scrollbars'
   		 >
      <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
            ng-disabled="model.enabled == false || model.editable == false"
            svy-tabseq='model.tabSeq'
+           ng-click="checkBoxClicked($event,$index)"
            svy-click='handlers.onActionMethodID($event)'
+           svy-focusgained='handlers.onFocusGainedMethodID($event)'
            />
      <span ng-bind='item.displayValue'></span>
   </label>

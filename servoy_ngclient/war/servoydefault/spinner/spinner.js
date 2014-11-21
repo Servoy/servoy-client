@@ -4,6 +4,7 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
       scope: {
         name: "=",
         model: "=svyModel",
+        handlers: "=svyHandlers",
         api: "=svyApi",
         svyApply: "="
       },

@@ -4,6 +4,7 @@ angular.module('servoydefaultCheck',['servoy']).directive('servoydefaultCheck', 
       scope: {
         name: "=",
         model: "=svyModel",
+        handlers: "=svyHandlers",
         api: "=svyApi",
         svyApply: "="
       },

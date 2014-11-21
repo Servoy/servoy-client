@@ -201,7 +201,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								fn(scope, {$event:event});
 							});
 						}
-						return false;
+						return true;
 					}
 				}); 
 			}

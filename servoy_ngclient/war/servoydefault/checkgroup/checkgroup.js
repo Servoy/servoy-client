@@ -26,7 +26,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             setSelectionFromDataprovider();
           })
           
-          $scope.checkBoxClicked = function($index){
+          $scope.checkBoxClicked = function($event,$index){
              var checkedTotal = 0;
              for(var i=0;i< $scope.selection.length ;i++){
             	 if($scope.selection[i]==true) checkedTotal++;            	 
@@ -38,7 +38,8 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             $scope.model.dataProviderID = getDataproviderFromSelection()
             
             if(checkedTotal==0 && allowNullinc ==0) return;// only push if it was actualy changed
-            $scope.svyApply('dataProviderID')
+            $scope.svyApply('dataProviderID')        
+            $scope.handlers.onFocusLostMethodID($event)
           }
           
           $scope.api.setScroll = function(x, y) {
