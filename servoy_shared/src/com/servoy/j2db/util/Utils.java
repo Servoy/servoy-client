@@ -96,8 +96,14 @@ import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
@@ -125,6 +131,40 @@ public final class Utils
 	public static final int PLATFORM_WINDOWS = 1;
 	public static final int PLATFORM_MAC = 2;
 	public static final int PLATFORM_LINUX = 3;
+
+
+	public static boolean isInheritedFormElement(Object element, IPersist context)
+	{
+		if (element instanceof Form)
+		{
+			return false;
+		}
+		if (context instanceof Form && element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
+		{
+			if (element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
+			{
+				// child of super-form, readonly
+				return true;
+			}
+		}
+		if (element instanceof FormElementGroup)
+		{
+			Iterator<IFormElement> elements = ((FormElementGroup)element).getElements();
+			while (elements.hasNext())
+			{
+				if (isInheritedFormElement(elements.next(), context))
+				{
+					return true;
+				}
+			}
+		}
+		if (element instanceof ISupportExtendsID)
+		{
+			return PersistHelper.isOverrideElement((ISupportExtendsID)element);
+		}
+		// child of this form, not of a inherited form
+		return false;
+	}
 
 	/**
 	 * Change the passed class name to its corresponding file name. E.G. change &quot;Utilities&quot; to &quot;Utilities.class&quot;.

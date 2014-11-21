@@ -19,22 +19,14 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.design.DesignerFilter;
-import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -83,7 +75,7 @@ public class FormLayoutGenerator
 				{
 					FormElement fe = ComponentFactory.getFormElement(bc, context, null);
 
-					generateFormElementWrapper(writer, fe, design);
+					generateFormElementWrapper(writer, fe, design, form);
 					generateFormElement(writer, fe, false);
 					generateEndDiv(writer);
 				}
@@ -117,7 +109,7 @@ public class FormLayoutGenerator
 		writer.println("</div>");
 	}
 
-	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design)
+	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form)
 	{
 		writer.print("<div ng-style=\"layout.");
 		writer.print(fe.getName());
@@ -132,10 +124,12 @@ public class FormLayoutGenerator
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
-			if (fe.getPropertyValue("extendsID") != null || canContainComponents(fe.getWebComponentSpec()))
+			Form currentForm = form;
+			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
+			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
 				writer.print(" style='");
-				writer.print("border: 1px dotted black");
+				writer.print("border: 1px dotted red");
 				writer.print("'");
 			}
 			if (fe.getWebComponentSpec().getFoundTypes().size() > 0)
@@ -148,35 +142,35 @@ public class FormLayoutGenerator
 		writer.println(">");
 	}
 
-	private static boolean canContainComponents(WebComponentSpecification spec)
-	{
-		Map<String, PropertyDescription> properties = spec.getProperties();
-		for (PropertyDescription propertyDescription : properties.values())
-		{
-			String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
-			if (simpleTypeName.equals(ComponentPropertyType.TYPE_NAME)) return true;
-			Object configObject = propertyDescription.getConfig();
-			if (configObject != null)
-			{
-				try
-				{
-					if (configObject instanceof JSONObject && ((JSONObject)configObject).has(DesignerFilter.DROPPABLE))
-					{
-						Object droppable = ((JSONObject)configObject).get(DesignerFilter.DROPPABLE);
-						if (droppable instanceof Boolean && (Boolean)droppable)
-						{
-							if (simpleTypeName.equals("tab")) return true;
-						}
-					}
-				}
-				catch (JSONException e)
-				{
-					Debug.log(e);
-				}
-			}
-		}
-		return false;
-	}
+//	private static boolean canContainComponents(WebComponentSpecification spec)
+//	{
+//		Map<String, PropertyDescription> properties = spec.getProperties();
+//		for (PropertyDescription propertyDescription : properties.values())
+//		{
+//			String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
+//			if (simpleTypeName.equals(ComponentPropertyType.TYPE_NAME)) return true;
+//			Object configObject = propertyDescription.getConfig();
+//			if (configObject != null)
+//			{
+//				try
+//				{
+//					if (configObject instanceof JSONObject && ((JSONObject)configObject).has(DesignerFilter.DROPPABLE))
+//					{
+//						Object droppable = ((JSONObject)configObject).get(DesignerFilter.DROPPABLE);
+//						if (droppable instanceof Boolean && (Boolean)droppable)
+//						{
+//							if (simpleTypeName.equals("tab")) return true;
+//						}
+//					}
+//				}
+//				catch (JSONException e)
+//				{
+//					Debug.log(e);
+//				}
+//			}
+//		}
+//		return false;
+//	}
 
 	public static void generateFormElement(PrintWriter writer, FormElement fe, boolean design)
 	{
