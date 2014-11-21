@@ -131,6 +131,7 @@ public class FormLayoutGenerator
 				writer.print(" style='");
 				writer.print("border: 1px dotted red");
 				writer.print("'");
+				writer.print(" class='inherited_element'");
 			}
 			if (fe.getWebComponentSpec().getFoundTypes().size() > 0)
 			{
