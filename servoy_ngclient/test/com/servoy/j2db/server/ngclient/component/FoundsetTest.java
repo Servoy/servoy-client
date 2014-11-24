@@ -20,7 +20,9 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
+import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -34,10 +36,18 @@ import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketEndpoint;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.util.ServoyException;
 
@@ -61,18 +71,25 @@ public class FoundsetTest extends AbstractSolutionTest
 		is = getClass().getResourceAsStream("FoundSetTest-mycomponent.spec");
 		bytes = new byte[is.available()];
 		is.read(bytes);
-		String comp = new String(bytes);
+		String comp1 = new String(bytes);
+		is.close();
+
+		is = getClass().getResourceAsStream("FoundSetTest-mydynamiccomponent.spec");
+		bytes = new byte[is.available()];
+		is.read(bytes);
+		String comp2 = new String(bytes);
 		is.close();
 
 		HashMap<String, String> components = new HashMap<>();
-		components.put("mycomponent.spec", comp);
+		components.put("mycomponent.spec", comp1);
+		components.put("mydynamiccomponent.spec", comp2);
 		InMemPackageReader inMemPackageReader = new InMemPackageReader(manifest, components);
 		return inMemPackageReader;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
 	 */
 	@Override
@@ -81,6 +98,9 @@ public class FoundsetTest extends AbstractSolutionTest
 		Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
 		Bean bean = form.createNewBean("mycustombean", "my-component");
 		bean.setInnerHTML("{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}}");
+
+		Bean bean1 = form.createNewBean("mydynamiccustombean", "my-dynamiccomponent");
+		bean1.setInnerHTML("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}");
 	}
 
 	/*
@@ -96,6 +116,109 @@ public class FoundsetTest extends AbstractSolutionTest
 		ds.addRow(new Object[] { Integer.valueOf(1), "value1", "value2" });
 		ds.addRow(new Object[] { Integer.valueOf(2), "value3", "value4" });
 		client.getFoundSetManager().createDataSourceFromDataSet("test", ds, null, new String[] { "pk" });
+
+		BufferedDataSet relatedDS = new BufferedDataSet(new String[] { "relatedtestpk", "testpk", "relatedtest1", "relatedtest2" },
+			new int[] { IColumnTypes.INTEGER, IColumnTypes.INTEGER, IColumnTypes.TEXT, IColumnTypes.TEXT });
+		relatedDS.addRow(new Object[] { Integer.valueOf(1), Integer.valueOf(1), "relatedvalue111", "relatedvalue112" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(2), Integer.valueOf(1), "relatedvalue121", "relatedvalue122" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(3), Integer.valueOf(1), "relatedvalue131", "relatedvalue132" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(4), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
+		client.getFoundSetManager().createDataSourceFromDataSet("relatedtest", relatedDS, null, new String[] { "relatedtestpk" });
+
+		HashMap<String, IServer> serverProxies = new HashMap<String, IServer>();
+		serverProxies.put("_sv_inmem", new IServer()
+		{
+
+			@Override
+			public ITable getTable(String tableName) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public ITable getTableBySqlname(String tableSQLName) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public List<String> getViewNames(boolean hideTempViews) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public int getTableType(String tableName) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public String getName() throws RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public boolean isValid() throws RemoteException
+			{
+				return true;
+			}
+
+			@Override
+			public String getDatabaseProductName() throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RepositoryException, RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String[] getDataModelClonesFrom() throws RemoteException
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+		});
+		solution.setServerProxies(serverProxies);
+
+		Relation relation = solution.createNewRelation(validator, "test_to_relatedtest", "mem:test", "mem:relatedtest", ISQLJoin.LEFT_OUTER_JOIN);
+		Column primaryColumn = ((Table)client.getFoundSetManager().getTable(relation.getPrimaryDataSource())).getColumn("pk");
+		Column foreignColumn = ((Table)client.getFoundSetManager().getTable(relation.getForeignDataSource())).getColumn("testpk");
+		relation.createNewRelationItem(client.getFoundSetManager(), primaryColumn, IBaseSQLCondition.EQUALS_OPERATOR, foreignColumn);
 	}
 
 	@Test
@@ -146,6 +269,48 @@ public class FoundsetTest extends AbstractSolutionTest
 				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
 
 		Assert.assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));
+	}
 
+	@Test
+	public void foundsetWithDynamicDataproviders() throws JSONException
+	{
+		WebsocketEndpoint endpoint = (WebsocketEndpoint)WebsocketEndpoint.get();
+
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		TypedData<Map<String, Map<String, Object>>> allComponentsProperties = form.getFormUI().getAllComponentsProperties();
+		String full = JSONUtils.writeDataWithConversions(allComponentsProperties.content, allComponentsProperties.contentType);
+		JSONObject object = new JSONObject(full);
+		JSONObject bean = object.getJSONObject("mydynamiccustombean");
+		JSONObject foundset = bean.getJSONObject("myfoundset");
+		Assert.assertEquals(3, foundset.getInt("serverSize"));
+		JSONObject viewPort = foundset.getJSONObject("viewPort");
+		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		Assert.assertEquals(0, viewPort.getInt("size"));
+		Assert.assertEquals(0, viewPort.getJSONArray("rows").length());
+
+		// fake incomming request for view port change.
+		endpoint.incoming(
+			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mydynamiccustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":3}}]}},\"service\":\"formService\"}",
+			true);
+
+		TypedData<Map<String, Map<String, Object>>> allComponentsChanges = ((Container)form.getFormUI()).getAllComponentsChanges();
+		String changes = JSONUtils.writeDataWithConversions(allComponentsChanges.content, allComponentsChanges.contentType);
+		object = new JSONObject(changes);
+		bean = object.getJSONObject("mydynamiccustombean");
+		foundset = bean.getJSONObject("myfoundset");
+		Assert.assertEquals(3, foundset.getInt("serverSize"));
+		viewPort = foundset.getJSONObject("viewPort");
+		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		Assert.assertEquals(3, viewPort.getInt("size"));
+		JSONArray rows = viewPort.getJSONArray("rows");
+		Assert.assertEquals(3, rows.length());
+
+		JSONObject row0 = rows.getJSONObject(0);
+		Assert.assertEquals("relatedvalue111", row0.getString("dp1"));
+		Assert.assertEquals("relatedvalue112", row0.getString("dp2"));
+
+		JSONObject row1 = rows.getJSONObject(1);
+		Assert.assertEquals("relatedvalue121", row1.getString("dp1"));
+		Assert.assertEquals("relatedvalue122", row1.getString("dp2"));
 	}
 }

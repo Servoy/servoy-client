@@ -28,7 +28,8 @@ Require-Bundle: servoy_shared,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
-Import-Package: javax.servlet,
+Import-Package: com.servoy.j2db.server.main,
+ javax.servlet,
  javax.servlet.annotation,
  javax.servlet.http,
  javax.websocket,

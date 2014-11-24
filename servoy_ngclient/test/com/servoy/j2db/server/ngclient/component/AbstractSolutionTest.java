@@ -48,12 +48,14 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.WebsocketEndpoint;
 
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IValidateName;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -135,8 +137,10 @@ public abstract class AbstractSolutionTest
 			fillTestSolution();
 
 			client = new TestNGClient(tr);
-			setupData();
+			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
+			client.loadSolutionsAndModules((SolutionMetaData)metadata);
+			setupData();
 			NGClientEndpoint endpoint = new NGClientEndpoint();
 			endpoint.start(new Session()
 			{

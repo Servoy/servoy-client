@@ -22,6 +22,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 
@@ -81,7 +82,7 @@ final class TestNGClient extends NGClient
 		{
 			/*
 			 * (non-Javadoc)
-			 *
+			 * 
 			 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#createDispatcher()
 			 */
 			@Override
@@ -131,7 +132,7 @@ final class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#createDataServer()
 	 */
 	@Override
@@ -140,7 +141,7 @@ final class TestNGClient extends NGClient
 		return new IDataServer()
 		{
 
-			private IDataSet set;
+			private final HashMap<String, IDataSet> dataSetMap = new HashMap<String, IDataSet>();
 
 			@Override
 			public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
@@ -211,28 +212,48 @@ final class TestNGClient extends NGClient
 			public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException,
 				RemoteException
 			{
-				return new IDataSet[] { set };
+				if (array.length > 0)
+				{
+					String ds = array[0].getSqlSelect().getTable().getDataSource();
+					if ("mem:relatedtest".equals(ds))
+					{
+						IDataSet set = dataSetMap.get(ds);
+						IDataSet[] returnDataSet = new IDataSet[2];
+
+						returnDataSet[0] = new BufferedDataSet();
+						returnDataSet[0].addRow(new Object[] { set.getRow(0)[0], set.getRow(0)[1], set.getRow(0)[2], set.getRow(0)[3] });
+						returnDataSet[0].addRow(new Object[] { set.getRow(1)[0], set.getRow(1)[1], set.getRow(1)[2], set.getRow(1)[3] });
+						returnDataSet[0].addRow(new Object[] { set.getRow(2)[0], set.getRow(2)[1], set.getRow(2)[2], set.getRow(2)[3] });
+
+						returnDataSet[1] = new BufferedDataSet();
+						returnDataSet[1].addRow(new Object[] { set.getRow(3)[0], set.getRow(3)[1], set.getRow(3)[2], set.getRow(3)[3] });
+
+						return returnDataSet;
+					}
+				}
+
+				return null;
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
 				Object[] questiondata, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
 			{
-				return set;
+				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
 			{
-				return set;
+				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
 				Object[] questiondata, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 			{
-				return set;
+				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
 
 			@Override
@@ -240,13 +261,15 @@ final class TestNGClient extends NGClient
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException,
 				RemoteException
 			{
-				return set;
+				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 			{
+				IDataSet set = dataSetMap.get(sqlSelect.getTable().getDataSource());
+
 				if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getColumns().size() == 1)
 				{
 					// pk select
@@ -264,21 +287,21 @@ final class TestNGClient extends NGClient
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
 				Object[] questiondata, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
-				return set;
+				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
-				return set;
+				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
 
 			@Override
 			public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
 				ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
-				return set;
+				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
 
 			@Override
@@ -302,7 +325,7 @@ final class TestNGClient extends NGClient
 			public ITable insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid, int[] types,
 				String[] pkNames) throws ServoyException, RemoteException
 			{
-				this.set = set;
+				dataSetMap.put(dataSource, set);
 				Table table = new Table(serverName, serverName, true, ITable.TABLE, null, null);
 				table.setDataSource(dataSource);
 				for (int i = 0; i < set.getColumnCount(); i++)
@@ -381,7 +404,7 @@ final class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.NGClient#getLocale()
 	 */
 	@Override
@@ -392,7 +415,7 @@ final class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#createRepository()
 	 */
 	@Override
