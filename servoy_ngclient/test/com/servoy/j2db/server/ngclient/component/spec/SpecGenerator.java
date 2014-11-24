@@ -93,7 +93,7 @@ public class SpecGenerator
 			"Calendar_C16.png",
 			IRepository.FIELDS,
 			IRuntimeCalendar.class,
-			new String[] { "{\"name\":\"moment\", \"version\":\"2.6.0\", \"url\": \"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"3.0.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"3.0.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css\", \"mimetype\":\"text/css\"}" }));
+			new String[] { "{\"name\":\"moment\", \"version\":\"2.6.0\", \"url\": \"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js\", \"mimetype\":\"text/javascript\"}","{\"name\":\"moment-jdateformatparser\", \"version\":\"0.1.1\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/moment-jdateformatparser.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"4.0.0b\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"4.0.0b\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check Group",  null, IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel(
 			"combobox",
