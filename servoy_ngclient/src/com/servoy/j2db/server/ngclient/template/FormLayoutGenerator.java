@@ -71,7 +71,7 @@ public class FormLayoutGenerator
 					writer.println("Style\">");
 				}
 
-				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context))
+				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context, design))
 				{
 					FormElement fe = ComponentFactory.getFormElement(bc, context, null);
 
@@ -119,7 +119,7 @@ public class FormLayoutGenerator
 		if (design)
 		{
 			writer.print(" svy-id='");
-			writer.print(fe.getDesignId());
+			writer.print(getDesignId(fe));
 			writer.print("'");
 			writer.print(" name='");
 			writer.print(fe.getName());
@@ -205,7 +205,6 @@ public class FormLayoutGenerator
 			writer.print(" svy-id='");
 			writer.print(fe.getDesignId());
 			writer.print("'");
-
 		}
 		writer.print(" svy-apply='handlers.");
 		writer.print(fe.getName());
@@ -217,5 +216,15 @@ public class FormLayoutGenerator
 		writer.print("</");
 		writer.print(fe.getTagname());
 		writer.println(">");
+	}
+
+	/**
+	 * When the formElement represents a portal of a list / table view form, we should return the uuid of the form.
+	 * @param fe
+	 * @return
+	 */
+	private static String getDesignId(FormElement fe)
+	{
+		return (fe.getDesignId() == null && fe.getTypeName().equals("servoydefault-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
 	}
 }

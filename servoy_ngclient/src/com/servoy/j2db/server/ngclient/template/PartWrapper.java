@@ -51,12 +51,14 @@ public class PartWrapper
 	private final Form context;
 	IServoyDataConverterContext converterContext;
 	private final boolean isFlowLayout;
+	private final boolean design;
 
 	public PartWrapper(Part part, Form context, IServoyDataConverterContext converterContext, final boolean design)
 	{
 		this.part = part;
 		this.context = context;
 		this.converterContext = converterContext;
+		this.design = design;
 
 		isFlowLayout = context.getLayoutContainers().hasNext();
 
@@ -131,10 +133,10 @@ public class PartWrapper
 
 	public Collection<BaseComponent> getBaseComponents()
 	{
-		return getBaseComponents(part, context, converterContext);
+		return getBaseComponents(part, context, converterContext, design);
 	}
 
-	public static Collection<BaseComponent> getBaseComponents(Part part, Form context, IServoyDataConverterContext converterContext)
+	public static Collection<BaseComponent> getBaseComponents(Part part, Form context, IServoyDataConverterContext converterContext, boolean isDesign)
 	{
 		if (part.getPartType() == Part.BODY)
 		{
@@ -142,9 +144,12 @@ public class PartWrapper
 			{
 				case FormController.TABLE_VIEW :
 				case FormController.LOCKED_TABLE_VIEW :
+					return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
 				case IForm.LIST_VIEW :
 				case FormController.LOCKED_LIST_VIEW :
-					return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
+				{
+					if (!isDesign) return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
+				}
 			}
 		}
 

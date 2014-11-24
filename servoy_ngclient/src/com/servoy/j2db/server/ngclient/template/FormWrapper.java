@@ -137,7 +137,7 @@ public class FormWrapper
 
 		Collection<BaseComponent> excludedComponents = null;
 
-		if (isListView || isTableView)
+		if ((isListView && !design) || isTableView)
 		{
 			excludedComponents = getBodyComponents();
 		}
@@ -150,7 +150,7 @@ public class FormWrapper
 				if (isSecurityVisible(persist) && (excludedComponents == null || !excludedComponents.contains(persist))) baseComponents.add((BaseComponent)persist);
 			}
 		}
-		if (isListView || isTableView)
+		if ((isListView && !design) || isTableView)
 		{
 			baseComponents.add(new BodyPortal(form));
 		}
