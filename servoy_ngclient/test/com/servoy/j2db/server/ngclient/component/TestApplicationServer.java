@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.component;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,12 +39,12 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.plugins.IServerAccess;
-import com.servoy.j2db.server.main.RuntimeBeanManager;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IBatchManager;
 import com.servoy.j2db.server.shared.IServerStatus;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.server.shared.IWebClientSessionFactory;
+import com.servoy.j2db.util.JarManager.ExtensionResource;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
 import com.servoy.j2db.util.xmlxport.IXMLImportEngine;
@@ -256,7 +257,43 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	@Override
 	public IBeanManagerInternal getBeanManager()
 	{
-		return new RuntimeBeanManager(TestApplicationServer.class.getClassLoader());
+		return new IBeanManagerInternal()
+		{
+
+			@Override
+			public void init()
+			{
+			}
+
+			@Override
+			public void flushCachedItems()
+			{
+			}
+
+			@Override
+			public ClassLoader getClassLoader()
+			{
+				return TestApplicationServer.class.getClassLoader();
+			}
+
+			@Override
+			public Object createInstance(String clazzName) throws Exception
+			{
+				return null;
+			}
+
+			@Override
+			public Map<String, List<ExtensionResource>> getLoadedBeanDefs()
+			{
+				return null;
+			}
+
+			@Override
+			public File getBeansDir()
+			{
+				return null;
+			}
+		};
 	}
 
 	@Override
