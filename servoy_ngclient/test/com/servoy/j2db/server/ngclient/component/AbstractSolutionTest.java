@@ -136,11 +136,25 @@ public abstract class AbstractSolutionTest
 			solution.setChangeHandler(new ChangeHandler(tr));
 			fillTestSolution();
 
-			client = new TestNGClient(tr);
+			client = new TestNGClient(tr)
+			{
+				@Override
+				public boolean loadSolutionsAndModules(SolutionMetaData solutionMetaData)
+				{
+					boolean b = super.loadSolutionsAndModules(solutionMetaData);
+					try
+					{
+						setupData();
+					}
+					catch (ServoyException e)
+					{
+						e.printStackTrace();
+					}
+					return b;
+				}
+			};
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
-			client.loadSolutionsAndModules((SolutionMetaData)metadata);
-			setupData();
 			NGClientEndpoint endpoint = new NGClientEndpoint();
 			endpoint.start(new Session()
 			{

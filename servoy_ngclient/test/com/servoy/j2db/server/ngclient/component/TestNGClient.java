@@ -65,7 +65,7 @@ import com.servoy.j2db.util.ServoyException;
  * @author Johan
  *
  */
-final class TestNGClient extends NGClient
+class TestNGClient extends NGClient
 {
 	/**
 	 *
@@ -80,11 +80,6 @@ final class TestNGClient extends NGClient
 	{
 		super(new NGClientWebsocketSession("1")
 		{
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#createDispatcher()
-			 */
 			@Override
 			protected IEventDispatcher createDispatcher()
 			{
@@ -132,7 +127,7 @@ final class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#createDataServer()
 	 */
 	@Override
@@ -404,7 +399,7 @@ final class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.NGClient#getLocale()
 	 */
 	@Override
@@ -415,7 +410,7 @@ final class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#createRepository()
 	 */
 	@Override
