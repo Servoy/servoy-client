@@ -10,7 +10,7 @@
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type" :"dataprovider", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback", "parsehtml":true }}, 
 	        "enabled" : {"type":"boolean", "default":true}, 
-	        "fontType" : "font", 
+	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "horizontalAlignment" : {"type" :"int", "scope" :"design", "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
 	        "location" : "point", 

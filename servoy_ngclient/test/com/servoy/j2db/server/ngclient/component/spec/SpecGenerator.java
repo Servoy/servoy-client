@@ -426,7 +426,7 @@ public class SpecGenerator
 		repoTypeMapping.put(IRepository.TABS, "tabs[]");
 		repoTypeMapping.put(IRepository.COLOR, "color");
 		repoTypeMapping.put(IRepository.INTEGER, "int");
-		repoTypeMapping.put(IRepository.FONT, "font");
+		repoTypeMapping.put(IRepository.FONT, "{\"type\":\"font\",\"stringformat\":true}");
 		repoTypeMapping.put(IRepository.POINT, "point");
 		repoTypeMapping.put(IRepository.DIMENSION, "dimension");
 		repoTypeMapping.put(IRepository.INSETS, "dimension");
