@@ -133,10 +133,10 @@ public class FormLayoutGenerator
 				writer.print("'");
 				writer.print(" class='inherited_element'");
 			}
-			if (fe.getWebComponentSpec().getFoundTypes().size() > 0)
+			if (fe.getSvyTypesNames().size() > 0)
 			{
 				writer.print(" svy-types='");
-				writer.print(fe.getWebComponentSpec().getFoundTypes().keySet());
+				writer.print(fe.getSvyTypesNames());
 				writer.print("'");
 			}
 		}

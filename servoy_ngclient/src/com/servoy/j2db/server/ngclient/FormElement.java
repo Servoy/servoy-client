@@ -615,4 +615,21 @@ public final class FormElement implements IWebComponentInitializer
 	{
 		this.propertyValues = elementProperties;
 	}
+
+	/**
+	 *
+	 * @return a list of accepted type names when dropping from palette. Possible type names include the types defined in the specfile and the "component" type.
+	 */
+	public List<String> getSvyTypesNames()
+	{
+		WebComponentSpecification spec = getWebComponentSpec(false);
+		ArrayList<String> result = new ArrayList<String>();
+		Map<String, PropertyDescription> properties = spec.getProperties();
+		for (PropertyDescription propertyDescription : properties.values())
+		{
+			String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
+			if (spec.getFoundTypes().containsKey(simpleTypeName) || simpleTypeName.equals("component")) result.add(simpleTypeName);
+		}
+		return result;
+	}
 }
