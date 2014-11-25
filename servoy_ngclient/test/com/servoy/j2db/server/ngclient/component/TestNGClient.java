@@ -127,7 +127,7 @@ class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#createDataServer()
 	 */
 	@Override
@@ -399,7 +399,7 @@ class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.NGClient#getLocale()
 	 */
 	@Override
@@ -410,7 +410,7 @@ class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#createRepository()
 	 */
 	@Override
@@ -477,10 +477,8 @@ class TestNGClient extends NGClient
 			public IClientHost getClientHost() throws RemoteException
 			{
 
-				System.out.println("return le client host now");
 				return new IClientHost()
 				{
-
 					@Override
 					public void unregister(String client_id) throws RemoteException
 					{
