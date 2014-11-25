@@ -303,7 +303,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -4463,7 +4463,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@Override
@@ -5196,7 +5196,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -5339,7 +5339,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		 */
 		public void scrollViewPort(AjaxRequestTarget target, boolean appendMissingRows)
 		{
-
+			if (currentData == null) return;
 			Collection<ListItem< ? >> newRows = null;
 			StringBuilder[] rowsBuffer = null;
 			int newRowsCount = 0, rowsToRemove = 0;
