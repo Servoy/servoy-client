@@ -66,6 +66,11 @@ label.svy-check-radio span{
 	width: 300px;
 }
 
+.inherited_element
+{
+	border: 1px dotted red;
+}
+
 
 /* Side notes for calling out things (bs-callout from documentation)
 -------------------------------------------------- */

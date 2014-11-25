@@ -128,9 +128,6 @@ public class FormLayoutGenerator
 			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
 			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
-				writer.print(" style='");
-				writer.print("border: 1px dotted red");
-				writer.print("'");
 				writer.print(" class='inherited_element'");
 			}
 			if (fe.getSvyTypesNames().size() > 0)
