@@ -208,6 +208,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		// model content
 		TypedData<Map<String, Object>> allProps = childComponent.getProperties();
+		allProps.content = new HashMap<>(allProps.content);
 		removeRecordDependentProperties(allProps);
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 		destinationJSON.object();
