@@ -270,7 +270,7 @@ import com.servoy.j2db.util.toolbar.ToolbarPanel;
 
 /**
  * This class is the main entry point and makes the actual swing client application
- * 
+ *
  * @author jblok
  */
 public class J2DBClient extends ClientState implements ISmartClientApplication, IGlobalEditListener, IInfoListener, IReconnectListener, IMessagesCallback
@@ -421,7 +421,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IApplication#getOSName()
 	 */
 	public String getClientOSName()
@@ -754,7 +754,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			startupArguments = args;
 			handleArguments(args);
 
-			// set some props 
+			// set some props
 			// ie. for full gc timing 6 mins (1 minutes == default)
 			System.setProperty("sun.rmi.dgc.client.gcInterval", "360000");
 			// System.setProperty("java.rmi.server.codebase", "");//disable any rmi classloading
@@ -798,16 +798,16 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	protected void initSettings() throws Exception
 	{
-		// overload settings from disk 
+		// overload settings from disk
 		boolean uses_client_installer = (System.getProperty("servoy.server_url") != null); //$NON-NLS-1$
 		settings = Settings.getInstance();
 		if (!uses_client_installer)
 		{
-			((Settings)settings).loadFromServer(getServerURL()); // no disk loading needed for client, rely on webstart 
+			((Settings)settings).loadFromServer(getServerURL()); // no disk loading needed for client, rely on webstart
 		}
 		else
 		{
-			//is special case for cytrix users, using a shared disk, to prevent webstarts installs 
+			//is special case for cytrix users, using a shared disk, to prevent webstarts installs
 			File file = new File(System.getProperty("user.dir"), Settings.FILE_NAME); //$NON-NLS-1$
 			((Settings)settings).loadFromFile(file);
 		}
@@ -1219,7 +1219,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	/**
 	 * updates the insert mode icon for the given display
-	 * 
+	 *
 	 * @param display
 	 */
 	public void updateInsertModeIcon(IDisplay display)
@@ -1606,7 +1606,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					if (val instanceof InputMapUIResource)
 					{
 						InputMapUIResource map = (InputMapUIResource)val;
-						for (KeyStroke keyStroke : map.allKeys())
+						KeyStroke[] allKeys = map.allKeys();
+						if (allKeys != null) for (KeyStroke keyStroke : allKeys)
 						{
 							int modifiers = keyStroke.getModifiers();
 
@@ -1702,7 +1703,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				if (f != uiDefaults.get("TextArea.font")) return null; //$NON-NLS-1$
 				if (f != uiDefaults.get("PasswordField.font")) return null; //$NON-NLS-1$
 				if (f != uiDefaults.get("TextField.font")) return null; //$NON-NLS-1$
-				if (f != uiDefaults.get("FormattedTextField.font")) return null; //$NON-NLS-1$ 
+				if (f != uiDefaults.get("FormattedTextField.font")) return null; //$NON-NLS-1$
 				return f;
 			}
 			else
@@ -2436,7 +2437,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	protected Map<String, Action> getActions()
 	{
 		HashMap<String, Action> table = new HashMap<String, Action>();
-		table.put("cmdopensolution", new CmdOpenSolution(this)); //$NON-NLS-1$ 
+		table.put("cmdopensolution", new CmdOpenSolution(this)); //$NON-NLS-1$
 		// table.put("cmdspell", new CmdSpell(this)); //$NON-NLS-1$
 		table.put("cmdnewrecord", new CmdNewRecord(this)); //$NON-NLS-1$
 		table.put("cmdduplicaterecord", new CmdDuplicateRecord(this)); //$NON-NLS-1$
@@ -3128,8 +3129,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 						if (getClientInfo().getUserUid() == null)
 						{
-							JOptionPane.showMessageDialog(frame, Messages.getString("servoy.client.message.loginfailed"), //$NON-NLS-1$ 
-								Messages.getString("servoy.client.message.loginfailed.title"), //$NON-NLS-1$ 
+							JOptionPane.showMessageDialog(frame, Messages.getString("servoy.client.message.loginfailed"), //$NON-NLS-1$
+								Messages.getString("servoy.client.message.loginfailed.title"), //$NON-NLS-1$
 								JOptionPane.ERROR_MESSAGE);
 						}
 					}
@@ -3144,7 +3145,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				}
 				catch (Exception e)
 				{
-					reportError(Messages.getString("servoy.client.message.loginfailed"), e); //$NON-NLS-1$ 
+					reportError(Messages.getString("servoy.client.message.loginfailed"), e); //$NON-NLS-1$
 				}
 				finally
 				{
