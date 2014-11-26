@@ -259,12 +259,16 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 
 					// some properties that have default values might only be sent later to client;
 					// if that happens, we need to then bind them two-way as well
-					if (!angular.isDefined(cellProxies.unwatchFuncs)) cellProxies.unwatchFuncs = [];
+					if (!angular.isDefined(cellProxies.unwatchFuncs)) {
+						cellProxies.unwatchFuncs = [];
+						cellProxies.propertyUnwatchFuncs = {};
+					}
 
-					function updateTwoWayBindings(listWithProperties) {
+					function updateTwoWayBindings(listWithProperties, oldList) {
+						if (oldList === listWithProperties) return;
 						var k;
 						for (k in listWithProperties) {
-							if (!cellProxies.unwatchFuncs[k]) {
+							if (!cellProxies.propertyUnwatchFuncs[k]) {
 								// skip this for special - row-by-row changing properties; it is handled separately later in code
 								var skip = false;
 								if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.recordBasedProperties) {
@@ -275,19 +279,17 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 								}
 
 								if (!skip) {
-									// 2 way data link between element model and the merged cell model
-									// it is a bit strange here as 1 element model will be 2 way bound to N cell models
-									cellProxies.unwatchFuncs = cellProxies.unwatchFuncs.concat($utils.bindTwoWayObjectProperty(cellData, k, elements[elementIndex].model, k, false, $scope));
-
 									// copy initial values
 									if (angular.isUndefined(cellData[k])) cellData[k] = elements[elementIndex].model[k];
 									else if (angular.isUndefined(elements[elementIndex].model[k])) elements[elementIndex].model[k] = cellData[k];
+
+									// 2 way data link between element model and the merged cell model
+									// it is a bit strange here as 1 element model will be 2 way bound to N cell models
+									cellProxies.propertyUnwatchFuncs[k] = $utils.bindTwoWayObjectProperty(cellData, k, elements[elementIndex].model, k, false, $scope);
 								}
 							} 
 						}
 					};
-					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return elements[elementIndex].model; }, updateTwoWayBindings));
-					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return cellData; }, updateTwoWayBindings));
 
 					// properties like tagstring and dataprovider are not set directly on the component but are more linked to the current record
 					// so we will take these from the foundset record and apply them to child elements
@@ -301,8 +303,10 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						}
 					}
 
-
 					updateTwoWayBindings(element.model);
+					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return elements[elementIndex].model; }, updateTwoWayBindings));
+					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return cellData; }, updateTwoWayBindings));
+
 					cellProxies.mergedCellModel = cellModel = cellData;
 				} 
 				return cellModel;
@@ -560,6 +564,12 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 								for (var elIdx in rowProxy) {
 									if (rowProxy[elIdx].unwatchFuncs) {
 										rowProxy[elIdx].unwatchFuncs.forEach(function (f) { f(); });
+									}
+									if (rowProxy[elIdx].propertyUnwatchFuncs) {
+										var propertyUnwatchFuncs = rowProxy[elIdx].propertyUnwatchFuncs;
+										for (var propKey in propertyUnwatchFuncs) {
+											propertyUnwatchFuncs[propKey].forEach(function (f) { f(); });
+										};
 									}
 								}
 								delete rowProxyObjects[oldRowId];
