@@ -225,7 +225,7 @@ class PersistBasedFormElementImpl
 			putAndConvertProperty("text", tab.getText(), tabMap, context, tabSpecProperties.getProperty("text"), propertyPath);
 			putAndConvertProperty("relationName", tab.getRelationName(), tabMap, context, tabSpecProperties.getProperty("relationName"), propertyPath);
 			putAndConvertProperty("active", Boolean.valueOf(active), tabMap, context, tabSpecProperties.getProperty("active"), propertyPath);
-			putAndConvertProperty("foreground", tab.getForeground(), tabMap, context, tabSpecProperties.getProperty("foreground"), propertyPath);
+			tabMap.put("foreground", tab.getForeground());
 			putAndConvertProperty("name", tab.getName(), tabMap, context, tabSpecProperties.getProperty("name"), propertyPath);
 			putAndConvertProperty("mnemonic", tab.getMnemonic(), tabMap, context, tabSpecProperties.getProperty("mnemonic"), propertyPath);
 			int containsFormID = tab.getContainsFormID();
