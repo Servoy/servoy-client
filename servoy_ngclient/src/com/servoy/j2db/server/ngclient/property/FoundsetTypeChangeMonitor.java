@@ -327,7 +327,7 @@ public class FoundsetTypeChangeMonitor
 		{
 			int oldChangeFlags = changeFlags;
 			boolean viewPortRecordChangesUpdated = false;
-			if (!shouldSendAll() && !shouldSendWholeViewPort())
+			if (!shouldSendAll() && !shouldSendWholeViewPort() && !propertyValue.getDataAdapterList().isQuietRecordChangeInProgress())
 			{
 				// get the rows that are changed.
 				int firstViewPortIndex = Math.max(viewPort.getStartIndex(), firstRow);

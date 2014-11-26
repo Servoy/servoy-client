@@ -32,7 +32,7 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 public class FoundsetDataAdapterList extends DataAdapterList
 {
 
-	protected boolean keepQuiet = false;
+	private boolean keepQuiet = false;
 
 	public FoundsetDataAdapterList(IWebFormController formController)
 	{
