@@ -158,3 +158,15 @@ label.svy-check-radio span{
 .ui-grid-render-container {
  position:inherit;	
 }
+
+.dropdown-menu {
+	position:fixed;
+	top:auto;
+	left:auto;
+}
+.ui-select-bootstrap > .ui-select-choices {
+	width:auto
+}
+.ui-select-bootstrap > .ui-select-match {
+	padding:0px
+}
