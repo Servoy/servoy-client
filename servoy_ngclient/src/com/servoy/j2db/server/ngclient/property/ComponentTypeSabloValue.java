@@ -574,7 +574,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		else
 		{
 			Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName + "' to value '" +
-				value + ". Record not found.", new RuntimeException());
+				value + " of component: " + childComponent + ". Record not found.", new RuntimeException());
 		}
 	}
 }

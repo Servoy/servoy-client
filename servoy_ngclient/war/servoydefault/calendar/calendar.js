@@ -19,14 +19,30 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
               setDateFormat($scope.model.format);
           })
           
+          function inputChanged(e) {
+        	  if ($scope.findMode) {
+        		  ngModel.$setViewValue(child.children("input").val());        		  
+        	  }
+        	  else {
+	        	  if (e.date) ngModel.$setViewValue(e.date.toDate());
+	        	  else ngModel.$setViewValue(null);
+        	  }
+        	  $scope.svyApply('dataProviderID');
+          }
+          
        // when model change, update our view, set the date in the datepicker
           ngModel.$render = function() {
-        	  var x = child.data('DateTimePicker');
-	          if (x) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
-	          else {
-	        	  // in find mode 
-	        	  child.children("input").val(ngModel.$viewValue);
-	          }
+        	  try {
+        		  $element.off("change.dp",inputChanged);
+	        	  var x = child.data('DateTimePicker');
+		          if (x) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
+		          else {
+		        	  // in find mode 
+		        	  child.children("input").val(ngModel.$viewValue);
+		          }
+        	  } finally {
+        		  $element.on("change.dp",inputChanged);
+        	  }
           };
 
           var dateFormat = 'YYYY-MM-DD'
@@ -37,19 +53,16 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
         	}
         	var x = child.data('DateTimePicker');
         	x.format(dateFormat);
-        	x.date(ngModel.$viewValue);
+        	try {
+        		 $element.off("change.dp",inputChanged);
+        		x.date(ngModel.$viewValue);
+        	}
+        	finally {
+        		$element.on("change.dp",inputChanged);
+        	}
           }
 
-          $element.on("change.dp",function (e) {
-        	  if ($scope.findMode) {
-        		  ngModel.$setViewValue(child.children("input").val());        		  
-        	  }
-        	  else {
-	        	  if (e.date) ngModel.$setViewValue(e.date.toDate());
-	        	  else ngModel.$setViewValue(null);
-        	  }
-        	  $scope.svyApply('dataProviderID');
-          });
+          $element.on("change.dp",inputChanged);
           
       	  $scope.findMode = false;
           // special method that servoy calls when this component goes into find mode.
