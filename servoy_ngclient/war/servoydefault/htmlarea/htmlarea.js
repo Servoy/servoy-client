@@ -16,18 +16,13 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 					setup: function(ed){
 						editor = ed;
 						$scope.editor = editor;
-						$scope.$watch('model.dataProviderID',function (newVal,oldVal){    			   		
-							if(newVal && oldVal!=newVal){
-								ed.setContent(newVal)
-							}    			   		
-						})
 						$scope.$watch('model.editable',function (newVal,oldVal){    			   		
 							if(oldVal != newVal){
 								ed.getBody().setAttribute('contenteditable', newVal);
 							}    			   		
 						})
 						ed.on('blur ExecCommand', function () {    				 
-							$scope.model.dataProviderID = '<html><head></head><body>'+ed.getContent()+'</body></html>'
+							$scope.model.dataProviderID = '<html><body>'+ed.getContent()+'</body></html>'
 							$scope.$apply(function(){    	                	
 								$scope.svyApply('dataProviderID');
 							})    	                
