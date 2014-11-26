@@ -152,8 +152,12 @@ label.svy-check-radio span{
 	background-color: #dff0d8;
 	border-color: #d6e9c6;
 }
+div.ui-grid-cell input.ng-valid {
+	border-width: 0px 0px 0px 0px;
+}
 .ui-grid-row .ui-grid-cell {
  position:relative;
+ border-width: 0px 0px 0px 0px;
 }
 .ui-grid-render-container {
  position:inherit;	
