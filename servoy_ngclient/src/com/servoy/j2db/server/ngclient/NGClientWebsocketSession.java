@@ -415,11 +415,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				Map<String, Object> detail = new HashMap<>();
 				String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
 				if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
-				getService("$sessionService").executeServiceCall("expireSession", new Object[] { detail });
-			}
-			catch (IOException e)
-			{
-				Debug.log(e);
+				getService("$sessionService").executeAsyncServiceCall("expireSession", new Object[] { detail });
 			}
 			finally
 			{
