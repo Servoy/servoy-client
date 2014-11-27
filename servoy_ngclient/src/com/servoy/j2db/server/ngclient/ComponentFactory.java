@@ -371,6 +371,7 @@ public class ComponentFactory
 				portal.put("name", name);
 				portal.put("multiLine", !listViewPortal.isTableview());
 				portal.put("rowHeight", !listViewPortal.isTableview() ? bodyheight : getRowHeight(form));
+				portal.put("scrollbars", form.getScrollbars());
 				if (listViewPortal.isTableview())
 				{
 					int headerHeight = 30;
