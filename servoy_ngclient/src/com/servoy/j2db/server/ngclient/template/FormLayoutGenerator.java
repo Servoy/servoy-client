@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.jsoup.helper.StringUtil;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -97,7 +98,13 @@ public class FormLayoutGenerator
 		{
 			writer.print(String.format("data-svy-name=\"%1$s\" ", form.getName()));
 		}
-		writer.print("svy-formstyle=\"formStyle\" svy-scrollbars='formProperties.scrollbars' svy-layout-update svy-formload svy-autosave");
+
+		writer.print("svy-formstyle=\"formStyle\" svy-layout-update svy-formload svy-autosave");
+		// skip the scrollbars for forms in table or list view then the portal component does this.
+		if (!isTableOrListView(form))
+		{
+			writer.print(" svy-scrollbars='formProperties.scrollbars'");
+		}
 		if (form.getStyleClass() != null)
 		{
 			writer.print(" class=\"");
@@ -105,6 +112,12 @@ public class FormLayoutGenerator
 			writer.print("\"");
 		}
 		writer.println(">");
+	}
+
+	public static boolean isTableOrListView(Form form)
+	{
+		return (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED ||
+			form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
 	}
 
 	public static void generateEndDiv(PrintWriter writer)

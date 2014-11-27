@@ -111,6 +111,12 @@ public class PartWrapper
 			}
 		};
 		layoutProvider.fillPartStyle(style, part);
+		if (FormLayoutGenerator.isTableOrListView(context))
+		{
+			style.remove("overflow-x");
+			style.remove("overflow-y");
+			style.put("overflow", "hidden");
+		}
 		String partStyle = style.getValuesAsString(null);
 		if (partStyle.endsWith(","))
 		{
