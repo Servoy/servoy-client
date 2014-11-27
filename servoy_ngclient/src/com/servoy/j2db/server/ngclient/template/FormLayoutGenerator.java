@@ -137,7 +137,7 @@ public class FormLayoutGenerator
 			if (typeNames.size() > 0)
 			{
 				writer.print(" svy-types='");
-				writer.print("{" + StringUtil.join(typeNames, ",") + "}");
+				writer.print("[" + StringUtil.join(typeNames, ",") + "]");
 				writer.print("'");
 			}
 		}
