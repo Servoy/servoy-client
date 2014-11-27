@@ -404,8 +404,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
+
 	@Override
 	public void closeSession()
+	{
+		this.closeSession(null);
+	}
+
+	public void closeSession(String redirectUrl)
 	{
 		if (client.getWebsocketSession() != null)
 		{
@@ -415,6 +421,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				Map<String, Object> detail = new HashMap<>();
 				String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
 				if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
+				if (redirectUrl != null) detail.put("redirectUrl", redirectUrl);
 				getService("$sessionService").executeAsyncServiceCall("expireSession", new Object[] { detail });
 			}
 			finally

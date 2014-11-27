@@ -683,6 +683,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					redirectUrl : $window.location.href
 			}
 			if(sessionExpired.viewUrl)	exp.viewUrl= sessionExpired.viewUrl;
+			if(sessionExpired.redirectUrl)	exp.redirectUrl= sessionExpired.redirectUrl;
 
 			$solutionSettings.sessionExpired = exp;
 			if (!$rootScope.$$phase) $rootScope.$digest();

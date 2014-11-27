@@ -34,6 +34,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
@@ -52,6 +53,7 @@ import com.servoy.j2db.util.ILogLevel;
 public class DebugNGClient extends NGClient implements IDebugClient
 {
 	private final IDesignerCallback designerCallback;
+	private Solution current;
 
 	/**
 	 * @param webSocketClientEndpoint
@@ -133,8 +135,27 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	@Override
 	public void setCurrent(Solution current)
 	{
-		// TODO Auto-generated method stub
+		this.current = current;
+		closeSolution(true, null);
+		getWebsocketSession().closeSession("/solutions/" + current.getName() + "/index.html");
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.NGClient#loadSolution(java.lang.String)
+	 */
+	@Override
+	public void loadSolution(String solutionName) throws RepositoryException
+	{
+		if (current == null || current.getName().equals(solutionName))
+		{
+			super.loadSolution(solutionName);
+		}
+		else if (getWebsocketSession() != null)
+		{
+			getWebsocketSession().closeSession(current != null ? "/solutions/" + current.getName() + "/index.html" : null);
+		}
 	}
 
 	@Override

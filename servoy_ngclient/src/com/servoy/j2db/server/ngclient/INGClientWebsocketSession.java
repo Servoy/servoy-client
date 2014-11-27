@@ -49,4 +49,6 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 	 * @param formName
 	 */
 	void formCreated(String formName);
+
+	void closeSession(String redirectUrl);
 }
