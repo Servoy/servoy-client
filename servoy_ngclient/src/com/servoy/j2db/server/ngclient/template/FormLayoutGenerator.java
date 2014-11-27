@@ -19,6 +19,9 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.List;
+
+import org.jsoup.helper.StringUtil;
 
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -130,10 +133,11 @@ public class FormLayoutGenerator
 			{
 				writer.print(" class='inherited_element'");
 			}
-			if (fe.getSvyTypesNames().size() > 0)
+			List<String> typeNames = fe.getSvyTypesNames();
+			if (typeNames.size() > 0)
 			{
 				writer.print(" svy-types='");
-				writer.print(fe.getSvyTypesNames());
+				writer.print("{" + StringUtil.join(typeNames, ",") + "}");
 				writer.print("'");
 			}
 		}
