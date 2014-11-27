@@ -1,4 +1,4 @@
-angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a component with handlers
+angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that window is a component with handlers
 .factory('$servoyWindowManager', ['$timeout', '$rootScope','$http','$q','$templateCache','$injector','$controller','$compile','WindowType',
                            function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {
 	var WM = new WindowManager();
@@ -361,7 +361,7 @@ angular.module('servoyWindowManager',[])	// TODO Refactor so that window is a co
 	DIALOG:0,
 	MODAL_DIALOG:1,
 	WINDOW:2
-}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal) {
+}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal,$sabloApplication) {
 
 	// these scope variables can be accessed by child scopes
 	// for example the default navigator watches 'win' to see if it changed the current form
