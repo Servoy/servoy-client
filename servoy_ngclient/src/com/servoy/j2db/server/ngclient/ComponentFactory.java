@@ -388,7 +388,7 @@ public class ComponentFactory
 				location.put("y", 0);
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
-				size.put("width", listViewPortal.isTableview() ? getGridWidth(form) : form.getWidth());
+				size.put("width", form.getWidth());
 				size.put("height", bodyheight);
 				portal.put("size", size);
 				portal.put("visible", listViewPortal.getVisible());
@@ -479,30 +479,6 @@ public class ComponentFactory
 		}
 
 		return rowHeight == 0 ? 20 : rowHeight;
-	}
-
-	private static int getGridWidth(Form form)
-	{
-		int rowWidth = 0;
-		Part part = getBodyPart(form);
-		int startPos = form.getPartStartYPos(part.getID());
-		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
-		{
-			IPersist persist = it.next();
-			if (persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (persist instanceof BaseComponent)
-			{
-				BaseComponent bc = (BaseComponent)persist;
-				Point location = bc.getLocation();
-				if (startPos <= location.y && endPos >= location.y)
-				{
-					rowWidth += bc.getSize().width + 0.5;//+borders
-				}
-			}
-		}
-		return rowWidth;
 	}
 
 	public static Part getBodyPart(Form form)
