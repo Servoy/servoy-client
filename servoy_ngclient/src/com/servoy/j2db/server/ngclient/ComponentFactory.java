@@ -384,9 +384,10 @@ public class ComponentFactory
 
 				portal.put("anchors", listViewPortal.isTableview() ? (IAnchorConstants.NORTH + IAnchorConstants.WEST + IAnchorConstants.SOUTH)
 					: IAnchorConstants.ALL);
+				boolean isInDesginer = (context.getApplication() != null && context.getApplication().isInDesigner());
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
-				location.put("y", 0);
+				location.put("y", isInDesginer ? startPos : 0);
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
 				size.put("width", listViewPortal.isTableview() ? getGridWidth(form) : form.getWidth());
