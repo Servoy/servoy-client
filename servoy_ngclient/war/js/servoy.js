@@ -219,43 +219,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			if (!scope) scope = $rootScope;
 			return [
 			        scope.$watch(toWatchA, function (newValue, oldValue, scope) {
-			        	var nV, oV;
-			        	
-			        	if(Object.prototype.toString.call(newValue) === "[object Date]") {
-			        		nV = newValue.getTime();
-			        	}
-			        	else {
-			        		nv = newValue;
-			        	}
-			        	
-			        	if(Object.prototype.toString.call(oldValue) === "[object Date]") {
-			        		oV = oldValue.getTime();
-			        	}
-			        	else {
-			        		oV = oldValue;
-			        	}
-			        	
+			        	var nV = (newValue instanceof Date) ? newValue.getTime() : newValue; 
+			        	var oV = (oldValue instanceof Date) ? oldValue.getTime() : oldValue;
 			        	if (nV !== oV) {
 			        		setB(newValue);	
 			        	}
 			        }, useObjectEquality),
 			        scope.$watch(toWatchB, function (newValue, oldValue, scope) {
-			        	var nV, oV;
-			        	
-			        	if(Object.prototype.toString.call(newValue) === "[object Date]") {
-			        		nV = newValue.getTime();
-			        	}
-			        	else {
-			        		nv = newValue;
-			        	}
-			        	
-			        	if(Object.prototype.toString.call(oldValue) === "[object Date]") {
-			        		oV = oldValue.getTime();
-			        	}
-			        	else {
-			        		oV = oldValue;
-			        	}
-			        	
+			        	var nV = (newValue instanceof Date) ? newValue.getTime() : newValue; 
+			        	var oV = (oldValue instanceof Date) ? oldValue.getTime() : oldValue;
 			        	if (nV !== oV) {
 			        		setA(newValue);	
 			        	}

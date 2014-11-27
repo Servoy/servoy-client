@@ -55,7 +55,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
         	x.format(dateFormat);
         	try {
         		 $element.off("change.dp",inputChanged);
-        		x.date(ngModel.$viewValue);
+        		 x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
         	}
         	finally {
         		$element.on("change.dp",inputChanged);
