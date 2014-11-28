@@ -493,7 +493,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				$scope.gridApi = gridApi;
 				$scope.gridApi.grid.registerDataChangeCallback(function() {
 					updateGridSelectionFromFoundset();
-				},uiGridConstants.dataChange.ROW);
+				},[uiGridConstants.dataChange.ROW]);
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
 					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
 				});
