@@ -465,7 +465,13 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					columnDefs: $scope.columnDefinitions,
 					rowHeight: $scope.rowHeight ? $scope.rowHeight : 20,
 					hideHeader:$scope.model.headerHeight == 0 || $scope.model.multiLine,
-					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight
+					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight,
+					rowIdentity: function(o) {
+						return o._svyRowId;
+					},
+					rowEquality: function(row1,row2) {
+						return row1._svyRowId == row2._svyRowId; 
+					}
 			};
 			
 			if ($scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
@@ -480,6 +486,9 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 			
 			$scope.gridOptions.onRegisterApi = function( gridApi ) {
 				$scope.gridApi = gridApi;
+				$scope.gridApi.grid.registerDataChangeCallback(function() {
+					updateGridSelectionFromFoundset();
+				},uiGridConstants.dataChange.ROW);
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
 					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
 				});
@@ -585,7 +594,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 
 			function linkHandlerToRowIdWrapper(handler, rowId) {
 				return function() {
-					$scope.gridApi.selection.selectRow(rowIdToViewportRelativeRowIndex(rowId)); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
+					var entity = $scope.foundset.viewPort.rows[rowIdToViewportRelativeRowIndex(rowId)]
+					$scope.gridApi.selection.selectRow(entity); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
 					updateFoundsetSelectionFromGrid($scope.gridApi.selection.getSelectedRows()); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
 					var recordHandler = handler.selectRecordHandler(rowId)
 					return recordHandler.apply(recordHandler, arguments);
