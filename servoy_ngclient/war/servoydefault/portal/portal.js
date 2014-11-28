@@ -70,16 +70,17 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				var elY = el.model.location.y - $scope.model.location.y;
 				var elX = el.model.location.x - $scope.model.location.x;
 				var columnTitle = el.model.text;
-				if (!columnTitle) {
-					// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
-					if (el.forFoundset && el.forFoundset.recordBasedProperties && el.forFoundset.recordBasedProperties.length > 0) {
-						columnTitle = el.forFoundset.recordBasedProperties[0];
-						if (columnTitle && columnTitle.indexOf('.') >= 0) {
-							columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
-						}
-					}
-					if (!columnTitle) columnTitle = "";
-				} 
+//				if (!columnTitle) {
+//					// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
+//					if (el.forFoundset && el.forFoundset.recordBasedProperties && el.forFoundset.recordBasedProperties.length > 0) {
+//						columnTitle = el.forFoundset.recordBasedProperties[0];
+//						if (columnTitle && columnTitle.indexOf('.') >= 0) {
+//							columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
+//						}
+//					}
+//					if (!columnTitle) columnTitle = "";
+//				}
+				if (!columnTitle) columnTitle = "";
 
 				var portal_svy_name = $element[0].getAttribute('data-svy-name');
 				var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
