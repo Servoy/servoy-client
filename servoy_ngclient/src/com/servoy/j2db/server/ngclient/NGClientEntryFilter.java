@@ -197,6 +197,8 @@ public class NGClientEntryFilter extends WebEntry
 									if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
 										fs.getLastModifiedTime())) return;
 
+									HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
+
 									boolean html = uri.endsWith(".html");
 									PrintWriter w = servletResponse.getWriter();
 //									if (!tableview && html && form.getLayoutGrid() != null)
