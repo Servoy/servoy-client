@@ -250,9 +250,14 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 			$scope.exScope.getMergedCellModel = function(ngGridRow, elementIndex) {
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				
+				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
+					return {}
+				}
+				
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 				var cellModel = cellProxies.mergedCellModel;
-
+				
 				if (!cellModel) {
 					var element = elements[elementIndex];
 
