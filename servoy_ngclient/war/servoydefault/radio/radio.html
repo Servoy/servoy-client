@@ -12,7 +12,7 @@
 	     ng-value="model.valuelistID[0].realValue"
 		 ng-disabled="model.enabled == false || model.editable == false"
 		 svy-margin="model.margin"
-		 id="{{model.svyMarkupId}}"
+		 id="{{::model.svyMarkupId}}"
 		 svy-tabseq='model.tabSeq'
 		 svy-click='handlers.onActionMethodID($event)'
      	 svy-focusgained='handlers.onFocusGainedMethodID($event)'

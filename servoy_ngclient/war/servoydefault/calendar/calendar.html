@@ -19,6 +19,6 @@
 	   ng-disabled="model.enabled == false"
 	   ng-readonly="model.editable == false"
        svy-horizontalalignment='model.horizontalAlignment'
-       id="{{model.svyMarkupId}}"/>
+       id="{{::model.svyMarkupId}}"/>
 	<span class="input-group-addon" style="padding:0;" ng-show="model.editable && model.enabled && !findMode"><span class="glyphicon glyphicon-calendar"></span></span>
 </div>

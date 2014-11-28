@@ -1,6 +1,6 @@
 <div svy-border='model.borderType'  
      svy-font='model.fontType' ng-class="model.styleClass" style="width:100%;height:100%"
-     id="{{model.svyMarkupId}}" svy-tabseq='model.tabSeq' svy-tabseq-config="{container: true, reservedGap: 50}">
+     id="{{::model.svyMarkupId}}" svy-tabseq='model.tabSeq' svy-tabseq-config="{container: true, reservedGap: 50}">
 	<bg-splitter orientation="{{ model.tabOrientation == -3 ? 'vertical' : 'horizontal' }}" on-divider-change="onChange()">
 		<bg-pane min-size="pane1MinSize">
 			<div ng-include="getForm(model.tabs[0])" svy-tabseq='1' svy-tabseq-config="{container: true}" style="position:absolute;width:100%;height:100%;overflow:auto;"></div>

@@ -7,7 +7,7 @@
 	 svy-horizontalalignment='model.horizontalAlignment'
 	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
 	 svy-tooltip='model.toolTipText' 
-	 id="{{model.svyMarkupId}}">
+	 id="{{::model.svyMarkupId}}">
   <label class='svy-check-radio'
          ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')"  
          svy-tooltip='model.toolTipText'

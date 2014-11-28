@@ -8,7 +8,7 @@
     	   svy-border='model.borderType'
     	   svy-background='model.transparent ? "transparent" : model.background'
     	   svy-foreground='model.foreground'
-		   svy-margin='model.margin' id="{{model.svyMarkupId}}" svy-tabseq='model.tabSeq'
+		   svy-margin='model.margin' id="{{::model.svyMarkupId}}" svy-tabseq='model.tabSeq'
 		   svy-click='handlers.onActionMethodID($event)'
      	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
      	   svy-focuslost='handlers.onFocusLostMethodID($event)'>
