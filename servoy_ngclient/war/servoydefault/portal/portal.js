@@ -262,6 +262,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					// if that happens, we need to then bind them two-way as well
 					if (!angular.isDefined(cellProxies.unwatchFuncs)) {
 						cellProxies.unwatchFuncs = [];
+					}
+					if (!angular.isDefined(cellProxies.propertyUnwatchFuncs)) {
 						cellProxies.propertyUnwatchFuncs = {};
 					}
 
