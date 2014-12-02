@@ -20,8 +20,8 @@ package com.servoy.j2db.dataprocessing;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
-import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
@@ -265,6 +265,22 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	public int js_getType()
 	{
 		return column.getDataProviderType();
+	}
+
+	/**
+	 * Get the raw JDBC type of the column, which allows to check database specific types, like sting/byte column type variations.
+	 *
+	 * @sample
+	 * var table = databaseManager.getTable('db:/example_data/orders')
+	 * var column = table.getColumn('customerid')
+	 * var sqlType = column.getSQLType();
+	 * 
+	 * @return int sql type.
+	 * @see java.sql.Types
+	 */
+	public int js_getSQLType()
+	{
+		return column.getType();
 	}
 
 	/**
