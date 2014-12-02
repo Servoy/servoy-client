@@ -790,10 +790,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return {userAgent:$window.navigator.userAgent,platform:$window.navigator.platform};
 		},
 		getUtcOffsetsAndLocale:function() {
-			// TODO this navigator.language is not really the correct language (its the browser installed language not the preferred language thats in the accept header)
-			// But chrome also doesn't send that header in the websocket request so we also can't get it from there: https://code.google.com/p/chromium/issues/detail?id=174956
-			// a hack could be: http://stackoverflow.com/questions/1043339/javascript-for-detecting-browser-language-preference
-			return {locale:$window.navigator.language?$window.navigator.language:$window.navigator.browserLanguage,utcOffset:(new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)};
+			return {locale:this.getLanguage(),utcOffset:(new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)};
+		},
+		getLanguage:function() {
+			// this returns first one of the languages array if the browser supports this (Chrome and FF) else it falls back to language or userLanguage (IE, and IE seems to return the right one from there) 
+			return navigator.languages? navigator.languages[0] : (navigator.language || navigator.userLanguage);
 		},
 		showInfoPanel: function(url,w,h,t,closeText)
 		{
@@ -827,8 +828,22 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	}
 	
 }])
-.run(function($window, $sabloApplication) {
+.run(function($window, $sabloApplication, $applicationService) {
 	$window.executeInlineScript = function(formname, script, params) {
 		$sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)
+	}
+	var language = $applicationService.getLanguage();
+	// fix that only nl-nl is added but not just nl
+	numeral.language('nl',numeral.languageData('nl-nl'));
+	try{ 
+		numeral.language(language);
+	} catch(e) {
+		var index = language.indexOf("-");
+		if (index != -1) {
+			try {
+				//try it with just the language part
+				numeral.language(language.substring(0,index));
+			} catch(e2) {}
+		}
 	}
 })
