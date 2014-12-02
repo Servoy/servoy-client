@@ -218,7 +218,7 @@ public class BaseSQLGenerator
 					{
 						case IColumnTypeConstants.INTEGER :
 						case IColumnTypeConstants.NUMBER :
-							Object initialObj = raw instanceof String ? data : raw;
+							Object initialObj = (raw instanceof String || raw instanceof String[]) ? data : raw;
 							Object objRightType = typeConverter.getAsRightType(dataProviderType, c.getFlags(), initialObj, formatString, c.getLength(), false);
 							// Now get asRightType with RAW and not with the string.
 							// Because if it is already a Number then it shouldn't be converted to String and then back
@@ -261,7 +261,7 @@ public class BaseSQLGenerator
 							{
 								// Now get asRightType with RAW and not with the string.
 								// Because if it is already a Date then it shouldn't be converted to String and then back
-								Object initialObj1 = ((raw instanceof String) ? data : raw);
+								Object initialObj1 = ((raw instanceof String || raw instanceof String[]) ? data : raw);
 								Object tst = typeConverter.getAsRightType(dataProviderType, c.getFlags(), initialObj1, formatString, c.getLength(), false);
 								if (tst == null && initialObj1 != null)
 								{
