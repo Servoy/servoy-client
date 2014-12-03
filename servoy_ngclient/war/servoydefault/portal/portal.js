@@ -418,8 +418,11 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				return cellProxies.cellServoyApi;
 			}
 
+			var updatingGridSelection = false;
+			
 			// bind foundset.selectedRowIndexes to what nggrid has to offer
 			function updateFoundsetSelectionFromGrid(newNGGridSelectedItems) {
+				if (updatingGridSelection) return;
 				if (newNGGridSelectedItems.length == 0 && $scope.model.relatedFoundset.serverSize > 0) return; // we shouldn't try to set no selection if there are records; it will be an invalid request as server doesn't allow that
 				// update foundset object selection when it changes in ngGrid
 				var tmpSelectedRowIdxs = {};
@@ -428,7 +431,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					if (!isRowIndexSelected(absRowIdx)) $scope.foundset.selectedRowIndexes.push(absRowIdx);
 					tmpSelectedRowIdxs['_' + absRowIdx] = true;
 				}
-				for (var idx = 0; idx < $scope.foundset.selectedRowIndexes.length; idx++) {
+				for (var idx = $scope.foundset.selectedRowIndexes.length-1; idx >= 0; idx--) {
 					if (!tmpSelectedRowIdxs['_' + $scope.foundset.selectedRowIndexes[idx]]) {
 						// here we also handle the case when in multiselect there are records selected outside of viewport
 						// in that case if CTRL was pressed then this $watch should not remove those records from selection
@@ -441,6 +444,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 			var updateGridSelectionFromFoundset = function() {
 				$scope.$evalAsync(function () { 
 					var rows = $scope.foundset.viewPort.rows;
+					updatingGridSelection = true;
 					if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
 						for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
 							var rowIdx = $scope.foundset.selectedRowIndexes[idx];
@@ -449,6 +453,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					} else if (rows.length > 0) {
 						$scope.gridApi.selection.selectRow(rows[0]);
 					}
+					updatingGridSelection = false;
 				});
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			};
@@ -459,6 +464,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					enableRowSelection: true,
 					enableRowHeaderSelection: false,
 					multiSelect: false,
+					modifierKeysToMultiSelect: true,
 					noUnselect: true,
 					enableColumnMoving : $scope.model.reorderable,
 					enableVerticalScrollbar: uiGridConstants.scrollbars.WHEN_NEEDED,
