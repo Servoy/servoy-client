@@ -119,7 +119,10 @@ public class WebFormUI extends Container implements IWebFormUI
 
 			WebFormComponent component = ComponentFactory.createComponent(getApplication(), dataAdapterList, fe, this);
 
-			counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
+			if (component != null)
+			{
+				counter = contributeComponentToElementsScope(elementsScope, counter, fe, componentSpec, component);
+			}
 		}
 
 		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
