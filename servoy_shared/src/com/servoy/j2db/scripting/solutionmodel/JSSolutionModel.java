@@ -1597,6 +1597,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 			List<JSRelation> relations = new ArrayList<JSRelation>();
 			Iterator<Relation> iterator = fs.getRelations(primaryTable, true, true);
+
 			while (iterator.hasNext())
 			{
 				Relation relation = iterator.next();
@@ -1604,6 +1605,40 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				{
 					relations.add(new JSRelation(relation, application, false));
 				}
+			}
+			return relations.toArray(new JSRelation[relations.size()]);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Gets an array of all relations.
+	 *
+	 * @sample
+	 * var relations = solutionModel.getRelations();
+	 * if (relations.length != 0)
+	 * 	for (var i in relations)
+	 * 		application.output(relations[i].name);
+	 *
+	 * @return an array of all relations (all elements in the array are of type JSRelation)
+	 */
+
+	@JSFunction
+	public JSRelation[] getAllRelations()
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+
+		try
+		{
+			List<JSRelation> relations = new ArrayList<JSRelation>();
+			Iterator<Relation> iterator = fs.getRelations(true);
+
+			while (iterator.hasNext())
+			{
+				relations.add(new JSRelation(iterator.next(), application, false));
 			}
 			return relations.toArray(new JSRelation[relations.size()]);
 		}

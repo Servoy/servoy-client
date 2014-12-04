@@ -25,7 +25,7 @@ import com.servoy.base.solutionmodel.IBaseSolutionModel;
 
 /**
  * Solution model java interface.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -34,8 +34,8 @@ public interface ISolutionModel extends IBaseSolutionModel
 {
 	/**
 	 * Creates a new ISMForm Object.
-	 * 
-	 * NOTE: See the ISMForm node for more information about form objects that can be added to the new form. 
+	 *
+	 * NOTE: See the ISMForm node for more information about form objects that can be added to the new form.
 	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'my_server', 'my_table', 'myStyleName', false, 800, 600)
@@ -53,22 +53,22 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 *
 	 * @param tableName the specified name of the table
 	 *
-	 * @param styleName the specified style  
+	 * @param styleName the specified style
 	 *
 	 * @param show_in_menu if true show the name of the new form in the menu; or false for not showing
 	 *
 	 * @param width the width of the form in pixels
 	 *
 	 * @param height the height of the form in pixels
-	 * 
+	 *
 	 * @return a new ISMForm object
 	 */
 	public ISMForm newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height);
 
 	/**
 	 * Creates a new ISMForm Object.
-	 * 
-	 * NOTE: See the ISMForm node for more information about form objects that can be added to the new form. 
+	 *
+	 * NOTE: See the ISMForm node for more information about form objects that can be added to the new form.
 	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/my_server/my_table', 'myStyleName', false, 800, 600)
@@ -82,21 +82,21 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 *
 	 * @param dataSource the specified name of the datasource for the specified table
 	 *
-	 * @param styleName the specified style  
+	 * @param styleName the specified style
 	 *
 	 * @param show_in_menu if true show the name of the new form in the menu; or false for not showing
 	 *
 	 * @param width the width of the form in pixels
 	 *
 	 * @param height the height of the form in pixels
-	 * 
+	 *
 	 * @return a new ISMForm object
 	 */
 	public ISMForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height);
 
 	/**
 	 * Creates a new form with the given ISMForm as its super form.
-	 * 
+	 *
 	 * @sample
 	 * //creates 2 forms with elements on them; shows the parent form, waits 2 seconds and shows the child form
 	 * var mySuperForm = solutionModel.newForm('mySuperForm', 'db:/my_server/my_table', null, false, 800, 600);
@@ -111,7 +111,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * label2.background = 'green';
 	 * forms['mySuperForm'].controller.recreateUI();
 	 * forms['mySubForm'].controller.show();
-	 * 	
+	 *
 	 * @param name The name of the new form
 	 * @param superForm the super form that will extended from, see ISMForm.setExtendsForm();
 	 * @return a new ISMForm object
@@ -119,9 +119,9 @@ public interface ISolutionModel extends IBaseSolutionModel
 	public ISMForm newForm(String name, ISMForm superForm);
 
 
-	/** 
+	/**
 	 * Creates a new JSForm Object.
-	 * 
+	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm')
 	 *
@@ -133,22 +133,22 @@ public interface ISolutionModel extends IBaseSolutionModel
 
 	/**
 	 * Gets the style specified by the given name.
-	 * 
+	 *
 	 * @sample
 	 * var style = solutionModel.getStyle('my_existing_style')
 	 * style.content = 'combobox { color: #0000ff;font: italic 10pt "Verdana";}'
-	 * 
+	 *
 	 * @param name the specified name of the style
-	 * 
+	 *
 	 * @return a ISMStyle
 	 */
 	public ISMStyle getStyle(String name);
 
 	/**
 	 * Creates a new style with the given css content string under the given name.
-	 * 
-	 * NOTE: Will throw an exception if a style with that name already exists.  
-	 * 
+	 *
+	 * NOTE: Will throw an exception if a style with that name already exists.
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm','db:/my_server/my_table',null,true,1000,800);
 	 * if (form.transparent == false)
@@ -161,9 +161,9 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * forms['myForm'].controller.show();
 	 *
 	 * @param name the name of the new style
-	 * 
+	 *
 	 * @param content the css content of the new style
-	 * 
+	 *
 	 * @return a ISMStyle object
 	 */
 	public ISMStyle newStyle(String name, String content);
@@ -171,7 +171,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Makes an exact copy of the given form and gives it the new name.
 	 *
-	 * @sample 
+	 * @sample
 	 * // get an existing form
 	 * var form = solutionModel.getForm("existingForm")
 	 * // make a clone/copy from it
@@ -183,8 +183,8 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 *
 	 * @param newName the new name for the form clone
 	 *
-	 * @param ISMForm the form to be cloned 
-	 * 
+	 * @param ISMForm the form to be cloned
+	 *
 	 * @return a ISMForm
 	 */
 	public ISMForm cloneForm(String newName, IBaseSMForm ISMForm);
@@ -197,7 +197,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * var field = solutionModel.getForm("formWithField").getField("fieldName");
 	 * // make a clone/copy of the field
 	 * var clone = solutionModel.cloneComponent("clonedField",field);
-	 * 
+	 *
 	 * @param newName the new name of the cloned component
 	 *
 	 * @param component the component to clone
@@ -219,49 +219,49 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * var clone = solutionModel.cloneComponent("clonedField",field,form);
 	 * // show it
 	 * forms["targetForm"].controller.show();
-	 * 
+	 *
 	 * @param newName the new name of the cloned component
 	 *
 	 * @param component the component to clone
 	 *
-	 * @param newParentForm the new parent form 
-	 * 
+	 * @param newParentForm the new parent form
+	 *
 	 * @return the exact copy of the given component
 	 */
 	public ISMComponent cloneComponent(String newName, IBaseSMComponent component, IBaseSMForm newParentForm);
 
 	/**
 	 * Removes the specified style.
-	 * 
+	 *
 	 * @sample
 	 * var s = solutionModel.newStyle("smStyle1",'form { background-color: yellow; }');
 	 * var status = solutionModel.removeStyle("smStyle1");
 	 * if (status == false) application.output("Could not remove style.");
 	 * else application.output("Style removed.");
-	 * 
+	 *
 	 * @param name the name of the style to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	public boolean removeStyle(String name);
 
 	/**
 	 * Removes the relation specified by name.
-	 * 
+	 *
 	 * @sample
 	 * var success = solutionModel.removeRelation('myRelation');
 	 * if (success) { application.output("Relation has been removed");}
 	 * else {application.output("Relation could not be removed");}
-	 * 
+	 *
 	 * @param name the name of the relation to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	public boolean removeRelation(String name);
 
 	/**
 	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.
-	 * 
+	 *
 	 * NOTE: Make sure you call history.remove first in your Servoy method (script) or call form.controller.recreateUI() before the script ends.
 	 *
 	 * @sample
@@ -273,7 +273,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * forms.myForm.controller.recreateUI();
 	 *
 	 * @param name the specified name of the form to revert
-	 * 
+	 *
 	 * @return an ISMForm object
 	 */
 	public ISMForm revertForm(String name);
@@ -287,7 +287,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * var styleName = myForm.styleName;
 	 *
 	 * @param name the specified name of the form
-	 * 
+	 *
 	 * @return a ISMForm
 	 */
 	public ISMForm getForm(String name);
@@ -300,8 +300,8 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * for (var i in forms)
 	 * 	application.output(forms[i].name)
 	 *
-	 * @param datasource the datasource or servername 
-	 * 
+	 * @param datasource the datasource or servername
+	 *
 	 * @return an array of ISMForm type elements
 	 */
 	public ISMForm[] getForms(String datasource);
@@ -314,10 +314,10 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * for (var i in forms)
 	 * 	application.output(forms[i].name)
 	 *
-	 * @param server the datasource or servername 
-	 * 
+	 * @param server the datasource or servername
+	 *
 	 * @param tablename the tablename
-	 * 
+	 *
 	 * @return an array of ISMForm type elements
 	 */
 	public ISMForm[] getForms(String server, String tablename);
@@ -345,7 +345,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
 	 *
 	 * @param dataSource table data source
-	 * 
+	 *
 	 * @return a ISMDataSourceNode
 	 */
 	public ISMDataSourceNode getDataSourceNode(String dataSource);
@@ -362,14 +362,14 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * //myLabel.imageMedia = myMedia
 	 *
 	 * @param name the specified name of the media object
-	 * 
+	 *
 	 * @return a ISMMedia element
 	 */
 	public ISMMedia getMedia(String name);
 
 	/**
 	 * Removes the media item specified by name.
-	 * 
+	 *
 	 * @sample
 	 * var bytes1 = plugins.file.readFile('D:/Imgs/image1.png');
 	 * var image1 = solutionModel.newMedia('image1.png', bytes1);
@@ -377,23 +377,23 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * var image2 = solutionModel.newMedia('image2.jpg',bytes2);
 	 * var bytes3 = plugins.file.readFile('D:/Imgs/image3.jpg');
 	 * var image3 = solutionModel.newMedia('image3.jpg',bytes3);
-	 * 
+	 *
 	 * var f = solutionModel.newForm("newForm",databaseManager.getDataSource('example_data', 'orders'),null,false,500,350);
 	 * var l = f.newLabel('', 20, 70, 300, 200);
 	 * l.imageMedia = image1;
 	 * forms["newForm"].controller.show();
-	 * 
+	 *
 	 * var status = solutionModel.removeMedia('image1.jpg');
 	 * if (status) application.output("image1.png has been removed");
 	 * else application.output("image1.png has not been removed");
-	 * 
+	 *
 	 * var mediaList = solutionModel.getMediaList();
 	 * for (var i = 0; i < mediaList.length; i++) {
 	 * 	application.output(mediaList[i].getName() + ":" + mediaList[i].mimeType);
 	 * }
-	 * 
+	 *
 	 * @param name the name of the media item to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	public boolean removeMedia(String name);
@@ -409,17 +409,17 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * //myLabel.imageMedia = myMedia
 	 *
 	 * @param name The name of the new media
-	 * 
+	 *
 	 * @param bytes The content
-	 * 
+	 *
 	 * @return a ISMMedia object
-	 *  
+	 *
 	 */
 	public ISMMedia newMedia(String name, byte[] bytes);
 
 	/**
 	 * Gets the list of all media objects.
-	 * 
+	 *
 	 * @sample
 	 * var mediaList = solutionModel.getMediaList();
 	 * if (mediaList.length != 0 && mediaList != null) {
@@ -427,9 +427,9 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * 		application.output(mediaList[x]);
 	 * 	}
 	 * }
-	 * 
+	 *
 	 * 	@return a list with all the media objects.
-	 * 	
+	 *
 	 */
 	public ISMMedia[] getMediaList();
 
@@ -442,23 +442,23 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * //myField.valuelist = myValueList
 	 *
 	 * @param name the specified name of the valuelist
-	 * 
+	 *
 	 * @return a ISMValueList object
 	 */
 	public ISMValueList getValueList(String name);
 
 	/**
 	 * Removes the specified valuelist.
-	 * 
+	 *
 	 * @sample
 	 * var vlName = "customValueList";
 	 * var vl = solutionModel.newValueList(vlName,IBaseSMValueList.CUSTOM_VALUES);
 	 * vl.customValues = "customvalue1\ncustomvalue2";
-	 * 
+	 *
 	 * var status = solutionModel.removeValueList(vlName);
 	 * if (status) application.output("Removal has been done.");
 	 * else application.output("ValueList not removed.");
-	 * 
+	 *
 	 * var vls = solutionModel.getValueLists();
 	 * if (vls != null) {
 	 * 	for (var i = 0; i < vls.length; i++) {
@@ -466,10 +466,10 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * 	}
 	 * 	application.output("");
 	 * }
-	 * 
-	 * 
+	 *
+	 *
 	 * @param name name of the valuelist to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	public boolean removeValueList(String name);
@@ -477,12 +477,12 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Gets an array of all valuelists for the currently active solution.
 	 *
-	 * @sample 
+	 * @sample
 	 * var valueLists = solutionModel.getValueLists();
 	 * if (valueLists != null && valueLists.length != 0)
 	 * 	for (var i in valueLists)
-	 * 		application.output(valueLists[i].name); 
-	 * 
+	 * 		application.output(valueLists[i].name);
+	 *
 	 * @return an array of ISMValueList objects
 	 */
 	public ISMValueList[] getValueLists();
@@ -505,26 +505,26 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * @param name the specified name for the valuelist
 	 *
 	 * @param type the specified number type for the valuelist; may be ISMValueList.CUSTOM_VALUES, ISMValueList.DATABASE_VALUES, ISMValueList.EMPTY_VALUE_ALWAYS, ISMValueList.EMPTY_VALUE_NEVER
-	 * 
+	 *
 	 * @return a ISMValueList object
 	 */
 	public ISMValueList newValueList(String name, int type);
 
 	/**
 	 * Creates a new global variable with the specified name and number type.
-	 * 
+	 *
 	 * NOTE: The global variable number type is based on the value assigned from the SolutionModel-ISMVariable node; for example: IBaseSMVariable.INTEGER.
 	 *
-	 * @sample 
-	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', IBaseSMVariable.INTEGER); 
+	 * @sample
+	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', IBaseSMVariable.INTEGER);
 	 * myGlobalVariable.defaultValue = 12;
 	 *	//myGlobalVariable.defaultValue = "{a:'First letter',b:'Second letter'}"
 	 *
 	 * @param scopeName the scope in which the variable is created
-	 * @param name the specified name for the global variable 
+	 * @param name the specified name for the global variable
 	 *
 	 * @param type the specified number type for the global variable
-	 * 
+	 *
 	 * @return a ISMVariable object
 	 */
 	public ISMVariable newGlobalVariable(String scopeName, String name, int type);
@@ -532,27 +532,27 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Gets an existing global variable by the specified name.
 	 *
-	 * @sample 
+	 * @sample
 	 * var globalVariable = solutionModel.getGlobalVariable('globals', 'globalVariableName');
 	 * application.output(globalVariable.name + " has the default value of " + globalVariable.defaultValue);
-	 * 
+	 *
 	 * @param scopeName the scope in which the variable is searched
 	 * @param name the specified name of the global variable
-	 * 
-	 * @return a ISMVariable 
+	 *
+	 * @return a ISMVariable
 	 */
 	public ISMVariable getGlobalVariable(String scopeName, String name);
 
 	/**
 	 * Gets an array of all global variables.
-	 * 
+	 *
 	 * @sample
 	 * var globalVariables = solutionModel.getGlobalVariables('globals');
 	 * for (var i in globalVariables)
 	 * 	application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
-	 * 
+	 *
 	 * @return an array of ISMVariable type elements
-	 * 
+	 *
 	 */
 	public ISMVariable[] getGlobalVariables();
 
@@ -561,7 +561,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * @sampleas getGlobalVariables()
 	 * @see #getGlobalVariables()
 	 * @param scopeName limit to global vars of specified scope name
-	 * 
+	 *
 	 * @return an array of ISMVariable type elements
 	 */
 	public ISMVariable[] getGlobalVariables(String scopeName);
@@ -570,12 +570,12 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Creates a new global method with the specified code in a scope.
 	 *
-	 * @sample 
+	 * @sample
 	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){foundset.newRecord()}')
 	 *
 	 * @param scopeName the scope in which the method is created
 	 * @param code the specified code for the global method
-	 * 
+	 *
 	 * @return a ISMMethod object
 	 */
 	public ISMMethod newGlobalMethod(String scopeName, String code);
@@ -583,13 +583,13 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Gets an existing global method by the specified name.
 	 *
-	 * @sample 
-	 * var method = solutionModel.getGlobalMethod('globals', 'nameOfGlobalMethod'); 
+	 * @sample
+	 * var method = solutionModel.getGlobalMethod('globals', 'nameOfGlobalMethod');
 	 * if (method != null) application.output(method.code);
-	 * 
+	 *
 	 * @param scopeName the scope in which the method is searched
 	 * @param name the name of the specified global method
-	 * 
+	 *
 	 * @return a ISMMethod
 	 */
 	public ISMMethod getGlobalMethod(String scopeName, String name);
@@ -597,7 +597,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Get a ISMMethod instance with arguments to be assigned to an event.
 	 *
-	 * @sample 
+	 * @sample
 	 * var str = "John's Bookstore"
 	 * var form = solutionModel.getForm('orders')
 	 * var button = form.getButton('abutton')
@@ -606,25 +606,25 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * var quotedString = "'"+utils.stringReplace(str, "'", "\\'")+"'"
 	 * // list all arguments the method has, use nulls for fixed arguments (like event)
 	 * button.onAction = solutionModel.wrapMethodWithArguments(method, [null, true, 42, quotedString])
-	 * 
+	 *
 	 * @param method ISMMethod to be assigned to an event
-	 * 
+	 *
 	 * @param args positional arguments
-	 * 
+	 *
 	 * @return a ISMMethod
 	 */
 	public ISMMethod wrapMethodWithArguments(IBaseSMMethod method, Object... args);
 
 	/**
 	 * The list of all global methods.
-	 * 
+	 *
 	 * @sample
-	 * var methods = solutionModel.getGlobalMethods('globals'); 
-	 * for (var x in methods) 
+	 * var methods = solutionModel.getGlobalMethods('globals');
+	 * for (var x in methods)
 	 * 	application.output(methods[x].getName());
-	 * 
+	 *
 	 * @return an array of ISMMethod type elements
-	 * 
+	 *
 	 */
 	public ISMMethod[] getGlobalMethods();
 
@@ -640,9 +640,9 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Creates a new ISMRelation Object with a specified name; includes the primary datasource, foreign datasource and the type of join for the new relation.
 	 *
-	 * @sample 
+	 * @sample
 	 * var rel = solutionModel.newRelation('myRelation', myPrimaryDataSource, myForeignDataSource, IBaseSMRelation.INNER_JOIN);
-	 * application.output(rel.getRelationItems()); 
+	 * application.output(rel.getRelationItems());
 	 *
 	 * @param name the specified name of the new relation
 	 *
@@ -651,23 +651,23 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * @param foreignDataSource the specified name of the foreign datasource
 	 *
 	 * @param joinType the type of join for the new relation; IBaseSMRelation.INNER_JOIN, IBaseSMRelation.LEFT_OUTER_JOIN
-	 * 
+	 *
 	 * @return a ISMRelation object
 	 */
 	public ISMRelation newRelation(String name, String primaryDataSource, String foreignDataSource, int joinType);
 
 	/**
 	 * Gets an existing relation by the specified name and returns a ISMRelation Object.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var relation = solutionModel.getRelation('name');
 	 * application.output("The primary server name is " + relation.primaryServerName);
-	 * application.output("The primary table name is " + relation.primaryTableName); 
-	 * application.output("The foreign table name is " + relation.foreignTableName); 
+	 * application.output("The primary table name is " + relation.primaryTableName);
+	 * application.output("The foreign table name is " + relation.foreignTableName);
 	 * application.output("The relation items are " + relation.getRelationItems());
-	 * 
+	 *
 	 * @param name the specified name of the relation
-	 * 
+	 *
 	 * @return a ISMRelation
 	 */
 	public ISMRelation getRelation(String name);
@@ -675,14 +675,14 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * Gets an array of all relations; or an array of all global relations if the specified table is NULL.
 	 *
-	 * @sample 
+	 * @sample
 	 * var relations = solutionModel.getRelations('server_name','table_name');
 	 * if (relations.length != 0)
 	 * 	for (var i in relations)
 	 * 		application.output(relations[i].name);
 	 *
 	 * @param datasource the specified name of the datasource for the specified table
-	 * 
+	 *
 	 * @return an array of all relations (all elements in the array are of type ISMRelation)
 	 */
 
@@ -694,10 +694,24 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * @see #getRelations(String)
 	 * @param servername the specified name of the server for the specified table
 	 * @param tablename the specified name of the table
-	 * 
+	 *
 	 * @return an array of all relations (all elements in the array are of type ISMRelation)
 	 */
 	public ISMRelation[] getRelations(String servername, String tablename);
+
+
+	/**
+	 * Gets an array of all relations.
+	 *
+	 * @sample
+	 * var relations = solutionModel.getAllRelations();
+	 * if (relations.length != 0)
+	 * 	for (var i in relations)
+	 * 		application.output(relations[i].name);
+	 *
+	 * @return an array of all relations (all elements in the array are of type ISMRelation)
+	 */
+	public ISMRelation[] getAllRelations();
 
 	/**
 	 * Create a page format string.
@@ -706,7 +720,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS);
-	 * 
+	 *
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.
 	 * @param leftmargin the specified left margin of the page to be printed.
@@ -749,55 +763,55 @@ public interface ISolutionModel extends IBaseSolutionModel
 
 	/**
 	 * Create a font string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * var component = form.getComponent("someComponent")
 	 * component.fontType = solutionModel.createFont('Arial',SM_FONTSTYLE.BOLD,14);
-	 * 
+	 *
 	 * @param name the name of the font
 	 * @param style the style of the font (PLAIN, BOLD, ITALIC or BOLD+ITALIC)
 	 * @param size the font size
-	 * 
+	 *
 	 */
 	public String createFont(String name, int style, int size);
 
 	/**
 	 * Create an empty border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createEmptyBorder(1,1,1,1);
-	 *  
+	 *
 	 * @param top_width top width of empty border in pixels
 	 * @param right_width right width of empty border in pixels
 	 * @param bottom_width bottom width of empty border in pixels
 	 * @param left_width left width of empty border in pixels
-	 * 
+	 *
 	 */
 	public String createEmptyBorder(int top_width, int right_width, int bottom_width, int left_width);
 
 	/**
 	 * Create an etched border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createEtchedBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
-	 * 
+	 *
 	 * @param bevel_type bevel border type
 	 * @param highlight_color bevel border highlight color
 	 * @param shadow_color bevel border shadow color
-	 * 
+	 *
 	 */
 	public String createEtchedBorder(int bevel_type, String highlight_color, String shadow_color);
 
 	/**
 	 * Create a bevel border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createBevelBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00','#ff0000','#00ff00');
-	 * 
+	 *
 	 * @param bevel_type bevel border type (SM_BEVELTYPE.RAISED or SM_BEVELTYPE.LOWERED)
 	 * @param highlight_outer_color bevel border highlight outer color
 	 * @param highlight_inner_color bevel border highlight inner color
@@ -809,59 +823,59 @@ public interface ISolutionModel extends IBaseSolutionModel
 
 	/**
 	 * Create a line border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createLineBorder(1,'#ff0000');
-	 *  
+	 *
 	 * @param thick border thickness in pixels
 	 * @param color color of the line border
-	 * 
+	 *
 	 */
 	public String createLineBorder(int thick, String color);
 
 	/**
 	 * Create a titled border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createTitledBorder('Test',solutionModel.createFont('Arial',SM_FONTSTYLE.PLAIN,10),'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
-	 * 
+	 *
 	 * @param title_text the text from border
 	 * @param font title text font string
 	 * @param color border color
 	 * @param title_justification title text justification
 	 * @param title_position bevel title text position
-	 * 
+	 *
 	 */
 	public String createTitledBorder(String title_text, String font, String color, int title_justification, int title_position);
 
 	/**
 	 * Create a matte border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * form.borderType = solutionModel.createMatteBorder(1,1,1,1,"#00ff00");
-	 *  
+	 *
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
 	 * @param bottom_width bottom width of matte border in pixels
 	 * @param left_width left width of matte border in pixels
 	 * @param color border color
-	 * 
+	 *
 	 */
 	public String createMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String color);
 
 	/**
 	 * Create a special matte border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * // create a rectangle border (no rounded corners) and continous line
 	 * form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",0,null);
 	 * // create a border with rounded corners and dashed line (25 pixels drawn, then 25 pixels skipped)
 	 * // form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",10,new Array(25,25));
-	 * 
+	 *
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
 	 * @param bottom_width bottom width of matte border in pixels
@@ -878,7 +892,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 
 	/**
 	 * Create a special matte border string.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * // create a rectangle border (no rounded corners) and continous line
@@ -886,7 +900,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * // create a border with rounded corners and dashed line (25 pixels drawn, then 25 pixels skipped)
 	 * // rounding_radius is an array of up to 8 numbers, order is: top-left,top-right,bottom-right,bottom-left (repetead twice - for width and height)
 	 * // form.borderType = solutionModel.createSpecialMatteBorder(1,1,1,1,"#00ff00","#00ff00","#00ff00","#00ff00",new Array(10,10,10,10),new Array(25,25));
-	 * 
+	 *
 	 * @param top_width top width of matte border in pixels
 	 * @param right_width right width of matte border in pixels
 	 * @param bottom_width bottom width of matte border in pixels
