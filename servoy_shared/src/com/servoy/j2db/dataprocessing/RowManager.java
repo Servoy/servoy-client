@@ -66,7 +66,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Manager for rows from one table
- * 
+ *
  * @author jblok
  */
 public class RowManager implements IModificationListener, IFoundSetEventListener
@@ -340,7 +340,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			cachedRow = getCachedRow(pkHashKey);
 		}
 		Row rowData = cachedRow.getLeft();
-		if (rowData != null && action != ISQLActionTypes.INSERT_ACTION) // in case of rawSQL insert & notify, insertColumnDataOrChangedColumns is null, so the row corresponding to the pk was taken from DB and cached 
+		if (rowData != null && action != ISQLActionTypes.INSERT_ACTION) // in case of rawSQL insert & notify, insertColumnDataOrChangedColumns is null, so the row corresponding to the pk was taken from DB and cached
 		{
 			if (action == ISQLActionTypes.DELETE_ACTION)
 			{
@@ -509,7 +509,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				Debug.error(new RuntimeException(
 					"Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-						" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$ 
+						" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 			}
 
 			long time = System.currentTimeMillis();
@@ -585,7 +585,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			RowEvent e = new RowEvent(this, r, eventType, changedColumns);
 
-			// First copy it to a array list for concurrent mod...			
+			// First copy it to a array list for concurrent mod...
 			Object[] array = null;
 			synchronized (listeners)
 			{
@@ -607,7 +607,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			RowEvent e = new RowEvent(this, row, RowEvent.PK_UPDATED, oldKeyHash);
 
-			// First copy it to a array list for concurrent mod...			
+			// First copy it to a array list for concurrent mod...
 			Object[] array = null;
 			synchronized (listeners)
 			{
@@ -633,7 +633,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			if (adjustingForChangeByOtherPKHashKey.get() != null && adjustingForChangeByOtherPKHashKey.get().equals(row.getPKHashKey()))
 			{
 				row.flagExistInDB();
-				//we ignore changes here because stored calc with time element are always changed,resulting in endlessloop between clients 
+				//we ignore changes here because stored calc with time element are always changed,resulting in endlessloop between clients
 				return null;
 			}
 
@@ -667,7 +667,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				List<String> old = sqlDesc.getOldRequiredDataProviderIDs();
 
 				Object[] olddata = row.getRawOldColumnData();
-				if (olddata == null)//for safety only, nothing changed 
+				if (olddata == null)//for safety only, nothing changed
 				{
 					return null;
 				}
@@ -963,7 +963,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	/**
 	 * Returns the sheet.
-	 * 
+	 *
 	 * @return SQLSheet
 	 */
 	SQLSheet getSQLSheet()
@@ -1038,6 +1038,17 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 		}
 		fireNotifyChange(src, r, null, RowEvent.DELETE);
+	}
+
+	void clearRow(Row r)
+	{
+		if (r != null)
+		{
+			synchronized (this)
+			{
+				pkRowMap.remove(r.getPKHashKey());
+			}
+		}
 	}
 
 	boolean lockedByMyself(Row r)
@@ -1673,7 +1684,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	/**
 	 * Fire calcs depending on dataproviders.
-	 * 
+	 *
 	 * @param pkHashKey
 	 * @param dataProviderId, null for all
 	 */
@@ -1684,7 +1695,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	/**
 	 * Fire calcs depending on dataproviders.
-	 * 
+	 *
 	 * @param pkHashKey
 	 * @param dataProviderId, null for all
 	 */

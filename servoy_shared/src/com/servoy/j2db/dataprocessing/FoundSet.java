@@ -4004,6 +4004,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// really remove the state from the edited records, can't be saved at all anymore after delete.
 				fsm.getEditRecordList().removeEditedRecord(state);
 			}
+			else
+			{
+				rowManager.clearRow(state.getRawData());
+			}
 		}
 		if (!(state instanceof PrototypeState))
 		{
@@ -5879,7 +5883,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
