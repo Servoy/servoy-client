@@ -19,6 +19,8 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
@@ -79,17 +81,16 @@ public class FormLayoutStructureGenerator
 			writer.print(container.getElementId());
 			writer.print("' ");
 		}
-		if (container.getStyle() != null)
+		Map<String, String> attributes = container.getAttributes();
+		if (attributes != null)
 		{
-			writer.print("style='");
-			writer.print(container.getStyle());
-			writer.print("' ");
-		}
-		if (container.getCssClasses() != null)
-		{
-			writer.print("class='");
-			writer.print(container.getCssClasses());
-			writer.print("' ");
+			for (Entry<String, String> entry : attributes.entrySet())
+			{
+				writer.print(entry.getKey());
+				writer.print("='");
+				writer.print(entry.getValue());
+				writer.print("'");
+			}
 		}
 		writer.println(">");
 
