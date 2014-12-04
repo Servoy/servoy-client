@@ -122,19 +122,18 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * Create a new layout container. The location is used to determine the generated order in html markup.
 	 *
 	 * @sample
-	 * var container = form.newLayoutContainer('col-md-4',0,0);
-	 * @param cssClasses css classes used for layout
+	 * var container = form.newLayoutContainer(0,0);
 	 * @param x location x
 	 * @param y location y
 	 * @return the new layout container
 	 */
 	@JSFunction
-	public JSLayoutContainer newLayoutContainer(String cssClasses, int x, int y)
+	public JSLayoutContainer newLayoutContainer(int x, int y)
 	{
 		checkModification();
 		try
 		{
-			LayoutContainer layoutContainer = getContainer().createNewLayoutContainer(cssClasses);
+			LayoutContainer layoutContainer = getContainer().createNewLayoutContainer();
 			layoutContainer.setLocation(new Point(x, y));
 			return application.getScriptEngine().getSolutionModifier().createLayoutContainer((IJSParent)this, layoutContainer);
 		}

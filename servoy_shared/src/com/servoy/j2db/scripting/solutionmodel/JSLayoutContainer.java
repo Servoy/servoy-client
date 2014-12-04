@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Point;
 
+import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
@@ -132,6 +133,34 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 	{
 		checkModification();
 		layoutContainer.setCssClasses(cssClasses);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getAttribute()
+	 *
+	 * @sample
+	 * layoutContainer.getAttribute('class');
+	 */
+	@JSFunction
+	public String getAttribute(String name)
+	{
+		return layoutContainer.getAttribute(name);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#putAttribute()
+	 *
+	 * @sample
+	 * layoutContainer.putAttribute('class','container fluid');
+	 *
+	 * @param key
+	 * @param value
+	 */
+	@JSFunction
+	public void putAttribute(String name, String value)
+	{
+		checkModification();
+		layoutContainer.putAttribute(name, value);
 	}
 
 	/**

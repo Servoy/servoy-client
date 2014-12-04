@@ -18,6 +18,8 @@
 package com.servoy.j2db.persistence;
 
 import java.awt.Point;
+import java.util.Collections;
+import java.util.Map;
 import java.util.List;
 
 import com.servoy.j2db.util.PersistHelper;
@@ -27,6 +29,7 @@ import com.servoy.j2db.util.UUID;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 public class LayoutContainer extends AbstractContainer implements ISupportBounds
 {
 	protected LayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
@@ -87,7 +90,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 
 	public void setCssClasses(String cls)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS, cls);
+		putAttribute("class", cls);
 	}
 
 	/**
@@ -95,12 +98,12 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	 */
 	public String getCssClasses()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CSSCLASS);
+		return getAttribute("class");
 	}
 
 	public void setStyle(String style)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLE, style);
+		putAttribute("style", style);
 	}
 
 	/**
@@ -108,7 +111,46 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	 */
 	public String getStyle()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLE);
+		return getAttribute("style");
+	}
+
+	/**
+	 * returns the attribute value of the given attribute name.
+	 * these attributes will be generated on the tag.
+	 *
+	 * @param name
+	 * @return the value of the attribute
+	 */
+	public String getAttribute(String name)
+	{
+		Object value = getCustomProperty(new String[] { "attributes", name });
+		if (value instanceof String) return (String)value;
+		return null;
+	}
+
+	/**
+	 * sets an attribute value for the given name that will be generated on this layout containers html tag.
+	 *
+	 * @param name
+	 * @param value
+	 */
+	public void putAttribute(String name, String value)
+	{
+		putCustomProperty(new String[] { "attributes", name }, value);
+	}
+
+	/**
+	 *
+	 */
+	public Map<String, String> getAttributes()
+	{
+		Object customProperty = getCustomProperty(new String[] { "attributes" });
+		if (customProperty instanceof Map)
+		{
+			return Collections.unmodifiableMap((Map<String, String>)customProperty);
+		}
+		return Collections.emptyMap();
+
 	}
 
 	@Override
