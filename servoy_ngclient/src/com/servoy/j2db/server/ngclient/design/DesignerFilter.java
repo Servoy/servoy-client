@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -80,6 +81,38 @@ public class DesignerFilter implements Filter
 				{
 					JSONWriter jsonWriter = new JSONWriter(servletResponse.getWriter());
 					jsonWriter.array();
+					// first add all the layout containers.
+					Map<String, List<WebComponentSpecification>> layoutSpecifications = provider.getLayoutSpecifications();
+					for (Entry<String, List<WebComponentSpecification>> entry : layoutSpecifications.entrySet())
+					{
+						jsonWriter.object();
+						jsonWriter.key("packageName").value(entry.getKey());
+						jsonWriter.key("components");
+						jsonWriter.array();
+
+						for (WebComponentSpecification spec : entry.getValue())
+						{
+							jsonWriter.object();
+							jsonWriter.key("name").value(spec.getName());
+							jsonWriter.key("displayName").value(spec.getDisplayName());
+							jsonWriter.key("tagName").value("div"); //TODO is this configurable by the spec
+							Map<String, Object> model = new HashMap<String, Object>();
+							PropertyDescription pd = spec.getProperty("size");
+							if (pd != null && pd.getDefaultValue() != null)
+							{
+								model.put("size", pd.getDefaultValue());
+							}
+							jsonWriter.key("model").value(new JSONObject(model));
+							if (spec.getIcon() != null)
+							{
+								jsonWriter.key("icon").value(spec.getIcon());
+							}
+							jsonWriter.endObject();
+						}
+
+						jsonWriter.endArray();
+						jsonWriter.endObject();
+					}
 					Set<String> packageNames = provider.getPackageNames();
 					ArrayList<String> orderedPackageNames = new ArrayList<>();
 					for (String packName : packageNames)
