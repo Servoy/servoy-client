@@ -8,7 +8,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "dataProviderID" : { "type" :"dataprovider", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback", "parsehtml":true }}, 
+	        "dataProviderID" : { "type" :"dataprovider", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}, "parsehtml":true }, 
 	        "enabled" : {"type":"boolean", "default":true}, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
