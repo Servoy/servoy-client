@@ -18,7 +18,6 @@
 package com.servoy.j2db.persistence;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -47,32 +46,10 @@ public class FlattenedPortal extends Portal implements IFlattenedPersistWrapper<
 	private void fill()
 	{
 		internalClearAllObjects();
-		List<Portal> portals = new ArrayList<Portal>();
-		List<Integer> existingIDs = new ArrayList<Integer>();
-		Portal currentPortal = portal;
-		while (currentPortal != null && !portals.contains(currentPortal))
+		List<IPersist> children = PersistHelper.getHierarchyChildren(portal);
+		for (IPersist child : children)
 		{
-			portals.add(currentPortal);
-			currentPortal = (Portal)PersistHelper.getSuperPersist(currentPortal);
-		}
-		for (Portal temp : portals)
-		{
-			for (IPersist child : temp.getAllObjectsAsList())
-			{
-				Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
-				if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
-				{
-					if (PersistHelper.isOverrideOrphanElement((ISupportExtendsID)child))
-					{
-						continue;
-					}
-					internalAddChild(child);
-				}
-				if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
-				{
-					existingIDs.add(extendsID);
-				}
-			}
+			internalAddChild(child);
 		}
 	}
 

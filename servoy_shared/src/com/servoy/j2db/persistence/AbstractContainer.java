@@ -323,16 +323,20 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		return obj;
 	}
 
+	public List<IPersist> getHierarchyChildren()
+	{
+		return getAllObjectsAsList();
+	}
+
 	/**
 	 * @return
 	 */
 	public List<IFormElement> getFlattenedObjects(Comparator< ? > comparator)
 	{
 		List<IFormElement> flattenedPersists = new ArrayList<IFormElement>();
-		Iterator<IPersist> it = getAllObjects();
-		while (it.hasNext())
+		List<IPersist> children = getHierarchyChildren();
+		for (IPersist persist : children)
 		{
-			IPersist persist = it.next();
 			if (persist instanceof LayoutContainer)
 			{
 				flattenedPersists.addAll(((LayoutContainer)persist).getFlattenedObjects(comparator));
@@ -344,5 +348,4 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		}
 		return new SortedList<IFormElement>(comparator, flattenedPersists);
 	}
-
 }

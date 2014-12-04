@@ -33,7 +33,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
-import com.servoy.j2db.util.PersistUtils;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -2040,7 +2040,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	@Override
 	public Map<String, Object> getFlattenedPropertiesMap()
 	{
-		return PersistUtils.getFlattenedPropertiesMap(this);
+		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
 }

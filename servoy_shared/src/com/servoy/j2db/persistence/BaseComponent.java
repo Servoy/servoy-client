@@ -22,7 +22,7 @@ import java.util.Map;
 
 import com.servoy.base.persistence.IBaseComponent;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.util.PersistUtils;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 
@@ -406,7 +406,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	@Override
 	public Map<String, Object> getFlattenedPropertiesMap()
 	{
-		return PersistUtils.getFlattenedPropertiesMap(this);
+		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
 }

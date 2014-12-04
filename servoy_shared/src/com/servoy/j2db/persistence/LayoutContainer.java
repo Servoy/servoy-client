@@ -18,7 +18,9 @@
 package com.servoy.j2db.persistence;
 
 import java.awt.Point;
+import java.util.List;
 
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -107,5 +109,11 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	public String getStyle()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLE);
+	}
+
+	@Override
+	public List<IPersist> getHierarchyChildren()
+	{
+		return PersistHelper.getHierarchyChildren(this);
 	}
 }

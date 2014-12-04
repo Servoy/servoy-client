@@ -48,7 +48,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 
 /**
  * Helper class to the repository model persist side
- * 
+ *
  * @author jblok
  */
 public class PersistHelper
@@ -774,7 +774,7 @@ public class PersistHelper
 			if (tk.hasMoreTokens()) family = tk.nextToken();
 			family = HtmlUtils.getValidFontFamilyValue(family);
 
-			Pair<String, String> fam = new Pair<String, String>("font-family", family + ", Verdana, Arial"); //$NON-NLS-1$ //$NON-NLS-2$ 
+			Pair<String, String> fam = new Pair<String, String>("font-family", family + ", Verdana, Arial"); //$NON-NLS-1$ //$NON-NLS-2$
 			Pair<String, String> size = new Pair<String, String>("font-size", isize + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 			Pair<String, String> italic = null;
 			Pair<String, String> bold = null;
@@ -797,7 +797,7 @@ public class PersistHelper
 
 	/**
 	 * Get highest super persist.
-	 * 
+	 *
 	 * @param persist
 	 * @return
 	 */
@@ -915,5 +915,63 @@ public class PersistHelper
 			superPersist = getSuperPersist((ISupportExtendsID)superPersist);
 		}
 		return overrideHierarchy;
+	}
+
+	public static List<IPersist> getHierarchyChildren(AbstractBase parent)
+	{
+		if (parent instanceof ISupportExtendsID)
+		{
+			List<IPersist> children = new ArrayList<IPersist>();
+			List<AbstractBase> parentHierarchy = new ArrayList<AbstractBase>();
+			List<Integer> existingIDs = new ArrayList<Integer>();
+			AbstractBase element = parent;
+			while (element != null && !parentHierarchy.contains(element))
+			{
+				parentHierarchy.add(element);
+				element = (AbstractBase)PersistHelper.getSuperPersist((ISupportExtendsID)element);
+			}
+			for (AbstractBase temp : parentHierarchy)
+			{
+				for (IPersist child : temp.getAllObjectsAsList())
+				{
+					Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
+					if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
+					{
+						if (PersistHelper.isOverrideOrphanElement((ISupportExtendsID)child))
+						{
+							// some deleted element
+							continue;
+						}
+						children.add(child);
+					}
+					if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
+					{
+						existingIDs.add(extendsID);
+					}
+				}
+			}
+			return children;
+		}
+		else
+		{
+			return parent.getAllObjectsAsList();
+		}
+
+	}
+
+	/**
+	 * Similar to {@link AbstractBase#getPropertiesMap()}, but takes into account persist inheritance.
+	 * @param extendable a persist which could be inherit from another.
+	 * @return the map of property values collected from the persist's hierarchy chain.
+	 */
+	public static Map<String, Object> getFlattenedPropertiesMap(ISupportExtendsID extendable)
+	{
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy(extendable);
+		for (int i = hierarchy.size() - 1; i >= 0; i--)
+		{
+			map.putAll(hierarchy.get(i).getPropertiesMap());
+		}
+		return map;
 	}
 }

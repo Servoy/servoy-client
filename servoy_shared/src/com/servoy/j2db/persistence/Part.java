@@ -25,7 +25,7 @@ import com.servoy.base.persistence.IBasePart;
 import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.util.PersistUtils;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 
@@ -457,7 +457,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	@Override
 	public Map<String, Object> getFlattenedPropertiesMap()
 	{
-		return PersistUtils.getFlattenedPropertiesMap(this);
+		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
 }

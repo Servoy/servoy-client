@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.persistence;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -46,33 +45,10 @@ public class FlattenedTabPanel extends TabPanel implements IFlattenedPersistWrap
 	private void fill()
 	{
 		internalClearAllObjects();
-		List<TabPanel> panels = new ArrayList<TabPanel>();
-		List<Integer> existingIDs = new ArrayList<Integer>();
-		TabPanel panel = tabPanel;
-		while (panel != null && !panels.contains(panel))
+		List<IPersist> children = PersistHelper.getHierarchyChildren(tabPanel);
+		for (IPersist child : children)
 		{
-			panels.add(panel);
-			panel = (TabPanel)PersistHelper.getSuperPersist(panel);
-		}
-		for (TabPanel temp : panels)
-		{
-			for (IPersist child : temp.getAllObjectsAsList())
-			{
-				Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
-				if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
-				{
-					if (PersistHelper.isOverrideOrphanElement((ISupportExtendsID)child))
-					{
-						// some deleted element
-						continue;
-					}
-					internalAddChild(child);
-				}
-				if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
-				{
-					existingIDs.add(extendsID);
-				}
-			}
+			internalAddChild(child);
 		}
 	}
 
