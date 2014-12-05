@@ -25,7 +25,7 @@
 	        "resizeble" : "boolean", 
 	        "rowBGColorCalculation" : "string", 
 	        "rowHeight" : "int", 
-	        "scrollbars" : {"type" :"int", "scope" :"design"}, 
+	        "scrollbars" : {"type" :"scrollbars", "scope" :"design"}, 
 	        "showHorizontalLines" : "boolean", 
 	        "showVerticalLines" : "boolean", 
 	        "size" : {"type" :"dimension",  "default" : {"width":200, "height":200}}, 

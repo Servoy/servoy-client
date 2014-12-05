@@ -20,7 +20,7 @@
 	        "margin" : {"type" :"insets", "scope" :"design"}, 
 	        "multiselectListbox" : "boolean", 
 	        "placeholderText" : "tagstring", 
-	        "scrollbars" : {"type" :"int", "scope" :"design"}, 
+	        "scrollbars" : {"type" :"scrollbars", "scope" :"design"}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":140}}, 
 	        "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :["form-control", "input-sm", "svy-padding-xs"]}, 
 	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
