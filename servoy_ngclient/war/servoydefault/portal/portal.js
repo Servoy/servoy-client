@@ -135,7 +135,10 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					scope.columnDefinitions[idx].visible = scope.model.childElements[idx].model.visible;
 				}, false);
 				scope.$watch('model.childElements[' + idx + '].model.size.width', function (newVal, oldVal) {
-					scope.columnDefinitions[idx].width = scope.model.childElements[idx].model.size.width;
+					if(newVal != oldVal)
+					{
+						scope.columnDefinitions[idx].width = scope.model.childElements[idx].model.size.width;
+					}
 				}, false);
 			}
 

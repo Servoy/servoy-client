@@ -47,6 +47,7 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -366,6 +367,7 @@ public class ComponentFactory
 				int startPos = form.getPartStartYPos(bodyPart.getID());
 				int endPos = bodyPart.getHeight();
 				int bodyheight = endPos - startPos;
+				boolean fillsWidth = fillsWidth(form);
 
 				JSONObject portal = new JSONObject();
 				portal.put("name", name);
@@ -382,15 +384,15 @@ public class ComponentFactory
 					portal.put("headerHeight", headerHeight);
 				}
 
-				portal.put("anchors", listViewPortal.isTableview() ? (IAnchorConstants.NORTH + IAnchorConstants.WEST + IAnchorConstants.SOUTH)
-					: IAnchorConstants.ALL);
+				portal.put("anchors", listViewPortal.isTableview() ? (fillsWidth ? IAnchorConstants.ALL
+					: (IAnchorConstants.NORTH + IAnchorConstants.WEST + IAnchorConstants.SOUTH)) : IAnchorConstants.ALL);
 				boolean isInDesginer = (context.getApplication() != null && context.getApplication().isInDesigner());
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
 				location.put("y", isInDesginer ? startPos : 0);
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
-				size.put("width", listViewPortal.isTableview() ? getGridWidth(form) : form.getWidth());
+				size.put("width", (listViewPortal.isTableview() && !fillsWidth) ? getGridWidth(form) : form.getWidth());
 				size.put("height", bodyheight);
 				portal.put("size", size);
 				portal.put("visible", listViewPortal.getVisible());
@@ -505,6 +507,31 @@ public class ComponentFactory
 			}
 		}
 		return rowWidth;
+	}
+
+	private static boolean fillsWidth(Form form)
+	{
+		if ((form.getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
+		{
+			Part part = getBodyPart(form);
+			int startPos = form.getPartStartYPos(part.getID());
+			int endPos = part.getHeight();
+			Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+			while (it.hasNext())
+			{
+				IPersist persist = it.next();
+				if (persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+				if (persist instanceof BaseComponent)
+				{
+					BaseComponent bc = (BaseComponent)persist;
+					if ((bc.getAnchors() & (IAnchorConstants.WEST + IAnchorConstants.EAST)) == (IAnchorConstants.WEST + IAnchorConstants.EAST))
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	public static Part getBodyPart(Form form)
