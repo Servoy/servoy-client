@@ -413,7 +413,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 //			}
 
 			clientConversionInfo.pushNode(entry.getKey());
-			FullValueToJSONConverter.INSTANCE.toJSONValue(w, dataProvider, value, pd, clientConversionInfo, webObject);
+			FullValueToJSONConverter.INSTANCE.toJSONValue(w, entry.getKey(), value, pd, clientConversionInfo, webObject);
 			clientConversionInfo.popNode();
 		}
 	}
