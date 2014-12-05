@@ -727,7 +727,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 .factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope) {
 	var showDefaultLoginWindow = function() {
 			$modal.open({
-        	  templateUrl: '/templates/login.html',
+        	  templateUrl: 'templates/login.html',
          	  controller: 'LoginController',
        	      windowClass: 'login-window',
       	      backdrop: 'static',
