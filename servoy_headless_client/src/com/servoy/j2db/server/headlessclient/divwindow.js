@@ -102,7 +102,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	show: function() {
 		this.closed = false;
 		this._super.show.call(this);
-		
+
 		// initialize bounds
 		this.refreshBounds(true);
 	},
@@ -255,7 +255,10 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	},
 	
 	// override
-	close: function(force) {
+	close: function(force) { 
+		if(this.isIframe()) {
+			this.content.src = 'about:blank'; // for IE bug : on next show of the iframe, input elements can't be focused 
+		}
 		// make a copy of open windows, cause we will iterate on it while possibly closing some windows
 		var allWindows = new Array();
 		for (var w in Wicket.DivWindow.openWindows) {
