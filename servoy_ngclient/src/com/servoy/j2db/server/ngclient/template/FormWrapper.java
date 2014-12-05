@@ -202,7 +202,7 @@ public class FormWrapper
 		properties.put("designSize", form.getSize());
 		removeUnneededFormProperties(properties);
 
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null).endObject().toString(); // null types as we don't have a spec file for forms
+		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

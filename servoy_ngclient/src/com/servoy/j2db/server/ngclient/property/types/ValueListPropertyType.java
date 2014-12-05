@@ -55,7 +55,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class ValueListPropertyType implements IConvertedPropertyType<ValueListPropertySabloValue>,
-	IFormElementToSabloComponent<Object, ValueListPropertySabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object>
+	IFormElementToSabloComponent<Object, ValueListPropertySabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListPropertySabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -115,7 +115,8 @@ public class ValueListPropertyType implements IConvertedPropertyType<ValueListPr
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ValueListPropertySabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, ValueListPropertySabloValue sabloValue, DataConversion clientConversion,
+		IDataConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -196,9 +197,9 @@ public class ValueListPropertyType implements IConvertedPropertyType<ValueListPr
 	}
 
 	@Override
-	public boolean isLinkedToData(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
-		return true;
+		return TargetDataLinks.LINKED_TO_ALL;
 	}
 
 }

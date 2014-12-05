@@ -182,7 +182,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Assert.assertEquals(1, changes.content.size());
 
-		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType);
+		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null);
 
 		Assert.assertEquals(
 			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"tabs\":\"JSON_arr\"}}",
@@ -212,7 +212,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
-		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType);
+		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
 		Assert.assertEquals(
 			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"conversions\":{\"atype\":\"JSON_obj\"}}",
 			json);
@@ -243,7 +243,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
-		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType);
+		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
 		Assert.assertEquals("{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
 	}
 }

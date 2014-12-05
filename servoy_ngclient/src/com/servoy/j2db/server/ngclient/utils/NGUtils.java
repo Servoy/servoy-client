@@ -17,10 +17,20 @@
 
 package com.servoy.j2db.server.ngclient.utils;
 
+import org.json.JSONException;
+import org.json.JSONString;
+import org.json.JSONStringer;
+import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
+import org.sablo.specification.property.types.DoublePropertyType;
+import org.sablo.specification.property.types.LongPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.websocket.IToJSONWriter;
+import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
@@ -29,9 +39,11 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
-import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
+import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 
 /**
  * Utility methods for NGClient.
@@ -41,16 +53,27 @@ import com.servoy.j2db.util.Debug;
 public abstract class NGUtils
 {
 
-	public static final PropertyDescription DATAPROVIDER_PD = new PropertyDescription("some dp", DataproviderPropertyType.INSTANCE, new DataproviderConfig(
-		null, null, null, false));
+	public static final PropertyDescription DATE_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (date)",
+		TypesRegistry.getType(DatePropertyType.TYPE_NAME));
+	public static final PropertyDescription MEDIA_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (media)",
+		TypesRegistry.getType(ByteArrayResourcePropertyType.TYPE_NAME));
+	public static final PropertyDescription INTEGER_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (int)",
+		TypesRegistry.getType(LongPropertyType.TYPE_NAME));
+	public static final PropertyDescription NUMBER_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (number)",
+		TypesRegistry.getType(DoublePropertyType.TYPE_NAME));
+	public static final PropertyDescription TEXT_PARSEHTML_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (text/ph)",
+		TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME), Boolean.TRUE);
+	public static final PropertyDescription TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (text/nph)",
+		TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME), Boolean.FALSE);
 
-	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table)
+	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table, boolean parseHTML)
 	{
 		if (table == null || dataProviderName == null) return null;
-		return getDataProviderPropertyDescription(table.getColumnType(dataProviderName));
+		return getDataProviderPropertyDescription(table.getColumnType(dataProviderName), parseHTML);
 	}
 
-	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, FlattenedSolution flattenedSolution, Form form, ITable table)
+	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, FlattenedSolution flattenedSolution, Form form, ITable table,
+		boolean parseHTMLIfString)
 	{
 		FormAndTableDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(flattenedSolution, form, table);
 		IDataProvider dp = null;
@@ -62,38 +85,68 @@ public abstract class NGUtils
 		{
 			Debug.error(e);
 		}
-		if (dp != null) return getDataProviderPropertyDescription(dp.getDataProviderType());
+		if (dp != null) return getDataProviderPropertyDescription(dp.getDataProviderType(), parseHTMLIfString);
 		return null;
 	}
 
-	public static PropertyDescription getDataProviderPropertyDescription(int type)
+	public static PropertyDescription getDataProviderPropertyDescription(int type, boolean parseHTMLIfString)
 	{
-		// column/var types might be needed in the future when DataproviderPropertyType is more aware of them
-		IPropertyType< ? > propType = null;
-		if (type == IColumnTypes.DATETIME)
+		PropertyDescription typePD = null;
+		switch (type)
 		{
-			propType = TypesRegistry.getType(DatePropertyType.TYPE_NAME);
+			case IColumnTypes.DATETIME :
+				typePD = DATE_DATAPROVIDER_CACHED_PD;
+				break;
+			case IColumnTypes.MEDIA :
+				typePD = MEDIA_DATAPROVIDER_CACHED_PD;
+				break;
+			case IColumnTypes.INTEGER :
+				typePD = INTEGER_DATAPROVIDER_CACHED_PD;
+				break;
+			case IColumnTypes.NUMBER :
+				typePD = NUMBER_DATAPROVIDER_CACHED_PD;
+				break;
+			case IColumnTypes.TEXT :
+			{
+				if (parseHTMLIfString) typePD = TEXT_PARSEHTML_DATAPROVIDER_CACHED_PD;
+				else typePD = TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD;
+				break;
+			}
+			default :
+				break;
 		}
-//		else if (type == IColumnTypes.MEDIA)
-//		{
-//			// this is byte array, not url or int media type (so media from repo which would be MediaPropertyType)
-////			propType = TypesRegistry.getType(MediaPropertyType.TYPE_NAME);
-//		}
-//		else if (type == IColumnTypes.INTEGER)
-//		{
-//			propType = TypesRegistry.getType(LongPropertyType.TYPE_NAME);
-//		}
-//		else if (type == IColumnTypes.NUMBER)
-//		{
-//			propType = TypesRegistry.getType(DoublePropertyType.TYPE_NAME);
-//		}
-//		else if (type == IColumnTypes.TEXT)
-//		{
-//			propType = TypesRegistry.getType(StringPropertyType.TYPE_NAME);
-//		}
 
-		// TODO in the future all will probably be DATAPROVIDER_PD but type-aware ones; for now DataproviderPropertyType for example doesn't handle correctly dates
-		return propType != null ? new PropertyDescription("generated DP prop", propType) : DATAPROVIDER_PD;
+		return typePD;
+	}
+
+	public static String formChangesToString(Container formUI, IToJSONConverter converter) throws JSONException
+	{
+		JSONStringer w = new JSONStringer();
+		DataConversion conversions = new DataConversion();
+		w.object();
+		formUI.writeAllComponentsChanges(w, "changes", converter, conversions);
+		JSONUtils.writeClientConversions(w, conversions);
+		w.endObject();
+		return w.toString();
+	}
+
+	public static String formComponentPropetiesToString(IWebFormUI formUI, IToJSONConverter converter) throws JSONException
+	{
+		JSONStringer w = new JSONStringer();
+		w.object();
+		formUI.writeAllComponentsProperties(w, converter);
+		w.endObject();
+		return w.toString();
+	}
+
+	// TODO this can be moved to JSONUtils if we remove the "Pair" dependency
+	public static Pair<JSONString, DataConversion> writeToJSONString(IToJSONWriter toJSONWriter, IToJSONConverter converter) throws JSONException
+	{
+		EmbeddableJSONWriter rowData = new EmbeddableJSONWriter();
+		DataConversion clientConversionInfo = new DataConversion();
+
+		toJSONWriter.writeJSONContent(rowData, null, converter, clientConversionInfo);
+		return new Pair<JSONString, DataConversion>(rowData, clientConversionInfo);
 	}
 
 }

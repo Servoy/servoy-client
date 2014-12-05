@@ -48,7 +48,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue> implements
 	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
 	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
-	IDataLinkedType<JSONObject>
+	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>
 {
 
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
@@ -102,7 +102,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion,
+		IDataConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -113,7 +114,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion,
+		IDataConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -136,9 +138,9 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public boolean isLinkedToData(JSONObject formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(JSONObject formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
-		return true;
+		return TargetDataLinks.LINKED_TO_ALL;
 	}
 
 }

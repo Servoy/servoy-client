@@ -77,7 +77,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object object, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object object, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException
 	{
 		Map<String, Object> map = new HashMap<>();
 		try
@@ -129,6 +130,6 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 		{
 			Debug.error(ex);
 		}
-		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion, null);
 	}
 }

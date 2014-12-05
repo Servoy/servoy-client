@@ -116,15 +116,7 @@ public class RuntimeWebComponent implements Scriptable
 		if (specProperties != null && specProperties.contains(name))
 		{
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
-			if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
-			{
-				return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
-			}
-			else
-			{
-				Object value = component.getConvertedPropertyWithDefault(name, pd.getType() instanceof DataproviderPropertyType, true);
-				return DesignConversion.toStringObject(value, pd.getType());
-			}
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 		}
 		Function func = apiFunctions.get(name);
 		if (func != null)

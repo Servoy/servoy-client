@@ -37,6 +37,7 @@ import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.ComponentContext;
@@ -212,7 +213,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(allProps);
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 		destinationJSON.object();
-		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType);
+		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType, childComponent);
 		destinationJSON.endObject();
 
 		// viewport content
@@ -247,7 +248,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 			destinationJSON.object();
 			// send component model (when linked to foundset only props that are not record related)
-			JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType);
+			JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType, childComponent);
 			destinationJSON.endObject();
 		}
 
@@ -262,28 +263,23 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			// viewPortChanges.size() > 0
 			{
 				List<RowData> viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
-				Map<String, Object> vpChanges = new HashMap<>();
-				PropertyDescription vpChangeTypes = null;
 				Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
+				DataConversion clientConversionInfo = new DataConversion();
 
-				vpChanges.put(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changesArray);
+				clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY);
+				destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY).array();
 
-				PropertyDescription changeArrayTypes = AggregatedPropertyType.newAggregatedProperty();
-				for (int i = viewPortChanges.size() - 1; i >= 0; i--)
+				for (int i = 0; i < viewPortChanges.size(); i++)
 				{
-					TypedData<Map<String, Object>> rowTypedData = viewPortChanges.get(i).toMap();
-					changesArray[i] = rowTypedData.content;
-					if (rowTypedData.contentType != null) changeArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
+					clientConversionInfo.pushNode(String.valueOf(i));
+					viewPortChanges.get(i).writeJSONContent(destinationJSON, null, FullValueToJSONConverter.INSTANCE, clientConversionInfo);
+					clientConversionInfo.popNode();
 				}
+				clientConversionInfo.popNode();
+				destinationJSON.endArray();
 
-				if (changeArrayTypes.hasChildProperties())
-				{
-					vpChangeTypes = AggregatedPropertyType.newAggregatedProperty();
-					vpChangeTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY, changeArrayTypes);
-				}
-
-				// convert for websocket traffic (for example Date objects will turn into long)
-				JSONUtils.writeDataWithConversions(destinationJSON, vpChanges, vpChangeTypes);
+				// conversion info for websocket traffic (for example Date objects will turn into long)
+				JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 
 			}
 			viewPortChangeMonitor.clearChanges();
@@ -309,19 +305,17 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
 
-			TypedData<List<Map<String, Object>>> rowsArray = viewPortChangeMonitor.getRowDataProvider().getRowData(foundsetPropertyViewPort.getStartIndex(),
-				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset());
+			DataConversion clientConversionInfo = new DataConversion();
 
-			Map<String, Object> viewPort = new HashMap<>();
-			PropertyDescription viewPortTypes = null;
-			viewPort.put(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.content);
-			if (rowsArray.contentType != null && rowsArray.contentType.hasChildProperties())
-			{
-				viewPortTypes = AggregatedPropertyType.newAggregatedProperty();
-				viewPortTypes.putProperty(ComponentPropertyType.MODEL_VIEWPORT_KEY, rowsArray.contentType);
-			}
-			// convert for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeDataWithConversions(destinationJSON, viewPort, viewPortTypes);
+			destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_KEY);
+			clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_KEY);
+			viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
+				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON,
+				clientConversionInfo);
+			clientConversionInfo.popNode();
+
+			// conversion info for websocket traffic (for example Date objects will turn into long)
+			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 		}
 	}
 
@@ -427,7 +421,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 								args[j] = jsargs.get(j);
 							}
 
-							childComponent.executeEvent(eventType, args); // TODO
+							childComponent.executeEvent(eventType, args); // TODO HANDLE RETURN VALUE
 						}
 					}
 				}
@@ -574,7 +568,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		else
 		{
 			Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName + "' to value '" +
-				value + " of component: " + childComponent + ". Record not found.", new RuntimeException());
+				value + "' of component: " + childComponent + ". Record not found.", new RuntimeException());
 		}
 	}
 }

@@ -59,7 +59,8 @@ public class DatasetPropertyType implements IConvertedPropertyType<IDataSet>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, IDataSet value, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, IDataSet value, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (value == null)
 		{
@@ -77,7 +78,7 @@ public class DatasetPropertyType implements IConvertedPropertyType<IDataSet>
 			}
 		}
 
-		return JSONUtils.toBrowserJSONFullValue(writer, key, array, null, clientConversion);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, array, null, clientConversion, null);
 	}
 
 	@Override

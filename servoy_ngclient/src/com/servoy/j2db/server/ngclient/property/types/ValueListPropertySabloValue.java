@@ -149,7 +149,7 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion) throws IllegalArgumentException, JSONException
 	{
 		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
-		JSONUtils.toBrowserJSONFullValue(writer, key, getJavaValueForJSON(), null, clientConversion);
+		JSONUtils.toBrowserJSONFullValue(writer, key, getJavaValueForJSON(), null, clientConversion, null);
 	}
 
 	private void revertFilter()

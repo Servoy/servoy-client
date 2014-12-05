@@ -18,13 +18,13 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.websocket.TypedData;
+import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -37,46 +37,44 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 public abstract class ViewportRowDataProvider
 {
 
-	protected abstract void populateRowData(IRecordInternal record, String columnName, Map<String, Object> data, PropertyDescription dataTypes);
+	protected abstract void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException;
 
-	protected TypedData<Map<String, Object>> getRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset)
+	protected void writeRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
+		throws JSONException
 	{
-		Map<String, Object> data = new HashMap<>();
-		PropertyDescription dataTypes = AggregatedPropertyType.newAggregatedProperty();
-
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
-		data.put(FoundsetTypeSabloValue.ROW_ID_COL_KEY, record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
+		w.object().key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
 
-		populateRowData(record, columnName, data, dataTypes);
+		populateRowData(record, columnName, w, clientConversionInfo);
 
-		if (!dataTypes.hasChildProperties()) dataTypes = null;
-		return new TypedData<Map<String, Object>>(data, dataTypes);
+		w.endObject();
 	}
 
-	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex, IFoundSetInternal foundset)
+	protected void writeRowData(int startIndex, int endIndex, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
+		throws JSONException
 	{
-		return getRowData(startIndex, endIndex, null, foundset);
+		writeRowData(startIndex, endIndex, null, foundset, w, clientConversionInfo);
 	}
 
-	protected TypedData<List<Map<String, Object>>> getRowData(int startIndex, int endIndex, String columnName, IFoundSetInternal foundset)
+	protected void writeRowData(int startIndex, int endIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
+		throws JSONException
 	{
+		w.array();
 		List<Map<String, Object>> rows = new ArrayList<>();
 		PropertyDescription rowTypes = null;
 		int size = foundset.getSize();
 		int end = Math.min(size - 1, endIndex);
 		if (startIndex <= end)
 		{
-			rowTypes = AggregatedPropertyType.newAggregatedProperty();
 			for (int i = startIndex; i <= endIndex; i++)
 			{
-				TypedData<Map<String, Object>> tmp = getRowData(i, columnName, foundset);
-				rows.add(tmp.content);
-				if (tmp.contentType != null) rowTypes.putProperty(String.valueOf(rows.size() - 1), tmp.contentType);
+				clientConversionInfo.pushNode(String.valueOf(i - startIndex));
+				writeRowData(i, columnName, foundset, w, clientConversionInfo);
+				clientConversionInfo.popNode();
 			}
-			if (!rowTypes.hasChildProperties()) rowTypes = null;
 		}
-		return new TypedData<>(rows, rowTypes);
+		w.endArray();
 	}
 
 }

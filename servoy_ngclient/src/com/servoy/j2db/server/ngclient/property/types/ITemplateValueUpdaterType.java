@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IPropertyConverter;
 import org.sablo.websocket.utils.DataConversion;
 
@@ -51,6 +52,7 @@ public interface ITemplateValueUpdaterType<T> extends IPropertyConverter<T>
 	 * @return the writer for cascaded usage.
 	 * @throws JSONException if a JSON exception happens.
 	 */
-	JSONWriter initialToJSON(JSONWriter writer, String key, T sabloValue, DataConversion clientConversion) throws JSONException;
+	JSONWriter initialToJSON(JSONWriter writer, String key, T sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException;
 
 }

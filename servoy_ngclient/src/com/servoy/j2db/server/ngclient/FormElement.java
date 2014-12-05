@@ -530,7 +530,7 @@ public final class FormElement implements IWebComponentInitializer
 		{
 			propertyWriter.object();
 			JSONUtils.writeDataWithConversions(new FormElementToJSON(getDataConverterContext()), propertyWriter, propertiesTypedData.content,
-				propertiesTypedData.contentType);
+				propertiesTypedData.contentType, null);
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)
@@ -595,11 +595,6 @@ public final class FormElement implements IWebComponentInitializer
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{

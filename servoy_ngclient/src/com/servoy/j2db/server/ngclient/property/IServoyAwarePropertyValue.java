@@ -26,15 +26,17 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 /**
  * Complex properties that are to be used within Servoy beans - interested in Servoy specific behavior.
  *
- * Usually this value's property type implements {@link IDataLinkedType}.
+ * This value's property type must implement {@link IDataLinkedType}. Depending on how that interface is implemented, {@link #dataProviderOrRecordChanged(IRecordInternal, String, boolean, boolean, boolean)}
+ * gets called when any dataProvider changes or only when one dataProvider changes.
  *
  * @author acostescu
+ * @see IDataLinkedType
  */
 public interface IServoyAwarePropertyValue extends ISmartPropertyValue
 {
 
 	/**
-	 * Called when the record a component is bound to changes or when a data-provider changes for the component's context. (can be a global variable, form variable, record...)<br/>
+	 * Called when the record a component is bound to changes or when a data-provider (see also {@link IDataLinkedType#getDataLinks(Object, org.sablo.specification.PropertyDescription, com.servoy.j2db.FlattenedSolution, com.servoy.j2db.server.ngclient.FormElement)}) changes for the component's context. (can be a global variable, form variable, record...)<br/><br/>
 	 * It can only be called after {@link ISmartPropertyValue#attachToComponent(org.sablo.IChangeListener, org.sablo.WebComponent)}<br/><br/>
 	 *
 	 * Note: you can use the DataAdapterList provided by {@link IFormElementToSabloComponent#toSabloComponentValue(Object, org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent, com.servoy.j2db.server.ngclient.DataAdapterList)} in your type in order to handle all these parameters correctly.

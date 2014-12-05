@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
+import org.json.JSONString;
 import org.sablo.services.FormServiceHandler;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -196,7 +196,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 	}
 
 	@Override
-	protected JSONStringer requestData(String formName) throws JSONException
+	protected JSONString requestData(String formName) throws JSONException
 	{
 		getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 		return super.requestData(formName);

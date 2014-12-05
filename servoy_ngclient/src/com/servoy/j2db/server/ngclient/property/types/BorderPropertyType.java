@@ -224,10 +224,11 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Border value, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Border value, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException
 	{
 		Map<String, Object> javaResult = writeBorderToJson(value);
-		return JSONUtils.toBrowserJSONFullValue(writer, key, javaResult, null, clientConversion);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, javaResult, null, clientConversion, null);
 	}
 
 	private Map<String, Object> writeBorderToJson(Border value)
@@ -414,7 +415,7 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Border formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers);
+		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}
 
 	@Override

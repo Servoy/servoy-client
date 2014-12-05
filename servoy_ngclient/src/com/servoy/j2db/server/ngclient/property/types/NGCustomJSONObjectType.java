@@ -32,6 +32,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.DataConverterContext;
+import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -137,10 +138,10 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareMap<SabloT, SabloWT> changeAwareMap, DataConversion conversionMarkers)
-		throws JSONException
+	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareMap<SabloT, SabloWT> changeAwareMap, DataConversion conversionMarkers,
+		IDataConverterContext dataConverterContext) throws JSONException
 	{
-		return toJSON(writer, key, changeAwareMap, conversionMarkers, true, InitialToJSONConverter.INSTANCE);
+		return toJSON(writer, key, changeAwareMap, conversionMarkers, true, InitialToJSONConverter.INSTANCE, dataConverterContext.getWebObject());
 	}
 
 	@Override

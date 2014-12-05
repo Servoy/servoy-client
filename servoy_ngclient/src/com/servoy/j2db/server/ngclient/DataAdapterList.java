@@ -1,7 +1,6 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,13 +11,11 @@ import java.util.WeakHashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.types.TypesRegistry;
 
-import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
@@ -36,10 +33,12 @@ import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScopesScope;
-import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
-import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -49,16 +48,19 @@ import com.servoy.j2db.util.Text;
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
 	private final Map<String, Map<WebFormComponent, List<String>>> dataProviderToComponentWithTags = new HashMap<>();
-	private final Map<String, List<Pair<WebFormComponent, String>>> recordDataproviderToComponent = new HashMap<>();
-	protected final List<WebFormComponent> dataAwareComponents = new ArrayList<WebFormComponent>();
 
-	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
+	// properties that are interested in a specific dataproviderID chaning
+	protected final Map<String, List<Pair<WebFormComponent, String>>> dataProviderToLinkedComponentProperty = new HashMap<>(); // dataProviderID -> [(comp, propertyName)]
+
+	// all data-linked properties - contains 'dataProviderToLinkedComponentProperty' as well as other ones that are interested in any DP change
+	protected final List<Pair<WebFormComponent, String>> allComponentPropertiesLinkedToData = new ArrayList<>(); // [(comp, propertyName), ...]
+
 	private final IWebFormController formController;
 	private final EventExecutor executor;
 	private final WeakHashMap<IWebFormController, String> relatedForms = new WeakHashMap<>();
 
 	private IRecordInternal record;
-	private boolean findMode;
+//	private boolean findMode;
 	private boolean settingRecord;
 
 	private boolean isFormScopeListener;
@@ -87,18 +89,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
 		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
-		return RhinoConversion.convert(jsRetVal, null, null, null);
+		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
 	}
-
-//	@Override
-//	public Object invokeApi(WebComponentApiDefinition apiDefinition, String componentName, Object[] args)
-//	{
-//		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
-//		INGClientWebsocketSession clientSession = getApplication().getWebsocketSession();
-//		Form form = formController.getForm();
-//		clientSession.touchForm(form, formController.getName(), false);
-//		return clientSession.invokeApi(apiDefinition, formController.getName(), componentName, args);
-//	}
 
 	@Override
 	public Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs)
@@ -130,14 +122,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return decryptedScript != null ? formController.eval(decryptedScript) : null;
 	}
 
-	public void add(WebFormComponent component, Map<String, String> hm)
-	{
-		for (Entry<String, String> entry : hm.entrySet())
-		{
-			add(component, entry.getKey(), entry.getValue());
-		}
-	}
-
 	public void addRelatedForm(IWebFormController form, String relation)
 	{
 		form.setParentFormController(formController);
@@ -162,32 +146,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
 			isGlobalScopeListener = true;
 		}
-	}
-
-	public void add(WebFormComponent component, String recordDataProvider, String beanDataProvider)
-	{
-		String dp = recordDataProvider;
-		if (dp.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
-		{
-			dp = ScriptVariable.SCOPES_DOT_PREFIX + dp;
-		}
-		List<Pair<WebFormComponent, String>> list = recordDataproviderToComponent.get(dp);
-		if (list == null)
-		{
-			list = new ArrayList<Pair<WebFormComponent, String>>();
-			recordDataproviderToComponent.put(dp, list);
-		}
-//		recordAwareComponents.add(component);
-		list.add(new Pair<WebFormComponent, String>(component, beanDataProvider));
-
-		Map<String, String> map = beanToDataHolder.get(component.getFormElement());
-		if (map == null)
-		{
-			map = new HashMap<>();
-			beanToDataHolder.put(component.getFormElement(), map);
-		}
-		map.put(beanDataProvider, dp);
-		if (formController != null) setupModificationListener(dp);
 	}
 
 	public void addTaggedProperty(final WebFormComponent component, final String beanTaggedProperty, String propertyValue)
@@ -223,14 +181,55 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		});
 	}
 
-	public void addRecordAwareComponent(WebFormComponent component)
+	public void addDataLinkedProperty(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
 	{
-		if (!dataAwareComponents.contains(component)) dataAwareComponents.add(component);
+		if (targetDataLinks == TargetDataLinks.NOT_LINKED_TO_DATA) return;
+
+		Pair<WebFormComponent, String> propertyIdentifier = new Pair<>(component, propertyName);
+		if (targetDataLinks.dataProviderIDs != null)
+		{
+			for (String dpID : targetDataLinks.dataProviderIDs)
+			{
+				List<Pair<WebFormComponent, String>> allLinksOfDP = dataProviderToLinkedComponentProperty.get(dpID);
+				if (allLinksOfDP == null)
+				{
+					allLinksOfDP = new ArrayList<>();
+					dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
+				}
+				if (!allLinksOfDP.contains(propertyIdentifier)) allLinksOfDP.add(propertyIdentifier);
+
+				if (formController != null) setupModificationListener(dpID); // see if we need to listen to global/form scope changes
+			}
+		}
+
+		allComponentPropertiesLinkedToData.add(propertyIdentifier);
 	}
 
 	public void removeRecordAwareComponent(WebFormComponent component)
 	{
-		dataAwareComponents.remove(component);
+		// TODO remove modification listeners for form/global scopes if needed...
+
+		Iterator<Pair<WebFormComponent, String>> it = allComponentPropertiesLinkedToData.iterator();
+		while (it.hasNext())
+		{
+			Pair<WebFormComponent, String> item = it.next();
+			if (item.getLeft() == component) it.remove();
+		}
+		Iterator<List<Pair<WebFormComponent, String>>> it1 = dataProviderToLinkedComponentProperty.values().iterator();
+		while (it1.hasNext())
+		{
+			List<Pair<WebFormComponent, String>> lList = it1.next();
+			it = lList.iterator();
+			while (it.hasNext())
+			{
+				Pair<WebFormComponent, String> item = it.next();
+				if (item.getLeft() == component)
+				{
+					it.remove();
+					if (lList.size() == 0) it1.remove();
+				}
+			}
+		}
 	}
 
 	public void setRecord(IRecord record, boolean fireChangeEvent)
@@ -277,23 +276,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return record;
 	}
 
-	private boolean updateRecordDataprovider(String dataprovider, List<Pair<WebFormComponent, String>> components, boolean fireChange)
-	{
-		boolean changed = false;
-		Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), dataprovider);
-		if (value == Scriptable.NOT_FOUND) value = null;
-		for (Pair<WebFormComponent, String> pair : components)
-		{
-			WebFormComponent wc = pair.getLeft();
-			String property = pair.getRight();
-			boolean isPropertyChanged = wc.setProperty(property, value);
-			changed = isPropertyChanged || changed;
-		}
-
-		return changed;
-	}
-
-	private boolean updateTagValue(Map<WebFormComponent, List<String>> components, boolean fireChange)
+	private boolean updateTagValue(Map<WebFormComponent, List<String>> components)
 	{
 		boolean changed = false;
 		for (Map.Entry<WebFormComponent, List<String>> entry : components.entrySet())
@@ -301,7 +284,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			WebFormComponent component = entry.getKey();
 			for (String taggedProp : entry.getValue())
 			{
-				String initialPropValue = (String)component.getInitialProperty(taggedProp);
+				String initialPropValue = (String)component.getInitialProperty(taggedProp); // once this CODE IS REMOVED, also remove component.getInitialProperty please
 				String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
 				changed = component.setProperty(taggedProp, tagValue) || changed;
 			}
@@ -333,38 +316,42 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void pushChangedValues(String dataProvider, boolean fireChangeEvent)
 	{
-		boolean changed = false;
 		boolean isFormDP = isFormDataprovider(dataProvider);
 		boolean isGlobalDP = isGlobalDataprovider(dataProvider);
 
-		// let complex properties of all web components know that the current record has changed
-		for (WebFormComponent comp : dataAwareComponents)
-		{
-			comp.pushDataProviderOrRecordChanged(this.record, dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
-		}
-
+		boolean changed = false;
 		if (dataProvider == null)
 		{
-			for (Entry<String, List<Pair<WebFormComponent, String>>> entry : recordDataproviderToComponent.entrySet())
+			// announce to all - we don't know exactly what changed; maybe all DPs changed
+			for (Pair<WebFormComponent, String> x : allComponentPropertiesLinkedToData)
 			{
-				changed = updateRecordDataprovider(entry.getKey(), entry.getValue(), fireChangeEvent) || changed;
+				Object rawPropValue = x.getLeft().getRawPropertyValue(x.getRight());
+				if (rawPropValue instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)rawPropValue).dataProviderOrRecordChanged(record, null,
+					isFormDP, isGlobalDP, fireChangeEvent);
 			}
 
 			for (Entry<String, Map<WebFormComponent, List<String>>> entry : dataProviderToComponentWithTags.entrySet())
 			{
-				changed = updateTagValue(entry.getValue(), fireChangeEvent) || changed;
+				changed = updateTagValue(entry.getValue()) || changed;
 			}
 		}
 		else
 		{
-			if (recordDataproviderToComponent.containsKey(dataProvider))
+			// announce to all - we don't know exactly what changed; maybe all DPs changed
+			List<Pair<WebFormComponent, String>> interestedComponentProperties = dataProviderToLinkedComponentProperty.get(dataProvider);
+			if (interestedComponentProperties != null)
 			{
-				changed = updateRecordDataprovider(dataProvider, recordDataproviderToComponent.get(dataProvider), fireChangeEvent);
+				for (Pair<WebFormComponent, String> x : interestedComponentProperties)
+				{
+					Object rawPropValue = x.getLeft().getRawPropertyValue(x.getRight());
+					if (rawPropValue instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)rawPropValue).dataProviderOrRecordChanged(record,
+						dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
+				}
 			}
 
 			if ((isFormDP || isGlobalDP) && dataProviderToComponentWithTags.containsKey(dataProvider))
 			{
-				changed = updateTagValue(dataProviderToComponentWithTags.get(dataProvider), fireChangeEvent) || changed;
+				changed = updateTagValue(dataProviderToComponentWithTags.get(dataProvider)) || changed;
 			}
 		}
 
@@ -388,16 +375,31 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty));
 	}
 
+	/**
+	 * Get the dataProviderID from the runtime property.
+	 * NOTE: it's not taken directly from FormElement because 'beanProperty' might contain dots (a dataprovider nested somewhere in another property) - and BaseWebObject deals with that correctly.
+	 */
+	protected String getDataProviderID(WebFormComponent webComponent, String beanProperty)
+	{
+		Object propertyValue = webComponent.getProperty(beanProperty);
+		if (propertyValue instanceof DataproviderTypeSabloValue) return ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
+		return null;
+	}
+
 	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object newValue)
 	{
-		Map<String, String> map = beanToDataHolder.get(webComponent.getFormElement());
-		if (map == null)
+		// TODO should this all (svy-apply/push) move to DataProviderType client/server side implementation instead of specialized calls?
+
+		String dataProviderID = getDataProviderID(webComponent, beanProperty);
+		if (dataProviderID == null)
 		{
 			Debug.log("apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + newValue + " of component: " +
 				webComponent);
 			return;
 		}
-		String property = map.get(beanProperty);
+
+		if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
+
 		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
 		// but what if it was a global or form variable?
 		if (record == null || record.startEditing())
@@ -415,7 +417,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					Entry< ? , ? > e = newValueIte.next();
 					if (!"".equals(e.getKey()))
 					{
-						com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property + e.getKey(),
+						com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), dataProviderID + e.getKey(),
 							e.getValue());
 					}
 				}
@@ -424,7 +426,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				v = newValue;
 			}
-			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, v);
+			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), dataProviderID, v);
 			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChange();
 			if (onDataChange != null && webComponent.hasEvent(onDataChange))
 			{
@@ -444,8 +446,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void startEdit(WebFormComponent webComponent, String property)
 	{
-		String dataProvider = beanToDataHolder.get(webComponent.getFormElement()).get(property);
-		if (record != null && dataProvider != null && !ScopesUtils.isVariableScope(dataProvider))
+		String dataProviderID = getDataProviderID(webComponent, property);
+		if (dataProviderID == null)
+		{
+			Debug.log("startEdit called on a property that is not bound to a dataprovider: " + property + " of component: " + webComponent);
+			return;
+		}
+		if (record != null && !ScopesUtils.isVariableScope(dataProviderID))
 		{
 			record.startEditing();
 		}
@@ -508,42 +515,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-	public Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue) throws JSONException
-	{
-		if (propertyValue == JSONObject.NULL) return null;
-		String dataproviderID = null;
-		Map<String, String> recordDataproviderMapping = beanToDataHolder.get(fe);
-		if (recordDataproviderMapping != null) dataproviderID = recordDataproviderMapping.get(propertyName);
-
-		if (dataproviderID != null)
-		{
-			if (findMode)
-			{
-				return propertyValue;
-			}
-			// TODO should globals or formscope be checked for that variable? (currently the conversion will be done in the put(String,value) of the scope itself.
-			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
-			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
-		}
-		return propertyValue;
-	}
-
-	@Override
-	public Object convertFromJavaObjectToString(FormElement fe, String propertyName, Object propertyValue)
-	{
-		if (findMode)
-		{
-			return propertyValue;
-		}
-		PropertyDescription propertyDescription = fe.getWebComponentSpec().getProperties().get(propertyName);
-		if (propertyDescription == null) propertyDescription = fe.getWebComponentSpec().getHandlers().get(propertyName);
-		return propertyDescription != null ? DesignConversion.toStringObject(propertyValue, propertyDescription.getType()) : propertyValue;
-	}
 
 	@Override
 	public void setFindMode(boolean findMode)
 	{
-		this.findMode = findMode;
+//		this.findMode = findMode;
 
 		getApplication().getWebsocketSession().getService("$servoyInternal").executeAsyncServiceCall(
 			"setFindMode",

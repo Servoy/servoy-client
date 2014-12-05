@@ -15,12 +15,14 @@ import java.util.Map;
 import javax.swing.border.Border;
 
 import org.json.JSONException;
+import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.TypedData;
+import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -224,12 +226,12 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
-	public TypedData<Map<String, Map<String, Object>>> getAllComponentsProperties()
+	public boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter converter) throws JSONException
 	{
 		try
 		{
 			getController().setRendering(true);
-			return super.getAllComponentsProperties();
+			return super.writeAllComponentsProperties(w, converter);
 		}
 		finally
 		{
@@ -238,12 +240,13 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
-	public TypedData<Map<String, Map<String, Object>>> getAllComponentsChanges()
+	public boolean writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
+		throws JSONException
 	{
 		try
 		{
 			getController().setRendering(true);
-			return super.getAllComponentsChanges();
+			return super.writeAllComponentsChanges(w, keyInParent, converter, clientDataConversions);
 		}
 		finally
 		{

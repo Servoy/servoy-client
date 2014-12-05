@@ -49,7 +49,7 @@ public class NGInsetsPropertyType extends InsetsPropertyType implements IDesignT
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Insets formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers);
+		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}
 
 

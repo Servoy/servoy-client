@@ -42,7 +42,7 @@ import com.servoy.j2db.util.HtmlUtils;
  *
  */
 public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>,
-	ISupportTemplateValue<String>, IDataLinkedType<String>, IFormElementToSabloComponent<Object, Object>
+	ISupportTemplateValue<Object>, IDataLinkedType<String, Object>, IFormElementToSabloComponent<Object, Object>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -69,7 +69,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
 	{
 		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
-		if (formElementValue != null && valueInTemplate((String)formElementValue))
+		if (formElementValue != null && valueInTemplate(formElementValue))
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
 			if (HtmlUtils.startsWithHtml(formElementValue))
@@ -92,7 +92,8 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, TagStringWrapper object, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, TagStringWrapper object, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (object != null)
 		{
@@ -115,9 +116,9 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	}
 
 	@Override
-	public boolean valueInTemplate(String str)
+	public boolean valueInTemplate(Object formElementVal)
 	{
-		return !(str.contains("%%") || str.startsWith("i18n:"));
+		return formElementVal instanceof String && !(((String)formElementVal).contains("%%") || ((String)formElementVal).startsWith("i18n:"));
 	}
 
 	class TagStringWrapper
@@ -125,11 +126,6 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 		final Object value;
 		IServoyDataConverterContext dataConverterContext;
 		Object jsonValue;
-
-		TagStringWrapper(Object value)
-		{
-			this(value, null);
-		}
 
 		TagStringWrapper(Object value, IDataConverterContext dataConverterContext)
 		{
@@ -143,18 +139,11 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 			{
 				if (HtmlUtils.startsWithHtml(value))
 				{
-					if (dataConverterContext != null && dataConverterContext.getSolution() != null && dataConverterContext.getApplication() != null)
-					{
-						jsonValue = HTMLTagsConverter.convert(value.toString(), dataConverterContext, false);
-					}
+					jsonValue = HTMLTagsConverter.convert(value.toString(), dataConverterContext, false);
 				}
 				else if (value != null && value.toString().startsWith("i18n:"))
 				{
-					if (dataConverterContext != null && dataConverterContext.getApplication() != null)
-					{
-						jsonValue = dataConverterContext.getApplication().getI18NMessage(value.toString().substring(5));
-					}
-					else return value;
+					jsonValue = dataConverterContext.getApplication().getI18NMessage(value.toString().substring(5));
 				}
 				else
 				{
@@ -167,15 +156,15 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	}
 
 	@Override
-	public boolean isLinkedToData(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
-		if (formElementValue == null) return false;
-		return formElementValue.contains("%%");
+		if (formElementValue == null || (!formElementValue.contains("%%"))) return TargetDataLinks.NOT_LINKED_TO_DATA;
+		return TargetDataLinks.LINKED_TO_ALL;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.specification.property.IPropertyType#defaultValue()
 	 */
 	@Override
@@ -187,7 +176,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent#toSabloComponentValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
 	 * com.servoy.j2db.server.ngclient.DataAdapterList)

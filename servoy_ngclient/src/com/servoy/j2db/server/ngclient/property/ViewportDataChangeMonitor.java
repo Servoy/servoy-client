@@ -20,10 +20,20 @@ package com.servoy.j2db.server.ngclient.property;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONString;
+import org.json.JSONWriter;
 import org.sablo.IChangeListener;
+import org.sablo.websocket.IToJSONWriter;
+import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 
 /**
  * This class is responsible for monitoring changes to a foundset property's viewport data and
@@ -91,8 +101,8 @@ public class ViewportDataChangeMonitor
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param operationType can be one of {@link RowData#DELETE}, {@link RowData#INSERT} or {@link RowData#CHANGE}.
 	 */
-	public void queueOperation(int relativeFirstRow, int relativeLastRow, int newDataStartIndex, int newDataEndIndex, IFoundSetInternal foundset,
-		int operationType)
+	public void queueOperation(int relativeFirstRow, int relativeLastRow, final int newDataStartIndex, final int newDataEndIndex,
+		final IFoundSetInternal foundset, int operationType)
 	{
 		if (!shouldSendWholeViewport())
 		{
@@ -101,9 +111,37 @@ public class ViewportDataChangeMonitor
 				!foundset.getRecord(newDataStartIndex).getPKHashKey().equals(ignoreUpdateOnPkHash))
 			{
 				boolean changed = (viewPortChanges.size() == 0);
-				viewPortChanges.add(new RowData(rowDataProvider.getRowData(newDataStartIndex, newDataEndIndex, foundset), relativeFirstRow, relativeLastRow,
-					operationType));
-				if (changed && monitor != null) monitor.valueChanged();
+				try
+				{
+					Pair<JSONString, DataConversion> writtenAsJSON;
+					writtenAsJSON = NGUtils.writeToJSONString(new IToJSONWriter()
+					{
+						@Override
+						public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
+							throws JSONException
+						{
+							rowDataProvider.writeRowData(newDataStartIndex, newDataEndIndex, foundset, w, clientDataConversions);
+							return true;
+						}
+					}, FullValueToJSONConverter.INSTANCE);
+
+					RowData newOperation = new RowData(writtenAsJSON.getLeft(), writtenAsJSON.getRight(), relativeFirstRow, relativeLastRow, operationType);
+					if (operationType == RowData.CHANGE)
+					{
+						// it happens often that we get multiple change events for the same row one after another; don't sent each one to browser as it's not needed
+						while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
+						{
+							viewPortChanges.remove(viewPortChanges.size() - 1);
+						}
+					}
+					viewPortChanges.add(newOperation);
+
+					if (changed && monitor != null) monitor.valueChanged();
+				}
+				catch (JSONException e)
+				{
+					Debug.error(e);
+				}
 			}
 		}
 	}
@@ -115,14 +153,33 @@ public class ViewportDataChangeMonitor
 	 * @param newDataStartIndex foundset relative first row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 * @param newDataEndIndex foundset relative end row of new data (that is automatically added to the end of viewPort in case of delete, or just added in case of insert, or just changed for change) index.
 	 */
-	public void queueCellChange(int relativeRowIndex, int absoluteRowIndex, String columnName, IFoundSetInternal foundset)
+	public void queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
 	{
 		if (!shouldSendWholeViewport())
 		{
 			boolean changed = (viewPortChanges.size() == 0);
-			viewPortChanges.add(new RowData(rowDataProvider.getRowData(absoluteRowIndex, absoluteRowIndex, columnName, foundset), relativeRowIndex,
-				relativeRowIndex, RowData.CHANGE));
-			if (changed && monitor != null) monitor.valueChanged();
+			try
+			{
+				Pair<JSONString, DataConversion> writtenAsJSON;
+				writtenAsJSON = NGUtils.writeToJSONString(new IToJSONWriter()
+				{
+					@Override
+					public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
+						throws JSONException
+					{
+						rowDataProvider.writeRowData(absoluteRowIndex, absoluteRowIndex, columnName, foundset, w, clientDataConversions);
+						return true;
+					}
+				}, FullValueToJSONConverter.INSTANCE);
+
+				viewPortChanges.add(new RowData(writtenAsJSON.getLeft(), writtenAsJSON.getRight(), relativeRowIndex, relativeRowIndex, RowData.CHANGE,
+					columnName));
+				if (changed && monitor != null) monitor.valueChanged();
+			}
+			catch (JSONException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 

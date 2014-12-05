@@ -4,17 +4,15 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.json.JSONException;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 
 /**
@@ -40,12 +38,13 @@ public class WebFormComponent extends Container implements IContextProvider
 		this.dataAdapterList = dataAdapterList;
 
 		properties.put("svyMarkupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
-		for (PropertyDescription pd : fe.getWebComponentSpec().getProperties().values())
+		for (Entry<String, PropertyDescription> e : fe.getWebComponentSpec().getProperties().entrySet())
 		{
+			PropertyDescription pd = e.getValue();
 			if (pd.getType() instanceof IDataLinkedType)
 			{
-				((DataAdapterList)dataAdapterList).addRecordAwareComponent(this);
-				break;
+				((DataAdapterList)dataAdapterList).addDataLinkedProperty(this, e.getKey(), ((IDataLinkedType)pd.getType()).getDataLinks(
+					fe.getPropertyValue(e.getKey()), pd, dataAdapterList.getApplication().getFlattenedSolution(), fe));
 			}
 		}
 	}
@@ -84,22 +83,6 @@ public class WebFormComponent extends Container implements IContextProvider
 		return componentContext;
 	}
 
-	public Object getConvertedPropertyWithDefault(String propertyName, boolean designValue, boolean convertValue)
-	{
-		// TODO remove this when possible; once all types keep their own design value if they need it and there's no need for that conversion
-		// if it's implemented already in the type itself, this method should be removable
-		Object value = null;
-		if (!designValue && properties.containsKey(propertyName))
-		{
-			value = getProperty(propertyName);
-		}
-		else
-		{
-			value = getInitialProperty(propertyName);
-		}
-		return dataAdapterList != null && convertValue ? dataAdapterList.convertFromJavaObjectToString(formElement, propertyName, value) : value;
-	}
-
 	// TODO get rid of this! it should not be needed once all types are implemented properly (I think usually wrapped types use it, and they could keep
 	// this value in their internal state if needed)
 	public Object getInitialProperty(String propertyName)
@@ -107,12 +90,6 @@ public class WebFormComponent extends Container implements IContextProvider
 		// NGConversions.INSTANCE.applyConversion3(...) could be used here as this is currently wrong value type, but
 		// it's better to remove it altogether as previous comment says; anyway right now I think the types that call/use this method don't have conversion 3 defined
 		return formElement.getPropertyValue(propertyName);
-	}
-
-	@Override
-	protected Object convertPropertyValue(String propertyName, Object oldValue, Object propertyValue) throws JSONException
-	{
-		return dataAdapterList != null ? dataAdapterList.convertToJavaObject(getFormElement(), propertyName, propertyValue) : propertyValue;
 	}
 
 	@Override
@@ -191,19 +168,6 @@ public class WebFormComponent extends Container implements IContextProvider
 	public IServoyDataConverterContext getDataConverterContext()
 	{
 		return new ServoyDataConverterContext(dataAdapterList.getForm());
-	}
-
-	/**
-	 * Notifies this component that the record or dataprovider values that it displays have changed.
-	 */
-	public void pushDataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
-	{
-		for (String pN : getAllPropertyNames(true))
-		{
-			Object x = getProperty(pN);
-			if (x instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)x).dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP,
-				fireChangeEvent);
-		}
 	}
 
 	@Override

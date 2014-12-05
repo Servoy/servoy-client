@@ -20,7 +20,7 @@ import org.sablo.specification.property.IPropertyType;
 
 /**
  * This is a special type that is used in api calls to let servoy know that the api should return a form server instance itself
- * in the modell this would be just the same as the {@link FormPropertyType} where the model value is just a string.
+ * in the model this would be just the same as the {@link FormPropertyType} where the model value is just a string.
  * TODO this should be looked at for getRightForm for example of the SplitPane
  * @author jcompagner
  */

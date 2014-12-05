@@ -18,15 +18,16 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONString;
+import org.json.JSONWriter;
 import org.sablo.IChangeListener;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.websocket.TypedData;
-import org.sablo.websocket.utils.JSONUtils.JSONWritable;
+import org.sablo.websocket.IToJSONWriter;
+import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 /**
  * This class is responsible for keeping track of what changes need to be sent to the client (whole thing, selection changes, viewport idx/size change, row data changes...)
@@ -408,64 +409,65 @@ public class FoundsetTypeChangeMonitor
 		if (changeNotifier != null) changeNotifier.valueChanged();
 	}
 
-	public static class RowData implements JSONWritable
+	public static class RowData implements IToJSONWriter
 	{
 		public static final int CHANGE = 0;
 		public static final int INSERT = 1;
 		public static final int DELETE = 2;
 
-		private final TypedData<List<Map<String, Object>>> rows;
-		private final int startIndex;
-		private final int endIndex;
+		public final int startIndex;
+		public final int endIndex;
+		public final int type;
 
-		private int type;
+		private final JSONString rowData;
+		private final DataConversion rowDataConversions;
 
-		private RowData()
+		/**
+		 * Null if it's a whole row, and non-null of only one column of the row is in this row data.
+		 */
+		public final String columnName;
+
+		public RowData(JSONString rowData, DataConversion rowDataConversions, int startIndex, int endIndex, int type)
 		{
-			rows = null;
-			startIndex = -1;
-			endIndex = -1;
-			type = -1;
+			this(rowData, rowDataConversions, startIndex, endIndex, type, null);
 		}
 
-		public RowData(TypedData<List<Map<String, Object>>> rows, int startIndex, int endIndex)
+		public RowData(JSONString rowData, DataConversion rowDataConversions, int startIndex, int endIndex, int type, String columnName)
 		{
-			this(rows, startIndex, endIndex, CHANGE);
-		}
-
-		public RowData(TypedData<List<Map<String, Object>>> rows, int startIndex, int endIndex, int type)
-		{
-			this.rows = rows;
+			this.rowData = rowData;
+			this.rowDataConversions = rowDataConversions;
 			this.startIndex = startIndex;
 			this.endIndex = endIndex;
 			this.type = type;
+			this.columnName = columnName;
+		}
+
+		@Override
+		public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
+			throws JSONException
+		{
+			JSONUtils.addKeyIfPresent(w, keyInParent);
+
+			w.object().key("rows").value(rowData);
+			clientDataConversions.pushNode("rows").convert(rowDataConversions).popNode();
+
+			w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(Integer.valueOf(type)).endObject();
+
+			return true;
 		}
 
 		/**
-		 * @param type the type to set
+		 * True if the data of this RowData would be completely replaced by another immediately following RowData.
+		 * @param newOperation the following update operation.
 		 */
-		public void setType(int type)
+		public boolean isMadeIrrelevantBySubsequentRowData(RowData newOperation)
 		{
-			this.type = type;
+			// so a change can be made obsolet by a subsequent (imediately after) change or delete of the same row;
+			// it we're talking about two change operations, it matters as well if one of them is only for a specific column of the row or for the whole row
+			return (type == CHANGE && (newOperation.type == CHANGE || newOperation.type == DELETE) && startIndex >= newOperation.startIndex &&
+				endIndex <= newOperation.endIndex && (newOperation.columnName == null || newOperation.columnName.equals(columnName)));
 		}
 
-		public TypedData<Map<String, Object>> toMap()
-		{
-			PropertyDescription rowType = null;
-
-			Map<String, Object> retValue = new HashMap<>();
-			retValue.put("rows", rows.content);
-			if (rows.contentType != null)
-			{
-				rowType = AggregatedPropertyType.newAggregatedProperty();
-				rowType.putProperty("rows", rows.contentType);
-			}
-			retValue.put("startIndex", Integer.valueOf(startIndex));
-			retValue.put("endIndex", Integer.valueOf(endIndex));
-			retValue.put("type", Integer.valueOf(type));
-
-			return new TypedData<Map<String, Object>>(retValue, rowType);
-		}
 	}
 
 	public void addViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)

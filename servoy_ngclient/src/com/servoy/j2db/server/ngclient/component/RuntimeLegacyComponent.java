@@ -145,14 +145,13 @@ public class RuntimeLegacyComponent implements Scriptable
 		Object value;
 
 		PropertyDescription pd = webComponentSpec.getProperties().get(name);
-		if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
+		if (pd != null)
 		{
 			value = ((ISabloComponentToRhino)pd.getType()).toRhinoValue(component.getProperty(name), pd, component, start);
 		}
 		else
 		{
-			value = convertValue(name, component.getConvertedPropertyWithDefault(convertName(name),
-				StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name), !needsValueConversion(name)));
+			value = convertValue(name, component.getProperty(convertName(name)));
 		}
 
 		if (isReadonly && value instanceof Boolean)

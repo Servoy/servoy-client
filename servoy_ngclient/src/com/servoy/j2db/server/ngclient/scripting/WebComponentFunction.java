@@ -24,7 +24,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.component.RhinoConversion;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 
 /**
  * Javascript function to call a client-side function in the web component api.
@@ -51,7 +51,7 @@ public class WebComponentFunction extends WebBaseFunction
 			PropertyDescription parameterTypes = WebComponent.getParameterTypes(definition);
 			for (int i = 0; i < args.length; i++)
 			{
-				args[i] = RhinoConversion.convert(args[i], null, parameterTypes.getProperty(Integer.toString(i)), component.getDataConverterContext());
+				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getProperty(Integer.toString(i)), component);
 			}
 		}
 		return component.invokeApi(definition, args);

@@ -32,9 +32,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.Container;
 import org.sablo.InMemPackageReader;
-import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketEndpoint;
-import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
@@ -49,6 +48,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -89,7 +89,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
 	 */
 	@Override
@@ -227,8 +227,9 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebsocketEndpoint endpoint = (WebsocketEndpoint)WebsocketEndpoint.get();
 
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		TypedData<Map<String, Map<String, Object>>> allComponentsProperties = form.getFormUI().getAllComponentsProperties();
-		String full = JSONUtils.writeDataWithConversions(allComponentsProperties.content, allComponentsProperties.contentType);
+
+		String full = NGUtils.formComponentPropetiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
+
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mycustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundset");
@@ -243,9 +244,9 @@ public class FoundsetTest extends AbstractSolutionTest
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":2}}]}},\"service\":\"formService\"}",
 			true);
 
-		TypedData<Map<String, Map<String, Object>>> allComponentsChanges = ((Container)form.getFormUI()).getAllComponentsChanges();
-		String changes = JSONUtils.writeDataWithConversions(allComponentsChanges.content, allComponentsChanges.contentType);
-		object = new JSONObject(changes);
+		String changes = NGUtils.formChangesToString(((Container)form.getFormUI()), FullValueToJSONConverter.INSTANCE);
+
+		object = new JSONObject(changes).getJSONObject("changes");
 		bean = object.getJSONObject("mycustombean");
 		foundset = bean.getJSONObject("myfoundset");
 		Assert.assertEquals(2, foundset.getInt("serverSize"));
@@ -277,8 +278,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebsocketEndpoint endpoint = (WebsocketEndpoint)WebsocketEndpoint.get();
 
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		TypedData<Map<String, Map<String, Object>>> allComponentsProperties = form.getFormUI().getAllComponentsProperties();
-		String full = JSONUtils.writeDataWithConversions(allComponentsProperties.content, allComponentsProperties.contentType);
+		String full = NGUtils.formComponentPropetiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mydynamiccustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundset");
@@ -293,9 +293,8 @@ public class FoundsetTest extends AbstractSolutionTest
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mydynamiccustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":3}}]}},\"service\":\"formService\"}",
 			true);
 
-		TypedData<Map<String, Map<String, Object>>> allComponentsChanges = ((Container)form.getFormUI()).getAllComponentsChanges();
-		String changes = JSONUtils.writeDataWithConversions(allComponentsChanges.content, allComponentsChanges.contentType);
-		object = new JSONObject(changes);
+		String changes = NGUtils.formChangesToString(((Container)form.getFormUI()), FullValueToJSONConverter.INSTANCE);
+		object = new JSONObject(changes).getJSONObject("changes");
 		bean = object.getJSONObject("mydynamiccustombean");
 		foundset = bean.getJSONObject("myfoundset");
 		Assert.assertEquals(3, foundset.getInt("serverSize"));

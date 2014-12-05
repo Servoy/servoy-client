@@ -20,6 +20,9 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
@@ -27,12 +30,13 @@ import org.sablo.websocket.utils.DataConversion;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
  */
-public class FormPropertyType implements IConvertedPropertyType<Object>
+public class FormPropertyType implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>
 {
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 	public static final String TYPE_NAME = "form";
@@ -82,7 +86,8 @@ public class FormPropertyType implements IConvertedPropertyType<Object>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (key != null)
 		{
@@ -112,4 +117,21 @@ public class FormPropertyType implements IConvertedPropertyType<Object>
 		}
 		return writer;
 	}
+
+	@Override
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return true;
+	}
+
+	@Override
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		if (webComponentValue instanceof Form)
+		{
+			return ((Form)webComponentValue).getName();
+		}
+		return webComponentValue;
+	}
+
 }

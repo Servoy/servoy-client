@@ -18,9 +18,12 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.List;
-import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -50,33 +53,34 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnName, Map<String, Object> data, PropertyDescription dataTypes)
+	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
 	{
 		dal.setRecordQuietly(record);
 
 		if (columnName != null)
 		{
 			// cell update
-			populateCellData(data, dataTypes, columnName);
+			populateCellData(columnName, w, clientConversionInfo);
 		}
 		else
 		{
 			// full row
 			for (String propertyName : recordBasedProperties)
 			{
-				populateCellData(data, dataTypes, propertyName);
+				populateCellData(propertyName, w, clientConversionInfo);
 			}
 		}
 	}
 
-	private void populateCellData(Map<String, Object> data, PropertyDescription dataTypes, String propertyName)
+	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
 	{
 		PropertyDescription t = component.getSpecification().getProperty(propertyName);
-		Object val = component.getRawProperties().get(propertyName);
+		Object val = component.getRawPropertyValue(propertyName);
 		if (t != null && val != null)
 		{
-			dataTypes.putProperty(propertyName, t);
-			data.put(propertyName, val);
+			clientConversionInfo.pushNode(propertyName);
+			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, clientConversionInfo, component);
+			clientConversionInfo.popNode();
 		}
 	}
 

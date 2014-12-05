@@ -65,7 +65,8 @@ public class RuntimeComponentPropertyType implements IConvertedPropertyType<Runt
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, RuntimeWebComponent sabloValue, DataConversion clientConversion) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, RuntimeWebComponent sabloValue, DataConversion clientConversion,
+		IDataConverterContext dataConverterContext) throws JSONException
 	{
 		if (key != null)
 		{

@@ -117,7 +117,7 @@ public class CustomArrayPropertyRhinoTests
 		assertTrue(mapCh != null);
 		assertTrue(((CustomJSONPropertyType< ? >)changes.contentType.getProperty("arrayT").getType()).getCustomJSONTypeDefinition().getType() instanceof CustomJSONObjectType);
 
-		JSONUtils.writeDataWithConversions(changes.content, changes.contentType);
+		JSONUtils.writeDataWithConversions(changes.content, changes.contentType, null);
 		// ok now that we called component.getChanges() no changes should be present any more
 		assertTrue(!cal.mustSendAll());
 		assertTrue(!cam.mustSendAll());
@@ -162,7 +162,7 @@ public class CustomArrayPropertyRhinoTests
 
 		// ok clear changes
 		changes = component.getChanges();
-		JSONUtils.writeDataWithConversions(changes.content, changes.contentType);
+		JSONUtils.writeDataWithConversions(changes.content, changes.contentType, null);
 		assertEquals(1, changes.content.size());
 		assertEquals(0, component.getChanges().content.size());
 		assertTrue(!cal.mustSendAll());
@@ -200,7 +200,7 @@ public class CustomArrayPropertyRhinoTests
 		changes = component.getChanges();
 		assertEquals(
 			"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"conversions\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"conversions\":{\"active\":\"JSON_arr\"}}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"arrayT\":\"JSON_arr\"}}",
-			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType));
+			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null));
 
 		// now simulate another request cycle that makes some change to the property from javascript
 		rhinoVal = (Scriptable)NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty("arrayT"), arrayTPD, component, topLevel);

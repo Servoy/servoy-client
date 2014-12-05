@@ -18,12 +18,13 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.Collection;
-import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.websocket.TypedData;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.IBasicFormUI;
 import com.servoy.j2db.IView;
@@ -36,7 +37,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 {
 
-	TypedData<Map<String, Map<String, Object>>> getAllComponentsProperties();
+	boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter converter) throws JSONException;
 
 	WebFormComponent getWebComponent(String name);
 

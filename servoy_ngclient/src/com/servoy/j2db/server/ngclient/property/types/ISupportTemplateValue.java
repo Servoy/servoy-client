@@ -25,7 +25,7 @@ package com.servoy.j2db.server.ngclient.property.types;
  * @author jcompagner
  *
  */
-public interface ISupportTemplateValue<T>
+public interface ISupportTemplateValue<FormElementT>
 {
-	boolean valueInTemplate(T object);
+	boolean valueInTemplate(FormElementT object);
 }

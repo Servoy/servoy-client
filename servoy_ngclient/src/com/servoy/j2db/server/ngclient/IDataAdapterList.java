@@ -28,7 +28,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 /**
  * @author jcompagner
  */
-public interface IDataAdapterList extends IDataConverter, ITagResolver
+public interface IDataAdapterList extends ITagResolver
 {
 	/**
 	 * @param webComponent

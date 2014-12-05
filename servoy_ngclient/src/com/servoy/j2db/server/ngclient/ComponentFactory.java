@@ -34,9 +34,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
-import org.sablo.specification.property.ICustomType;
-import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.ISmartPropertyValue;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
@@ -92,8 +89,7 @@ public class ComponentFactory
 				if (componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
 				Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
 				if (value == null) continue;
-				fillProperties(fe.getForm(), fe, value, componentSpec.getProperty(propName), (DataAdapterList)dataAdapterList, webComponent, webComponent, "",
-					application);
+				fillProperty(value, fe.getPropertyValue(propName), componentSpec.getProperty(propName), webComponent);
 			}
 
 			// overwrite accessible
@@ -127,164 +123,25 @@ public class ComponentFactory
 		return null;
 	}
 
-	/**
-	 *  -fe is only needed because of format . It accesses another property value based on the 'for' property (). TODO this FormElement parameter should be analyzed because format accepts a flat property value.
-	 *
-	 * -level is only needed because the current implementation 'flattens' the dataproviderid's and tagstrings for DAL  .(level should be removed after next changes)
-	 *
-	 *  -component is the whole component for now ,but it should be the current component node in the runtime component tree (instead of flat properties map)
-	 *  -component and componentNode should have been just componentNode (but currently WebCoponent is not nested)
-	 */
-	public static void fillProperties(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec, DataAdapterList dal,
-		WebFormComponent component, Object componentNode, String level, IApplication application)
+	protected static void fillProperty(Object propertyValue, Object formElementValue, PropertyDescription propertySpec, WebFormComponent component)
 	{
-		// TODO This whole method content I think can be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
-		// except for initial filling of all properties from FormElement into WebComponent
-		IPropertyType< ? > type = propertySpec.getType();
-		if (propertySpec.getType() instanceof CustomJSONArrayType< ? , ? > && formElementProperty instanceof List &&
-			!(formElementProperty instanceof ISmartPropertyValue)) // if it's a special property type that handles directly arrays, it could be a different kind of object
-		{
-			PropertyDescription arrayElDesc = ((CustomJSONArrayType< ? , ? >)propertySpec.getType()).getCustomJSONTypeDefinition();
-			type = arrayElDesc.getType();
-			List<Object> processedArray = new ArrayList<>();
-			List<Object> fePropertyArray = (List<Object>)formElementProperty;
-			for (Object arrayValue : fePropertyArray)
-			{
-				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, arrayElDesc, dal, component, componentNode, level, application, true);
-				switch (type.getName())
-				{
-					case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
-					{
-						Debug.error("Array of dataprovider currently not supported dataprovider");
-						Object dataproviderID = propValue;
-						if (dataproviderID instanceof String)
-						{
-							dal.add(component, level + (String)dataproviderID, propertySpec.getName());
-						}
-						break;
-					}
-					default :
-					{
-						processedArray.add(propValue);
-					}
-
-				}
-			}
-			if (processedArray.size() > 0)
-			{
-				putInComponentNode(componentNode, propertySpec.getName(), processedArray, propertySpec, component);
-			}
-		}
-		else
-		{
-			Object propValue = initFormElementProperty(formElNodeForm, fe, formElementProperty, propertySpec, dal, component, componentNode, level,
-				application, false);
-			String propName = propertySpec.getName();
-			switch (type.getName())
-			{
-				case "dataprovider" : // array of dataprovider is not supported yet (DAL does not support arrays)
-				{
-					Object dataproviderID = formElementProperty;
-					if (dataproviderID instanceof String)
-					{
-						dal.add(component, (String)dataproviderID, level + propName);
-						return;
-					}
-					break;
-				}
-				default :
-					break;
-			}
-			if (propValue != null)
-			{
-				putInComponentNode(componentNode, propName, propValue, propertySpec, component); //TODO
-			}
-		}
-	}
-
-	/**
-	 * TEMPORARY FUNCTION until we move to nested web component tree , with each node having semantics (PropertyType)
-	 *  Webcomponent will be a tree
-	 */
-	private static void putInComponentNode(Object componentNode, String propName, Object propValue, PropertyDescription propertySpec, WebFormComponent component)
-	{
-		// TODO should this just a a property.property.property = value called to WebFormComponent?
-		if (componentNode instanceof WebFormComponent)
+		String propName = propertySpec.getName();
+		if (propertyValue != null)
 		{
 			boolean templatevalue = true;
 			if (propertySpec.getType() instanceof ISupportTemplateValue)
 			{
-				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(propValue);
+				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue);
 			}
 			if (templatevalue)
 			{
-				((WebFormComponent)componentNode).setDefaultProperty(propName, propValue);
+				component.setDefaultProperty(propName, propertyValue);
 			}
 			else
 			{
-				((WebFormComponent)componentNode).setProperty(propName, propValue);
+				component.setProperty(propName, propertyValue);
 			}
 		}
-		else
-		{
-			// this is now done (the wrapping) inside CustomJSONArrayType and CustomJSONObject type
-//			// now we need to convert it ourselfs. because this map will be internal to the WebFormComponent so has to have wrapper values.
-//			if (propertySpec != null && propertySpec.getType() instanceof IWrapperType< ? , ? >)
-//			{
-//				propValue = ((IWrapperType)propertySpec.getType()).wrap(propValue, null, new DataConverterContext(propertySpec, component));
-//			}
-			((Map)componentNode).put(propName, propValue);
-		}
-	}
-
-	/**
-	 * This method turns a design-time property into a Runtime Object that will be used as that property.
-	 *  TODO merge component and component node remove isarrayElement parameter
-	 * @return
-	 */
-	private static Object initFormElementProperty(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec,
-		DataAdapterList dal, WebFormComponent component, Object componentNode, String level, IApplication application, boolean isArrayElement)
-	{
-		// TODO This whole method I think should be removed when dataprovider, tagstring, ... are implemented as complex types and tree JSON handling is also completely working...
-		Object ret = null;
-		switch (propertySpec.getType().getName())
-		{
-			case "bean" :
-			{
-				Object propValue = formElementProperty;
-				if (propValue instanceof String)
-				{
-					ret = ComponentFactory.getMarkupId(fe.getName(), (String)propValue);
-				}
-				break;
-			}
-			default :
-			{
-				if ((propertySpec.getType() instanceof ICustomType) && ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition() != null &&
-					formElementProperty instanceof Map && !(formElementProperty instanceof ISmartPropertyValue))
-				{
-					// TODO Remove this when pure tree-like JSON properties which use complex types in leafs are operational (so no need for flattening them any more)
-					String innerLevelpropName = level + propertySpec.getName();
-					Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
-					Map<String, Object> newComponentNode = new HashMap<>();
-					PropertyDescription localPropertyType = ((ICustomType)propertySpec.getType()).getCustomJSONTypeDefinition();
-
-					for (String prop : props.keySet())
-					{
-						PropertyDescription localPropertyDescription = localPropertyType.getProperty(prop);
-						fillProperties(formElNodeForm, fe, props.get(prop), localPropertyDescription, dal, component, newComponentNode, isArrayElement ? ""
-							: innerLevelpropName + ".", application);
-					}
-					ret = newComponentNode;
-					break;
-				}
-				else
-				{
-					ret = formElementProperty;
-				}
-			}
-		}
-		return ret;
 	}
 
 	// todo identity key? SolutionModel persist shouldn't be cached at all?

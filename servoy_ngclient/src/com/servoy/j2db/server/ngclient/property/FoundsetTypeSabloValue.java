@@ -32,12 +32,9 @@ import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IWrapperType;
-import org.sablo.specification.property.types.AggregatedPropertyType;
-import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -110,10 +107,10 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		{
 
 			@Override
-			protected void populateRowData(IRecordInternal record, String columnName, Map<String, Object> data, PropertyDescription dataTypes)
+			protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
 			{
 				// we ignore columnName as foundset type is currently not able to send column level updates;
-				FoundsetTypeSabloValue.this.populateRowData(record, data, dataTypes);
+				FoundsetTypeSabloValue.this.populateRowData(record, w, clientConversionInfo);
 			}
 		};
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
@@ -276,19 +273,16 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 //	    ]
 		if (foundset != null)
 		{
-			TypedData<List<Map<String, Object>>> rowsArray = rowDataProvider.getRowData(viewPort.getStartIndex(), viewPort.getStartIndex() +
-				viewPort.getSize() - 1, foundset);
+			DataConversion clientConversionInfo = new DataConversion();
 
-			Map<String, Object> rows = new HashMap<>();
-			PropertyDescription rowTypes = null;
-			rows.put(ROWS, rowsArray.content);
-			if (rowsArray.contentType != null && rowsArray.contentType.hasChildProperties())
-			{
-				rowTypes = AggregatedPropertyType.newAggregatedProperty();
-				rowTypes.putProperty(ROWS, rowsArray.contentType);
-			}
-			// convert for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeDataWithConversions(destinationJSON, rows, rowTypes);
+			destinationJSON.key(ROWS);
+			clientConversionInfo.pushNode(ROWS);
+			rowDataProvider.writeRowData(viewPort.getStartIndex(), viewPort.getStartIndex() + viewPort.getSize() - 1, foundset, destinationJSON,
+				clientConversionInfo);
+			clientConversionInfo.popNode();
+
+			// conversion info for websocket traffic (for example Date objects will turn into long)
+			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 		}
 		else
 		{
@@ -368,28 +362,22 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 						destinationJSON.key(UPDATE_PREFIX + VIEW_PORT).object();
 						viewPortUpdateAdded = true;
 					}
-					Map<String, Object> changes = new HashMap<>();
-					PropertyDescription changeTypes = null;
-					Map<String, Object>[] changesArray = new Map[viewPortChanges.size()];
 
-					changes.put(UPDATE_PREFIX + ROWS, changesArray);
+					DataConversion clientConversionInfo = new DataConversion();
+					clientConversionInfo.pushNode(UPDATE_PREFIX + ROWS);
+					destinationJSON.key(UPDATE_PREFIX + ROWS).array();
 
-					PropertyDescription changeArrayTypes = AggregatedPropertyType.newAggregatedProperty();
-					for (int i = viewPortChanges.size() - 1; i >= 0; i--)
+					for (int i = 0; i < viewPortChanges.size(); i++)
 					{
-						TypedData<Map<String, Object>> rowTypedData = viewPortChanges.get(i).toMap();
-						changesArray[i] = rowTypedData.content;
-						if (rowTypedData.contentType != null) changeArrayTypes.putProperty(String.valueOf(i), rowTypedData.contentType);
+						clientConversionInfo.pushNode(String.valueOf(i));
+						viewPortChanges.get(i).writeJSONContent(destinationJSON, null, FullValueToJSONConverter.INSTANCE, clientConversionInfo);
+						clientConversionInfo.popNode();
 					}
+					clientConversionInfo.popNode();
+					destinationJSON.endArray();
 
-					if (changeArrayTypes.hasChildProperties())
-					{
-						changeTypes = AggregatedPropertyType.newAggregatedProperty();
-						changeTypes.putProperty(UPDATE_PREFIX + ROWS, changeArrayTypes);
-					}
-
-					// convert for websocket traffic (for example Date objects will turn into long)
-					JSONUtils.writeDataWithConversions(destinationJSON, changes, changeTypes);
+					// conversion info for websocket traffic (for example Date objects will turn into long)
+					JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 					somethingChanged = true;
 				}
 				if (viewPortUpdateAdded) destinationJSON.endObject();
@@ -407,7 +395,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		}
 	}
 
-	protected void populateRowData(IRecordInternal record, Map<String, Object> data, PropertyDescription dataTypes)
+	protected void populateRowData(IRecordInternal record, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
 	{
 		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
 		while (it.hasNext())
@@ -415,15 +403,18 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			Entry<String, String> entry = it.next();
 			String dataProvider = entry.getValue();
 			Object value = record.getValue(dataProvider);
-			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable());
+			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
 
-			if (pd != null)
-			{
-				dataTypes.putProperty(entry.getKey(), pd);
-				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
-					webObject));
-			}
-			data.put(entry.getKey(), value);
+			// currently all that NGUtils.getDataProviderPropertyDescription can return is IConvertedProperty type or default types; so we don't need any special value pre-processing (like IWrapperType or IServoyAwareValue or others would need)
+//			if (pd != null)
+//			{
+//				if (pd.getType() instanceof IWrapperType< ? , ? >) value = ((IWrapperType)pd.getType()).wrap(value, null, new DataConverterContext(pd,
+//					webObject));
+//			}
+
+			clientConversionInfo.pushNode(entry.getKey());
+			FullValueToJSONConverter.INSTANCE.toJSONValue(w, dataProvider, value, pd, clientConversionInfo, webObject);
+			clientConversionInfo.popNode();
 		}
 	}
 
@@ -496,7 +487,8 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 								IRecordInternal record = foundset.getRecord(recordIndex);
 								// convert Dates where it's needed
 
-								PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable()); // this should be enough for when only foundset dataproviders are used
+								PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable(),
+									false); // this should be enough for when only foundset dataproviders are used
 								value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, null);
 
 								changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());

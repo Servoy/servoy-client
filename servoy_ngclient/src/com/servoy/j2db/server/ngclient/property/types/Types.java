@@ -49,6 +49,8 @@ public class Types
 		TypesRegistry.addType(DataproviderPropertyType.INSTANCE);
 		TypesRegistry.addType(TagStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
+		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
+		TypesRegistry.addType(HTMLStringPropertyType.INSTANCE);
 
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
