@@ -98,6 +98,10 @@ public class FormPropertyType implements IConvertedPropertyType<Object>, ISabloC
 			// form name
 			writer.value(sabloValue);
 		}
+		else if (sabloValue instanceof CharSequence)
+		{
+			writer.value(((CharSequence)sabloValue).toString());
+		}
 		else if (sabloValue instanceof Form)
 		{
 			writer.value(((Form)sabloValue).getName());
