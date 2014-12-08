@@ -40,7 +40,15 @@
     			   active: false,
     			   disabled: false,
     			   foreground: fg };
-    	   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
+    	   if ($scope.model.tabs.length == 1)
+    	   {
+    		   $scope.model.tabIndex = 1; 
+    	   }
+    	   else
+    	   {
+    		   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());  
+    	   }	   
+    	   
     	   return true;
        }
        
