@@ -552,6 +552,35 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				$timeout(function(){
 					$scope.gridApi.grid.gridWidth = gridUtil.elementWidth($element);
 					$scope.gridApi.grid.gridHeight = gridUtil.elementHeight($element);
+					if (!$scope.model.multiLine && (($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER))
+					{
+						var totalWidth = 0;
+						var resizeWidth = 0;
+						for(var i = 0; i < $scope.model.childElements.length; i++) 
+						{
+							totalWidth += $scope.model.childElements[i].model.size.width;
+							var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
+							if (isResizable)
+							{
+								resizeWidth += $scope.model.childElements[i].model.size.width;
+							}
+						}
+						totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;
+						if (resizeWidth > 0 && totalWidth > 0)
+						{
+							for(var i = 0; i < $scope.model.childElements.length; i++) 
+							{
+								var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
+								if (isResizable)
+								{
+									// calculate new width based on weight
+									var elemWidth = $scope.model.childElements[i].model.size.width;
+									var newWidthDelta = elemWidth * totalWidth / resizeWidth;
+									$scope.gridApi.grid.columns[i].width = elemWidth + newWidthDelta;
+								}
+							}
+						}
+					}
 					$scope.gridApi.grid.refreshCanvas(true);
 					testNumberOfRows();
 					// reset what ui-grid did if somehow the row height was smaller then the elements height because it didn't layout yet
