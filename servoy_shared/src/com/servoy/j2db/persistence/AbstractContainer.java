@@ -344,6 +344,6 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		}
 		IFormElement[] array = flattenedPersists.toArray(new IFormElement[flattenedPersists.size()]);
 		Arrays.sort(array, comparator);
-		return Arrays.<IFormElement> asList(array);
+		return new ArrayList<IFormElement>(Arrays.<IFormElement> asList(array));
 	}
 }
