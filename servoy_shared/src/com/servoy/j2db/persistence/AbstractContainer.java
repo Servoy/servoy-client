@@ -20,12 +20,12 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -327,7 +327,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	/**
 	 * @return
 	 */
-	public List<IFormElement> getFlattenedObjects(Comparator< ? > comparator)
+	public List<IFormElement> getFlattenedObjects(Comparator< ? super IFormElement> comparator)
 	{
 		List<IFormElement> flattenedPersists = new ArrayList<IFormElement>();
 		List<IPersist> children = getHierarchyChildren();
@@ -342,6 +342,8 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 				flattenedPersists.add((IFormElement)persist);
 			}
 		}
-		return new SortedList<IFormElement>(comparator, flattenedPersists);
+		IFormElement[] array = flattenedPersists.toArray(new IFormElement[flattenedPersists.size()]);
+		Arrays.sort(array, comparator);
+		return Arrays.<IFormElement> asList(array);
 	}
 }

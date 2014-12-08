@@ -21,6 +21,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import com.servoy.j2db.FormController;
@@ -162,8 +163,16 @@ public class PartWrapper
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		List<IFormElement> persists = context.getFlattenedObjects(context.getLayoutContainers().hasNext() ? PositionComparator.XY_PERSIST_COMPARATOR
-			: Form.FORM_INDEX_COMPARATOR);
+		Comparator< ? super IFormElement> comparator = null;
+		if (context.getLayoutContainers().hasNext())
+		{
+			comparator = PositionComparator.XY_PERSIST_COMPARATOR;
+		}
+		else
+		{
+			comparator = Form.FORM_INDEX_COMPARATOR;
+		}
+		List<IFormElement> persists = context.getFlattenedObjects(comparator);
 		for (IFormElement persist : persists)
 		{
 			Point location = persist.getLocation();
