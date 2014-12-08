@@ -3930,6 +3930,26 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			if (!partOfBiggerDelete)
 			{
+
+				try
+				{
+					// see EditRecordList.stopEditing
+					if (!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, true))
+					{
+						// trigger returned false
+						Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
+						throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
+					}
+				}
+				catch (DataException e)
+				{
+					// trigger threw exception
+					state.getRawData().setLastException(e);
+					getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
+					Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
+					throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
+				}
+
 				// check for related data
 				Iterator<Relation> it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
 				while (it.hasNext())
@@ -3968,27 +3988,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			if (state.existInDataSource())
 			{
-				if (!partOfBiggerDelete)
-				{
-					try
-					{
-						// see EditRecordList.stopEditing
-						if (!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, true))
-						{
-							// trigger returned false
-							Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
-							throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
-						}
-					}
-					catch (DataException e)
-					{
-						// trigger threw exception
-						state.getRawData().setLastException(e);
-						getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
-						Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
-						throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
-					}
-				}
 				Row data = state.getRawData();
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
