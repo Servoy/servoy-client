@@ -1618,7 +1618,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * Gets an array of all relations.
 	 *
 	 * @sample
-	 * var relations = solutionModel.getRelations();
+	 * var relations = solutionModel.getAllRelations();
 	 * if (relations.length != 0)
 	 * 	for (var i in relations)
 	 * 		application.output(relations[i].name);
