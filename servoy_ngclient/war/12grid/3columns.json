@@ -1,0 +1,14 @@
+{
+	"class":"row",
+	"children" : [
+		{
+			"class":"col-md-4"
+		},
+		{
+			"class":"col-md-4"
+		},
+		{
+			"class":"col-md-4"
+		}
+	]
+}

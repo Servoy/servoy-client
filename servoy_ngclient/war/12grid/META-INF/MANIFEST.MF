@@ -10,3 +10,7 @@ Web-Layout: True
 
 Name: column.spec
 Web-Layout: True
+
+Name: 3columns.spec
+Web-Composite: True
+
