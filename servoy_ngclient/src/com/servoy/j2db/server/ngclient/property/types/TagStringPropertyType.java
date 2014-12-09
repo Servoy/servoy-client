@@ -159,28 +159,15 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
 		if (formElementValue == null || (!formElementValue.contains("%%"))) return TargetDataLinks.NOT_LINKED_TO_DATA;
-		return TargetDataLinks.LINKED_TO_ALL;
+		return TargetDataLinks.LINKED_TO_ALL; // TODO can we enhance this to specific dps?
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyType#defaultValue()
-	 */
 	@Override
 	public Object defaultValue()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent#toSabloComponentValue(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
-	 * com.servoy.j2db.server.ngclient.DataAdapterList)
-	 */
 	@Override
 	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
