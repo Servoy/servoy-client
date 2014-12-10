@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.utils;
 
 import org.json.JSONException;
-import org.json.JSONString;
 import org.json.JSONStringer;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
@@ -26,10 +25,8 @@ import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DoublePropertyType;
 import org.sablo.specification.property.types.LongPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -43,7 +40,6 @@ import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 
 /**
  * Utility methods for NGClient.
@@ -139,14 +135,5 @@ public abstract class NGUtils
 		return w.toString();
 	}
 
-	// TODO this can be moved to JSONUtils if we remove the "Pair" dependency
-	public static Pair<JSONString, DataConversion> writeToJSONString(IToJSONWriter toJSONWriter, IToJSONConverter converter) throws JSONException
-	{
-		EmbeddableJSONWriter rowData = new EmbeddableJSONWriter();
-		DataConversion clientConversionInfo = new DataConversion();
-
-		toJSONWriter.writeJSONContent(rowData, null, converter, clientConversionInfo);
-		return new Pair<JSONString, DataConversion>(rowData, clientConversionInfo);
-	}
 
 }

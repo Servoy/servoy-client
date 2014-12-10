@@ -87,12 +87,9 @@ public class DataproviderPropertyType implements IFormElementToSabloComponent<St
 		// formElementValue is the data provider id string here
 		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
 
-		// with '.' it means related record access through dataprovider (because for now I see that we don't support JS variables with dots in dataproviders - or we always treat them as related so that won't work)
-		// TODO - if it's global relation only, then record based constructor param should be false
-		if (formElementValue.contains(".")) return new TargetDataLinks(new String[] { formElementValue }, true /* TODO or false */); //$NON-NLS-1$
-
 		// not linked for globals or form variables; linked for the rest - the rest should mean record based dataprovider
 		boolean recordDP = !ScopesUtils.isVariableScope(formElementValue) && formElement.getForm().getScriptVariable(formElementValue) == null;
+		// TODO - if it's global relation only, then record based constructor param should be false
 		return new TargetDataLinks(new String[] { formElementValue }, recordDP);
 	}
 

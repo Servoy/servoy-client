@@ -21,19 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
-import org.json.JSONString;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 
 /**
  * This class is responsible for monitoring changes to a foundset property's viewport data and
@@ -113,8 +112,8 @@ public class ViewportDataChangeMonitor
 				boolean changed = (viewPortChanges.size() == 0);
 				try
 				{
-					Pair<JSONString, DataConversion> writtenAsJSON;
-					writtenAsJSON = NGUtils.writeToJSONString(new IToJSONWriter()
+					IJSONStringWithConversions writtenAsJSON;
+					writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter()
 					{
 						@Override
 						public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
@@ -125,7 +124,7 @@ public class ViewportDataChangeMonitor
 						}
 					}, FullValueToJSONConverter.INSTANCE);
 
-					RowData newOperation = new RowData(writtenAsJSON.getLeft(), writtenAsJSON.getRight(), relativeFirstRow, relativeLastRow, operationType);
+					RowData newOperation = new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType);
 					if (operationType == RowData.CHANGE)
 					{
 						// it happens often that we get multiple change events for the same row one after another; don't sent each one to browser as it's not needed
@@ -160,8 +159,8 @@ public class ViewportDataChangeMonitor
 			boolean changed = (viewPortChanges.size() == 0);
 			try
 			{
-				Pair<JSONString, DataConversion> writtenAsJSON;
-				writtenAsJSON = NGUtils.writeToJSONString(new IToJSONWriter()
+				IJSONStringWithConversions writtenAsJSON;
+				writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter()
 				{
 					@Override
 					public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
@@ -172,8 +171,7 @@ public class ViewportDataChangeMonitor
 					}
 				}, FullValueToJSONConverter.INSTANCE);
 
-				viewPortChanges.add(new RowData(writtenAsJSON.getLeft(), writtenAsJSON.getRight(), relativeRowIndex, relativeRowIndex, RowData.CHANGE,
-					columnName));
+				viewPortChanges.add(new RowData(writtenAsJSON, relativeRowIndex, relativeRowIndex, RowData.CHANGE, columnName));
 				if (changed && monitor != null) monitor.valueChanged();
 			}
 			catch (JSONException e)

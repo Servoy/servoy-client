@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
-import org.json.JSONString;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 /**
@@ -419,23 +419,21 @@ public class FoundsetTypeChangeMonitor
 		public final int endIndex;
 		public final int type;
 
-		private final JSONString rowData;
-		private final DataConversion rowDataConversions;
+		private final IJSONStringWithConversions rowData;
 
 		/**
 		 * Null if it's a whole row, and non-null of only one column of the row is in this row data.
 		 */
 		public final String columnName;
 
-		public RowData(JSONString rowData, DataConversion rowDataConversions, int startIndex, int endIndex, int type)
+		public RowData(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type)
 		{
-			this(rowData, rowDataConversions, startIndex, endIndex, type, null);
+			this(rowData, startIndex, endIndex, type, null);
 		}
 
-		public RowData(JSONString rowData, DataConversion rowDataConversions, int startIndex, int endIndex, int type, String columnName)
+		public RowData(IJSONStringWithConversions rowData, int startIndex, int endIndex, int type, String columnName)
 		{
 			this.rowData = rowData;
-			this.rowDataConversions = rowDataConversions;
 			this.startIndex = startIndex;
 			this.endIndex = endIndex;
 			this.type = type;
@@ -449,7 +447,7 @@ public class FoundsetTypeChangeMonitor
 			JSONUtils.addKeyIfPresent(w, keyInParent);
 
 			w.object().key("rows").value(rowData);
-			clientDataConversions.pushNode("rows").convert(rowDataConversions).popNode();
+			clientDataConversions.pushNode("rows").convert(rowData.getDataConversions()).popNode();
 
 			w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(Integer.valueOf(type)).endObject();
 

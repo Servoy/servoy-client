@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
-import org.json.JSONString;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
@@ -30,6 +29,8 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
+import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -55,7 +56,6 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 
 	protected Object value;
 	protected Object jsonValue;
-	protected DataConversion jsonDataConversion;
 	protected IChangeListener changeMonitor;
 	protected PropertyDescription typeOfDP;
 
@@ -118,7 +118,6 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 		if (changed)
 		{
 			jsonValue = null;
-			jsonDataConversion = null;
 		}
 		if (fireChangeEvent && changed) // TODO I don't get here why changeMonitor.valueChanged() shouldn't be done if fireChangeEvent is false; but kept it as it was before refactor...
 		{
@@ -134,31 +133,19 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 			if (typeOfDP != null)
 			{
 				EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
-				jsonDataConversion = new DataConversion();
+				DataConversion jsonDataConversion = new DataConversion();
 				FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext.getWebObject());
 				if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
-				final String tmp = ejw.toJSONString() == null ? null : ejw.toJSONString(); // get the value out of it; note: ejw.toJSONString() can be called only once!
-
-				jsonValue = new JSONString()
-				{
-
-					@Override
-					public String toJSONString()
-					{
-						return tmp;
-					}
-
-				};
+				jsonValue = new JSONStringWithConversions(ejw.toJSONString() == null ? null : ejw.toJSONString(), jsonDataConversion);
 			}
 			else
 			{
 				jsonValue = value;
-				jsonDataConversion = null;
 			}
 		}
 
 		writer.value(jsonValue);
-		if (jsonDataConversion != null) clientConversion.convert(jsonDataConversion);
+		if (jsonValue instanceof IJSONStringWithConversions) clientConversion.convert(((IJSONStringWithConversions)jsonValue).getDataConversions());
 	}
 
 	public void browserUpdateReceived(Object newJSONValue, IDataConverterContext dataConverterContext)
@@ -178,7 +165,6 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 		if (oldValue != value && (oldValue == null || !oldValue.equals(value)))
 		{
 			jsonValue = null;
-			jsonDataConversion = null;
 		}
 	}
 
