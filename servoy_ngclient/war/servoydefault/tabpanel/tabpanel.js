@@ -18,16 +18,26 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
         $scope.bgstyle = {}
         $scope.waitingForServerVisibility = {}
         
+        
+        function refresh() {
+        	if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
+        	var realTabIndex = $scope.model.tabIndex - 1;
+        	if ($scope.model.tabs)
+        		for(var i=0;i<$scope.model.tabs.length;i++) {
+        			if (i == realTabIndex) $scope.model.tabs[i].active = true;
+        			else $scope.model.tabs[i].active = false;
+        			$scope.model.tabs[i].disabled = false;
+        		}
+        }
+        
         $scope.$watch("model.tabIndex", function(newValue) {
-        	 if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
-        	 var realTabIndex = $scope.model.tabIndex - 1;
-        	 if ($scope.model.tabs)
-	        	 for(var i=0;i<$scope.model.tabs.length;i++) {
-	        	 	if (i == realTabIndex) $scope.model.tabs[i].active = true;
-	        	 	else $scope.model.tabs[i].active = false;
-	        	 	$scope.model.tabs[i].disabled = false;
-	        	 }
+        	refresh();
         });
+        
+        $scope.$watch("model.tabs", function(newValue) {
+        	refresh();
+       });        
+        
        $scope.$watch("model.readOnly", function(newValue) {
     	   var activeForm = $scope.getActiveTab()
     	   if (activeForm)

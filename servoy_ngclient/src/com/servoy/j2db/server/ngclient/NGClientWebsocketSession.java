@@ -84,7 +84,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#getForm(java.lang.String)
 	 */
 	@Override
@@ -228,11 +228,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void formCreated(String formName)
 	{
 		ConcurrentMap<String, Pair<String, Boolean>> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
-		String formUrl = formsOnClient.get(formName).getLeft();
-		synchronized (formUrl)
+		if (formsOnClient.containsKey(formName))
 		{
-			formsOnClient.get(formName).setRight(Boolean.TRUE);
-			formUrl.notifyAll();
+			String formUrl = formsOnClient.get(formName).getLeft();
+			synchronized (formUrl)
+			{
+				formsOnClient.get(formName).setRight(Boolean.TRUE);
+				formUrl.notifyAll();
+			}
 		}
 	}
 
@@ -392,7 +395,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#valueChanged()
 	 */
 	@Override
@@ -434,7 +437,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
 	 */
 	@Override
