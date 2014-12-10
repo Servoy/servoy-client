@@ -104,10 +104,11 @@ public class NGConversions
 		 * @param formElementValue the value to be converted and written
 		 * @param pd the property description for this property.
 		 * @param browserConversionMarkers client conversion markers that can be set and if set will be used client side to interpret the data properly.
+		 * @param fs The flattened solution for the value
 		 * @return the JSON writer for easily continuing the write process in the caller.
 		 */
 		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-			IServoyDataConverterContext servoyDataConverterContext) throws JSONException;
+			FlattenedSolution fs) throws JSONException;
 
 	}
 
@@ -228,9 +229,9 @@ public class NGConversions
 	 * Conversion 2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
 	public JSONWriter convertFormElementToTemplateJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType,
-		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws IllegalArgumentException, JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs) throws IllegalArgumentException, JSONException
 	{
-		return new FormElementToJSON(servoyDataConverterContext).toJSONValue(writer, key, value, valueType, browserConversionMarkers, null);
+		return new FormElementToJSON(fs).toJSONValue(writer, key, value, valueType, browserConversionMarkers, null);
 	}
 
 	/**
@@ -238,11 +239,11 @@ public class NGConversions
 	 */
 	public static class FormElementToJSON implements IToJSONConverter
 	{
-		private final IServoyDataConverterContext servoyDataConverterContext;
+		private final FlattenedSolution fs;
 
-		public FormElementToJSON(IServoyDataConverterContext servoyDataConverterContext)
+		public FormElementToJSON(FlattenedSolution fs)
 		{
-			this.servoyDataConverterContext = servoyDataConverterContext;
+			this.fs = fs;
 		}
 
 		/**
@@ -264,8 +265,7 @@ public class NGConversions
 				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
 				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers,
-						servoyDataConverterContext);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, fs);
 				}
 				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v))
 				{

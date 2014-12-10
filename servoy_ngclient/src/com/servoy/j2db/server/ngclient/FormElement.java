@@ -42,6 +42,7 @@ import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
@@ -72,24 +73,30 @@ public final class FormElement implements IWebComponentInitializer
 
 	private final PersistBasedFormElementImpl persistImpl;
 	private final String uniqueIdWithinForm;
-	private IServoyDataConverterContext dataConverterContext;
+
+	private boolean inDesigner;
+
+	private FlattenedSolution fs;
 
 	public FormElement(Form form)
 	{
 		this.form = form;
-		persistImpl = new PersistBasedFormElementImpl(form, this);
-		componentType = null;
+		this.persistImpl = new PersistBasedFormElementImpl(form, this);
+		this.componentType = null;
 		this.uniqueIdWithinForm = String.valueOf(form.getID());
 
 		Map<String, Object> map = persistImpl.getFlattenedPropertiesMap();
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
-	public FormElement(IFormElement persist, final IServoyDataConverterContext context, PropertyPath propertyPath)
+	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner)
 	{
-		this.dataConverterContext = context;
-		persistImpl = new PersistBasedFormElementImpl(persist, this);
-		this.form = persistImpl.getForm();
+		this.fs = fs;
+		this.inDesigner = inDesigner;
+		this.persistImpl = new PersistBasedFormElementImpl(persist, this);
+		Form f = persistImpl.getForm();
+		if (f instanceof FlattenedForm) this.form = f;
+		else this.form = fs.getFlattenedForm(f);
 		this.componentType = FormTemplateGenerator.getComponentTypeName(persist);
 		this.uniqueIdWithinForm = String.valueOf(persist.getID());
 
@@ -98,20 +105,21 @@ public final class FormElement implements IWebComponentInitializer
 		Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 		boolean addNameToPath = propertyPath.shouldAddElementNameAndClearFlag();
 		if (addNameToPath) propertyPath.add(getName());
-		Map<String, Object> map = persistImpl.getFormElementPropertyValues(context, specProperties, propertyPath);
+		Map<String, Object> map = persistImpl.getFormElementPropertyValues(fs, specProperties, propertyPath);
 
-		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
-		adjustLocationRelativeToPart(context, map);
+		initPropertiesWithDefaults(specProperties, map, fs, propertyPath);
+		adjustLocationRelativeToPart(fs, map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
-	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, IServoyDataConverterContext context,
-		PropertyPath propertyPath)
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
+		PropertyPath propertyPath, boolean inDesigner)
 	{
-		this.dataConverterContext = context;
+		this.inDesigner = inDesigner;
 		this.persistImpl = null;
-		this.form = form;
+		if (form instanceof FlattenedForm) this.form = form;
+		else this.form = fs.getFlattenedForm(form);
 
 		if (WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentTypeString) == null)
 		{
@@ -133,15 +141,15 @@ public final class FormElement implements IWebComponentInitializer
 		Map<String, Object> map = new HashMap<>();
 		try
 		{
-			convertFromJSONToFormElementValues(context, specProperties, map, getWebComponentSpec().getHandlers(), jsonObject, propertyPath);
+			convertFromJSONToFormElementValues(fs, specProperties, map, getWebComponentSpec().getHandlers(), jsonObject, propertyPath);
 		}
 		catch (JSONException ex)
 		{
 			Debug.error("Error while parsing component design JSON", ex);
 		}
 
-		initPropertiesWithDefaults(specProperties, map, context, propertyPath);
-		adjustLocationRelativeToPart(context, map);
+		initPropertiesWithDefaults(specProperties, map, fs, propertyPath);
+		adjustLocationRelativeToPart(fs, map);
 		if (this.componentType == FormElement.ERROR_BEAN)
 		{
 			map.put("toolTipText", "component type: " + componentTypeString + " not found");
@@ -150,29 +158,18 @@ public final class FormElement implements IWebComponentInitializer
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
-	public IServoyDataConverterContext getDataConverterContext()
-	{
-		return dataConverterContext;
-	}
-
-	public void setDataConverterContext(IServoyDataConverterContext dataConverterContext)
-	{
-		this.dataConverterContext = dataConverterContext;
-	}
-
 	/**
 	 * This is part of 'Conversion 1' (see {@link NGConversions})
 	 */
-	protected void convertFromJSONToFormElementValues(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties,
-		Map<String, Object> jsonMap, Map<String, PropertyDescription> eventProperties, JSONObject propertyDesignJSONValues, PropertyPath propertyPath)
-		throws JSONException
+	protected void convertFromJSONToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
+		Map<String, PropertyDescription> eventProperties, JSONObject propertyDesignJSONValues, PropertyPath propertyPath) throws JSONException
 	{
 		Iterator keys = propertyDesignJSONValues.keys();
 		while (keys.hasNext())
 		{
 			String key = (String)keys.next();
 			Object value = propertyDesignJSONValues.get(key);
-			convertDesignToFormElementValueAndPut(context, getPropertyOrEvent(key, specProperties, eventProperties), jsonMap, key, value, propertyPath);
+			convertDesignToFormElementValueAndPut(fs, getPropertyOrEvent(key, specProperties, eventProperties), jsonMap, key, value, propertyPath);
 		}
 	}
 
@@ -186,7 +183,7 @@ public final class FormElement implements IWebComponentInitializer
 	 * or hardcoded in persist converter 'Conversion 0' to convert it to a JSON first (from non-primitive Persist property value). Currently, non-primitive
 	 * persist property values are always assumed to not need "Conversion 1"
 	 */
-	protected void convertFromPersistPrimitivesToFormElementValues(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties,
+	protected void convertFromPersistPrimitivesToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties,
 		Map<String, PropertyDescription> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
 	{
 		Iterator<String> keys = properties.keySet().iterator();
@@ -199,7 +196,7 @@ public final class FormElement implements IWebComponentInitializer
 				// non - primitive type; skip extra conversion as Persist already converted it or convertSpecialPersistProperties(...) already converted it
 				continue;
 			}
-			convertDesignToFormElementValueAndPut(context, getPropertyOrEvent(key, specProperties, eventProperties), properties, key, value, propertyPath);
+			convertDesignToFormElementValueAndPut(fs, getPropertyOrEvent(key, specProperties, eventProperties), properties, key, value, propertyPath);
 		}
 	}
 
@@ -218,15 +215,14 @@ public final class FormElement implements IWebComponentInitializer
 	/**
 	 * Applies 'Conversion 1' (see {@link NGConversions}) to one property value - from design to FormElement value and then puts the value in the given formElementValues map.
 	 */
-	protected void convertDesignToFormElementValueAndPut(IServoyDataConverterContext context, PropertyDescription pd, Map<String, Object> formElementValues,
-		String key, Object value, PropertyPath propertyPath)
+	protected void convertDesignToFormElementValueAndPut(FlattenedSolution fs, PropertyDescription pd, Map<String, Object> formElementValues, String key,
+		Object value, PropertyPath propertyPath)
 	{
 		// is it a property
 		if (pd != null)
 		{
 			propertyPath.add(key);
-			formElementValues.put(key,
-				NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, context != null ? context.getSolution() : null, this, propertyPath));
+			formElementValues.put(key, NGConversions.INSTANCE.convertDesignToFormElementValue(value, pd, fs, this, propertyPath));
 			propertyPath.backOneLevel();
 		}
 		else if (StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(key))
@@ -244,7 +240,7 @@ public final class FormElement implements IWebComponentInitializer
 		return null;
 	}
 
-	private void initPropertiesWithDefaults(Map<String, PropertyDescription> specProperties, Map<String, Object> map, IServoyDataConverterContext context,
+	private void initPropertiesWithDefaults(Map<String, PropertyDescription> specProperties, Map<String, Object> map, FlattenedSolution fs,
 		PropertyPath propertyPath)
 	{
 		// do stuff here!
@@ -257,8 +253,7 @@ public final class FormElement implements IWebComponentInitializer
 					if (pd.getDefaultValue() != null)
 					{
 						propertyPath.add(pd.getName());
-						map.put(pd.getName(), NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd,
-							context != null ? context.getSolution() : null, this, propertyPath));
+						map.put(pd.getName(), NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd, fs, this, propertyPath));
 						propertyPath.backOneLevel();
 					}
 					else if (pd.getType().defaultValue() != null)
@@ -271,17 +266,16 @@ public final class FormElement implements IWebComponentInitializer
 		}
 	}
 
-	private void adjustLocationRelativeToPart(IServoyDataConverterContext context, Map<String, Object> map)
+	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map)
 	{
 		if (map != null && form != null)
 		{
-			FlattenedSolution fs = context.getSolution();
 			Form flatForm = fs.getFlattenedForm(form);
 			Point location = getDesignLocation();
 			if (location != null)
 			{
 				// if it is design client, it has no parts
-				boolean isInDesginer = (context.getApplication() != null && context.getApplication().isInDesigner());
+				boolean isInDesginer = getDesignId() != null;
 				if (isInDesginer)
 				{
 					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), location);
@@ -360,10 +354,9 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getDesignId()
 	{
-		if (persistImpl != null && dataConverterContext != null && dataConverterContext.getApplication() != null &&
-			dataConverterContext.getApplication().isInDesigner())
+		if (inDesigner && getPersistIfAvailable() != null)
 		{
-			return persistImpl.getPersist().getUUID().toString();
+			return getPersistIfAvailable().getUUID().toString();
 		}
 		return null;
 	}
@@ -529,8 +522,7 @@ public final class FormElement implements IWebComponentInitializer
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.writeDataWithConversions(new FormElementToJSON(getDataConverterContext()), propertyWriter, propertiesTypedData.content,
-				propertiesTypedData.contentType, null);
+			JSONUtils.writeDataWithConversions(new FormElementToJSON(fs), propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, null);
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)
@@ -626,5 +618,13 @@ public final class FormElement implements IWebComponentInitializer
 			if (spec.getFoundTypes().containsKey(simpleTypeName) || simpleTypeName.equals("component")) result.add(simpleTypeName);
 		}
 		return result;
+	}
+
+	/**
+	 * @return
+	 */
+	public FlattenedSolution getFlattendSolution()
+	{
+		return fs;
 	}
 }

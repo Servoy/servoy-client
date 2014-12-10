@@ -35,6 +35,8 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
 
+import com.servoy.j2db.AbstractActiveSolutionHandler;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -52,6 +54,7 @@ import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
@@ -145,7 +148,8 @@ public class ComponentFactory
 	}
 
 	// todo identity key? SolutionModel persist shouldn't be cached at all?
-	private static ConcurrentMap<IPersist, FormElement> persistWrappers = new ConcurrentHashMap<IPersist, FormElement>();
+	private static ConcurrentMap<IPersist, FormElement> persistWrappers = new ConcurrentHashMap<>();
+	private static ConcurrentMap<String, FlattenedSolution> globalFlattendSolutions = new ConcurrentHashMap<>();
 
 	/**
 	 * @param iterator
@@ -168,18 +172,56 @@ public class ComponentFactory
 		return lst;
 	}
 
+	private static FlattenedSolution getSharedFlattenedSolution(FlattenedSolution fs)
+	{
+		FlattenedSolution flattenedSolution = globalFlattendSolutions.get(fs.getName());
+		if (flattenedSolution == null)
+		{
+			try
+			{
+				flattenedSolution = new FlattenedSolution(true);
+				flattenedSolution.setSolution(fs.getMainSolutionMetaData(), false, true,
+					new AbstractActiveSolutionHandler(ApplicationServerRegistry.getService(IApplicationServer.class))
+					{
+						@Override
+						public IRepository getRepository()
+						{
+							return ApplicationServerRegistry.get().getLocalRepository();
+						}
+					});
+				FlattenedSolution alreadyCreated = globalFlattendSolutions.putIfAbsent(flattenedSolution.getName(), flattenedSolution);
+				if (alreadyCreated != null)
+				{
+					flattenedSolution.close(null);
+					flattenedSolution = alreadyCreated;
+				}
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException("Can't create FlattenedSolution for: " + fs, e);
+			}
+		}
+		return flattenedSolution;
+	}
+
 	public static FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
 	{
+		return getFormElement(formElement, context.getSolution(), propertyPath, (context.getApplication() != null && context.getApplication().isInDesigner()));
+	}
+
+	public static FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
+	{
+
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if ((context.getApplication() != null && context.getApplication().isInDesigner()) || (context.getSolution().getSolutionCopy(false) != null))
+		if (designer || (fs.getSolutionCopy(false) != null))
 		{
 			if (propertyPath == null)
 			{
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, context);
-			else return new FormElement(formElement, context, propertyPath);
+			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
+			else return new FormElement(formElement, fs, propertyPath, designer);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
@@ -189,22 +231,20 @@ public class ComponentFactory
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, context);
-			else persistWrapper = new FormElement(formElement, context, propertyPath);
+			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
+				designer);
+			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{
 				persistWrapper = existing;
 			}
 		}
-		else
-		{
-			if (context != persistWrapper.getDataConverterContext()) persistWrapper.setDataConverterContext(context);
-		}
 		return persistWrapper;
+
 	}
 
-	private static FormElement createBodyPortalFormElement(BodyPortal listViewPortal, IServoyDataConverterContext context)
+	private static FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesginer)
 	{
 		Form form = listViewPortal.getForm();
 		Part bodyPart = null;
@@ -243,7 +283,6 @@ public class ComponentFactory
 
 				portal.put("anchors", listViewPortal.isTableview() ? (fillsWidth ? IAnchorConstants.ALL
 					: (IAnchorConstants.NORTH + IAnchorConstants.WEST + IAnchorConstants.SOUTH)) : IAnchorConstants.ALL);
-				boolean isInDesginer = (context.getApplication() != null && context.getApplication().isInDesigner());
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
 				location.put("y", isInDesginer ? startPos : 0);
@@ -262,8 +301,7 @@ public class ComponentFactory
 
 				PropertyPath propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
-				FormElement portalFormElement = new FormElement("servoydefault-portal", portal, form, name, context, propertyPath);
-
+				FormElement portalFormElement = new FormElement("servoydefault-portal", portal, form, name, fs, propertyPath, isInDesginer);
 				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
 				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
 				if (pd == null)
@@ -291,8 +329,8 @@ public class ComponentFactory
 						{
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
-							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, context, propertyPath);
-							children.add(type.getFormElementValue(null, pd, propertyPath, fe, context.getSolution()));
+							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, fs, propertyPath, isInDesginer);
+							children.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
 							propertyPath.backOneLevel();
 						}
 					}
@@ -411,6 +449,11 @@ public class ComponentFactory
 	public static void reload()
 	{
 		persistWrappers.clear();
+		for (FlattenedSolution fs : globalFlattendSolutions.values())
+		{
+			fs.close(null);
+		}
+		globalFlattendSolutions.clear();
 		WebComponentSpecProvider.reload();
 	}
 

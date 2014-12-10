@@ -66,7 +66,7 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs) throws JSONException
 	{
 		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
 		if (formElementValue != null && valueInTemplate(formElementValue))

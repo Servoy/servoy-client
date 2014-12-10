@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Bean;
@@ -78,8 +79,7 @@ class PersistBasedFormElementImpl
 		return (Form)parent;
 	}
 
-	public Map<String, Object> getFormElementPropertyValues(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties,
-		PropertyPath propertyPath)
+	public Map<String, Object> getFormElementPropertyValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
 		if (persist instanceof Bean)
 		{
@@ -87,14 +87,14 @@ class PersistBasedFormElementImpl
 			if (customJSONString != null)
 			{
 				// convert from persist design-time value (which might be non-json) to the expected value
-				Map<String, Object> jsonMap = processPersistProperties(context, specProperties, propertyPath);
+				Map<String, Object> jsonMap = processPersistProperties(fs, specProperties, propertyPath);
 
 				jsonMap.remove(StaticContentSpecLoader.PROPERTY_BEANXML); // this is handled separately as NG component definition
 				try
 				{
 					// add beanXML (which is actually a JSON string here) defined properties to the map
 					JSONObject jsonProperties = new JSONObject(customJSONString);
-					formElement.convertFromJSONToFormElementValues(context, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(),
+					formElement.convertFromJSONToFormElementValues(fs, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(),
 						jsonProperties, propertyPath);
 				}
 				catch (Exception ex)
@@ -115,18 +115,18 @@ class PersistBasedFormElementImpl
 		}
 		else if (persist instanceof AbstractBase)
 		{
-			Map<String, Object> map = processPersistProperties(context, specProperties, propertyPath);
+			Map<String, Object> map = processPersistProperties(fs, specProperties, propertyPath);
 			if (persist instanceof Field && ((Field)persist).getDisplayType() == Field.MULTISELECT_LISTBOX)
 			{
 				map.put("multiselectListbox", Boolean.TRUE);
 			}
 			else if (persist instanceof TabPanel)
 			{
-				convertFromTabPanelToNGProperties((IFormElement)persist, context, map, specProperties, propertyPath);
+				convertFromTabPanelToNGProperties((IFormElement)persist, fs, map, specProperties, propertyPath);
 			}
 			else if (persist instanceof Portal)
 			{
-				convertFromPortalToNGProperties((IFormElement)persist, context, map, specProperties, propertyPath);
+				convertFromPortalToNGProperties((IFormElement)persist, fs, map, specProperties, propertyPath);
 			}
 			return map;
 		}
@@ -136,12 +136,10 @@ class PersistBasedFormElementImpl
 		}
 	}
 
-	private Map<String, Object> processPersistProperties(IServoyDataConverterContext context, Map<String, PropertyDescription> specProperties,
-		PropertyPath propertyPath)
+	private Map<String, Object> processPersistProperties(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
-		Map<String, Object> jsonMap = convertSpecialPersistProperties(getFlattenedPropertiesMap(), context, specProperties);
-		formElement.convertFromPersistPrimitivesToFormElementValues(context, specProperties, formElement.getWebComponentSpec().getHandlers(), jsonMap,
-			propertyPath);
+		Map<String, Object> jsonMap = convertSpecialPersistProperties(getFlattenedPropertiesMap(), fs, specProperties);
+		formElement.convertFromPersistPrimitivesToFormElementValues(fs, specProperties, formElement.getWebComponentSpec().getHandlers(), jsonMap, propertyPath);
 		return jsonMap;
 	}
 
@@ -154,7 +152,7 @@ class PersistBasedFormElementImpl
 	 *
 	 * Converts string representation to high level Class representation of properties that will be the FormElement value of that property.
 	 */
-	private Map<String, Object> convertSpecialPersistProperties(Map<String, Object> propertiesMap, final IServoyDataConverterContext context,
+	private Map<String, Object> convertSpecialPersistProperties(Map<String, Object> propertiesMap, FlattenedSolution fs,
 		Map<String, PropertyDescription> specProperties)
 	{
 		// it is a bit strange here as from Persist we get
@@ -203,48 +201,47 @@ class PersistBasedFormElementImpl
 		return ((AbstractBase)p).getPropertiesMap();
 	}
 
-	private void putAndConvertProperty(String propName, Object val, Map<String, Object> map, final IServoyDataConverterContext context,
-		PropertyDescription desc, PropertyPath propertyPath)
+	private void putAndConvertProperty(String propName, Object val, Map<String, Object> map, FlattenedSolution fs, PropertyDescription desc,
+		PropertyPath propertyPath)
 	{
-		formElement.convertDesignToFormElementValueAndPut(context, desc, map, propName, val, propertyPath);
+		formElement.convertDesignToFormElementValueAndPut(fs, desc, map, propName, val, propertyPath);
 	}
 
-	private void convertFromTabPanelToNGProperties(IFormElement persist, final IServoyDataConverterContext context, Map<String, Object> map,
+	private void convertFromTabPanelToNGProperties(IFormElement persist, FlattenedSolution fs, Map<String, Object> map,
 		Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
 		ArrayList<Map<String, Object>> tabList = new ArrayList<>();
 		// add the tabs.
 		Iterator<IPersist> tabs = ((TabPanel)persist).getTabs();
-		putAndConvertProperty("tabIndex", 1, map, context, specProperties.get("tabIndex"), propertyPath);
+		putAndConvertProperty("tabIndex", 1, map, fs, specProperties.get("tabIndex"), propertyPath);
 		PropertyDescription tabSpecProperties = specProperties.get("tabs");
 		boolean active = true;
 		while (tabs.hasNext())
 		{
 			Map<String, Object> tabMap = new HashMap<>();
 			Tab tab = (Tab)tabs.next();
-			putAndConvertProperty("text", tab.getText(), tabMap, context, tabSpecProperties.getProperty("text"), propertyPath);
-			putAndConvertProperty("relationName", tab.getRelationName(), tabMap, context, tabSpecProperties.getProperty("relationName"), propertyPath);
-			putAndConvertProperty("active", Boolean.valueOf(active), tabMap, context, tabSpecProperties.getProperty("active"), propertyPath);
+			putAndConvertProperty("text", tab.getText(), tabMap, fs, tabSpecProperties.getProperty("text"), propertyPath);
+			putAndConvertProperty("relationName", tab.getRelationName(), tabMap, fs, tabSpecProperties.getProperty("relationName"), propertyPath);
+			putAndConvertProperty("active", Boolean.valueOf(active), tabMap, fs, tabSpecProperties.getProperty("active"), propertyPath);
 			tabMap.put("foreground", tab.getForeground());
-			putAndConvertProperty("name", tab.getName(), tabMap, context, tabSpecProperties.getProperty("name"), propertyPath);
-			putAndConvertProperty("mnemonic", tab.getMnemonic(), tabMap, context, tabSpecProperties.getProperty("mnemonic"), propertyPath);
+			putAndConvertProperty("name", tab.getName(), tabMap, fs, tabSpecProperties.getProperty("name"), propertyPath);
+			putAndConvertProperty("mnemonic", tab.getMnemonic(), tabMap, fs, tabSpecProperties.getProperty("mnemonic"), propertyPath);
 			int containsFormID = tab.getContainsFormID();
 			// TODO should this be resolved way later on?
 			// if solution model then this form can change..
-			Form form = context.getSolution().getForm(containsFormID);
+			Form form = fs.getForm(containsFormID);
 			if (form != null)
 			{
-				putAndConvertProperty("containsFormId", form.getName(), tabMap, context, tabSpecProperties.getProperty("containsFormId"), propertyPath);
+				putAndConvertProperty("containsFormId", form.getName(), tabMap, fs, tabSpecProperties.getProperty("containsFormId"), propertyPath);
 			}
-			putAndConvertProperty("disabled", false, tabMap, context, tabSpecProperties.getProperty("disabled"), propertyPath);
+			putAndConvertProperty("disabled", false, tabMap, fs, tabSpecProperties.getProperty("disabled"), propertyPath);
 			int orient = ((TabPanel)persist).getTabOrientation();
 			if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL)
 			{
 				int tabMediaID = tab.getImageMediaID();
 				if (tabMediaID > 0)
 				{
-					putAndConvertProperty("imageMediaID", Integer.valueOf(tabMediaID), tabMap, context, tabSpecProperties.getProperty("imageMediaID"),
-						propertyPath);
+					putAndConvertProperty("imageMediaID", Integer.valueOf(tabMediaID), tabMap, fs, tabSpecProperties.getProperty("imageMediaID"), propertyPath);
 				}
 			}
 			tabList.add(tabMap);
@@ -253,7 +250,7 @@ class PersistBasedFormElementImpl
 		map.put("tabs", tabList.toArray());
 	}
 
-	private void convertFromPortalToNGProperties(IFormElement portalPersist, final IServoyDataConverterContext context, Map<String, Object> map,
+	private void convertFromPortalToNGProperties(IFormElement portalPersist, FlattenedSolution fs, Map<String, Object> map,
 		Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
 		try
@@ -273,7 +270,7 @@ class PersistBasedFormElementImpl
 			}
 			else
 			{
-				putAndConvertProperty("relatedFoundset", relatedFoundset, map, context, pd, propertyPath);
+				putAndConvertProperty("relatedFoundset", relatedFoundset, map, fs, pd, propertyPath);
 			}
 
 //			components: 'component[]',
@@ -301,7 +298,8 @@ class PersistBasedFormElementImpl
 				{
 					if (component instanceof IFormElement)
 					{
-						FormElement nfe = com.servoy.j2db.server.ngclient.ComponentFactory.getFormElement((IFormElement)component, context, propertyPath);
+						FormElement nfe = com.servoy.j2db.server.ngclient.ComponentFactory.getFormElement((IFormElement)component, fs, propertyPath,
+							formElement.getDesignId() != null);
 						boolean dpChanged = false;
 
 						propertyPath.add(i);
@@ -316,13 +314,13 @@ class PersistBasedFormElementImpl
 							{
 								dpChanged = true;
 								// portal always prefixes comp. dataproviders with related fs name
-								putAndConvertProperty(dpPropertyName, dp.substring(relationPrefix.length()), elementProperties, context,
+								putAndConvertProperty(dpPropertyName, dp.substring(relationPrefix.length()), elementProperties, fs,
 									nfe.getWebComponentSpec().getProperty(dpPropertyName), propertyPath);
 							}
 						}
 						if (dpChanged) nfe.updatePropertyValuesDontUse(elementProperties);
 
-						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe, context.getSolution());
+						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe, fs);
 						propertyPath.backOneLevel();
 					}
 				}

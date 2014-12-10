@@ -69,7 +69,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
-			wrapped = new FormElement(DefaultNavigator.INSTANCE, context, new PropertyPath());
+			wrapped = new FormElement(DefaultNavigator.INSTANCE, context.getSolution(), new PropertyPath(), design);
 		}
 		else if (obj instanceof Part)
 		{

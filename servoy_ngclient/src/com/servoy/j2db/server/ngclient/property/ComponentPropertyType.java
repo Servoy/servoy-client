@@ -42,7 +42,6 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -104,7 +103,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		try
 		{
 			FormElement element = new FormElement((String)designValue.get(TYPE_NAME_KEY), (JSONObject)designValue.get(DEFINITION_KEY), fe.getForm(),
-				fe.getName() + (uniqueId++), fe.getDataConverterContext(), propertyPath);
+				fe.getName() + (uniqueId++), flattenedSolution, propertyPath, fe.getDesignId() != null);
 
 			return getFormElementValue(designValue.optJSONArray(API_CALL_TYPES_KEY), pd, propertyPath, element, flattenedSolution);
 		}
@@ -187,7 +186,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, IServoyDataConverterContext servoyDataConverterContext) throws JSONException
+		DataConversion conversionMarkers, FlattenedSolution fs) throws JSONException
 	{
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
@@ -214,7 +213,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		try
 		{
 			writer.object();
-			JSONUtils.writeDataWithConversions(new FormElementToJSON(fe.getDataConverterContext()), writer, propertiesTypedData.content,
+			JSONUtils.writeDataWithConversions(new FormElementToJSON(fe.getFlattendSolution()), writer, propertiesTypedData.content,
 				propertiesTypedData.contentType, null);
 			writer.endObject();
 		}

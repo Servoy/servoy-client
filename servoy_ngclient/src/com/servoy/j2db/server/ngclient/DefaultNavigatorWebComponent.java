@@ -43,8 +43,8 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 	 */
 	public DefaultNavigatorWebComponent(IDataAdapterList dataAdapterList)
 	{
-		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, new ServoyDataConverterContext(dataAdapterList.getForm()),
-			new PropertyPath()), dataAdapterList);
+		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, dataAdapterList.getApplication().getFlattenedSolution(),
+			new PropertyPath(), false), dataAdapterList);
 		addEventHandler(DefaultNavigator.SETELECTEDINDEX_FUNCTION_NAME, new IEventHandler()
 		{
 			@Override
