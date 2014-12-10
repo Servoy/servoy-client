@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.component;
+package com.servoy.j2db.server.ngclient.property;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -65,7 +65,7 @@ import com.servoy.j2db.util.ServoyException;
  * @author Johan
  *
  */
-class TestNGClient extends NGClient
+public class TestNGClient extends NGClient
 {
 	/**
 	 *
@@ -200,7 +200,7 @@ class TestNGClient extends NGClient
 			public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
 			{
 				// TODO Auto-generated method stub
-				return null;
+				return statements;
 			}
 
 			@Override

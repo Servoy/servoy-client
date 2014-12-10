@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.component;
+package com.servoy.j2db.server.ngclient.property;
 
 import java.awt.Dimension;
 import java.awt.Point;
