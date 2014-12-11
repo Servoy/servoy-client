@@ -30,6 +30,7 @@ public class WebFormComponent extends Container implements IContextProvider
 	protected PropertyChangeSupport propertyChangeSupport;
 	protected IWebFormUI parentForm;
 	protected ComponentContext componentContext;
+	private IDirtyPropertyListener dirtyPropertyListener;
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
@@ -126,7 +127,7 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.BaseWebObject#getEventHandler(java.lang.String)
 	 */
 	@Override
@@ -218,6 +219,21 @@ public class WebFormComponent extends Container implements IContextProvider
 
 			return dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
 		}
+	}
+
+	/**
+	 * @param dirtyPropertyListener set the listeners that is called when {@link WebFormComponent#flagPropertyAsDirty(String) is called
+	 */
+	public void setDirtyPropertyListener(IDirtyPropertyListener dirtyPropertyListener)
+	{
+		this.dirtyPropertyListener = dirtyPropertyListener;
+	}
+
+	@Override
+	public void flagPropertyAsDirty(String key)
+	{
+		super.flagPropertyAsDirty(key);
+		if (dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key);
 	}
 
 }
