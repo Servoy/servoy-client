@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.info.FORMSECURITY;
@@ -52,7 +53,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * JavaScript Object to handle security inside servoy
- * 
+ *
  * @author jcompagner,seb,jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Security", scriptingName = "security")
@@ -132,7 +133,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * Returns the client ID.
 	 *
 	 * @sample var clientId = security.getClientID()
-	 * @return the clientId as seen on the server admin page 
+	 * @return the clientId as seen on the server admin page
 	 */
 	public String js_getClientID()
 	{
@@ -142,7 +143,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * @clonedesc js_getUserUID(String)
 	 * @sampleas js_getUserUID(String)
-	 * 
+	 *
 	 * @return the userUID
 	 */
 	public String js_getUserUID() throws ServoyException
@@ -155,15 +156,15 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @sample
 	 * //gets the current loggedIn username
-	 * var userName = security.getUserName(); 
+	 * var userName = security.getUserName();
 	 * //gets the uid of the given username
 	 * var userUID = security.getUserUID(userName);
-	 * //is the same as above 
-	 * //var my_userUID = security.getUserUID(); 
+	 * //is the same as above
+	 * //var my_userUID = security.getUserUID();
 	 *
 	 * @param username the username to find the userUID for
-	 * 
-	 * @return the userUID 
+	 *
+	 * @return the userUID
 	 */
 	public String js_getUserUID(String username) throws ServoyException
 	{
@@ -201,10 +202,10 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	//group id's are meaningless pk's (not stable across repositories); don't expose
 	/**
 	 * Returns the Group ID for the specified group (name)
-	 * 
+	 *
 	 * @deprecated Deprecated as of release 3.0, not supported anymore.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * //returns the groupid for the admin group in the variable
 	 * //var groupIDForAdmin = security.getGroupId('admin')
 	 */
@@ -240,7 +241,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @sample
 	 * //gets the current os username
 	 * var osUserName = security.getSystemUserName();
-	 * 
+	 *
 	 * @return the os user name
 	 */
 	public String js_getSystemUserName()
@@ -251,7 +252,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * @clonedesc js_getUserName(Object)
 	 * @sampleas js_getUserName(Object)
-	 * 
+	 *
 	 * @return the user name
 	 */
 	@JSFunction
@@ -265,19 +266,19 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @sample
 	 * //gets the current loggedIn username
-	 * var userName = security.getUserName(); 
+	 * var userName = security.getUserName();
 	 *
 	 * @description-mc
-	 * returns the current logged in username of that is used when doing a sync. 
-	 * 
+	 * returns the current logged in username of that is used when doing a sync.
+	 *
 	 * @sample-mc
 	 * var username = security.getUserName();
 	 * if (username != null) {
-	 *   // user is logged in 
+	 *   // user is logged in
 	 * }
-	 * 
+	 *
 	 * @param userUID the user UID used to retrieve the name
-	 * 
+	 *
 	 * @return the user name
 	 */
 	public String js_getUserName(Object userUID) throws ServoyException
@@ -320,9 +321,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * {
 	 * 	// do administration stuff
 	 * }
-	 * 
+	 *
 	 * @param groupName name of the group to check
-	 * 
+	 *
 	 * @return dataset with groupnames
 	 */
 	public boolean js_isUserMemberOfGroup(String groupName) throws ServoyException
@@ -340,10 +341,10 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * {
 	 * 	// do administration stuff
 	 * }
-	 * 
+	 *
 	 * @param groupName name of the group to check
 	 * @param userUID UID of the user to check
-	 * 
+	 *
 	 * @return dataset with groupnames
 	 */
 	public boolean js_isUserMemberOfGroup(String groupName, Object userUID) throws ServoyException
@@ -358,18 +359,18 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @sample
 	 * //get all the users in the security settings (Returns a JSDataset)
 	 * var dsUsers = security.getUsers()
-	 * 
+	 *
 	 * //loop through each user to get their group
 	 * //The getValue call is (row,column) where column 1 == id and 2 == name
 	 * for(var i=1 ; i<=dsUsers.getMaxRowIndex() ; i++)
 	 * {
 	 * 	//print to the output debugger tab: "user: " and the username
 	 * 	application.output("user:" + dsUsers.getValue(i,2));
-	 * 
+	 *
 	 * 	//set p to the user group for the current user
 	 * 	/** @type {JSDataSet} *&#47;
 	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
-	 * 
+	 *
 	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
 	 * 	{
 	 * 		//print to the output debugger tab: "group" and the group(s)
@@ -396,18 +397,18 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @sample
 	 * //get all the users in the security settings (Returns a JSDataset)
 	 * var dsUsers = security.getUsers()
-	 * 
+	 *
 	 * //loop through each user to get their group
 	 * //The getValue call is (row,column) where column 1 == id and 2 == name
 	 * for(var i=1 ; i<=dsUsers.getMaxRowIndex() ; i++)
 	 * {
 	 * 	//print to the output debugger tab: "user: " and the username
 	 * 	application.output("user:" + dsUsers.getValue(i,2));
-	 * 
+	 *
 	 * 	//set p to the user group for the current user
 	 * 	/** @type {JSDataSet} *&#47;
 	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
-	 * 
+	 *
 	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
 	 * 	{
 	 * 		//print to the output debugger tab: "group" and the group(s)
@@ -417,7 +418,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * }
 	 *
 	 * @param userUID to retrieve the user groups
-	 * 
+	 *
 	 * @return dataset with groupnames
 	 */
 	public JSDataSet js_getUserGroups(Object userUID) throws ServoyException
@@ -470,9 +471,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * 	application.output('wrong password')
 	 * }
 	 *
-	 * @param a_userUID the userUID to set the new password for 
+	 * @param a_userUID the userUID to set the new password for
 	 * @param password the new password
-	 * 
+	 *
 	 * @return true if changed
 	 */
 	public boolean js_setPassword(Object a_userUID, String password) throws ServoyException
@@ -506,7 +507,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @sampleas js_createGroup(String)
 	 *
-	 * @param a_userUID the userUID to set the new user UID for 
+	 * @param a_userUID the userUID to set the new user UID for
 	 * @param newUserUID the new user UID
 	 * @return true if changed
 	 */
@@ -539,7 +540,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * 	application.output('wrong password')
 	 * }
 	 *
-	 * @param a_userUID the userUID to check the password for 
+	 * @param a_userUID the userUID to check the password for
 	 * @param password the new password
 	 * @return true if password oke
 	 */
@@ -580,7 +581,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *		// add user to group
 	 *		security.addUserToGroup(uid, groupName);
 	 *		// if not delete group, do delete group
-	 *		if (deleteGroup) 
+	 *		if (deleteGroup)
 	 *		{
 	 *			security.deleteGroup(groupName);
 	 *		}
@@ -588,7 +589,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *}
 	 *
 	 * @param groupName the group name to create
-	 * 
+	 *
 	 * @return the created groupname
 	 */
 	public String js_createGroup(String groupName) throws ServoyException
@@ -609,10 +610,10 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * @clonedesc js_createUser(String, String, Object)
 	 * @sampleas js_createUser(String, String, Object)
-	 * 
+	 *
 	 * @param username the username
 	 * @param password the user password
-	 * 
+	 *
 	 * @return the userUID the created userUID, will be same if provided
 	 */
 	public Object js_createUser(String username, String password) throws ServoyException
@@ -662,7 +663,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param username the username
 	 * @param password the user password
 	 * @param userUID the user UID to use
-	 * 
+	 *
 	 * @return the userUID the created userUID, will be same if provided
 	 */
 	public Object js_createUser(String username, String password, Object userUID) throws ServoyException
@@ -701,7 +702,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @sampleas js_createUser(String, String, Object)
 	 *
 	 * @param userUID The UID of the user to be deleted.
-	 * 
+	 *
 	 * @return true if the user is successfully deleted.
 	 */
 	public boolean js_deleteUser(Object userUID) throws ServoyException
@@ -792,7 +793,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @sample security.changeGroupName('oldGroup', 'newGroup');
 	 *
-	 * @param oldGroupName the old name 
+	 * @param oldGroupName the old name
 	 * @param newGroupName the new name
 	 * @return true if changed
 	 */
@@ -823,7 +824,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * @clonedesc js_getUsers(String)
 	 * @sampleas js_getUsers(String)
-	 * 
+	 *
 	 * @return dataset with all the users
 	 */
 	public JSDataSet js_getUsers() throws ServoyException
@@ -963,7 +964,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * @clonedesc js_logout(String,String,Object)
 	 * @sampleas js_logout(String,String,Object)
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void logout()
@@ -974,7 +975,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * @clonedesc js_logout(String,String,Object)
 	 * @sampleas js_logout(String,String,Object)
-	 * 
+	 *
 	 * @param solutionToLoad the solution to load after logout
 	 */
 	public void js_logout(String solutionToLoad)
@@ -985,7 +986,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * @clonedesc js_logout(String,String,Object)
 	 * @sampleas js_logout(String,String,Object)
-	 * 
+	 *
 	 * @param solutionToLoad the solution to load after logout
 	 * @param method the method to run in the solution to load
 	 */
@@ -1011,12 +1012,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *
 	 * @description-mc
-	 * Clears the current credentials that the user specified when doing a sync. When the next sync happens the login form will be shown. 
-	 * 
+	 * Clears the current credentials that the user specified when doing a sync. When the next sync happens the login form will be shown.
+	 *
 	 * @sample-mc
 	 * security.logout();
 	 * plugins.mobile.sync();
-	 * 
+	 *
 	 * @param solutionToLoad the solution to load after logout
 	 * @param method the method to run in the solution to load
 	 * @param argument the argument to pass to the method to run
@@ -1036,29 +1037,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_canDelete(String dataSource)
 	{
-		String[] serverAndTableNames = DataSourceUtils.getDBServernameTablename(dataSource);
-		if (serverAndTableNames != null) return js_canDelete(serverAndTableNames[0], serverAndTableNames[1]);
-		return false;
+		return hasAccess(dataSource, IRepository.DELETE);
 	}
 
 	/**
 	 * @param serverName the server name
 	 * @param tableName the table name
-	 * 
+	 *
 	 * @deprecated replaced by canDelete(String)
 	 */
 	@Deprecated
 	public boolean js_canDelete(Object serverName, Object tableName)
 	{
-		Table table = getTable(serverName, tableName);
-		if (table != null)
+		if (serverName != null && tableName != null)
 		{
-			return application.getFoundSetManager().getEditRecordList().hasAccess(table, IRepository.DELETE);
+			return js_canDelete(DataSourceUtils.createDBTableDataSource(serverName.toString(), tableName.toString()));
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	/**
@@ -1080,29 +1075,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_canUpdate(String dataSource)
 	{
-		String[] serverAndTableNames = DataSourceUtils.getDBServernameTablename(dataSource);
-		if (serverAndTableNames != null) return js_canUpdate(serverAndTableNames[0], serverAndTableNames[1]);
-		return false;
+		return hasAccess(dataSource, IRepository.UPDATE);
 	}
 
 	/**
 	 * @param serverName the server name
 	 * @param tableName the parameter name
-	 * 
+	 *
 	 * @deprecated replaced by canUpdate(String)
 	 */
 	@Deprecated
 	public boolean js_canUpdate(Object serverName, Object tableName)
 	{
-		Table table = getTable(serverName, tableName);
-		if (table != null)
+		if (serverName != null && tableName != null)
 		{
-			return application.getFoundSetManager().getEditRecordList().hasAccess(table, IRepository.UPDATE);
+			return js_canUpdate(DataSourceUtils.createDBTableDataSource(serverName.toString(), tableName.toString()));
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	/**
@@ -1115,29 +1104,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_canInsert(String dataSource)
 	{
-		String[] serverAndTableNames = DataSourceUtils.getDBServernameTablename(dataSource);
-		if (serverAndTableNames != null) return js_canInsert(serverAndTableNames[0], serverAndTableNames[1]);
-		return false;
+		return hasAccess(dataSource, IRepository.INSERT);
 	}
 
 	/**
 	 * @param serverName the server name
 	 * @param tableName the table name
-	 * 
+	 *
 	 * @deprecated replaced by canInsert(String)
 	 */
 	@Deprecated
 	public boolean js_canInsert(Object serverName, Object tableName)
 	{
-		Table table = getTable(serverName, tableName);
-		if (table != null)
+		if (serverName != null && tableName != null)
 		{
-			return application.getFoundSetManager().getEditRecordList().hasAccess(table, IRepository.INSERT);
+			return js_canInsert(DataSourceUtils.createDBTableDataSource(serverName.toString(), tableName.toString()));
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	/**
@@ -1150,49 +1133,41 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_canRead(String dataSource)
 	{
-		String[] serverAndTableNames = DataSourceUtils.getDBServernameTablename(dataSource);
-		if (serverAndTableNames != null) return js_canRead(serverAndTableNames[0], serverAndTableNames[1]);
-		return false;
+		return hasAccess(dataSource, IRepository.READ);
 	}
 
 	/**
 	 * @param serverName the server name
 	 * @param tableName the table name
-	 * 
+	 *
 	 * @deprecated replaced by canRead(String)
 	 */
 	@Deprecated
 	public boolean js_canRead(Object serverName, Object tableName)
 	{
-		Table table = getTable(serverName, tableName);
-		if (table != null)
-		{
-			return application.getFoundSetManager().getEditRecordList().hasAccess(table, IRepository.READ);
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	private Table getTable(Object serverName, Object tableName)
-	{
 		if (serverName != null && tableName != null)
 		{
-			try
+			return js_canRead(DataSourceUtils.createDBTableDataSource(serverName.toString(), tableName.toString()));
+		}
+		return false;
+	}
+
+	private boolean hasAccess(String dataSource, int accessType)
+	{
+		try
+		{
+			Table table = (Table)application.getFoundSetManager().getTable(dataSource);
+			if (table != null)
 			{
-				IServer server = application.getSolution().getServer(serverName.toString());
-				if (server != null)
-				{
-					return (Table)server.getTable(tableName.toString());
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
+				return application.getFoundSetManager().getEditRecordList().hasAccess(table, accessType);
 			}
 		}
-		return null;
+		catch (RepositoryException ex)
+		{
+			Debug.error(ex);
+		}
+
+		return false;
 	}
 
 	//made easier for developers to work with old ids
@@ -1212,8 +1187,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Login to be able to leave the solution loginForm.
-	 * 
-	 * Example: Group names may be received from LDAP (Lightweight Directory Access Protocol) - a standard protocol used in web browsers and email applications to enable lookup queries that access a directory listing. 
+	 *
+	 * Example: Group names may be received from LDAP (Lightweight Directory Access Protocol) - a standard protocol used in web browsers and email applications to enable lookup queries that access a directory listing.
 	 *
 	 * @sample
 	 * var groups = ['Administrators']; //normally these groups are for example received from LDAP
@@ -1226,7 +1201,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @param username the username, like 'JamesWebb'
 	 * @param a_userUID the user UID to process login for
-	 * @param groups the groups array 
+	 * @param groups the groups array
 	 * @return true if loggedin
 	 */
 	public boolean js_login(String username, Object a_userUID, String[] groups)
@@ -1294,15 +1269,15 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
-	 * Authenticate the given credentials against the mobile service solution. 
+	 * Authenticate the given credentials against the mobile service solution.
 	 * It will set the credentials and then do a sync call to the server.
-	 * 
+	 *
 	 * @sample
 	 * // method will return null in mobile client, the same flow as for default login page will happen after calling this method
 	 * security.authenticate(['myusername', 'mypassword']);
 	 *
 	 * @param credentials array whose elements are passed as arguments to the authenticator method, in case of servoy built-in authentication this should be [username, password]
-	 * 
+	 *
 	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
 	 */
 	@JSFunction
@@ -1313,9 +1288,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Authenticate to the Servoy Server using one of the installed authenticators or the Servoy default authenticator.
-	 * 
+	 *
 	 * Note: this method should be called from a login solution, once logged in, the authenticate method has no effect.
-	 * 
+	 *
 	 * @sample
 	 * // create the credentials object as expected by the authenticator solution
 	 * var ok =  security.authenticate('myldap_authenticator', 'login', [scopes.globals.userName, scopes.globals.passWord])
@@ -1323,22 +1298,22 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * {
 	 * 	plugins.dialogs.showErrorDialog('Login failed', 'OK')
 	 * }
-	 * 
+	 *
 	 * // if no authenticator name is used, the credentials are checked using the Servoy built-in user management
 	 * ok = security.authenticate(null, null, [scopes.globals.userName, scopes.globals.passWord])
-	 * 
+	 *
 	 * @description-mc
-	 * Authenticate the given credentials against the mobile service solution. First two parameters are not used in mobile solution, just the credentials. 
+	 * Authenticate the given credentials against the mobile service solution. First two parameters are not used in mobile solution, just the credentials.
 	 * It will set the credentials and then do a sync call to the server.
-	 * 
+	 *
 	 * @sample-mc
 	 * // method will return null in mobile client, the same flow as for default login page will happen after calling this method
 	 * security.authenticate(null, null, ['myusername', 'mypassword']);
-	 * 
+	 *
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
 	 * @param method authenticator method, null for servoy built-in authentication
 	 * @param credentials array whose elements are passed as arguments to the authenticator method, in case of servoy built-in authentication this should be [username, password]
-	 * 
+	 *
 	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
 	 */
 	@JSFunction
@@ -1357,9 +1332,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Authenticate to the Servoy Server using one of the installed authenticators or the Servoy default authenticator.
-	 * 
+	 *
 	 * Note: this method should be called from a login solution.
-	 * 
+	 *
 	 * @sample
 	 * // create the credentials object as expected by the authenticator solution
 	 * var ok =  security.authenticate('myldap_authenticator', 'login', [scopes.globals.userName, scopes.globals.passWord])
@@ -1367,13 +1342,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * {
 	 * 	plugins.dialogs.showErrorDialog('Login failed', 'OK')
 	 * }
-	 * 
+	 *
 	 * // if no authenticator name is used, the credentials are checked using the Servoy built-in user management
 	 * ok = security.authenticate(null, null, [scopes.globals.userName, scopes.globals.passWord])
 	 *
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
 	 * @param method authenticator method, null for servoy built-in authentication
-	 * 
+	 *
 	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
 	 */
 	public Object js_authenticate(String authenticator_solution, String method)
@@ -1383,26 +1358,26 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Sets the security settings; the entries contained in the given dataset will override those contained in the current security settings.
-	 * 
-	 * NOTE: The security.getElementUUIDs and security.setSecuritySettings functions can be used to define custom security that overrides Servoy security. 
-	 * For additional information see the function security.getElementUUIDs. 
+	 *
+	 * NOTE: The security.getElementUUIDs and security.setSecuritySettings functions can be used to define custom security that overrides Servoy security.
+	 * For additional information see the function security.getElementUUIDs.
 	 *
 	 * @sample
 	 * var colNames = new Array();
 	 * colNames[0] = 'uuid';
 	 * colNames[1] = 'flags';
 	 * var dataset = databaseManager.createEmptyDataSet(0,colNames);
-	 * 
+	 *
 	 * var row = new Array();
 	 * row[0] = '413a4d69-becb-4ae4-8fdd-980755d6a7fb';//normally retreived via security.getElementUUIDs(...)
 	 * row[1] = JSSecurity.VIEWABLE|JSSecurity.ACCESSIBLE; // use bitwise 'or' for both
 	 * dataset.addRow(row);//setting element security
-	 * 
+	 *
 	 * row = new Array();
 	 * row[0] = 'example_data.orders';
 	 * row[1] = JSSecurity.READ|JSSecurity.INSERT|JSSecurity.UPDATE|JSSecurity.DELETE|JSSecurity.TRACKING; //use bitwise 'or' for multiple flags
 	 * dataset.addRow(row);//setting table security
-	 * 
+	 *
 	 * security.setSecuritySettings(dataset);//to be called in solution startup method
 	 *
 	 * @param dataset the dataset with security settings
