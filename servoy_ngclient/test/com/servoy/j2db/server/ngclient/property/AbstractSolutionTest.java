@@ -116,7 +116,7 @@ public abstract class AbstractSolutionTest
 
 		File[] locations = new File[1];
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		locations[0] = new File(f.getAbsoluteFile() + "/war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+		locations[0] = new File(f.getAbsoluteFile() + "/../war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 
 		InMemPackageReader inMemPackageReader = getTestComponents();
 
@@ -127,7 +127,7 @@ public abstract class AbstractSolutionTest
 		final TestRepository tr = new TestRepository();
 		try
 		{
-			ApplicationServerRegistry.setApplicationServerSingleton(new TestApplicationServer());
+			ApplicationServerRegistry.setApplicationServerSingleton(new TestApplicationServer(tr));
 			UUID uuid = UUID.randomUUID();
 			final RootObjectMetaData metadata = tr.createRootObjectMetaData(tr.getElementIdForUUID(uuid), uuid, "Test", IRepository.SOLUTIONS, 1, 1);
 

@@ -59,6 +59,16 @@ import com.servoy.j2db.util.xmlxport.VersionInfo;
  */
 final class TestApplicationServer implements IApplicationServerSingleton
 {
+	private final TestRepository tr;
+
+	/**
+	 * @param tr
+	 */
+	public TestApplicationServer(TestRepository tr)
+	{
+		this.tr = tr;
+	}
+
 	@Override
 	public void shutDown() throws Exception
 	{
@@ -208,8 +218,7 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	@Override
 	public IRepository getLocalRepository()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return tr;
 	}
 
 	@Override

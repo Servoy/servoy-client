@@ -95,7 +95,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
 	 */
 	@Override
@@ -112,7 +112,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -392,7 +392,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\".null;_1\",\"firstname\":null,\"lastname\":null}]}",
+		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\".null;_1\",\"lastname\":null,\"firstname\":null}]}",
 			stringWriter.toString());
 		foundSet.deleteRecord(1);
 
@@ -404,7 +404,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"firstname\":\"value3\",\"lastname\":\"value4\"}]}",
+		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}",
 			stringWriter.toString());
 		foundSet.newRecord(0, false);
 
@@ -413,7 +413,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"firstname\":\"value1\",\"lastname\":\"value2\"}]}",
+		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}",
 			stringWriter.toString());
 
 		foundSet.newRecord(3, false);
@@ -423,7 +423,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"firstname\":\"value1\",\"lastname\":\"value2\"}]}",
+		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}",
 			stringWriter.toString());
 
 
@@ -466,7 +466,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, new DataConversion());
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"firstname\":\"value1\",\"lastname\":\"value2\"},{\"_svyRowId\":\"1.2;_1\",\"firstname\":\"value3\",\"lastname\":\"value4\"}]}}",
+			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter.toString());
 
 		//changes to json
@@ -478,7 +478,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter2, new DataConversion());
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"firstname\":\"value3\",\"lastname\":\"value4\"}]}}",
+			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter2.toString());
 
 		viewPort.loadExtraRecords(-1);
@@ -488,7 +488,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter3, new DataConversion());
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"firstname\":\"value1\",\"lastname\":\"value2\"},{\"_svyRowId\":\"1.2;_1\",\"firstname\":\"value3\",\"lastname\":\"value4\"}]}}",
+			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter3.toString());
 	}
 }
