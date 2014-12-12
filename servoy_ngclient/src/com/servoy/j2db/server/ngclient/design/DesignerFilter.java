@@ -96,6 +96,7 @@ public class DesignerFilter implements Filter
 							jsonWriter.key("name").value(spec.getName());
 							jsonWriter.key("displayName").value(spec.getDisplayName());
 							jsonWriter.key("tagName").value("div"); //TODO is this configurable by the spec
+							jsonWriter.key("componentType").value("layout");
 							Map<String, Object> model = new HashMap<String, Object>();
 							PropertyDescription pd = spec.getProperty("size");
 							if (pd != null && pd.getDefaultValue() != null)
@@ -144,6 +145,7 @@ public class DesignerFilter implements Filter
 								jsonWriter.key("name").value(spec.getName());
 								jsonWriter.key("displayName").value(spec.getDisplayName());
 								jsonWriter.key("tagName").value(FormTemplateGenerator.getTagName(componentName));
+								jsonWriter.key("componentType").value("component");
 								Map<String, Object> model = new HashMap<String, Object>();
 								PropertyDescription pd = spec.getProperty("size");
 								if (pd != null && pd.getDefaultValue() != null)
