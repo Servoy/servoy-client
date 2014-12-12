@@ -19,8 +19,13 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.jsoup.helper.StringUtil;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
@@ -68,16 +73,32 @@ public class FormLayoutStructureGenerator
 	{
 		writer.print("<");
 		writer.print(container.getTagType());
-		writer.print(" ");
 		if (design)
 		{
 			writer.print(" svy-id='");
 			writer.print(container.getUUID().toString());
 			writer.print("'");
+			WebComponentSpecProvider.getInstance().getLayoutSpecifications();
+			Map<String, WebLayoutSpecification> map = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
+			WebLayoutSpecification spec = null;
+			if (map != null && (spec = map.get(container.getSpecName())) != null)
+			{
+				List<String> allowedChildren = spec.getAllowedChildren();
+				if (allowedChildren.size() > 0)
+				{
+					writer.print(" svy-allowed-children='");
+					writer.print("[" + StringUtil.join(allowedChildren, ",") + "]");
+					writer.print("'");
+				}
+				writer.print(" svy-layoutname='");
+				writer.print(spec.getName());
+				writer.print("'");
+			}
+
 		}
 		if (container.getElementId() != null)
 		{
-			writer.print("id='");
+			writer.print(" id='");
 			writer.print(container.getElementId());
 			writer.print("' ");
 		}
@@ -86,6 +107,7 @@ public class FormLayoutStructureGenerator
 		{
 			for (Entry<String, String> entry : attributes.entrySet())
 			{
+				writer.print(" ");
 				writer.print(entry.getKey());
 				writer.print("='");
 				writer.print(entry.getValue());

@@ -19,8 +19,8 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Point;
 import java.util.Collections;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
@@ -35,6 +35,46 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	protected LayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.LAYOUTCONTAINERS, parent, element_id, uuid);
+	}
+
+	/**
+	 * set the layout spec name
+	 *
+	 * @param name
+	 */
+	public void setSpecName(String name)
+	{
+		putCustomProperty(new String[] { "properties", "specname" }, name);
+	}
+
+	/**
+	 * returns the layouts spec name
+	 *
+	 * @return String
+	 */
+	public String getSpecName()
+	{
+		return (String)getCustomProperty(new String[] { "properties", "specname" });
+	}
+
+	/**
+	 * set the layout spec name
+	 *
+	 * @param name
+	 */
+	public void setPackageName(String name)
+	{
+		putCustomProperty(new String[] { "properties", "packagename" }, name);
+	}
+
+	/**
+	 * returns the layouts spec name
+	 *
+	 * @return String
+	 */
+	public String getPackageName()
+	{
+		return (String)getCustomProperty(new String[] { "properties", "packagename" });
 	}
 
 	/**

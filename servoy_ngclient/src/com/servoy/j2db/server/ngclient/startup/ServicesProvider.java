@@ -8,7 +8,6 @@ import org.apache.tomcat.starter.IServicesProvider;
 import com.servoy.j2db.server.ngclient.ComponentsModuleGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientEntryFilter;
-import com.servoy.j2db.server.ngclient.design.DesignerFilter;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
 
@@ -22,7 +21,7 @@ public class ServicesProvider implements IServicesProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.tomcat.starter.IServicesProvider#getAnnotatedClasses(java.lang.String)
 	 */
 	@Override
@@ -37,7 +36,6 @@ public class ServicesProvider implements IServicesProvider
 			set.add(NGClientEntryFilter.class);
 			set.add(NGClientEndpoint.class);
 			set.add(ResourceProvider.class);
-			set.add(DesignerFilter.class);
 			return set;
 		}
 		return null;
