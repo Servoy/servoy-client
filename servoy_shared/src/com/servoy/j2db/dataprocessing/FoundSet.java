@@ -3950,6 +3950,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
 					throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
 				}
+
+
 				// check for related data
 				Iterator<Relation> it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
 				while (it.hasNext())
@@ -3969,18 +3971,24 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 				}
 
-				// delete the related data
-				it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
-				while (it.hasNext())
+				//if this is a new record, this delete operation may be the result of a rollback due to a duplicated pk
+				// so only delete related data if the record is already in the db
+				if (state.existInDataSource())
 				{
-					Relation rel = it.next();
-					if (rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
+
+					// delete the related data
+					it = fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false);
+					while (it.hasNext())
 					{
-						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
-						if (set != null)
+						Relation rel = it.next();
+						if (rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
 						{
-							Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + state.getPKHashKey() + " index in foundset: " + row); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							set.deleteAllInternal();
+							IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
+							if (set != null)
+							{
+								Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + state.getPKHashKey() + " index in foundset: " + row); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								set.deleteAllInternal();
+							}
 						}
 					}
 				}
@@ -5881,7 +5889,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
