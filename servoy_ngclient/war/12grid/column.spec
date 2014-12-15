@@ -2,7 +2,7 @@
 	"name": "column",
 	"displayName": "column div",
 	"version": 1,
-	"definition": null,
+	"definition": "column.json",
 	"contains": ["component"],
 	"parents": ["row"],
 	"model": {
