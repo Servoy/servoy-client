@@ -359,7 +359,46 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					return retValForSelectedStored ? retValForSelectedCell : retVal;
 				}
 			}
+			
+			function setElementFindMode(element,findMode, editable)
+			{
+				if (element.api.setFindMode)
+				{
+					var isEditable;
+					if (findMode)
+					{
+						element.model.svy_wasEditable = element.model.editable;
+						isEditable = editable;
+					}
+					else
+					{
+						isEditable = element.model.svy_wasEditable;
+					}
+					element.api.setFindMode(findMode, isEditable);
+				}
+				else
+				{
+					if (findMode)
+					{
+						element.model.svy_readOnlyBeforeFindMode = element.model.readOnly;
+						element.model.readOnly = !editable;
+					}
+					else
+					{
+						element.model.readOnly = element.model.svy_readOnlyBeforeFindMode;
+					}
+				}
 
+			}
+
+			function setElementsFindMode(findMode, editable)
+			{
+				for (var i =0; i < $scope.model.childElements.length; i++)
+				{
+					setElementFindMode($scope.model.childElements[i], findMode, editable);
+				}
+			}
+			
 			// cells provide API calls; one API call (from server) should execute on all cells of that element's column.
 			// so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
 			// it will execute on all cells
@@ -368,12 +407,15 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 
 				if (!cellProxies.cellApi) {
 					if (!angular.isDefined(cellProxies.unwatchFuncs)) cellProxies.unwatchFuncs = [];
-					
 					var columnApi = elements[elementIndex].api;
 					cellProxies.cellApi = {}; // new cell API object
 					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return cellProxies.cellApi; }, function(newCellAPI) {
 						updateColumnAPIFromCell(columnApi, newCellAPI, elementIndex);
-					}));
+						if ($scope.model.svy_findMode!=undefined)
+						{
+							setElementFindMode($scope.model.childElements[elementIndex], $scope.model.svy_findMode, $scope.model.svy_editable);
+						}
+				}));
 				}
 				return cellProxies.cellApi;
 			}
@@ -660,39 +702,17 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				}
 				return cellProxies.cellHandlers;
 			}
+			
 
 			// special method that servoy calls when this component goes into find mode.
-			// special method that servoy calls when this component goes into find mode.
 			$scope.api.setFindMode = function(findMode, editable) {
-				for (var i =0; i < $scope.model.childElements.length; i++)
-				{
-					if ($scope.model.childElements[i].api.setFindMode)
-					{
-						var isEditable;
-						if (findMode)
-						{
-							$scope.model.childElements[i].model.svy_wasEditable = $scope.model.childElements[i].model.editable;
-							isEditable = editable;
-						}
-						else
-						{
-							isEditable = $scope.model.childElements[i].model.svy_wasEditable;
-						}
-						$scope.model.childElements[i].api.setFindMode(findMode, isEditable);
-					}
-					else
-					{
-						if (findMode)
-						{
-							$scope.model.childElements[i].model.svy_readOnlyBeforeFindMode = $scope.model.childElements[i].model.readOnly;
-							$scope.model.childElements[i].model.readOnly = !editable;
-						}
-						else
-						{
-							$scope.model.childElements[i].model.readOnly = $scope.model.childElements[i].model.svy_readOnlyBeforeFindMode;
-						}
-					}
-				}
+				
+				$scope.model.svy_findMode = findMode;
+				$scope.model.svy_editable = editable;
+				
+				$timeout(function(){
+					setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
+				},1);
 			};
 		},
 		templateUrl: 'servoydefault/portal/portal.html',
