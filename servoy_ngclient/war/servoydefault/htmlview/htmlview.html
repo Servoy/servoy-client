@@ -3,6 +3,7 @@
 	 svy-foreground='model.foreground'
 	 svy-rightclick='handlers.onRightClickMethodID($event)'
 	 ng-style="style"
+	 ng-class='model.styleClass ? model.styleClass : "svy-htmlview"'
      svy-margin='model.margin' 
      svy-font='model.fontType'
      svy-tooltip="model.toolTipText"

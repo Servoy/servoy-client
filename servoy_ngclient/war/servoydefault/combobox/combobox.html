@@ -8,6 +8,7 @@
 		svy-tooltip='model.toolTipText'
 		svy-font='model.fontType'
 		svy-tabseq='model.tabSeq'
+		ng-class='model.styleClass ? model.styleClass : "svy-combobox"'
 		on-select='onItemSelect($event)'>
  			<ui-select-match  placeholder="{{model.placeholderText}}" 
  				svy-focusgained='handlers.onFocusGainedMethodID($event)' 	

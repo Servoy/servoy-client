@@ -1,7 +1,8 @@
 <div  svy-border='model.borderType' 
 	 svy-background='model.transparent ? "transparent" : model.background'
 	 svy-foreground='model.foreground'
-	 ng-style="style"				
+	 ng-style="style"
+	 ng-class='model.styleClass ? model.styleClass : "svy-htmlarea"'				
      svy-margin='model.margin' 
      svy-font='model.fontType'
      svy-tooltip="model.toolTipText"
