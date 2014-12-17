@@ -75,22 +75,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		return (INGApplication)application;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormManager#getCachedFormController(java.lang.String)
-	 */
 	@Override
 	protected IFormController getCachedFormController(String formName)
 	{
 		return createdFormControllers.get(formName);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormManager#setFormReadOnly(java.lang.String, boolean)
-	 */
 	@Override
 	protected void setFormReadOnly(String formName, boolean b)
 	{
@@ -222,11 +212,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IFormManager#getForm(java.lang.String)
-	 */
 	@Override
 	public IWebFormController getForm(String name)
 	{
@@ -285,22 +270,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IFormManagerInternal#clearLoginForm()
-	 */
 	@Override
 	public void clearLoginForm()
 	{
 		if (application.getSolution().getMustAuthenticate()) makeSolutionSettings(application.getSolution());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IFormManager#getCurrentForm()
-	 */
 	@Override
 	public IWebFormController getCurrentForm()
 	{
@@ -308,11 +283,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IFormManagerInternal#getCurrentMainShowingFormController()
-	 */
 	@Override
 	public IWebFormController getCurrentMainShowingFormController()
 	{
@@ -321,11 +291,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		return currentWindow.getController();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IManager#init()
-	 */
 	@Override
 	public void init()
 	{
@@ -333,11 +298,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IManager#flushCachedItems()
-	 */
 	@Override
 	public void flushCachedItems()
 	{
@@ -345,11 +305,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt)
 	{
@@ -387,23 +342,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		wm.destroy();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#showFormInMainPanel(java.lang.String)
-	 */
 	@Override
 	public IFormController showFormInMainPanel(String name)
 	{
 		return showFormInCurrentContainer(name);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#showFormInContainer(java.lang.String, com.servoy.j2db.IBasicMainContainer, java.lang.String, boolean,
-	 * java.lang.String)
-	 */
 	@Override
 	public IFormController showFormInContainer(String formName, IBasicMainContainer container, String title, boolean closeAll, String dialogName)
 	{
@@ -530,23 +474,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#showFormInCurrentContainer(java.lang.String)
-	 */
 	@Override
 	public IFormController showFormInCurrentContainer(String formName)
 	{
 		return showFormInContainer(formName, getCurrentContainer(), null, false, getCurrentContainer().getContainerName());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#showFormInDialog(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, boolean, boolean,
-	 * java.lang.String)
-	 */
 	@Override
 	public void showFormInDialog(String formName, Rectangle bounds, String title, boolean resizeble, boolean showTextToolbar, boolean closeAll, boolean modal,
 		String windowName)
@@ -578,11 +511,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		thisWindow.oldShow(formName, closeAll, legacyV3Behavior);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#showFormInFrame(java.lang.String, java.awt.Rectangle, java.lang.String, boolean, boolean, java.lang.String)
-	 */
 	@Override
 	public void showFormInFrame(String formName, Rectangle bounds, String windowTitle, boolean resizeble, boolean showTextToolbar, String windowName)
 	{
@@ -612,22 +540,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		thisWindow.oldShow(formName, true, false); // last two params are really not relevant for windows
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#getCurrentContainer()
-	 */
 	@Override
 	public IBasicMainContainer getCurrentContainer()
 	{
 		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#getHistory(com.servoy.j2db.IBasicMainContainer)
-	 */
 	@Override
 	public History getHistory(IBasicMainContainer container)
 	{
@@ -647,22 +565,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		return c.getHistory();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#getMainContainer(java.lang.String)
-	 */
 	@Override
 	public IBasicMainContainer getMainContainer(String windowName)
 	{
 		return ((INGApplication)application).getRuntimeWindowManager().getWindow(windowName);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#isCurrentTheMainContainer()
-	 */
 	@Override
 	public boolean isCurrentTheMainContainer()
 	{

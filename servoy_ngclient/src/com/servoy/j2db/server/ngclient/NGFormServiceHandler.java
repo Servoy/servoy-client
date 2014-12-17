@@ -189,7 +189,17 @@ public class NGFormServiceHandler extends FormServiceHandler
 			}
 
 			default :
-				return super.executeMethod(methodName, args);
+			{
+				Object val = super.executeMethod(methodName, args);
+
+				if ("requestData".equals(methodName))
+				{
+					// "requestData" was already treated by "super" call; just let the system know that this form is now ready for use client-side
+					getWebsocketSession().formCreated(args.optString("formname"));
+				}
+
+				return val;
+			}
 		}
 
 		return null;

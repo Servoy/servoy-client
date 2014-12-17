@@ -575,10 +575,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
         link: function (scope, element, attrs) {
         	var formname = scope.formname;
 			$timeout(function() {
-				// notify that the form has been loaded
-				// NOTE: this call cannot be make as a service call, as a service call may
-				// already be blocked and waiting for the formload event
-				$sabloApplication.sendRequest({cmd:'formloaded',formname:formname})
 				if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
 					$rootScope.updatingFormUrl = '';
 				}

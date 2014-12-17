@@ -35,17 +35,12 @@ public class NGEvent extends Event
 	private String suspendedWindowName;
 	private String previous;
 
-	public NGEvent(INGApplication client, Runnable runnable)
+	public NGEvent(INGApplication client, Runnable runnable, int eventLevel)
 	{
-		super(client.getWebsocketSession(), runnable);
+		super(client.getWebsocketSession(), runnable, eventLevel);
 		this.client = client;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.eventthread.Event#beforeExecute()
-	 */
 	@Override
 	protected void beforeExecute()
 	{
@@ -54,11 +49,6 @@ public class NGEvent extends Event
 		client.getRuntimeWindowManager().setCurrentWindowName(WebsocketEndpoint.get().getWindowId());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.eventthread.Event#afterExecute()
-	 */
 	@Override
 	protected void afterExecute()
 	{

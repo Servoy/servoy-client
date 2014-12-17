@@ -45,7 +45,7 @@ public class WebComponentFunction extends WebBaseFunction
 	@Override
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		// first do rhino conversion on the types first.(form scope -> name, native object -> dimension)
+		// first do rhino conversion on the types (form scope -> name, native object -> dimension, ...)
 		if (args != null && args.length > 0)
 		{
 			PropertyDescription parameterTypes = WebComponent.getParameterTypes(definition);

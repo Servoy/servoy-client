@@ -117,6 +117,17 @@ public class TestNGClient extends NGClient
 					{
 						event.run();
 					}
+
+					@Override
+					public void addEvent(Runnable event, int eventLevel)
+					{
+						event.run();
+					}
+
+					@Override
+					public void suspend(Object suspendID, int minEventLevelToDispatch)
+					{
+					}
 				};
 			}
 		});
@@ -127,7 +138,7 @@ public class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#createDataServer()
 	 */
 	@Override
@@ -399,7 +410,7 @@ public class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.NGClient#getLocale()
 	 */
 	@Override
@@ -410,7 +421,7 @@ public class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#createRepository()
 	 */
 	@Override

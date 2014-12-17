@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.json.JSONObject;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
@@ -82,11 +81,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return client;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.BaseWebsocketSession#getForm(java.lang.String)
-	 */
 	@Override
 	public Container getForm(String formName)
 	{
@@ -194,35 +188,22 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return new NGFormServiceHandler(this);
 	}
 
-	/**
-	 * @param message
-	 */
-	@Override
-	public void handleMessage(final JSONObject obj)
-	{
-		if (client != null) J2DBGlobals.setServiceProvider(client);
-		try
-		{
-			// TODO: move these commands to services
-			// always just try to set the current window name
-			String event = obj.getString("cmd");
-			switch (event)
-			{
-				case "formloaded" :
-					formCreated(obj.getString("formname"));
-					break;
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-			sendInternalError(e);
-		}
-		finally
-		{
-			J2DBGlobals.setServiceProvider(null);
-		}
-	}
+//	public void handleMessage(final JSONObject obj)
+//	{
+//		if (client != null) J2DBGlobals.setServiceProvider(client);
+//		try
+//		{
+//		}
+//		catch (Exception e)
+//		{
+//			Debug.error(e);
+//			sendInternalError(e);
+//		}
+//		finally
+//		{
+//			J2DBGlobals.setServiceProvider(null);
+//		}
+//	}
 
 	@Override
 	public void formCreated(String formName)
@@ -234,7 +215,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			synchronized (formUrl)
 			{
 				formsOnClient.get(formName).setRight(Boolean.TRUE);
-				formUrl.notifyAll();
+				getEventDispatcher().resume(formUrl);
 			}
 		}
 	}
@@ -274,21 +255,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		// if sync wait until we got response from client as it is loaded
 		if (!async)
 		{
-			synchronized (formUrl)
+			if (!formsOnClient.get(formName).getRight().booleanValue())
 			{
-				if (!formsOnClient.get(formName).getRight().booleanValue())
-				{
-					// really send the changes
-					sendChanges();
-					try
-					{
-						formUrl.wait(); // wait for the 'formloaded' event from client
-					}
-					catch (InterruptedException ex)
-					{
-						Debug.error(ex);
-					}
-				}
+				// really send the changes
+				sendChanges();
+				getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL);
 			}
 		}
 	}
@@ -393,11 +364,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.BaseWebsocketSession#valueChanged()
-	 */
 	@Override
 	public void valueChanged()
 	{
@@ -435,11 +401,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		super.closeSession();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.BaseWebsocketSession#createClientService(java.lang.String)
-	 */
 	@Override
 	protected IClientService createClientService(String name)
 	{

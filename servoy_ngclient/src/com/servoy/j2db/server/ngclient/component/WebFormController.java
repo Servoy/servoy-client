@@ -87,66 +87,36 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getApplication()
-	 */
 	@Override
 	public final INGApplication getApplication()
 	{
 		return (INGApplication)super.getApplication();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getFormUI()
-	 */
 	@Override
 	public IWebFormUI getFormUI()
 	{
 		return formUI;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#setView(int)
-	 */
 	@Override
 	public void setView(int view)
 	{
 		this.view = view;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getView()
-	 */
 	@Override
 	public int getView()
 	{
 		return view;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getBasicFormManager()
-	 */
 	@Override
 	public IBasicFormManager getBasicFormManager()
 	{
 		return getApplication().getFormManager();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getViewComponent()
-	 */
 	@Override
 	protected IView getViewComponent()
 	{
@@ -275,11 +245,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#focusFirstField()
-	 */
 	@Override
 	protected void focusFirstField()
 	{
@@ -287,11 +252,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#focusField(java.lang.String, boolean)
-	 */
 	@Override
 	protected void focusField(String fieldName, boolean skipReadonly)
 	{
@@ -299,11 +259,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#propagateFindMode(boolean)
-	 */
 	@Override
 	public void propagateFindMode(boolean findMode)
 	{
@@ -362,11 +317,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getDesignMode()
-	 */
 	@Override
 	public boolean getDesignMode()
 	{
@@ -374,11 +324,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#setDesignMode(com.servoy.j2db.DesignModeCallbacks)
-	 */
 	@Override
 	public void setDesignMode(DesignModeCallbacks callback)
 	{
@@ -400,11 +345,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getPartYOffset(int)
-	 */
 	@Override
 	public int getPartYOffset(int partType)
 	{
@@ -412,11 +352,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getJSApplicationNames(java.lang.Object, org.mozilla.javascript.Function, boolean)
-	 */
 	@Override
 	protected FormAndComponent getJSApplicationNames(Object source, Function function, boolean useFormAsEventSourceEventually)
 	{
@@ -425,11 +360,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return new FormAndComponent(src, getName());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#getJSEvent(java.lang.Object)
-	 */
 	@Override
 	protected JSEvent getJSEvent(Object src)
 	{
