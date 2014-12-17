@@ -515,6 +515,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					data: 'foundset.viewPort.rows',
 					enableRowSelection: true,
 					enableRowHeaderSelection: false,
+					excludeProperties: [$foundsetTypeConstants.ROW_ID_COL_KEY],
 					multiSelect: false,
 					modifierKeysToMultiSelect: true,
 					noUnselect: true,
