@@ -1,6 +1,6 @@
 {
 	"name": "container",
-	"displayName": "container div",
+	"displayName": "Container",
 	"version": 1,
 	"definition": "container.json",
 	"contains": ["row"],

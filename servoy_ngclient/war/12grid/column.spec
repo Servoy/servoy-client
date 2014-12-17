@@ -1,6 +1,6 @@
 {
 	"name": "column",
-	"displayName": "column div",
+	"displayName": "Column",
 	"version": 1,
 	"definition": "column.json",
 	"contains": ["component"],

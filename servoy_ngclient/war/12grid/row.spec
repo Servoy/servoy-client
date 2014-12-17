@@ -1,6 +1,6 @@
 {
 	"name": "row",
-	"displayName": "row div",
+	"displayName": "Row",
 	"version": 1,
 	"definition": "row.json",
 	"contains": ["column"],
