@@ -140,6 +140,7 @@ public class FormLayoutGenerator
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
+			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 			Form currentForm = form;
 			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
 			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
@@ -240,5 +241,10 @@ public class FormLayoutGenerator
 	private static String getDesignId(FormElement fe)
 	{
 		return (fe.getDesignId() == null && fe.getTypeName().equals("servoydefault-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
+	}
+
+	private static boolean isNotSelectable(FormElement fe)
+	{
+		return (fe.getDesignId() == null && fe.getTypeName().equals("servoydefault-portal"));
 	}
 }
