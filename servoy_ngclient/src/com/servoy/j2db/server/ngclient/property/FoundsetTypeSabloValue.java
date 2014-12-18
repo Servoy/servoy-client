@@ -97,6 +97,8 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 	protected ViewportRowDataProvider rowDataProvider;
 
+	private final Map<String, String> elementsToDataproviders;
+
 
 	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName)
 	{
@@ -116,6 +118,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
 		viewPort = new FoundsetTypeViewport(changeMonitor);
 		// nothing to do here; foundset is not initialized until it's attached to a component
+		elementsToDataproviders = new HashMap<String, String>();
 	}
 
 	public FoundsetTypeViewport getViewPort()
@@ -440,6 +443,30 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 					{
 						viewPort.loadExtraRecords(update.getInt("loadExtraRecords"));
 					}
+					else if (update.has("sort"))
+					{
+						JSONArray columns = update.getJSONArray("sort");
+						StringBuilder sort = new StringBuilder();
+						for (int j = 0; j < columns.length(); j++)
+						{
+							JSONObject sortColumn = columns.getJSONObject(j);
+							String name = sortColumn.getString("name");
+							if (elementsToDataproviders.containsKey(name))
+							{
+								sort.append(elementsToDataproviders.get(name));
+								sort.append(" " + sortColumn.getString("direction"));
+								if (j < columns.length() - 1) sort.append(",");
+							}
+						}
+						try
+						{
+							foundset.setSort(sort.toString());
+						}
+						catch (ServoyException e)
+						{
+							Debug.error("Cannot sort foundset by " + sort.toString(), e);
+						}
+					}
 					// {newClientSelection: newSelectedIndexesArray}
 					else if (update.has("newClientSelection"))
 					{
@@ -604,4 +631,9 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		return "'" + propertyName + "' foundset type property on component " + (webObject != null ? webObject.getName() : "- not yet attached -");
 	}
 
+
+	protected void setColumnDataprovider(String name, String dataprovider)
+	{
+		elementsToDataproviders.put(name, dataprovider);
+	}
 }

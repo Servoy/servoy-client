@@ -575,8 +575,13 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					}
 				});
 				gridApi.core.on.sortChanged ($scope, function( grid, sortColumns ) {
-					// cal the server (through foundset type)
-					// $scope.foundset.sort(sortColumns[0], sortColumns[0].sort.direction == uiGridConstants.ASC);
+					// call the server (through foundset type)
+					var columns = [];
+					for (var i = 0; i < sortColumns.length; i++)
+					{
+						columns[i] = {name: sortColumns[i].name, direction : sortColumns[i].sort.direction};
+					}
+					$scope.foundset.sort(columns);
 				});
 				gridApi.colResizable.on.columnSizeChanged ($scope, function(colDef, deltaChange) {
 					for(var i = 0; i < $scope.model.childElements.length; i++) {
