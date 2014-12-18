@@ -366,9 +366,9 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 			
 			function setElementFindMode(element,findMode, editable)
 			{
-				if (!findMode && element.model.svy_wasEditable == undefined && element.model.svy_readOnlyBeforeFindMode == undefined) return;
 				if (element.api.setFindMode)
 				{
+					if (!findMode && element.model.svy_wasEditable == undefined) return;
 					var isEditable;
 					if (findMode)
 					{
@@ -384,6 +384,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				}
 				else
 				{
+					if (!findMode && element.model.svy_readOnlyBeforeFindMode == undefined) return;
 					if (findMode)
 					{
 						element.model.svy_readOnlyBeforeFindMode = element.model.readOnly;
