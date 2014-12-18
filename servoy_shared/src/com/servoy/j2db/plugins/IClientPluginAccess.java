@@ -43,7 +43,7 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 /**
  * Default client plugin api
- * 
+ *
  * @author jblok
  */
 public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLevel
@@ -71,7 +71,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Constant returned by getApplicationType
-	 * 
+	 *
 	 * @deprecated Use CLIENT constant
 	 * @since Servoy 3.5
 	 */
@@ -81,21 +81,21 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	/**
 	 * Report a warning in the status (will be shown in red). <br>
 	 * <b>Note:</b>Status will be cleared automatically
-	 * 
+	 *
 	 * @param s the warning
 	 */
 	public void reportWarningInStatus(String s);
 
 	/**
 	 * Get the application type. Will return one of the client constants like {@link #CLIENT} for the smart client.
-	 * 
+	 *
 	 * @return int the type
 	 */
 	public int getApplicationType();
 
 	/**
 	 * Returns whether or not this client is running in the developer.
-	 * 
+	 *
 	 * @return true if this client is running in developer
 	 */
 	public boolean isInDeveloper();
@@ -103,7 +103,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the application name.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getApplicationName();
@@ -112,14 +112,14 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * Map containing runtime properties (will never be stored, and lives one session only)
 	 * One Servoy influenced runtime property is printing state, which can be checked like:
 	 * boolean isPrinting = Boolean.valueOf(access.getRuntimeProperties().get("isPrinting"));
-	 * 
+	 *
 	 * @since Servoy 3.5
 	 */
 	public Map getRuntimeProperties();
 
 	/**
 	 * ResourceBundle containing all the messages of the current loaded solution.
-	 * 
+	 *
 	 * @since Servoy 3.5.3
 	 * @param locale The locale for which the resource bundle must be created, null if it has to use the default from the client.
 	 */
@@ -127,21 +127,21 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Set a status text in the status area.
-	 * 
+	 *
 	 * @param txt the text to show on status, please note for webclient the status bar is obsolete in most browsers
 	 */
 	public void setStatusText(String txt);
 
 	/**
 	 * Get the userUID.
-	 * 
+	 *
 	 * @return int the user id, null if not logged in
 	 */
 	public Object getUserUID();
 
 	/**
 	 * Get the clientID.
-	 * 
+	 *
 	 * @return String the client id, for use in dataserver.
 	 */
 	public String getClientID();
@@ -155,21 +155,21 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the database manager (used to control the rows/transactions etc).
-	 * 
+	 *
 	 * @return the database manager
 	 */
 	public IDatabaseManager getDatabaseManager();
 
 	/**
 	 * Get the form manager (used to control the forms, show etc). Note: the form manager can be casted to a ISwingFormManager for more usage
-	 * 
+	 *
 	 * @return the form manager
 	 */
 	public IFormManager getFormManager();
 
 	/**
 	 * Get a message for the specified i18n key
-	 * 
+	 *
 	 * @param i18nKey The key
 	 * @param arguments Arguments to be used that are inserted in the found message (null if no args).
 	 * @return the string if the key is found.
@@ -178,28 +178,28 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the cmd manager (used to execute undoable cmd).
-	 * 
+	 *
 	 * @return ICmdManager
 	 */
 	public ICmdManager getCmdManager();
 
 	/**
 	 * Get the bean manager (used to control beans).
-	 * 
+	 *
 	 * @return IBeanManager
 	 */
 	public IBeanManager getBeanManager();
 
-	/**  
+	/**
 	 * Get the solution model to inspect and modify the solution objects.
-	 * 
+	 *
 	 * @return the solution model
 	 */
 	public ISolutionModel getSolutionModel();
 
 	/**
 	 * Get the import menu, used by plugins to add import menu items (actions).
-	 * 
+	 *
 	 * @return JMenu
 	 * @deprecated
 	 */
@@ -208,7 +208,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the export menu, used by plugins to add export menu items (actions).
-	 * 
+	 *
 	 * @return JMenu
 	 * @deprecated
 	 */
@@ -217,7 +217,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the current showing window (Dialog or Frame) Use this one as a parent if you want to display a dialog or other frame.
-	 * 
+	 *
 	 * @return Window
 	 * @deprecated
 	 */
@@ -235,7 +235,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the toolbar panel (used to control toolbars).
-	 * 
+	 *
 	 * @return IToolbarPanel
 	 * @deprecated
 	 */
@@ -244,14 +244,14 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Output something on the out stream and in log. (if running in debugger view console)
-	 * 
+	 *
 	 * @param msg
 	 */
 	public void output(Object msg);
 
 	/**
 	 * Output something on the out stream and in log. (if running in debugger view console)
-	 * 
+	 *
 	 * @param msg
 	 * @param level the severity level
 	 * @see ILogLevel
@@ -266,7 +266,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the current solution name
-	 * 
+	 *
 	 * @return the name, returns null if no solution is open
 	 * @since 2.2rc4
 	 */
@@ -286,7 +286,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Register a URLStreamHandler for a protocol
-	 * 
+	 *
 	 * @param protocolName
 	 * @param handler
 	 * @deprecated
@@ -295,12 +295,12 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public void registerURLStreamHandler(String protocolName, URLStreamHandler handler);
 
 	/**
-	 * Returns a URLStreamHandler for handling servoy urls ('media' protocol). 
+	 * Returns a URLStreamHandler for handling servoy urls ('media' protocol).
 	 * Use this when you construct urls to those by using one of the URL constructors:
-	 * {@link URL#URL(URL, String, URLStreamHandler)} or {@link URL#URL(String, String, int, String, URLStreamHandler)} 
+	 * {@link URL#URL(URL, String, URLStreamHandler)} or {@link URL#URL(String, String, int, String, URLStreamHandler)}
 	 *
 	 * @return The URLStreamHandler for the protocol 'media'
-	 * 
+	 *
 	 * @since 5.2
 	 */
 	public URLStreamHandler getMediaURLStreamHandler();
@@ -308,22 +308,39 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	/**
 	 * Executes a method with method name and arguments in the given context If context is a form name a form method is executed, if null a global method will
 	 * be assumed.
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.FunctionDefinition
-	 * 
+	 *
 	 * @param context This is the form name or the scope name for a global method (when null 'scopes.globals' is assumed.
 	 * @param methodname The method name to be executed
 	 * @param arguments The arguments that the method will get.
 	 * @param async Execute the method asynchronously or not. If true this method will return immediately with null.
-	 * 
+	 *
 	 * @return null if called with "true" for async flag, otherwise the method result is returned
 	 */
 	public Object executeMethod(String context, String methodname, Object[] arguments, boolean async) throws Exception;
 
+
+	/**
+	 * Executes a method with method name and arguments in the given context If context is a form name a form method is executed, if null a global method will
+	 * be assumed.
+	 *
+	 * @see com.servoy.j2db.scripting.FunctionDefinition
+	 *
+	 * @param context This is the form name or the scope name for a global method (when null 'scopes.globals' is assumed.
+	 * @param methodname The method name to be executed
+	 * @param arguments The arguments that the method will get.
+	 * @param async Execute the method asynchronously or not. If true this method will return immediately with null.
+	 * @param stopUIEditing Boolean to indicate if we stop editing before this method is called. Default value is true.
+	 *
+	 * @return null if called with "true" for async flag, otherwise the method result is returned
+	 */
+	public Object executeMethod(String context, String methodname, Object[] arguments, boolean async, boolean stopUIEditing) throws Exception;
+
 	/**
 	 * Invoke the Servoy solution error handler with a msg and exception. Shows a dialog if no solution error handler present (reports in log for
 	 * headless/web-client)
-	 * 
+	 *
 	 * @param msg
 	 * @param detail
 	 * @since 3.5
@@ -333,9 +350,9 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	/**
 	 * Opens the file dialog on the client so that a user can upload a file.
 	 * That file will be given as an argument to the given function.
-	 * 
-	 * Only the {@link IMediaUploadCallback} is mandatory and will be used, the other arguments can be null and can be ignored by the implementation. 
-	 * 
+	 *
+	 * Only the {@link IMediaUploadCallback} is mandatory and will be used, the other arguments can be null and can be ignored by the implementation.
+	 *
 	 * @param callback The {@link IMediaUploadCallback} for the call back.
 	 * @param fileNameHint A String which file the user should open.
 	 * @param multiSelect Multi select files at once.
@@ -347,7 +364,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * exports a remote object on the client that can be transfered to the server (with a remote server call) that can have call backs.
-	 *  
+	 *
 	 * @param object The remote object to export
 	 * @since 6.0
 	 * @deprecated
@@ -357,7 +374,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Executes a method with methodname and arguments (async).
-	 * 
+	 *
 	 * @deprecated
 	 * @since 3.5
 	 */
@@ -376,7 +393,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get the main application frame.
-	 * 
+	 *
 	 * @deprecated use getCurrentWindow if possible (gives the real current window)
 	 * @return JFrame
 	 */
@@ -385,7 +402,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get a message for the specified i18n key
-	 * 
+	 *
 	 * @param i18nKey The key
 	 * @return the string if the key is found.
 	 * @deprecated
@@ -395,7 +412,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Get a message for the specified i18n key
-	 * 
+	 *
 	 * @param i18nKey The key
 	 * @param arguments Arguments to be used that are inserted in the found message.
 	 * @return the string if the key is found.
@@ -423,7 +440,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	/**
 	 * Returns the window with the given name as parameter. If the parameter is null then the
 	 * main application window is returned.
-	 * 
+	 *
 	 * @since 6.0
 	 * @param name of the window to be returned
 	 * @return an ISmartRuntimeWindow or IWebRuntimeWindow depending on whether smart client or web client is being run
@@ -434,7 +451,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Returns the currently visible window, if non is visible then the main application window is returned
-	 * 
+	 *
 	 * @since 6.0
 	 * @return an ISmartRuntimeWindow or IWebRuntimeWindow depending on whether smart client or web client is being run
 	 * @see ISmartRuntimeWindow
@@ -444,7 +461,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Fill a custom type valuelist with values, display and real values are the same.
-	 * 
+	 *
 	 * @param name value list name (custom value list)
 	 * @param displayValues
 	 * @since 6.1
@@ -453,7 +470,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Fill a custom type valuelist with values, separate display and real values.
-	 * 
+	 *
 	 * @param name value list name (custom value list)
 	 * @param displayValues
 	 * @param realValues
@@ -470,8 +487,8 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 
 	/**
 	 * Sets the user properties for this client ,merging the properties with the existing user porperties
-	 * 
-	 * @param properties a map of key value pairs of user properties to be set 
+	 *
+	 * @param properties a map of key value pairs of user properties to be set
 	 * @since 7.3
 	 */
 	public void setUserProperties(Map<String, String> properties);

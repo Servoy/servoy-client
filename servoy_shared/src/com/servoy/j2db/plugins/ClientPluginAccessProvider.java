@@ -71,7 +71,7 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 /**
  * Interface Impl.
- * 
+ *
  * @author jblok
  */
 public class ClientPluginAccessProvider implements IClientPluginAccess
@@ -301,7 +301,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	/**
 	 * Get a server interface by name.
-	 * 
+	 *
 	 * @param name of the server
 	 * @return IServer
 	 * @throws RemoteException
@@ -314,7 +314,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	/**
 	 * Get all the defined server interfaces.
-	 * 
+	 *
 	 * @return IServer[] all the servers
 	 * @throws RemoteException
 	 * @throws RepositoryException
@@ -413,14 +413,19 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	public Object executeMethod(String context, String methodname, Object[] arguments, final boolean async) throws Exception
 	{
+		return executeMethod(context, methodname, arguments, async, true);
+	}
+
+	public Object executeMethod(String context, String methodname, Object[] arguments, final boolean async, final boolean stopUIEditing) throws Exception
+	{
 		if (application.isSolutionLoaded())
 		{
-			final MethodExecutor method = new MethodExecutor(context, methodname, arguments, async);
+			final MethodExecutor method = new MethodExecutor(context, methodname, arguments, async, stopUIEditing);
 
 			// We first added to a thread. then called invokeLater in it.
-			// else you can't have batch processors that add the same (one time run) job at the end of the run. 
+			// else you can't have batch processors that add the same (one time run) job at the end of the run.
 			// see case: 61486
-			// this doesn't matter to much for session client. Because the current thread is the schedulers thread 
+			// this doesn't matter to much for session client. Because the current thread is the schedulers thread
 			// and not the request thread.
 			// maybe invokeLater should fix this. But for a session client this is not possible if that call
 			// happens in the request method.
@@ -448,8 +453,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						{
 							if (!async && !application.isEventDispatchThread())
 							{
-								// if not async and not event dispatch thread 
-								// and the debugger is enabled, execute this directly. 
+								// if not async and not event dispatch thread
+								// and the debugger is enabled, execute this directly.
 								if (application.getScriptEngine() instanceof IScriptSupport &&
 									((IScriptSupport)application.getScriptEngine()).isAWTSuspendedRunningScript())
 								{
@@ -502,8 +507,9 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		private final Object[] arguments;
 		private Object retval;
 		private final boolean async;
+		private final boolean stopUIEditing;
 
-		public MethodExecutor(String context, String methodname, Object[] arguments, boolean async)
+		public MethodExecutor(String context, String methodname, Object[] arguments, boolean async, boolean stopUIEditing)
 		{
 			if (methodname == null)
 			{
@@ -523,6 +529,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 			}
 			this.arguments = arguments;
 			this.async = async;
+			this.stopUIEditing = stopUIEditing;
 		}
 
 		public Object getRetval()
@@ -547,7 +554,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 						{
 							try
 							{
-								application.getFoundSetManager().getEditRecordList().prepareForSave(false); // push the updated elements data in the Record.
+								if (stopUIEditing) application.getFoundSetManager().getEditRecordList().prepareForSave(false); // push the updated elements data in the Record.
 								retval = application.getScriptEngine().executeFunction((Function)function, gs, gs, arguments, true, true);
 							}
 							catch (Exception e)
