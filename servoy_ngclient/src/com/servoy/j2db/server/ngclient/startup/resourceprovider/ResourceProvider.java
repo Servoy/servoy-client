@@ -40,6 +40,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.framework.Bundle;
 import org.sablo.specification.WebComponentPackage;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -170,8 +171,19 @@ public class ResourceProvider implements Filter
 		if (pathInfo != null && !pathInfo.equals("/"))
 		{
 			URL url = null;
-			if (pathInfo.startsWith("/")) url = Activator.getContext().getBundle().getEntry("/war" + pathInfo);
-			else url = Activator.getContext().getBundle().getEntry("/war/" + pathInfo);
+			Bundle bundle;
+			try
+			{
+				bundle = Activator.getContext().getBundle();
+			}
+			catch (IllegalStateException e)
+			{
+				// Context not valid
+				chain.doFilter(request, response);
+				return;
+			}
+			if (pathInfo.startsWith("/")) url = bundle.getEntry("/war" + pathInfo);
+			else url = bundle.getEntry("/war/" + pathInfo);
 
 			if (url == null)
 			{
@@ -285,7 +297,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -296,7 +308,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -332,7 +344,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -362,7 +374,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
