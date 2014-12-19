@@ -279,6 +279,7 @@ public class ComponentFactory
 						headerHeight = 0;
 					}
 					portal.put("headerHeight", headerHeight);
+					portal.put("sortable", form.getOnSortCmdMethodID() != -1);
 				}
 
 				portal.put("anchors", listViewPortal.isTableview() ? (fillsWidth ? IAnchorConstants.ALL

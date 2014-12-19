@@ -447,13 +447,14 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 					{
 						JSONArray columns = update.getJSONArray("sort");
 						StringBuilder sort = new StringBuilder();
+						Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : elementsToDataproviders;
 						for (int j = 0; j < columns.length(); j++)
 						{
 							JSONObject sortColumn = columns.getJSONObject(j);
 							String name = sortColumn.getString("name");
-							if (elementsToDataproviders.containsKey(name))
+							if (dp.containsKey(name))
 							{
-								sort.append(elementsToDataproviders.get(name));
+								sort.append(dp.get(name));
 								sort.append(" " + sortColumn.getString("direction"));
 								if (j < columns.length() - 1) sort.append(",");
 							}
