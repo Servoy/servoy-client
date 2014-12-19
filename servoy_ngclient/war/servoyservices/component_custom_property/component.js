@@ -175,29 +175,6 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						}
 					}
 					
-					/** rowId is only needed if the component is linked to a foundset */
-					serverJSONValue.apply =  function(property, componentModel, rowId) {
-						var conversionInfo = internalState[CONVERSIONS];
-						if (!componentModel) componentModel = serverJSONValue.model; // if it's not linked to foundset componentModel will be undefined
-						var propertyValue = componentModel[property];
-
-						if (conversionInfo && conversionInfo[property]) {
-							propertyValue = $sabloConverters.convertFromClientToServer(propertyValue, conversionInfo[property], undefined);
-						} else {
-							propertyValue = $sabloUtils.convertClientObject(propertyValue);
-						}
-
-						var req = { svyApply: {} };
-						
-						if (rowId) req.svyApply[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
-						req.svyApply[PROPERTY_NAME_KEY] = property;
-						req.svyApply[VALUE_KEY] = propertyValue;
-
-						internalState.requests.push(req);
-						if (internalState.changeNotifier) internalState.changeNotifier();
-					};
-					
-					// TODO move apply above into servoyApi as well
 					// here we don't specify any of the following as all those can be forwarded by the parent component from it's own servoyApi:
 					// showForm, hideForm, setFormEnabled, setFormReadOnly,	getFormUrl
 					serverJSONValue.servoyApi = {
@@ -207,6 +184,28 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 								
 								if (rowId) req.svyStartEdit[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
 								req.svyStartEdit[PROPERTY_NAME_KEY] = property;
+
+								internalState.requests.push(req);
+								if (internalState.changeNotifier) internalState.changeNotifier();
+							},
+							
+							apply: function(property, componentModel, rowId) {
+								/** rowId is only needed if the component is linked to a foundset */
+								var conversionInfo = internalState[CONVERSIONS];
+								if (!componentModel) componentModel = serverJSONValue.model; // if it's not linked to foundset componentModel will be undefined
+								var propertyValue = componentModel[property];
+
+								if (conversionInfo && conversionInfo[property]) {
+									propertyValue = $sabloConverters.convertFromClientToServer(propertyValue, conversionInfo[property], undefined);
+								} else {
+									propertyValue = $sabloUtils.convertClientObject(propertyValue);
+								}
+
+								var req = { svyApply: {} };
+								
+								if (rowId) req.svyApply[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowId;
+								req.svyApply[PROPERTY_NAME_KEY] = property;
+								req.svyApply[VALUE_KEY] = propertyValue;
 
 								internalState.requests.push(req);
 								if (internalState.changeNotifier) internalState.changeNotifier();

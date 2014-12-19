@@ -5,7 +5,7 @@ angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbo
 			model: "=svyModel",
 			handlers: "=svyHandlers",
 			api: "=svyApi",
-	        svyApply: "="
+			svyServoyapi: "="
 		},
 		require: 'ngModel',
 		compile: function(tElement, tAttrs) {
@@ -51,7 +51,7 @@ angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbo
 					if (oldValue != newValue)
 					{
 						$scope.model.dataProviderID = newValue;
-						$scope.svyApply('dataProviderID');
+						$scope.svyServoyapi.apply('dataProviderID');
 					}	  
 				})
 

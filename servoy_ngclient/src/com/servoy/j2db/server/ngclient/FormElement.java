@@ -591,7 +591,7 @@ public final class FormElement implements IWebComponentInitializer
 	public String toString()
 	{
 		return String.format(
-			"<%1$s name=\"%2$s\" svy-model=\"model.%2$s\" svy-api=\"api.%2$s\" svy-handlers=\"handlers.%2$s\" svy-apply=\"handlers.%2$s.svy_apply\" svy-servoyApi=\"handlers.%2$s.svy_servoyApi\"></%1$s>",
+			"<%1$s name=\"%2$s\" svy-model=\"model.%2$s\" svy-api=\"api.%2$s\" svy-handlers=\"handlers.%2$s\" svy-servoyApi=\"handlers.%2$s.svy_servoyApi\"></%1$s>",
 			getTagname(), getName());
 	}
 

@@ -221,9 +221,6 @@ public class FormLayoutGenerator
 			writer.print(fe.getDesignId());
 			writer.print("'");
 		}
-		writer.print(" svy-apply='handlers.");
-		writer.print(fe.getName());
-		writer.print(".svy_apply'");
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());
 		writer.print(".svy_servoyApi'");

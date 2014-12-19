@@ -7,9 +7,6 @@ describe('servoydefaultTextfield component', function() {
 	var $timeout
 	var handlersMock = {			
     		myTextfield: {
-				svy_apply : function(property, beanModel, rowId){
-					 
-				},
 				svy_servoyApi: {
 					setFormEnabled: function (formname, enabled) {
 						
@@ -23,8 +20,12 @@ describe('servoydefaultTextfield component', function() {
 					},
 					getFormUrl: function (formId) {
 						
+					},
+					apply: function(propertyName)
+					{
+				
 					}
-				},
+				}
 			}
 	}
 	var modelMock = {
@@ -75,7 +76,7 @@ describe('servoydefaultTextfield component', function() {
     	  $scope = _$rootScope_.$new();
     	  $scope.handlers = angular.copy(handlersMock);
     	  $scope.model= angular.copy(modelMock); 
-    	  $scope.api= angular.copy(apiMock); 
+    	  $scope.api= angular.copy(apiMock);
   	  })
   	  
   	  // mock timout
@@ -87,7 +88,7 @@ describe('servoydefaultTextfield component', function() {
       
     it("should have onaction", function() {
   		var template= '<data-servoydefault-textfield name="myTextfield" svy-model="model.myTextfield" svy-api="api.myTextfield" svy-handlers="handlers.myTextfield" '+
-			'svy-apply="handlers.myTextfield.svy_apply" svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
+			'svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
   		var clicked = false;
   		$scope.handlers.myTextfield.onActionMethodID = function(event) {
   			clicked = true;
@@ -102,7 +103,7 @@ describe('servoydefaultTextfield component', function() {
     
     it("should have focusgained and focuslost", function() {
   		var template= '<data-servoydefault-textfield name="myTextfield" svy-model="model.myTextfield" svy-api="api.myTextfield" svy-handlers="handlers.myTextfield" '+
-  				'svy-apply="handlers.myTextfield.svy_apply" svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
+  				'svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
   		var focus = false;
   		$scope.handlers.myTextfield.onFocusGainedMethodID = function(event) {
   			focus = true;
@@ -124,7 +125,7 @@ describe('servoydefaultTextfield component', function() {
     
     it("test action trigger only on enter key", function() {
   		var template= '<data-servoydefault-textfield name="myTextfield" svy-model="model.myTextfield" svy-api="api.myTextfield" svy-handlers="handlers.myTextfield" '+
-  				'svy-apply="handlers.myTextfield.svy_apply" svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
+  				'svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
   		var onaction = false; 
   		$scope.handlers.myTextfield.onActionMethodID = function(event) {
   			onaction = true;

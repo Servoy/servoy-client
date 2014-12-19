@@ -5,7 +5,7 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
         model: "=svyModel",
         handlers: "=svyHandlers",
         api: "=svyApi",
-        svyApply: "="
+        svyServoyapi: "="
       },
       controller: function($scope, $element, $attrs) {
           $scope.notNullOrEmpty = $utils.notNullOrEmpty // TODO remove the need for this
@@ -56,7 +56,7 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
        	 
        	 $scope.radioClicked = function($event)
        	 {
-       		$scope.svyApply('dataProviderID');
+       		$scope.svyServoyapi.apply('dataProviderID');
        		$scope.handlers.onFocusLostMethodID($event);
        	 }
       },

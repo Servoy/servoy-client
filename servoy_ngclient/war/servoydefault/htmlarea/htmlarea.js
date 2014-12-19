@@ -5,7 +5,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			model: "=svyModel",
 			handlers: "=svyHandlers",
 			api: "=svyApi",
-	        svyApply: "="
+			svyServoyapi: "="
 		},
 		controller: function($scope, $element, $attrs) {
 			$scope.style = {width:'100%',height:'100%',overflow:'hidden'}     
@@ -24,7 +24,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						ed.on('blur ExecCommand', function () {    				 
 							$scope.model.dataProviderID = '<html><body>'+ed.getContent()+'</body></html>'
 							$scope.$apply(function(){    	                	
-								$scope.svyApply('dataProviderID');
+								$scope.svyServoyapi.apply('dataProviderID');
 							})    	                
 						});
 						

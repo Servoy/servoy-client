@@ -5,7 +5,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
       require: 'ngModel',
       scope: {
         model: "=svyModel",
-        svyApply: "=",
+        svyServoyapi: "=",
         handlers: "=svyHandlers",
         api: "=svyApi"
       },
@@ -34,7 +34,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
     		  return formatFilter(displayValue, displayFormat ,type);    	 
          }
           $scope.doSvyApply = function (){
-        	  if($element.parent().find('.dropdown-menu').attr('aria-hidden') == "true") {
+        	  if($('[typeahead-popup]').attr('aria-hidden') == "true") {
 	    		  if ($scope.model.valuelistID) {
 	    			  var hasMatchingDisplayValue = false;
 		     		  for (var i=0; i< $scope.model.valuelistID.length; i++) {
@@ -47,7 +47,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
 		     			 $scope.model.dataProviderID = null;
 		     		  }
 	    		  }
-	        	  $scope.svyApply('dataProviderID');
+	        	  $scope.svyServoyapi.apply('dataProviderID');
         	 }
           }
           

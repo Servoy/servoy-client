@@ -7,9 +7,6 @@ describe('servoydefaultTabpanel component', function() {
 	var $timeout
 	var handlersMock = {			
 			tabs: {
-				svy_apply : function(property){
-					 
-				},
 				svy_servoyApi: {
 					setFormEnabled: function (formname, enabled) {
 						
@@ -23,6 +20,10 @@ describe('servoydefaultTabpanel component', function() {
 					},
 					getFormUrl: function (formId) {
 						
+					},
+					apply: function(propertyName)
+					{
+				
 					}
 				}
 			}
@@ -118,7 +119,7 @@ describe('servoydefaultTabpanel component', function() {
   	it("should corecly change tab when clicked on tab2", function() {
 
              // This will find your directive and run everything
-             var tabPanelComponent = $compile('<data-servoydefault-tabpanel name="tabs" svy-model="model.tabs" svy-api="api.tabs" svy-handlers="handlers.tabs" svy-apply="handlers.tabs.svy_apply" svy-servoyApi="handlers.tabs.svy_servoyApi"/>')($scope);
+             var tabPanelComponent = $compile('<data-servoydefault-tabpanel name="tabs" svy-model="model.tabs" svy-api="api.tabs" svy-handlers="handlers.tabs" svy-servoyApi="handlers.tabs.svy_servoyApi"/>')($scope);
              
              // Now run a $digest cycle to update your template with new data
              $scope.$digest();
@@ -137,7 +138,7 @@ describe('servoydefaultTabpanel component', function() {
 	  });
   	// leave duplicated code for first commits for clarity
   	it("should corecly change tab when changed via scripting with tabIndex", function() {
-        var tabPanelComponent = $compile('<data-servoydefault-tabpanel name="tabs" svy-model="model.tabs" svy-api="api.tabs" svy-handlers="handlers.tabs" svy-apply="handlers.tabs.svy_apply" svy-servoyApi="handlers.tabs.svy_servoyApi"/>')($scope);        
+        var tabPanelComponent = $compile('<data-servoydefault-tabpanel name="tabs" svy-model="model.tabs" svy-api="api.tabs" svy-handlers="handlers.tabs" svy-servoyApi="handlers.tabs.svy_servoyApi"/>')($scope);        
         $scope.$digest();
         var tabsArr = tabPanelComponent.find('li').find('a');
         var iscope = tabPanelComponent.isolateScope();     
@@ -153,7 +154,7 @@ describe('servoydefaultTabpanel component', function() {
   	});
   	
   	it("tab panel api test", function() {
-        var tabPanelComponent = $compile('<data-servoydefault-tabpanel name="tabs" svy-model="model.tabs" svy-api="api.tabs" svy-handlers="handlers.tabs" svy-apply="handlers.tabs.svy_apply" svy-servoyApi="handlers.tabs.svy_servoyApi"/>')($scope);        
+        var tabPanelComponent = $compile('<data-servoydefault-tabpanel name="tabs" svy-model="model.tabs" svy-api="api.tabs" svy-handlers="handlers.tabs" svy-servoyApi="handlers.tabs.svy_servoyApi"/>')($scope);        
         $scope.$digest();
         var iscope = tabPanelComponent.isolateScope();
         expect(iscope.api.getMaxTabIndex()).toBe(2);

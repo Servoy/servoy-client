@@ -6,7 +6,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
         model: "=svyModel",
         handlers: "=svyHandlers",
         api: "=svyApi",
-        svyApply: "="
+        svyServoyapi: "="
       },
       link: function($scope, $element, $attrs) {
          $scope.notNullOrEmpty = $utils.notNullOrEmpty  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
@@ -38,7 +38,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             $scope.model.dataProviderID = getDataproviderFromSelection()
             
             if(checkedTotal==0 && allowNullinc ==0) return;// only push if it was actualy changed
-            $scope.svyApply('dataProviderID')        
+            $scope.svyServoyapi.apply('dataProviderID')        
             $scope.handlers.onFocusLostMethodID($event)
           }
           

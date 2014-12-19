@@ -6,7 +6,7 @@ angular.module('servoydefaultRadio',['servoy']).directive('servoydefaultRadio', 
         model: "=svyModel",
         handlers: "=svyHandlers",
         api: "=svyApi",
-        svyApply: "="
+        svyServoyapi: "="
       },
       link: function($scope, $element, $attrs) {
           $scope.style = {width:'100%',height:'100%'}  
@@ -14,7 +14,7 @@ angular.module('servoydefaultRadio',['servoy']).directive('servoydefaultRadio', 
           $scope.radioClicked = function()
           {
         	  $scope.model.dataProviderID = $scope.model.valuelistID[0].realValue;
-        	  $scope.svyApply('dataProviderID')
+        	  $scope.svyServoyapi.apply('dataProviderID')
           }
           
           $scope.api.setValueListItems = function(values) 

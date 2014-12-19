@@ -50,13 +50,6 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 		return wrapper;
 	}
 
-	var getApply = function(beanname) {
-		var wrapper = function(property) {
-			$servoyInternal.pushDPChange("${name}", beanname, property);
-		}
-		return wrapper;
-	}
-
 	var servoyApi = function(beanname) {
 		return {
 			showForm: function(formname,relationname,formIndex) {
@@ -76,13 +69,16 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 			},
 			startEdit: function(propertyName) {
 				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
+			},
+			apply: function(propertyName) {
+				$servoyInternal.pushDPChange("${name}", beanname, propertyName);
 			}
 		}
 	}
 
 	$scope.handlers = {
 	<#list baseComponents as bc>
-		'${bc.name}': {"svy_apply":getApply('${bc.name}'),"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
+		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
 	</#list>
 	}
 	

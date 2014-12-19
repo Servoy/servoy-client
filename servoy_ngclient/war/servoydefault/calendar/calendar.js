@@ -5,7 +5,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
       	model: "=svyModel",
         handlers: "=svyHandlers",
         api: "=svyApi",
-        svyApply: "="
+        svyServoyapi: "="
       },
       link: function($scope, $element, $attrs) {
     	  var child = $element.children();
@@ -31,7 +31,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 	        	  if (e.date) ngModel.$setViewValue(e.date.toDate());
 	        	  else ngModel.$setViewValue(null);
         	  }
-        	  $scope.svyApply('dataProviderID');
+        	  $scope.svyServoyapi.apply('dataProviderID');
           }
           
        // when model change, update our view, set the date in the datepicker

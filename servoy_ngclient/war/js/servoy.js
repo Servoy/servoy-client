@@ -295,7 +295,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	        	return formname;
 	        }
 
-	        // search for svy-apply attribute on element, within parents (svy-autoapply could be used on a child DOM element of the web component)
+	        // search for svy-servoyApi attribute on element, within parents (svy-autoapply could be used on a child DOM element of the web component)
 	        function findAttribute(attributeName) {
 	        	var correctScope = parent;
 		        var attrValue = element.attr(attributeName);
@@ -312,19 +312,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		        }
 	        }
 	        
-	        var svyApply = findAttribute("svy-apply");
 	        var svyServoyApi = findAttribute("svy-servoyApi");
-	        
 	        var formName = null;
 	        
 		        // Listen for change events to enable binding
 		     element.bind('change', function() {
 		        	// model has not been updated yet
 		        	setTimeout(function() { 
-		        		// use svyApply rather then pushChange because svyApply might get intercepted by components such as portals
+		        		// use svy apply rather then pushChange because svy apply might get intercepted by components such as portals
 		        		// that have nested child web components
-		    	        if (svyApply) {
-		    	        	svyApply(propertyname);
+		        		 if (svyServoyApi && svyServoyApi.apply) {
+		        			 svyServoyApi.apply(propertyname);
 		    	        } else {
 		    	        	// this shouldn't happen (svy-apply not being set on a web-component...)
 			        		$log.error("cannot apply new value");
@@ -752,7 +750,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					var componentTypedPropertyValue = tAttrs.componentPropertyValue;
 					templateFragment = ' name="' + componentTypedPropertyValue + '.name" svy-model="'
 						+ componentTypedPropertyValue + '.model" svy-api="'+ componentTypedPropertyValue + '.api" svy-handlers="'
-						+ componentTypedPropertyValue + '.handlers" svy-apply="' + componentTypedPropertyValue + '.apply" svy-servoyApi="'
+						+ componentTypedPropertyValue + '.handlers" svy-servoyApi="'
 						+ componentTypedPropertyValue + '.servoyApi"/>';
 				} else {
 					templateFragment = " ";

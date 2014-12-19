@@ -3,7 +3,7 @@ angular.module('servoydefaultSlider',['servoy','ui.slider']).directive('servoyde
            restrict : 'E',
            scope : {
         	   model: '=svyModel',
-        	   svyApply: '=',
+        	   svyServoyapi: "=",
         	   handlers: "=svyHandlers"
            },
            templateUrl : 'servoydefault/slider/slider.html',
@@ -83,7 +83,7 @@ angular.module('servoydefaultSlider',['servoy','ui.slider']).directive('servoyde
         	    if ($scope.model.dataProviderID  !=  $scope.sliderValue) {
         	   		// the ui value is changed, push it into the dataprovider model and call apply
         	     	$scope.model.dataProviderID = $scope.sliderValue;
-        	     	$scope.svyApply('dataProviderID')
+        	     	$scope.svyServoyapi.apply('dataProviderID')
         	     }
         	    });
         	   
