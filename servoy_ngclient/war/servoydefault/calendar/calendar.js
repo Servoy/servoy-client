@@ -11,12 +11,15 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
     	  var child = $element.children();
     	  var ngModel = child.controller("ngModel");
          
-    	  $scope.style = {width:'100%',height:$scope.model.size.height,overflow:'hidden',paddingTop:'0',paddingBottom:'0'}
+    	  $scope.style = {width:'100%',height: $scope.model.size.height,overflow:'hidden',paddingTop:'0',paddingBottom:'0'}
           
     	  child.datetimepicker();
     	  
-    	  $scope.$watch('model.size.height', function(){
-    		  $scope.style.height = $scope.model.size.height;
+    	  $scope.$watch('model.size.height', function(){ 
+    		 if ($scope.model.size != undefined)
+    		 {
+    			  $scope.style.height = $scope.model.size.height;
+    		 }
           })
           
           $scope.$watch('model.format', function(){
