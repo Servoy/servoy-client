@@ -13,13 +13,13 @@
 	{
 		"animate": "string",
 	    "dataProviderID": { "type":"dataprovider", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
-	    "enabled": {"type":"boolean", "default":true}, 
+	    "enabled": { "type": "protected", "blockingOn": false, "default": true },
 	    "max": {"type":"long", "default":100},
 	    "min": {"type":"long", "default":0},
 	    "orientation": {"type":"string", "values":["horizontal", "vertical"], "default":"horizontal"},
 	    "range": {"type":"string", "values":["min", "max"], "default":"min"},
 	    "step": {"type":"long", "default":1},
-	    "visible": {"type":"boolean", "default":true} 
+	    "visible": "visible"
 	},
 	"handlers":
 	{

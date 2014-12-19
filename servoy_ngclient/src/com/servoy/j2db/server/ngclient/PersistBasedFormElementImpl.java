@@ -18,12 +18,12 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -304,11 +304,12 @@ class PersistBasedFormElementImpl
 
 						propertyPath.add(i);
 						// remove the name of relation prefix from child dataproviders as it only stands in the way later on...
-						Set<String> dataProviders = nfe.getWebComponentSpec().getProperties(DataproviderPropertyType.INSTANCE).keySet();
+						Collection<PropertyDescription> dataProviderProperties = nfe.getWebComponentSpec().getProperties(DataproviderPropertyType.INSTANCE);
 						String relationPrefix = portal.getRelationName() + '.';
 						Map<String, Object> elementProperties = new HashMap<>(nfe.getRawPropertyValues());
-						for (String dpPropertyName : dataProviders)
+						for (PropertyDescription dpProperty : dataProviderProperties)
 						{
+							String dpPropertyName = dpProperty.getName();
 							String dp = (String)nfe.getPropertyValue(dpPropertyName); // TODO adjust this when/if dataprovider properties change the form element value type in the future
 							if (dp != null && dp.startsWith(relationPrefix))
 							{

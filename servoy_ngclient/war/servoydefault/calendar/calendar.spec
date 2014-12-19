@@ -11,7 +11,7 @@
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type":"dataprovider", "scope" :"design", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "editable" : {"type":"boolean", "default":true}, 
-	        "enabled" : {"type":"boolean", "default":true}, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true },
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "format" : {"for":"dataProviderID" , "type" :"format"}, 
@@ -26,7 +26,7 @@
 	        "text" : "tagstring", 
 	        "toolTipText" : "tagstring", 
 	        "transparent" : "boolean", 
-	        "visible" : {"type":"boolean", "default":true} 
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

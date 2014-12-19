@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -35,7 +36,7 @@ import com.servoy.j2db.dataprocessing.IDataSet;
  *
  * @author acostescu
  */
-public class DatasetPropertyType implements IConvertedPropertyType<IDataSet>
+public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implements IConvertedPropertyType<IDataSet>
 {
 
 	public static final DatasetPropertyType INSTANCE = new DatasetPropertyType();
@@ -86,11 +87,4 @@ public class DatasetPropertyType implements IConvertedPropertyType<IDataSet>
 	{
 		return config;
 	}
-
-	@Override
-	public IDataSet defaultValue()
-	{
-		return null;
-	}
-
 }

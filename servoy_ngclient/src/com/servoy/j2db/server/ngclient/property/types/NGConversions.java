@@ -340,14 +340,13 @@ public class NGConversions
 			}
 			return formElementValue;
 		}
-		else if (type instanceof IFormElementDefaultValueToSabloComponent)
+
+		if (type instanceof IFormElementDefaultValueToSabloComponent)
 		{
 			return ((IFormElementDefaultValueToSabloComponent)type).toSabloComponentDefaultValue(pd, formElement, component, dal);
 		}
-		else
-		{
-			return type.defaultValue();
-		}
+
+		return type.defaultValue();
 	}
 
 	/**

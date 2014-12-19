@@ -107,7 +107,7 @@ public class CustomArrayPropertyRhinoTests
 		assertTrue(!cam.mustSendAll());
 
 		// still the component has to see them as changed!
-		TypedData<Map<String, Object>> changes = component.getChanges();
+		TypedData<Map<String, Object>> changes = component.getAndClearChanges();
 		assertTrue(changes.content.get("arrayT") != null);
 		assertTrue(changes.contentType.getProperty("arrayT").getType() instanceof CustomJSONArrayType);
 		Object arrayCh = changes.content.get("arrayT");
@@ -121,7 +121,7 @@ public class CustomArrayPropertyRhinoTests
 		// ok now that we called component.getChanges() no changes should be present any more
 		assertTrue(!cal.mustSendAll());
 		assertTrue(!cam.mustSendAll());
-		assertEquals(0, component.getChanges().content.size());
+		assertEquals(0, component.getAndClearChanges().content.size());
 		assertEquals(0, cal.getChangedIndexes().size());
 		assertEquals(0, cam.getChangedKeys().size());
 
@@ -161,10 +161,10 @@ public class CustomArrayPropertyRhinoTests
 		assertTrue(cam.mustSendAll());
 
 		// ok clear changes
-		changes = component.getChanges();
+		changes = component.getAndClearChanges();
 		JSONUtils.writeDataWithConversions(changes.content, changes.contentType, null);
 		assertEquals(1, changes.content.size());
-		assertEquals(0, component.getChanges().content.size());
+		assertEquals(0, component.getAndClearChanges().content.size());
 		assertTrue(!cal.mustSendAll());
 		assertTrue(!cam.mustSendAll());
 		assertEquals(0, cal.getChangedIndexes().size());
@@ -197,7 +197,7 @@ public class CustomArrayPropertyRhinoTests
 		activeA2Obj.put("field", activeA2Obj, 45);
 		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
 
-		changes = component.getChanges();
+		changes = component.getAndClearChanges();
 		assertEquals(
 			"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":98}},{\"vEr\":2,\"v\":{\"field\":45}}],\"conversions\":{\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"conversions\":{\"active\":\"JSON_arr\"}}}],\"conversions\":{\"0\":{\"v\":\"JSON_obj\"}}},\"conversions\":{\"arrayT\":\"JSON_arr\"}}",
 			JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null));

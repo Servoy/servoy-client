@@ -17,11 +17,10 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -33,7 +32,7 @@ import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
  *
  * @author acostescu
  */
-public class ByteArrayResourcePropertyType implements IPropertyType<byte[]>, IConvertedPropertyType<byte[]>
+public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> implements IConvertedPropertyType<byte[]>
 {
 
 	public static final ByteArrayResourcePropertyType INSTANCE = new ByteArrayResourcePropertyType();
@@ -43,18 +42,6 @@ public class ByteArrayResourcePropertyType implements IPropertyType<byte[]>, ICo
 	public String getName()
 	{
 		return TYPE_NAME;
-	}
-
-	@Override
-	public Object parseConfig(JSONObject config)
-	{
-		return null;
-	}
-
-	@Override
-	public byte[] defaultValue()
-	{
-		return null;
 	}
 
 	@Override

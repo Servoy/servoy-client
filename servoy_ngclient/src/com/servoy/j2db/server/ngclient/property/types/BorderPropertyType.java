@@ -37,6 +37,7 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.FontPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -55,8 +56,8 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  * @author jcompagner
  *
  */
-public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesignToFormElement<JSONObject, Border, Border>,
-	IFormElementToTemplateJSON<Border, Border>
+public class BorderPropertyType extends DefaultPropertyType<Border> implements IConvertedPropertyType<Border>,
+	IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>
 {
 	private static final String TYPE = "type";
 	private static final String BORDER_RADIUS = "borderRadius";
@@ -402,12 +403,6 @@ public class BorderPropertyType implements IConvertedPropertyType<Border>, IDesi
 	public Object parseConfig(JSONObject json)
 	{
 		return json != null && Boolean.valueOf(json.optBoolean("stringformat"));
-	}
-
-	@Override
-	public Border defaultValue()
-	{
-		return null;
 	}
 
 	@Override

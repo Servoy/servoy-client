@@ -8,6 +8,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	   var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier, componentScope) {
 		
 		 var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifier, componentScope)
+		 // TODO: visibility must be based on properties of type visible, not on property name
 		 if (changes.location || changes.size || changes.visible || changes.anchors) {
 			   if (beanLayout) {
 				   applyBeanData(now, beanLayout, changes, parentSize, changeNotifier, undefined, undefined, componentScope);
@@ -140,6 +141,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			   }
 		   }
 		   
+		   // TODO: visibility must be based on properties of type visible, not on property name
 		   if (beanModel.visible != undefined)
 		   {
 			   if (beanModel.visible == false)
@@ -326,7 +328,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
         					  height:'0px',
         					  backgroundImage:''}
         	
-        	scope.$watch(attrs.svyImagemediaid,function(newVal){
+        	scope.$watch(attrs.svyImagemediaid,function(newVal) {
+        		// TODO: visibility must be based on properties of type visible, not on property name
         		if (newVal.visible)
         		{
         			// the value from model may be incorrect so take value from ui
@@ -554,6 +557,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
         	  $window.addEventListener('resize',function() { 
         		  if(resizeTimeoutID) $timeout.cancel(resizeTimeoutID);
         		  resizeTimeoutID = $timeout( function() {
+        			// TODO: visibility must be based on properties of type visible, not on property name
         			  if(compModel.visible) {
 	        			  if(compModel.location) {
 	        				  compModel.location.x = $element.offset().left;

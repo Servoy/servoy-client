@@ -25,6 +25,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FormController;
@@ -36,7 +37,7 @@ import com.servoy.j2db.util.Debug;
 /**
  * @author jcompagner
  */
-public class FormPropertyType implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>
+public class FormPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>
 {
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 	public static final String TYPE_NAME = "form";
@@ -55,12 +56,6 @@ public class FormPropertyType implements IConvertedPropertyType<Object>, ISabloC
 	public Object parseConfig(JSONObject json)
 	{
 		return json;
-	}
-
-	@Override
-	public String defaultValue()
-	{
-		return null;
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -40,9 +41,9 @@ import com.servoy.j2db.util.ScopesUtils;
  * @author jcompagner
  *
  */
-public class DataproviderPropertyType implements IFormElementToSabloComponent<String, DataproviderTypeSabloValue>,
-	IConvertedPropertyType<DataproviderTypeSabloValue>, ISupportTemplateValue<String>, IDataLinkedType<String, DataproviderTypeSabloValue>,
-	ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>
+public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTypeSabloValue> implements
+	IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>, ISupportTemplateValue<String>,
+	IDataLinkedType<String, DataproviderTypeSabloValue>, ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -152,11 +153,4 @@ public class DataproviderPropertyType implements IFormElementToSabloComponent<St
 	{
 		return webComponentValue != null ? webComponentValue.getDataProviderID() : null;
 	}
-
-	@Override
-	public DataproviderTypeSabloValue defaultValue()
-	{
-		return null;
-	}
-
 }

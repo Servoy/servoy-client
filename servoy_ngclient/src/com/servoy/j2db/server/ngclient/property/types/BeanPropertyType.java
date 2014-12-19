@@ -17,7 +17,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DefaultPropertyType;
 
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -28,7 +28,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 /**
  * @author jcompagner
  */
-public class BeanPropertyType implements IPropertyType<String>, IFormElementToSabloComponent<String, String>
+public class BeanPropertyType extends DefaultPropertyType<String> implements IFormElementToSabloComponent<String, String>
 {
 
 	public static final BeanPropertyType INSTANCE = new BeanPropertyType();
@@ -51,12 +51,6 @@ public class BeanPropertyType implements IPropertyType<String>, IFormElementToSa
 	}
 
 	@Override
-	public String defaultValue()
-	{
-		return null;
-	}
-
-	@Override
 	public String toSabloComponentValue(String formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
@@ -66,5 +60,4 @@ public class BeanPropertyType implements IPropertyType<String>, IFormElementToSa
 		}
 		return null;
 	}
-
 }

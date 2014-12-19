@@ -23,6 +23,7 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -43,7 +44,8 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>, IFormElementToTemplateJSON<Object, Object>
+public class MediaPropertyType extends DefaultPropertyType<Object> implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>,
+	IFormElementToTemplateJSON<Object, Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";
@@ -86,12 +88,6 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IS
 			writer.value(object.mediaUrl);
 		}
 		return writer;
-	}
-
-	@Override
-	public MediaWrapper defaultValue()
-	{
-		return null;
 	}
 
 	@Override
@@ -183,5 +179,4 @@ public class MediaPropertyType implements IWrapperType<Object, MediaWrapper>, IS
 
 		return writer;
 	}
-
 }

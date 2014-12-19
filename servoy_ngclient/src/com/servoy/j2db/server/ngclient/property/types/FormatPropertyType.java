@@ -24,6 +24,7 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
@@ -42,8 +43,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  * @author jcompagner
  *
  */
-public class FormatPropertyType implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>,
-	IFormElementDefaultValueToSabloComponent<Object, Object>
+public class FormatPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>/* <ComponentFormat> */,
+	ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -146,17 +147,16 @@ public class FormatPropertyType implements IConvertedPropertyType<Object>/* <Com
 	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(formElementValue, pd, formElement, component, dataAdapterList);
+		return getSabloValue(formElementValue, pd, formElement, dataAdapterList);
 	}
 
 	@Override
 	public Object toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(null, pd, formElement, component, dataAdapterList);
+		return getSabloValue(null, pd, formElement, dataAdapterList);
 	}
 
-	private Object getSabloValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
-		DataAdapterList dataAdapterList)
+	private Object getSabloValue(Object formElementValue, PropertyDescription pd, FormElement formElement, DataAdapterList dataAdapterList)
 	{
 		if (formElementValue == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || formElementValue == DESIGN_DEFAULT)
 		{

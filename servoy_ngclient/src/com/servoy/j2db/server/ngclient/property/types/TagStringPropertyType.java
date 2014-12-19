@@ -21,6 +21,7 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -41,8 +42,8 @@ import com.servoy.j2db.util.HtmlUtils;
  * @author jcompagner
  *
  */
-public class TagStringPropertyType implements IWrapperType<Object, TagStringWrapper>, IFormElementToTemplateJSON<Object, Object>,
-	ISupportTemplateValue<Object>, IDataLinkedType<String, Object>, IFormElementToSabloComponent<Object, Object>
+public class TagStringPropertyType extends DefaultPropertyType<Object> implements IWrapperType<Object, TagStringWrapper>,
+	IFormElementToTemplateJSON<Object, Object>, ISupportTemplateValue<Object>, IDataLinkedType<String, Object>, IFormElementToSabloComponent<Object, Object>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
@@ -160,12 +161,6 @@ public class TagStringPropertyType implements IWrapperType<Object, TagStringWrap
 	{
 		if (formElementValue == null || (!formElementValue.contains("%%"))) return TargetDataLinks.NOT_LINKED_TO_DATA;
 		return TargetDataLinks.LINKED_TO_ALL; // TODO can we enhance this to specific dps?
-	}
-
-	@Override
-	public Object defaultValue()
-	{
-		return null;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,15 +81,6 @@ public class WebFormUI extends Container implements IWebFormUI
 	public final INGApplication getApplication()
 	{
 		return formController.getApplication();
-	}
-
-	/*
-	 * Called from constructor
-	 */
-	@Override
-	public final void setVisible(boolean v)
-	{
-		super.setVisible(v);
 	}
 
 	/**
@@ -167,9 +159,10 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 	}
 
-	private int contributeComponentToElementsScope(ElementScope elementsScope, int counter, FormElement fe, WebComponentSpecification componentSpec,
+	private int contributeComponentToElementsScope(ElementScope elementsScope, int counterStart, FormElement fe, WebComponentSpecification componentSpec,
 		WebFormComponent component)
 	{
+		int counter = counterStart;
 		if (!fe.getName().startsWith("svy_") && !FormElement.ERROR_BEAN.equals(componentSpec.getName()))
 		{
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
@@ -209,7 +202,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
-	public Object executeEvent(String eventType, Object[] args)
+	public Object doExecuteEvent(String eventType, Object[] args)
 	{
 		Integer eventId = events.get(eventType);
 		if (eventId != null)
@@ -220,9 +213,9 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
-	public WebFormComponent getWebComponent(String name)
+	public WebFormComponent getWebComponent(String compname)
 	{
-		return (WebFormComponent)super.getComponent(name);
+		return (WebFormComponent)super.getComponent(compname);
 	}
 
 	@Override
@@ -263,12 +256,13 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
-	public void putBrowserProperty(String propertyName, Object propertyValue) throws JSONException
+	public void doPutBrowserProperty(String propertyName, Object propertyValue) throws JSONException
 	{
+		// TODO: convert this to property change listener
 		if ("size".equals(propertyName))
 		{
 			Dimension prev = (Dimension)properties.get("size");
-			super.putBrowserProperty(propertyName, propertyValue);
+			super.doPutBrowserProperty(propertyName, propertyValue);
 			Dimension newSize = (Dimension)properties.get("size");
 			if (!Utils.equalObjects(prev, newSize))
 			{
@@ -277,7 +271,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 		else
 		{
-			super.putBrowserProperty(propertyName, propertyValue);
+			super.doPutBrowserProperty(propertyName, propertyValue);
 		}
 	}
 
@@ -352,11 +346,11 @@ public class WebFormUI extends Container implements IWebFormUI
 				{
 					if (fe.isLegacy())
 					{
-						component.setProperty("editable", !value);
+						component.setProperty("editable", Boolean.valueOf(!value));
 					}
 					else
 					{
-						component.setProperty(property, value);
+						component.setProperty(property, Boolean.valueOf(value));
 					}
 				}
 			}
@@ -365,7 +359,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		{
 			for (WebComponent component : components.values())
 			{
-				component.setProperty(property, value);
+				component.setProperty(property, Boolean.valueOf(value));
 			}
 		}
 	}
@@ -757,8 +751,8 @@ public class WebFormUI extends Container implements IWebFormUI
 		for (WebComponent component : components.values())
 		{
 			WebFormComponent comp = (WebFormComponent)component;
-			Map<String, PropertyDescription> valuelistProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
-			for (PropertyDescription vlProp : valuelistProps.values())
+			Collection<PropertyDescription> valuelistProps = comp.getFormElement().getWebComponentSpec().getProperties(TypesRegistry.getType("valuelist"));
+			for (PropertyDescription vlProp : valuelistProps)
 			{
 				ValueListPropertySabloValue propertyValue = (ValueListPropertySabloValue)comp.getProperty(vlProp.getName());
 				if (propertyValue != null)
@@ -775,9 +769,8 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	protected List<FormElement> getFormElements()
 	{
-		Form form = formController.getForm();
-		List<FormElement> formElements = ComponentFactory.getFormElements(
-			new ArrayList<IPersist>(form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR)).iterator(), getDataConverterContext());
-		return formElements;
+		return ComponentFactory.getFormElements(
+			new ArrayList<IPersist>(formController.getForm().getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR)).iterator(),
+			getDataConverterContext());
 	}
 }

@@ -12,7 +12,7 @@
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundset": "relatedFoundset"} }, 
-	        "enabled" : {"type":"boolean", "default":true}, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true },
 	        "foreground" : "color", 
 	        "headerHeight" : {"type" :"int",  "default" : 32}, 
 	        "initialSort" : "string", 
@@ -33,7 +33,7 @@
 	        "styleClass" : "string", 
 	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
 	        "transparent" : "boolean", 
-	        "visible" : {"type":"boolean", "default":true} 
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

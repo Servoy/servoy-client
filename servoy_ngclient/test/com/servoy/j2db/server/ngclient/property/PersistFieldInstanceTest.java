@@ -171,14 +171,14 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
-		TypedData<Map<String, Object>> changes = wc.getChanges();
+		TypedData<Map<String, Object>> changes = wc.getAndClearChanges();
 		Assert.assertEquals(0, changes.content.size());
 
 		List<Map<String, Object>> tabs = (List)wc.getProperty("tabs");
 		Assert.assertEquals(2, tabs.size());
 		Map<String, Object> map = tabs.get(0);
 		map.put("text", "a test");
-		changes = wc.getChanges();
+		changes = wc.getAndClearChanges();
 
 		Assert.assertEquals(1, changes.content.size());
 
@@ -208,7 +208,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertEquals("name", type.get("name"));
 		Assert.assertEquals("i18n:servoy.button.ok", type.get("text"));
 
-		Assert.assertEquals(0, wc.getChanges().content.size());
+		Assert.assertEquals(0, wc.getAndClearChanges().content.size());
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
@@ -239,7 +239,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertEquals("name", type.get("name"));
 		Assert.assertEquals("tabform", type.get("form"));
 
-		Assert.assertEquals(0, wc.getChanges().content.size());
+		Assert.assertEquals(0, wc.getAndClearChanges().content.size());
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 

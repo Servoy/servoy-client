@@ -16,7 +16,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONObject;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DefaultPropertyType;
 
 /**
  * This is a special type that is used in api calls to let servoy know that the api should return a form server instance itself
@@ -24,7 +24,7 @@ import org.sablo.specification.property.IPropertyType;
  * TODO this should be looked at for getRightForm for example of the SplitPane
  * @author jcompagner
  */
-public class FormScopePropertyType implements IPropertyType<String>
+public class FormScopePropertyType extends DefaultPropertyType<String>
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
@@ -44,11 +44,5 @@ public class FormScopePropertyType implements IPropertyType<String>
 	public Object parseConfig(JSONObject json)
 	{
 		return json;
-	}
-
-	@Override
-	public String defaultValue()
-	{
-		return null;
 	}
 }

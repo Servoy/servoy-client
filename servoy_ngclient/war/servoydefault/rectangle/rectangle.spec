@@ -10,7 +10,7 @@
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "containsFormID" : "form", 
-	        "enabled" : {"type":"boolean", "default":true}, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true },
 	        "foreground" : "color", 
 	        "lineSize" : "int", 
 	        "location" : "point", 
@@ -18,7 +18,7 @@
 	        "shapeType" : "int", 
 	        "size" : "dimension", 
 	        "transparent" : "boolean", 
-	        "visible" : {"type":"boolean", "default":true} 
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

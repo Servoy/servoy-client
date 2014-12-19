@@ -24,6 +24,6 @@ package com.servoy.j2db.server.ngclient;
 public interface IDirtyPropertyListener
 {
 
-	void propertyFlaggedAsDirty(String propertyName);
+	void propertyFlaggedAsDirty(String propertyName, boolean dirty);
 
 }

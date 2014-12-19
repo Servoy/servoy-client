@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -35,7 +35,7 @@ import com.servoy.j2db.util.HtmlUtils;
  *
  * @author acostescu
  */
-public class HTMLStringPropertyType implements IPropertyType<String>, IConvertedPropertyType<String>
+public class HTMLStringPropertyType extends DefaultPropertyType<String> implements IConvertedPropertyType<String>
 {
 
 	public static final HTMLStringPropertyType INSTANCE = new HTMLStringPropertyType();
@@ -52,12 +52,6 @@ public class HTMLStringPropertyType implements IPropertyType<String>, IConverted
 	public Object parseConfig(JSONObject config)
 	{
 		return Boolean.valueOf(config.optBoolean(CONFIG_OPTION_PARSEHTML, false));
-	}
-
-	@Override
-	public String defaultValue()
-	{
-		return null;
 	}
 
 	@Override

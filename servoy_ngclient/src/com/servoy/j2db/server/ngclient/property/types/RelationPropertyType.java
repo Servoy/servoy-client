@@ -16,14 +16,14 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONObject;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.DefaultPropertyType;
 
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 
 /**
  * @author jcompagner
  */
-public class RelationPropertyType implements IPropertyType<RelatedFoundSet>
+public class RelationPropertyType extends DefaultPropertyType<RelatedFoundSet>
 {
 	public static RelationPropertyType INSTANCE = new RelationPropertyType();
 	public static final String TYPE_NAME = "relation";
@@ -43,11 +43,4 @@ public class RelationPropertyType implements IPropertyType<RelatedFoundSet>
 	{
 		return json;
 	}
-
-	@Override
-	public RelatedFoundSet defaultValue()
-	{
-		return null;
-	}
-
 }

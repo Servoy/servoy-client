@@ -11,7 +11,9 @@
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type":"dataprovider", "scope" :"design", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "directEditPropertyName" : {"type" :"string",  "default" : "text"}, 
-	        "enabled" : {"type":"boolean", "default":true}, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true },
+	        "ragtestdeftrue" : { "type": "protected", "blockingOn": false, "default": true },
+	        "ragtestdeffalse" : { "type": "protected", "blockingOn": true, "default": false },
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "format" : {"for":"dataProviderID" , "type" :"format"}, 
@@ -32,7 +34,7 @@
 	        "toolTipText" : "tagstring", 
 	        "transparent" : "boolean", 
 	        "verticalAlignment" : {"type" :"int", "scope" :"design", "values" :[{"TOP":1}, {"CENTER":0} ,{"BOTTOM":3}], "default" : 0}, 
-	        "visible" : {"type":"boolean", "default":true} 
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

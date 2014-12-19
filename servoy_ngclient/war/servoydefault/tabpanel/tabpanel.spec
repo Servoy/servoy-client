@@ -10,12 +10,12 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "enabled" : {"type":"boolean", "default":true}, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true },
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "horizontalAlignment" : {"type" :"int", "scope" :"design", "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
 	        "location" : "point", 
-	        "readOnly" : "boolean", 
+	        "readOnly" : "protected", 
 	        "selectedTabColor" : "color", 
 	        "size" : {"type" :"dimension",  "default" : {"width":300, "height":300}}, 
 	        "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
@@ -24,7 +24,7 @@
 	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
 	        "tabs" : {"type":"tab[]", "droppable":true}, 
 	        "transparent" : "boolean", 
-	        "visible" : {"type":"boolean", "default":true} 
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

@@ -230,10 +230,11 @@ public class WebFormComponent extends Container implements IContextProvider
 	}
 
 	@Override
-	public void flagPropertyAsDirty(String key)
+	public boolean flagPropertyAsDirty(String key, boolean dirty)
 	{
-		super.flagPropertyAsDirty(key);
-		if (dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key);
+		boolean modified = super.flagPropertyAsDirty(key, dirty);
+		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, dirty);
+		return modified;
 	}
 
 }
