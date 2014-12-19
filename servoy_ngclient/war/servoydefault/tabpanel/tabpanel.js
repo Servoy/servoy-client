@@ -24,7 +24,11 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
         	var realTabIndex = $scope.model.tabIndex - 1;
         	if ($scope.model.tabs)
         		for(var i=0;i<$scope.model.tabs.length;i++) {
-        			if (i == realTabIndex) $scope.model.tabs[i].active = true;
+        			if (i == realTabIndex)
+        			{	
+        				$scope.model.tabs[i].active = true;
+        				$scope.model.selectedTab = $scope.model.tabs[i];
+        			}
         			else $scope.model.tabs[i].active = false;
         			$scope.model.tabs[i].disabled = false;
         		}
