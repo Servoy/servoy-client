@@ -108,6 +108,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						}
 						var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0) 
 						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
+						var isSortable = el.forFoundset.recordBasedProperties.length > 0;
 						$scope.columnDefinitions.push({
 							name:el.name,
 							displayName: columnTitle,
@@ -118,6 +119,9 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 							cellEditableCondition: false,
 							enableColumnMoving: isMovable,
 							enableColumnResizing: isResizable,
+							enableColumnMenu: isSortable,
+							enableSorting:isSortable,
+							enableHiding: false
 						});					
 						updateColumnDefinition($scope, idx);
 					}
