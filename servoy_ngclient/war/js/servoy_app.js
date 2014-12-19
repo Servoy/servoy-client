@@ -17,7 +17,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	   };
 	   
 	   var sendChanges = function(now, prev, formname, beanname) {
-		   $sabloApplication.getFormState(formname).then(function (formState) {
+		   $sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			   var changes = getComponentChanges(now, prev, $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname),
 					   formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifier(formname, beanname), formState.getScope());
 			   if (Object.getOwnPropertyNames(changes).length > 0) {
@@ -164,7 +164,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			   // data got back from the server
 			   for(var formname in msg.forms) {
 				   // current model
-				   if (!$sabloApplication.hasFormstateLoaded(formname)) continue;
+				   if (!$sabloApplication.hasFormState(formname)) continue;
 				   // if the formState is on the server but not here anymore, skip it. 
 				   // this can happen with a refresh on the browser.
 				   $sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo));
@@ -260,7 +260,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   sendChanges: sendChanges,
 
 		   pushDPChange: function(formname, beanname, property) {
-			   $sabloApplication.getFormState(formname).then(function (formState) {
+			   $sabloApplication.getFormStateWithData(formname).then(function (formState) {
 				   var changes = {}
 
 				   // default model, simple direct form child component
@@ -575,6 +575,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
         link: function (scope, element, attrs) {
         	var formname = scope.formname;
 			$timeout(function() {
+				$sabloApplication.callService('formService', 'formLoaded', { formname: formname }, true);
+
 				if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
 					$rootScope.updatingFormUrl = '';
 				}

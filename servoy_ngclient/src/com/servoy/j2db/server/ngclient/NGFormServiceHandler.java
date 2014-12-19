@@ -187,18 +187,16 @@ public class NGFormServiceHandler extends FormServiceHandler
 				if (form != null) getWebsocketSession().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true);
 				return Boolean.valueOf(ok);
 			}
+			case "formLoaded" :
+			{
+				// "requestData" was already treated by "super" call; just let the system know that this form is now ready for use client-side
+				getWebsocketSession().formCreated(args.optString("formname"));
+				break;
+			}
 
 			default :
 			{
-				Object val = super.executeMethod(methodName, args);
-
-				if ("requestData".equals(methodName))
-				{
-					// "requestData" was already treated by "super" call; just let the system know that this form is now ready for use client-side
-					getWebsocketSession().formCreated(args.optString("formname"));
-				}
-
-				return val;
+				return super.executeMethod(methodName, args);
 			}
 		}
 
@@ -211,4 +209,12 @@ public class NGFormServiceHandler extends FormServiceHandler
 		getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 		return super.requestData(formName);
 	}
+
+	@Override
+	public int getMethodEventThreadLevel(String methodName, JSONObject arguments)
+	{
+		if ("formLoaded".equals(methodName)) return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
+		return super.getMethodEventThreadLevel(methodName, arguments);
+	}
+
 }
