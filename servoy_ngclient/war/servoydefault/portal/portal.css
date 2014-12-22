@@ -6,3 +6,7 @@
     bottom: 0px;
     overflow: hidden;
 }
+
+.ui-grid-row-selected > div > div.ui-grid-cell {
+  background-color: #c9dde1 !important;
+}
