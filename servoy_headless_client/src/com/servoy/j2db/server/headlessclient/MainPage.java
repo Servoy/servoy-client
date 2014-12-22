@@ -240,7 +240,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.Page#getVersion(int)
 	 */
 	@Override
@@ -842,6 +842,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				{
 					client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
 				}
+
+				jsActionBuffer.moveToFront(divDialog);
 
 				// reset current container again
 				fm.setCurrentContainer(currentContainer, currentContainer.getContainerName());
