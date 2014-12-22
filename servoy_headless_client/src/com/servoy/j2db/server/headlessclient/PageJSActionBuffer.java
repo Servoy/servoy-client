@@ -17,6 +17,8 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,7 +30,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 /**
  * A keeper of JS (and other) actions to be applied on a page on an AJAX request or header response.
  * It keeps JS actions ordered as added in each set except for triggerAjaxUpdate that will be added at the end (see SVY-1328), no matter when it's called.
- * 
+ *
  * @author acostescu
  */
 @SuppressWarnings("nls")
@@ -232,6 +234,38 @@ public class PageJSActionBuffer
 			return false;
 		}
 
+		@Override
+		public String toString()
+		{
+			String strOperation = "OP_SHOW";
+			switch (operation)
+			{
+				case DivDialogAction.OP_REATTACH_BEHAVIORS_ON_CORRECT_PAGE :
+					strOperation = "OP_REATTACH_BEHAVIORS_ON_CORRECT_PAGE";
+					break;
+				case DivDialogAction.OP_CLOSE :
+					strOperation = "OP_CLOSE";
+					break;
+				case DivDialogAction.OP_TO_FRONT :
+					strOperation = "OP_TO_FRONT";
+					break;
+				case DivDialogAction.OP_TO_BACK :
+					strOperation = "OP_TO_BACK";
+					break;
+				case DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED :
+					strOperation = "OP_DIALOG_ADDED_OR_REMOVED";
+					break;
+				case DivDialogAction.OP_SET_BOUNDS :
+					strOperation = "OP_SET_BOUNDS";
+					break;
+				case DivDialogAction.OP_SAVE_BOUNDS :
+					strOperation = "OP_SAVE_BOUNDS";
+					break;
+				case DivDialogAction.OP_RESET_BOUNDS :
+					strOperation = "OP_RESET_BOUNDS";
+			}
+			return "DivDialogAction[" + strOperation + "," + divDialog.getPageMapName() + "]";
+		}
 	}
 
 	public static class TriggerAjaxUpdateAction extends JSChangeAction
@@ -348,6 +382,35 @@ public class PageJSActionBuffer
 			}
 		}
 		return alreadyThere;
+	}
+
+	/**
+	 * @param divDialog
+	 */
+	public void moveToFront(final ServoyDivDialog divDialog)
+	{
+		Collections.sort(buffer1, new Comparator<PageAction>()
+		{
+
+			@Override
+			public int compare(PageAction o1, PageAction o2)
+			{
+				if (o1 instanceof DivDialogAction && ((DivDialogAction)o1).divDialog == divDialog)
+				{
+					if (o2 instanceof DivDialogAction && ((DivDialogAction)o2).divDialog == divDialog)
+					{
+						return 0;
+					}
+					return -1;
+				}
+				if (o2 instanceof DivDialogAction && ((DivDialogAction)o2).divDialog == divDialog)
+				{
+					return 1;
+				}
+				return 0;
+			}
+		});
+
 	}
 
 }
