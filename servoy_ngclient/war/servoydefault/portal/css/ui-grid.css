@@ -221,7 +221,7 @@ input[type="text"].ui-grid-filter-input:hover {
   border: 1px solid #d4d4d4;
 }
 .ui-grid-render-container {
-  position: inherit;
+  position: relative;
   -webkit-border-top-right-radius: 0;
   -webkit-border-bottom-right-radius: 0px;
   -webkit-border-bottom-left-radius: 0px;
