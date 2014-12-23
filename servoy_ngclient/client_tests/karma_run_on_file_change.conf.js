@@ -1,32 +1,60 @@
 module.exports = function(config){
   config.set({
     basePath : '.',
-
+    
+    preprocessors: {
+        '../war/servoydefault/**/*.html': ['ng-html2js']
+    },
     files : [
-       'lib/angular.js',
-       'lib/angular-mocks.js',
-       'lib/*',
-       '../war/js/*',
-       '../war/js/angularui/**',
-       './test/*.js'
+       'lib/jquery.js',
+       'lib/angular_1.3.4.js',
+       'lib/angular-mocks_1.3.4.js',
+       '../../../sablo/sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
+       /*'../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
+       'lib/phantomjs.polyfill.js',
+       '../war/js/**/*.js',
+       '../war/servoydefault/*/*.js',
+       './test/**/*.js',
+       '../war/servoydefault/*/*.html'
     ],
-
     exclude : [
-	'../war/servoydefault/tabpanel/tabpanel_server.js'
+	  '../war/servoydefault/tabpanel/tabpanel_server.js',
+	  '../war/js/**/*.min.js',
+	  '../war/js/**/angular1.3.4.js'
       /*'app/lib/angular/angular-loader.js',
       'app/lib/angular/*.min.js',
       'app/lib/angular/angular-scenario.js'*/
     ],
-
-    autoWatch : true,
+    ngHtml2JsPreprocessor: {
+        // setting this option will create only a single module that contains templates
+        // from all the files, so you can load them all with module('foo')
+        moduleName: 'servoy-components',
+        
+        cacheIdFromPath: function(filepath) {
+            return filepath.replace(/.*?\/servoydefault\/(.*)/,"servoydefault/$1");
+        },
+    },
 
     frameworks: ['jasmine'],
+    browsers : ['Chrome'],//
 
-    browsers : ['PhantomJS'],
-
+    /*plugins : [    <- not needed since karma loads by default all sibling plugins that start with karma-*
+            'karma-junit-reporter',
+            'karma-chrome-launcher',
+            'karma-firefox-launcher',
+            'karma-script-launcher',
+            'karma-jasmine'
+            ],*/
+    singleRun: false,
+    //autoWatch : true,
     reporters: ['dots', 'junit'],
     junitReporter: {
-    outputFile: 'test-results.xml'
+          outputFile: 'test-results.xml'
     }
+  /*,  alternative format
+    junitReporter : {
+      outputFile: 'test_out/unit.xml',
+      suite: 'unit'
+    }*/
   });
 };

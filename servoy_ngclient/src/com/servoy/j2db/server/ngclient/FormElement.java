@@ -620,9 +620,6 @@ public final class FormElement implements IWebComponentInitializer
 		return result;
 	}
 
-	/**
-	 * @return
-	 */
 	public FlattenedSolution getFlattendSolution()
 	{
 		return fs;

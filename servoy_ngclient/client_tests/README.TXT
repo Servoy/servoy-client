@@ -7,8 +7,10 @@ PREREQUISITES:
  - git installed and available in path
 
 
-In  runt_tests.xml There are two targets to run the unit tests: 'run_tests' and 'run_tests_continuously'. The first one is used for one time run (jenkins) .
-The latter one can be used for development purposes , it runs all tests on any js file change.
+In  runt_tests.xml there is a target to run the unit tests: 'run_tests'. By default it runs them once.
+To use continous development mode, create a copy of "development_mode.properties.removeThisEXT" in the same folder
+and remove it's extension'. The run once is used for one time run (jenkins).
+The latter one can be used for development purposes, it runs all tests on any js file change and you can debug it in chrome.
 
 client_tests folder structure:
 client_tests   - main folder which contains the node module responsible for ngclient browser unit tests 
@@ -19,7 +21,7 @@ client_tests   - main folder which contains the node module responsible for ngcl
    karma_run_on_file_change.conf.js  -  this is for development mode ,starts a test server and runs test for any js change.
    									    It is used from run_tests_continuously target
    runt_tests.xml - contains ant targets targets     									   
-
+   development_mode.properties.removeThisEX - file that can be copied with extension removed to the same folder to enable development mode of karma.
    
    test - contains unit test code
    

@@ -29,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
+import org.sablo.specification.property.types.TabSeqPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFactory;
@@ -126,7 +127,7 @@ class PersistBasedFormElementImpl
 			}
 			else if (persist instanceof Portal)
 			{
-				convertFromPortalToNGProperties((IFormElement)persist, fs, map, specProperties, propertyPath);
+				convertFromPortalToNGProperties((Portal)persist, fs, map, specProperties, propertyPath);
 			}
 			return map;
 		}
@@ -250,14 +251,13 @@ class PersistBasedFormElementImpl
 		map.put("tabs", tabList.toArray());
 	}
 
-	private void convertFromPortalToNGProperties(IFormElement portalPersist, FlattenedSolution fs, Map<String, Object> map,
+	private void convertFromPortalToNGProperties(Portal portal, FlattenedSolution fs, Map<String, Object> map,
 		Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
 		try
 		{
 			map.remove("relationName");
 
-			Portal portal = ((Portal)portalPersist);
 			JSONObject relatedFoundset = new JSONObject();
 			relatedFoundset.put("foundsetSelector", portal.getRelationName());
 
@@ -293,6 +293,7 @@ class PersistBasedFormElementImpl
 				Object[] componentFormElementValues = new Object[components.size()]; // of ComponentTypeFormElementValue type (this array of objects corresponds to CustomJSONArrayType form element value
 				int i = 0;
 				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
+
 				propertyPath.add("childElements");
 				for (IPersist component : components)
 				{
@@ -300,9 +301,10 @@ class PersistBasedFormElementImpl
 					{
 						FormElement nfe = com.servoy.j2db.server.ngclient.ComponentFactory.getFormElement((IFormElement)component, fs, propertyPath,
 							formElement.getDesignId() != null);
-						boolean dpChanged = false;
+						boolean somePropertyChanged = false;
 
 						propertyPath.add(i);
+
 						// remove the name of relation prefix from child dataproviders as it only stands in the way later on...
 						Collection<PropertyDescription> dataProviderProperties = nfe.getWebComponentSpec().getProperties(DataproviderPropertyType.INSTANCE);
 						String relationPrefix = portal.getRelationName() + '.';
@@ -313,18 +315,30 @@ class PersistBasedFormElementImpl
 							String dp = (String)nfe.getPropertyValue(dpPropertyName); // TODO adjust this when/if dataprovider properties change the form element value type in the future
 							if (dp != null && dp.startsWith(relationPrefix))
 							{
-								dpChanged = true;
+								somePropertyChanged = true;
 								// portal always prefixes comp. dataproviders with related fs name
 								putAndConvertProperty(dpPropertyName, dp.substring(relationPrefix.length()), elementProperties, fs,
 									nfe.getWebComponentSpec().getProperty(dpPropertyName), propertyPath);
 							}
 						}
-						if (dpChanged) nfe.updatePropertyValuesDontUse(elementProperties);
+
+						// legacy portals need to set the same tabSeq. property for all children if they are to function properly
+						Collection<PropertyDescription> tabSequenceProperties = nfe.getWebComponentSpec().getProperties(TabSeqPropertyType.INSTANCE);
+						for (PropertyDescription tabSeqProperty : tabSequenceProperties)
+						{
+							String tabSeqPropertyName = tabSeqProperty.getName();
+							somePropertyChanged = true;
+							putAndConvertProperty(tabSeqPropertyName, Integer.valueOf(1), elementProperties, fs,
+								nfe.getWebComponentSpec().getProperty(tabSeqPropertyName), propertyPath); // just put an 1 on all (default legacy portal doesn't allow non-default tab seq in it)
+						}
+
+						if (somePropertyChanged) nfe.updatePropertyValuesDontUse(elementProperties);
 
 						componentFormElementValues[i++] = type.getFormElementValue(null, pd, propertyPath, nfe, fs);
 						propertyPath.backOneLevel();
 					}
 				}
+
 				propertyPath.backOneLevel();
 				map.put("childElements", componentFormElementValues);
 			}

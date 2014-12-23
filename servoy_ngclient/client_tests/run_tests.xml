@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project  default="run_tests">
 	<property name="basedir" value="."/>
-	<property name="karma.conf" value="./karma.conf.js"/>
+	
+	<property name="karma_run_once.conf" value="./karma.conf.js"/>
 	<property name="karma_run_on_file_change.conf" value="./karma_run_on_file_change.conf.js"/>
 	
+	<property file="./development_mode.properties" /> <!-- if the file is present karma will run in continuous mode for development when run_tests is ran -->
+	<property name="karma.conf" value="${karma_run_once.conf}"/>
+
 	<!-- checks if used dependencies from package.json are outdated should be used manualy from time to time--> 
 	<target name="check_outdated">
 		<exec executable="bash" dir="${basedir}" osfamily="unix"

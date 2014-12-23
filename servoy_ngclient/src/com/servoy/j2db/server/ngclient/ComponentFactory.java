@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
+import org.sablo.specification.property.types.TabSeqPropertyType;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
@@ -320,6 +322,11 @@ public class ComponentFactory
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
 				propertyPath.add(portalFormElement.getName());
 				propertyPath.add("childElements");
+
+				// it's a generated table-view form portal (BodyPortal); we just
+				// have to set the Portal's tabSeq to the first one of it's children for it to work properly
+				int minBodyPortalTabSeq = -2;
+
 				while (it.hasNext())
 				{
 					IPersist persist = it.next();
@@ -333,12 +340,25 @@ public class ComponentFactory
 							FormElement fe = ComponentFactory.getFormElement((IFormElement)persist, fs, propertyPath, isInDesginer);
 							children.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
 							propertyPath.backOneLevel();
+
+							Collection<PropertyDescription> tabSequenceProperties = fe.getWebComponentSpec().getProperties(TabSeqPropertyType.INSTANCE);
+							for (PropertyDescription tabSeqProperty : tabSequenceProperties)
+							{
+								String tabSeqPropertyName = tabSeqProperty.getName();
+								Integer tabSeqVal = (Integer)fe.getPropertyValue(tabSeqPropertyName);
+								if (tabSeqVal == null) tabSeqVal = Integer.valueOf(0); // default is 0 == DEFAULT tab sequence
+								if (minBodyPortalTabSeq < 0 || minBodyPortalTabSeq > tabSeqVal.intValue()) minBodyPortalTabSeq = tabSeqVal.intValue();
+							}
 						}
+
 					}
 				}
 				propertyPath.backOneLevel();
 				propertyPath.backOneLevel();
 				portalFormElementProperties.put("childElements", children.toArray());
+
+				portalFormElementProperties.put("tabSeq", Integer.valueOf(minBodyPortalTabSeq)); // table view tab seq. is the minimum of it's children tabSeq'es
+
 				portalFormElement.updatePropertyValuesDontUse(portalFormElementProperties);
 
 				return portalFormElement;

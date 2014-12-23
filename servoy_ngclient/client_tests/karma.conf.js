@@ -7,9 +7,9 @@ module.exports = function(config){
     },
     files : [
        'lib/jquery.js',
-       'lib/angular.js',
-       'lib/angular-mocks.js',
-       /*'../../../sablo/sablo/META-INF/resources/sablo/js/*.js',*/ /* use this when running from Git */
+       'lib/angular_1.3.4.js',
+       'lib/angular-mocks_1.3.4.js',
+       /*'../../../sablo/sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
        '../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
        'lib/phantomjs.polyfill.js',
        '../war/js/**/*.js',
@@ -20,7 +20,7 @@ module.exports = function(config){
     exclude : [
 	  '../war/servoydefault/tabpanel/tabpanel_server.js',
 	  '../war/js/**/*.min.js',
-	  '../war/js/**/angular1.3.0.js'
+	  '../war/js/**/angular1.3.4.js'
       /*'app/lib/angular/angular-loader.js',
       'app/lib/angular/*.min.js',
       'app/lib/angular/angular-scenario.js'*/

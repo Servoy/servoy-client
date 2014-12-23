@@ -27,3 +27,4 @@ node_modules
 # Users Environment Variables
 .lock-wscript
 /test-results.xml
+/development_mode.properties
