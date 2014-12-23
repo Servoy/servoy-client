@@ -10,3 +10,11 @@
 .ui-grid-row-selected > div > div.ui-grid-cell {
   background-color: #c9dde1 !important;
 }
+
+div.ui-grid-cell input.ng-valid {
+	border-width: 0px 0px 0px 0px;
+}
+.ui-grid-row .ui-grid-cell {
+ position:relative;
+ border-width: 0px 0px 0px 0px;
+}

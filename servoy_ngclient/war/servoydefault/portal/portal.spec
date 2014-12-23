@@ -4,9 +4,9 @@
 	"version": 1,
 	"icon": "servoydefault/portal/portal.gif",
 	"definition": "servoydefault/portal/portal.js",
-	"libraries": [{"name":"svy-portal", "version":"1", "url":"servoydefault/portal/portal.css", "mimetype":"text/css"},
-				{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoydefault/portal/js/ui-grid.js", "mimetype":"text/javascript"},
-				{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoydefault/portal/css/ui-grid.min.css", "mimetype":"text/css"}],
+	"libraries": [{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoydefault/portal/js/ui-grid.js", "mimetype":"text/javascript"},
+				{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoydefault/portal/css/ui-grid.min.css", "mimetype":"text/css"},
+				{"name":"svy-portal", "version":"1", "url":"servoydefault/portal/portal.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 
