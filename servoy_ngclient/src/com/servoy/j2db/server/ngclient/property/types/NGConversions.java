@@ -89,6 +89,30 @@ public class NGConversions
 	}
 
 	/**
+	 * Some types might want to interpret/convert DEFAULT design values as well to use with FormElement.<BR/>
+	 * This interface allows them to do just that.<BR/><BR/>
+	 *
+	 * Using this interface will render {@link IPropertyType#defaultValue()} useless and the default if handled at design-time.
+	 *
+	 * @author acostescu
+	 */
+	public static interface IDesignDefaultToFormElement<D, F, T> extends IDesignToFormElement<D, F, T>
+	{
+
+		/**
+		 * Converts a DEFAULT design JSON value / primitive to a Java value representing that property in FormElement based on spec. type.<br>
+		 * If the spec type doesn't specify a conversion for this stage, it will simply use runtime defaults (declared in type) later on.
+		 *
+		 * @param pd that value in spec file for this property type.
+		 * @param flattenedSolution current flattened solution.
+		 * @param formElement the form element this DEFAULT property value will be set on.
+		 * @return the corresponding FormElement value based on bean spec.
+		 */
+		F toDefaultFormElementValue(PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement, PropertyPath propertyPath);
+
+	}
+
+	/**
 	 * Conversion 2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
 	public static interface IFormElementToTemplateJSON<F, T> extends IPropertyType<T>

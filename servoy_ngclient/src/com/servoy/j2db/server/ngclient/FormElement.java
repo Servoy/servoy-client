@@ -53,6 +53,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -254,6 +255,12 @@ public final class FormElement implements IWebComponentInitializer
 					{
 						propertyPath.add(pd.getName());
 						map.put(pd.getName(), NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd, fs, this, propertyPath));
+						propertyPath.backOneLevel();
+					}
+					else if (pd.getType() instanceof IDesignDefaultToFormElement< ? , ? , ? >)
+					{
+						propertyPath.add(pd.getName());
+						map.put(pd.getName(), ((IDesignDefaultToFormElement< ? , ? , ? >)pd.getType()).toDefaultFormElementValue(pd, fs, this, propertyPath));
 						propertyPath.backOneLevel();
 					}
 					else if (pd.getType().defaultValue() != null)

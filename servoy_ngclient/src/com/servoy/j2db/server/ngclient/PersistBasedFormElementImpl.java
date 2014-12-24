@@ -29,7 +29,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
-import org.sablo.specification.property.types.TabSeqPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFactory;
@@ -48,6 +47,7 @@ import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -251,8 +251,8 @@ class PersistBasedFormElementImpl
 		map.put("tabs", tabList.toArray());
 	}
 
-	private void convertFromPortalToNGProperties(Portal portal, FlattenedSolution fs, Map<String, Object> map,
-		Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
+	private void convertFromPortalToNGProperties(Portal portal, FlattenedSolution fs, Map<String, Object> map, Map<String, PropertyDescription> specProperties,
+		PropertyPath propertyPath)
 	{
 		try
 		{
@@ -299,7 +299,7 @@ class PersistBasedFormElementImpl
 				{
 					if (component instanceof IFormElement)
 					{
-						FormElement nfe = com.servoy.j2db.server.ngclient.ComponentFactory.getFormElement((IFormElement)component, fs, propertyPath,
+						FormElement nfe = FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, propertyPath,
 							formElement.getDesignId() != null);
 						boolean somePropertyChanged = false;
 
@@ -323,7 +323,7 @@ class PersistBasedFormElementImpl
 						}
 
 						// legacy portals need to set the same tabSeq. property for all children if they are to function properly
-						Collection<PropertyDescription> tabSequenceProperties = nfe.getWebComponentSpec().getProperties(TabSeqPropertyType.INSTANCE);
+						Collection<PropertyDescription> tabSequenceProperties = nfe.getWebComponentSpec().getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 						for (PropertyDescription tabSeqProperty : tabSequenceProperties)
 						{
 							String tabSeqPropertyName = tabSeqProperty.getName();

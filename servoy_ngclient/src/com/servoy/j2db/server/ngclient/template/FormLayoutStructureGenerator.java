@@ -32,7 +32,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 
@@ -58,7 +58,7 @@ public class FormLayoutStructureGenerator
 				}
 				else if (component instanceof IFormElement)
 				{
-					FormLayoutGenerator.generateFormElement(writer, ComponentFactory.getFormElement((IFormElement)component, context, null), design);
+					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), design);
 				}
 			}
 			FormLayoutGenerator.generateEndDiv(writer);
@@ -126,7 +126,7 @@ public class FormLayoutStructureGenerator
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormLayoutGenerator.generateFormElement(writer, ComponentFactory.getFormElement((IFormElement)component, context, null), design);
+				FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), design);
 			}
 		}
 		writer.print("</");

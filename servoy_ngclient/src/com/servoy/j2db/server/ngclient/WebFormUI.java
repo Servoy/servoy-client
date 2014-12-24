@@ -769,7 +769,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	protected List<FormElement> getFormElements()
 	{
-		return ComponentFactory.getFormElements(
+		return FormElementHelper.INSTANCE.getFormElements(
 			new ArrayList<IPersist>(formController.getForm().getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR)).iterator(),
 			getDataConverterContext());
 	}

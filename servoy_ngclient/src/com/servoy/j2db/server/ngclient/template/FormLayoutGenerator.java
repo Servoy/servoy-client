@@ -28,9 +28,9 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -77,7 +77,7 @@ public class FormLayoutGenerator
 
 				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context, design))
 				{
-					FormElement fe = ComponentFactory.getFormElement(bc, context, null);
+					FormElement fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
 
 					generateFormElementWrapper(writer, fe, design, form);
 					generateFormElement(writer, fe, false);

@@ -50,7 +50,7 @@ public class WebListFormUI extends WebFormUI
 		Form form = getController().getForm();
 		List<IFormElement> elements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		Iterator<IFormElement> it = elements.iterator();
-		Part body = ComponentFactory.getBodyPart(form);
+		Part body = FormElementHelper.INSTANCE.getBodyPart(form);
 		int bodyStartY = form.getPartStartYPos(body.getID());
 		int bodyEndY = body.getHeight();
 		while (it.hasNext())
@@ -63,7 +63,7 @@ public class WebListFormUI extends WebFormUI
 			}
 		}
 		elements.add(getPortal());
-		return ComponentFactory.getFormElements(new ArrayList<IPersist>(elements).iterator(), getDataConverterContext());
+		return FormElementHelper.INSTANCE.getFormElements(new ArrayList<IPersist>(elements).iterator(), getDataConverterContext());
 	}
 
 	protected BodyPortal getPortal()

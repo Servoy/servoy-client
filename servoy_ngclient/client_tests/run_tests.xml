@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project  default="run_tests">
+<project default="run_tests">
 	<property name="basedir" value="."/>
 	
 	<property name="karma_run_once.conf" value="./karma.conf.js"/>

@@ -58,6 +58,7 @@ public class Types
 		TypesRegistry.addType(NGFontPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGInsetsPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGPointPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGTabSeqPropertyType.NG_INSTANCE);
 
 
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes

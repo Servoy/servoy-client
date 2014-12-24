@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertySabloValue;
@@ -124,7 +125,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		field.setDisplayType(Field.TYPE_AHEAD);
 		field.setValuelistID(vl.getID());
 
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
+		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 		Object property = wc.getProperty("valuelistID");
@@ -146,7 +147,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		tabpanel.createNewTab("tab1", null, tabForm);
 		tabpanel.createNewTab("tab2", null, tabForm);
 
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
+		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 		List<Map<String, Object>> tabs = (List)wc.getProperty("tabs");
@@ -168,7 +169,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		tabpanel.createNewTab("tab1", null, tabForm);
 		tabpanel.createNewTab("tab2", null, tabForm);
 
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
+		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 		TypedData<Map<String, Object>> changes = wc.getAndClearChanges();
@@ -200,7 +201,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Bean bean = form.createNewBean("mycustombean", "my-component");
 		bean.setInnerHTML("{atype:{name:'name',text:'i18n:servoy.button.ok'}}");
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
+		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 
@@ -231,7 +232,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Bean bean = form.createNewBean("mycustombean", "my-component");
 		bean.setInnerHTML("{atype:{name:'name',form:'tabform'}}");
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
+		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 

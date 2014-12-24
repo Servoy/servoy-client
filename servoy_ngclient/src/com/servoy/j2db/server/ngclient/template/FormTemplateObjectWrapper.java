@@ -20,10 +20,10 @@ package com.servoy.j2db.server.ngclient.template;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 
 import freemarker.template.DefaultObjectWrapper;
@@ -77,7 +77,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		}
 		else if (obj instanceof IFormElement)
 		{
-			wrapped = ComponentFactory.getFormElement((IFormElement)obj, context, null);
+			wrapped = FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context, null);
 		}
 		else
 		{
@@ -89,7 +89,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 	@Override
 	public boolean isComponentSpecValid(IFormElement formElement)
 	{
-		FormElement fe = ComponentFactory.getFormElement(formElement, context, null);
+		FormElement fe = FormElementHelper.INSTANCE.getFormElement(formElement, context, null);
 		return fe.getWebComponentSpec(false) != null;
 	}
 }

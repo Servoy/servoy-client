@@ -38,9 +38,9 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
-import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
@@ -174,7 +174,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 		if (scopesAndFormsToReload[1].size() > 0)
 		{
-			ComponentFactory.reload();
+			FormElementHelper.INSTANCE.reload();
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			for (IFormController controller : scopesAndFormsToReload[1])
 			{
