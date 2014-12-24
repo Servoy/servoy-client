@@ -20,6 +20,7 @@ import java.awt.Point;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
@@ -30,14 +31,16 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author acostescu
  */
 public class NGPointPropertyType extends PointPropertyType implements IDesignToFormElement<JSONObject, Point, Point>, IFormElementToTemplateJSON<Point, Point>,
-	ISabloComponentToRhino<Point>
+	ISabloComponentToRhino<Point>, IRhinoToSabloComponent<Point>
 {
 
 	public final static NGPointPropertyType NG_INSTANCE = new NGPointPropertyType();
@@ -68,5 +71,19 @@ public class NGPointPropertyType extends PointPropertyType implements IDesignToF
 		return PersistHelper.createPointString(webComponentValue);
 	}
 
+	@Override
+	public Point toSabloComponentValue(Object rhinoValue, Point previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		if (rhinoValue instanceof Object[])
+		{
+			return new Point(Utils.getAsInteger(((Object[])rhinoValue)[0]), Utils.getAsInteger(((Object[])rhinoValue)[1]));
+		}
+		if (rhinoValue instanceof NativeObject)
+		{
+			NativeObject value = (NativeObject)rhinoValue;
+			return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
+		}
+		return (Point)(rhinoValue instanceof Point ? rhinoValue : null);
+	}
 
 }

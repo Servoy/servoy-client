@@ -177,4 +177,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		}
 		return formElementValue;
 	}
+
+	// TODO implement RHINO conversion interfaces for JS access to the property on server; recreate ComponentFormat object (it has quite a lot of dependencies, application, pesist  etc)
+	// see case SVY-7527
+
 }

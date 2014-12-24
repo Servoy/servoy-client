@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.mozilla.javascript.Function;
@@ -34,7 +33,6 @@ import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
@@ -49,7 +47,6 @@ public class RuntimeWebComponent implements Scriptable
 	private final WebFormComponent component;
 	private Scriptable prototypeScope;
 	private final Set<String> specProperties;
-	private final Set<String> dataProviderProperties;
 	private final Map<String, Function> apiFunctions;
 	private final WebComponentSpecification webComponentSpec;
 	private Scriptable parentScope;
@@ -60,7 +57,6 @@ public class RuntimeWebComponent implements Scriptable
 		setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
 		this.specProperties = new HashSet<String>();
 		this.apiFunctions = new HashMap<String, Function>();
-		this.dataProviderProperties = new HashSet<>();
 		this.webComponentSpec = webComponentSpec;
 
 		URL serverScript = webComponentSpec.getServerScript();
@@ -86,19 +82,13 @@ public class RuntimeWebComponent implements Scriptable
 				else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
-			for (Entry<String, PropertyDescription> e : specs.entrySet())
+			for (String propName : specs.keySet())
 			{
-				IPropertyType< ? > type = e.getValue().getType();
-				if (!component.isDesignOnlyProperty(e.getKey()))
+				if (!component.isDesignOnlyProperty(propName))
 				{
 					// design properties cannot be accessed at runtime
 					// all handlers are design properties, all api is runtime
-					specProperties.add(e.getKey());
-				}
-				else if (type == DataproviderPropertyType.INSTANCE)
-				{
-					dataProviderProperties.add(e.getKey());
-					specProperties.add(e.getKey());
+					specProperties.add(propName);
 				}
 			}
 		}
@@ -179,11 +169,6 @@ public class RuntimeWebComponent implements Scriptable
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		if (dataProviderProperties.contains(name))
-		{
-			// cannot set, not supported
-			return;
-		}
 		if (specProperties != null && specProperties.contains(name))
 		{
 			Object previousVal = component.getProperty(name);

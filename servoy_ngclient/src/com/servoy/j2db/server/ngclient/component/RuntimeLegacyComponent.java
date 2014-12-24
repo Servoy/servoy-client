@@ -199,11 +199,6 @@ public class RuntimeLegacyComponent implements Scriptable
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		if (StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name))
-		{
-			//cannot set
-			return;
-		}
 		if (name.equals("readOnly"))
 		{
 			name = StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName();

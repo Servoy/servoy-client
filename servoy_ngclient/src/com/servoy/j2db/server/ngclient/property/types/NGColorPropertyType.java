@@ -29,6 +29,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.PersistHelper;
 
@@ -37,7 +38,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author acostescu
  */
 public class NGColorPropertyType extends ColorPropertyType implements IDesignToFormElement<Object, Color, Color>, IFormElementToTemplateJSON<Color, Color>,
-	ISabloComponentToRhino<Color>
+	ISabloComponentToRhino<Color>, IRhinoToSabloComponent<Color>
 {
 
 	public final static NGColorPropertyType NG_INSTANCE = new NGColorPropertyType();
@@ -68,5 +69,14 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 		return PersistHelper.createColorString(webComponentValue);
 	}
 
+	@Override
+	public Color toSabloComponentValue(Object rhinoValue, Color previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		if (rhinoValue instanceof String)
+		{
+			return PersistHelper.createColor(rhinoValue.toString());
+		}
+		return (Color)(rhinoValue instanceof Color ? rhinoValue : null);
+	}
 
 }

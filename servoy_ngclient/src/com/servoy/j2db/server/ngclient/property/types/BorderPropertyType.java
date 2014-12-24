@@ -34,6 +34,8 @@ import javax.swing.border.TitledBorder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
@@ -46,6 +48,8 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -57,7 +61,8 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  *
  */
 public class BorderPropertyType extends DefaultPropertyType<Border> implements IConvertedPropertyType<Border>,
-	IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>
+	IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>, IRhinoToSabloComponent<Border>,
+	ISabloComponentToRhino<Border>
 {
 	private static final String TYPE = "type";
 	private static final String BORDER_RADIUS = "borderRadius";
@@ -417,6 +422,28 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 		PropertyPath propertyPath)
 	{
 		return fromJSON(designValue, null, null);
+	}
+
+	@Override
+	public Border toSabloComponentValue(Object rhinoValue, Border previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		if (rhinoValue instanceof String)
+		{
+			return ComponentFactoryHelper.createBorder((String)rhinoValue);
+		}
+		return (Border)(rhinoValue instanceof Border ? rhinoValue : null);
+	}
+
+	@Override
+	public boolean isValueAvailableInRhino(Border webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return true;
+	}
+
+	@Override
+	public Object toRhinoValue(Border webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		return webComponentValue; // TODO any conversion needed here?
 	}
 
 }

@@ -17,41 +17,33 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author emera
  */
 public class RhinoConversion
 {
+
 	/**
-	 * Convert a property value to its corresponding Java object.
-	 * @param propertyValue the value to convert
-	 * @param pd the property description
-	 * @param converterContext
-	 * @return the converted property if the property description type is one of:
-	 *  dimension, point, color, format, border, media, formscope;
-	 *  the same value otherwise
+	 * Default conversion used to convert from Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
+	 * Values of types that don't implement the sablo <-> rhino conversions are by default accessible directly.
 	 */
-	public static Object convert(Object propertyValue, Object oldValue, PropertyDescription pd, IServoyDataConverterContext converterContext)
+	public static Object defaultFromRhino(Object propertyValue, Object oldValue, PropertyDescription pd, IServoyDataConverterContext converterContext)
 	{
 		// convert simple values to json values
 		if (propertyValue == UniqueTag.NOT_FOUND || propertyValue == Undefined.instance)
@@ -72,7 +64,7 @@ public class RhinoConversion
 			for (Object id2 : ids)
 			{
 				String id = (String)id2;
-				map.put(id, convert(no.get(id), oldMap != null ? oldMap.get(id) : null, pd.getProperty(id), converterContext));
+				map.put(id, defaultFromRhino(no.get(id), oldMap != null ? oldMap.get(id) : null, pd.getProperty(id), converterContext));
 			}
 			return map;
 		}
@@ -84,66 +76,17 @@ public class RhinoConversion
 			return ((JSDataSet)propertyValue).getDataSet();
 		}
 
-		// TODO this code should actually be part of the NGClient (so not Sablo) type implementation code! IComplexPropertyImpl already have something for this
-		if (pd != null)
-		{
-			switch (pd.getType().getName())
-			{
-				case "dimension" :
-					if (propertyValue instanceof Object[])
-					{
-						return new Dimension(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-					}
-					if (propertyValue instanceof NativeObject)
-					{
-						NativeObject value = (NativeObject)propertyValue;
-						return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
-					}
-					break;
-
-				case "point" :
-					if (propertyValue instanceof Object[])
-					{
-						return new Point(Utils.getAsInteger(((Object[])propertyValue)[0]), Utils.getAsInteger(((Object[])propertyValue)[1]));
-					}
-					if (propertyValue instanceof NativeObject)
-					{
-						NativeObject value = (NativeObject)propertyValue;
-						return new Point(Utils.getAsInteger(value.get("x", value)), Utils.getAsInteger(value.get("y", value)));
-					}
-					break;
-
-				case "color" :
-					if (propertyValue instanceof String)
-					{
-						return PersistHelper.createColor(propertyValue.toString());
-					}
-					break;
-
-				case "format" :
-					if (propertyValue instanceof String)
-					{
-						//todo recreate ComponentFormat object (it has quite a lot of dependencies , application,pesist  etc)
-						return propertyValue;
-					}
-					break;
-
-				case "border" :
-					if (propertyValue instanceof String)
-					{
-						return ComponentFactoryHelper.createBorder((String)propertyValue);
-					}
-					break;
-				case "formscope" :
-					INGApplication app = converterContext.getApplication();
-					if (propertyValue instanceof String && app != null)
-					{
-						return app.getFormManager().getForm((String)propertyValue).getFormScope();
-					}
-					break;
-				default :
-			}
-		}
 		return propertyValue;
 	}
+
+	/**
+	 * Default conversion used to convert to Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
+	 * Types that don't implement the sablo <-> rhino conversions are by default available and their value is accessible directly.
+	 */
+	public static Object defaultToRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		// TODO shouldn't this method be the exact reverse of fromRhino(...)?
+		return webComponentValue;
+	}
+
 }

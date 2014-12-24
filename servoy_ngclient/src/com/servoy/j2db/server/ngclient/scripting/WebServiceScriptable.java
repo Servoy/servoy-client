@@ -35,7 +35,6 @@ import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
-import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -165,7 +164,7 @@ public class WebServiceScriptable implements Scriptable
 			}
 			else
 			{
-				return DesignConversion.toStringObject(value, desc.getType());
+				return value; // types that don't implement the sablo <-> rhino conversions are by default available and their value is accessible directly
 			}
 		}
 		else return getParentScope().get(name, start);

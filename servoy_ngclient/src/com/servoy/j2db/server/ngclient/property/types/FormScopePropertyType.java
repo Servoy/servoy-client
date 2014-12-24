@@ -16,7 +16,14 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONObject;
+import org.sablo.BaseWebObject;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.DefaultPropertyType;
+
+import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 
 /**
  * This is a special type that is used in api calls to let servoy know that the api should return a form server instance itself
@@ -24,7 +31,7 @@ import org.sablo.specification.property.types.DefaultPropertyType;
  * TODO this should be looked at for getRightForm for example of the SplitPane
  * @author jcompagner
  */
-public class FormScopePropertyType extends DefaultPropertyType<String>
+public class FormScopePropertyType extends DefaultPropertyType<FormScope> implements IRhinoToSabloComponent<FormScope>
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
@@ -45,4 +52,16 @@ public class FormScopePropertyType extends DefaultPropertyType<String>
 	{
 		return json;
 	}
+
+	@Override
+	public FormScope toSabloComponentValue(Object rhinoValue, FormScope previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		INGApplication app = ((IContextProvider)componentOrService).getDataConverterContext().getApplication();
+		if (rhinoValue instanceof String && app != null)
+		{
+			return app.getFormManager().getForm((String)rhinoValue).getFormScope();
+		}
+		return null;
+	}
+
 }

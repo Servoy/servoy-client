@@ -36,7 +36,6 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.component.DesignConversion;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.util.Debug;
 
@@ -391,24 +390,7 @@ public class NGConversions
 		}
 		else
 		{
-			// TODO this should slowly dissapear as more things are moved to type code
-
-//			String name = pd.getName();
-
-			// hmm this is no longer ok now, the property name could be relative to a nested property, not necessarily to a component
-			// we should really implement all types properly as soon as possible
-//			Object value = component.getConvertedPropertyWithDefault(name, type instanceof DataproviderPropertyType, true);
-
-			// TODO if we want to support random objects/array we should create a "AnyJSONValueType" that based on value type
-			// reuses stuff from CustomJSONArrayType, CustomJSONObject type instead of the commented out code below
-//			if (value instanceof Map || value instanceof Object[] || value instanceof List< ? >)
-//			{
-//				return new RhinoMapOrArrayWrapper(component, name, type instanceof DataproviderPropertyType,
-//					component.getFormElement().getWebComponentSpec().getProperty(name), component.getDataConverterContext());
-//			}
-
-			// hmm getConvertedPropertyWithDefault() above might (or might not) also have done the design conversion already through DataAdapterList call; so it might get called twice DesignConversion.toStringObject which is wrong
-			return DesignConversion.toStringObject(webComponentValue, pd.getType());
+			return RhinoConversion.defaultToRhino(webComponentValue, pd, componentOrService, startScriptable);
 		}
 
 		return rhinoVal;
@@ -427,10 +409,9 @@ public class NGConversions
 		}
 		else
 		{
-			// TODO this should slowly dissapear as more things are moved to type code
 			IServoyDataConverterContext dataConverterContext = null;
 			if (componentOrService instanceof IContextProvider) dataConverterContext = ((IContextProvider)componentOrService).getDataConverterContext();
-			sabloVal = (T)RhinoConversion.convert(rhinoValue, previousComponentValue, pd, dataConverterContext);
+			sabloVal = (T)RhinoConversion.defaultFromRhino(rhinoValue, previousComponentValue, pd, dataConverterContext);
 		}
 		return sabloVal;
 	}

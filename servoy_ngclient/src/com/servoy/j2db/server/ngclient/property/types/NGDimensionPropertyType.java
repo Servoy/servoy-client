@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
@@ -30,15 +31,17 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 
 /**
  *
  * @author acostescu
  */
 public class NGDimensionPropertyType extends DimensionPropertyType implements IDesignToFormElement<JSONObject, Dimension, Dimension>,
-	IFormElementToTemplateJSON<Dimension, Dimension>, ISabloComponentToRhino<Dimension>
+	IFormElementToTemplateJSON<Dimension, Dimension>, ISabloComponentToRhino<Dimension>, IRhinoToSabloComponent<Dimension>
 {
 
 	public final static NGDimensionPropertyType NG_INSTANCE = new NGDimensionPropertyType();
@@ -67,6 +70,21 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 	public Object toRhinoValue(Dimension webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
 		return PersistHelper.createDimensionString(webComponentValue);
+	}
+
+	@Override
+	public Dimension toSabloComponentValue(Object rhinoValue, Dimension previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		if (rhinoValue instanceof Object[])
+		{
+			return new Dimension(Utils.getAsInteger(((Object[])rhinoValue)[0]), Utils.getAsInteger(((Object[])rhinoValue)[1]));
+		}
+		if (rhinoValue instanceof NativeObject)
+		{
+			NativeObject value = (NativeObject)rhinoValue;
+			return new Dimension(Utils.getAsInteger(value.get("width", value)), Utils.getAsInteger(value.get("height", value)));
+		}
+		return (Dimension)(rhinoValue instanceof Dimension ? rhinoValue : null);
 	}
 
 }
