@@ -23,7 +23,7 @@ import java.util.Stack;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.scripting.JSWindow;
@@ -58,7 +58,7 @@ public class WebRuntimeWindowManager extends RuntimeWindowManager
 	}
 
 	@Override
-	protected boolean doCloseFormInWindow(IMainContainer container)
+	protected boolean doCloseFormInWindow(IBasicMainContainer container)
 	{
 		// get the current action buffer of the container (or a parent)
 		PageJSActionBuffer pageActionBuffer = ((MainPage)container).getPageActionBuffer();
@@ -76,7 +76,7 @@ public class WebRuntimeWindowManager extends RuntimeWindowManager
 	}
 
 	@Override
-	protected void hideContainer(IMainContainer container)
+	protected void hideContainer(IBasicMainContainer container)
 	{
 		int currentSize = -1;
 		if (closeDialogStack.size() > 0)

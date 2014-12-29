@@ -163,7 +163,7 @@ public abstract class RuntimeWindowManager
 	/**
 	 * @param container
 	 */
-	protected void hideContainer(IMainContainer container)
+	protected void hideContainer(IBasicMainContainer container)
 	{
 		RuntimeWindow w = getWindow(container.getContainerName());
 		if (w != null) w.hideUI();
