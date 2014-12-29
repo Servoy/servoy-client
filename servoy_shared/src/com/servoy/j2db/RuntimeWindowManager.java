@@ -144,10 +144,18 @@ public abstract class RuntimeWindowManager
 		}
 		if (ok)
 		{
-			RuntimeWindow w = getWindow(container.getContainerName());
-			if (w != null) w.hideUI();
+			hideContainer(container);
 		}
 		return ok;
+	}
+
+	/**
+	 * @param container
+	 */
+	protected void hideContainer(IMainContainer container)
+	{
+		RuntimeWindow w = getWindow(container.getContainerName());
+		if (w != null) w.hideUI();
 	}
 
 	public boolean closeFormInWindow(String windowName, boolean closeAll)

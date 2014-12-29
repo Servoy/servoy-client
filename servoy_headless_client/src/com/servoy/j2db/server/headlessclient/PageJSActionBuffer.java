@@ -17,8 +17,6 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -385,32 +383,11 @@ public class PageJSActionBuffer
 	}
 
 	/**
-	 * @param divDialog
+	 * returns the buffer that is used in the {@link #addAction(PageAction)}
 	 */
-	public void moveToFront(final ServoyDivDialog divDialog)
+	public List<PageAction> getBuffer()
 	{
-		Collections.sort(buffer1, new Comparator<PageAction>()
-		{
-
-			@Override
-			public int compare(PageAction o1, PageAction o2)
-			{
-				if (o1 instanceof DivDialogAction && ((DivDialogAction)o1).divDialog == divDialog)
-				{
-					if (o2 instanceof DivDialogAction && ((DivDialogAction)o2).divDialog == divDialog)
-					{
-						return 0;
-					}
-					return -1;
-				}
-				if (o2 instanceof DivDialogAction && ((DivDialogAction)o2).divDialog == divDialog)
-				{
-					return 1;
-				}
-				return 0;
-			}
-		});
-
+		return buffer1;
 	}
 
 }
