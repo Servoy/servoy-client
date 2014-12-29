@@ -19,13 +19,17 @@ package com.servoy.j2db.server.headlessclient;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Stack;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.PageAction;
+import com.servoy.j2db.util.Pair;
 
 /**
  * Swing implementation of the JSWindowManager. It works with WebJSWindowImpl windows.
@@ -34,6 +38,7 @@ import com.servoy.j2db.scripting.RuntimeWindow;
  */
 public class WebRuntimeWindowManager extends RuntimeWindowManager
 {
+	private final Stack<Pair<PageJSActionBuffer, Integer>> closeDialogStack = new Stack<Pair<PageJSActionBuffer, Integer>>();
 
 	public WebRuntimeWindowManager(IApplication application)
 	{
@@ -50,6 +55,50 @@ public class WebRuntimeWindowManager extends RuntimeWindowManager
 	protected RuntimeWindow getMainApplicationWindow()
 	{
 		return new MainApplicationWebJSFrame(application);
+	}
+
+	@Override
+	protected boolean doCloseFormInWindow(IMainContainer container)
+	{
+		// get the current action buffer of the container (or a parent)
+		PageJSActionBuffer pageActionBuffer = ((MainPage)container).getPageActionBuffer();
+		// and record the current size
+		Pair<PageJSActionBuffer, Integer> pair = new Pair<PageJSActionBuffer, Integer>(pageActionBuffer, Integer.valueOf(pageActionBuffer.getBuffer().size()));
+		closeDialogStack.push(pair);
+		try
+		{
+			return super.doCloseFormInWindow(container);
+		}
+		finally
+		{
+			closeDialogStack.pop();
+		}
+	}
+
+	@Override
+	protected void hideContainer(IMainContainer container)
+	{
+		int currentSize = -1;
+		if (closeDialogStack.size() > 0)
+		{
+			// if there is one on the stack, look what the current size is
+			// the added actions between the stored size and this size are the once that need to be last. (show of a next dialog)
+			currentSize = closeDialogStack.peek().getLeft().getBuffer().size();
+		}
+		super.hideContainer(container);
+		if (currentSize > 0)
+		{
+			// if the size before the hide is bigger then 0 then move from there until the end of the list to the
+			// position stored before onhide is called.
+			List<PageAction> buffer = closeDialogStack.peek().getLeft().getBuffer();
+			if (currentSize < buffer.size())
+			{
+				List<PageAction> subList = buffer.subList(currentSize, buffer.size());
+				ArrayList<PageAction> copy = new ArrayList<PageJSActionBuffer.PageAction>(subList);
+				subList.clear();
+				buffer.addAll(closeDialogStack.peek().getRight().intValue(), copy);
+			}
+		}
 	}
 
 

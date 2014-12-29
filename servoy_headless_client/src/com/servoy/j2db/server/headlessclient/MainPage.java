@@ -844,8 +844,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
 				}
 
-				jsActionBuffer.moveToFront(divDialog);
-
 				// reset current container again
 				fm.setCurrentContainer(currentContainer, currentContainer.getContainerName());
 				if (divDialogContainer instanceof MainPage)
@@ -2703,6 +2701,19 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		jsActionBuffer.addAction(a);
 		triggerBrowserRequestIfNeeded(); // this will probably do nothing cause a MediaUploadPage is the source of the req.
+	}
+
+	/**
+	 * returns the top most {@link PageJSActionBuffer} for this main page. So it will return the calling parent forms action buffer
+	 * if this one is opened  in a dialog.
+	 */
+	public PageJSActionBuffer getPageActionBuffer()
+	{
+		if (callingContainer != null)
+		{
+			return callingContainer.getPageActionBuffer();
+		}
+		return jsActionBuffer;
 	}
 
 }
