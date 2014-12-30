@@ -526,7 +526,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					rowTemplate: 'svy-ui-grid/ui-grid-row',
 					columnDefs: $scope.columnDefinitions,
 					rowHeight: $scope.rowHeight ? $scope.rowHeight : 20,
-					hideHeader:$scope.model.headerHeight == 0 || $scope.model.multiLine,
+					showHeader:$scope.model.headerHeight != 0 && !$scope.model.multiLine,
 					headerRowHeight: $scope.model.multiLine ? 0 : $scope.model.headerHeight,
 					rowIdentity: function(o) {
 						return o._svyRowId;
