@@ -275,7 +275,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 //			}
 		}
 		IDataAdapterList dal = getFormUI().getDataAdapterList();
-		dal.setFindMode(findMode);//disables related data en does getText instead if getValue on fields
+		dal.setFindMode(findMode); // disables related data en does getText instead if getValue on fields
 	}
 
 	@Override

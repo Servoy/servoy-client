@@ -152,10 +152,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		{
 			if (propertyDescriptorEntry.getValue().getType() instanceof IDataLinkedType)
 			{
-				IDataLinkedType type = (IDataLinkedType< ? , ? >)propertyDescriptorEntry.getValue().getType();
-				TargetDataLinks dataLinks = type.getDataLinks(formElement.getPropertyValue(propertyDescriptorEntry.getKey()),
-					propertyDescriptorEntry.getValue(), flattenedSolution, formElement);
-				boolean recordAware = false;
+				TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class,
+					propertyDescriptorEntry.getValue().getName());
 				if (dataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && dataLinks != null && dataLinks.recordLinked)
 				{
 					m.add(propertyDescriptorEntry.getKey());

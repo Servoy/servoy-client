@@ -149,7 +149,7 @@ public class FoundsetTypeViewport
 				@Override
 				public void foundSetChanged(FoundSetEvent event)
 				{
-					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE) changeMonitor.findModeChanged();
+					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE) changeMonitor.findModeChanged(foundset.isInFindMode());
 					else if (event.getType() == FoundSetEvent.FOUNDSET_INVALIDATED) changeMonitor.foundsetInvalidated();
 					else if (event.getType() == FoundSetEvent.CONTENTS_CHANGED)
 					{

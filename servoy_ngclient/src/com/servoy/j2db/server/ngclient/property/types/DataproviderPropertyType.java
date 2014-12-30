@@ -43,7 +43,8 @@ import com.servoy.j2db.util.ScopesUtils;
  */
 public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTypeSabloValue> implements
 	IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>, ISupportTemplateValue<String>,
-	IDataLinkedType<String, DataproviderTypeSabloValue>, ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>
+	ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>,
+	IDataLinkedType<String, DataproviderTypeSabloValue>, IFindModeAwareType<String, DataproviderTypeSabloValue>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -153,4 +154,24 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	{
 		return webComponentValue != null ? webComponentValue.getDataProviderID() : null;
 	}
+
+	@Override
+	public void findModeChanged(boolean newFindMode, DataproviderTypeSabloValue sabloValue, IDataConverterContext dataConverterContext)
+	{
+		if (sabloValue != null)
+		{
+			sabloValue.findModeChanged(newFindMode);
+		}
+	}
+
+	@Override
+	public boolean isFindModeAware(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		if (formElementValue == null) return false;
+
+		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd.getName());
+		if (dataLinks == null) dataLinks = getDataLinks(formElementValue, pd, flattenedSolution, formElement); // if it was not yet processed by formElement
+		return dataLinks.recordLinked;
+	}
+
 }

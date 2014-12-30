@@ -7,7 +7,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	var CHANGE = 0;
 	var INSERT = 1;
 	var DELETE = 2;
-	
+
 	function addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope) {
 		if (componentScope) {
 			function queueChange(newData, oldData) {
@@ -24,11 +24,11 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				internalState.requests.push({viewportDataChanged: r});
 				if (internalState.changeNotifier) internalState.changeNotifier();
 			}
-			
-			
+
+
 			if (viewPort[idx][columnName] && viewPort[idx][columnName][$sabloConverters.INTERNAL_IMPL] && viewPort[idx][columnName][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 				// smart propery value
-				
+
 				// watch for change-by reference
 				internalState.unwatchData[idx].push(
 						componentScope.$watch(function() { return viewPort[idx][columnName]; }, function (newData, oldData) {
@@ -113,7 +113,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		internalState[CONVERSIONS] = {};
 		var i;
 		for (i = viewPort.length - 1; i >= 0; i--)
-			updateRowConversionInfo(i, viewPort, internalState, serverConversionInfo[i]);
+			updateRowConversionInfo(i, viewPort, internalState, serverConversionInfo ? serverConversionInfo[i] : undefined);
 	};
 
 	function updateWholeViewport(viewPortHolder, viewPortPropertyName, internalState, viewPortUpdate, viewPortUpdateConversions, componentScope) {
@@ -121,9 +121,9 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		if (viewPortUpdateConversions) {
 			// do the actual conversion
 			$sabloConverters.convertFromServerToClient(viewPortHolder[viewPortPropertyName], viewPortUpdateConversions, componentScope);
-			// update conversion info
-			updateAllConversionInfo(viewPortHolder[viewPortPropertyName], internalState, viewPortUpdateConversions);
 		}
+		// update conversion info
+		updateAllConversionInfo(viewPortHolder[viewPortPropertyName], internalState, viewPortUpdateConversions);
 	};
 
 	function updateViewportGranularly(viewPortHolder, viewPortPropertyName, internalState, rowUpdates, rowUpdateConversions, componentScope) {
@@ -148,33 +148,34 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					// because of a bug in ngGrid that doesn't detect array item changes if array length doesn't change
 					// we will reuse the existing row object as a workaround for updating (a case was filed for that bug as it's breaking scenarios with
 					// delete and insert as well)
-					
+
 					var dpName;
 					var rowId = viewPort[j][$foundsetTypeConstants.ROW_ID_COL_KEY];
 					var relIdx = j - rowUpdate.startIndex;
-					
+
 					// apply the conversions
 					var rowConversionUpdate = (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[relIdx] : undefined;
 					if (rowConversionUpdate) $sabloConverters.convertFromServerToClient(rowUpdate.rows[relIdx], rowConversionUpdate, viewPort[j], componentScope);
-					
+
 					// this might be a partial update (so only a column changed for example) - don't drop all other columns, just update the ones we received
 					for (dpName in rowUpdate.rows[relIdx]) {
 						// update value
 						viewPort[j][dpName] = rowUpdate.rows[relIdx][dpName];
-						
+
 						if (rowConversionUpdate) {
 							// update conversion info
 							if (angular.isUndefined(internalState[CONVERSIONS])) {
 								internalState[CONVERSIONS] = {};
 							}
 							if (angular.isDefined(rowId)) {
-								   if (angular.isUndefined(internalState[CONVERSIONS][rowId]))
-								   {
-									   internalState[CONVERSIONS][rowId] = {};
-								   }
-								    internalState[CONVERSIONS][rowId][dpName] = rowConversionUpdate[dpName];
+								if (angular.isUndefined(internalState[CONVERSIONS][rowId]))
+								{
+									internalState[CONVERSIONS][rowId] = {};
+								}
+								internalState[CONVERSIONS][rowId][dpName] = rowConversionUpdate[dpName];
 							}
-						}
+						} else if (angular.isDefined(internalState[CONVERSIONS]) && angular.isDefined(internalState[CONVERSIONS][rowId])
+								 && angular.isDefined(internalState[CONVERSIONS][rowId][dpName])) delete internalState[CONVERSIONS][rowId][dpName];
 					}
 				}
 			} else if (rowUpdate.type == INSERT) {
@@ -182,9 +183,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 				for (j = rowUpdate.rows.length - 1; j >= 0 ; j--) {
 					viewPort.splice(rowUpdate.startIndex, 0, rowUpdate.rows[j]);
-					if (rowUpdateConversions && rowUpdateConversions[j]) {
-						updateRowConversionInfo(rowUpdate.startIndex, viewPort, internalState, rowUpdateConversions[j]);
-					}
+					updateRowConversionInfo(rowUpdate.startIndex, viewPort, internalState, rowUpdateConversions ? rowUpdateConversions[j] : undefined);
 				}
 				// insert might have made obsolete some records in cache; remove those; for inserts
 				// !!! rowUpdate.endIndex means the new length of the viewport
@@ -214,16 +213,13 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				viewPort.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
 				for (j = 0; j < rowUpdate.rows.length; j++) {
 					viewPort.push(rowUpdate.rows[j]);
-					if (rowUpdateConversions) {
-						var c = rowUpdateConversions[j];
-						if (angular.isDefined(c)) updateRowConversionInfo(viewPort.length - 1, viewPort, internalState, c);
-					}
+					updateRowConversionInfo(viewPort.length - 1, viewPort, internalState, rowUpdateConversions ? rowUpdateConversions[j] : undefined);
 				}
 //				if (oldLength == viewPort.length) {
-//					// workaround follows for a bug in ng-grid (changing the row references while the array has the same length doesn't trigger a UI update)
-//					// see https://github.com/angular-ui/ng-grid/issues/1279
-//					viewPortHolder[viewPortPropertyName] = viewPort.splice(0); // changes array reference completely while keeping contents
-//					viewPort = viewPortHolder[viewPortPropertyName];
+//				// workaround follows for a bug in ng-grid (changing the row references while the array has the same length doesn't trigger a UI update)
+//				// see https://github.com/angular-ui/ng-grid/issues/1279
+//				viewPortHolder[viewPortPropertyName] = viewPort.splice(0); // changes array reference completely while keeping contents
+//				viewPort = viewPortHolder[viewPortPropertyName];
 //				}
 			}
 		}
@@ -232,10 +228,10 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	return {
 		updateWholeViewport: updateWholeViewport,
 		updateViewportGranularly: updateViewportGranularly,
-		
+
 		addDataWatchesToRows: addDataWatchesToRows,
 		removeDataWatchesFromRows: removeDataWatchesFromRows,
 		updateAllConversionInfo: updateAllConversionInfo
 	};
-	
+
 });

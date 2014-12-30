@@ -154,9 +154,10 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * Called when the find mode changes on this foundset.
 	 */
-	public void findModeChanged()
+	public void findModeChanged(boolean newFindMode)
 	{
 		allChanged();
+		propertyValue.getDataAdapterList().setFindMode(newFindMode);
 	}
 
 	/**

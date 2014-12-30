@@ -85,7 +85,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					var beanLayout = internalState.beanLayout;
 					var containerSize = {width: 0, height: 0};
 
-					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
+					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 
 					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifier, modelUpdateConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
 					done = true;
@@ -148,7 +148,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					internalState.beanLayout = {};
 					var containerSize = {width: 0, height: 0};
 
-					var currentConversionInfo = beanModel[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : undefined;
+					var currentConversionInfo = beanModel[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 
 					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel[CONVERSIONS], componentScope);
 					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only

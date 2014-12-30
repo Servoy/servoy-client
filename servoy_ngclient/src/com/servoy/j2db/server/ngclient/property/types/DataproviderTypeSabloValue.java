@@ -23,6 +23,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
@@ -58,6 +59,7 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 	protected Object jsonValue;
 	protected IChangeListener changeMonitor;
 	protected PropertyDescription typeOfDP;
+	protected boolean findMode = false;
 
 	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, DataproviderConfig dataproviderConfig)
 	{
@@ -100,6 +102,16 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 		// nothing to do here... we don't add any listener directly in the property type;
 	}
 
+	public void findModeChanged(boolean newFindMode)
+	{
+		// this normally only gets called for foundset based dataproviders (so not for global/form variables); DataproviderPropertyType.isFindModeAware(...)
+		if (findMode != newFindMode)
+		{
+			findMode = newFindMode;
+			changeMonitor.valueChanged();
+		}
+	}
+
 	@Override
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
@@ -130,13 +142,19 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (jsonValue == null)
 		{
-			if (typeOfDP != null)
+			if (findMode)
+			{
+				// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
+				// from scripting, then show string representation
+				jsonValue = value instanceof String ? value : (value != null ? String.valueOf(value) : "");
+			}
+			else if (typeOfDP != null)
 			{
 				EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 				DataConversion jsonDataConversion = new DataConversion();
 				FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext.getWebObject());
 				if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
-				jsonValue = new JSONStringWithConversions(ejw.toJSONString() == null ? null : ejw.toJSONString(), jsonDataConversion);
+				jsonValue = new JSONStringWithConversions(ejw.toJSONString(), jsonDataConversion);
 			}
 			else
 			{
@@ -152,15 +170,16 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 	{
 		Object oldValue = value;
 
-		if (typeOfDP != null)
+		if (!findMode && typeOfDP != null)
 		{
-			if (typeOfDP instanceof IConvertedPropertyType< ? >)
+			if (typeOfDP.getType() instanceof IConvertedPropertyType< ? >)
 			{
-				value = ((IConvertedPropertyType)typeOfDP).fromJSON(newJSONValue, value, dataConverterContext);
+				value = ((IConvertedPropertyType)typeOfDP.getType()).fromJSON(newJSONValue, value,
+					new DataConverterContext(typeOfDP, dataConverterContext.getWebObject()));
 			}
 			else value = newJSONValue;
 		}
-		else value = newJSONValue; // should never happen I think
+		else value = newJSONValue;
 
 		if (oldValue != value && (oldValue == null || !oldValue.equals(value)))
 		{

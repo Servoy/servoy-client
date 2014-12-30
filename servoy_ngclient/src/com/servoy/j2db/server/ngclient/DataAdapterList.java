@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.base.util.ITagResolver;
@@ -38,6 +39,7 @@ import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -54,6 +56,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	// all data-linked properties - contains 'dataProviderToLinkedComponentProperty' as well as other ones that are interested in any DP change
 	protected final List<Pair<WebFormComponent, String>> allComponentPropertiesLinkedToData = new ArrayList<>(); // [(comp, propertyName), ...]
+
+	protected final List<DataConverterContext> findModeAwareProperties = new ArrayList<>();
 
 	private final IWebFormController formController;
 	private final EventExecutor executor;
@@ -205,7 +209,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		allComponentPropertiesLinkedToData.add(propertyIdentifier);
 	}
 
-	public void removeRecordAwareComponent(WebFormComponent component)
+	public void addFindModeAwareProperty(WebFormComponent webFormComponent, PropertyDescription pd)
+	{
+		findModeAwareProperties.add(new DataConverterContext(pd, webFormComponent));
+	}
+
+	public void componentDisposed(WebFormComponent component)
 	{
 		// TODO remove modification listeners for form/global scopes if needed...
 
@@ -229,6 +238,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					if (lList.size() == 0) it1.remove();
 				}
 			}
+		}
+
+		Iterator<DataConverterContext> fmIt = findModeAwareProperties.iterator();
+		while (fmIt.hasNext())
+		{
+			if (fmIt.next().getWebObject() == component) fmIt.remove();
 		}
 	}
 
@@ -520,6 +535,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void setFindMode(boolean findMode)
 	{
 //		this.findMode = findMode;
+		for (DataConverterContext x : findModeAwareProperties)
+		{
+			Object rawPropValue = x.getWebObject().getRawPropertyValue(x.getPropertyDescription().getName());
+			((IFindModeAwareType< ? , Object>)x.getPropertyDescription().getType()).findModeChanged(findMode, rawPropValue, x);
+		}
 
 		getApplication().getWebsocketSession().getService("$servoyInternal").executeAsyncServiceCall(
 			"setFindMode",
@@ -527,4 +547,5 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE))) });
 
 	}
+
 }

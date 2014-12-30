@@ -72,9 +72,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					internalState.requests = [];
 					
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
+					$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][CONVERSIONS] ? newValue[VIEW_PORT][CONVERSIONS][ROWS] : undefined);
 					if (newValue[VIEW_PORT][CONVERSIONS]) {
 						// relocate conversion info in internal state and convert
-						$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][CONVERSIONS][ROWS]);
 						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS], componentScope);
 						delete newValue[VIEW_PORT][CONVERSIONS];
 					}

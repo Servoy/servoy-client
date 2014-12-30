@@ -30,51 +30,23 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
  */
 public interface IDataAdapterList extends ITagResolver
 {
-	/**
-	 * @param webComponent
-	 * @param string
-	 */
+
 	void pushChanges(WebFormComponent webComponent, String string);
 
-	/**
-	 * @param webComponent
-	 * @param string
-	 * @param newValue
-	 */
 	void pushChanges(WebFormComponent webComponent, String string, Object newValue);
 
-	/**
-	 * @param webComponent
-	 * @param string
-	 * @param args
-	 * @param propertyDescription
-	 */
 	Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args);
 
 	/**
-	 * @param script
 	 * @param args args to replace in script
 	 * @param appendingArgs args to append in script execution
-	 * @return
 	 */
 	Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs);
 
-	/**
-	 * @param record
-	 * @return
-	 */
 	void setRecord(IRecord record, boolean fireChangeEvent);
 
-	/**
-	 *
-	 * @param webComponent
-	 * @param property
-	 */
 	void startEdit(WebFormComponent webComponent, String property);
 
-	/**
-	 * @param findMode
-	 */
 	void setFindMode(boolean findMode);
 
 	INGApplication getApplication();

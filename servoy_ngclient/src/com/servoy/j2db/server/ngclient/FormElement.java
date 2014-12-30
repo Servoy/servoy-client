@@ -51,6 +51,8 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
+import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
@@ -70,6 +72,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	private final Form form;
 	private Map<String, Object> propertyValues;
+	private Map<Class< ? >, Map<String, Object>> preprocessedPropertyInfo; // standard information that can be computed in template about some properties and will be needed at runtime; (infoType, (propertyName, infoObject))
 	private final String componentType;
 
 	private final PersistBasedFormElementImpl persistImpl;
@@ -108,7 +111,7 @@ public final class FormElement implements IWebComponentInitializer
 		if (addNameToPath) propertyPath.add(getName());
 		Map<String, Object> map = persistImpl.getFormElementPropertyValues(fs, specProperties, propertyPath);
 
-		initPropertiesWithDefaults(specProperties, map, fs, propertyPath);
+		initTemplateProperties(specProperties, map, fs, propertyPath);
 		adjustLocationRelativeToPart(fs, map);
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
@@ -149,7 +152,7 @@ public final class FormElement implements IWebComponentInitializer
 			Debug.error("Error while parsing component design JSON", ex);
 		}
 
-		initPropertiesWithDefaults(specProperties, map, fs, propertyPath);
+		initTemplateProperties(specProperties, map, fs, propertyPath);
 		adjustLocationRelativeToPart(fs, map);
 		if (this.componentType == FormElement.ERROR_BEAN)
 		{
@@ -241,10 +244,9 @@ public final class FormElement implements IWebComponentInitializer
 		return null;
 	}
 
-	private void initPropertiesWithDefaults(Map<String, PropertyDescription> specProperties, Map<String, Object> map, FlattenedSolution fs,
+	private void initTemplateProperties(Map<String, PropertyDescription> specProperties, Map<String, Object> map, FlattenedSolution fs,
 		PropertyPath propertyPath)
 	{
-		// do stuff here!
 		if (specProperties != null && map != null)
 		{
 			for (PropertyDescription pd : specProperties.values())
@@ -269,8 +271,53 @@ public final class FormElement implements IWebComponentInitializer
 						map.put(pd.getName(), NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER);
 					}
 				}
+
+				Object formElementValue = map.get(pd.getName());
+
+				// check find mode aware and data linked properties and remember what they will need at runtime
+				if (formElementValue != NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
+				{
+					if (pd.getType() instanceof IDataLinkedType)
+					{
+						getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd.getName(),
+							((IDataLinkedType)pd.getType()).getDataLinks(formElementValue, pd, fs, this));
+					}
+
+					if (pd.getType() instanceof IFindModeAwareType)
+					{
+						getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd.getName(),
+							((IFindModeAwareType)pd.getType()).isFindModeAware(formElementValue, pd, fs, this));
+					}
+				}
 			}
 		}
+	}
+
+	/**
+	 * Get some standard info that was pre-processed at template stage but is needed at runtime.
+	 *
+	 * @param propertyInfoType for example {@link IFindModeAwareType}.class or {@link IDataLinkedType}.class.
+	 * @return the pre-processed information object (it's type and meaning depends on propertyInfoType).
+	 */
+	public Object getPreprocessedPropertyInfo(Class< ? > propertyInfoType, String propertyName)
+	{
+		if (preprocessedPropertyInfo == null) return null;
+		Map<String, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
+		if (m == null) return null;
+
+		return m.get(propertyName);
+	}
+
+	protected Map<String, Object> getOrCreatePreprocessedPropertyInfoMap(Class< ? > propertyInfoType)
+	{
+		if (preprocessedPropertyInfo == null) preprocessedPropertyInfo = new HashMap<>();
+		Map<String, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
+		if (m == null)
+		{
+			m = new HashMap<>();
+			preprocessedPropertyInfo.put(propertyInfoType, m);
+		}
+		return m;
 	}
 
 	private void adjustLocationRelativeToPart(FlattenedSolution fs, Map<String, Object> map)

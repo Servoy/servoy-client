@@ -54,7 +54,9 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 		 */
 		public static final TargetDataLinks LINKED_TO_ALL = new TargetDataLinks(null, true);
 
+		/** the dataProvider that a property is interested in. */
 		public final String[] dataProviderIDs;
+		/** true of this is a record dependent dataProvider and false otherwise (scope/form variable). */
 		public final boolean recordLinked;
 
 		/**

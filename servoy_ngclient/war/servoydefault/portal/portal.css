@@ -7,7 +7,7 @@
     overflow: hidden;
 }
 
-.ui-grid-row-selected > div > div.ui-grid-cell {
+.ui-grid-row-selected div.ui-grid-cell {
   background-color: #c9dde1 !important;
 }
 
@@ -18,3 +18,4 @@ div.ui-grid-cell input.ng-valid {
  position:relative;
  border-width: 0px 0px 0px 0px;
 }
+

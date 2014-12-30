@@ -14,6 +14,8 @@ import org.sablo.specification.WebComponentSpecProvider;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 
 /**
  * Servoy extension to work with webcomponents on a form
@@ -44,8 +46,13 @@ public class WebFormComponent extends Container implements IContextProvider
 			PropertyDescription pd = e.getValue();
 			if (pd.getType() instanceof IDataLinkedType)
 			{
-				((DataAdapterList)dataAdapterList).addDataLinkedProperty(this, e.getKey(), ((IDataLinkedType)pd.getType()).getDataLinks(
-					fe.getPropertyValue(e.getKey()), pd, dataAdapterList.getApplication().getFlattenedSolution(), fe));
+				((DataAdapterList)dataAdapterList).addDataLinkedProperty(this, e.getKey(),
+					(TargetDataLinks)fe.getPreprocessedPropertyInfo(IDataLinkedType.class, pd.getName()));
+			}
+			if (pd.getType() instanceof IFindModeAwareType)
+			{
+				if (((Boolean)fe.getPreprocessedPropertyInfo(IFindModeAwareType.class, pd.getName())).booleanValue()) ((DataAdapterList)dataAdapterList).addFindModeAwareProperty(
+					this, pd);
 			}
 		}
 	}
@@ -175,7 +182,7 @@ public class WebFormComponent extends Container implements IContextProvider
 	public void dispose()
 	{
 		propertyChangeSupport = null;
-		((DataAdapterList)dataAdapterList).removeRecordAwareComponent(this);
+		((DataAdapterList)dataAdapterList).componentDisposed(this);
 		super.dispose();
 	}
 
