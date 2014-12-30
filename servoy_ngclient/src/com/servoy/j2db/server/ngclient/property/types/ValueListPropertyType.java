@@ -35,6 +35,7 @@ import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
@@ -55,6 +56,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 public class ValueListPropertyType extends DefaultPropertyType<ValueListPropertySabloValue> implements IConvertedPropertyType<ValueListPropertySabloValue>,
 	IFormElementToSabloComponent<Object, ValueListPropertySabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListPropertySabloValue>
 {
@@ -173,6 +175,11 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 				{
 					valueList = new ColumnBasedValueList(application, formElement.getForm().getServerName(), formElement.getForm().getTableName(),
 						(String)formElement.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()));
+				}
+				else
+				{
+					// not supported empty valuelist (based on relations) just return an empty valuelist
+					valueList = new CustomValueList(application, null, "", false, IColumnTypes.TEXT, null);
 				}
 			}
 		}
