@@ -180,7 +180,7 @@ import com.servoy.j2db.util.gui.MyImageIcon;
 
 /**
  * Create UI objects based on repository objects
- * 
+ *
  * @author jblok, jcompagner
  */
 @SuppressWarnings("nls")
@@ -214,7 +214,7 @@ public class ComponentFactory
 	public static String getWebID(Form form, IPersist meta)
 	{
 		StringBuilder prefix = new StringBuilder();
-		prefix.append(WEB_ID_PREFIX); //to stay javascript id ref compatible 
+		prefix.append(WEB_ID_PREFIX); //to stay javascript id ref compatible
 
 		if (element_name_as_uid_prefix == null)
 		{
@@ -247,7 +247,7 @@ public class ComponentFactory
 
 	/**
 	 * Create a component
-	 * 
+	 *
 	 * @param meta the definition
 	 * @param el the event listener such as action,mouse event listeners, can be null (Example:makes possible for button to call script)
 	 */
@@ -794,7 +794,7 @@ public class ComponentFactory
 
 //		if (c instanceof IDelegate)
 //		{
-//			c = (JComponent)((IDelegate)c).getDelegate(); 
+//			c = (JComponent)((IDelegate)c).getDelegate();
 //		}
 
 		String fontString = bc.getFontType();
@@ -815,7 +815,7 @@ public class ComponentFactory
 
 		if (Utils.isSwingClient(application.getApplicationType()))
 		{
-			//special code for smart client LAFs, like BizLaf 
+			//special code for smart client LAFs, like BizLaf
 			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
 			if (delegateStyleClassNamePropertyKey != null && c instanceof JComponent)
 			{
@@ -834,7 +834,7 @@ public class ComponentFactory
 
 	/**
 	 * Returns the bean Instance.
-	 * 
+	 *
 	 * @return Object
 	 */
 	public static Object getBeanInstanceFromXML(IApplication application, String beanClassName, String beanXML) throws Exception
@@ -1293,6 +1293,14 @@ public class ComponentFactory
 					so.setComponent(fl, field);
 					break;
 				}
+				else
+				{
+					RuntimeDataField so;
+					scriptable = so = new RuntimeDataField(jsChangeRecorder, application);
+					fl = application.getItemFactory().createDataField(so, getWebID(form, field));
+					so.setComponent(fl, field);
+					break;
+				}
 
 				//$FALL-THROUGH$
 			case Field.LIST_BOX :
@@ -1318,7 +1326,7 @@ public class ComponentFactory
 			}
 
 			// else treat as the default case: TEXT_FIELD
-			default ://Field.TEXT_FIELD 
+			default ://Field.TEXT_FIELD
 				if (field.getValuelistID() > 0)
 				{
 					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.uiType, fieldFormat.parsedFormat,
