@@ -211,7 +211,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			Object value = childComponent.getFormElement().getPropertyValue(handler);
 			if (value != null)
 			{
-				childComponent.add(handler, (Integer)value);
+				childComponent.add(handler, ((Integer)value).intValue());
 			}
 		}
 

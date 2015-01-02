@@ -567,7 +567,6 @@ public final class FormElement implements IWebComponentInitializer
 		return propertiesAsTemplateJSON(null).toString();
 	}
 
-	@SuppressWarnings("nls")
 	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer) throws JSONException
 	{
 		TypedData<Map<String, Object>> propertiesTypedData = propertiesForTemplateJSON();
@@ -595,14 +594,17 @@ public final class FormElement implements IWebComponentInitializer
 		for (PropertyDescription pd : propDescription.values())
 		{
 			Object val = getRawPropertyValue(pd.getName());
-			if (val == null) continue;
-			properties.put(pd.getName(), val);
+			if (val != null)
+			{
+				properties.put(pd.getName(), val);
+			}
 		}
 
 		if (persistImpl == null || !persistImpl.isForm())
 		{
 			Dimension dim = getDesignSize();
 			if (dim != null) properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
+
 			Integer anchor = (Integer)getPropertyValue(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
 			if (anchor != null)
 			{
@@ -623,21 +625,25 @@ public final class FormElement implements IWebComponentInitializer
 			PropertyDescription t = getWebComponentSpec().getProperty(p.getKey());
 			if (t != null) propertyTypes.putProperty(p.getKey(), t);
 		}
-		if (!propertyTypes.hasChildProperties()) propertyTypes = null;
 
-		TypedData<Map<String, Object>> propertiesTypedData = new TypedData<>(properties, propertyTypes);
-		return propertiesTypedData;
+		return new TypedData<>(properties, propertyTypes.hasChildProperties() ? propertyTypes : null);
 	}
 
 	Dimension getDesignSize()
 	{
-		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportSize) return ((ISupportSize)persistImpl.getPersist()).getSize();
+		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportSize)
+		{
+			return ((ISupportSize)persistImpl.getPersist()).getSize();
+		}
 		return null;
 	}
 
 	Point getDesignLocation()
 	{
-		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportBounds) return ((ISupportBounds)persistImpl.getPersist()).getLocation();
+		if (persistImpl != null && persistImpl.getPersist() instanceof ISupportBounds)
+		{
+			return ((ISupportBounds)persistImpl.getPersist()).getLocation();
+		}
 		return null;
 	}
 
