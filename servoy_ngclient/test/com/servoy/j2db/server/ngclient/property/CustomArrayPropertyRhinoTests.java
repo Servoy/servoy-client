@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.NativeArray;
@@ -75,6 +76,12 @@ public class CustomArrayPropertyRhinoTests
 		HashMap<String, String> components = new HashMap<>();
 		components.put("mycomponent.spec", comp);
 		WebComponentSpecProvider.init(new IPackageReader[] { new InMemPackageReader(manifest, components) });
+	}
+
+	@After
+	public void tearDown()
+	{
+		WebComponentSpecProvider.disposeInstance();
 	}
 
 	@Test
