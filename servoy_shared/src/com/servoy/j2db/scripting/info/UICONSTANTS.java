@@ -59,7 +59,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
 	 * 
 	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
 	 * Value can be true/false/null.
