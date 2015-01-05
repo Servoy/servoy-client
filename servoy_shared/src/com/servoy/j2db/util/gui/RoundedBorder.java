@@ -183,4 +183,16 @@ public class RoundedBorder extends SpecialMatteBorder
 	{
 		return radius[4];
 	}
+
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof RoundedBorder)
+		{
+			RoundedBorder other = (RoundedBorder)obj;
+			return super.equals(obj) && Utils.equalObjects(radius, other.radius) && Utils.equalObjects(borderStyles, other.borderStyles);
+		}
+		return false;
+	}
 }

@@ -34,7 +34,7 @@ import javax.swing.border.AbstractBorder;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Special border for advanced bordering 
+ * Special border for advanced bordering
  * @author jblok
  */
 public class SpecialMatteBorder extends AbstractBorder
@@ -66,50 +66,9 @@ public class SpecialMatteBorder extends AbstractBorder
 		{
 			SpecialMatteBorder other = (SpecialMatteBorder)obj;
 			boolean retval = (other.top == top && other.left == left && other.bottom == bottom && other.right == right);
-			if (retval)
-			{
-				if (topColor != null)
-				{
-					retval = topColor.equals(other.topColor);
-				}
-				else
-				{
-					retval = topColor == null && other.topColor == null;
-				}
-			}
-			if (retval)
-			{
-				if (leftColor != null)
-				{
-					retval = leftColor.equals(other.leftColor);
-				}
-				else
-				{
-					retval = leftColor == null && other.leftColor == null;
-				}
-			}
-			if (retval)
-			{
-				if (bottomColor != null)
-				{
-					retval = bottomColor.equals(other.bottomColor);
-				}
-				else
-				{
-					retval = bottomColor == null && other.bottomColor == null;
-				}
-			}
-			if (retval)
-			{
-				if (rightColor != null)
-				{
-					retval = rightColor.equals(other.rightColor);
-				}
-				else
-				{
-					retval = rightColor == null && other.rightColor == null;
-				}
-			}
+			retval = retval && Utils.equalObjects(topColor, other.topColor) && Utils.equalObjects(leftColor, other.leftColor) &&
+				Utils.equalObjects(bottomColor, other.bottomColor) && Utils.equalObjects(rightColor, other.rightColor) &&
+				(roundingRadius == other.roundingRadius);
 			return retval;
 		}
 		else
@@ -160,7 +119,7 @@ public class SpecialMatteBorder extends AbstractBorder
 //					{
 //						((Graphics2D)g).setStroke(new BasicStroke(lineWidth,line_cap,line_join,1f,dashPattern,0f));
 //					}
-//	
+//
 //					g.setColor(topColor);
 //					float halfLW = lineWidth/2f;
 //					Rectangle2D.Float rect = new Rectangle2D.Float(halfLW, halfLW, width-lineWidth, height-lineWidth);
