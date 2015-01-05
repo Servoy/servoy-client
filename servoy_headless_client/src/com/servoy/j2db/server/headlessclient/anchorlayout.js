@@ -181,13 +181,18 @@ function updateTablesPreferredSize()
 {
 	for(var i in tablesPreferredHeight)
 	{
-		var newPreferredSize = getPreferredTableSize(i);
-		if(newPreferredSize && (newPreferredSize[1] != tablesPreferredHeight[i]['height'] || 
-		    newPreferredSize[0] != tablesPreferredHeight[i]['width']))
-		{
-			tablesPreferredHeight[i]['height'] = newPreferredSize[1];
-			tablesPreferredHeight[i]['width'] = newPreferredSize[0];
-			wicketAjaxGet(tablesPreferredHeight[i]['callback'] + "&bodyWidth=" + newPreferredSize[0] + "&bodyHeight=" + newPreferredSize[1]);
-		}
+		updateTablePreferredSize(i);
 	}
+}
+
+function updateTablePreferredSize(tableid)
+{
+	var newPreferredSize = getPreferredTableSize(tableid);
+	if(newPreferredSize && (newPreferredSize[1] != tablesPreferredHeight[tableid]['height'] || 
+	    newPreferredSize[0] != tablesPreferredHeight[tableid]['width']))
+	{
+		tablesPreferredHeight[tableid]['height'] = newPreferredSize[1];
+		tablesPreferredHeight[tableid]['width'] = newPreferredSize[0];
+		wicketAjaxGet(tablesPreferredHeight[tableid]['callback'] + "&bodyWidth=" + newPreferredSize[0] + "&bodyHeight=" + newPreferredSize[1]);
+	}	
 }
