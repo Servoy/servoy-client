@@ -9,6 +9,7 @@ module.exports = function(config){
        'lib/jquery.js',
        'lib/angular_1.3.4.js',
        'lib/angular-mocks_1.3.4.js',
+       '../war/js/numeral.js',
        /*'../../../sablo/sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
        '../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
        'lib/phantomjs.polyfill.js',

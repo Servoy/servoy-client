@@ -48,7 +48,6 @@ describe('servoy $formatUtils', function() {
 	    	var formatFun = $formatterUtils.format;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(formatFun(new Date(2014,10,1,23,23,14,500),'dd-MM-yyyy HH:mma s  G S','DATETIME')).toEqual("01-11-2014 23:23PM 14  AD 500")
-	        expect(formatFun(new Date(2014,10,2,23,23,14),'dd-MM-yyyy w HH:mma  W','DATETIME')).toEqual("02-11-2014 44 23:23PM  1")
 	        expect(formatFun(new Date(2014,10,3,15,23,14),'dd-MM-yyyy Z D','DATETIME')).toEqual("03-11-2014 +0100 307")// TODO fix timezone issues
 	        expect(formatFun(new Date(2014,10,4,15,23,14),'dd/MM/yyyy Z D','DATETIME')).toEqual("04/11/2014 +0100 308")// TODO fix timezone issues
 	        expect(formatFun(new Date(2014,10,5,12,23,14),'dd MM yyyy KK:mm D','DATETIME')).toEqual("05 11 2014 00:23 309")
