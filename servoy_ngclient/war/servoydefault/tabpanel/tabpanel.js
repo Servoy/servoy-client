@@ -27,7 +27,6 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
         			if (i == realTabIndex)
         			{	
         				$scope.model.tabs[i].active = true;
-        				//$scope.model.selectedTab = $scope.model.tabs[i];
         			}
         			else $scope.model.tabs[i].active = false;
         			$scope.model.tabs[i].disabled = false;
@@ -89,6 +88,13 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
        		return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
        	}
        	return "";
+       }
+       
+       $scope.getActiveForm = function(tab) {
+          	if (tab && tab.active == true) {
+          		return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
+          	}
+          	return "";
        }
        
        function setFormVisible(tab,event) {
