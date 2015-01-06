@@ -6,6 +6,6 @@
         <span svy-background='model.background' svy-foreground='tab.foreground == null ? model.foreground : tab.foreground'
         	  ng-bind='tab.text'></span>
       </tab-heading>
-      <div ng-include="getForm(tab)" svy-tabseq='1' svy-tabseq-config="{container: true}" style="position:absolute;top:40px;left:0;right:0;bottom:0;"></div>
+      <div ng-include="getForm(tab)" svy-tabseq='1' svy-tabseq-config="{container: true}" style="position:absolute;top:40px;left:0;right:0;bottom:0;overflow:hidden"></div>
     </tab>
 </tabset>
