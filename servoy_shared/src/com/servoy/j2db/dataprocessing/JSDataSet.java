@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -1648,14 +1648,12 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	private String[] getColumnNamesSorted()
 	{
-		if (columnameMap == null) makeColumnMap();
-		TreeMap<Integer, String> colNamesSorted = new TreeMap<Integer, String>();
-		for (String cname : columnameMap.keySet())
+		String[] colNamesSorted = new String[columnameMap.size()];
+		for (Entry<String, Integer> column : columnameMap.entrySet())
 		{
-			Integer cindex = columnameMap.get(cname);
-			colNamesSorted.put(cindex, cname);
+			colNamesSorted[column.getValue().intValue() - 1] = column.getKey();
 		}
-		return colNamesSorted.values().toArray(new String[colNamesSorted.size()]);
+		return colNamesSorted;
 	}
 
 	private class DataModel extends AbstractTableModel
