@@ -28,16 +28,21 @@ import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
  */
-public class FormPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>
+public class FormPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>,
+	IFormElementToTemplateJSON<Object, Object>
 {
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 	public static final String TYPE_NAME = "form";
@@ -131,6 +136,36 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 			return ((Form)webComponentValue).getName();
 		}
 		return webComponentValue;
+	}
+
+	@Override
+	public String defaultValue()
+	{
+		return null;
+	}
+
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers, FlattenedSolution fs) throws JSONException
+	{
+		Form form = null;
+		if (formElementValue instanceof Integer)
+		{
+			form = fs.getForm(((Integer)formElementValue).intValue());
+		}
+		else if (formElementValue instanceof String)
+		{
+
+			UUID uuid = Utils.getAsUUID(formElementValue, false);
+			if (uuid != null) form = (Form)fs.searchPersist(uuid);
+			else form = fs.getForm((String)formElementValue);
+		}
+		if (form != null)
+		{
+			writer.key(key);
+			writer.value(form.getName());
+		}
+		return writer;
 	}
 
 }
