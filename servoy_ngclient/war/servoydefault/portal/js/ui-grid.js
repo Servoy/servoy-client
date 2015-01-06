@@ -1,5 +1,5 @@
-/*! ui-grid - v - 2014-12-23
-* Copyright (c) 2014 ; License: MIT */
+/*! ui-grid - v - 2015-01-06
+* Copyright (c) 2015 ; License: MIT */
 (function () {
   'use strict';
   angular.module('ui.grid.i18n', []);
@@ -186,6 +186,7 @@ angular.module('ui.grid').directive('uiGridCell', ['$compile', '$parse', 'gridUt
             }
           };
 
+          // TODO(c0bra): Turn this into a deep array watch
           var colWatchDereg = $scope.$watch( 'col', cellChangeFunction );
           var rowWatchDereg = $scope.$watch( 'row', cellChangeFunction );
           
@@ -2191,6 +2192,11 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
           if (args.target && (args.target === $elm || angular.element(args.target).hasClass('ui-grid-native-scrollbar'))) {
             return;
           }
+          
+          // Don't listen to scrolls from other grids
+          if (args.grid && args.grid.id !== grid.id){
+            return;
+          }
 
           // Set the source of the scroll event in our scope so it's available in our 'scroll' event handler
           $scope.scrollSource = args.target;
@@ -2299,6 +2305,11 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             }
 
             function scrollHandler (evt, args) {
+              // exit if not for this grid
+              if (args.grid && args.grid.id !== grid.id){
+                return;
+              }
+              
               // Vertical scroll
               if (args.y && $scope.bindScrollVertical) {
                 containerCtrl.prevScrollArgs = args;
@@ -2382,7 +2393,6 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             // Scroll the render container viewport when the mousewheel is used
             $elm.bind('wheel mousewheel DomMouseScroll MozMousePixelScroll', function(evt) {
               // use wheelDeltaY
-              evt.preventDefault();
 
               var newEvent = GridUtil.normalizeWheelEvent(evt);
 
@@ -2412,10 +2422,14 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
 
                 args.x = { percentage: scrollXPercentage, pixels: scrollXAmount };
               }
-              
+
+              // Let the parent container scroll if the grid is already at the top/bottom
+              if ((args.y.percentage !== 0 && args.y.percentage !== 1) || (args.x.percentage !== 0 && args.x.percentage !== 1)) {
+                evt.preventDefault();
+              }
+
               uiGridCtrl.fireScrollingEvent(args);
             });
-            
 
             var startY = 0,
             startX = 0,
@@ -2689,24 +2703,26 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             // Function for attaching the template to this scope
             var clonedElement, cloneScope;
             function compileTemplate() {
-              var compiledElementFn = $scope.row.compiledElementFn;
+              $scope.row.getRowTemplateFn.then(function (compiledElementFn) {
+                // var compiledElementFn = $scope.row.compiledElementFn;
 
-              // Create a new scope for the contents of this row, so we can destroy it later if need be
-              var newScope = $scope.$new();
+                // Create a new scope for the contents of this row, so we can destroy it later if need be
+                var newScope = $scope.$new();
 
-              compiledElementFn(newScope, function (newElm, scope) {
-                // If we already have a cloned element, we need to remove it and destroy its scope
-                if (clonedElement) {
-                  clonedElement.remove();
-                  cloneScope.$destroy();
-                }
+                compiledElementFn(newScope, function (newElm, scope) {
+                  // If we already have a cloned element, we need to remove it and destroy its scope
+                  if (clonedElement) {
+                    clonedElement.remove();
+                    cloneScope.$destroy();
+                  }
 
-                // Empty the row and append the new element
-                $elm.empty().append(newElm);
+                  // Empty the row and append the new element
+                  $elm.empty().append(newElm);
 
-                // Save the new cloned element and scope
-                clonedElement = newElm;
-                cloneScope = newScope;
+                  // Save the new cloned element and scope
+                  clonedElement = newElm;
+                  cloneScope = newScope;
+                });
               });
             }
 
@@ -2714,7 +2730,7 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             compileTemplate();
 
             // If the row's compiled element function changes, we need to replace this element's contents with the new compiled template
-            $scope.$watch('row.compiledElementFn', function (newFunc, oldFunc) {
+            $scope.$watch('row.getRowTemplateFn', function (newFunc, oldFunc) {
               if (newFunc !== oldFunc) {
                 compileTemplate();
               }
@@ -3030,6 +3046,7 @@ angular.module('ui.grid')
       /* Event Methods */
 
       self.fireScrollingEvent = gridUtil.throttle(function(args) {
+        args.grid = args.grid || self.grid;
         $scope.$broadcast(uiGridConstants.events.GRID_SCROLL, args);
       }, self.grid.options.scrollThrottle, {trailing: true});
 
@@ -3806,7 +3823,7 @@ angular.module('ui.grid')
         self.buildColumns()
           .then( function() {
             self.preCompileCellTemplates();
-            self.handleWindowResize();
+            self.refresh();
           });
       });
   };
@@ -3862,7 +3879,11 @@ angular.module('ui.grid')
       });
     });
     
-    return $q.all(builderPromises);
+    return $q.all(builderPromises).then(function(){
+      if (self.rows.length > 0){
+        self.assignTypes();
+      }
+    });
   };
 
 /**
@@ -4044,9 +4065,9 @@ angular.module('ui.grid')
             });
         }
         //now that we have data, it is save to assign types to colDefs
-        if (wasEmpty) {
+//        if (wasEmpty) {
            self.assignTypes();
-        }
+//        }
     } else {
     if (self.rows.length === 0 && newRawData.length > 0) {
       if (self.options.enableRowHashing) {
@@ -7650,12 +7671,6 @@ angular.module('ui.grid')
 
             // Use the grid's function for fetching the compiled row template function
             row.getRowTemplateFn = grid.getRowTemplateFn;
-
-            // Get the compiled row template function...
-            grid.getRowTemplateFn.then(function (rowTemplateFn) {
-              // And assign it to the row
-              row.compiledElementFn = rowTemplateFn;
-            });
           }
           // Row has its own template assigned
           else {
@@ -7668,10 +7683,7 @@ angular.module('ui.grid')
               .then(function (template) {
                 // Compile the template
                 var rowTemplateFn = $compile(template);
-
-                // Assign the compiled template function to this row
-                row.compiledElementFn = rowTemplateFn;
-
+                
                 // Resolve the compiled template function promise
                 perRowTemplateFnPromise.resolve(rowTemplateFn);
               },
@@ -7680,6 +7692,8 @@ angular.module('ui.grid')
                 throw new Error("Couldn't fetch/use row template '" + row.rowTemplate + "'");
               });
           }
+
+          return row.getRowTemplateFn;
         }
       };
 
@@ -9834,7 +9848,7 @@ module.filter('px', function() {
           invalidJson: 'File was unable to be processed, is it valid Json?',
           jsonNotArray: 'Imported json file must contain an array, aborting.'
         },
-        paging: {
+        pagination: {
           sizes: 'items per page',
           totalItems: 'items'
         }
@@ -9843,6 +9857,7 @@ module.filter('px', function() {
     }]);
   }]);
 })();
+
 (function () {
   angular.module('ui.grid').config(['$provide', function($provide) {
     $provide.decorator('i18nService', ['$delegate', function($delegate) {
@@ -10539,7 +10554,7 @@ module.filter('px', function() {
           invalidJson: 'Filen kunde inte behandlas, är den en giltig JSON?',
           jsonNotArray: 'Importerad JSON-fil måste innehålla ett fält. Import avbruten.'
         },
-        paging: {
+        pagination: {
           sizes: 'Artiklar per sida',
           totalItems: 'Artiklar'
         }
@@ -11101,6 +11116,29 @@ module.filter('px', function() {
         });
       };
 
+      /**
+       *  @ngdoc object
+       *  @name ui.grid.cellNav.api:GridRow
+       *
+       *  @description GridRow settings for cellNav feature, these are available to be
+       *  set only internally (for example, by other features)
+       */
+
+      /**
+       *  @ngdoc object
+       *  @name allowCellFocus
+       *  @propertyOf  ui.grid.cellNav.api:GridRow
+       *  @description Enable focus on a cell within this row.  If set to false then no cells
+       *  in this row can be focused - group header rows as an example would set this to false.
+       *  <br/>Defaults to true
+       */
+      /** returns focusable rows */
+      UiGridCellNav.prototype.getFocusableRows = function () {
+        return this.rows.filter(function(row) {
+          return row.allowCellFocus !== false;
+        });
+      };
+
       UiGridCellNav.prototype.getNextRowCol = function (direction, curRow, curCol) {
         switch (direction) {
           case uiGridCellNavConstants.direction.LEFT:
@@ -11121,8 +11159,9 @@ module.filter('px', function() {
 
       UiGridCellNav.prototype.getRowColLeft = function (curRow, curCol) {
         var focusableCols = this.getFocusableCols();
+        var focusableRows = this.getFocusableRows();
         var curColIndex = focusableCols.indexOf(curCol);
-        var curRowIndex = this.rows.indexOf(curRow);
+        var curRowIndex = focusableRows.indexOf(curRow);
 
         //could not find column in focusable Columns so set it to 1
         if (curColIndex === -1) {
@@ -11138,7 +11177,7 @@ module.filter('px', function() {
           }
           else {
             //up one row and far right column
-            return new RowCol(this.rows[curRowIndex - 1], focusableCols[nextColIndex]);
+            return new RowCol(focusableRows[curRowIndex - 1], focusableCols[nextColIndex]);
           }
         }
         else {
@@ -11148,8 +11187,9 @@ module.filter('px', function() {
 
       UiGridCellNav.prototype.getRowColRight = function (curRow, curCol) {
         var focusableCols = this.getFocusableCols();
+        var focusableRows = this.getFocusableRows();
         var curColIndex = focusableCols.indexOf(curCol);
-        var curRowIndex = this.rows.indexOf(curRow);
+        var curRowIndex = focusableRows.indexOf(curRow);
 
         //could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
@@ -11158,12 +11198,12 @@ module.filter('px', function() {
         var nextColIndex = curColIndex === focusableCols.length - 1 ? 0 : curColIndex + 1;
 
         if (nextColIndex < curColIndex) {
-          if (curRowIndex === this.rows.length - 1) {
+          if (curRowIndex === focusableRows.length - 1) {
             return new RowCol(curRow, focusableCols[nextColIndex]); //return same row
           }
           else {
             //down one row and far left column
-            return new RowCol(this.rows[curRowIndex + 1], focusableCols[nextColIndex]);
+            return new RowCol(focusableRows[curRowIndex + 1], focusableCols[nextColIndex]);
           }
         }
         else {
@@ -11173,27 +11213,29 @@ module.filter('px', function() {
 
       UiGridCellNav.prototype.getRowColDown = function (curRow, curCol) {
         var focusableCols = this.getFocusableCols();
+        var focusableRows = this.getFocusableRows();
         var curColIndex = focusableCols.indexOf(curCol);
-        var curRowIndex = this.rows.indexOf(curRow);
+        var curRowIndex = focusableRows.indexOf(curRow);
 
         //could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
           curColIndex = 0;
         }
 
-        if (curRowIndex === this.rows.length - 1) {
+        if (curRowIndex === focusableRows.length - 1) {
           return new RowCol(curRow, focusableCols[curColIndex]); //return same row
         }
         else {
           //down one row
-          return new RowCol(this.rows[curRowIndex + 1], focusableCols[curColIndex]);
+          return new RowCol(focusableRows[curRowIndex + 1], focusableCols[curColIndex]);
         }
       };
 
       UiGridCellNav.prototype.getRowColPageDown = function (curRow, curCol) {
         var focusableCols = this.getFocusableCols();
+        var focusableRows = this.getFocusableRows();
         var curColIndex = focusableCols.indexOf(curCol);
-        var curRowIndex = this.rows.indexOf(curRow);
+        var curRowIndex = focusableRows.indexOf(curRow);
 
         //could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
@@ -11201,19 +11243,20 @@ module.filter('px', function() {
         }
 
         var pageSize = this.bodyContainer.minRowsToRender();
-        if (curRowIndex >= this.rows.length - pageSize) {
-          return new RowCol(this.rows[this.rows.length - 1], focusableCols[curColIndex]); //return last row
+        if (curRowIndex >= focusableRows.length - pageSize) {
+          return new RowCol(focusableRows[focusableRows.length - 1], focusableCols[curColIndex]); //return last row
         }
         else {
           //down one page
-          return new RowCol(this.rows[curRowIndex + pageSize], focusableCols[curColIndex]);
+          return new RowCol(focusableRows[curRowIndex + pageSize], focusableCols[curColIndex]);
         }
       };
 
       UiGridCellNav.prototype.getRowColUp = function (curRow, curCol) {
         var focusableCols = this.getFocusableCols();
+        var focusableRows = this.getFocusableRows();
         var curColIndex = focusableCols.indexOf(curCol);
-        var curRowIndex = this.rows.indexOf(curRow);
+        var curRowIndex = focusableRows.indexOf(curRow);
 
         //could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
@@ -11225,14 +11268,15 @@ module.filter('px', function() {
         }
         else {
           //up one row
-          return new RowCol(this.rows[curRowIndex - 1], focusableCols[curColIndex]);
+          return new RowCol(focusableRows[curRowIndex - 1], focusableCols[curColIndex]);
         }
       };
 
       UiGridCellNav.prototype.getRowColPageUp = function (curRow, curCol) {
         var focusableCols = this.getFocusableCols();
+        var focusableRows = this.getFocusableRows();
         var curColIndex = focusableCols.indexOf(curCol);
-        var curRowIndex = this.rows.indexOf(curRow);
+        var curRowIndex = focusableRows.indexOf(curRow);
 
         //could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
@@ -11241,11 +11285,11 @@ module.filter('px', function() {
 
         var pageSize = this.bodyContainer.minRowsToRender();
         if (curRowIndex - pageSize < 0) {
-          return new RowCol(this.rows[0], focusableCols[curColIndex]); //return first row
+          return new RowCol(focusableRows[0], focusableCols[curColIndex]); //return first row
         }
         else {
           //up one page
-          return new RowCol(this.rows[curRowIndex - pageSize], focusableCols[curColIndex]);
+          return new RowCol(focusableRows[curRowIndex - pageSize], focusableCols[curColIndex]);
         }
       };
       return UiGridCellNav;
@@ -11394,7 +11438,7 @@ module.filter('px', function() {
             evt.keyCode === uiGridConstants.keymap.ENTER) {
             return uiGridCellNavConstants.direction.DOWN;
           }
-          
+
           if (evt.keyCode === uiGridConstants.keymap.PG_DOWN){
             return uiGridCellNavConstants.direction.PG_DOWN;
           }
@@ -11424,7 +11468,7 @@ module.filter('px', function() {
            *  @ngdoc object
            *  @name allowCellFocus
            *  @propertyOf  ui.grid.cellNav.api:ColumnDef
-           *  @description Enable focus on a cell.
+           *  @description Enable focus on a cell within this column.
            *  <br/>Defaults to true
            */
           colDef.allowCellFocus = colDef.allowCellFocus === undefined ? true : colDef.allowCellFocus;
@@ -11480,14 +11524,14 @@ module.filter('px', function() {
             gridCol = grid.getColumn(colDef.name ? colDef.name : colDef.field);
           }
           this.scrollToInternal(grid, $scope, gridRow, gridCol);
-          
+
           var rowCol = { row: gridRow, col: gridCol };
 
           // Broadcast the navigation
           grid.cellNav.broadcastCellNav(rowCol);
-          
+
         },
-        
+
         /**
          * @ngdoc method
          * @methodOf ui.grid.cellNav.service:uiGridCellNavService
@@ -11495,20 +11539,20 @@ module.filter('px', function() {
          * @description Like scrollTo, but takes gridRow and gridCol.
          * In calculating the scroll height we have to deal with wanting
          * 0% for the first row, and 100% for the last row.  Normal maths
-         * for a 10 row list would return 1/10 = 10% for the first row, so 
+         * for a 10 row list would return 1/10 = 10% for the first row, so
          * we need to tweak the numbers to add an extra 10% somewhere.  The
          * formula if we're trying to get to row 0 in a 10 row list (assuming our
          * index is zero based, so the last row is row 9) is:
          * <pre>
          *   0 + 0 / 10 = 0%
          * </pre>
-         * 
-         * To get to row 9 (i.e. the last row) in the same list, we want to 
+         *
+         * To get to row 9 (i.e. the last row) in the same list, we want to
          * go to:
          * <pre>
          *  ( 9 + 1 ) / 10 = 100%
          * </pre>
-         * So we need to apportion one whole row within the overall grid scroll, 
+         * So we need to apportion one whole row within the overall grid scroll,
          * the formula is:
          * <pre>
          *   ( index + ( index / (total rows - 1) ) / total rows
@@ -11521,6 +11565,8 @@ module.filter('px', function() {
          */
         scrollToInternal: function (grid, $scope, gridRow, gridCol) {
           var args = {};
+
+          args.grid = grid;
 
           if (gridRow !== null) {
             var seekRowIndex = grid.renderContainers.body.visibleRowCache.indexOf(gridRow);
@@ -11553,7 +11599,9 @@ module.filter('px', function() {
         scrollToIfNecessary: function (grid, $scope, gridRow, gridCol) {
           var args = {};
 
-          // Alias the visible row and column caches 
+          args.grid = grid;
+
+          // Alias the visible row and column caches
           var visRowCache = grid.renderContainers.body.visibleRowCache;
           var visColCache = grid.renderContainers.body.visibleColumnCache;
 
@@ -11589,7 +11637,7 @@ module.filter('px', function() {
           if (gridRow !== null) {
             // This is the index of the row we want to scroll to, within the list of rows that can be visible
             var seekRowIndex = visRowCache.indexOf(gridRow);
-            
+
             // Total vertical scroll length of the grid
             var scrollLength = (grid.renderContainers.body.getCanvasHeight() - grid.renderContainers.body.getViewportHeight());
 
@@ -11632,7 +11680,7 @@ module.filter('px', function() {
           if (gridCol !== null) {
             // This is the index of the row we want to scroll to, within the list of rows that can be visible
             var seekColumnIndex = visColCache.indexOf(gridCol);
-            
+
             // Total vertical scroll length of the grid
             var horizScrollLength = (grid.renderContainers.body.getCanvasWidth() - grid.renderContainers.body.getViewportWidth());
 
@@ -11706,20 +11754,20 @@ module.filter('px', function() {
           if (!upToCol) {
             return width;
           }
-          
+
           var lastIndex = grid.renderContainers.body.visibleColumnCache.indexOf( upToCol );
-          
+
           // total column widths up-to but not including the passed in column
           grid.renderContainers.body.visibleColumnCache.forEach( function( col, index ) {
             if ( index < lastIndex ){
-              width += col.drawnWidth;  
+              width += col.drawnWidth;
             }
           });
-          
+
           // pro-rata the final column based on % of total columns.
           var percentage = lastIndex === 0 ? 0 : (lastIndex + 1) / grid.renderContainers.body.visibleColumnCache.length;
           width += upToCol.drawnWidth * percentage;
-           
+
           return width;
         }
       };
@@ -11872,6 +11920,11 @@ module.filter('px', function() {
 
               // When there's a scroll event we need to make sure to re-focus the right row, because the cell contents may have changed
               $scope.$on(uiGridConstants.events.GRID_SCROLL, function (evt, args) {
+                // Skip if not this grid that the event was broadcast for
+                if (args.grid && args.grid.id !== uiGridCtrl.grid.id) {
+                  return;
+                }
+
                 // Skip if there's no currently-focused cell
                 if (uiGridCtrl.grid.api.cellNav.getFocusedCell() == null) {
                   return;
@@ -11927,7 +11980,7 @@ module.filter('px', function() {
           }
 
           setTabEnabled();
-          
+
           // When a cell is clicked, broadcast a cellNav event saying that this row+col combo is now focused
           $elm.find('div').on('click', function (evt) {
             uiGridCtrl.cellNav.broadcastCellNav(new RowCol($scope.row, $scope.col));
@@ -11973,6 +12026,7 @@ module.filter('px', function() {
     }]);
 
 })();
+
 (function () {
   'use strict';
 
@@ -12343,6 +12397,22 @@ module.filter('px', function() {
    *    - uiGridConstants.events.GRID_SCROLL
    *
    */
+
+  /**
+   *  @ngdoc object
+   *  @name ui.grid.edit.api:GridRow
+   *
+   *  @description GridRow options for edit feature, these are available to be
+   *  set internally only, by other features
+   */
+
+  /**
+   *  @ngdoc object
+   *  @name enableCellEdit
+   *  @propertyOf  ui.grid.edit.api:GridRow
+   *  @description enable editing on row, grouping for example might disable editing on group header rows
+   */
+
   module.directive('uiGridCell',
     ['$compile', '$injector', '$timeout', 'uiGridConstants', 'uiGridEditConstants', 'gridUtil', '$parse', 'uiGridEditService',
       function ($compile, $injector, $timeout, uiGridConstants, uiGridEditConstants, gridUtil, $parse, uiGridEditService) {
@@ -12354,7 +12424,7 @@ module.filter('px', function() {
           scope: false,
           require: '?^uiGrid',
           link: function ($scope, $elm, $attrs, uiGridCtrl) {
-            if (!$scope.col.colDef.enableCellEdit) {
+            if (!$scope.col.colDef.enableCellEdit || $scope.row.enableCellEdit === false) {
               return;
             }
 
@@ -13417,7 +13487,7 @@ module.filter('px', function() {
            */
           /**
            * @ngdoc object
-           * @name ui.grid.exporter.api:GridOptions.columnDef
+           * @name ui.grid.exporter.api:ColumnDef
            * @description ColumnDef settings for exporter
            */
           /**
@@ -13832,18 +13902,35 @@ module.filter('px', function() {
         
         /** 
          * @ngdoc property
-         * @propertyOf ui.grid.exporter.api:GridOptions.columnDef
+         * @propertyOf ui.grid.exporter.api:ColumnDef
          * @name exporterPdfAlign
          * @description the alignment you'd like for this specific column when
          * exported into a pdf.  Can be 'left', 'right', 'center' or any other
          * valid pdfMake alignment option.
          */
+
+
+        /**
+         * @ngdoc object
+         * @name ui.grid.exporter.api:GridRow
+         * @description GridRow settings for exporter
+         */
+        /**
+         * @ngdoc object
+         * @name exporterEnableExporting
+         * @propertyOf  ui.grid.exporter.api:GridRow
+         * @description If set to false, then don't export this row, notwithstanding visible or 
+         * other settings
+         * <br/>Defaults to true
+         */
+
         /**
          * @ngdoc function
          * @name getData
          * @methodOf  ui.grid.exporter.service:uiGridExporterService
          * @description Gets data from the grid based on the provided options,
-         * all cells have cellFilters applied as appropriate
+         * all cells have cellFilters applied as appropriate.  Any rows marked
+         * `exporterEnableExporting: false` will not be exported
          * @param {Grid} grid the grid from which data should be exported
          * @param {string} rowTypes which rows to export, valid values are
          * uiGridExporterConstants.ALL, uiGridExporterConstants.VISIBLE,
@@ -13875,20 +13962,22 @@ module.filter('px', function() {
           
           angular.forEach(rows, function( row, index ) {
 
-            var extractedRow = [];
-            angular.forEach(grid.columns, function( gridCol, index ) {
-            if ( (gridCol.visible || colTypes === uiGridExporterConstants.ALL ) && 
-                 gridCol.name !== uiGridSelectionConstants.selectionRowHeaderColName &&
-                 grid.options.exporterSuppressColumns.indexOf( gridCol.name ) === -1 ){
-                var extractedField = { value: grid.options.exporterFieldCallback( grid, row, gridCol, grid.getCellValue( row, gridCol ) ) };
-                if ( gridCol.colDef.exporterPdfAlign ) {
-                  extractedField.alignment = gridCol.colDef.exporterPdfAlign;                 
+            if (row.exporterEnableExporting !== false) {
+              var extractedRow = [];
+              angular.forEach(grid.columns, function( gridCol, index ) {
+              if ( (gridCol.visible || colTypes === uiGridExporterConstants.ALL ) && 
+                   gridCol.name !== uiGridSelectionConstants.selectionRowHeaderColName &&
+                   grid.options.exporterSuppressColumns.indexOf( gridCol.name ) === -1 ){
+                  var extractedField = { value: grid.options.exporterFieldCallback( grid, row, gridCol, grid.getCellValue( row, gridCol ) ) };
+                  if ( gridCol.colDef.exporterPdfAlign ) {
+                    extractedField.alignment = gridCol.colDef.exporterPdfAlign;                 
+                  }
+                  extractedRow.push(extractedField);
                 }
-                extractedRow.push(extractedField);
-              }
-            });
-            
-            data.push(extractedRow);
+              });
+              
+              data.push(extractedRow);
+            }
           });
           
           return data;
@@ -14985,10 +15074,12 @@ module.filter('px', function() {
         templateUrl: 'ui-grid/importerMenuItem',
         link: function ($scope, $elm, $attrs, uiGridCtrl) {
           var handleFileSelect = function( event ){
-            if (event.srcElement.files.length === 1) {
+            var target = event.srcElement || event.target;
+            
+            if (target && target.files && target.files.length === 1) {
               var fileObject = event.srcElement.files[0];
               uiGridImporterService.importThisFile( grid, fileObject );
-              event.srcElement.form.reset();
+              target.form.reset();
             }
           };
 
@@ -15425,7 +15516,7 @@ module.filter('px', function() {
    *
    *  On receiving mouseDown event headerCell is cloned, now as the mouse moves the cloned header cell also moved in the grid.
    *  In case the moving cloned header cell reaches the left or right extreme of grid, grid scrolling is triggered (if horizontal scroll exists).
-   *  On mouseUp event column is repositioned at position where mouse is released and coned header cell is removed.
+   *  On mouseUp event column is repositioned at position where mouse is released and cloned header cell is removed.
    *
    *  Events that invoke cloning of header cell:
    *    - mousedown
@@ -15636,7 +15727,7 @@ module.filter('px', function() {
     }]);
 })();
 
-(function () {
+(function() {
   'use strict';
 
   /**
@@ -15648,7 +15739,7 @@ module.filter('px', function() {
    * #ui.grid.pagination
    * This module provides pagination support to ui-grid
    */
-  var module = angular.module('ui.grid.pagination', ['ui.grid']);
+  var module = angular.module('ui.grid.pagination', ['ng', 'ui.grid']);
 
   /**
    * @ngdoc service
@@ -15656,211 +15747,113 @@ module.filter('px', function() {
    *
    * @description Service for the pagination feature
    */
-  module.service('uiGridPaginationService', function () {
-    var service = {
-
-      /**
-       * @ngdoc method
-       * @name initializeGrid
-       * @methodOf ui.grid.pagination.service:uiGridPaginationService
-       * @description Attaches the service to a certain grid
-       * @param {Grid} grid The grid we want to work with
-       */
-      initializeGrid: function (grid) {
-        service.defaultGridOptions(grid.options);
-        grid.pagination = {page: 1, totalPages: 1};
-
-        /**
-         * @ngdoc object
-         * @name ui.grid.pagination.api:PublicAPI
-         *
-         * @description Public API for the pagination feature
-         */
-        var publicApi = {
-          methods: {
-            pagination: {
-              /**
-               * @ngdoc method
-               * @name getPage
-               * @methodOf ui.grid.pagination.api:PublicAPI
-               * @description Returns the number of the current page
-               */
-              getPage: function () {
-                return grid.pagination.page;
-              },
-              /**
-               * @ngdoc method
-               * @name getTotalPages
-               * @methodOf ui.grid.pagination.api:PublicAPI
-               * @description Returns the total number of pages
-               */
-              getTotalPages: function () {
-                return grid.pagination.totalPages;
-              },
-              /**
-               * @ngdoc method
-               * @name nextPage
-               * @methodOf ui.grid.pagination.api:PublicAPI
-               * @description Moves to the next page, if possible
-               */
-              nextPage: function () {
-                grid.pagination.page++;
-                grid.refresh();
-              },
-              /**
-               * @ngdoc method
-               * @name previousPage
-               * @methodOf ui.grid.pagination.api:PublicAPI
-               * @description Moves to the previous page, if we're not on the first page
-               */
-              previousPage: function () {
-                grid.pagination.page = Math.max(1, grid.pagination.page - 1);
-                grid.refresh();
-              },
-              seek: function (page) {
-                if (!angular.isNumber(page) || page < 1) {
-                  throw 'Invalid page number: ' + page;
-                }
-
-                grid.pagination.page = page;
-                grid.refresh();
-              }
-            }
-          }
-        };
-        grid.api.registerMethodsFromObject(publicApi.methods);
-        grid.registerRowsProcessor(function (renderableRows) {
-          if (!grid.options.enablePagination) {
-            return renderableRows;
-          }
-          var visibleRows = renderableRows.filter(function(row) { return row.visible; });
-          grid.pagination.totalPages = Math.max(
-            1,
-            Math.ceil(visibleRows.length / grid.options.rowsPerPage)
-          );
-
-          var firstRow = (grid.pagination.page - 1) * grid.options.rowsPerPage;
-          if (firstRow >= visibleRows.length) {
-            grid.pagination.page = grid.pagination.totalPages;
-            firstRow = (grid.pagination.page - 1) * grid.options.rowsPerPage;
-          }
-
-          return visibleRows.slice(
-            firstRow,
-            firstRow + grid.options.rowsPerPage
-          );
-        });
-      },
-
-      defaultGridOptions: function (gridOptions) {
-        /**
-         *  @ngdoc object
-         *  @name ui.grid.pagination.api:GridOptions
-         *
-         *  @description GridOptions for the pagination feature, these are available to be
-         *  set using the ui-grid {@link ui.grid.class:GridOptions gridOptions}
-         */
-
-        /**
-         *  @ngdoc object
-         *  @name enablePagination
-         *  @propertyOf  ui.grid.pagination.api:GridOptions
-         *  @description Enable pagination for this grid
-         *  <br/>Defaults to true
-         */
-        gridOptions.enablePagination = gridOptions.enablePagination !== false;
-
-        /**
-         *  @ngdoc object
-         *  @name rowsPerPage
-         *  @propertyOf  ui.grid.pagination.api:GridOptions
-         *  @description The number of rows that should be displayed per page
-         *  <br/>Defaults to 10
-         */
-        gridOptions.rowsPerPage = angular.isNumber(gridOptions.rowsPerPage) ? gridOptions.rowsPerPage : 10;
-      }
-    };
-
-    return service;
-  });
-
-  /**
-   * @ngdoc directive
-   * @name ui.grid.pagination.directive:uiGridPagination
-   * @element div
-   * @restrict A
-   *
-   * @description Adds pagination support to a grid.
-   */
-  module.directive('uiGridPagination', ['uiGridPaginationService', function (uiGridPaginationService) {
-    return {
-      priority: -400,
-      scope: false,
-      require: '^uiGrid',
-      link: {
-        pre: function (scope, element, attrs, uiGridCtrl) {
-          uiGridPaginationService.initializeGrid(uiGridCtrl.grid);
-        }
-      }
-    };
-  }]);
-})();
-
-(function() {
-  'use strict';
-  /**
-   * @ngdoc overview
-   * @name ui.grid.paging
-   *
-   * @description
-   *
-   * #ui.grid.paging
-   * This module provides paging support to ui-grid
-   */
-   
-  var module = angular.module('ui.grid.paging', ['ui.grid']);
-
-  /**
-   * @ngdoc service
-   * @name ui.grid.paging.service:uiGridPagingService
-   *
-   * @description Service for the paging feature
-   */
-  module.service('uiGridPagingService', ['gridUtil', 
+  module.service('uiGridPaginationService', ['gridUtil',
     function (gridUtil) {
       var service = {
-      /**
-       * @ngdoc method
-       * @name initializeGrid
-       * @methodOf ui.grid.paging.service:uiGridPagingService
-       * @description Attaches the service to a certain grid
-       * @param {Grid} grid The grid we want to work with
-       */
+        /**
+         * @ngdoc method
+         * @name initializeGrid
+         * @methodOf ui.grid.pagination.service:uiGridPaginationService
+         * @description Attaches the service to a certain grid
+         * @param {Grid} grid The grid we want to work with
+         */
         initializeGrid: function (grid) {
           service.defaultGridOptions(grid.options);
 
           /**
           * @ngdoc object
-          * @name ui.grid.paging.api:PublicAPI
+          * @name ui.grid.pagination.api:PublicAPI
           *
-          * @description Public API for the paging feature
+          * @description Public API for the pagination feature
           */
           var publicApi = {
             events: {
-              paging: {
+              pagination: {
               /**
                * @ngdoc event
-               * @name pagingChanged
-               * @eventOf ui.grid.paging.api:PublicAPI
+               * @name paginationChanged
+               * @eventOf ui.grid.pagination.api:PublicAPI
                * @description This event fires when the pageSize or currentPage changes
-               * @param {currentPage} requested page number
-               * @param {pageSize} requested page size 
+               * @param {int} currentPage requested page number
+               * @param {int} pageSize requested page size
                */
-                pagingChanged: function (currentPage, pageSize) { }
+                paginationChanged: function (currentPage, pageSize) { }
               }
             },
             methods: {
-              paging: {
+              pagination: {
+                /**
+                 * @ngdoc method
+                 * @name getPage
+                 * @methodOf ui.grid.pagination.api:PublicAPI
+                 * @description Returns the number of the current page
+                 */
+                getPage: function () {
+                  return grid.options.enablePagination ? grid.options.paginationCurrentPage : null;
+                },
+                /**
+                 * @ngdoc method
+                 * @name getTotalPages
+                 * @methodOf ui.grid.pagination.api:PublicAPI
+                 * @description Returns the total number of pages
+                 */
+                getTotalPages: function () {
+                  if (!grid.options.enablePagination) {
+                    return null;
+                  }
+
+                  return (grid.options.totalItems === 0) ? 1 : Math.ceil(grid.options.totalItems / grid.options.paginationPageSize);
+                },
+                /**
+                 * @ngdoc method
+                 * @name nextPage
+                 * @methodOf ui.grid.pagination.api:PublicAPI
+                 * @description Moves to the next page, if possible
+                 */
+                nextPage: function () {
+                  if (!grid.options.enablePagination) {
+                    return;
+                  }
+
+                  if (grid.options.totalItems > 0) {
+                    grid.options.paginationCurrentPage = Math.min(
+                      grid.options.paginationCurrentPage + 1,
+                      publicApi.methods.pagination.getTotalPages()
+                    );
+                  } else {
+                    grid.options.paginationCurrentPage++;
+                  }
+                },
+                /**
+                 * @ngdoc method
+                 * @name previousPage
+                 * @methodOf ui.grid.pagination.api:PublicAPI
+                 * @description Moves to the previous page, if we're not on the first page
+                 */
+                previousPage: function () {
+                  if (!grid.options.enablePagination) {
+                    return;
+                  }
+
+                  grid.options.paginationCurrentPage = Math.max(grid.options.paginationCurrentPage - 1, 1);
+                },
+                /**
+                 * @ngdoc method
+                 * @name seek
+                 * @methodOf ui.grid.pagination.api:PublicAPI
+                 * @description Moves to the requested page
+                 * @param {int} page The number of the page that should be displayed
+                 */
+                seek: function (page) {
+                  if (!grid.options.enablePagination) {
+                    return;
+                  }
+                  if (!angular.isNumber(page) || page < 1) {
+                    throw 'Invalid page number: ' + page;
+                  }
+
+                  grid.options.paginationCurrentPage = Math.min(page, publicApi.methods.pagination.getTotalPages());
+                }
               }
             }
           };
@@ -15868,19 +15861,19 @@ module.filter('px', function() {
           grid.api.registerEventsFromObject(publicApi.events);
           grid.api.registerMethodsFromObject(publicApi.methods);
           grid.registerRowsProcessor(function (renderableRows) {
-            if (grid.options.useExternalPaging || !grid.options.enablePaging) {
+            if (grid.options.useExternalPagination || !grid.options.enablePagination) {
               return renderableRows;
             }
-            //client side paging
-            var pageSize = parseInt(grid.options.pagingPageSize, 10);
-            var currentPage = parseInt(grid.options.pagingCurrentPage, 10);
+            //client side pagination
+            var pageSize = parseInt(grid.options.paginationPageSize, 10);
+            var currentPage = parseInt(grid.options.paginationCurrentPage, 10);
             
             var visibleRows = renderableRows.filter(function (row) { return row.visible; });
             grid.options.totalItems = visibleRows.length;
 
             var firstRow = (currentPage - 1) * pageSize;
             if (firstRow > visibleRows.length) {
-              currentPage = grid.options.pagingCurrentPage = 1;
+              currentPage = grid.options.paginationCurrentPage = 1;
               firstRow = (currentPage - 1) * pageSize;
             }
             return visibleRows.slice(firstRow, firstRow + pageSize);
@@ -15889,77 +15882,101 @@ module.filter('px', function() {
         },
         defaultGridOptions: function (gridOptions) {
           /**
-           * @ngdoc property
-           * @name enablePaging
-           * @propertyOf ui.grid.class:GridOptions
-           * @description Enables paging, defaults to true
+           * @ngdoc object
+           * @name ui.grid.pagination.api:GridOptions
+           *
+           * @description GridOptions for the pagination feature, these are available to be
+           * set using the ui-grid {@link ui.grid.class:GridOptions gridOptions}
            */
-          gridOptions.enablePaging = gridOptions.enablePaging !== false;
+
           /**
            * @ngdoc property
-           * @name useExternalPaging
-           * @propertyOf ui.grid.class:GridOptions
-           * @description Disables client side paging. When true, handle the pagingChanged event and set data and totalItems
-           * defaults to false
-           */           
-          gridOptions.useExternalPaging = gridOptions.useExternalPaging === true;
+           * @name enablePagination
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description Enables pagination, defaults to true
+           */
+          gridOptions.enablePagination = gridOptions.enablePagination !== false;
+          /**
+           * @ngdoc property
+           * @name enablePaginationControls
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description Enables the paginator at the bottom of the grid. Turn this off, if you want to implement your
+           *              own controls outside the grid.
+           */
+          gridOptions.enablePaginationControls = gridOptions.enablePaginationControls !== false;
+          /**
+           * @ngdoc property
+           * @name useExternalPagination
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description Disables client side pagination. When true, handle the paginationChanged event and set data
+           *              and totalItems, defaults to `false`
+           */
+          gridOptions.useExternalPagination = gridOptions.useExternalPagination === true;
           /**
            * @ngdoc property
            * @name totalItems
-           * @propertyOf ui.grid.class:GridOptions
-           * @description Total number of items, set automatically when client side paging, needs set by user for server side paging
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description Total number of items, set automatically when client side pagination, needs set by user
+           *              for server side pagination
            */
           if (gridUtil.isNullOrUndefined(gridOptions.totalItems)) {
             gridOptions.totalItems = 0;
           }
           /**
            * @ngdoc property
-           * @name pagingPageSizes
-           * @propertyOf ui.grid.class:GridOptions
-           * @description Array of page sizes
-           * defaults to [250, 500, 1000]
+           * @name paginationPageSizes
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description Array of page sizes, defaults to `[250, 500, 1000]`
            */
-          if (gridUtil.isNullOrUndefined(gridOptions.pagingPageSizes)) {
-            gridOptions.pagingPageSizes = [250, 500, 1000];
+          if (gridUtil.isNullOrUndefined(gridOptions.paginationPageSizes)) {
+            gridOptions.paginationPageSizes = [250, 500, 1000];
           }
           /**
            * @ngdoc property
-           * @name pagingPageSize
-           * @propertyOf ui.grid.class:GridOptions
-           * @description Page size
-           * defaults to the first item in pagingPageSizes, or 0 if pagingPageSizes is empty
+           * @name paginationPageSize
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description Page size, defaults to the first item in paginationPageSizes, or 0 if paginationPageSizes is empty
            */
-          if (gridUtil.isNullOrUndefined(gridOptions.pagingPageSize)) {
-            if (gridOptions.pagingPageSizes.length > 0) {
-              gridOptions.pagingPageSize = gridOptions.pagingPageSizes[0];
+          if (gridUtil.isNullOrUndefined(gridOptions.paginationPageSize)) {
+            if (gridOptions.paginationPageSizes.length > 0) {
+              gridOptions.paginationPageSize = gridOptions.paginationPageSizes[0];
             } else {              
-              gridOptions.pagingPageSize = 0;
+              gridOptions.paginationPageSize = 0;
             }
           }
           /**
            * @ngdoc property
-           * @name pagingCurrentPage
-           * @propertyOf ui.grid.class:GridOptions
-           * @description Current page number
-           * default 1
+           * @name paginationCurrentPage
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description Current page number, defaults to 1
            */
-          if (gridUtil.isNullOrUndefined(gridOptions.pagingCurrentPage)) {
-            gridOptions.pagingCurrentPage = 1;
+          if (gridUtil.isNullOrUndefined(gridOptions.paginationCurrentPage)) {
+            gridOptions.paginationCurrentPage = 1;
+          }
+
+          /**
+           * @ngdoc property
+           * @name paginationTemplate
+           * @propertyOf ui.grid.pagination.api:GridOptions
+           * @description A custom template for the pager, defaults to `ui-grid/pagination`
+           */
+          if (gridUtil.isNullOrUndefined(gridOptions.paginationTemplate)) {
+            gridOptions.paginationTemplate = 'ui-grid/pagination';
           }
         },
         /**
          * @ngdoc method
-         * @methodOf ui.grid.paging.service:uiGridPagingService
-         * @name uiGridPagingService
-         * @description  Raises pagingChanged and calls refresh for client side paging
-         * @param {grid} the grid for which the paging changed
-         * @param {currentPage} requested page number
-         * @param {pageSize} requested page size 
+         * @methodOf ui.grid.pagination.service:uiGridPaginationService
+         * @name uiGridPaginationService
+         * @description  Raises paginationChanged and calls refresh for client side pagination
+         * @param {Grid} grid the grid for which the pagination changed
+         * @param {int} currentPage requested page number
+         * @param {int} pageSize requested page size
          */
-        onPagingChanged: function (grid, currentPage, pageSize) {
-            grid.api.paging.raise.pagingChanged(currentPage, pageSize);
-            if (!grid.options.useExternalPaging) {
-              grid.refresh(); //client side paging
+        onPaginationChanged: function (grid, currentPage, pageSize) {
+            grid.api.pagination.raise.paginationChanged(currentPage, pageSize);
+            if (!grid.options.useExternalPagination) {
+              grid.refresh(); //client side pagination
             }
         }
       };
@@ -15969,15 +15986,15 @@ module.filter('px', function() {
   ]);
   /**
    *  @ngdoc directive
-   *  @name ui.grid.paging.directive:uiGridPaging
+   *  @name ui.grid.pagination.directive:uiGridPagination
    *  @element div
    *  @restrict A
    *
-   *  @description Adds paging features to grid
+   *  @description Adds pagination features to grid
    *  @example
    <example module="app">
    <file name="app.js">
-   var app = angular.module('app', ['ui.grid', 'ui.grid.paging']);
+   var app = angular.module('app', ['ui.grid', 'ui.grid.pagination']);
 
    app.controller('MainCtrl', ['$scope', function ($scope) {
       $scope.data = [
@@ -15997,8 +16014,8 @@ module.filter('px', function() {
 
       $scope.gridOptions = {
         data: 'data',
-        pagingPageSizes: [5, 10, 25],
-        pagingPageSize: 5,
+        paginationPageSizes: [5, 10, 25],
+        paginationPageSize: 5,
         columnDefs: [
           {name: 'name'},
           {name: 'car'}
@@ -16008,43 +16025,28 @@ module.filter('px', function() {
    </file>
    <file name="index.html">
    <div ng-controller="MainCtrl">
-   <div ui-grid="gridOptions" ui-grid-paging></div>
+   <div ui-grid="gridOptions" ui-grid-pagination></div>
    </div>
    </file>
    </example>
    */
-  module.directive('uiGridPaging', ['gridUtil', 'uiGridPagingService', 
-    function (gridUtil, uiGridPagingService) {
-    /**
-     * @ngdoc property
-     * @name pagingTemplate
-     * @propertyOf ui.grid.class:GridOptions
-     * @description a custom template for the pager.  The default
-     * is ui-grid/ui-grid-paging
-     */
-      var defaultTemplate = 'ui-grid/ui-grid-paging';
-
+  module.directive('uiGridPagination', ['gridUtil', 'uiGridPaginationService',
+    function (gridUtil, uiGridPaginationService) {
       return {
         priority: -200,
         scope: false,
         require: 'uiGrid',
-        compile: function ($scope, $elm, $attr, uiGridCtrl) {
-          return {
-            pre: function ($scope, $elm, $attr, uiGridCtrl) {
+        link: {
+          pre: function ($scope, $elm, $attr, uiGridCtrl) {
+            uiGridPaginationService.initializeGrid(uiGridCtrl.grid);
 
-              uiGridPagingService.initializeGrid(uiGridCtrl.grid);
-
-              var pagingTemplate = uiGridCtrl.grid.options.pagingTemplate || defaultTemplate;
-              gridUtil.getTemplate(pagingTemplate)
-                .then(function (contents) {
-                  var template = angular.element(contents);
-                  $elm.append(template);
-                  uiGridCtrl.innerCompile(template);
-                });
-            },
-            post: function ($scope, $elm, $attr, uiGridCtrl) {
-            }
-          };
+            gridUtil.getTemplate(uiGridCtrl.grid.options.paginationTemplate)
+              .then(function (contents) {
+                var template = angular.element(contents);
+                $elm.append(template);
+                uiGridCtrl.innerCompile(template);
+              });
+          }
         }
       };
     }
@@ -16052,23 +16054,23 @@ module.filter('px', function() {
 
   /**
    *  @ngdoc directive
-   *  @name ui.grid.paging.directive:uiGridPager
+   *  @name ui.grid.pagination.directive:uiGridPager
    *  @element div
    *
-   *  @description Panel for handling paging
+   *  @description Panel for handling pagination
    */
-  module.directive('uiGridPager', ['uiGridPagingService', 'uiGridConstants', 'gridUtil', 'i18nService',
-    function (uiGridPagingService, uiGridConstants, gridUtil, i18nService) {
+  module.directive('uiGridPager', ['uiGridPaginationService', 'uiGridConstants', 'gridUtil', 'i18nService',
+    function (uiGridPaginationService, uiGridConstants, gridUtil, i18nService) {
       return {
         priority: -200,
         scope: true,
         require: '^uiGrid',
         link: function ($scope, $elm, $attr, uiGridCtrl) {
-
-          $scope.sizesLabel = i18nService.getSafeText('paging.sizes');
-          $scope.totalItemsLabel = i18nService.getSafeText('paging.totalItems');
+          $scope.paginationApi = uiGridCtrl.grid.api.pagination;
+          $scope.sizesLabel = i18nService.getSafeText('pagination.sizes');
+          $scope.totalItemsLabel = i18nService.getSafeText('pagination.totalItems');
           
-          var options = $scope.grid.options;
+          var options = uiGridCtrl.grid.options;
           
           uiGridCtrl.grid.renderContainers.body.registerViewportAdjuster(function (adjustment) {
             adjustment.height = adjustment.height - gridUtil.elementHeight($elm);
@@ -16076,43 +16078,35 @@ module.filter('px', function() {
           });
           
           uiGridCtrl.grid.registerDataChangeCallback(function (grid) {
-            if (!grid.options.useExternalPaging) {
+            if (!grid.options.useExternalPagination) {
               grid.options.totalItems = grid.rows.length;
             }
           }, [uiGridConstants.dataChange.ROW]);
 
           var setShowing = function () {
-            $scope.showingLow = ((options.pagingCurrentPage - 1) * options.pagingPageSize) + 1;
-            $scope.showingHigh = Math.min(options.pagingCurrentPage * options.pagingPageSize, options.totalItems);
+            $scope.showingLow = ((options.paginationCurrentPage - 1) * options.paginationPageSize) + 1;
+            $scope.showingHigh = Math.min(options.paginationCurrentPage * options.paginationPageSize, options.totalItems);
           };
 
-          var getMaxPages = function () {
-            return (options.totalItems === 0) ? 1 : Math.ceil(options.totalItems / options.pagingPageSize);
-          };
+          var deregT = $scope.$watch('grid.options.totalItems + grid.options.paginationPageSize', setShowing);
 
-          var deregT = $scope.$watch('grid.options.totalItems + grid.options.pagingPageSize', function () {
-              $scope.currentMaxPages = getMaxPages();
-              setShowing();
-            }
-          );
-
-          var deregP = $scope.$watch('grid.options.pagingCurrentPage + grid.options.pagingPageSize', function (newValues, oldValues) {
+          var deregP = $scope.$watch('grid.options.paginationCurrentPage + grid.options.paginationPageSize', function (newValues, oldValues) {
               if (newValues === oldValues) { 
                 return; 
               }
 
-              if (!angular.isNumber(options.pagingCurrentPage) || options.pagingCurrentPage < 1) {
-                options.pagingCurrentPage = 1;
+              if (!angular.isNumber(options.paginationCurrentPage) || options.paginationCurrentPage < 1) {
+                options.paginationCurrentPage = 1;
                 return;
               }
 
-              if (options.totalItems > 0 && options.pagingCurrentPage > getMaxPages()) {
-                options.pagingCurrentPage = getMaxPages();
+              if (options.totalItems > 0 && options.paginationCurrentPage > $scope.paginationApi.getTotalPages()) {
+                options.paginationCurrentPage = $scope.paginationApi.getTotalPages();
                 return;
               }
 
               setShowing();
-              uiGridPagingService.onPagingChanged($scope.grid, options.pagingCurrentPage, options.pagingPageSize);
+              uiGridPaginationService.onPaginationChanged($scope.grid, options.paginationCurrentPage, options.paginationPageSize);
             }
           );
 
@@ -16121,29 +16115,9 @@ module.filter('px', function() {
             deregP();
           });
 
-          $scope.pageForward = function () {
-            if (options.totalItems > 0) {
-              options.pagingCurrentPage = Math.min(options.pagingCurrentPage + 1, $scope.currentMaxPages);
-            } else {
-              options.pagingCurrentPage++;
-            }
-          };
-
-          $scope.pageBackward = function () {
-            options.pagingCurrentPage = Math.max(options.pagingCurrentPage - 1, 1);
-          };
-
-          $scope.pageToFirst = function () {
-            options.pagingCurrentPage = 1;
-          };
-
-          $scope.pageToLast = function () {
-            options.pagingCurrentPage = $scope.currentMaxPages;
-          };
-
           $scope.cantPageForward = function () {
             if (options.totalItems > 0) {
-              return options.pagingCurrentPage >= $scope.currentMaxPages;
+              return options.paginationCurrentPage >= $scope.paginationApi.getTotalPages();
             } else {
               return options.data.length < 1;
             }
@@ -16158,13 +16132,14 @@ module.filter('px', function() {
           };
           
           $scope.cantPageBackward = function () {
-            return options.pagingCurrentPage <= 1;
+            return options.paginationCurrentPage <= 1;
           };
         }
       };
     }
   ]);
 })();
+
 (function () {
   'use strict';
 
@@ -18265,8 +18240,9 @@ module.filter('px', function() {
                  * @eventOf  ui.grid.selection.api:PublicApi
                  * @description  is raised after the row.isSelected state is changed
                  * @param {GridRow} row the row that was selected/deselected
+                 * @param {Event} event object if raised from an event
                  */
-                rowSelectionChanged: function (scope, row) {
+                rowSelectionChanged: function (scope, row, evt) {
                 },
                 /**
                  * @ngdoc event
@@ -18274,11 +18250,12 @@ module.filter('px', function() {
                  * @eventOf  ui.grid.selection.api:PublicApi
                  * @description  is raised after the row.isSelected state is changed
                  * in bulk, if the `enableSelectionBatchEvent` option is set to true
-                 * (which it is by default).  This allows more efficient processing 
+                 * (which it is by default).  This allows more efficient processing
                  * of bulk events.
                  * @param {array} rows the rows that were selected/deselected
+                 * @param {Event} event object if raised from an event
                  */
-                rowSelectionChangedBatch: function (scope, rows) {
+                rowSelectionChangedBatch: function (scope, rows, evt) {
                 }
               }
             },
@@ -18290,11 +18267,12 @@ module.filter('px', function() {
                  * @methodOf  ui.grid.selection.api:PublicApi
                  * @description Toggles data row as selected or unselected
                  * @param {object} rowEntity gridOptions.data[] array instance
+                 * @param {Event} event object if raised from an event
                  */
-                toggleRowSelection: function (rowEntity) {
+                toggleRowSelection: function (rowEntity, evt) {
                   var row = grid.getRow(rowEntity);
-                  if (row !== null) {
-                    service.toggleRowSelection(grid, row, grid.options.multiSelect, grid.options.noUnselect);
+                  if (row !== null && row.enableSelection !== false) {
+                    service.toggleRowSelection(grid, row, evt, grid.options.multiSelect, grid.options.noUnselect);
                   }
                 },
                 /**
@@ -18303,11 +18281,12 @@ module.filter('px', function() {
                  * @methodOf  ui.grid.selection.api:PublicApi
                  * @description Select the data row
                  * @param {object} rowEntity gridOptions.data[] array instance
+                 * @param {Event} event object if raised from an event
                  */
-                selectRow: function (rowEntity) {
+                selectRow: function (rowEntity, evt) {
                   var row = grid.getRow(rowEntity);
-                  if (row !== null && !row.isSelected) {
-                    service.toggleRowSelection(grid, row, grid.options.multiSelect, grid.options.noUnselect);
+                  if (row !== null && !row.isSelected && row.enableSelection !== false) {
+                    service.toggleRowSelection(grid, row, evt, grid.options.multiSelect, grid.options.noUnselect);
                   }
                 },
                 /**
@@ -18319,11 +18298,12 @@ module.filter('px', function() {
                  * visible means of those rows that are theoretically visible (i.e. not filtered),
                  * rather than rows currently rendered on the screen.
                  * @param {number} index index within the rowsVisible array
+                 * @param {Event} event object if raised from an event
                  */
-                selectRowByVisibleIndex: function ( rowNum ) {
+                selectRowByVisibleIndex: function ( rowNum, evt ) {
                   var row = grid.renderContainers.body.visibleRowCache[rowNum];
-                  if (row !== null && typeof(row) !== 'undefined' && !row.isSelected) {
-                    service.toggleRowSelection(grid, row, grid.options.multiSelect, grid.options.noUnselect);
+                  if (row !== null && typeof(row) !== 'undefined' && !row.isSelected && row.enableSelection !== false) {
+                    service.toggleRowSelection(grid, row, evt, grid.options.multiSelect, grid.options.noUnselect);
                   }
                 },
                 /**
@@ -18332,11 +18312,12 @@ module.filter('px', function() {
                  * @methodOf  ui.grid.selection.api:PublicApi
                  * @description UnSelect the data row
                  * @param {object} rowEntity gridOptions.data[] array instance
+                 * @param {Event} event object if raised from an event
                  */
-                unSelectRow: function (rowEntity) {
+                unSelectRow: function (rowEntity, evt) {
                   var row = grid.getRow(rowEntity);
                   if (row !== null && row.isSelected) {
-                    service.toggleRowSelection(grid, row, grid.options.multiSelect, grid.options.noUnselect);
+                    service.toggleRowSelection(grid, row, evt, grid.options.multiSelect, grid.options.noUnselect);
                   }
                 },
                 /**
@@ -18344,28 +18325,31 @@ module.filter('px', function() {
                  * @name selectAllRows
                  * @methodOf  ui.grid.selection.api:PublicApi
                  * @description Selects all rows.  Does nothing if multiSelect = false
+                 * @param {Event} event object if raised from an event
                  */
-                selectAllRows: function () {
+                selectAllRows: function (evt) {
                   if (grid.options.multiSelect === false) {
                     return;
                   }
 
                   var changedRows = [];
                   grid.rows.forEach(function (row) {
-                    if ( !row.isSelected ){
+                    if ( !row.isSelected && row.enableSelection !== false ){
                       row.isSelected = true;
-                      service.decideRaiseSelectionEvent( grid, row, changedRows );
+                      service.decideRaiseSelectionEvent( grid, row, changedRows, evt );
                     }
                   });
-                  service.decideRaiseSelectionBatchEvent( grid, changedRows );
+                  service.decideRaiseSelectionBatchEvent( grid, changedRows, evt );
+                  grid.selection.selectAll = true;
                 },
                 /**
                  * @ngdoc function
                  * @name selectAllVisibleRows
                  * @methodOf  ui.grid.selection.api:PublicApi
                  * @description Selects all visible rows.  Does nothing if multiSelect = false
+                 * @param {Event} event object if raised from an event
                  */
-                selectAllVisibleRows: function () {
+                selectAllVisibleRows: function (evt) {
                   if (grid.options.multiSelect === false) {
                     return;
                   }
@@ -18373,27 +18357,29 @@ module.filter('px', function() {
                   var changedRows = [];
                   grid.rows.forEach(function (row) {
                     if (row.visible) {
-                      if (!row.isSelected){
+                      if (!row.isSelected && row.enableSelection !== false){
                         row.isSelected = true;
-                        service.decideRaiseSelectionEvent( grid, row, changedRows );
+                        service.decideRaiseSelectionEvent( grid, row, changedRows, evt );
                       }
                     } else {
                       if (row.isSelected){
                         row.isSelected = false;
-                        service.decideRaiseSelectionEvent( grid, row, changedRows );
+                        service.decideRaiseSelectionEvent( grid, row, changedRows, evt );
                       }
                     }
                   });
-                  service.decideRaiseSelectionBatchEvent( grid, changedRows );
+                  service.decideRaiseSelectionBatchEvent( grid, changedRows, evt );
+                  grid.selection.selectAll = true;
                 },
                 /**
                  * @ngdoc function
                  * @name clearSelectedRows
                  * @methodOf  ui.grid.selection.api:PublicApi
                  * @description Unselects all rows
+                 * @param {Event} event object if raised from an event
                  */
-                clearSelectedRows: function () {
-                  service.clearSelectedRows(grid);
+                clearSelectedRows: function (evt) {
+                  service.clearSelectedRows(grid, evt);
                 },
                 /**
                  * @ngdoc function
@@ -18447,7 +18433,7 @@ module.filter('px', function() {
                 getSelectAllState: function () {
                   return grid.selection.selectAll;
                 }
-                
+
               }
             }
           };
@@ -18464,9 +18450,26 @@ module.filter('px', function() {
            *  @ngdoc object
            *  @name ui.grid.selection.api:GridOptions
            *
-           *  @description GridOptions for selection feature, these are available to be  
+           *  @description GridOptions for selection feature, these are available to be
            *  set using the ui-grid {@link ui.grid.class:GridOptions gridOptions}
            */
+
+          /**
+           *  @ngdoc object
+           *  @name ui.grid.selection.api:GridRow
+           *
+           *  @description GridRow options for selection feature
+           */
+          /**
+           *  @ngdoc object
+           *  @name enableSelection
+           *  @propertyOf  ui.grid.selection.api:GridRow
+           *  @description Enable row selection for this row, only settable by internal code.
+           * 
+           *  The grouping feature, for example, might set group header rows to not be selectable.
+           *  <br/>Defaults to true
+           */
+
 
           /**
            *  @ngdoc object
@@ -18526,7 +18529,7 @@ module.filter('px', function() {
            *  @description If selected rows are changed in bulk, either via the API or
            *  via the selectAll checkbox, then a separate event is fired.  Setting this
            *  option to false will cause the rowSelectionChanged event to be called multiple times
-           *  instead  
+           *  instead
            *  <br/>Defaults to true
            */
           gridOptions.enableSelectionBatchEvent = gridOptions.enableSelectionBatchEvent !== false;
@@ -18547,30 +18550,33 @@ module.filter('px', function() {
          * @description Toggles row as selected or unselected
          * @param {Grid} grid grid object
          * @param {GridRow} row row to select or deselect
+         * @param {Event} event object if resulting from event
          * @param {bool} multiSelect if false, only one row at time can be selected
          * @param {bool} noUnselect if true then rows cannot be unselected
          */
-        toggleRowSelection: function (grid, row, multiSelect, noUnselect) {
+        toggleRowSelection: function (grid, row, evt, multiSelect, noUnselect) {
           var selected = row.isSelected;
 
           if (!multiSelect && !selected) {
-            service.clearSelectedRows(grid);
+            service.clearSelectedRows(grid, evt);
           } else if (!multiSelect && selected) {
             var selectedRows = service.getSelectedRows(grid);
             if (selectedRows.length > 1) {
               selected = false; // Enable reselect of the row
-              service.clearSelectedRows(grid);
+              service.clearSelectedRows(grid, evt);
             }
           }
-          
+
           if (selected && noUnselect){
             // don't deselect the row 
-          } else {
+          } else if (row.enableSelection !== false) {
             row.isSelected = !selected;
             if (row.isSelected === true) {
               grid.selection.lastSelectedRow = row;
+            } else {
+              grid.selection.selectAll = false;
             }
-            grid.api.selection.raise.rowSelectionChanged(row);
+            grid.api.selection.raise.rowSelectionChanged(row, evt);
           }
         },
         /**
@@ -18580,9 +18586,10 @@ module.filter('px', function() {
          * @description selects a group of rows from the last selected row using the shift key
          * @param {Grid} grid grid object
          * @param {GridRow} clicked row
+         * @param {Event} event object if raised from an event
          * @param {bool} multiSelect if false, does nothing this is for multiSelect only
          */
-        shiftSelect: function (grid, row, multiSelect) {
+        shiftSelect: function (grid, row, evt, multiSelect) {
           if (!multiSelect) {
             return;
           }
@@ -18595,19 +18602,19 @@ module.filter('px', function() {
             fromRow = toRow;
             toRow = tmp;
           }
-          
+
           var changedRows = [];
           for (var i = fromRow; i <= toRow; i++) {
             var rowToSelect = grid.renderContainers.body.visibleRowCache[i];
             if (rowToSelect) {
-              if ( !rowToSelect.isSelected ){
+              if ( !rowToSelect.isSelected && rowToSelect.enableSelection !== false ){
                 rowToSelect.isSelected = true;
                 grid.selection.lastSelectedRow = rowToSelect;
-                service.decideRaiseSelectionEvent( grid, rowToSelect, changedRows );
+                service.decideRaiseSelectionEvent( grid, rowToSelect, changedRows, evt );
               }
             }
           }
-          service.decideRaiseSelectionBatchEvent( grid, changedRows );
+          service.decideRaiseSelectionBatchEvent( grid, changedRows, evt );
         },
         /**
          * @ngdoc function
@@ -18628,18 +18635,20 @@ module.filter('px', function() {
          * @methodOf  ui.grid.selection.service:uiGridSelectionService
          * @description Clears all selected rows
          * @param {Grid} grid grid object
+         * @param {Event} event object if raised from an event
          */
-        clearSelectedRows: function (grid) {
+        clearSelectedRows: function (grid, evt) {
           var changedRows = [];
           service.getSelectedRows(grid).forEach(function (row) {
             if ( row.isSelected ){
               row.isSelected = false;
-              service.decideRaiseSelectionEvent( grid, row, changedRows );
+              service.decideRaiseSelectionEvent( grid, row, changedRows, evt );
             }
           });
-          service.decideRaiseSelectionBatchEvent( grid, changedRows );
+          service.decideRaiseSelectionBatchEvent( grid, changedRows, evt );
+          grid.selection.selectAll = false;
         },
-        
+
         /**
          * @ngdoc function
          * @name decideRaiseSelectionEvent
@@ -18648,31 +18657,33 @@ module.filter('px', function() {
          * @param {Grid} grid grid object
          * @param {GridRow} row row that has changed
          * @param {array} changedRows an array to which we can append the changed
+         * @param {Event} event object if raised from an event
          * row if we're doing batch events
          */
-        decideRaiseSelectionEvent: function( grid, row, changedRows ){
+        decideRaiseSelectionEvent: function( grid, row, changedRows, evt ){
           if ( !grid.options.enableSelectionBatchEvent ){
-            grid.api.selection.raise.rowSelectionChanged(row);
+            grid.api.selection.raise.rowSelectionChanged(row, evt);
           } else {
             changedRows.push(row);
           }
         },
-        
+
         /**
          * @ngdoc function
          * @name raiseSelectionEvent
          * @methodOf  ui.grid.selection.service:uiGridSelectionService
-         * @description Decides whether we need to raise a batch event, and 
+         * @description Decides whether we need to raise a batch event, and
          * raises it if we do.
          * @param {Grid} grid grid object
          * @param {array} changedRows an array of changed rows, only populated
+         * @param {Event} event object if raised from an event
          * if we're doing batch events
          */
-        decideRaiseSelectionBatchEvent: function( grid, changedRows ){
+        decideRaiseSelectionBatchEvent: function( grid, changedRows, evt ){
           if ( changedRows.length > 0 ){
-            grid.api.selection.raise.rowSelectionChangedBatch(changedRows);
+            grid.api.selection.raise.rowSelectionChangedBatch(changedRows, evt);
           }
-        }        
+        }
       };
 
       return service;
@@ -18757,13 +18768,13 @@ module.filter('px', function() {
           var self = uiGridCtrl.grid;
           $scope.selectButtonClick = function(row, evt) {
             if (evt.shiftKey) {
-              uiGridSelectionService.shiftSelect(self, row, self.options.multiSelect);
+              uiGridSelectionService.shiftSelect(self, row, evt, self.options.multiSelect);
             }
             else if (evt.ctrlKey || evt.metaKey) {
-              uiGridSelectionService.toggleRowSelection(self, row, self.options.multiSelect, self.options.noUnselect); 
+              uiGridSelectionService.toggleRowSelection(self, row, evt, self.options.multiSelect, self.options.noUnselect);
             }
             else {
-              uiGridSelectionService.toggleRowSelection(self, row, (self.options.multiSelect && !self.options.modifierKeysToMultiSelect), self.options.noUnselect);
+              uiGridSelectionService.toggleRowSelection(self, row, evt, (self.options.multiSelect && !self.options.modifierKeysToMultiSelect), self.options.noUnselect);
             }
           };
         }
@@ -18779,17 +18790,17 @@ module.filter('px', function() {
         scope: false,
         link: function($scope, $elm, $attrs, uiGridCtrl) {
           var self = $scope.col.grid;
-          
+
           $scope.headerButtonClick = function(row, evt) {
             if ( self.selection.selectAll ){
-              uiGridSelectionService.clearSelectedRows(self);
+              uiGridSelectionService.clearSelectedRows(self, evt);
               if ( self.options.noUnselect ){
-                self.api.selection.selectRowByVisibleIndex(0);
+                self.api.selection.selectRowByVisibleIndex(0, evt);
               }
               self.selection.selectAll = false;
             } else {
               if ( self.options.multiSelect ){
-                self.api.selection.selectAllVisibleRows();
+                self.api.selection.selectAllVisibleRows(evt);
                 self.selection.selectAll = true;
               }
             }
@@ -18856,13 +18867,13 @@ module.filter('px', function() {
             var touchTimeout = 300;
             var selectCells = function(evt){
               if (evt.shiftKey) {
-                uiGridSelectionService.shiftSelect($scope.grid, $scope.row, $scope.grid.options.multiSelect);
+                uiGridSelectionService.shiftSelect($scope.grid, $scope.row, evt, $scope.grid.options.multiSelect);
               }
               else if (evt.ctrlKey || evt.metaKey) {
-                uiGridSelectionService.toggleRowSelection($scope.grid, $scope.row, $scope.grid.options.multiSelect, $scope.grid.options.noUnselect);
+                uiGridSelectionService.toggleRowSelection($scope.grid, $scope.row, evt, $scope.grid.options.multiSelect, $scope.grid.options.noUnselect);
               }
               else {
-                uiGridSelectionService.toggleRowSelection($scope.grid, $scope.row, ($scope.grid.options.multiSelect && !$scope.grid.options.modifierKeysToMultiSelect), $scope.grid.options.noUnselect);
+                uiGridSelectionService.toggleRowSelection($scope.grid, $scope.row, evt, ($scope.grid.options.multiSelect && !$scope.grid.options.modifierKeysToMultiSelect), $scope.grid.options.noUnselect);
               }
               $scope.$apply();
             };
@@ -18870,7 +18881,7 @@ module.filter('px', function() {
             var touchStart = function(evt){
               touchStartTime = (new Date()).getTime();
             };
-            
+
             var touchEnd = function(evt) {
               var touchEndTime = (new Date()).getTime();
               var touchTime = touchEndTime - touchStartTime;
@@ -18887,11 +18898,11 @@ module.filter('px', function() {
                 $elm.on('touchstart', touchStart);
                 $elm.on('touchend', touchEnd);
                 $elm.on('click', selectCells);
-  
+
                 $scope.registered = true;
               }
             }
-            
+
             function deregisterRowSelectionEvents() {
               if ($scope.registered){
                 $elm.removeClass('ui-grid-disable-selection');
@@ -18899,25 +18910,25 @@ module.filter('px', function() {
                 $elm.off('touchstart', touchStart);
                 $elm.off('touchend', touchEnd);
                 $elm.off('click', selectCells);
-  
+
                 $scope.registered = false;
               }
             }
-            
+
             registerRowSelectionEvents();
             // register a dataChange callback so that we can change the selection configuration dynamically
             // if the user changes the options
             var callbackId = $scope.grid.registerDataChangeCallback( function() {
               if ( $scope.grid.options.enableRowSelection && !$scope.grid.options.enableRowHeaderSelection &&
-                   !$scope.registered ){
+                !$scope.registered ){
                 registerRowSelectionEvents();
               } else if ( ( !$scope.grid.options.enableRowSelection || $scope.grid.options.enableRowHeaderSelection ) &&
-                          $scope.registered ){
+                $scope.registered ){
                 deregisterRowSelectionEvents();
               }
             }, [uiGridConstants.dataChange.OPTIONS] );
-            
-            $scope.$on( '$destroy', function() {
+
+            $elm.on( '$destroy', function() {
               $scope.grid.deregisterDataChangeCallback( callbackId );
             });
           }
@@ -19081,8 +19092,8 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
   );
 
 
-  $templateCache.put('ui-grid/ui-grid-paging',
-    "<div class=\"ui-grid-pager-panel\" ui-grid-pager><div class=\"ui-grid-pager-container\"><div class=\"ui-grid-pager-control\"><button type=\"button\" ng-click=\"pageToFirst()\" ng-disabled=\"cantPageBackward()\"><div class=\"first-triangle\"><div class=\"first-bar\"></div></div></button> <button type=\"button\" ng-click=\"pageBackward()\" ng-disabled=\"cantPageBackward()\"><div class=\"first-triangle prev-triangle\"></div></button> <input type=\"number\" ng-model=\"grid.options.pagingCurrentPage\" min=\"1\" max=\"{{currentMaxPages}}\" required> <span class=\"ui-grid-pager-max-pages-number\" ng-show=\"currentMaxPages > 0\">/ {{currentMaxPages}}</span> <button type=\"button\" ng-click=\"pageForward()\" ng-disabled=\"cantPageForward()\"><div class=\"last-triangle next-triangle\"></div></button> <button type=\"button\" ng-click=\"pageToLast()\" ng-disabled=\"cantPageToLast()\"><div class=\"last-triangle\"><div class=\"last-bar\"></div></div></button></div><div class=\"ui-grid-pager-row-count-picker\"><select ng-model=\"grid.options.pagingPageSize\" ng-options=\"o as o for o in grid.options.pagingPageSizes\"></select><span class=\"ui-grid-pager-row-count-label\">&nbsp;{{sizesLabel}}</span></div></div><div class=\"ui-grid-pager-count-container\"><div class=\"ui-grid-pager-count\"><span ng-show=\"grid.options.totalItems > 0\">{{showingLow}} - {{showingHigh}} of {{grid.options.totalItems}} {{totalItemsLabel}}</span></div></div></div>"
+  $templateCache.put('ui-grid/pagination',
+    "<div class=\"ui-grid-pager-panel\" ui-grid-pager ng-show=\"grid.options.enablePaginationControls\"><div class=\"ui-grid-pager-container\"><div class=\"ui-grid-pager-control\"><button type=\"button\" ng-click=\"paginationApi.seek(1)\" ng-disabled=\"cantPageBackward()\"><div class=\"first-triangle\"><div class=\"first-bar\"></div></div></button> <button type=\"button\" ng-click=\"paginationApi.previousPage()\" ng-disabled=\"cantPageBackward()\"><div class=\"first-triangle prev-triangle\"></div></button> <input type=\"number\" ng-model=\"grid.options.paginationCurrentPage\" min=\"1\" max=\"{{ paginationApi.getTotalPages() }}\" required> <span class=\"ui-grid-pager-max-pages-number\" ng-show=\"paginationApi.getTotalPages() > 0\">/ {{ paginationApi.getTotalPages() }}</span> <button type=\"button\" ng-click=\"paginationApi.nextPage()\" ng-disabled=\"cantPageForward()\"><div class=\"last-triangle next-triangle\"></div></button> <button type=\"button\" ng-click=\"paginationApi.seek(paginationApi.getTotalPages())\" ng-disabled=\"cantPageToLast()\"><div class=\"last-triangle\"><div class=\"last-bar\"></div></div></button></div><div class=\"ui-grid-pager-row-count-picker\"><select ng-model=\"grid.options.paginationPageSize\" ng-options=\"o as o for o in grid.options.paginationPageSizes\"></select><span class=\"ui-grid-pager-row-count-label\">&nbsp;{{sizesLabel}}</span></div></div><div class=\"ui-grid-pager-count-container\"><div class=\"ui-grid-pager-count\"><span ng-show=\"grid.options.totalItems > 0\">{{showingLow}} - {{showingHigh}} of {{grid.options.totalItems}} {{totalItemsLabel}}</span></div></div></div>"
   );
 
 
