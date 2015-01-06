@@ -111,26 +111,22 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			});
 		}
-		setDataproviderNameToFoundset();
 	}
 
 
 	private void setDataproviderNameToFoundset()
 	{
 		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-		if (foundsetPropValue != null)
+		Collection<PropertyDescription> dp = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE);
+		if (dp.size() > 0)
 		{
-			Collection<PropertyDescription> dp = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE);
-			if (dp.size() > 0)
+			//get the first dataprovider property for now
+			PropertyDescription propertyDesc = dp.iterator().next();
+			Object propertyValue = childComponent.getProperty(propertyDesc.getName());
+			if (propertyValue != null)
 			{
-				//get the first dataprovider property for now
-				PropertyDescription propertyDesc = dp.iterator().next();
-				Object propertyValue = childComponent.getProperty(propertyDesc.getName());
-				if (propertyValue != null)
-				{
-					String dataprovider = ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
-					foundsetPropValue.setColumnDataprovider(childComponent.getName(), dataprovider);
-				}
+				String dataprovider = ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
+				foundsetPropValue.setColumnDataprovider(childComponent.getName(), dataprovider);
 			}
 		}
 	}
@@ -220,6 +216,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
 				formElementValue.recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
+			setDataproviderNameToFoundset();
 		}
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
