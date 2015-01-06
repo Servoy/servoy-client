@@ -180,7 +180,6 @@ public class FormElementHelper
 				int startPos = form.getPartStartYPos(bodyPart.getID());
 				int endPos = bodyPart.getHeight();
 				int bodyheight = endPos - startPos;
-				boolean fillsWidth = fillsWidth(form);
 
 				JSONObject portal = new JSONObject();
 				portal.put("name", name);
@@ -198,14 +197,14 @@ public class FormElementHelper
 					portal.put("sortable", form.getOnSortCmdMethodID() != -1);
 				}
 
-				portal.put("anchors", listViewPortal.isTableview() ? (fillsWidth ? IAnchorConstants.ALL
-					: (IAnchorConstants.NORTH + IAnchorConstants.WEST + IAnchorConstants.SOUTH)) : IAnchorConstants.ALL);
+				portal.put("anchors", IAnchorConstants.ALL);
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
 				location.put("y", isInDesginer ? startPos : 0);
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
-				size.put("width", (listViewPortal.isTableview() && !fillsWidth) ? getGridWidth(form) : form.getWidth());
+//				size.put("width", (listViewPortal.isTableview() && !fillsWidth) ? getGridWidth(form) : form.getWidth());
+				size.put("width", form.getWidth());
 				size.put("height", bodyheight);
 				portal.put("size", size);
 				portal.put("visible", listViewPortal.getVisible());
