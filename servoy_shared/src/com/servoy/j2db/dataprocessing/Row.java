@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -38,7 +39,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents one row (containing all columns) from a table
- * 
+ *
  * @author jblok
  */
 public class Row
@@ -105,10 +106,10 @@ public class Row
 		unstoredCalcCache = cc;
 		listeners = new WeakHashMap<IRowChangeListener, Object>();
 
-		// walk over the column data's to see if there is a dbident 
-		// if it doesnt have a 'belong to' row yet that this is a 
+		// walk over the column data's to see if there is a dbident
+		// if it doesnt have a 'belong to' row yet that this is a
 		// db ident for its pk. If it is set then that dbident comes
-		// from another parent related record. 
+		// from another parent related record.
 		for (Object element : columndata)
 		{
 			if (element instanceof DbIdentValue)
@@ -473,12 +474,15 @@ public class Row
 	//this makes it possible to validate the state before it is processed again due to some listner being fired
 	void flagExistInDB()
 	{
-		existInDB = true;
-		synchronized (this)
+		if (!isRemoving)
 		{
-			oldValues = null;//dump any old shit
+			existInDB = true;
+			synchronized (this)
+			{
+				oldValues = null;//dump any old shit
+			}
+			softReferenceAllByteArrays();
 		}
-		softReferenceAllByteArrays();
 	}
 
 	void clearExistInDB()
@@ -801,4 +805,13 @@ public class Row
 		}
 	}
 
+	private boolean isRemoving = false;
+
+	public void remove()
+	{
+		isRemoving = true;
+		Iterator<IRowChangeListener> rowChangeListenerIte = listeners.keySet().iterator();
+		while (rowChangeListenerIte.hasNext())
+			rowChangeListenerIte.next().rowRemoved();
+	}
 }
