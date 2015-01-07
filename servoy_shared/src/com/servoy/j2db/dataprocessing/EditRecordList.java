@@ -46,7 +46,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Keeps track of all the edited records and handles the save
- * 
+ *
  * @author jcompagner
  */
 public class EditRecordList
@@ -236,7 +236,7 @@ public class EditRecordList
 
 	/**
 	 * stop/save
-	 * 
+	 *
 	 * @param javascriptStop
 	 * @param recordToSave null means all records
 	 * @return IRowChangeListener static final
@@ -248,7 +248,7 @@ public class EditRecordList
 
 	/**
 	 * stop/save
-	 * 
+	 *
 	 * @param javascriptStop
 	 * @param recordsToSave null means all records
 	 * @return IRowChangeListener static final
@@ -462,7 +462,7 @@ public class EditRecordList
 							// Note that the behaviour is different when trigger returns false or when it throws an exception.
 							// when the trigger returns false, record must stay in editedRecords.
 							//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
-							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in 
+							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
 							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
 							editRecordsLock.unlock();
 							try
@@ -554,7 +554,7 @@ public class EditRecordList
 			RowUpdateInfo[] infos = rowUpdates.toArray(new RowUpdateInfo[rowUpdates.size()]);
 			if (infos.length > 1 && !disableInsertsReorder)
 			{
-				// search if there are new row pks used that are 
+				// search if there are new row pks used that are
 				// used in records before this record and sort it based on that.
 				boolean changed = false;
 				List<RowUpdateInfo> al = new ArrayList<RowUpdateInfo>(Arrays.asList(infos));
@@ -885,7 +885,7 @@ public class EditRecordList
 
 		if (editedRecords.size() != editedRecordsSize && recordsToSave == null)
 		{
-			// records where changed by the after insert/update table events, call stop edit again if this was not a specific record save. 
+			// records where changed by the after insert/update table events, call stop edit again if this was not a specific record save.
 			return stopEditing(javascriptStop, null, recursionDepth + 1);
 		}
 
@@ -923,7 +923,7 @@ public class EditRecordList
 		try
 		{
 			preparingForSave = true;
-			//stop UI editing and fire onRecordEditStop Event 
+			//stop UI editing and fire onRecordEditStop Event
 			if (!firePrepareForSave(looseFocus))
 			{
 				Debug.trace("no stop editing because prepare for save stopped it"); //$NON-NLS-1$
@@ -1142,7 +1142,7 @@ public class EditRecordList
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void clearSecuritySettings()
 	{
@@ -1379,21 +1379,10 @@ public class EditRecordList
 
 				// TODO all fires in rollback should be accumulated and done here at once.
 
-				element.getRawData().rollbackFromOldValues();//we also rollback !existsInDB records, since they can be held in variables 
+				element.getRawData().rollbackFromOldValues();//we also rollback !existsInDB records, since they can be held in variables
 				if (!existsInDB[i])
 				{
-					int index = element.getParentFoundSet().getRecordIndex(element);
-					if (index != -1)
-					{
-						try
-						{
-							((FoundSet)element.getParentFoundSet()).deleteRecord(index);
-						}
-						catch (Exception e)
-						{
-							Debug.error("Error rollbacking new editting record", e); //$NON-NLS-1$
-						}
-					}
+					element.getRawData().remove();
 				}
 			}
 			editRecordsLock.lock();
@@ -1501,7 +1490,7 @@ public class EditRecordList
 	 * the list). If the list is modified during iteration, the iterator will also return the new objects in the list. <BR>
 	 * <BR>
 	 * All operations on this iterator run in linear time, roughly speaking.
-	 * 
+	 *
 	 * @author acostescu
 	 */
 	private static class AllowListModificationIterator<T> implements Iterator<T>
@@ -1514,7 +1503,7 @@ public class EditRecordList
 
 		/**
 		 * Creates a new instance that iterates over the specified list.
-		 * 
+		 *
 		 * @param list the list to be used for iteration.
 		 */
 		public AllowListModificationIterator(List<T> list)
@@ -1570,7 +1559,7 @@ public class EditRecordList
 	 * If true then the save/stopedit of records will be ignored for that time.
 	 * Do make sure that you turn this boolean back to false when you are done ignoring the possible saves.
 	 * (try/finally)
-	 * 
+	 *
 	 * @param ignore
 	 */
 	public void ignoreSave(boolean ignore)

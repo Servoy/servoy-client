@@ -777,6 +777,10 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	}
 
+	public void rowRemoved()
+	{
+	}
+
 	/**
 	 * @author rgansevles
 	 *

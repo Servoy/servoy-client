@@ -1146,4 +1146,16 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	{
 		return (IJSFoundSet)parent;
 	}
+
+	public void rowRemoved()
+	{
+		try
+		{
+			getParentFoundSet().deleteRecord(this);
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 }

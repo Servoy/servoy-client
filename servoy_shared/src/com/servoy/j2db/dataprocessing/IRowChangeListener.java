@@ -21,7 +21,7 @@ import java.util.EventListener;
 
 /**
  * Basic functions for a record like objects
- * 
+ *
  * @author jblok
  */
 public interface IRowChangeListener extends EventListener
@@ -35,4 +35,6 @@ public interface IRowChangeListener extends EventListener
 	public boolean isEditing();
 
 	public int stopEditing(); // return a constant as specified above
+
+	public void rowRemoved();
 }

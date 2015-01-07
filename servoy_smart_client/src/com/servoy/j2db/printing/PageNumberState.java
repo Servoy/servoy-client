@@ -33,7 +33,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Special state for part showing page number info
- * 
+ *
  * @author jblok
  */
 public class PageNumberState implements IRecordInternal
@@ -279,5 +279,9 @@ public class PageNumberState implements IRecordInternal
 			return getDelegate().getException();
 		}
 		return null;
+	}
+
+	public void rowRemoved()
+	{
 	}
 }
