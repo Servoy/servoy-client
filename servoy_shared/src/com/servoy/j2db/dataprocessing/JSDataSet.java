@@ -1648,7 +1648,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	private String[] getColumnNamesSorted()
 	{
-		if (columnameMap == null) return new String[0];
+		if (columnameMap == null) makeColumnMap();
 		String[] colNamesSorted = new String[columnameMap.size()];
 		for (Entry<String, Integer> column : columnameMap.entrySet())
 		{
