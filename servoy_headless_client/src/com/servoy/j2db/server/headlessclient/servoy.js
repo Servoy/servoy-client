@@ -1159,9 +1159,9 @@ if (typeof(Servoy.DD) == "undefined")
 					var dragTarget = YAHOO.util.Event.getTarget(ev);
 					if(Servoy.DD.isTargetDraggable(dragTarget))
 					{
-						// we do want the click for input, so it can be edited
-						if(dragTarget.tagName.toLowerCase() == 'input') YAHOO.util.DDM.preventDefault = false;
-							
+						// we do want the click for input, so it can be edited;
+						// the mouse down is also needed in listview to set the selection
+						YAHOO.util.DDM.preventDefault = false;
 						Servoy.DD.mouseDownEvent = ev;
 						return true;
 					}
@@ -1170,6 +1170,9 @@ if (typeof(Servoy.DD) == "undefined")
 				
 				dd.on('b4StartDragEvent', function()
 				{
+					// needed to avoid 'text' dragging
+					YAHOO.util.DDM.preventDefault = true;
+					
 					var x = YAHOO.util.Event.getPageX(Servoy.DD.mouseDownEvent);
 					var y = YAHOO.util.Event.getPageY(Servoy.DD.mouseDownEvent);
 					var m = Servoy.Utils.getModifiers(Servoy.DD.mouseDownEvent);
