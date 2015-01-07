@@ -1,0 +1,23 @@
+.type-error .modal-header 
+{
+	background-color: #d9534f;
+	color: white;
+}
+
+.type-info .modal-header 
+{
+	background-color: #5bc0de;
+	color: white;
+}
+
+.type-warning .modal-header 
+{
+	background-color: #f0ad4e;
+	color: white;
+}
+
+.type-question .modal-header 
+{
+	background-color: #428bca;
+	color: white;
+}
