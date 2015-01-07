@@ -25,10 +25,16 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 		showForm: function(formname,parentForm,beanName,relationname,formIndex) {
 			// first just touch the form here so it doesn't happen later on again.
+			if (!formname) {
+				throw "formname is undefined";
+			}
 			$windowService.touchForm(formname)
 			$sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex) {
+			if (!formname) {
+				throw "formname is undefined";
+			}
 			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex});
 		},
 		setFormEnabled: function(formname, enabled) {

@@ -98,7 +98,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
        }
        
        function setFormVisible(tab,event) {
-    	   $scope.svyServoyapi.showForm(tab.containsFormId, tab.relationName);
+    	   if (tab.containsFormId) $scope.svyServoyapi.showForm(tab.containsFormId, tab.relationName);
 		   if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
 		   {
 			   $scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event instanceof MouseEvent ? event : null);
@@ -122,7 +122,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
     	if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId) || (tab == $scope.model.selectedTab)) return;
     	var selectEvent = $window.event ? $window.event : null;
         if ($scope.model.selectedTab) {
-        	if (!$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
+        	if ($scope.model.selectedTab.containsFormId && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
         	{
         		var formInWait = $scope.model.selectedTab.containsFormId;
         		$scope.waitingForServerVisibility[formInWait] = true;
