@@ -168,7 +168,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-public class TableView extends FixedJTable implements IView, IDataRenderer, ISupportRowStyling, IProvideTabSequence
+public class TableView extends FixedJTable implements IView, IDataRenderer, ISupportRowStyling, IProvideTabSequence, ISupportEditStateTracking
 {
 	private Component[] editorComponents;
 	private Component[] rendererComponents;
@@ -1805,20 +1805,21 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		return tableTabSequenceHandler.getTabSequence();
 	}
 
+	private final List<HasRuntimeReadOnly> componentsWithEditableStateChanged = new ArrayList<HasRuntimeReadOnly>();
+
 	private boolean editable = true;
 
-	@Override
-	public void setEditable(boolean editable)
+	private List<HasRuntimeReadOnly> getReadOnlyAwareComponents()
 	{
-		super.setEditable(editable);
-		this.editable = editable;
+		List<HasRuntimeReadOnly> readOnlyAwareComponents = new ArrayList<HasRuntimeReadOnly>();
+
 		if (rendererComponents != null)
 		{
 			for (Component element : rendererComponents)
 			{
 				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
 				{
-					((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).setReadOnly(!editable);
+					readOnlyAwareComponents.add(((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()));
 				}
 			}
 		}
@@ -1828,11 +1829,64 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			{
 				if (element instanceof IScriptableProvider && ((IScriptableProvider)element).getScriptObject() instanceof HasRuntimeReadOnly)
 				{
-					((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()).setReadOnly(!editable);
+					readOnlyAwareComponents.add(((HasRuntimeReadOnly)((IScriptableProvider)element).getScriptObject()));
 				}
 			}
 		}
+
+		return readOnlyAwareComponents;
+	}
+
+	@Override
+	public void setEditable(boolean editable)
+	{
+		super.setEditable(editable);
+		this.editable = editable;
+
+		Iterator<HasRuntimeReadOnly> readOnlyAwareComponentsIte = getReadOnlyAwareComponents().iterator();
+		while (readOnlyAwareComponentsIte.hasNext())
+		{
+			readOnlyAwareComponentsIte.next().setReadOnly(!editable);
+		}
 		repaint();
+	}
+
+	public void setEditableWithStateTracking(boolean b)
+	{
+		if (editable != b)
+		{
+			super.setEditable(b);
+			this.editable = b;
+
+			if (editable == false)
+			{
+				Iterator<HasRuntimeReadOnly> readOnlyAwareComponentsIte = getReadOnlyAwareComponents().iterator();
+				HasRuntimeReadOnly el;
+				while (readOnlyAwareComponentsIte.hasNext())
+				{
+					el = readOnlyAwareComponentsIte.next();
+
+					if (el.isReadOnly() == false)
+					{
+						el.setReadOnly(true);
+						if (componentsWithEditableStateChanged.contains(el) == false) componentsWithEditableStateChanged.add(el);
+					}
+				}
+			}
+			else
+			{
+				if (componentsWithEditableStateChanged.size() != 0)
+				{
+					for (HasRuntimeReadOnly component : componentsWithEditableStateChanged)
+					{
+						component.setReadOnly(false);
+					}
+				}
+				componentsWithEditableStateChanged.clear();
+			}
+
+			repaint();
+		}
 	}
 
 	/*

@@ -22,6 +22,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -53,7 +55,7 @@ import com.servoy.j2db.util.model.IEditListModel;
  *
  * @author jblok
  */
-public class ListView extends JEditList implements IView, ISupportRowStyling
+public class ListView extends JEditList implements IView, ISupportRowStyling, ISupportEditStateTracking
 {
 	private IApplication application;
 	private String rowBGColorScript;
@@ -70,7 +72,7 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Component#processMouseEvent(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -251,10 +253,14 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	}
 
 
-	@Override
-	public void setEditable(boolean editable)
+	private final List<HasRuntimeReadOnly> componentsWithEditableStateChanged = new ArrayList<HasRuntimeReadOnly>();
+
+	private boolean editable = true;
+
+	private List<HasRuntimeReadOnly> getReadOnlyAwareComponents()
 	{
-		super.setEditable(editable);
+		List<HasRuntimeReadOnly> readOnlyAwareComponents = new ArrayList<HasRuntimeReadOnly>();
+
 		ListCellRenderer cellRenderer = getCellRenderer();
 		if (cellRenderer instanceof DataRenderer)
 		{
@@ -262,10 +268,11 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 			for (int i = 0; i < dr.getComponentCount(); i++)
 			{
 				Component c = dr.getComponent(i);
-				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof HasRuntimeReadOnly) ((HasRuntimeReadOnly)((IScriptableProvider)c).getScriptObject()).setReadOnly(!editable);
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof HasRuntimeReadOnly)
+				{
+					readOnlyAwareComponents.add((HasRuntimeReadOnly)((IScriptableProvider)c).getScriptObject());
+				}
 			}
-			invalidate();
-			repaint();
 		}
 		IEditListEditor editorComponent = getCellEditor();
 		if (editorComponent instanceof FormBodyEditor)
@@ -275,12 +282,29 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 			for (int i = 0; i < dataRenderer.getComponentCount(); i++)
 			{
 				Component c = dataRenderer.getComponent(i);
-				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof HasRuntimeReadOnly) ((HasRuntimeReadOnly)((IScriptableProvider)c).getScriptObject()).setReadOnly(!editable);
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof HasRuntimeReadOnly)
+				{
+					readOnlyAwareComponents.add((HasRuntimeReadOnly)((IScriptableProvider)c).getScriptObject());
+				}
 			}
-			invalidate();
-			repaint();
 		}
 
+		return readOnlyAwareComponents;
+	}
+
+	@Override
+	public void setEditable(boolean editable)
+	{
+		super.setEditable(editable);
+		this.editable = editable;
+
+		Iterator<HasRuntimeReadOnly> readOnlyAwareComponentsIte = getReadOnlyAwareComponents().iterator();
+		while (readOnlyAwareComponentsIte.hasNext())
+		{
+			readOnlyAwareComponentsIte.next().setReadOnly(!editable);
+		}
+		invalidate();
+		repaint();
 	}
 
 	@Override
@@ -347,4 +371,48 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.smart.ISupportEditStateTracking#setEditableWithStateTracking(boolean)
+	 */
+	@Override
+	public void setEditableWithStateTracking(boolean b)
+	{
+		if (editable != b)
+		{
+			super.setEditable(b);
+			this.editable = b;
+
+			if (editable == false)
+			{
+				Iterator<HasRuntimeReadOnly> readOnlyAwareComponentsIte = getReadOnlyAwareComponents().iterator();
+				HasRuntimeReadOnly el;
+				while (readOnlyAwareComponentsIte.hasNext())
+				{
+					el = readOnlyAwareComponentsIte.next();
+
+					if (el.isReadOnly() == false)
+					{
+						el.setReadOnly(true);
+						if (componentsWithEditableStateChanged.contains(el) == false) componentsWithEditableStateChanged.add(el);
+					}
+				}
+			}
+			else
+			{
+				if (componentsWithEditableStateChanged.size() != 0)
+				{
+					for (HasRuntimeReadOnly component : componentsWithEditableStateChanged)
+					{
+						component.setReadOnly(false);
+					}
+				}
+				componentsWithEditableStateChanged.clear();
+			}
+
+			invalidate();
+			repaint();
+		}
+	}
 }
