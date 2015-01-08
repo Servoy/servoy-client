@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import com.servoy.j2db.dataprocessing.IRecord;
+import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 
@@ -55,6 +56,22 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	public boolean isQuietRecordChangeInProgress()
 	{
 		return keepQuiet;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.DataAdapterList#valueChanged(com.servoy.j2db.dataprocessing.ModificationEvent)
+	 */
+	@Override
+	public void valueChanged(ModificationEvent e)
+	{
+		// if the current record is already not in the foundset anymore, just ignore this change.
+		// this is because the row of the record could still fire a ModificationEvent change at the moment the record is removed from the foundset.
+		if (getRecord().getParentFoundSet().getRecordIndex(getRecord()) != -1)
+		{
+			super.valueChanged(e);
+		}
 	}
 
 }
