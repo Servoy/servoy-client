@@ -58,7 +58,6 @@ import javax.swing.text.Document;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
-import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayDependencyData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -80,7 +79,7 @@ import com.servoy.j2db.util.text.FixedMaskFormatter;
 
 /**
  * The Typeahead/DataLookup field that pops up a list and filters that list as you type.
- * 
+ *
  * @author jcompagner
  */
 public class DataLookupField extends DataField implements IDisplayRelatedData, IDisplayDependencyData, ISupportsDoubleBackground
@@ -245,7 +244,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				// do not call fillValueList(true) directly because we need to work around this problem:
 				// Tableview, tab to a type-ahead and type a char (for example "a"). Then type-ahead cell enters edit mode,
 				// key bindings get processed on the type-ahead (changing the content) and only after that the focus gain event arrives.
-				// In this case we must avoid showing all available options (instead of the ones starting with "a"), because char typing 
+				// In this case we must avoid showing all available options (instead of the ones starting with "a"), because char typing
 				// behavior should have precedence on focus gain.
 				fillValueList(!keyBindingChangedValBeforeFocusEvent);
 			}
@@ -291,7 +290,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#processKeyEvent(java.awt.event.KeyEvent)
 	 */
 	@Override
@@ -373,7 +372,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void commitSelectedValue()
 	{
@@ -734,7 +733,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#setFoundSet(com.servoy.j2db.dataprocessing.IRecord, com.servoy.j2db.dataprocessing.IFoundSet,
 	 * boolean)
 	 */
@@ -747,7 +746,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	public void dependencyChanged(IRecordInternal record)
 	{
 		this.parentState = record;
-		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
+		if (list != null)
 		{
 			Object o = getValue();
 
@@ -893,7 +892,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#getDefaultSort()
 	 */
 	public List<SortColumn> getDefaultSort()
@@ -908,7 +907,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#deregister()
 	 */
 	@Override

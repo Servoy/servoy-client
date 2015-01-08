@@ -44,7 +44,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
-import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayDependencyData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -242,7 +241,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer#render(java.lang.Object, org.apache.wicket.Response,
 			 * java.lang.String)
 			 */
@@ -263,7 +262,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer#renderHeader(org.apache.wicket.Response)
 			 */
 			@SuppressWarnings("nls")
@@ -328,7 +327,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer#renderFooter(org.apache.wicket.Response)
 			 */
 			public void renderFooter(Response response)
@@ -600,14 +599,14 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IDisplayDependencyData#dependencyChanged(com.servoy.j2db.dataprocessing.IRecordInternal)
 	 */
 	@Override
 	public void dependencyChanged(IRecordInternal record)
 	{
 		this.parentState = record;
-		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
+		if (list != null)
 		{
 			int index = -1;
 			if (!ScopesUtils.isVariableScope(getDataProviderID()) && (getDataProviderID() != null))
