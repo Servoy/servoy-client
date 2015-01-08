@@ -535,13 +535,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	private boolean componentIsReadOnly(Component comp)
 	{
-		if (comp instanceof ListView)
+		if (comp instanceof ISupportEditStateTracking)
 		{
-			return !((ListView)comp).isEditable();
-		}
-		else if (comp instanceof TableView)
-		{
-			return !((TableView)comp).isEditable();
+			return !((ISupportEditStateTracking)comp).isEditable();
 		}
 		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly)
 		{
@@ -552,35 +548,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	private void setReadOnly(Component comp, boolean b)
 	{
-		if (comp instanceof ListView)
+		if (comp instanceof ISupportEditStateTracking)
 		{
 			if (b == true)
 			{
 				if (componentIsReadOnly(comp) == false)
 				{
-					((ListView)comp).setEditable(false);
+					((ISupportEditStateTracking)comp).setEditableWithStateTracking(false);
 					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
 			{
-				((ListView)comp).setEditable(!b);
-			}
-
-		}
-		else if (comp instanceof TableView)
-		{
-			if (b == true)
-			{
-				if (componentIsReadOnly(comp) == false)
-				{
-					((TableView)comp).setEditable(false);
-					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
-				}
-			}
-			else
-			{
-				((TableView)comp).setEditable(true);
+				((ISupportEditStateTracking)comp).setEditableWithStateTracking(true);
 			}
 		}
 		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly)
