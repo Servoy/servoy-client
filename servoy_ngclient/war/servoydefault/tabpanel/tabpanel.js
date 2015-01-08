@@ -42,17 +42,17 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
        });        
         
        $scope.$watch("model.readOnly", function(newValue) {
-    	   var activeForm = $scope.getActiveTab()
-    	   if (activeForm)
+    	   var selectedTab = $scope.getSelectedTab()
+    	   if (selectedTab && selectedTab.containsFormId)
     	   {
-    		   $scope.svyServoyapi.setFormReadOnly(activeForm,newValue);
+    		   $scope.svyServoyapi.setFormReadOnly(selectedTab.containsFormId,newValue);
     	   }
        });
        $scope.$watch("model.enabled", function(newValue) {
-    	   var activeForm = $scope.getActiveTab()
-    	   if (activeForm)
+    	   var selectedTab = $scope.getSelectedTab()
+    	   if (selectedTab && selectedTab.containsFormId)
     	   {
-    		   $scope.svyServoyapi.setFormEnabled(activeForm,newValue);
+    		   $scope.svyServoyapi.setFormEnabled(selectedTab.containsFormId,newValue);
     	   }
        });
        $scope.getTemplateUrl = function() {
@@ -60,7 +60,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
     	   else if($scope.model.tabOrientation == -4) return "servoydefault/tabpanel/accordionpanel.html"
     	   else return "servoydefault/tabpanel/tabpanel.html";
        }
-       $scope.getActiveTab = function() {
+       $scope.getActiveTabUrl = function() {
     	   for(var i=0;i<$scope.model.tabs.length;i++) {
     		   if ($scope.model.tabs[i].active) {
     			   if ($scope.model.selectedTab != $scope.model.tabs[i])
