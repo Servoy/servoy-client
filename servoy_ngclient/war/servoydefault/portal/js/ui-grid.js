@@ -1,4 +1,4 @@
-/*! ui-grid - v - 2015-01-06
+/*! ui-grid - v3.0.0-RC.18-aad5e9e - 2015-01-09
 * Copyright (c) 2015 ; License: MIT */
 (function () {
   'use strict';
@@ -846,8 +846,8 @@ function ($timeout, gridUtil, uiGridConstants, uiGridColumnMenuService) {
 (function(){
   'use strict';
 
-  angular.module('ui.grid').directive('uiGridHeaderCell', ['$compile', '$timeout', '$window', '$document', 'gridUtil', 'uiGridConstants', 
-  function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
+  angular.module('ui.grid').directive('uiGridHeaderCell', ['$compile', '$timeout', '$window', '$document', 'gridUtil', 'uiGridConstants', 'ScrollEvent',
+  function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants, ScrollEvent) {
     // Do stuff after mouse has been down this many ms on the header cell
     var mousedownTimeout = 500;
 
@@ -1081,9 +1081,10 @@ function ($timeout, gridUtil, uiGridConstants, uiGridColumnMenuService) {
                     uiGridCtrl.grid.refresh()
                       .then(function () {
                         if (uiGridCtrl.prevScrollArgs && uiGridCtrl.prevScrollArgs.y && uiGridCtrl.prevScrollArgs.y.percentage) {
-                           uiGridCtrl.fireScrollingEvent({ y: { percentage: uiGridCtrl.prevScrollArgs.y.percentage } });
+                          var scrollEvent = new ScrollEvent(uiGridCtrl.grid,null,null,'uiGridHeaderCell.toggleMenu');
+                          scrollEvent.y.percentage = uiGridCtrl.prevScrollArgs.y.percentage;
+                          scrollEvent.fireScrollingEvent();
                         }
-                        // uiGridCtrl.fireEvent('force-vertical-scroll');
                       });
                   }
                 }));  
@@ -1834,7 +1835,9 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
         angular.element($window).off('resize', applyHideMenu);
       });
 
-      $scope.$on('$destroy', $scope.$on(uiGridConstants.events.GRID_SCROLL, applyHideMenu ));
+      if (uiGridCtrl) {
+       $scope.$on('$destroy', uiGridCtrl.grid.api.core.on.scrollEvent($scope, applyHideMenu ));
+      }
 
       $scope.$on('$destroy', $scope.$on(uiGridConstants.events.ITEM_DRAGGING, applyHideMenu ));
     },
@@ -2234,8 +2237,8 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
 
   var module = angular.module('ui.grid');
   
-  module.directive('uiGridRenderContainer', ['$timeout', '$document', 'uiGridConstants', 'gridUtil',
-    function($timeout, $document, uiGridConstants, GridUtil) {
+  module.directive('uiGridRenderContainer', ['$timeout', '$document', 'uiGridConstants', 'gridUtil', 'ScrollEvent',
+    function($timeout, $document, uiGridConstants, gridUtil, ScrollEvent) {
     return {
       replace: true,
       transclude: true,
@@ -2299,94 +2302,51 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             $elm.addClass('ui-grid-render-container-' + $scope.containerId);
 
             // Bind to left/right-scroll events
-            var scrollUnbinder;
             if ($scope.bindScrollHorizontal || $scope.bindScrollVertical) {
-              scrollUnbinder = $scope.$on(uiGridConstants.events.GRID_SCROLL, scrollHandler);
+              grid.api.core.on.scrollEvent($scope,scrollHandler);
             }
 
-            function scrollHandler (evt, args) {
+            function scrollHandler (args) {
               // exit if not for this grid
               if (args.grid && args.grid.id !== grid.id){
                 return;
               }
+
               
               // Vertical scroll
               if (args.y && $scope.bindScrollVertical) {
                 containerCtrl.prevScrollArgs = args;
 
-                var scrollLength = rowContainer.getVerticalScrollLength();
+                var newScrollTop = args.getNewScrollTop(rowContainer,containerCtrl.viewport);
 
-                // Add the height of the native horizontal scrollbar, if it's there. Otherwise it will mask over the final row
-                if (grid.horizontalScrollbarHeight && grid.horizontalScrollbarHeight > 0) {
-                  scrollLength = scrollLength + grid.horizontalScrollbarHeight;
+                //only set scrollTop if we coming from something other than viewPort scrollBar or
+                //another column container
+                if (args.source !== ScrollEvent.Sources.ViewPortScroll ||
+                    args.sourceColContainer !== colContainer) {
+                  containerCtrl.viewport[0].scrollTop = newScrollTop;
                 }
 
-                var oldScrollTop = containerCtrl.viewport[0].scrollTop;
-                
-                var scrollYPercentage;
-                if (typeof(args.y.percentage) !== 'undefined' && args.y.percentage !== undefined) {
-                  scrollYPercentage = args.y.percentage;
-                }
-                else if (typeof(args.y.pixels) !== 'undefined' && args.y.pixels !== undefined) {
-                  scrollYPercentage = args.y.percentage = (oldScrollTop + args.y.pixels) / scrollLength;
-                  // gridUtil.logDebug('y.percentage', args.y.percentage);
-                }
-                else {
-                  throw new Error("No percentage or pixel value provided for scroll event Y axis");
-                }
-
-                var newScrollTop = Math.max(0, scrollYPercentage * scrollLength);
-
-                containerCtrl.viewport[0].scrollTop = newScrollTop;
-                
-                // TOOD(c0bra): what's this for?
-                // grid.options.offsetTop = newScrollTop;
-
-                containerCtrl.prevScrollArgs.y.pixels = newScrollTop - oldScrollTop;
               }
 
               // Horizontal scroll
               if (args.x && $scope.bindScrollHorizontal) {
                 containerCtrl.prevScrollArgs = args;
-
-                var scrollWidth = (colContainer.getCanvasWidth() - colContainer.getViewportWidth());
-
-                // var oldScrollLeft = containerCtrl.viewport[0].scrollLeft;
-                var oldScrollLeft = GridUtil.normalizeScrollLeft(containerCtrl.viewport);
-
-                var scrollXPercentage;
-                if (typeof(args.x.percentage) !== 'undefined' && args.x.percentage !== undefined) {
-                  scrollXPercentage = args.x.percentage;
-                }
-                else if (typeof(args.x.pixels) !== 'undefined' && args.x.pixels !== undefined) {
-                  scrollXPercentage = args.x.percentage = (oldScrollLeft + args.x.pixels) / scrollWidth;
-                }
-                else {
-                  throw new Error("No percentage or pixel value provided for scroll event X axis");
-                }
-
-                var newScrollLeft = Math.max(0, scrollXPercentage * scrollWidth);
-                
-                // uiGridCtrl.adjustScrollHorizontal(newScrollLeft, scrollXPercentage);
-
-                // containerCtrl.viewport[0].scrollLeft = newScrollLeft;
-                containerCtrl.viewport[0].scrollLeft = GridUtil.denormalizeScrollLeft(containerCtrl.viewport, newScrollLeft);
-
-                containerCtrl.prevScrollLeft = newScrollLeft;
+                var newScrollLeft = args.getNewScrollLeft(colContainer,containerCtrl.viewport);
 
                 if (containerCtrl.headerViewport) {
-                  // containerCtrl.headerViewport.scrollLeft = newScrollLeft;
-                  containerCtrl.headerViewport.scrollLeft = GridUtil.denormalizeScrollLeft(containerCtrl.headerViewport, newScrollLeft);
+                  containerCtrl.headerViewport.scrollLeft = gridUtil.denormalizeScrollLeft(containerCtrl.headerViewport, newScrollLeft);
                 }
 
                 if (containerCtrl.footerViewport) {
-                  // containerCtrl.footerViewport.scrollLeft = newScrollLeft;
-                  containerCtrl.footerViewport.scrollLeft = GridUtil.denormalizeScrollLeft(containerCtrl.footerViewport, newScrollLeft);
+                  containerCtrl.footerViewport.scrollLeft = gridUtil.denormalizeScrollLeft(containerCtrl.footerViewport, newScrollLeft);
                 }
 
-                // uiGridCtrl.grid.options.offsetLeft = newScrollLeft;
+                //scroll came from somewhere else, so the viewport must be positioned
+                if (args.source !== ScrollEvent.Sources.ViewPortScroll) {
+                  containerCtrl.viewport[0].scrollLeft = newScrollLeft;
+                }
 
-                containerCtrl.prevScrollArgs.x.pixels = newScrollLeft - oldScrollLeft;
+                containerCtrl.prevScrollLeft = newScrollLeft;
               }
             }
 
@@ -2394,9 +2354,9 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             $elm.bind('wheel mousewheel DomMouseScroll MozMousePixelScroll', function(evt) {
               // use wheelDeltaY
 
-              var newEvent = GridUtil.normalizeWheelEvent(evt);
+              var newEvent = gridUtil.normalizeWheelEvent(evt);
 
-              var args = { target: $elm };
+              var scrollEvent = new ScrollEvent(grid, rowContainer, colContainer, ScrollEvent.Sources.RenderContainerMouseWheel);
               if (newEvent.deltaY !== 0) {
                 var scrollYAmount = newEvent.deltaY * -120;
 
@@ -2407,28 +2367,30 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
                 if (scrollYPercentage < 0) { scrollYPercentage = 0; }
                 else if (scrollYPercentage > 1) { scrollYPercentage = 1; }
 
-                args.y = { percentage: scrollYPercentage, pixels: scrollYAmount };
+                scrollEvent.y = { percentage: scrollYPercentage, pixels: scrollYAmount };
               }
               if (newEvent.deltaX !== 0) {
                 var scrollXAmount = newEvent.deltaX * -120;
 
                 // Get the scroll percentage
-                var scrollLeft = GridUtil.normalizeScrollLeft(containerCtrl.viewport);
+                var scrollLeft = gridUtil.normalizeScrollLeft(containerCtrl.viewport);
                 var scrollXPercentage = (scrollLeft + scrollXAmount) / (colContainer.getCanvasWidth() - colContainer.getViewportWidth());
 
                 // Keep scrollPercentage within the range 0-1.
                 if (scrollXPercentage < 0) { scrollXPercentage = 0; }
                 else if (scrollXPercentage > 1) { scrollXPercentage = 1; }
 
-                args.x = { percentage: scrollXPercentage, pixels: scrollXAmount };
+                scrollEvent.x = { percentage: scrollXPercentage, pixels: scrollXAmount };
               }
 
+              // todo: this isn't working when scrolling down.  it works fine for up.  tested on Chrome
               // Let the parent container scroll if the grid is already at the top/bottom
-              if ((args.y.percentage !== 0 && args.y.percentage !== 1) || (args.x.percentage !== 0 && args.x.percentage !== 1)) {
+                if ((scrollEvent.y && scrollEvent.y.percentage !== 0 && scrollEvent.y.percentage !== 1) ||
+                    (scrollEvent.x && scrollEvent.x.percentage !== 0 && scrollEvent.x.percentage !== 1)) {
                 evt.preventDefault();
               }
 
-              uiGridCtrl.fireScrollingEvent(args);
+              scrollEvent.fireThrottledScrollingEvent();
             });
 
             var startY = 0,
@@ -2458,7 +2420,7 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
               deltaY *= 2;
               deltaX *= 2;
 
-              var args = { target: event.target };
+              var scrollEvent = new ScrollEvent(grid, rowContainer, colContainer, ScrollEvent.Sources.RenderContainerTouchMove);
 
               if (deltaY !== 0) {
                 var scrollYPercentage = (scrollTopStart + deltaY) / rowContainer.getVerticalScrollLength();
@@ -2466,7 +2428,7 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
                 if (scrollYPercentage > 1) { scrollYPercentage = 1; }
                 else if (scrollYPercentage < 0) { scrollYPercentage = 0; }
 
-                args.y = { percentage: scrollYPercentage, pixels: deltaY };
+                scrollEvent.y = { percentage: scrollYPercentage, pixels: deltaY };
               }
               if (deltaX !== 0) {
                 var scrollXPercentage = (scrollLeftStart + deltaX) / (colContainer.getCanvasWidth() - colContainer.getViewportWidth());
@@ -2474,10 +2436,10 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
                 if (scrollXPercentage > 1) { scrollXPercentage = 1; }
                 else if (scrollXPercentage < 0) { scrollXPercentage = 0; }
 
-                args.x = { percentage: scrollXPercentage, pixels: deltaX };
+                scrollEvent.x = { percentage: scrollXPercentage, pixels: deltaX };
               }
 
-              uiGridCtrl.fireScrollingEvent(args);
+              scrollEvent.fireScrollingEvent();
             }
             
             function touchend(event) {
@@ -2507,43 +2469,43 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
               var scrollYLength = 120 * directionY * moveYScale;
               var scrollXLength = 120 * directionX * moveXScale;
 
-              function decelerate() {
-                $timeout(function() {
-                  var args = { target: event.target };
-
-                  if (scrollYLength !== 0) {
-                    var scrollYPercentage = (containerCtrl.viewport[0].scrollTop + scrollYLength) / rowContainer.getVerticalScrollLength();
-
-                    args.y = { percentage: scrollYPercentage, pixels: scrollYLength };
-                  }
-
-                  if (scrollXLength !== 0) {
-                    var scrollXPercentage = (containerCtrl.viewport[0].scrollLeft + scrollXLength) / (colContainer.getCanvasWidth() - colContainer.getViewportWidth());
-                    args.x = { percentage: scrollXPercentage, pixels: scrollXLength };
-                  }
-
-                  uiGridCtrl.fireScrollingEvent(args);
-
-                  decelerateCount = decelerateCount -1;
-                  scrollYLength = scrollYLength / 2;
-                  scrollXLength = scrollXLength / 2;
-
-                  if (decelerateCount > 0) {
-                    decelerate();
-                  }
-                  else {
-                    uiGridCtrl.scrollbars.forEach(function (sbar) {
-                      sbar.removeClass('ui-grid-scrollbar-visible');
-                      sbar.removeClass('ui-grid-scrolling');
-                    });
-                  }
-                }, decelerateInterval);
-              }
+              //function decelerate() {
+              //  $timeout(function() {
+              //    var args = new ScrollEvent(grid, rowContainer, colContainer, ScrollEvent.Sources.RenderContainerTouchMove);
+              //
+              //    if (scrollYLength !== 0) {
+              //      var scrollYPercentage = (containerCtrl.viewport[0].scrollTop + scrollYLength) / rowContainer.getVerticalScrollLength();
+              //
+              //      args.y = { percentage: scrollYPercentage, pixels: scrollYLength };
+              //    }
+              //
+              //    if (scrollXLength !== 0) {
+              //      var scrollXPercentage = (containerCtrl.viewport[0].scrollLeft + scrollXLength) / (colContainer.getCanvasWidth() - colContainer.getViewportWidth());
+              //      args.x = { percentage: scrollXPercentage, pixels: scrollXLength };
+              //    }
+              //
+              //    uiGridCtrl.fireScrollingEvent(args);
+              //
+              //    decelerateCount = decelerateCount -1;
+              //    scrollYLength = scrollYLength / 2;
+              //    scrollXLength = scrollXLength / 2;
+              //
+              //    if (decelerateCount > 0) {
+              //      decelerate();
+              //    }
+              //    else {
+              //      uiGridCtrl.scrollbars.forEach(function (sbar) {
+              //        sbar.removeClass('ui-grid-scrollbar-visible');
+              //        sbar.removeClass('ui-grid-scrolling');
+              //      });
+              //    }
+              //  }, decelerateInterval);
+              //}
 
               // decelerate();
             }
 
-            if (GridUtil.isTouchEnabled()) {
+            if (gridUtil.isTouchEnabled()) {
               $elm.bind('touchstart', function (event) {
                 if (event.originalEvent) {
                   event = event.originalEvent;
@@ -2566,7 +2528,6 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             }
 
             $elm.bind('$destroy', function() {
-              scrollUnbinder();
               $elm.unbind('keydown');
 
               ['touchstart', 'touchmove', 'touchend','keydown', 'wheel', 'mousewheel', 'DomMouseScroll', 'MozMousePixelScroll'].forEach(function (eventName) {
@@ -2635,6 +2596,7 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             $scope.rowContainer.visibleRowCache[$scope.rowContainer.currentTopRow].height;
 
           // return { 'margin-top': hiddenRowWidth + 'px' };
+          //gridUtil.logDebug('margin-top ' + hiddenRowWidth );
           styles['margin-top'] = hiddenRowWidth + 'px';
         }
       }
@@ -2833,8 +2795,8 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
 (function(){
   'use strict';
 
-  angular.module('ui.grid').directive('uiGridViewport', ['gridUtil',
-    function(gridUtil) {
+  angular.module('ui.grid').directive('uiGridViewport', ['gridUtil','ScrollEvent',
+    function(gridUtil, ScrollEvent) {
       return {
         replace: true,
         scope: {},
@@ -2872,6 +2834,7 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             // Handle RTL here
 
             if (newScrollLeft !== colContainer.prevScrollLeft) {
+              grid.flagScrollingHorizontally();
               var xDiff = newScrollLeft - colContainer.prevScrollLeft;
 
               var horizScrollLength = (colContainer.getCanvasWidth() - colContainer.getViewportWidth());
@@ -2881,11 +2844,12 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             }
 
             if (newScrollTop !== rowContainer.prevScrollTop) {
+              grid.flagScrollingVertically();
               var yDiff = newScrollTop - rowContainer.prevScrollTop;
 
-              // uiGridCtrl.fireScrollingEvent({ y: { pixels: diff } });
+
               var vertScrollLength = rowContainer.getVerticalScrollLength();
-              // var vertScrollPercentage = (uiGridCtrl.prevScrollTop + yDiff) / vertScrollLength;
+
               vertScrollPercentage = newScrollTop / vertScrollLength;
 
               if (vertScrollPercentage > 1) { vertScrollPercentage = 1; }
@@ -2893,20 +2857,18 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
               
               rowContainer.adjustScrollVertical(newScrollTop, vertScrollPercentage);
             }
-            
-            if ( !$scope.grid.isScrollingVertically && !$scope.grid.isScrollingHorizontally ){
-              // viewport scroll that didn't come from fireScrollEvent, so fire a scroll to keep 
-              // the header in sync
-              var args = {};
+
+              var scrollEvent = new ScrollEvent(grid, rowContainer, colContainer, ScrollEvent.Sources.ViewPortScroll);
+              scrollEvent.newScrollLeft = newScrollLeft;
+              scrollEvent.newScrollTop = newScrollTop;
               if ( horizScrollPercentage > -1 ){
-                args.x = { percentage: horizScrollPercentage };
+                scrollEvent.x = { percentage: horizScrollPercentage };
               }
 
               if ( vertScrollPercentage > -1 ){
-                args.y = { percentage: vertScrollPercentage };
+                scrollEvent.y = { percentage: vertScrollPercentage };
               }
-              uiGridCtrl.fireScrollingEvent(args); 
-            }
+              scrollEvent.fireScrollingEvent();
           });
         }
       };
@@ -3021,7 +2983,7 @@ angular.module('ui.grid')
             self.grid.modifyRows(newData)
               .then(function () {
                 // if (self.viewport) {
-                  self.grid.redrawInPlace(true);
+                  self.grid.redrawInPlace();
                 // }
 
                 $scope.$evalAsync(function() {
@@ -3042,13 +3004,6 @@ angular.module('ui.grid')
         self.grid.refreshCanvas(true);
       });
 
-
-      /* Event Methods */
-
-      self.fireScrollingEvent = gridUtil.throttle(function(args) {
-        args.grid = args.grid || self.grid;
-        $scope.$broadcast(uiGridConstants.events.GRID_SCROLL, args);
-      }, self.grid.options.scrollThrottle, {trailing: true});
 
       self.fireEvent = function(eventName, args) {
         // Add the grid to the event arguments if it's not there
@@ -3182,32 +3137,11 @@ angular.module('ui.grid').directive('uiGrid',
               // Run initial canvas refresh
               grid.refreshCanvas();
 
-              //add pinned containers for row headers support
-              //moved from pinning feature
-              var left = angular.element('<div ng-if="grid.hasLeftContainer()" style="width: 0" ui-grid-pinned-container="\'left\'"></div>');
-              $elm.prepend(left);
-              uiGridCtrl.innerCompile(left);
-
-              var right = angular.element('<div  ng-if="grid.hasRightContainer()" style="width: 0" ui-grid-pinned-container="\'right\'"></div>');
-              $elm.append(right);
-              uiGridCtrl.innerCompile(right);
-
-
               //if we add a left container after render, we need to watch and react
               $scope.$watch(function () { return grid.hasLeftContainer();}, function (newValue, oldValue) {
                 if (newValue === oldValue) {
                   return;
                 }
-
-                //todo: remove this code.  it was commented out after moving from pinning because body is already float:left
-//                var bodyContainer = angular.element($elm[0].querySelectorAll('[container-id="body"]'));
-//                if (newValue){
-//                  bodyContainer.attr('style', 'float: left; position: inherit');
-//                }
-//                else {
-//                  bodyContainer.attr('style', 'float: left; position: relative');
-//                }
-
                 grid.refreshCanvas(true);
               });
 
@@ -4688,7 +4622,7 @@ angular.module('ui.grid')
     
     viewPortHeight = viewPortHeight + adjustment.height;
 
-    // gridUtil.logDebug('viewPortHeight', viewPortHeight);
+    //gridUtil.logDebug('viewPortHeight', viewPortHeight);
 
     return viewPortHeight;
   };
@@ -4706,7 +4640,7 @@ angular.module('ui.grid')
     
     viewPortWidth = viewPortWidth + adjustment.width;
 
-    // gridUtil.logDebug('getviewPortWidth', viewPortWidth);
+    //gridUtil.logDebug('getviewPortWidth', viewPortWidth);
 
     return viewPortWidth;
   };
@@ -4950,7 +4884,7 @@ angular.module('ui.grid')
    * 
    */
   Grid.prototype.refresh = function refresh() {
-    gridUtil.logDebug('grid refresh');
+    // gridUtil.logDebug('grid refresh');
     
     var self = this;
     
@@ -5106,10 +5040,9 @@ angular.module('ui.grid')
    * @name redrawCanvas
    * @methodOf ui.grid.class:Grid
    * @description Redraw the rows and columns based on our current scroll position
-   * @param {boolean} [rowsAdded] Optional to indicate rows are added and the scroll percentage must be recalculated
    * 
    */
-  Grid.prototype.redrawInPlace = function redrawInPlace(rowsAdded) {
+  Grid.prototype.redrawInPlace = function redrawInPlace() {
     // gridUtil.logDebug('redrawInPlace');
     
     var self = this;
@@ -5118,16 +5051,33 @@ angular.module('ui.grid')
       var container = self.renderContainers[i];
 
       // gridUtil.logDebug('redrawing container', i);
-      if (rowsAdded) {
-        container.adjustRows(container.prevScrollTop, null);
-        container.adjustColumns(container.prevScrollTop, null);
-      }
-      else {
-        container.adjustRows(null, container.prevScrolltopPercentage);
-        container.adjustColumns(null, container.prevScrollleftPercentage);
-      }
+
+      container.adjustRows(null, container.prevScrolltopPercentage);
+      container.adjustColumns(null, container.prevScrollleftPercentage);
     }
   };
+
+    /**
+     * @ngdoc function
+     * @name hasLeftContainerColumns
+     * @methodOf ui.grid.class:Grid
+     * @description returns true if leftContainer has columns
+     */
+    Grid.prototype.hasLeftContainerColumns = function () {
+      return this.hasLeftContainer() && this.renderContainers.left.renderedColumns.length > 0;
+    };
+
+    /**
+     * @ngdoc function
+     * @name hasRightContainerColumns
+     * @methodOf ui.grid.class:Grid
+     * @description returns true if rightContainer has columns
+     */
+    Grid.prototype.hasRightContainerColumns = function () {
+      return this.hasRightContainer() && this.renderContainers.right.renderedColumns.length > 0;
+    };
+
+
 
 
   // Blatantly stolen from Angular as it isn't exposed (yet? 2.0?)
@@ -5287,6 +5237,19 @@ angular.module('ui.grid')
            * @description  is raised after the cache of visible rows is changed.
            */
           this.registerEvent( 'core', 'rowsRendered' );
+
+
+          /**
+           * @ngdoc event
+           * @name scrollEvent
+           * @eventOf  ui.grid.core.api:PublicApi
+           * @description  is raised on a scroll Event.  Called frequently so be careful what you do with it
+           */
+          this.registerEvent( 'core', 'scrollEvent' );
+
+
+
+
         };
 
         /**
@@ -5348,6 +5311,8 @@ angular.module('ui.grid')
          * @methodOf ui.grid.class:GridApi
          * @description Registers a new event for the given feature.  The event will get a
          * .raise and .on prepended to it
+         * <br>
+         * the .on.event returns a dereg funtion that will remove the listener
          * @param {string} featureName name of the feature that raises the event
          * @param {string} eventName  name of the event
          */
@@ -5367,31 +5332,34 @@ angular.module('ui.grid')
 
           // gridUtil.logDebug('Creating raise event method ' + featureName + '.raise.' + eventName);
           feature.raise[eventName] = function () {
-            $rootScope.$broadcast.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
+            $rootScope.$emit.apply($rootScope, [eventId].concat(Array.prototype.slice.call(arguments)));
           };
 
           // gridUtil.logDebug('Creating on event method ' + featureName + '.on.' + eventName);
           feature.on[eventName] = function (scope, handler) {
-            var dereg = registerEventWithAngular(scope, eventId, handler, self.grid);
+            var deregAngularOn = registerEventWithAngular(scope, eventId, handler, self.grid);
 
             //track our listener so we can turn off and on
-            var listener = {handler: handler, dereg: dereg, eventId: eventId, scope: scope};
+            var listener = {handler: handler, dereg: deregAngularOn, eventId: eventId, scope: scope};
             self.listeners.push(listener);
 
+            var removeListener = function(){
+              listener.dereg();
+              var index = self.listeners.indexOf(listener);
+              self.listeners.splice(index,1);
+            };
+
             //destroy tracking when scope is destroyed
-            //wanted to remove the listener from the array but angular does
-            //strange things in scope.$destroy so I could not access the listener array
             scope.$on('$destroy', function() {
-              listener.dereg = null;
-              listener.handler = null;
-              listener.eventId = null;
-              listener.scope = null;
+              removeListener();
             });
+
+            return removeListener;
           };
         };
 
         function registerEventWithAngular(scope, eventId, handler, grid) {
-          return scope.$on(eventId, function (event) {
+          return $rootScope.$on(eventId, function (event) {
             var args = Array.prototype.slice.call(arguments);
             args.splice(0, 1); //remove evt argument
             handler.apply(grid.api, args);
@@ -6419,15 +6387,6 @@ angular.module('ui.grid')
        *
        */
       baseOptions.rowHeight = baseOptions.rowHeight || 30;
-      
-      /**
-       * @ngdoc property
-       * @name maxVisibleRowCount
-       * @propertyOf ui.grid.class:GridOptions
-       * @description Defaults to 200
-       *
-       */
-      baseOptions.maxVisibleRowCount = baseOptions.maxVisibleRowCount || 200;
   
       /**
        * @ngdoc integer
@@ -7334,6 +7293,34 @@ angular.module('ui.grid')
     this.columnStyles = ret;
   };
 
+  GridRenderContainer.prototype.getViewPortStyle = function () {
+    var self = this;
+    var styles = {};
+
+    if (self.name === 'body') {
+      styles['overflow-x'] = 'scroll';
+      if (self.grid.hasRightContainerColumns()) {
+        styles['overflow-y'] = 'hidden';
+      }
+      else {
+        styles['overflow-y'] = 'scroll';
+      }
+    }
+    else if (self.name === 'left') {
+      styles['overflow-x'] = 'hidden';
+      styles['overflow-y'] = 'hidden';
+    }
+    else {
+      styles['overflow-x'] = 'hidden';
+      styles['overflow-y'] = 'scroll';
+    }
+
+    // if (self.grid.isRTL()) {
+
+    return styles;
+
+  };
+
   return GridRenderContainer;
 }]);
 
@@ -7473,6 +7460,153 @@ angular.module('ui.grid')
 
   return GridRow;
 }]);
+
+})();
+(function () {
+  angular.module('ui.grid')
+    .factory('ScrollEvent', ['gridUtil', function (gridUtil) {
+
+      /**
+       * @ngdoc function
+       * @name ui.grid.class:ScrollEvent
+       * @description Model for all scrollEvents
+       * @param {Grid} grid that owns the scroll event
+       * @param {GridRenderContainer} sourceRowContainer that owns the scroll event. Can be null
+       * @param {GridRenderContainer} sourceColContainer that owns the scroll event. Can be null
+       * @param {string} source the source of the event - from uiGridConstants.scrollEventSources or a string value of directive/service/factory.functionName
+       */
+      function ScrollEvent(grid, sourceRowContainer, sourceColContainer, source) {
+        var self = this;
+        if (!grid) {
+          throw new Error("grid argument is required");
+        }
+
+        /**
+         *  @ngdoc object
+         *  @name grid
+         *  @propertyOf  ui.grid.class:ScrollEvent
+         *  @description A reference back to the grid
+         */
+         self.grid = grid;
+
+
+
+        /**
+         *  @ngdoc object
+         *  @name entity
+         *  @propertyOf  ui.grid.class:ScrollEvent
+         *  @description the source of the scroll event. limited to values from uiGridConstants.scrollEventSources
+         */
+        self.source = source;
+
+        self.sourceRowContainer = sourceRowContainer;
+        self.sourceColContainer = sourceColContainer;
+
+        self.newScrollLeft = null;
+        self.newScrollTop = null;
+        self.x = null;
+        self.y = null;
+
+
+        /**
+         *  @ngdoc function
+         *  @name fireThrottledScrollingEvent
+         *  @methodOf  ui.grid.class:ScrollEvent
+         *  @description fires a throttled event using grid.api.core.raise.scrollEvent
+         */
+        self.fireThrottledScrollingEvent = gridUtil.throttle(function() {
+          self.grid.api.core.raise.scrollEvent(self);
+        }, self.grid.options.scrollThrottle, {trailing: true});
+
+      }
+
+      /**
+       *  @ngdoc function
+       *  @name fireScrollingEvent
+       *  @methodOf  ui.grid.class:ScrollEvent
+       *  @description fires an event using grid.api.core.raise.scrollEvent
+       */
+      ScrollEvent.prototype.fireScrollingEvent = function() {
+        this.grid.api.core.raise.scrollEvent(this);
+      };
+
+
+      /**
+       *  @ngdoc function
+       *  @name getNewScrollLeft
+       *  @methodOf  ui.grid.class:ScrollEvent
+       *  @description returns newScrollLeft property if available; calculates a new value if it isn't
+       */
+      ScrollEvent.prototype.getNewScrollLeft = function(colContainer, viewport){
+        var self = this;
+
+        if (!self.newScrollLeft){
+          var scrollWidth = (colContainer.getCanvasWidth() - colContainer.getViewportWidth());
+
+          var oldScrollLeft = gridUtil.normalizeScrollLeft(viewport);
+
+          var scrollXPercentage;
+          if (typeof(self.x.percentage) !== 'undefined' && self.x.percentage !== undefined) {
+            scrollXPercentage = self.x.percentage;
+          }
+          else if (typeof(self.x.pixels) !== 'undefined' && self.x.pixels !== undefined) {
+            scrollXPercentage = self.x.percentage = (oldScrollLeft + self.x.pixels) / scrollWidth;
+          }
+          else {
+            throw new Error("No percentage or pixel value provided for scroll event X axis");
+          }
+
+          return Math.max(0, scrollXPercentage * scrollWidth);
+        }
+
+        return self.newScrollLeft;
+      };
+
+
+      /**
+       *  @ngdoc function
+       *  @name getNewScrollTop
+       *  @methodOf  ui.grid.class:ScrollEvent
+       *  @description returns newScrollTop property if available; calculates a new value if it isn't
+       */
+      ScrollEvent.prototype.getNewScrollTop = function(rowContainer, viewport){
+        var self = this;
+
+
+        if (!self.newScrollTop){
+          var scrollLength = rowContainer.getVerticalScrollLength();
+
+          var oldScrollTop = viewport[0].scrollTop;
+
+          var scrollYPercentage;
+          if (typeof(self.y.percentage) !== 'undefined' && self.y.percentage !== undefined) {
+            scrollYPercentage = self.y.percentage;
+          }
+          else if (typeof(self.y.pixels) !== 'undefined' && self.y.pixels !== undefined) {
+            scrollYPercentage = self.y.percentage = (oldScrollTop + self.y.pixels) / scrollLength;
+          }
+          else {
+            throw new Error("No percentage or pixel value provided for scroll event Y axis");
+          }
+
+          return Math.max(0, scrollYPercentage * scrollLength);
+        }
+
+        return self.newScrollTop;
+      };
+
+
+      ScrollEvent.Sources = {
+        ViewPortScroll: 'ViewPortScroll',
+        RenderContainerMouseWheel: 'RenderContainerMouseWheel',
+        RenderContainerTouchMove: 'RenderContainerTouchMove',
+        Other: 99
+      };
+
+      return ScrollEvent;
+    }]);
+
+
 
 })();
 (function () {
@@ -11302,8 +11436,8 @@ module.filter('px', function() {
    *  @description Services for cell navigation features. If you don't like the key maps we use,
    *  or the direction cells navigation, override with a service decorator (see angular docs)
    */
-  module.service('uiGridCellNavService', ['gridUtil', 'uiGridConstants', 'uiGridCellNavConstants', '$q', 'uiGridCellNavFactory',
-    function (gridUtil, uiGridConstants, uiGridCellNavConstants, $q, UiGridCellNav) {
+  module.service('uiGridCellNavService', ['gridUtil', 'uiGridConstants', 'uiGridCellNavConstants', '$q', 'uiGridCellNavFactory', 'ScrollEvent',
+    function (gridUtil, uiGridConstants, uiGridCellNavConstants, $q, UiGridCellNav, ScrollEvent) {
 
       var service = {
 
@@ -11313,6 +11447,9 @@ module.filter('px', function() {
           //create variables for state
           grid.cellNav = {};
           grid.cellNav.lastRowCol = null;
+          grid.cellNav.focusedCells = [];
+
+          service.defaultGridOptions(grid.options);
 
           /**
            *  @ngdoc object
@@ -11376,6 +11513,38 @@ module.filter('px', function() {
                  */
                 getFocusedCell: function () {
                   return grid.cellNav.lastRowCol;
+                },
+
+                /**
+                 * @ngdoc function
+                 * @name getCurrentSelection
+                 * @methodOf  ui.grid.cellNav.api:PublicApi
+                 * @description returns an array containing the current selection
+                 * <br> array is empty if no selection has occurred
+                 */
+                getCurrentSelection: function () {
+                  return grid.cellNav.focusedCells;
+                },
+
+                /**
+                 * @ngdoc function
+                 * @name rowColSelectIndex
+                 * @methodOf  ui.grid.cellNav.api:PublicApi
+                 * @description returns the index in the order in which the RowCol was selected, returns -1 if the RowCol
+                 * isn't selected
+                 * @param {object} rowCol the rowCol to evaluate
+                 */
+                rowColSelectIndex: function (rowCol) {
+                  //return gridUtil.arrayContainsObjectWithProperty(grid.cellNav.focusedCells, 'col.uid', rowCol.col.uid) &&
+                  var index = -1;
+                  for (var i = 0; i < grid.cellNav.focusedCells.length; i++) {
+                    if (grid.cellNav.focusedCells[i].col.uid === rowCol.col.uid &&
+                      grid.cellNav.focusedCells[i].row.uid === rowCol.row.uid) {
+                      index = i;
+                      break;
+                    }
+                  }
+                  return index;
                 }
               }
             }
@@ -11384,6 +11553,26 @@ module.filter('px', function() {
           grid.api.registerEventsFromObject(publicApi.events);
 
           grid.api.registerMethodsFromObject(publicApi.methods);
+
+        },
+
+        defaultGridOptions: function (gridOptions) {
+          /**
+           *  @ngdoc object
+           *  @name ui.grid.cellNav.api:GridOptions
+           *
+           *  @description GridOptions for cellNav feature, these are available to be
+           *  set using the ui-grid {@link ui.grid.class:GridOptions gridOptions}
+           */
+
+          /**
+           *  @ngdoc object
+           *  @name modifierKeysToMultiSelectCells
+           *  @propertyOf  ui.grid.cellNav.api:GridOptions
+           *  @description Enable multiple cell selection only when using the ctrlKey or shiftKey.
+           *  <br/>Defaults to false
+           */
+          gridOptions.modifierKeysToMultiSelectCells = gridOptions.modifierKeysToMultiSelectCells === true;
 
         },
 
@@ -11564,23 +11753,21 @@ module.filter('px', function() {
          * @param {GridCol} gridCol column to make visible
          */
         scrollToInternal: function (grid, $scope, gridRow, gridCol) {
-          var args = {};
-
-          args.grid = grid;
+          var scrollEvent = new ScrollEvent(grid,null,null,'uiGridCellNavService.scrollToInternal');
 
           if (gridRow !== null) {
             var seekRowIndex = grid.renderContainers.body.visibleRowCache.indexOf(gridRow);
             var totalRows = grid.renderContainers.body.visibleRowCache.length;
             var percentage = ( seekRowIndex + ( seekRowIndex / ( totalRows - 1 ) ) ) / totalRows;
-            args.y = { percentage:  percentage  };
+            scrollEvent.y = { percentage:  percentage  };
           }
 
           if (gridCol !== null) {
-            args.x = { percentage: this.getLeftWidth(grid, gridCol) / this.getLeftWidth(grid, grid.renderContainers.body.visibleColumnCache[grid.renderContainers.body.visibleColumnCache.length - 1] ) };
+            scrollEvent.x = { percentage: this.getLeftWidth(grid, gridCol) / this.getLeftWidth(grid, grid.renderContainers.body.visibleColumnCache[grid.renderContainers.body.visibleColumnCache.length - 1] ) };
           }
 
-          if (args.y || args.x) {
-            $scope.$broadcast(uiGridConstants.events.GRID_SCROLL, args);
+          if (scrollEvent.y || scrollEvent.x) {
+            scrollEvent.fireScrollingEvent();
           }
         },
 
@@ -11597,9 +11784,7 @@ module.filter('px', function() {
          * @param {GridCol} gridCol column to make visible
          */
         scrollToIfNecessary: function (grid, $scope, gridRow, gridCol) {
-          var args = {};
-
-          args.grid = grid;
+          var scrollEvent = new ScrollEvent(grid,null,null,'uiGridCellNavService.scrollToIfNecessary');
 
           // Alias the visible row and column caches
           var visRowCache = grid.renderContainers.body.visibleRowCache;
@@ -11662,7 +11847,7 @@ module.filter('px', function() {
 
               // Turn the scroll position into a percentage and make it an argument for a scroll event
               percentage = scrollPixels / scrollLength;
-              args.y = { percentage: percentage  };
+              scrollEvent.y = { percentage: percentage  };
             }
             // Otherwise if the scroll position we need to see the row is MORE than the bottom boundary, i.e. obscured below the bottom of the grid...
             else if (pixelsToSeeRow > bottomBound) {
@@ -11672,7 +11857,7 @@ module.filter('px', function() {
 
               // Turn the scroll position into a percentage and make it an argument for a scroll event
               percentage = scrollPixels / scrollLength;
-              args.y = { percentage: percentage  };
+              scrollEvent.y = { percentage: percentage  };
             }
           }
 
@@ -11713,7 +11898,7 @@ module.filter('px', function() {
               // Turn the scroll position into a percentage and make it an argument for a scroll event
               horizPercentage = horizScrollPixels / horizScrollLength;
               horizPercentage = (horizPercentage > 1) ? 1 : horizPercentage;
-              args.x = { percentage: horizPercentage  };
+              scrollEvent.x = { percentage: horizPercentage  };
             }
             // Otherwise if the scroll position we need to see the row is MORE than the bottom boundary, i.e. obscured below the bottom of the grid...
             else if (columnRightEdge > rightBound) {
@@ -11724,13 +11909,13 @@ module.filter('px', function() {
               // Turn the scroll position into a percentage and make it an argument for a scroll event
               horizPercentage = horizScrollPixels / horizScrollLength;
               horizPercentage = (horizPercentage > 1) ? 1 : horizPercentage;
-              args.x = { percentage: horizPercentage  };
+              scrollEvent.x = { percentage: horizPercentage  };
             }
           }
 
           // If we need to scroll on either the x or y axes, fire a scroll event
-          if (args.y || args.x) {
-            $scope.$broadcast(uiGridConstants.events.GRID_SCROLL, args);
+          if (scrollEvent.y || scrollEvent.x) {
+            scrollEvent.fireScrollingEvent();
           }
         },
 
@@ -11830,19 +12015,33 @@ module.filter('px', function() {
               };
 
               //  gridUtil.logDebug('uiGridEdit preLink');
-              uiGridCtrl.cellNav.broadcastCellNav = grid.cellNav.broadcastCellNav = function (newRowCol) {
-                _scope.$broadcast(uiGridCellNavConstants.CELL_NAV_EVENT, newRowCol);
-                uiGridCtrl.cellNav.broadcastFocus(newRowCol);
+              uiGridCtrl.cellNav.broadcastCellNav = grid.cellNav.broadcastCellNav = function (newRowCol, modifierDown) {
+                modifierDown = !(modifierDown === undefined || !modifierDown);
+                uiGridCtrl.cellNav.broadcastFocus(newRowCol, modifierDown);
+                _scope.$broadcast(uiGridCellNavConstants.CELL_NAV_EVENT, newRowCol, modifierDown);
               };
 
-              uiGridCtrl.cellNav.broadcastFocus = function (rowCol) {
-                var row = rowCol.row,
-                    col = rowCol.col;
+              uiGridCtrl.cellNav.broadcastFocus = function (rowCol, modifierDown) {
+                modifierDown = !(modifierDown === undefined || !modifierDown);
 
-                if (grid.cellNav.lastRowCol === null || (grid.cellNav.lastRowCol.row !== row || grid.cellNav.lastRowCol.col !== col)) {
+                var row = rowCol.row,
+                  col = rowCol.col;
+
+                var rowColSelectIndex = uiGridCtrl.grid.api.cellNav.rowColSelectIndex(rowCol);
+
+                if (grid.cellNav.lastRowCol === null || rowColSelectIndex === -1) {
                   var newRowCol = new RowCol(row, col);
                   grid.api.cellNav.raise.navigate(newRowCol, grid.cellNav.lastRowCol);
                   grid.cellNav.lastRowCol = newRowCol;
+                  if (uiGridCtrl.grid.options.modifierKeysToMultiSelectCells && modifierDown) {
+                    grid.cellNav.focusedCells.push(rowCol);
+                  } else {
+                    grid.cellNav.focusedCells = [rowCol];
+                  }
+                } else if (grid.options.modifierKeysToMultiSelectCells && modifierDown &&
+                  rowColSelectIndex >= 0) {
+
+                  grid.cellNav.focusedCells.splice(rowColSelectIndex, 1);
                 }
               };
 
@@ -11896,11 +12095,12 @@ module.filter('px', function() {
           return {
             post: function ($scope, $elm, $attrs, controllers) {
               var uiGridCtrl = controllers[0],
-                  renderContainerCtrl = controllers[1],
-                  cellNavController = controllers[2];
+                 renderContainerCtrl = controllers[1],
+                 cellNavController = controllers[2];
 
               // Skip attaching cell-nav specific logic if the directive is not attached above us
               if (!cellNavController) { return; }
+
 
               var containerId = renderContainerCtrl.containerId;
 
@@ -11919,7 +12119,7 @@ module.filter('px', function() {
               });
 
               // When there's a scroll event we need to make sure to re-focus the right row, because the cell contents may have changed
-              $scope.$on(uiGridConstants.events.GRID_SCROLL, function (evt, args) {
+              grid.api.core.on.scrollEvent($scope, function (args) {
                 // Skip if not this grid that the event was broadcast for
                 if (args.grid && args.grid.id !== uiGridCtrl.grid.id) {
                   return;
@@ -11983,23 +12183,28 @@ module.filter('px', function() {
 
           // When a cell is clicked, broadcast a cellNav event saying that this row+col combo is now focused
           $elm.find('div').on('click', function (evt) {
-            uiGridCtrl.cellNav.broadcastCellNav(new RowCol($scope.row, $scope.col));
+            uiGridCtrl.cellNav.broadcastCellNav(new RowCol($scope.row, $scope.col), evt.ctrlKey || evt.metaKey);
 
             evt.stopPropagation();
           });
 
           // This event is fired for all cells.  If the cell matches, then focus is set
-          $scope.$on(uiGridCellNavConstants.CELL_NAV_EVENT, function (evt, rowCol) {
+          $scope.$on(uiGridCellNavConstants.CELL_NAV_EVENT, function (evt, rowCol, modifierDown) {
             if (rowCol.row === $scope.row &&
               rowCol.col === $scope.col) {
-              setFocused();
+              if (uiGridCtrl.grid.options.modifierKeysToMultiSelectCells && modifierDown &&
+                uiGridCtrl.grid.api.cellNav.rowColSelectIndex(rowCol) === -1) {
+                clearFocus();
+              } else {
+                setFocused();
+              }
 
               // This cellNav event came from a keydown event so we can safely refocus
               if (rowCol.hasOwnProperty('eventType') && rowCol.eventType === uiGridCellNavConstants.EVENT_TYPE.KEYDOWN) {
                 $elm.find('div')[0].focus();
               }
             }
-            else {
+            else if (!(uiGridCtrl.grid.options.modifierKeysToMultiSelectCells && modifierDown)) {
               clearFocus();
             }
           });
@@ -12670,7 +12875,7 @@ module.filter('px', function() {
               });
 
               //stop editing when grid is scrolled
-              var deregOnGridScroll = $scope.$on(uiGridConstants.events.GRID_SCROLL, function () {
+              var deregOnGridScroll = $scope.col.grid.api.core.on.scrollEvent($scope, function () {
                 endEdit(true);
                 $scope.grid.api.edit.raise.afterCellEdit($scope.row.entity, $scope.col.colDef, cellModel($scope), origCellValue);
                 deregOnGridScroll();
@@ -14071,14 +14276,14 @@ module.filter('px', function() {
       
           // IE10+
           if (navigator.msSaveBlob) {
-            return navigator.msSaveBlob(new Blob([csvContent], {
+            return navigator.msSaveBlob(new Blob(["\ufeff", csvContent], {
               type: strMimeType
             }), fileName);
           }
       
           //html5 A[download]
           if ('download' in a) {
-            var blob = new Blob([csvContent], {
+            var blob = new Blob(["\ufeff", csvContent], {
               type: strMimeType
             });
             rawFile = URL.createObjectURL(blob);
@@ -15077,7 +15282,7 @@ module.filter('px', function() {
             var target = event.srcElement || event.target;
             
             if (target && target.files && target.files.length === 1) {
-              var fileObject = event.srcElement.files[0];
+              var fileObject = target.files[0];
               uiGridImporterService.importThisFile( grid, fileObject );
               target.form.reset();
             }
@@ -15293,7 +15498,7 @@ module.filter('px', function() {
           scope: false,
           link: function ($scope, $elm, $attr){
             if ($scope.grid.options.enableInfiniteScroll) {
-              $scope.$on(uiGridConstants.events.GRID_SCROLL, function (evt, args) {
+              $scope.grid.api.core.on.scrollEvent($scope, function (args) {
                 if (args.y) {
                   var percentage = 100 - (args.y.percentage * 100);
                   uiGridInfiniteScrollService.checkScroll($scope.grid, percentage);
@@ -15322,7 +15527,7 @@ module.filter('px', function() {
    *  @name ui.grid.moveColumns.service:uiGridMoveColumnService
    *  @description Service for column moving feature.
    */
-  module.service('uiGridMoveColumnService', ['$q', '$timeout', '$log', function ($q, $timeout, $log) {
+  module.service('uiGridMoveColumnService', ['$q', '$timeout', '$log', 'ScrollEvent', function ($q, $timeout, $log, ScrollEvent) {
 
     var service = {
       initializeGrid: function (grid) {
@@ -15527,8 +15732,8 @@ module.filter('px', function() {
    *  Events that invoke repositioning of column:
    *    - mouseup
    */
-  module.directive('uiGridHeaderCell', ['$q', 'gridUtil', 'uiGridMoveColumnService', '$document', '$log', 'uiGridConstants',
-    function ($q, gridUtil, uiGridMoveColumnService, $document, $log, uiGridConstants) {
+  module.directive('uiGridHeaderCell', ['$q', 'gridUtil', 'uiGridMoveColumnService', '$document', '$log', 'uiGridConstants', 'ScrollEvent',
+    function ($q, gridUtil, uiGridMoveColumnService, $document, $log, uiGridConstants, ScrollEvent) {
       return {
         priority: -10,
         require: '^uiGrid',
@@ -15600,7 +15805,9 @@ module.filter('px', function() {
                         }
                         else {
                           changeValue *= 8;
-                          uiGridCtrl.fireScrollingEvent({x: {pixels: changeValue}});
+                          var scrollEvent = new ScrollEvent($scope.col.grid, null, null, 'uiGridHeaderCell.moveElement');
+                          scrollEvent.x = {pixels: changeValue};
+                          scrollEvent.fireScrollingEvent();
                         }
                         totalMouseMovement += changeValue;
 
@@ -18897,7 +19104,7 @@ module.filter('px', function() {
                 $elm.addClass('ui-grid-disable-selection');
                 $elm.on('touchstart', touchStart);
                 $elm.on('touchend', touchEnd);
-                $elm.on('click', selectCells);
+                $elm.on('mousedown', selectCells);
 
                 $scope.registered = true;
               }
@@ -18909,7 +19116,7 @@ module.filter('px', function() {
 
                 $elm.off('touchstart', touchStart);
                 $elm.off('touchend', touchEnd);
-                $elm.off('click', selectCells);
+                $elm.off('mousedown', selectCells);
 
                 $scope.registered = false;
               }
@@ -18971,26 +19178,45 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/ui-grid',
-    "<div ui-i18n=\"en\" class=\"ui-grid\"><!-- TODO (c0bra): add \"scoped\" attr here, eventually? --><style ui-grid-style>.grid{{ grid.id }} {\n" +
-    "      /* Styles for the grid */\n" +
-    "    }\n" +
+    "<div ui-i18n=\"en\" class=\"ui-grid\"><!-- TODO (c0bra): add \"scoped\" attr here, eventually? --><style ui-grid-style>.grid{{ grid.id }} {\r" +
     "\n" +
-    "    .grid{{ grid.id }} .ui-grid-row, .grid{{ grid.id }} .ui-grid-cell, .grid{{ grid.id }} .ui-grid-cell .ui-grid-vertical-bar {\n" +
-    "      height: {{ grid.options.rowHeight }}px;\n" +
-    "    }\n" +
+    "      /* Styles for the grid */\r" +
     "\n" +
-    "    .grid{{ grid.id }} .ui-grid-row:last-child .ui-grid-cell {\n" +
-    "      border-bottom-width: {{ ((grid.getTotalRowHeight() < grid.getViewportHeight()) && '1') || '0' }}px;\n" +
-    "    }\n" +
+    "    }\r" +
     "\n" +
-    "    {{ grid.verticalScrollbarStyles }}\n" +
-    "    {{ grid.horizontalScrollbarStyles }}\n" +
+    "\r" +
     "\n" +
-    "    .ui-grid[dir=rtl] .ui-grid-viewport {\n" +
-    "      padding-left: {{ grid.verticalScrollbarWidth }}px;\n" +
-    "    }\n" +
+    "    .grid{{ grid.id }} .ui-grid-row, .grid{{ grid.id }} .ui-grid-cell, .grid{{ grid.id }} .ui-grid-cell .ui-grid-vertical-bar {\r" +
     "\n" +
-    "    {{ grid.customStyles }}</style><div ui-grid-menu-button ng-if=\"grid.options.enableGridMenu\"></div><div ui-grid-render-container container-id=\"'body'\" col-container-name=\"'body'\" row-container-name=\"'body'\" bind-scroll-horizontal=\"true\" bind-scroll-vertical=\"true\" enable-horizontal-scrollbar=\"grid.options.enableHorizontalScrollbar\" enable-vertical-scrollbar=\"grid.options.enableVerticalScrollbar\"></div><div ui-grid-column-menu ng-if=\"grid.options.enableColumnMenus\"></div><div ng-transclude></div></div>"
+    "      height: {{ grid.options.rowHeight }}px;\r" +
+    "\n" +
+    "    }\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    .grid{{ grid.id }} .ui-grid-row:last-child .ui-grid-cell {\r" +
+    "\n" +
+    "      border-bottom-width: {{ ((grid.getTotalRowHeight() < grid.getViewportHeight()) && '1') || '0' }}px;\r" +
+    "\n" +
+    "    }\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    {{ grid.verticalScrollbarStyles }}\r" +
+    "\n" +
+    "    {{ grid.horizontalScrollbarStyles }}\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    .ui-grid[dir=rtl] .ui-grid-viewport {\r" +
+    "\n" +
+    "      padding-left: {{ grid.verticalScrollbarWidth }}px;\r" +
+    "\n" +
+    "    }\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    {{ grid.customStyles }}</style><div ui-grid-menu-button ng-if=\"grid.options.enableGridMenu\"></div><div ng-if=\"grid.hasLeftContainer()\" style=\"width: 0\" ui-grid-pinned-container=\"'left'\"></div><div ui-grid-render-container container-id=\"'body'\" col-container-name=\"'body'\" row-container-name=\"'body'\" bind-scroll-horizontal=\"true\" bind-scroll-vertical=\"true\" enable-horizontal-scrollbar=\"grid.options.enableHorizontalScrollbar\" enable-vertical-scrollbar=\"grid.options.enableVerticalScrollbar\"></div><div ng-if=\"grid.hasRightContainer()\" style=\"width: 0\" ui-grid-pinned-container=\"'right'\"></div><div ui-grid-column-menu ng-if=\"grid.options.enableColumnMenus\"></div><div ng-transclude></div></div>"
   );
 
 
@@ -19005,16 +19231,26 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/uiGridColumnMenu',
-    "<div class=\"ui-grid-column-menu\"><div ui-grid-menu menu-items=\"menuItems\"><!-- <div class=\"ui-grid-column-menu\">\n" +
-    "    <div class=\"inner\" ng-show=\"menuShown\">\n" +
-    "      <ul>\n" +
-    "        <div ng-show=\"grid.options.enableSorting\">\n" +
-    "          <li ng-click=\"sortColumn($event, asc)\" ng-class=\"{ 'selected' : col.sort.direction == asc }\"><i class=\"ui-grid-icon-sort-alt-up\"></i> Sort Ascending</li>\n" +
-    "          <li ng-click=\"sortColumn($event, desc)\" ng-class=\"{ 'selected' : col.sort.direction == desc }\"><i class=\"ui-grid-icon-sort-alt-down\"></i> Sort Descending</li>\n" +
-    "          <li ng-show=\"col.sort.direction\" ng-click=\"unsortColumn()\"><i class=\"ui-grid-icon-cancel\"></i> Remove Sort</li>\n" +
-    "        </div>\n" +
-    "      </ul>\n" +
-    "    </div>\n" +
+    "<div class=\"ui-grid-column-menu\"><div ui-grid-menu menu-items=\"menuItems\"><!-- <div class=\"ui-grid-column-menu\">\r" +
+    "\n" +
+    "    <div class=\"inner\" ng-show=\"menuShown\">\r" +
+    "\n" +
+    "      <ul>\r" +
+    "\n" +
+    "        <div ng-show=\"grid.options.enableSorting\">\r" +
+    "\n" +
+    "          <li ng-click=\"sortColumn($event, asc)\" ng-class=\"{ 'selected' : col.sort.direction == asc }\"><i class=\"ui-grid-icon-sort-alt-up\"></i> Sort Ascending</li>\r" +
+    "\n" +
+    "          <li ng-click=\"sortColumn($event, desc)\" ng-class=\"{ 'selected' : col.sort.direction == desc }\"><i class=\"ui-grid-icon-sort-alt-down\"></i> Sort Descending</li>\r" +
+    "\n" +
+    "          <li ng-show=\"col.sort.direction\" ng-click=\"unsortColumn()\"><i class=\"ui-grid-icon-cancel\"></i> Remove Sort</li>\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "      </ul>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
     "  </div> --></div></div>"
   );
 
@@ -19040,12 +19276,12 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/uiGridRenderContainer',
-    "<div class=\"ui-grid-render-container\"><div ui-grid-header></div><div ui-grid-viewport></div><div ui-grid-footer ng-if=\"grid.options.showFooter\"></div><!-- native scrolling --><div ui-grid-native-scrollbar ng-if=\"enableVerticalScrollbar\" type=\"vertical\"></div><div ui-grid-native-scrollbar ng-if=\"enableHorizontalScrollbar\" type=\"horizontal\"></div></div>"
+    "<div class=\"ui-grid-render-container\"><div ui-grid-header></div><div ui-grid-viewport></div><div ui-grid-footer ng-if=\"grid.options.showFooter\"></div><!-- native scrolling --><!--<div ui-grid-native-scrollbar ng-if=\"enableVerticalScrollbar\" type=\"vertical\"></div>--><!--<div ui-grid-native-scrollbar ng-if=\"enableHorizontalScrollbar\" type=\"horizontal\"></div>--></div>"
   );
 
 
   $templateCache.put('ui-grid/uiGridViewport',
-    "<div class=\"ui-grid-viewport\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" class=\"ui-grid-row\" ng-style=\"containerCtrl.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
+    "<div class=\"ui-grid-viewport\" ng-style=\"containerCtrl.colContainer.getViewPortStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" class=\"ui-grid-row\" ng-style=\"containerCtrl.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
   );
 
 
@@ -19060,7 +19296,8 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/expandableRow',
-    "<div ui-grid-expandable-row ng-if=\"expandableRow.shouldRenderExpand()\" class=\"expandableRow\" style=\"float:left; margin-top: 1px; margin-bottom: 1px\" ng-style=\"{width: (grid.renderContainers.body.getCanvasWidth() - grid.verticalScrollbarWidth) + 'px'\n" +
+    "<div ui-grid-expandable-row ng-if=\"expandableRow.shouldRenderExpand()\" class=\"expandableRow\" style=\"float:left; margin-top: 1px; margin-bottom: 1px\" ng-style=\"{width: (grid.renderContainers.body.getCanvasWidth() - grid.verticalScrollbarWidth) + 'px'\r" +
+    "\n" +
     "     , height: grid.options.expandableRowHeight + 'px'}\"></div>"
   );
 
@@ -19071,8 +19308,10 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/expandableScrollFiller',
-    "<div ng-if=\"expandableRow.shouldRenderFiller()\" style=\"float:left; margin-top: 2px; margin-bottom: 2px\" ng-style=\"{ width: (grid.getViewportWidth()) + 'px',\n" +
-    "              height: grid.options.expandableRowHeight + 'px', 'margin-left': grid.options.rowHeader.rowHeaderWidth + 'px' }\"><i class=\"ui-grid-icon-spin5 ui-grid-animate-spin\" ng-style=\"{ 'margin-top': ( grid.options.expandableRowHeight/2 - 5) + 'px',\n" +
+    "<div ng-if=\"expandableRow.shouldRenderFiller()\" style=\"float:left; margin-top: 2px; margin-bottom: 2px\" ng-style=\"{ width: (grid.getViewportWidth()) + 'px',\r" +
+    "\n" +
+    "              height: grid.options.expandableRowHeight + 'px', 'margin-left': grid.options.rowHeader.rowHeaderWidth + 'px' }\"><i class=\"ui-grid-icon-spin5 ui-grid-animate-spin\" ng-style=\"{ 'margin-top': ( grid.options.expandableRowHeight/2 - 5) + 'px',\r" +
+    "\n" +
     "            'margin-left' : ((grid.getViewportWidth() - grid.options.rowHeader.rowHeaderWidth)/2 - 5) + 'px' }\"></i></div>"
   );
 
