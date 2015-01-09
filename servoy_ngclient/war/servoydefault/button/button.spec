@@ -11,7 +11,7 @@
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type":"dataprovider", "scope" :"design", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "directEditPropertyName" : {"type" :"string",  "default" : "text"}, 
-	        "enabled" : { "type": "protected", "blockingOn": false, "default": true },
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "format" : {"for":"dataProviderID" , "type" :"format"}, 

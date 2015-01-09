@@ -10,7 +10,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "enabled" : { "type": "protected", "blockingOn": false, "default": true },
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "horizontalAlignment" : {"type" :"int", "scope" :"design", "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
@@ -24,7 +24,7 @@
 	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
 	        "tabs" : {"type":"tab[]", "droppable":true}, 
 	        "transparent" : "boolean", 
-	        "visible" : "visible"
+	        "visible" : "visible" 
 	},
 	"handlers":
 	{

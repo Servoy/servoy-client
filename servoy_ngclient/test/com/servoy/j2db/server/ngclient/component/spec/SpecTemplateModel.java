@@ -158,19 +158,15 @@ public class SpecTemplateModel
 	public String getPropTypeWithDefault(String compName, Element element)
 	{
 		String type = SpecGenerator.getSpecTypeFromRepoType(compName, element);
-		if (!type.startsWith("{") && !type.startsWith("["))
-		{
-			type = "\"" + type + "\"";
-		}
-		else
+		if (type.startsWith("{") || type.startsWith("[") || type.startsWith("\""))
 		{
 			return type;
 		}
 		if (element.getContentID() > 0 && !Utils.equalObjects(ContentSpec.getJavaClassMemberDefaultValue(element.getTypeID()), element.getDefaultClassValue()))
 		{
-			type = "{\"type\":" + type + ", \"default\":" + element.getDefaultTextualClassValue() + "}";
+			return "{\"type\":\"" + type + "\", \"default\":" + element.getDefaultTextualClassValue() + "}";
 		}
-		return type;
+		return "\"" + type + "\"";
 	}
 
 	public void sortByName()

@@ -151,8 +151,9 @@ public class SpecGenerator
 			"portal.gif",
 			IRepository.PORTALS,
 			com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-			new String[] { "{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"},\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},\n\t\t\t\t"
-				+ "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"}" }));
+			new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},"
+				+ "\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"},"
+				+ "\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel(
 			"spinner",
 			"Spinner",
@@ -462,8 +463,8 @@ public class SpecGenerator
 		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"scope\" :\"design\", \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\", \"svy-line-height-normal\"]}");
-
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
 		componentRepoTypeMappingExceptions.put("calendar", calendarTypeMapping);
 
 		HashMap<String, String> checkTypeMapping = new HashMap<String, String>();
@@ -481,6 +482,7 @@ public class SpecGenerator
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"scope\" :\"design\", \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\", \"select2-container-svy-xs\"]}");
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
+		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
 		componentRepoTypeMappingExceptions.put("combobox", comboTypeMapping);
 
 		HashMap<String, String> htmlAreaMapping = new HashMap<String, String>();
@@ -583,6 +585,10 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(), "{\"type\" :\"scrollbars\", \"scope\" :\"design\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName(), "{\"type\" :\"boolean\", \"scope\" :\"design\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID.getPropertyName(), "form");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VISIBLE.getPropertyName(), "\"visible\"");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true }");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true }");
+		repoTypeMappingExceptions.put("readOnly", "protected");
 
 		//internal properties (properties that should not be generated for any component)
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
@@ -610,33 +616,33 @@ public class SpecGenerator
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
 		perComponentExceptions.put(
 			"label",
-			new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()),
-				(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName()))));
-		perComponentExceptions.put("textfield", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
-		perComponentExceptions.put("typeahead", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
-		perComponentExceptions.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
-		perComponentExceptions.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
-		perComponentExceptions.put("button", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName()))));
-		perComponentInternalProperties.put("portal", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_RELATIONNAME.getPropertyName()))));
+			 Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()),
+				(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName())));
+		perComponentExceptions.put("textfield",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
+		perComponentExceptions.put("typeahead",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
+		perComponentExceptions.put("password",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
+		perComponentExceptions.put("calendar",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
+		perComponentExceptions.put("button",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName())));
+		perComponentInternalProperties.put("portal",  Arrays.asList((StaticContentSpecLoader.PROPERTY_RELATIONNAME.getPropertyName())));
 		perComponentInternalProperties.put(
 			"htmlview",
-			new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
+			 Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()), (StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),
-				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
-		perComponentInternalProperties.put("splitpane", new ArrayList<>(Arrays.asList("tabIndex")));
-		perComponentInternalProperties.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		perComponentInternalProperties.put("htmlarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
-		perComponentInternalProperties.put("imagemedia", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
-		perComponentInternalProperties.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		perComponentInternalProperties.put("textarea", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
-		perComponentInternalProperties.put("check", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		perComponentInternalProperties.put("radio", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		perComponentInternalProperties.put("radiogroup", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
-		perComponentInternalProperties.put("checkgroup", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()))));
-		perComponentInternalProperties.put("textfield", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		perComponentInternalProperties.put("combobox", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		perComponentInternalProperties.put("spinner", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
-		perComponentInternalProperties.put("typeahead", new ArrayList<>(Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName())));
+				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
+		perComponentInternalProperties.put("splitpane",  Arrays.asList("tabIndex"));
+		perComponentInternalProperties.put("calendar",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("htmlarea",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName())));
+		perComponentInternalProperties.put("imagemedia",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName())));
+		perComponentInternalProperties.put("password", Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("textarea",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName())));
+		perComponentInternalProperties.put("check",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("radio",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("radiogroup",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
+		perComponentInternalProperties.put("checkgroup",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
+		perComponentInternalProperties.put("textfield",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("combobox",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("spinner",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("typeahead",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
 
 		serverSideApi.add("getAbsoluteFormLocationY");
 		serverSideApi.add("getClientProperty");
@@ -659,26 +665,19 @@ public class SpecGenerator
 		final String callOnAll = "callOn: 1"; // ALL_RECORDS_IF_TEMPLATE; see globalServoyCustomTypes.spec
 		//metaDataForApi.put("setValueListItems", Arrays.asList(new String[] { callOnAll }));
 	}
-
 	// @formatter:on
+
 	public static boolean isAllowedProperty(String componentName, String propName)
 	{
-		if (perComponentExceptions.get(componentName) != null)
+		if (perComponentExceptions.get(componentName) != null && perComponentExceptions.get(componentName).contains(propName))
 		{
-			if (perComponentExceptions.get(componentName).contains(propName))
-			{
-				return true;
-			}
+			return true;
 		}
-		if (perComponentInternalProperties.get(componentName) != null)
+		if (perComponentInternalProperties.get(componentName) != null && perComponentInternalProperties.get(componentName).contains(propName))
 		{
-			if (perComponentInternalProperties.get(componentName).contains(propName))
-			{
-				return false;
-			}
+			return false;
 		}
-		if (internalProperties.contains(propName)) return false;
-		return true;
+		return !internalProperties.contains(propName);
 	}
 
 	public static String getSpecTypeFromRepoType(String compName, Element element)
