@@ -119,7 +119,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			{
 				arrayConversionMarkers.pushNode(String.valueOf(i));
 				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, null, formElementValue[i], getCustomJSONTypeDefinition(),
-					arrayConversionMarkers, fs);
+					arrayConversionMarkers, fs, formElement);
 				arrayConversionMarkers.popNode();
 			}
 			writer.endArray();

@@ -43,6 +43,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IDirtyPropertyListener;
@@ -52,6 +53,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowDat
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -240,7 +242,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			{
 				if (component == childComponent)
 				{
-					if (!recordBasedProperties.contains(propertyName))
+					if (targetDataLinks.recordLinked && !recordBasedProperties.contains(propertyName))
 					{
 						recordBasedProperties.add(propertyName);
 
@@ -285,8 +287,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		// model content
 		TypedData<Map<String, Object>> allProps = childComponent.getProperties();
-		allProps.content = new HashMap<>(allProps.content);
+		childComponent.getAndClearChanges(); // just for clear
 		removeRecordDependentProperties(allProps);
+
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 		destinationJSON.object();
 		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType, childComponent);
@@ -313,7 +316,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		TypedData<Map<String, Object>> changes = childComponent.getAndClearChanges();
-
 		removeRecordDependentProperties(changes);
 
 		boolean modelChanged = (changes.content.size() > 0);
@@ -416,26 +418,58 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		writer.object();
 
-		// get template values
-		TypedData<Map<String, Object>> modelProperties = fe.propertiesForTemplateJSON();
-		// update them with runtime values
-		TypedData<Map<String, Object>> changes = childComponent.getAndClearChanges();
-		removeRecordDependentProperties(changes);
-		for (Entry<String, Object> changeEntry : changes.content.entrySet())
+		// get template model values
+		TypedData<Map<String, Object>> formElementProperties = fe.propertiesForTemplateJSON();
+
+		// we'll need to update them with runtime values
+		TypedData<Map<String, Object>> runtimeProperties = childComponent.getProperties();
+		childComponent.getAndClearChanges(); // just for clear
+
+		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+		final DataAdapterList dal = (DataAdapterList)(foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
+
+		// add to useful properties only those formElement properties that didn't get overriden at runtime (so form element value is still used)
+		boolean templateValuesAdded = false;
+		for (Entry<String, Object> fePropEntry : formElementProperties.content.entrySet())
 		{
-			modelProperties.content.put(changeEntry.getKey(), changeEntry.getValue());
-			if (changes.contentType != null)
+			if (!runtimeProperties.content.containsKey(fePropEntry.getKey()))
 			{
-				PropertyDescription type = changes.contentType.getProperty(changeEntry.getKey());
-				if (type != null)
+				PropertyDescription propertyType = null;
+				if (formElementProperties.contentType != null) propertyType = formElementProperties.contentType.getProperty(fePropEntry.getKey());
+
+				Object sabloValue;
+				if (propertyType != null)
 				{
-					if (modelProperties.contentType == null) modelProperties.contentType = AggregatedPropertyType.newAggregatedProperty();
-					modelProperties.contentType.putProperty(changeEntry.getKey(), type);
+					sabloValue = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(fePropEntry.getValue(),
+						formElementProperties.contentType.getProperty(fePropEntry.getKey()), fe, childComponent, dal);
+				}
+				else
+				{
+					// some hardcoded props "like offsetY" don't have a type; just send them as is
+					sabloValue = fePropEntry.getValue();
+				}
+
+				if (!templateValuesAdded)
+				{
+					runtimeProperties.content = new HashMap<String, Object>(runtimeProperties.content); // otherwise it's unmodifiable
+					templateValuesAdded = true;
+				}
+				runtimeProperties.content.put(fePropEntry.getKey(), sabloValue);
+
+				if (propertyType != null)
+				{
+					if (runtimeProperties.contentType == null) runtimeProperties.contentType = AggregatedPropertyType.newAggregatedProperty();
+					runtimeProperties.contentType.putProperty(fePropEntry.getKey(), propertyType);
 				}
 			}
 		}
 
-		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, fe, modelProperties);
+		// do this here after merging form element and runtime values so that form element record dependent properties get ignored as well
+		removeRecordDependentProperties(runtimeProperties);
+
+		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, fe, runtimeProperties, recordBasedProperties,
+			JSONUtils.FullValueToJSONConverter.INSTANCE, childComponent);
 		recordBasedPropertiesChanged = false;
 
 		writeWholeViewportToJSON(writer);
@@ -455,7 +489,15 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			// remove properties that are per record basis from the "per all model"
 			for (String propertyName : recordBasedProperties)
 			{
-				changes.content.remove(propertyName);
+				try
+				{
+					changes.content.remove(propertyName);
+				}
+				catch (UnsupportedOperationException e)
+				{
+					changes.content = new HashMap<String, Object>(changes.content);
+					changes.content.remove(propertyName);
+				}
 				if (changes.contentType != null) changes.contentType.putProperty(propertyName, null);
 			}
 		}

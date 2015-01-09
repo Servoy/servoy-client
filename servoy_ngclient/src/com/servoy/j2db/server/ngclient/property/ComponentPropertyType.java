@@ -38,6 +38,7 @@ import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -194,15 +195,17 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 		writer.object();
 
-		writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName(pd), fe, fe.propertiesForTemplateJSON()); // TODO here we could remove record based props from fe.propertiesForTemplateJSON(); but normally record based props will not write any value in template anyway
+		writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName(pd), fe, fe.propertiesForTemplateJSON(),
+			formElementValue.recordBasedProperties, new FormElementToJSON(fe.getFlattendSolution()), formElement); // TODO here we could remove record based props from fe.propertiesForTemplateJSON(); but normally record based props will not write any value in template anyway
 
 		writer.endObject();
 
 		return writer;
 	}
 
-	protected void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType, FormElement fe,
-		TypedData<Map<String, Object>> propertiesTypedData) throws JSONException
+	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
+		FormElement fe, TypedData<Map<String, Object>> propertiesTypedData, List<String> recordBasedProperties, IToJSONConverter<ContextT> modelDataConverter,
+		ContextT contextObject) throws JSONException
 	{
 		writer.key("componentDirectiveName").value(fe.getTypeName());
 		writer.key("name").value(fe.getName());
@@ -211,8 +214,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		try
 		{
 			writer.object();
-			JSONUtils.writeDataWithConversions(new FormElementToJSON(fe.getFlattendSolution()), writer, propertiesTypedData.content,
-				propertiesTypedData.contentType, null);
+			JSONUtils.writeDataWithConversions(modelDataConverter, writer, propertiesTypedData.content, propertiesTypedData.contentType, contextObject);
 			writer.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)
@@ -236,10 +238,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		{
 			writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
 			writer.key("forFoundset").object();
-			if (formElementValue.recordBasedProperties != null)
+			if (recordBasedProperties != null)
 			{
 				writer.key("recordBasedProperties").array();
-				for (String propertyName : formElementValue.recordBasedProperties)
+				for (String propertyName : recordBasedProperties)
 				{
 					writer.value(propertyName);
 				}

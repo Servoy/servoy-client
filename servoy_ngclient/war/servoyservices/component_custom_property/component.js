@@ -22,7 +22,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	function getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) {
 		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 
-		var newBeanModel = propertyValue.model;
+		var newBeanModel = propertyValue[MODEL_KEY];
 		if (angular.isUndefined(oldBeanModel)) oldBeanModel = newBeanModel; // for child components who's custom prop. changed
 		var childChangedNotifier = getBeanPropertyChangeNotifier(propertyValue, componentScope); 
 		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
@@ -79,7 +79,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				var done = false;
 				
 				if (modelBeanUpdate) {
-					var beanModel = currentClientValue.model;
+					var beanModel = currentClientValue[MODEL_KEY];
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
 					var beanLayout = internalState.beanLayout;
@@ -142,7 +142,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					internalState.modelUnwatch = null;
 
 					// calling applyBeanData initially to make sure any needed conversions are done on model's properties
-					var beanModel = serverJSONValue.model;
+					var beanModel = serverJSONValue[MODEL_KEY];
 
 					// just dummy stuff - currently the parent controls layout, but applyBeanData needs such data...
 					internalState.beanLayout = {};
@@ -153,8 +153,17 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier, currentConversionInfo, beanModel[CONVERSIONS], componentScope);
 					delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
 					
-					// TODO when component property will be able to send itself entirely we need to handle viewport conversions here as well; for
-					// now it is sent entirely only as part of the template - when there is no viewport available (no app. even)
+					// component property is now be able to send itself entirely at runtime; we need to handle viewport conversions here as well
+					var wholeViewport = serverJSONValue[MODEL_VIEWPORT_KEY];
+					delete serverJSONValue[MODEL_VIEWPORT_KEY];
+					serverJSONValue[MODEL_VIEWPORT] = [];
+					
+					if (wholeViewport) {
+						$viewportModule.updateWholeViewport(serverJSONValue, MODEL_VIEWPORT,
+								internalState, wholeViewport, serverJSONValue[CONVERSIONS] ? serverJSONValue[CONVERSIONS][MODEL_VIEWPORT_KEY] : undefined,
+								componentScope);
+					}
+					if (angular.isDefined(serverJSONValue[CONVERSIONS])) delete serverJSONValue[CONVERSIONS];
 
 					if (!serverJSONValue.api) serverJSONValue.api = {};
 					if (serverJSONValue.handlers)
@@ -192,7 +201,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							apply: function(property, componentModel, rowId) {
 								/** rowId is only needed if the component is linked to a foundset */
 								var conversionInfo = internalState[CONVERSIONS];
-								if (!componentModel) componentModel = serverJSONValue.model; // if it's not linked to foundset componentModel will be undefined
+								if (!componentModel) componentModel = serverJSONValue[MODEL_KEY]; // if it's not linked to foundset componentModel will be undefined
 								var propertyValue = componentModel[property];
 
 								if (conversionInfo && conversionInfo[property]) {

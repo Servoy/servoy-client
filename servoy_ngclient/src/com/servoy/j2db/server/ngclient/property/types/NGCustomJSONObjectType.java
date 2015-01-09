@@ -117,7 +117,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			{
 				arrayConversionMarkers.pushNode(e.getKey());
 				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
-					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, fs);
+					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, fs, formElement);
 				arrayConversionMarkers.popNode();
 			}
 			writer.endObject();

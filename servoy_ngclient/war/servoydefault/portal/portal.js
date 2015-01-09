@@ -41,16 +41,35 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					$scope.foundset = newVal;
 				}
 			})
+
+			function disposeOfRowProxies(rowProxy) {
+				for (var elIdx in rowProxy) {
+					if (rowProxy[elIdx].unwatchFuncs) {
+						rowProxy[elIdx].unwatchFuncs.forEach(function (f) { f(); });
+					}
+					if (rowProxy[elIdx].propertyUnwatchFuncs) {
+						var propertyUnwatchFuncs = rowProxy[elIdx].propertyUnwatchFuncs;
+						for (var propKey in propertyUnwatchFuncs) {
+							propertyUnwatchFuncs[propKey].forEach(function (f) { f(); });
+						};
+					}
+				}
+			}
+
 			$scope.$watchCollection('model.childElements', function(newVal, oldVal) {
 				elements = $scope.model.childElements;
 				if (newVal != oldVal) {
-					// either a component was added/removed or the whole array changed
+					// either a component was added/removed/changed or the whole array changed
+					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
+					for (var someKey in rowProxyObjects)
+						disposeOfRowProxies(rowProxyObjects[someKey]);
+					rowProxyObjects = {};
 
-					// reset handlers so that the new ones will be used
-					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.cellHandlers; });
-					// add back apis cause incomming are probably fresh uninitialized ones {}
-					onAllCells(function(cellProxies, pk, elementIndex) { updateColumnAPIFromCell(elements[elementIndex].api, cellProxies.cellApi, elementIndex); });
-					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.mergedCellModel; });
+//					// reset handlers so that the new ones will be used
+//					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.cellHandlers; });
+//					// add back apis cause incomming are probably fresh uninitialized ones {}
+//					onAllCells(function(cellProxies, pk, elementIndex) { updateColumnAPIFromCell(elements[elementIndex].api, cellProxies.cellApi, elementIndex); });
+//					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.mergedCellModel; });
 				}
 			})
 
@@ -108,7 +127,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						}
 						var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0) 
 						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
-						var isSortable = $scope.model.sortable && el.forFoundset.recordBasedProperties.length > 0;
+						var isSortable = $scope.model.sortable && el.forFoundset.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change 
 						$scope.columnDefinitions.push({
 							name:el.name,
 							displayName: columnTitle,
@@ -668,18 +687,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						}
 						for (var oldRowId in rowProxyObjects) {
 							if (!newRowIDs[oldRowId]) {
-								rowProxy = rowProxyObjects[oldRowId];
-								for (var elIdx in rowProxy) {
-									if (rowProxy[elIdx].unwatchFuncs) {
-										rowProxy[elIdx].unwatchFuncs.forEach(function (f) { f(); });
-									}
-									if (rowProxy[elIdx].propertyUnwatchFuncs) {
-										var propertyUnwatchFuncs = rowProxy[elIdx].propertyUnwatchFuncs;
-										for (var propKey in propertyUnwatchFuncs) {
-											propertyUnwatchFuncs[propKey].forEach(function (f) { f(); });
-										};
-									}
-								}
+								disposeOfRowProxies(rowProxyObjects[oldRowId]);
 								delete rowProxyObjects[oldRowId];
 							}
 						}

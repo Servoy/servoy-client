@@ -9,6 +9,7 @@
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type" :"dataprovider", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}, "parsehtml":true }, 
+	        "displaysTags" : { "type" : "boolean", "scope" : "design" }, 
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
@@ -19,8 +20,8 @@
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":140}}, 
 	        "styleClass" : { "type" :"styleclass", "scope" :"design", "values" :[]}, 
 	        "tabSeq" : {"type" :"tabseq", "scope" :"design"}, 
-	        "text" : "tagstring", 
-	        "toolTipText" : "tagstring", 
+	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
+	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 
 	        "visible" : "visible" 
 	},

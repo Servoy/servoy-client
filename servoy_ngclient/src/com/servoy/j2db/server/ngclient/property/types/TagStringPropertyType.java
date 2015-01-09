@@ -232,8 +232,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 					dp = ScriptVariable.SCOPES_DOT_PREFIX + dp;
 				}
 
-				// TODO should we detect here if it's an actual dataprovider? Can't it be something special like record count or current record?
 				dataProviders.add(dp);
+				// TODO Can't it be something special like record count or current record which are special cases and could still not depend on record...?
 				recordDP[0] = recordDP[0] || (!ScopesUtils.isVariableScope(dp) && formElement.getForm().getScriptVariable(dp) == null);
 
 				return dp;

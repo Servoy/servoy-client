@@ -251,11 +251,12 @@ public class NGConversions
 
 	/**
 	 * Conversion 2 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
+	 * @param formElement
 	 */
 	public JSONWriter convertFormElementToTemplateJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType,
-		DataConversion browserConversionMarkers, FlattenedSolution fs) throws IllegalArgumentException, JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws IllegalArgumentException, JSONException
 	{
-		return new FormElementToJSON(fs).toJSONValue(writer, key, value, valueType, browserConversionMarkers, null);
+		return new FormElementToJSON(fs).toJSONValue(writer, key, value, valueType, browserConversionMarkers, formElement);
 	}
 
 	/**

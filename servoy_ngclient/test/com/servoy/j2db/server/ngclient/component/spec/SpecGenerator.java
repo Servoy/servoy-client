@@ -564,10 +564,10 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ \"type\":\"dataprovider\", \"scope\" :\"design\", \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":\"dataProviderID\" , \"type\" :\"format\"}");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\":\"tagstring\", \"displayTagsPropertyName\" :\"displaysTags\" }");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), "{ \"type\":\"tagstring\", \"displayTagsPropertyName\" :\"displaysTags\" }");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT.getPropertyName(), "{ \"type\":\"tagstring\", \"displayTagsPropertyName\" :\"displaysTags\" }");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS.getPropertyName(), "boolean");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS.getPropertyName(), "{ \"type\" : \"boolean\", \"scope\" : \"design\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"scope\" :\"design\", \"for\": \"dataProviderID\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName(), "{\"type\" : \"media\", \"scope\" :\"design\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID.getPropertyName(), "media");
