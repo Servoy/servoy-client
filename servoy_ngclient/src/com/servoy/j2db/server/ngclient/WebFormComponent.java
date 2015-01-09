@@ -4,7 +4,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.sablo.Container;
 import org.sablo.IEventHandler;
@@ -13,9 +12,6 @@ import org.sablo.specification.WebComponentSpecProvider;
 
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
-import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
-import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 
 /**
  * Servoy extension to work with webcomponents on a form
@@ -41,20 +37,6 @@ public class WebFormComponent extends Container implements IContextProvider
 		this.dataAdapterList = dataAdapterList;
 
 		properties.put("svyMarkupId", ComponentFactory.getMarkupId(dataAdapterList.getForm().getName(), name));
-		for (Entry<String, PropertyDescription> e : fe.getWebComponentSpec().getProperties().entrySet())
-		{
-			PropertyDescription pd = e.getValue();
-			if (pd.getType() instanceof IDataLinkedType)
-			{
-				((DataAdapterList)dataAdapterList).addDataLinkedProperty(this, e.getKey(),
-					(TargetDataLinks)fe.getPreprocessedPropertyInfo(IDataLinkedType.class, pd.getName()));
-			}
-			if (pd.getType() instanceof IFindModeAwareType)
-			{
-				if (((Boolean)fe.getPreprocessedPropertyInfo(IFindModeAwareType.class, pd.getName())).booleanValue()) ((DataAdapterList)dataAdapterList).addFindModeAwareProperty(
-					this, pd);
-			}
-		}
 	}
 
 	/**

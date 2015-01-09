@@ -61,7 +61,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, JSONObject formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
-		FlattenedSolution fs) throws JSONException
+		FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		// this just dumps an empty/dummy value
 		if (conversionMarkers != null) conversionMarkers.convert(TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets

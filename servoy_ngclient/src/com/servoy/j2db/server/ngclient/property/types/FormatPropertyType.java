@@ -138,7 +138,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public boolean valueInTemplate(Object object)
+	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElement formElement)
 	{
 		return false;
 	}

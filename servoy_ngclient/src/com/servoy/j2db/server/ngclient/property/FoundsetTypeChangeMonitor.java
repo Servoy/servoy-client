@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
@@ -410,7 +411,7 @@ public class FoundsetTypeChangeMonitor
 		if (changeNotifier != null) changeNotifier.valueChanged();
 	}
 
-	public static class RowData implements IToJSONWriter
+	public static class RowData implements IToJSONWriter<BaseWebObject>
 	{
 		public static final int CHANGE = 0;
 		public static final int INSERT = 1;
@@ -442,7 +443,7 @@ public class FoundsetTypeChangeMonitor
 		}
 
 		@Override
-		public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
+		public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<BaseWebObject> converter, DataConversion clientDataConversions)
 			throws JSONException
 		{
 			JSONUtils.addKeyIfPresent(w, keyInParent);

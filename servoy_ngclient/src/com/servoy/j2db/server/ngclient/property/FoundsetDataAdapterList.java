@@ -17,10 +17,15 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 
 /**
  * A data adapter list that can be used to work with records of a foundset typed property.<br/>
@@ -34,6 +39,7 @@ public class FoundsetDataAdapterList extends DataAdapterList
 {
 
 	private boolean keepQuiet = false;
+	private List<IDataLinkedPropertyRegistrationListener> dataLinkedPropertyRegistrationListeners;
 
 	public FoundsetDataAdapterList(IWebFormController formController)
 	{
@@ -58,11 +64,41 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		return keepQuiet;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.DataAdapterList#valueChanged(com.servoy.j2db.dataprocessing.ModificationEvent)
-	 */
+	@Override
+	public void addDataLinkedProperty(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
+	{
+		super.addDataLinkedProperty(component, propertyName, targetDataLinks);
+		for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
+		{
+			l.dataLinkedPropertyRegistered(component, propertyName, targetDataLinks);
+		}
+	}
+
+	@Override
+	public void removeDataLinkedProperty(WebFormComponent component, String propertyName)
+	{
+		super.removeDataLinkedProperty(component, propertyName);
+		for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
+		{
+			l.dataLinkedPropertyUnregistered(component, propertyName);
+		}
+	}
+
+	public void addDataLinkedPropertyRegistrationListener(IDataLinkedPropertyRegistrationListener listener)
+	{
+		if (dataLinkedPropertyRegistrationListeners == null) dataLinkedPropertyRegistrationListeners = new ArrayList<IDataLinkedPropertyRegistrationListener>();
+		if (!dataLinkedPropertyRegistrationListeners.contains(listener)) dataLinkedPropertyRegistrationListeners.add(listener);
+	}
+
+	public void removeDataLinkedPropertyRegistrationListener(IDataLinkedPropertyRegistrationListener listener)
+	{
+		if (dataLinkedPropertyRegistrationListeners != null)
+		{
+			dataLinkedPropertyRegistrationListeners.remove(listener);
+			if (dataLinkedPropertyRegistrationListeners.size() == 0) dataLinkedPropertyRegistrationListeners = null;
+		}
+	}
+
 	@Override
 	public void valueChanged(ModificationEvent e)
 	{

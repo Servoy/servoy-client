@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -51,8 +52,12 @@ public abstract class NGUtils
 
 	public static final PropertyDescription DATE_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (date)",
 		TypesRegistry.getType(DatePropertyType.TYPE_NAME));
-	public static final PropertyDescription MEDIA_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (media)",
+	public static final PropertyDescription MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD = new PropertyDescription("Dataprovider (media)",
 		TypesRegistry.getType(ByteArrayResourcePropertyType.TYPE_NAME));
+	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_PARSE_HTML_CACHED_PD = new PropertyDescription("Dataprovider (media PP)",
+		TypesRegistry.getType(MediaDataproviderPropertyType.TYPE_NAME), Boolean.TRUE);
+	public static final PropertyDescription MEDIA_PERMISIVE_DATAPROVIDER_NO_PARSE_HTML_CACHED_PD = new PropertyDescription("Dataprovider (media PN)",
+		TypesRegistry.getType(MediaDataproviderPropertyType.TYPE_NAME), Boolean.FALSE);
 	public static final PropertyDescription INTEGER_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (int)",
 		TypesRegistry.getType(LongPropertyType.TYPE_NAME));
 	public static final PropertyDescription NUMBER_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (number)",
@@ -94,7 +99,9 @@ public abstract class NGUtils
 				typePD = DATE_DATAPROVIDER_CACHED_PD;
 				break;
 			case IColumnTypes.MEDIA :
-				typePD = MEDIA_DATAPROVIDER_CACHED_PD;
+				// TODO should we detect and return MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD directly for real DB table columns?
+				if (parseHTMLIfString) typePD = MEDIA_PERMISIVE_DATAPROVIDER_PARSE_HTML_CACHED_PD; // parse html is only relevant for text contents
+				else typePD = MEDIA_PERMISIVE_DATAPROVIDER_NO_PARSE_HTML_CACHED_PD;
 				break;
 			case IColumnTypes.INTEGER :
 				typePD = INTEGER_DATAPROVIDER_CACHED_PD;

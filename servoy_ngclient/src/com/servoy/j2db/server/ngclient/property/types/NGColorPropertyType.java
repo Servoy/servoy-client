@@ -52,7 +52,7 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Color formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}

@@ -47,9 +47,10 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					// either a component was added/removed or the whole array changed
 
 					// reset handlers so that the new ones will be used
-					onAllCells(function(cellProxy, pk, elementIndex) { delete cellProxy.cellHandlers; });
+					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.cellHandlers; });
 					// add back apis cause incomming are probably fresh uninitialized ones {}
-					onAllCells(function(cellProxy, pk, elementIndex) { updateColumnAPIFromCell(elements[elementIndex].api, cellProxy.cellApi, elementIndex); });
+					onAllCells(function(cellProxies, pk, elementIndex) { updateColumnAPIFromCell(elements[elementIndex].api, cellProxies.cellApi, elementIndex); });
+					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.mergedCellModel; });
 				}
 			})
 

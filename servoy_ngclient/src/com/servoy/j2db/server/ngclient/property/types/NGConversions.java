@@ -37,6 +37,7 @@ import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -131,7 +132,7 @@ public class NGConversions
 		 * @return the JSON writer for easily continuing the write process in the caller.
 		 */
 		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-			FlattenedSolution fs) throws JSONException;
+			FlattenedSolution fs, FormElement formElement) throws JSONException;
 
 	}
 
@@ -260,7 +261,7 @@ public class NGConversions
 	/**
 	 * To be used for "Conversion 2".
 	 */
-	public static class FormElementToJSON implements IToJSONConverter
+	public static class FormElementToJSON implements IToJSONConverter<FormElement>
 	{
 		private final FlattenedSolution fs;
 
@@ -279,7 +280,7 @@ public class NGConversions
 		 */
 		@Override
 		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers,
-			BaseWebObject webObject) throws JSONException, IllegalArgumentException
+			FormElement formElement) throws JSONException, IllegalArgumentException
 		{
 			IPropertyType< ? > type = (valueType != null ? valueType.getType() : null);
 
@@ -288,13 +289,13 @@ public class NGConversions
 				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
 				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, fs);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, fs, formElement);
 				}
-				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v))
+				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, valueType, formElement))
 				{
 					return writer;
 				}
-				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers, webObject)) // webObject will always be null - this is template JSON
+				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers, formElement))
 				{
 					JSONUtils.addKeyIfPresent(writer, key);
 					writer.value(value);
@@ -303,8 +304,7 @@ public class NGConversions
 			else if (type != null)
 			{
 				// use conversion 5.1 to convert from default sablo type value to browser JSON in this case
-				writer = JSONUtils.FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(), valueType, browserConversionMarkers,
-					webObject); // webObject will always be null - this is template JSON
+				writer = JSONUtils.FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(), valueType, browserConversionMarkers, null); // webObject will always be null - this is template JSON
 			}
 			return writer;
 		}
@@ -354,22 +354,37 @@ public class NGConversions
 	public Object convertFormElementToSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
 		DataAdapterList dal)
 	{
+		Object retval;
 		IPropertyType< ? > type = pd.getType();
 		if (formElementValue != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 		{
 			if (type instanceof IFormElementToSabloComponent)
 			{
-				return ((IFormElementToSabloComponent)type).toSabloComponentValue(formElementValue, pd, formElement, component, dal);
+				retval = ((IFormElementToSabloComponent)type).toSabloComponentValue(formElementValue, pd, formElement, component, dal);
 			}
-			return formElementValue;
+			else retval = formElementValue;
 		}
-
-		if (type instanceof IFormElementDefaultValueToSabloComponent)
+		else if (type instanceof IFormElementDefaultValueToSabloComponent)
 		{
-			return ((IFormElementDefaultValueToSabloComponent)type).toSabloComponentDefaultValue(pd, formElement, component, dal);
+			retval = ((IFormElementDefaultValueToSabloComponent)type).toSabloComponentDefaultValue(pd, formElement, component, dal);
+		}
+		else
+		{
+			retval = type.defaultValue();
 		}
 
-		return type.defaultValue();
+		// register data and find mode aware properties
+		if (pd.getType() instanceof IDataLinkedType)
+		{
+			dal.addDataLinkedProperty(component, pd.getName(), (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd.getName()));
+		}
+		if (pd.getType() instanceof IFindModeAwareType)
+		{
+			if (((Boolean)formElement.getPreprocessedPropertyInfo(IFindModeAwareType.class, pd.getName())).booleanValue()) dal.addFindModeAwareProperty(
+				component, pd);
+		}
+
+		return retval;
 	}
 
 	/**

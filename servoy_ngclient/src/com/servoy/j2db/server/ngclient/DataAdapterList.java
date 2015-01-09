@@ -29,7 +29,6 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -44,12 +43,10 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
-import com.servoy.j2db.util.Text;
 
 
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
-	private final Map<String, Map<WebFormComponent, List<String>>> dataProviderToComponentWithTags = new HashMap<>();
 
 	// properties that are interested in a specific dataproviderID chaning
 	protected final Map<String, List<Pair<WebFormComponent, String>>> dataProviderToLinkedComponentProperty = new HashMap<>(); // dataProviderID -> [(comp, propertyName)]
@@ -76,9 +73,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		this.executor = new EventExecutor(formController);
 	}
 
-	/**
-	 * @return the application
-	 */
 	public final INGApplication getApplication()
 	{
 		return formController.getApplication();
@@ -152,39 +146,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	public void addTaggedProperty(final WebFormComponent component, final String beanTaggedProperty, String propertyValue)
-	{
-		Text.processTags(propertyValue, new ITagResolver()
-		{
-			@Override
-			public String getStringValue(String name)
-			{
-				String dp = name;
-				if (dp.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
-				{
-					dp = ScriptVariable.SCOPES_DOT_PREFIX + dp;
-				}
-				Map<WebFormComponent, List<String>> map = dataProviderToComponentWithTags.get(dp);
-				if (map == null)
-				{
-					map = new HashMap<WebFormComponent, List<String>>();
-					dataProviderToComponentWithTags.put(dp, map);
-				}
-
-//				recordAwareComponents.add(component);
-				List<String> props = map.get(component);
-				if (props == null)
-				{
-					props = new ArrayList<>();
-					map.put(component, props);
-				}
-				props.add(beanTaggedProperty);
-				if (formController != null) setupModificationListener(dp);
-				return dp;
-			}
-		});
-	}
-
 	public void addDataLinkedProperty(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
 	{
 		if (targetDataLinks == TargetDataLinks.NOT_LINKED_TO_DATA) return;
@@ -209,9 +170,31 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		allComponentPropertiesLinkedToData.add(propertyIdentifier);
 	}
 
+	public void removeDataLinkedProperty(WebFormComponent component, String propertyName)
+	{
+		Pair<WebFormComponent, String> propertyIdentifier = new Pair<>(component, propertyName);
+
+		Iterator<List<Pair<WebFormComponent, String>>> it = dataProviderToLinkedComponentProperty.values().iterator();
+		while (it.hasNext())
+		{
+			List<Pair<WebFormComponent, String>> x = it.next();
+			if (x.remove(propertyIdentifier))
+			{
+				if (x.size() == 0) it.remove();
+			}
+		}
+		// TODO keep track & unregister when needed global/form scope listeners: so undo setupModificationListener(dpID);
+		allComponentPropertiesLinkedToData.remove(propertyIdentifier);
+	}
+
 	public void addFindModeAwareProperty(WebFormComponent webFormComponent, PropertyDescription pd)
 	{
 		findModeAwareProperties.add(new DataConverterContext(pd, webFormComponent));
+	}
+
+	public void removeFindModeAwareProperty(WebFormComponent webFormComponent, PropertyDescription pd)
+	{
+		findModeAwareProperties.remove(new DataConverterContext(pd, webFormComponent)); // depends on DataConverterContext.equals
 	}
 
 	public void componentDisposed(WebFormComponent component)
@@ -291,23 +274,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return record;
 	}
 
-	private boolean updateTagValue(Map<WebFormComponent, List<String>> components)
-	{
-		boolean changed = false;
-		for (Map.Entry<WebFormComponent, List<String>> entry : components.entrySet())
-		{
-			WebFormComponent component = entry.getKey();
-			for (String taggedProp : entry.getValue())
-			{
-				String initialPropValue = (String)component.getInitialProperty(taggedProp); // once this CODE IS REMOVED, also remove component.getInitialProperty please
-				String tagValue = Text.processTags(initialPropValue, DataAdapterList.this);
-				changed = component.setProperty(taggedProp, tagValue) || changed;
-			}
-		}
-
-		return changed;
-	}
-
 	protected boolean isFormDataprovider(String dataprovider)
 	{
 		if (dataprovider == null) return false;
@@ -344,11 +310,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (rawPropValue instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)rawPropValue).dataProviderOrRecordChanged(record, null,
 					isFormDP, isGlobalDP, fireChangeEvent);
 			}
-
-			for (Entry<String, Map<WebFormComponent, List<String>>> entry : dataProviderToComponentWithTags.entrySet())
-			{
-				changed = updateTagValue(entry.getValue()) || changed;
-			}
 		}
 		else
 		{
@@ -362,11 +323,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					if (rawPropValue instanceof IServoyAwarePropertyValue) ((IServoyAwarePropertyValue)rawPropValue).dataProviderOrRecordChanged(record,
 						dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
 				}
-			}
-
-			if ((isFormDP || isGlobalDP) && dataProviderToComponentWithTags.containsKey(dataProvider))
-			{
-				changed = updateTagValue(dataProviderToComponentWithTags.get(dataProvider)) || changed;
 			}
 		}
 
@@ -492,10 +448,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	}
 
 	// helper method; not static because needs form scope
-	public Object getValueObject(IRecord record, String dataProviderId)
+	public Object getValueObject(IRecord recordToUse, String dataProviderId)
 	{
-		return record.getValue(dataProviderId); //TODO scopes support
-		//	return getValueObject(record, getFormScope(), dataProviderId);
+//		return record.getValue(dataProviderId);
+		return com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(recordToUse, formController.getFormScope(), dataProviderId); // needed for tagString processing (so not just record values but also variables)
 	}
 
 	public boolean isCountOrAvgOrSumAggregateDataProvider(IDataAdapter dataAdapter)

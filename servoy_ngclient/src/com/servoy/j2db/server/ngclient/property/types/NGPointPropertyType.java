@@ -54,7 +54,7 @@ public class NGPointPropertyType extends PointPropertyType implements IDesignToF
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Point formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}

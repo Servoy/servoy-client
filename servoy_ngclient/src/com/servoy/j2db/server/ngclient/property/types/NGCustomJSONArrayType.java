@@ -105,7 +105,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
-		FlattenedSolution fs) throws JSONException
+		FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -225,7 +225,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public boolean valueInTemplate(Object[] values)
+	public boolean valueInTemplate(Object[] values, PropertyDescription pd, FormElement fe)
 	{
 		if (values != null && values.length > 0)
 		{
@@ -236,7 +236,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				ISupportTemplateValue<Object> type = (ISupportTemplateValue<Object>)desc.getType();
 				for (Object object : values)
 				{
-					if (!type.valueInTemplate(object))
+					if (!type.valueInTemplate(object, desc, fe))
 					{
 						return false;
 					}

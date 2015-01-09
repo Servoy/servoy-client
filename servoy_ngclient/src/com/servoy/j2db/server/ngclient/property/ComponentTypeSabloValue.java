@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,6 +51,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -71,7 +73,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	protected String forFoundsetTypedPropertyName;
 	protected PropertyChangeListener forFoundsetPropertyListener;
+
+	protected boolean recordBasedPropertiesChanged = false;
+	protected boolean recordBasedPropertiesChangedFromTemplate = false;
 	protected ViewportDataChangeMonitor viewPortChangeMonitor;
+
+	protected IDataLinkedPropertyRegistrationListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
+	protected final List<String> recordBasedProperties;
 
 	protected WebFormComponent parentComponent;
 	protected IChangeListener monitor;
@@ -79,12 +87,12 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	protected final ComponentTypeFormElementValue formElementValue;
 
-
 	public ComponentTypeSabloValue(ComponentTypeFormElementValue formElementValue, PropertyDescription componentPropertyDescription,
 		String forFoundsetTypedPropertyName)
 	{
 		this.formElementValue = formElementValue;
 		this.forFoundsetTypedPropertyName = forFoundsetTypedPropertyName;
+		this.recordBasedProperties = forFoundsetTypedPropertyName != null ? new ArrayList<>(formElementValue.recordBasedProperties) : null;
 		this.componentPropertyDescription = componentPropertyDescription;
 	}
 
@@ -181,7 +189,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				if (dirty)
 				{
 					// this gets called whenever a property is flagged as dirty/changed/to be sent to browser
-					if (forFoundsetTypedPropertyName != null && formElementValue.recordBasedProperties.contains(propertyName))
+					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
 					{
 						if (!((FoundsetDataAdapterList)dal).isQuietRecordChangeInProgress()) // if forFoundsetTypedPropertyName != null we are using a foundset DAL, so just cast
 						{
@@ -214,18 +222,61 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (foundsetPropValue != null)
 		{
 			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
-				formElementValue.recordBasedProperties, this));
+				recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
+			((FoundsetDataAdapterList)dal).addDataLinkedPropertyRegistrationListener(getDataLinkedPropertyRegistrationListener());
 		}
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
+	protected IDataLinkedPropertyRegistrationListener getDataLinkedPropertyRegistrationListener()
+	{
+		return dataLinkedPropertyRegistrationListener = new IDataLinkedPropertyRegistrationListener()
+		{
+
+			@Override
+			public void dataLinkedPropertyRegistered(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
+			{
+				if (component == childComponent)
+				{
+					if (!recordBasedProperties.contains(propertyName))
+					{
+						recordBasedProperties.add(propertyName);
+
+						recordBasedPropertiesChanged = true;
+						recordBasedPropertiesChangedFromTemplate = true;
+						monitor.valueChanged();
+					}
+				}
+			}
+
+			@Override
+			public void dataLinkedPropertyUnregistered(WebFormComponent component, String propertyName)
+			{
+				if (component == childComponent)
+				{
+					if (recordBasedProperties.remove(propertyName))
+					{
+						recordBasedPropertiesChanged = true;
+						recordBasedPropertiesChangedFromTemplate = true;
+						monitor.valueChanged();
+					}
+				}
+			}
+
+		};
+	}
+
 	/**
 	 * Writes a diff update between the value it has in the template and the initial data requested after runtime components were created or during a page refresh.
+	 * @param componentPropertyType
 	 */
-	public JSONWriter initialToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
+	public JSONWriter initialToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
+		throws JSONException
 	{
+		if (recordBasedPropertiesChangedFromTemplate) return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
+
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		destinationJSON.object();
@@ -250,8 +301,15 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		return destinationJSON;
 	}
 
-	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
+	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
+		throws JSONException
 	{
+		if (recordBasedPropertiesChanged)
+		{
+			// just send over the whole thing - viewport and model properties are not the same as they used to be
+			return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
+		}
+
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		TypedData<Map<String, Object>> changes = childComponent.getAndClearChanges();
@@ -378,8 +436,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, fe, modelProperties);
+		recordBasedPropertiesChanged = false;
 
 		writeWholeViewportToJSON(writer);
+		viewPortChangeMonitor.clearChanges();
 
 		writer.endObject();
 
@@ -393,7 +453,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (forFoundsetTypedPropertyName != null)
 		{
 			// remove properties that are per record basis from the "per all model"
-			for (String propertyName : formElementValue.recordBasedProperties)
+			for (String propertyName : recordBasedProperties)
 			{
 				changes.content.remove(propertyName);
 				if (changes.contentType != null) changes.contentType.putProperty(propertyName, null);
@@ -501,7 +561,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
 
 					IDataAdapterList dal;
-					if (forFoundsetTypedPropertyName != null && formElementValue.recordBasedProperties.contains(propertyName))
+					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
 					{
 						// changes component record and sets value
 						String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
@@ -529,7 +589,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					String propertyName = startEditData.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
 
 					IDataAdapterList dal;
-					if (forFoundsetTypedPropertyName != null && formElementValue.recordBasedProperties.contains(propertyName))
+					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
 					{
 						String rowIDValue = startEditData.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 						IFoundSetInternal foundset = getFoundsetValue().getFoundset();
@@ -596,4 +656,5 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				value + "' of component: " + childComponent + ". Record not found.", new RuntimeException());
 		}
 	}
+
 }

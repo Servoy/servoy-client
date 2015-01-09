@@ -184,7 +184,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, FlattenedSolution fs) throws JSONException
+		DataConversion conversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
@@ -194,7 +194,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 		writer.object();
 
-		writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName(pd), fe, fe.propertiesForTemplateJSON());
+		writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName(pd), fe, fe.propertiesForTemplateJSON()); // TODO here we could remove record based props from fe.propertiesForTemplateJSON(); but normally record based props will not write any value in template anyway
 
 		writer.endObject();
 
@@ -285,7 +285,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.initialToJSON(writer, clientConversion);
+			sabloValue.initialToJSON(writer, clientConversion, this);
 		}
 		return writer;
 	}
@@ -297,7 +297,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.changesToJSON(writer, clientConversion);
+			sabloValue.changesToJSON(writer, clientConversion, this);
 		}
 		return writer;
 	}

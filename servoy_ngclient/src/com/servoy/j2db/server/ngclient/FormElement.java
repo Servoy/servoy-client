@@ -575,7 +575,7 @@ public final class FormElement implements IWebComponentInitializer
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.writeDataWithConversions(new FormElementToJSON(fs), propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, null);
+			JSONUtils.writeDataWithConversions(new FormElementToJSON(fs), propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, this);
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)

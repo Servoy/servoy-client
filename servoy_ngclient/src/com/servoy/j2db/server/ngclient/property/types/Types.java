@@ -50,6 +50,7 @@ public class Types
 		TypesRegistry.addType(TagStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
+		TypesRegistry.addType(MediaDataproviderPropertyType.INSTANCE);
 		TypesRegistry.addType(HTMLStringPropertyType.INSTANCE);
 
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);

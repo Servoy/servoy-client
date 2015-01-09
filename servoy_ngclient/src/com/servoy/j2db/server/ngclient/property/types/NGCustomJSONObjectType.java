@@ -103,7 +103,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, FlattenedSolution fs) throws JSONException
+		DataConversion conversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -220,7 +220,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public boolean valueInTemplate(Map<String, FormElementT> object)
+	public boolean valueInTemplate(Map<String, FormElementT> object, PropertyDescription pd, FormElement fe)
 	{
 		if (object != null)
 		{
@@ -230,7 +230,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				FormElementT value = object.get(entry.getKey());
 				if (value != null && entry.getValue().getType() instanceof ISupportTemplateValue< ? >)
 				{
-					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value))
+					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value, entry.getValue(), fe))
 					{
 						return false;
 					}

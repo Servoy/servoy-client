@@ -24,32 +24,45 @@ package com.servoy.j2db.server.ngclient.property.types;
 public class TagStringConfig
 {
 
-	private final boolean hideTags;
+	private final String displayTagsPropertyName;
+	private final boolean displayTags;
+	private final boolean useParsedValueInRhino;
+
 	private final String forFoundSet;
 
 	/**
-	 * @param valueOf
-	 * @param optString
+	 * @param displayTagsPropertyName Can be null. If non-null then the "tagstring" typed property will initially read the boolean value the property with name [displayTagsPropertyName].
+	 * If that property is true, tags (%%x%%) will be replaced, otherwise they will be ignored (in which case it will just replace i18n). If null, tags will be replaced or not based on config option "displayTags".
+	 * @param displayTags if displayTagsPropertyName is non-null it will be ignored. Otherwise, if true, this property will parse tags (%%x%%) otherwise it won't.
+	 * @param useParsedValueInRhino rhino JS scripting set/get will work with: if "false" the parsed (with tags/i18n already replaced, so static) value, if true the non-parsed (value containing %%x%% or i18n:..., which will be parsed) value.
+	 * @param forFoundSet
 	 */
-	public TagStringConfig(boolean hideTags, String forFoundSet)
+	public TagStringConfig(String displayTagsPropertyName, boolean displayTags, boolean useParsedValueInRhino, String forFoundSet)
 	{
-		this.hideTags = hideTags;
+		this.displayTagsPropertyName = displayTagsPropertyName;
+		this.displayTags = displayTags;
+		this.useParsedValueInRhino = useParsedValueInRhino;
 		this.forFoundSet = forFoundSet;
 	}
 
-	/**
-	 * @return the hideTags
-	 */
-	public boolean isHideTags()
+	public String getDisplayTagsPropertyName()
 	{
-		return hideTags;
+		return displayTagsPropertyName;
 	}
 
-	/**
-	 * @return the forFoundSet
-	 */
+	public boolean shouldDisplayTags()
+	{
+		return displayTags;
+	}
+
+	public boolean useParsedValueInRhino()
+	{
+		return useParsedValueInRhino;
+	}
+
 	public String getForFoundSet()
 	{
 		return forFoundSet;
 	}
+
 }

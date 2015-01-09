@@ -81,7 +81,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 	}
 
 	@Override
-	public boolean valueInTemplate(Object object)
+	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElement formElement)
 	{
 		return false;
 	}

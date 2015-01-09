@@ -106,7 +106,7 @@ public class ComponentFactory
 			boolean templatevalue = true;
 			if (propertySpec.getType() instanceof ISupportTemplateValue)
 			{
-				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue);
+				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue, propertySpec, component.getFormElement());
 			}
 			if (templatevalue)
 			{

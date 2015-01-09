@@ -1,0 +1,95 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2014 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+ */
+
+package com.servoy.j2db.server.ngclient.property.types;
+
+import org.sablo.BaseWebObject;
+import org.sablo.IChangeListener;
+import org.sablo.specification.PropertyDescription;
+
+import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
+import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.Text;
+
+/**
+ * Runtime value stored in WebFormComponents for properties of type {@link TagStringPropertyType} that do need to replace tags (%%x%%).
+ * Handles any needed listeners and deals with to and from browser communications.
+ *
+ * @author acostescu
+ */
+public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implements IServoyAwarePropertyValue
+{
+
+	protected String tagReplacedValue;
+	protected IChangeListener changeMonitor;
+	protected PropertyDescription typeOfDP;
+	protected IServoyDataConverterContext dataConverterContext;
+
+	public TagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext)
+	{
+		super(designValue, dataAdapterList);
+		this.dataConverterContext = dataConverterContext;
+
+		updateTagReplacedValue();
+	}
+
+	@Override
+	public String getTagReplacedValue()
+	{
+		return tagReplacedValue;
+	}
+
+	@Override
+	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject component)
+	{
+		this.changeMonitor = changeNotifier;
+	}
+
+	@Override
+	public void detach()
+	{
+		// nothing to do here... we don't add any listener directly in the property type;
+	}
+
+	@Override
+	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
+	{
+		if (updateTagReplacedValue())
+		{
+			changeMonitor.valueChanged();
+		}
+	}
+
+	protected boolean updateTagReplacedValue()
+	{
+		String oldTagReplacedValue = tagReplacedValue;
+		tagReplacedValue = Text.processTags(getDesignValue(), getDataAdapterList()); // shouldn't this be done after HTMLTagsConverter.convert?
+
+		if (HtmlUtils.startsWithHtml(tagReplacedValue))
+		{
+			tagReplacedValue = HTMLTagsConverter.convert(tagReplacedValue, dataConverterContext, false);
+		}
+
+		// changed or not
+		return ((oldTagReplacedValue != tagReplacedValue) && (oldTagReplacedValue == null || !oldTagReplacedValue.equals(tagReplacedValue)));
+	}
+
+}

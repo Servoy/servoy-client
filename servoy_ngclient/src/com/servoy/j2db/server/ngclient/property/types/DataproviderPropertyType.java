@@ -96,7 +96,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public boolean valueInTemplate(String object)
+	public boolean valueInTemplate(String object, PropertyDescription pd, FormElement formElement)
 	{
 		return false; // we have no value until the client is created for dataproviders
 	}
