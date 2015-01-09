@@ -238,11 +238,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			   state.style = {
 					   left: "0px",
 					   top: "0px",
-					   minWidth : formProperties.size.width + "px",
-					   minHeight : formProperties.size.height + "px",
 					   right: "0px",
 					   bottom: "0px",
 					   border: formProperties.border};
+			   
+			   if(formProperties.absoluteLayout)
+			   {
+				   state.style.minWidth = formProperties.size.width + "px";
+				   state.style.minHeight = formProperties.size.height + "px";
+			   }	   
 			   state.properties = formProperties;
 
 			   for (var beanName in beanDatas) {
