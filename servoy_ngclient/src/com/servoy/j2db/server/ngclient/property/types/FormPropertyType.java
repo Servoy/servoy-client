@@ -32,6 +32,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -146,7 +147,7 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		Form form = null;
 		if (formElementValue instanceof Integer)
