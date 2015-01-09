@@ -21,7 +21,9 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -55,7 +57,8 @@ public class WebFormUI extends Container implements IWebFormUI
 		private FormSpecification()
 		{
 			super("form_spec", "", "", null, null, "", null);
-			putProperty("size", new PropertyDescription("size", TypesRegistry.getType("dimension")));
+			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE));
+			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE));
 		}
 	}
 
