@@ -68,9 +68,12 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	public void addDataLinkedProperty(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
 	{
 		super.addDataLinkedProperty(component, propertyName, targetDataLinks);
-		for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
+		if (dataLinkedPropertyRegistrationListeners != null)
 		{
-			l.dataLinkedPropertyRegistered(component, propertyName, targetDataLinks);
+			for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
+			{
+				l.dataLinkedPropertyRegistered(component, propertyName, targetDataLinks);
+			}
 		}
 	}
 
@@ -78,9 +81,12 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	public void removeDataLinkedProperty(WebFormComponent component, String propertyName)
 	{
 		super.removeDataLinkedProperty(component, propertyName);
-		for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
+		if (dataLinkedPropertyRegistrationListeners != null)
 		{
-			l.dataLinkedPropertyUnregistered(component, propertyName);
+			for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
+			{
+				l.dataLinkedPropertyUnregistered(component, propertyName);
+			}
 		}
 	}
 
