@@ -5,10 +5,14 @@ import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -224,6 +228,29 @@ public class WebFormComponent extends Container implements IContextProvider
 		boolean modified = super.flagPropertyAsDirty(key, dirty);
 		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, dirty);
 		return modified;
+	}
+
+	private boolean isWritingComponentProperties;
+
+	public boolean isWritingComponentProperties()
+	{
+		return isWritingComponentProperties;
+	}
+
+	@Override
+	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter converter, String nodeName, DataConversion clientDataConversions)
+		throws JSONException
+	{
+
+		try
+		{
+			isWritingComponentProperties = true;
+			return super.writeComponentProperties(w, converter, nodeName, clientDataConversions);
+		}
+		finally
+		{
+			isWritingComponentProperties = false;
+		}
 	}
 
 }

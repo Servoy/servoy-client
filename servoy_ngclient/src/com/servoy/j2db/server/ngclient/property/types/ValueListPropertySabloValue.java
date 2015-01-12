@@ -146,10 +146,22 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 		}
 	}
 
+	private List<Map<String, Object>> javaValueForJSON;
+
+	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, boolean checkChanged) throws IllegalArgumentException, JSONException
+	{
+		List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
+		if (!checkChanged || javaValueForJSON == null || !javaValueForJSON.equals(newJavaValueForJSON))
+		{
+			if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
+			JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, clientConversion, null);
+		}
+		javaValueForJSON = newJavaValueForJSON;
+	}
+
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion) throws IllegalArgumentException, JSONException
 	{
-		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
-		JSONUtils.toBrowserJSONFullValue(writer, key, getJavaValueForJSON(), null, clientConversion, null);
+		toJSON(writer, key, clientConversion, false);
 	}
 
 	private void revertFilter()

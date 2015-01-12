@@ -20,6 +20,7 @@ import java.util.Collection;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
@@ -106,8 +107,19 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 	{
 		if (sabloValue != null)
 		{
+			boolean checkIfChanged = false;
 			// TODO we should have type info here to send instead of null for real/display values
-			sabloValue.toJSON(writer, key, clientConversion);
+			if (dataConverterContext != null)
+			{
+				BaseWebObject webObject = dataConverterContext.getWebObject();
+				// if not writing properties, then it means the valuelist is already on the client, so
+				// send it only if it is changed
+				if ((webObject instanceof WebFormComponent && !((WebFormComponent)webObject).isWritingComponentProperties()))
+				{
+					checkIfChanged = true;
+				}
+			}
+			sabloValue.toJSON(writer, key, clientConversion, checkIfChanged);
 		}
 		return writer;
 	}
