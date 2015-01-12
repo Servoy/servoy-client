@@ -22,7 +22,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * @author sebster
- * 
+ *
  */
 public class SolutionMetaData extends RootObjectMetaData
 {
@@ -116,6 +116,17 @@ public class SolutionMetaData extends RootObjectMetaData
 			isServoyMobileSolution = ((Solution)root).getSolutionType() == SolutionMetaData.MOBILE;
 		}
 		return isServoyMobileSolution;
+	}
+
+	public static boolean isServoyNGSolution(IRootObject root)
+	{
+		boolean isServoyNGSolution = false;
+		if (root instanceof Solution)
+		{
+			isServoyNGSolution = ((Solution)root).getSolutionType() == SolutionMetaData.NG_CLIENT_ONLY ||
+				((Solution)root).getSolutionType() == SolutionMetaData.SOLUTION;
+		}
+		return isServoyNGSolution;
 	}
 
 	public static boolean isPreImportHook(IRootObject root)
