@@ -322,6 +322,20 @@ public class FormElementHelper
 		return null;
 	}
 
+	public boolean hasExtraParts(Form form)
+	{
+		int count = 0;
+		for (Part prt : Utils.iterate(form.getParts()))
+		{
+			count++;
+			if (count >= 2)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private int getGridWidth(Form form)
 	{
 		int rowWidth = 0;

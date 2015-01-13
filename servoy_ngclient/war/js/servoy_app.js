@@ -242,7 +242,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					   bottom: "0px",
 					   border: formProperties.border};
 			   
-			   if(formProperties.absoluteLayout)
+			   if(formProperties.addMinSize)
 			   {
 				   state.style.minWidth = formProperties.size.width + "px";
 				   state.style.minHeight = formProperties.size.height + "px";

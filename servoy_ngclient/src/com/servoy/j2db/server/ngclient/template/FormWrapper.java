@@ -29,6 +29,7 @@ import org.json.JSONStringer;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -40,6 +41,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.Utils;
 
@@ -200,7 +202,8 @@ public class FormWrapper
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
 		if (!properties.containsKey("size")) properties.put("size", form.getSize());
 		properties.put("designSize", form.getSize());
-		properties.put("absoluteLayout", !form.isResponsiveLayout());
+		properties.put("addMinSize", !form.isResponsiveLayout() &&
+			(form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW) && FormElementHelper.INSTANCE.hasExtraParts(form));
 		removeUnneededFormProperties(properties);
 
 		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
