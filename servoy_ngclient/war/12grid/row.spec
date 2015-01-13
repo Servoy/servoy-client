@@ -4,5 +4,5 @@
 	"version": 1,
 	"definition": "row.json",
 	"contains": ["column"],
-	"parents": ["form","container"]
+	"parents": ["form","container","column"]
 }
