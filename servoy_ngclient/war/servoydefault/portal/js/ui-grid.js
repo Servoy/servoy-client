@@ -1,4 +1,4 @@
-/*! ui-grid - v3.0.0-RC.18-aad5e9e - 2015-01-09
+/*! ui-grid - v3.0.0-RC.18-ad388b2 - 2015-01-13
 * Copyright (c) 2015 ; License: MIT */
 (function () {
   'use strict';
@@ -2983,7 +2983,7 @@ angular.module('ui.grid')
             self.grid.modifyRows(newData)
               .then(function () {
                 // if (self.viewport) {
-                  self.grid.redrawInPlace();
+                  self.grid.redrawInPlace(true);
                 // }
 
                 $scope.$evalAsync(function() {
@@ -5040,9 +5040,10 @@ angular.module('ui.grid')
    * @name redrawCanvas
    * @methodOf ui.grid.class:Grid
    * @description Redraw the rows and columns based on our current scroll position
+   * @param {boolean} [rowsAdded] Optional to indicate rows are added and the scroll percentage must be recalculated
    * 
    */
-  Grid.prototype.redrawInPlace = function redrawInPlace() {
+  Grid.prototype.redrawInPlace = function redrawInPlace(rowsAdded) {
     // gridUtil.logDebug('redrawInPlace');
     
     var self = this;
@@ -5051,9 +5052,14 @@ angular.module('ui.grid')
       var container = self.renderContainers[i];
 
       // gridUtil.logDebug('redrawing container', i);
-
-      container.adjustRows(null, container.prevScrolltopPercentage);
-      container.adjustColumns(null, container.prevScrollleftPercentage);
+      if (rowsAdded) {
+        container.adjustRows(container.prevScrollTop, null);
+        container.adjustColumns(container.prevScrollTop, null);
+      }
+      else {
+        container.adjustRows(null, container.prevScrolltopPercentage);
+        container.adjustColumns(null, container.prevScrollleftPercentage);
+      }
     }
   };
 
@@ -19178,43 +19184,24 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/ui-grid',
-    "<div ui-i18n=\"en\" class=\"ui-grid\"><!-- TODO (c0bra): add \"scoped\" attr here, eventually? --><style ui-grid-style>.grid{{ grid.id }} {\r" +
+    "<div ui-i18n=\"en\" class=\"ui-grid\"><!-- TODO (c0bra): add \"scoped\" attr here, eventually? --><style ui-grid-style>.grid{{ grid.id }} {\n" +
+    "      /* Styles for the grid */\n" +
+    "    }\n" +
     "\n" +
-    "      /* Styles for the grid */\r" +
+    "    .grid{{ grid.id }} .ui-grid-row, .grid{{ grid.id }} .ui-grid-cell, .grid{{ grid.id }} .ui-grid-cell .ui-grid-vertical-bar {\n" +
+    "      height: {{ grid.options.rowHeight }}px;\n" +
+    "    }\n" +
     "\n" +
-    "    }\r" +
+    "    .grid{{ grid.id }} .ui-grid-row:last-child .ui-grid-cell {\n" +
+    "      border-bottom-width: {{ ((grid.getTotalRowHeight() < grid.getViewportHeight()) && '1') || '0' }}px;\n" +
+    "    }\n" +
     "\n" +
-    "\r" +
+    "    {{ grid.verticalScrollbarStyles }}\n" +
+    "    {{ grid.horizontalScrollbarStyles }}\n" +
     "\n" +
-    "    .grid{{ grid.id }} .ui-grid-row, .grid{{ grid.id }} .ui-grid-cell, .grid{{ grid.id }} .ui-grid-cell .ui-grid-vertical-bar {\r" +
-    "\n" +
-    "      height: {{ grid.options.rowHeight }}px;\r" +
-    "\n" +
-    "    }\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "    .grid{{ grid.id }} .ui-grid-row:last-child .ui-grid-cell {\r" +
-    "\n" +
-    "      border-bottom-width: {{ ((grid.getTotalRowHeight() < grid.getViewportHeight()) && '1') || '0' }}px;\r" +
-    "\n" +
-    "    }\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "    {{ grid.verticalScrollbarStyles }}\r" +
-    "\n" +
-    "    {{ grid.horizontalScrollbarStyles }}\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "    .ui-grid[dir=rtl] .ui-grid-viewport {\r" +
-    "\n" +
-    "      padding-left: {{ grid.verticalScrollbarWidth }}px;\r" +
-    "\n" +
-    "    }\r" +
-    "\n" +
-    "\r" +
+    "    .ui-grid[dir=rtl] .ui-grid-viewport {\n" +
+    "      padding-left: {{ grid.verticalScrollbarWidth }}px;\n" +
+    "    }\n" +
     "\n" +
     "    {{ grid.customStyles }}</style><div ui-grid-menu-button ng-if=\"grid.options.enableGridMenu\"></div><div ng-if=\"grid.hasLeftContainer()\" style=\"width: 0\" ui-grid-pinned-container=\"'left'\"></div><div ui-grid-render-container container-id=\"'body'\" col-container-name=\"'body'\" row-container-name=\"'body'\" bind-scroll-horizontal=\"true\" bind-scroll-vertical=\"true\" enable-horizontal-scrollbar=\"grid.options.enableHorizontalScrollbar\" enable-vertical-scrollbar=\"grid.options.enableVerticalScrollbar\"></div><div ng-if=\"grid.hasRightContainer()\" style=\"width: 0\" ui-grid-pinned-container=\"'right'\"></div><div ui-grid-column-menu ng-if=\"grid.options.enableColumnMenus\"></div><div ng-transclude></div></div>"
   );
