@@ -36,6 +36,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -202,8 +203,13 @@ public class FormWrapper
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
 		if (!properties.containsKey("size")) properties.put("size", form.getSize());
 		properties.put("designSize", form.getSize());
-		properties.put("addMinSize", !form.isResponsiveLayout() &&
-			(form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW) && FormElementHelper.INSTANCE.hasExtraParts(form));
+		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW) &&
+			FormElementHelper.INSTANCE.hasExtraParts(form));
+		if (design)
+		{
+			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),
+				Integer.valueOf(ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER + ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER));
+		}
 		removeUnneededFormProperties(properties);
 
 		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
