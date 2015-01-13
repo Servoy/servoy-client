@@ -28,6 +28,7 @@ import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFormat;
@@ -114,7 +115,9 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 				BaseWebObject webObject = dataConverterContext.getWebObject();
 				// if not writing properties, then it means the valuelist is already on the client, so
 				// send it only if it is changed
-				if ((webObject instanceof WebFormComponent && !((WebFormComponent)webObject).isWritingComponentProperties()))
+				int formViewType = ((WebFormComponent)webObject).getFormElement().getForm().getView();
+				if ((webObject instanceof WebFormComponent &&
+					(formViewType == IFormConstants.VIEW_TYPE_RECORD || formViewType == IFormConstants.VIEW_TYPE_RECORD_LOCKED) && !((WebFormComponent)webObject).isWritingComponentProperties()))
 				{
 					checkIfChanged = true;
 				}
