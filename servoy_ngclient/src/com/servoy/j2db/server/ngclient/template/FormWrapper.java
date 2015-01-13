@@ -200,7 +200,7 @@ public class FormWrapper
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
 		if (!properties.containsKey("size")) properties.put("size", form.getSize());
 		properties.put("designSize", form.getSize());
-		properties.put("absoluteLayout", !form.getLayoutContainers().hasNext());
+		properties.put("absoluteLayout", !form.isResponsiveLayout());
 		removeUnneededFormProperties(properties);
 
 		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms

@@ -61,7 +61,7 @@ public class PartWrapper
 		this.converterContext = converterContext;
 		this.design = design;
 
-		isFlowLayout = context.getLayoutContainers().hasNext();
+		isFlowLayout = context.isResponsiveLayout();
 
 		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)context.getAncestor(IRepository.SOLUTIONS), context, null)
 		{
@@ -164,7 +164,7 @@ public class PartWrapper
 		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
 		Comparator< ? super IFormElement> comparator = null;
-		if (context.getLayoutContainers().hasNext())
+		if (context.isResponsiveLayout())
 		{
 			comparator = PositionComparator.XY_PERSIST_COMPARATOR;
 		}

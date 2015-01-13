@@ -2043,4 +2043,20 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
 
+	/**
+	 * Returns true if this form is in responsive layout
+	 * Currently its always in responsive layout when it has layout containers
+	 * or if it is an form that has no parts.
+	 *
+	 * @return true if in responsive layout
+	 */
+	public boolean isResponsiveLayout()
+	{
+		if (getLayoutContainers().hasNext()) return true;
+		//TODO is this always true? should a form have a special property?
+		// for example forms that are extended so pure abstract forms are seen as responsive..
+		if (!getParts().hasNext()) return true;
+		return false;
+	}
+
 }
