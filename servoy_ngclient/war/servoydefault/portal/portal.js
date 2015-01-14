@@ -728,14 +728,10 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 			
 
 			// special method that servoy calls when this component goes into find mode.
-			$scope.api.setFindMode = function(findMode, editable) {
-				
+			$scope.api.setFindMode = function(findMode, editable) {				
 				$scope.model.svy_findMode = findMode;
 				$scope.model.svy_editable = editable;
-				
-				$timeout(function(){
-					setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
-				},1);
+				setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
 			};
 		},
 		templateUrl: 'servoydefault/portal/portal.html',

@@ -210,6 +210,16 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			}
 		});
+
+		for (String initialChangedProperty : childComponent.getProperties().content.keySet())
+		{
+			if (forFoundsetTypedPropertyName == null || !recordBasedProperties.contains(initialChangedProperty))
+			{
+				// non-record related prop. initially changed...
+				monitor.valueChanged();
+			}
+		}
+
 		childComponent.setComponentContext(new ComponentContext(formElementValue.propertyPath));
 		formUI.contributeComponentToElementsScope(formElementValue.element, formElementValue.element.getWebComponentSpec(), childComponent);
 		for (String handler : childComponent.getFormElement().getHandlers())
