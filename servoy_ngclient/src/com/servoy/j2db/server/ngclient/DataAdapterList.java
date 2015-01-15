@@ -189,7 +189,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addFindModeAwareProperty(WebFormComponent webFormComponent, PropertyDescription pd)
 	{
-		findModeAwareProperties.add(new DataConverterContext(pd, webFormComponent));
+		if (pd.getType() instanceof IFindModeAwareType)
+		{
+			findModeAwareProperties.add(new DataConverterContext(pd, webFormComponent));
+		}
 	}
 
 	public void removeFindModeAwareProperty(WebFormComponent webFormComponent, PropertyDescription pd)
