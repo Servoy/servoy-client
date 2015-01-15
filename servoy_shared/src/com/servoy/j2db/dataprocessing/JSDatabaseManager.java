@@ -1028,7 +1028,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be disregarded.
-	 * 
+	 *
 	 * A datasource can be reused if the data has the same signature (column names and types).
 	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
@@ -1066,7 +1066,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be disregarded.
-	 * 
+	 *
 	 * A datasource can be reused if the data has the same signature (column names and types).
 	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
@@ -1140,7 +1140,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be taken into account.
-	 * 
+	 *
 	 * A datasource can be reused if the data has the same signature (column names and types).
 	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
@@ -1179,7 +1179,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be taken into account.
-	 * 
+	 *
 	 * A datasource can be reused if the data has the same signature (column names and types).
 	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
@@ -1217,7 +1217,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Performs a query and saves the result in a datasource.
 	 * Will throw an exception if anything went wrong when executing the query.
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
-	 * 
+	 *
 	 * A datasource can be reused if the data has the same signature (column names and types).
 	 * A new createDataSourceByQuery() call will clear the datasource contents from a previous call and insert the current data.
 	 *
@@ -3071,7 +3071,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
-	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Note that when autosave is false, revertEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 * Also, saved records within the transactions are restored to the database values, so user input is lost, to controll this see rollbackTransaction(boolean,boolean)
 	 *
 	 * @param rollbackEdited call rollbackEditedRecords() before rolling back the transaction
@@ -3087,10 +3087,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
-	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Note that when autosave is false, revertEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 *
 	 * @param rollbackEdited call rollbackEditedRecords() before rolling back the transaction
-	 * @param revertSavedRecords if false then all records in the transaction do keep the user input and are back in the edited records list
+	 * @param revertSavedRecords if false then all records in the transaction do keep the user input and are back in the edited records list.
+	 * Note that if the pks of such a record are no longer used by it's foundset (find/search or load by query or ...) it will just be rolled-back as
+	 * it can't be put in editing records list.
 	 *
 	 * @sampleas js_startTransaction()
 	 */
@@ -3103,9 +3105,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
-	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Note that when autosave is false, revertEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 * Also, rollbackEditedRecords() is called before rolling back the transaction see rollbackTransaction(boolean) to controll that behavior
-	 * and saved records within the transactions are restored to the database values, so user input is lost, to controll this see rollbackTransaction(boolean,boolean)
+	 * and saved records within the transactions are restored to the database values, so user input is lost, to control this see rollbackTransaction(boolean,boolean)
 	 *
 	 * @sampleas js_startTransaction()
 	 */
