@@ -7,13 +7,14 @@
 		svy-margin='model.margin'
 		svy-tooltip='model.toolTipText'
 		svy-font='model.fontType'
-		svy-tabseq='model.tabSeq'
 		class='{model.styleClass ? model.styleClass : "svy-combobox"}'
+		tabindex='-1'
 		on-select='onItemSelect($event)'>
  			<ui-select-match  placeholder="{{model.placeholderText}}" 
  				svy-focusgained='handlers.onFocusGainedMethodID($event)' 	
  				svy-focuslost='handlers.onFocusLostMethodID($event)'
  				svy-rightclick='handlers.onRightClickMethodID($event)'
+ 				svy-tabseq='model.tabSeq'
  				ng-style="style">{{$select.selected.displayValue}}</ui-select-match>
             <ui-select-choices repeat="item.realValue as item in model.valuelistID">
               <div ng-bind-html="item.displayValue | htmlFilter"></div>
