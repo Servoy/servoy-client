@@ -2918,7 +2918,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
-	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Note that when autosave is false, revertEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 * Also, saved records within the transactions are restored to the database values, so user input is lost, to controll this see rollbackTransaction(boolean,boolean)
 	 * 
 	 * @param rollbackEdited call rollbackEditedRecords() before rolling back the transaction
@@ -2934,10 +2934,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
-	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Note that when autosave is false, revertEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 * 
 	 * @param rollbackEdited call rollbackEditedRecords() before rolling back the transaction
-	 * @param revertSavedRecords if false then all records in the transaction do keep the user input and are back in the edited records list
+	 * @param revertSavedRecords if false then all records in the transaction do keep the user input and are back in the edited records list.
+	 * Note that if the pks of such a record are no longer used by it's foundset (find/search or load by query or ...) it will just be rolled-back as
+	 * it can't be put in editing records list.
 	 * 
 	 * @sampleas js_startTransaction() 
 	 */
@@ -2950,9 +2952,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
-	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Note that when autosave is false, revertEditedRecords() will not handle deleted records, while rollbackTransaction() does.
 	 * Also, rollbackEditedRecords() is called before rolling back the transaction see rollbackTransaction(boolean) to controll that behavior
-	 * and saved records within the transactions are restored to the database values, so user input is lost, to controll this see rollbackTransaction(boolean,boolean)
+	 * and saved records within the transactions are restored to the database values, so user input is lost, to control this see rollbackTransaction(boolean,boolean)
 	 * 
 	 * @sampleas js_startTransaction() 
 	 */
