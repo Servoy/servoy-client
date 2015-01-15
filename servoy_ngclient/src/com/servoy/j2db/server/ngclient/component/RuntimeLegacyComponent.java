@@ -394,6 +394,11 @@ public class RuntimeLegacyComponent implements Scriptable
 			{
 				return getClientProperty(args[0]);
 			}
+			if ("dataProviderID".equals(propertyName))
+			{
+				// return the design value string (so the dataprovider name, not its value)
+				return component.getFormElement().getPropertyValue(propertyName);
+			}
 
 			if ("name".equals(propertyName))
 			{
