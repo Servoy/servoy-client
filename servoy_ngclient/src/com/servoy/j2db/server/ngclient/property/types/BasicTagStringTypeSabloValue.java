@@ -27,7 +27,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 
 /**
  * A tag string property value that represents/wraps a simple string.
- * It is now aware of any tags, but subclasses can add that.
+ * It is not aware of any tags, but subclasses can add support for that.
  *
  * @author acostescu
  */
