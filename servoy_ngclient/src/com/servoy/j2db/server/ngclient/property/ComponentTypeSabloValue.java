@@ -592,6 +592,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						String propertyName = change.getString(FoundsetTypeSabloValue.DATAPROVIDER_KEY);
 						Object value = change.get(FoundsetTypeSabloValue.VALUE_KEY);
 
+						childComponent.checkProtection(propertyName);
+						childComponent.checkForProtectedProperty(propertyName);
+
 						updatePropertyValueForRecord(foundsetPropertyValue, rowIDValue, propertyName, value);
 					}
 					else
@@ -615,6 +618,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					IDataAdapterList dal;
 					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
 					{
+						childComponent.checkProtection(propertyName);
+						childComponent.checkForProtectedProperty(propertyName);
+
 						// changes component record and sets value
 						String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 						updatePropertyValueForRecord(getFoundsetValue(), rowIDValue, propertyName, value);
