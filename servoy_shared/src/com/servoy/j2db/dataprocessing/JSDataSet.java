@@ -1246,6 +1246,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				{
 					array[c] = obj;
 				}
+				set.setRow(r, array);
 			}
 		}
 	}
