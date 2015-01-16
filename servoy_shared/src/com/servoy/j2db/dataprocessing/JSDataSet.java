@@ -196,7 +196,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
 	 * var totalRows = dataset.getMaxRowIndex();
-	 * 
+	 *
 	 * @return int number of rows.
 	 */
 	public int js_getMaxRowIndex()
@@ -218,8 +218,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 	colArray[i-1] = dataset.getColumnName(i)
 	 * 	//have to subtract 1, because an array is zero based and a dataset is 1 based.
 	 * }
-	 * 
-	 * @return int number of columns. 
+	 *
+	 * @return int number of columns.
 	 */
 	public int js_getMaxColumnIndex()
 	{
@@ -267,8 +267,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * //assuming the variable dataset contains a dataset
 	 * dataset.removeRow(1); //removes the first row
 	 * dataset.removeRow(-1); //removes all rows
-	 * 
-	 * @param row row index to remove, -1 for all rows 
+	 *
+	 * @param row row index to remove, -1 for all rows
 	 */
 	public void js_removeRow(int row)
 	{
@@ -339,7 +339,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @param name column name.
 	 * @param index column index number between 1 and getMaxColumnIndex().
-	 * 
+	 *
 	 * @return true if succeeded, else false.
 	 */
 	public boolean js_addColumn(String name, Number index)
@@ -355,7 +355,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var success = dataset.addColumn('columnName',1);
 	 *
 	 * @param name column name.
-	 * 
+	 *
 	 * @return true if succeeded, else false.
 	 */
 	public boolean js_addColumn(String name)
@@ -372,7 +372,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * @param index column index number between 1 and getMaxColumnIndex().
 	 *
 	 * @param type the type of column, see JSColumn constants.
-	 * 
+	 *
 	 * @return true if succeeded, else false.
 	 */
 	public boolean js_addColumn(String name, Number index, Number type)
@@ -400,7 +400,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var success = dataset.removeColumn(1); // removes first column
 	 *
 	 * @param index index of column to remove (1-based)
-	 * 
+	 *
 	 * @return true if succeeded, else false.
 	 */
 	public boolean js_removeColumn(int index)
@@ -466,9 +466,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 	colArray[i-1] = dataset.getColumnName(i)
 	 * 	//note the -1, because an array is zero based and dataset is 1 based.
 	 * }
-	 * 
+	 *
 	 * @param index index of column (1-based).
-	 * 
+	 *
 	 * @return String column name.
 	 */
 	public String js_getColumnName(int index)
@@ -486,12 +486,12 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Get the column names of a dataset.
-	 * 
+	 *
 	 * @sample
 	 * var query = 'select * from customers';
 	 * var dataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), query, null, 100);
 	 * var columnNames = dataset.getColumnNames();
-	 * 
+	 *
 	 * @return String[] column names
 	 */
 	public String[] js_getColumnNames()
@@ -511,7 +511,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var query = 'select customerid, customername from customers';
 	 * var dataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), query, null, -1);
 	 * dataset.setColumnName(2, 'name_of_customer') // change the column name for second column.
-	 * 
+	 *
 	 * @param index index of column (1-based).
 	 * @param columnName new column name.
 	 */
@@ -534,9 +534,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * //assuming the variable dataset contains a dataset
 	 * var firstColumnType = dataset.getColumnType(1) //retrieves the first column's type into the variable firstColumnType
 	 * if (firstColumnType == JSColumn.NUMBER) { }
-	 * 
+	 *
 	 * @param index index of column (1-based).
-	 * 
+	 *
 	 * @return Number the column type (JSColumn constant)
 	 * @since 6.1.4
 	 */
@@ -562,7 +562,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * //once you have it as an array you can loop through it or feed it to a custom valuelist for example
 	 *
 	 * @param index index of column (1-based).
-	 * 
+	 *
 	 * @return Object array of data.
 	 */
 	public Object[] js_getColumnAsArray(int index)
@@ -589,9 +589,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * //assuming the variable dataset contains a dataset
 	 * var dataArray = dataset.getRowAsArray(1); //puts the contents from the first row of the dataset into an array
 	 * //once you have it as an array you can loop through it
-	 * 
+	 *
 	 * @param index index of row (1-based).
-	 * 
+	 *
 	 * @return Object array of data.
 	 */
 	public Object[] js_getRowAsArray(int index)
@@ -612,14 +612,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * Returns the dataset as a Swing tablemodel.
 	 *
 	 * @deprecated As of release 5.0, replaced by {@link #createDataSource(String, Object)}
-	 * 
+	 *
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
 	 * var model = dataset.getAsTableModel() //gets a Java/Swing tablemodel to be used in beans
 	 * elements.inmemDatagridBean.setModel(model)
-	 * 
+	 *
 	 * @return TableModel
-	 * 
+	 *
 	 */
 	@Deprecated
 	public TableModel js_getAsTableModel()
@@ -632,11 +632,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
-	 * Create a data source from the data set with specified name and using specified types.
+	 * Create a datasource from the data set with specified name and using specified types.
 	 *
 	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
 	 * When the client exits, all datasources used by that client are removed automatically.
-	 * 
+	 *
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
 
@@ -645,16 +645,16 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * ds.addColumn('my_label');
 	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
 	 * var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
-	 * 
+	 *
 	 * var query = 'select customerid, address, city, country  from customers';
 	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
 	 * var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
 	 *
-	 * @param name data source name
-	 * 
+	 * @param name datasource name
+	 *
 	 * @param types array of types as defined in JSColumn
-	 * 
-	 * @return String uri reference to the created data source.
+	 *
+	 * @return String uri reference to the created datasource.
 	 */
 	public String js_createDataSource(String name, Object types) throws ServoyException
 	{
@@ -663,10 +663,10 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Create a datasource from the data set with specified name and using specified types.
-	 * 
+	 *
 	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
 	 * When the client exits, all datasources used by that client are removed automatically.
-	 * 
+	 *
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
 	 *
@@ -675,18 +675,18 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * ds.addColumn('my_label');
 	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT], ['my_id']);
 	 * var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
-	 * 
+	 *
 	 * var query = 'select customerid, address, city, country  from customers';
 	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
 	 * var uri2 = ds2.createDataSource('mydata2', null, ['customerid']); // types are inferred from query result, use customerid as pk
 	 *
-	 * @param name data source name
-	 * 
+	 * @param name datasource name
+	 *
 	 * @param types array of types as defined in JSColumn, when null types are inferred from the query result
-	 * 
+	 *
 	 * @param pkNames array of pk names, when null a hidden pk-column will be added
-	 * 
-	 * @return String uri reference to the created data source.
+	 *
+	 * @return String uri reference to the created datasource.
 	 */
 	public String js_createDataSource(String name, Object types, String[] pkNames) throws ServoyException
 	{
@@ -725,28 +725,28 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
-	 * Create a data source from the data set with specified name and using specified types.
+	 * Create a datasource from the data set with specified name and using specified types.
 	 * The types are inferred from the data if possible.
 	 *
 	 * A temporary datasource cannot be removed because once created there may always be forms or relations that refer to it.
 	 * When the client exits, all datasources used by that client are removed automatically.
-	 * 
+	 *
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
-	 *   
+	 *
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
 	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
 	 * var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
-	 * 
+	 *
 	 * var query = 'select customerid, address, city, country  from customers';
 	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
 	 * var uri2 = ds2.createDataSource('mydata2'); // types are inferred from query result
 	 *
-	 * @param name data source name
-	 * 
-	 * @return String uri reference to the created data source.
+	 * @param name datasource name
+	 *
+	 * @return String uri reference to the created datasource.
 	 */
 	public String js_createDataSource(String name) throws ServoyException
 	{
@@ -755,7 +755,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Get the dataset as an html table, do not escape values or spaces, no multi_line_markup, do not add indentation, add column names.
-	 * 
+	 *
 	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @return String html.
@@ -767,7 +767,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Get the dataset as an html table, do not escape spaces, no multi_line_markup, do not add indentation, add column names.
-	 * 
+	 *
 	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
@@ -781,7 +781,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Get the dataset as an html table, no multi_line_markup, do not add indentation, add column names.
-	 * 
+	 *
 	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
@@ -797,7 +797,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Get the dataset as an html table, do not add indentation, add column names.
-	 * 
+	 *
 	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
@@ -815,7 +815,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Get the dataset as an html table, add column names.
-	 * 
+	 *
 	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
@@ -842,20 +842,20 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * //useful to limit the number of rows
 	 * var maxReturnedRows = 10;
 	 * var query = 'select c1,c2,c3 from test_table where start_date = ?';
-	 * 
+	 *
 	 * //to access data by name, do not use '.' or special characters in names or aliases
 	 * var args = new Array();
 	 * args[0] = order_date //or new Date();
 	 * var dataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()),query,args,maxReturnedRows);
-	 * 
+	 *
 	 * // gets a dataset with escape values; escape spaces (lines will not wrap); no multi-line markup; with pretty indentation; shows column names
 	 * var htmlTable = dataset.getAsHTML(true, true, false, true, true);
-	 * 
+	 *
 	 * //assigns the dataset to a field and sets the display type to HTML_AREA
 	 * //assuming the html_field is a global text variable
 	 * scopes.globals.html_field = '<html>'+dataset.getAsHTML()+'</html>';
 	 *
-	 * //Note: To display an HTML_AREA field as an HTML page, add HTML tags at the beginning '<html>' and at the end '</html>'. 
+	 * //Note: To display an HTML_AREA field as an HTML page, add HTML tags at the beginning '<html>' and at the end '</html>'.
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
 	 *
@@ -866,7 +866,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * @param pretty_indent if true, adds indentation for more readable HTML code.
 	 *
 	 * @param add_column_names if false, column headers will not be added to the table.
-	 * 
+	 *
 	 * @return String html.
 	 */
 	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces, Boolean multi_line_markup, Boolean pretty_indent, Boolean add_column_names)
@@ -899,8 +899,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				out.append("<TR"); //$NON-NLS-1$
 				if (!Utils.stringIsEmpty(getHTMLProperties(-1, -1)))
 				{
-					out.append(' ');//any row					
-					out.append(getHTMLProperties(-1, -1));//any row					
+					out.append(' ');//any row
+					out.append(getHTMLProperties(-1, -1));//any row
 				}
 				out.append('>');
 				for (int x = 0; x < numberOfColumns; x++)
@@ -1002,8 +1002,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @param value_delimiter the specified value delimiter; null means empty string; example: double quote '"'.
 	 *
-	 * @param add_column_names boolean if true column names will be added as a first row. 
-	 * 
+	 * @param add_column_names boolean if true column names will be added as a first row.
+	 *
 	 * @return String formatted text.
 	 */
 	public String js_getAsText(String column_separator, String row_separator, String value_delimiter, boolean add_column_names)
@@ -1046,7 +1046,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * returns the contents of the database error message if an error occurred
-	 * 
+	 *
 	 * @deprecated As of release 5.0, replaced by {@link #getException()}
 	 */
 	@Deprecated
@@ -1061,7 +1061,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
 	 * var dbException = dataset.getException();
-	 * 
+	 *
 	 * @return ServoyException exception or null when not available.
 	 */
 	public ServoyException js_getException()
@@ -1079,7 +1079,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * @param row row number, 1-based
 	 *
 	 * @param col column number, 1-based
-	 * 
+	 *
 	 * @return Object value
 	 */
 	public Object js_getValue(int row, int col)
@@ -1107,35 +1107,35 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Add an HTML property to an HTML tag produced in getAsHTML().
-	 * 
+	 *
 	 * For row and col parameters use:
 	 * 1 = applies to the container
 	 * 0 = applies to all
 	 * >0 = applies to specific cell
-	 * 
+	 *
 	 * @sample
-	 * 
+	 *
 	 * //adds a container property (to TABLE tag)
 	 * dataset.addHTMLProperty(-1,-1,'cellspacing','3');
 	 * dataset.addHTMLProperty(-1,-1,'style','border-collapse:collapse;'); //to have a single line border
-	 * 
+	 *
 	 * //adds a row property to all rows (to TR tag)
 	 * dataset.addHTMLProperty(0,0,'class','text');
-	 * 
+	 *
 	 * //adds a row property to second row (to TR tag)
 	 * dataset.addHTMLProperty(2,0,'class','text');
-	 * 
+	 *
 	 * //adds a column property to all 3rd columns (to TD tag)
 	 * dataset.addHTMLProperty(0,3,'class','redcolumn') ;
-	 * 
+	 *
 	 * //adds a specific cell property (to TD tag)
 	 * dataset.addHTMLProperty(2,4,'color','blue');
-	 * 
+	 *
 	 * scopes.globals.html_field = '<html>'+dataset.getAsHTML()+'</html>';
 	 *
 	 * @param row row number
 	 *
-	 * @param col column number 
+	 * @param col column number
 	 *
 	 * @param name String property name
 	 *
@@ -1206,7 +1206,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * @param row row number, 1-based
 	 *
 	 * @param col column number, 1-based
-	 * 
+	 *
 	 * @param obj the value to be stored at the given row and column.
 	 */
 	public void js_setValue(int row, int col, Object obj)//one based
@@ -1244,6 +1244,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				{
 					array[c] = obj;
 				}
+				set.setRow(r, array);
 			}
 		}
 	}
@@ -1266,14 +1267,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Sort the dataset on the given column (1-based) in ascending or descending.
-	 * 
+	 *
 	 * @sample
 	 * // sort using column number
 	 * //assuming the variable dataset contains a dataset
 	 * dataset.sort(1, false)
-	 * 
+	 *
 	 * @param col column number, 1-based
-	 * 
+	 *
 	 * @param sort_direction boolean ascending (true) or descending (false)
 	 */
 	public void js_sort(Number col, Boolean sort_direction)
@@ -1293,11 +1294,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * it will return -1/0/1 if the first row is less/equal/greater then the second row.
 	 *
 	 * NOTE: starting with 7.2 release, when called on datasource(foundset) dataset, this function doesn't save the data anymore
-	 * 
+	 *
 	 * @sample
 	 * //sort using comparator
 	 * dataset.sort(mySortFunction);
-	 * 
+	 *
 	 * function mySortFunction(r1, r2)
 	 * {
 	 *	var o = 0;
@@ -1310,8 +1311,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *		o = 1;
 	 *	}
 	 *	return o;
-	 * }  
-	 * 
+	 * }
+	 *
 	 * @param comparator comparator function
 	 */
 	public void js_sort(final Function comparator)
@@ -1541,7 +1542,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	public void put(String name, Scriptable start, java.lang.Object value)
 	{
-		if (jsFunctions.containsKey(name)) return;//dont allow to set  
+		if (jsFunctions.containsKey(name)) return;//dont allow to set
 
 		if (value instanceof Wrapper)
 		{
@@ -1706,9 +1707,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	/**
 	 * Wrapper class for a foundset to implement IDataSet methods.
-	 * 
+	 *
 	 * @author rgansevles
-	 * 
+	 *
 	 */
 	static class FoundsetDataSet implements IDataSetWithIndex, IFoundSetEventListener
 	{
