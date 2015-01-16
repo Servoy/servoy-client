@@ -46,6 +46,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertySabloValue;
 import com.servoy.j2db.util.ServoyException;
 
@@ -88,7 +89,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -178,7 +179,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		List<Map<String, Object>> tabs = (List)wc.getProperty("tabs");
 		Assert.assertEquals(2, tabs.size());
 		Map<String, Object> map = tabs.get(0);
-		map.put("text", "a test");
+		map.put("text", new BasicTagStringTypeSabloValue("a test", null));
 		changes = wc.getAndClearChanges();
 
 		Assert.assertEquals(1, changes.content.size());
@@ -207,7 +208,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
 		Assert.assertEquals("name", type.get("name"));
-		Assert.assertEquals("i18n:servoy.button.ok", type.get("text"));
+		Assert.assertEquals("OK", ((BasicTagStringTypeSabloValue)type.get("text")).getDesignValue()); // it gets automatically translated to a static string
+		Assert.assertEquals("OK", ((BasicTagStringTypeSabloValue)type.get("text")).getTagReplacedValue());
 
 		Assert.assertEquals(0, wc.getAndClearChanges().content.size());
 

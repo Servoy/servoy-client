@@ -37,7 +37,7 @@ public class BasicTagStringTypeSabloValue
 	private String designValue;
 	private final DataAdapterList dataAdapterList;
 
-	BasicTagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList)
+	public BasicTagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList)
 	{
 		this.designValue = designValue;
 		this.dataAdapterList = dataAdapterList;
