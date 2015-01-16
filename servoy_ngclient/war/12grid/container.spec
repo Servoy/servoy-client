@@ -6,6 +6,6 @@
 	"contains": ["row"],
 	"parents": ["form"],
 	"model": {
-		"class" :{ "type" :"styleclass", "scope" :"design", "values" :["container","container-fluid"]}
+		"class" :{ "type" :"styleclass", "tags": { "scope" :"design" } , "values" :["container","container-fluid"]}
 	}
 }

@@ -24,6 +24,8 @@ import com.servoy.j2db.persistence.IRepository;
 @SuppressWarnings("nls")
 public class WebFormComponent extends Container implements IContextProvider
 {
+	public static final String TAG_SCOPE = "scope";
+
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
 	private FormElement formElement;
 
@@ -174,17 +176,12 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	public boolean isDesignOnlyProperty(String propertyName)
 	{
-		PropertyDescription description = specification.getProperty(propertyName);
-		return isDesignOnlyProperty(description);
+		return isDesignOnlyProperty(specification.getProperty(propertyName));
 	}
 
 	public static boolean isDesignOnlyProperty(PropertyDescription propertyDescription)
 	{
-		if (propertyDescription != null)
-		{
-			return "design".equals(propertyDescription.getScope());
-		}
-		return false;
+		return propertyDescription != null && "design".equals(propertyDescription.getTag(TAG_SCOPE));
 	}
 
 	public class FormcomponentEventHandler implements IEventHandler
