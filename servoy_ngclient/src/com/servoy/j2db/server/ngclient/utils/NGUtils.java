@@ -133,7 +133,7 @@ public abstract class NGUtils
 		return w.toString();
 	}
 
-	public static String formComponentPropetriesToString(IWebFormUI formUI, IToJSONConverter converter) throws JSONException
+	public static String formComponentPropertiesToString(IWebFormUI formUI, IToJSONConverter converter) throws JSONException
 	{
 		JSONStringer w = new JSONStringer();
 		w.object();

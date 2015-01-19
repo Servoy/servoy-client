@@ -235,7 +235,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 
-		String full = NGUtils.formComponentPropetriesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
+		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mycustombean");
@@ -285,7 +285,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebsocketEndpoint endpoint = (WebsocketEndpoint)WebsocketEndpoint.get();
 
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		String full = NGUtils.formComponentPropetriesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
+		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mydynamiccustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundset");
