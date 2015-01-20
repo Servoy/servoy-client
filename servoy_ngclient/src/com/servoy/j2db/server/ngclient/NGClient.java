@@ -20,9 +20,12 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.IChangeListener;
+import org.sablo.eventthread.WebsocketSessionEndpoints;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.IWebsocketEndpoint;
+import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -399,6 +402,25 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			J2DBGlobals.firePropertyChange(this, "solution", null, getSolution()); //$NON-NLS-1$
 		}
+	}
+
+	@Override
+	public boolean closeSolution(boolean force, Object[] args)
+	{
+		IWebsocketEndpoint current = WebsocketEndpoint.set(new WebsocketSessionEndpoints(getWebsocketSession()));
+		try
+		{
+			getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("reload", new Object[0]);
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		finally
+		{
+			WebsocketEndpoint.set(current);
+		}
+		return super.closeSolution(force, args);
 	}
 
 	@Override
