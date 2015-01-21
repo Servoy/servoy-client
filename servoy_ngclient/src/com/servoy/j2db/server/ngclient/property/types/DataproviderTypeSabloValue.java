@@ -41,6 +41,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Runtime value stored in WebFormComponents for properties of type {@link DataproviderPropertyType}.
@@ -139,6 +140,11 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IDataConverterContext dataConverterContext) throws JSONException
 	{
+		// TODO UUIDs are now just seen as strings
+		if (value instanceof UUID || value instanceof UUID)
+		{
+			value = value.toString();
+		}
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (jsonValue == null)
 		{
@@ -154,6 +160,11 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 				DataConversion jsonDataConversion = new DataConversion();
 				FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext.getWebObject());
 				if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
+				String str = ejw.toJSONString();
+				if (str == null || "".equals(str))
+				{
+					System.err.println(str);
+				}
 				jsonValue = new JSONStringWithConversions(ejw.toJSONString(), jsonDataConversion);
 			}
 			else
