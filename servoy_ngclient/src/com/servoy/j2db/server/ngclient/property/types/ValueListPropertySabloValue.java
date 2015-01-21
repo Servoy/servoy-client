@@ -89,7 +89,7 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", filteredValuelist.getRealElementAt(i));
 				Object displayValue = filteredValuelist.getElementAt(i);
-				map.put("displayValue", displayValue != null ? displayValue : "");
+				map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
 				array.add(map);
 			}
 			jsonValue = array;
@@ -102,7 +102,7 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", valueList.getRealElementAt(i));
 				Object displayValue = valueList.getElementAt(i);
-				map.put("displayValue", displayValue != null ? displayValue : "");
+				map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
 				array.add(map);
 			}
 			jsonValue = array;
