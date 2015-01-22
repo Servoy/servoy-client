@@ -2281,21 +2281,38 @@ public final class Utils
 			}
 		}
 
+		if (oldObj instanceof BigDecimal && !(obj instanceof BigDecimal))
+		{
+			if (obj instanceof Long)
+			{
+				obj = BigDecimal.valueOf(((Long)obj).longValue());
+			}
+			else if (obj instanceof Double)
+			{
+				obj = BigDecimal.valueOf(((Double)obj).doubleValue());
+			}
+		}
+		else if (obj instanceof BigDecimal && !(oldObj instanceof BigDecimal))
+		{
+			if (oldObj instanceof Long)
+			{
+				oldObj = BigDecimal.valueOf(((Long)oldObj).longValue());
+			}
+			else if (oldObj instanceof Double)
+			{
+				oldObj = BigDecimal.valueOf(((Double)oldObj).doubleValue());
+			}
+		}
 		// separate tests for BigDecimal and Long, the tests based on Double may give
 		// incorrect results for Long values not fitting in a double mantissa.
 		// note that 2.0 is not equal to 2.00 according to BigDecimal.equals()
-		if ((oldObj instanceof BigDecimal && obj instanceof BigDecimal && (((BigDecimal)oldObj).scale() == ((BigDecimal)obj).scale())) ||
-			(oldObj instanceof Long && obj instanceof Long))
+		if (oldObj instanceof BigDecimal && obj instanceof BigDecimal)
+		{
+			return ((BigDecimal)oldObj).compareTo((BigDecimal)obj) == 0;
+		}
+		if (oldObj instanceof Long && obj instanceof Long)
 		{
 			return oldObj.equals(obj);
-		}
-		if (oldObj instanceof BigDecimal && ((BigDecimal)oldObj).scale() == 0 && obj instanceof Long)
-		{
-			return ((BigDecimal)oldObj).longValue() == ((Long)obj).longValue();
-		}
-		if (obj instanceof BigDecimal && ((BigDecimal)obj).scale() == 0 && oldObj instanceof Long)
-		{
-			return ((BigDecimal)obj).longValue() == ((Long)oldObj).longValue();
 		}
 
 		// Always cast to double so we don't lose precision.

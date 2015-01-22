@@ -49,7 +49,7 @@ import com.servoy.j2db.util.keyword.SQLKeywords;
 /**
  * A database column , this information is not stored inside the repository but recreated each time<br>
  * Only the ColumnInfo is stored in the database
- * 
+ *
  * @author jblok
  */
 public class Column extends BaseColumn implements Serializable, IColumn, ISupportHTMLToolTipText, ISupportAlias<String>
@@ -146,7 +146,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				return "MEDIA"; //$NON-NLS-1$
 
 			default :
-				return "UNKNOWN TYPE#" + atype; //$NON-NLS-1$ 
+				return "UNKNOWN TYPE#" + atype; //$NON-NLS-1$
 		}
 	}
 
@@ -414,7 +414,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					return null;
 
 				case Types.TIMESTAMP :
-				case 11 : //date?? fix for 'odbc-bridge' and 'inet driver'  
+				case 11 : //date?? fix for 'odbc-bridge' and 'inet driver'
 					if (obj instanceof org.mozilla.javascript.NativeDate)
 					{
 						return new Timestamp(((java.util.Date)((org.mozilla.javascript.NativeDate)obj).unwrap()).getTime());
@@ -438,7 +438,16 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			{
 				case NUMBER :
 					if (obj instanceof Double || obj instanceof BigDecimal) return obj;
-					return new Double(Utils.getAsDouble(obj, throwOnFail));
+					Double retValue = new Double(Utils.getAsDouble(obj, throwOnFail));
+					if (obj instanceof Long)
+					{
+						// long could hold a bigger integer number then a double can hold in its precision/mantissa
+						if (((Long)obj).longValue() != retValue.longValue())
+						{
+							return new BigDecimal(((Long)obj).longValue());
+						}
+					}
+					return retValue;
 
 				case INTEGER :
 					if (obj instanceof Integer) return obj;
@@ -563,7 +572,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							return new Timestamp(application.getClientHost().getServerTime(application.getClientID()).getTime());
 
 						case ColumnInfo.SYSTEM_VALUE_CREATION_DATETIME :
-//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME://makes it possible to search for non modified records 
+//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME://makes it possible to search for non modified records
 							return new Timestamp(TimezoneUtils.getClientDate(application).getTime());
 
 						case ColumnInfo.SYSTEM_VALUE_CREATION_USERNAME :
@@ -700,7 +709,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	{
 		plainSQLName = name;
 		hasBadName = null; // clear notify, so checks are run again
-		normalizedName = null; // should be recalculated	
+		normalizedName = null; // should be recalculated
 	}
 
 
@@ -989,7 +998,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	/**
 	 * Set or clear a flag.
-	 * 
+	 *
 	 * @param flag
 	 * @param set
 	 */
@@ -1091,7 +1100,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	/**
 	 * Returns the allowNull.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean getAllowNull()
@@ -1101,7 +1110,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	/**
 	 * Sets the allowNull.
-	 * 
+	 *
 	 * @param allowNull The allowNull to set
 	 */
 	public void setAllowNull(boolean allowNull)
@@ -1234,7 +1243,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	/**
 	 * Determines the length of an object, mainly string and byte[]
-	 * 
+	 *
 	 * @param value the object
 	 * @param type of the object
 	 * @return 0 if irrelevant, Integer.MAX_VALUE if it does not know
