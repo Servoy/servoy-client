@@ -184,7 +184,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			}
 		});
 
-//DISABLED:for 1.4			
+//DISABLED:for 1.4
 //		setPrototypeDisplayValue(new Integer(0));
 		setMaximumRowCount(MAXIMUM_ROWS);
 //		addPopupMenuListener(this);
@@ -228,7 +228,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		if (UIManager.getLookAndFeel().getClass().getName().toUpperCase().indexOf("AQUA") < 0) //$NON-NLS-1$
 		{
 			// this in not needed on MAC as default L&F overrides this behavior...
-			// this would also cause appearance problems for comboboxes on MAC (JVM bug(s)) 
+			// this would also cause appearance problems for comboboxes on MAC (JVM bug(s))
 			putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE); //$NON-NLS-1$
 		}
 
@@ -584,6 +584,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 	}
 
+	protected boolean wasEditable;
+
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
@@ -602,12 +604,16 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			}
 		}
 
+		accesibleStateHolder.blockEditStateChange(true);
+
 		if (b)
 		{
+			setEditable(wasEditable);
 			accesibleStateHolder.applyState();
 		}
 		else
 		{
+			wasEditable = isEditable();
 			setComboEditable(!getListModelWrapper().hasRealValues());
 			if (!isEnabled() && accesibleStateHolder.isAccessible() &&
 				!Boolean.TRUE.equals(application.getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE))) setEditable(true);
@@ -622,6 +628,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			formattedComboEditor.setItem(getSelectedItem());
 		}
 
+		accesibleStateHolder.blockEditStateChange(false);
 	}
 
 	public void setSelectOnEnter(boolean b)
@@ -673,7 +680,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 					cachedLabel.setBorder(cachedBorder);
 				}
 				Component comp = dividerRenderer.getListCellRendererComponent(jlist, formattedValue, index, isSelected, cellHasFocus);
-//nothing does work we cannot get the collapst combobox transparent				
+//nothing does work we cannot get the collapst combobox transparent
 //				if (comp instanceof JComponent)
 //				{
 //					((JComponent)list.getParent()).setOpaque(DataComboBox.this.isOpaque());
@@ -1227,7 +1234,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			// this part should be moved to setSelectedItem() as well
 			if (value instanceof Date && format instanceof StateFullSimpleDateFormat)
 			{
-				// original date is set in setValueObject, do not use getValueObject() here because when an editable combo is made empty, 
+				// original date is set in setValueObject, do not use getValueObject() here because when an editable combo is made empty,
 				// the underlying value is set to null, but date merging should continue from last merged date (see NullDateFormatter)
 				StateFullSimpleDateFormat sfsd = (StateFullSimpleDateFormat)format;
 				String stringRep = sfsd.format(value);
@@ -1623,7 +1630,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		//ignore
 	}
 
-	// If component not shown or not added yet 
+	// If component not shown or not added yet
 	// and request focus is called it should wait for the component
 	// to be created.
 	boolean wantFocus = false;
@@ -1879,7 +1886,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				public String toString()
 				{
 					// super uses scriptable
-					return "DataField for " + FormattedComboBoxEditor.this.toString(); //$NON-NLS-1$ 
+					return "DataField for " + FormattedComboBoxEditor.this.toString(); //$NON-NLS-1$
 				}
 			};
 			// workaround for MAC OS X default L&F - combobox behavior declared in the editor component was lost when using our
@@ -1956,7 +1963,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 		/**
 		 * Sets the item that should be edited.
-		 * 
+		 *
 		 * @param anObject the displayed value of the editor
 		 */
 		public void setItem(Object anObject)
@@ -2036,8 +2043,8 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		public void applyState()
 		{
 			boolean jComboEnabled = accessible && enabled && !readOnly;
-			applier.setEnabled(jComboEnabled);
-			applier.setEditable(jComboEnabled && editable);
+			applier.setEnabled(editable ? true : jComboEnabled);
+			applier.setEditable(editable);
 			applier.setLabelsEnabled(accessible && enabled);
 		}
 
@@ -2047,16 +2054,38 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			applyState();
 		}
 
+		private boolean editState;
+		private boolean blockEditStateChange;
+
+		public void blockEditStateChange(boolean blockEditStateChanges)
+		{
+			this.blockEditStateChange = blockEditStateChanges;
+		}
+
 		public void setEditable(boolean editable)
 		{
 			this.editable = editable;
+			if (!blockEditStateChange) editState = editable;
 			applyState();
 		}
 
 		public void setReadOnly(boolean readOnly)
 		{
 			this.readOnly = readOnly;
-			applyState();
+			if (readOnly && !isEditable())
+			{
+				applyState();
+				return;
+			}
+			if (readOnly)
+			{
+				setEditable(false);
+				if (!blockEditStateChange) editState = true;
+			}
+			else
+			{
+				setEditable(editState);
+			}
 		}
 
 		public void setAccessible(boolean accessible)
