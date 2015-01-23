@@ -359,7 +359,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-        	$utils.attachEventHandler($parse,element,scope,attrs.svyEnter,'keydown', $utils.testEnterKey);
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyEnter,'keydown', $utils.testEnterKey, 100);
         }
       };
 }).directive('svyChange',  function ($parse,$utils) {
@@ -426,7 +426,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-        	$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur');
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', 100);
         }
       };
 }).directive('svyBorder',  function () {
