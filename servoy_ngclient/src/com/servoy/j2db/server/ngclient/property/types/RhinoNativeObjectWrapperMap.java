@@ -107,7 +107,7 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 			if (attachHandler != null)
 			{
 				attachHandler.detachFromBaseObjectIfNeeded(key, wrap(key, old));
-				attachHandler.attachToBaseObjectIfNeeded(key);
+				attachHandler.attachToBaseObjectIfNeeded(key, wrap(key, v));
 			}
 		}
 		return v;

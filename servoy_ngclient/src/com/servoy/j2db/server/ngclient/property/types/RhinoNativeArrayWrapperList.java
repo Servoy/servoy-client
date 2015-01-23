@@ -114,7 +114,7 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 			if (attachHandler != null)
 			{
 				attachHandler.detachFromBaseObjectIfNeeded(i, wrap(old));
-				attachHandler.attachToBaseObjectIfNeeded(i);
+				attachHandler.attachToBaseObjectIfNeeded(i, wrap(v));
 			}
 		}
 		return v;
