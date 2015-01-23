@@ -206,6 +206,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 		{
 			getCellEditor().stopCellEditing();
 		}
+		setEnabled(editable);
 	}
 
 	/**
@@ -356,7 +357,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	 * ((JComponent)editorComponent).processKeyBinding(ks, e, WHEN_FOCUSED, pressed); // If we have started an editor as a result of the user // pressing a key
 	 * and the surrendersFocusOnKeystroke property // is true, give the focus to the new editor. if (getSurrendersFocusOnKeystroke()) {
 	 * editorComponent.requestFocus(); } } }
-	 *
+	 * 
 	 * return retValue; }
 	 */
 
@@ -530,7 +531,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.JList#setSelectionModel(javax.swing.ListSelectionModel)
 	 */
 	@Override
@@ -697,7 +698,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 	 */
 	public void valueChanged(ListSelectionEvent e)
