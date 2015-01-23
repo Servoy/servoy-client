@@ -297,14 +297,13 @@ public class ListView extends JEditList implements IView, ISupportRowStyling, IS
 	{
 		super.setEditable(editable);
 		this.editable = editable;
+	}
 
-		Iterator<HasRuntimeReadOnly> readOnlyAwareComponentsIte = getReadOnlyAwareComponents().iterator();
-		while (readOnlyAwareComponentsIte.hasNext())
-		{
-			readOnlyAwareComponentsIte.next().setReadOnly(!editable);
-		}
-		invalidate();
-		repaint();
+
+	@Override
+	public boolean isEditable()
+	{
+		return editable;
 	}
 
 	@Override
