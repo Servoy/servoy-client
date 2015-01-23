@@ -40,6 +40,8 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
+import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
@@ -448,6 +450,8 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 						JSONArray columns = update.getJSONArray("sort");
 						StringBuilder sort = new StringBuilder();
 						Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : elementsToDataproviders;
+						String dataProviderID = null;
+						boolean sortAscending = true;
 						for (int j = 0; j < columns.length(); j++)
 						{
 							JSONObject sortColumn = columns.getJSONObject(j);
@@ -456,16 +460,35 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 							{
 								sort.append(dp.get(name));
 								sort.append(" " + sortColumn.getString("direction"));
+								if (dataProviderID == null)
+								{
+									dataProviderID = dp.get(name);
+									sortAscending = "asc".equalsIgnoreCase(sortColumn.getString("direction"));
+								}
 								if (j < columns.length() - 1) sort.append(",");
 							}
 						}
-						try
+						IWebFormController fc = getFormUI().getController();
+						if (fc != null && fc.getForm().getOnSortCmdMethodID() > 0 && dataProviderID != null)
 						{
-							foundset.setSort(sort.toString());
+							// our api only supports one dataproviderid sort at a time
+							JSEvent event = new JSEvent();
+							event.setFormName(fc.getName());
+							fc.executeFunction(
+								String.valueOf(fc.getForm().getOnSortCmdMethodID()),
+								Utils.arrayMerge((new Object[] { dataProviderID, Boolean.valueOf(sortAscending), event }),
+									Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
 						}
-						catch (ServoyException e)
+						else
 						{
-							Debug.error("Cannot sort foundset by " + sort.toString(), e);
+							try
+							{
+								foundset.setSort(sort.toString());
+							}
+							catch (ServoyException e)
+							{
+								Debug.error("Cannot sort foundset by " + sort.toString(), e);
+							}
 						}
 					}
 					// {newClientSelection: newSelectedIndexesArray}
@@ -511,7 +534,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 							if (recordIndex != -1)
 							{
-								IWebFormUI formUI = ((WebComponent)webObject).findParent(IWebFormUI.class); // this will no longer be needed once 'component' type handles the global/form variables
+								IWebFormUI formUI = getFormUI(); // this will no longer be needed once 'component' type handles the global/form variables
 								IRecordInternal record = foundset.getRecord(recordIndex);
 								// convert Dates where it's needed
 
@@ -573,9 +596,14 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
 		if (dataAdapterList == null)
 		{
-			dataAdapterList = new FoundsetDataAdapterList(((WebComponent)webObject).findParent(IWebFormUI.class).getController());
+			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
 		}
 		return dataAdapterList;
+	}
+
+	private IWebFormUI getFormUI()
+	{
+		return ((WebComponent)webObject).findParent(IWebFormUI.class);
 	}
 
 	public static Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)

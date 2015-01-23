@@ -637,7 +637,7 @@ function ($timeout, gridUtil, uiGridConstants, uiGridColumnMenuService) {
       $scope.sortColumn = function (event, dir) {
         event.stopPropagation();
 
-        $scope.grid.sortColumn($scope.col, dir, true)
+        $scope.grid.sortColumn($scope.col, dir, false)
           .then(function () {
             $scope.grid.refresh();
             $scope.hideMenu();
