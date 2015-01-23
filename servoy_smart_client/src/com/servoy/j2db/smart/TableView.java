@@ -1842,13 +1842,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	{
 		super.setEditable(editable);
 		this.editable = editable;
-
-		Iterator<HasRuntimeReadOnly> readOnlyAwareComponentsIte = getReadOnlyAwareComponents().iterator();
-		while (readOnlyAwareComponentsIte.hasNext())
-		{
-			readOnlyAwareComponentsIte.next().setReadOnly(!editable);
-		}
-		repaint();
 	}
 
 	public void setEditableWithStateTracking(boolean b)
