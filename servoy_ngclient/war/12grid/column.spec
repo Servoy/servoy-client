@@ -2,6 +2,7 @@
 	"name": "column",
 	"displayName": "Column",
 	"version": 1,
+	"icon": "12grid/column.png",
 	"definition": "column.json",
 	"contains": ["component","row"],
 	"parents": ["row"],

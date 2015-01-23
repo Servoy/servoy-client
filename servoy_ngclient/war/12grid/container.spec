@@ -2,6 +2,7 @@
 	"name": "container",
 	"displayName": "Container",
 	"version": 1,
+	"icon": "12grid/container.gif",
 	"definition": "container.json",
 	"contains": ["row"],
 	"parents": ["form"],
