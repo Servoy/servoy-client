@@ -4,7 +4,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
     CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
     CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -42,14 +42,11 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	};
 	
 	function watchModel(beanModel, childChangedNotifier, componentScope) {
-		// TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes!
-		return componentScope.$watch(function() {
-			return beanModel;
-		}, function(newvalue, oldvalue) {
+		return componentScope.$watch($sabloUtils.generateWatchFunctionFor(beanModel, []), function(newvalue, oldvalue) {
 			if (oldvalue === newvalue) return;
 			childChangedNotifier(oldvalue);
 		}, true);
-	}
+	};
 	
 	$sabloConverters.registerCustomPropertyHandler('component', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
