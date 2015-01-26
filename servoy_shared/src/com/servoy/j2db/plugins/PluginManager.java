@@ -20,7 +20,9 @@ package com.servoy.j2db.plugins;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +51,7 @@ import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * Manages plugins for the application.
- * 
+ *
  * @author jcompagner, jblok
  */
 @SuppressWarnings("nls")
@@ -83,7 +85,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	public PluginManager(ClassLoader lafLoader)
 	{
-		this(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins", lafLoader); //$NON-NLS-1$ 
+		this(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins", lafLoader); //$NON-NLS-1$
 	}
 
 	public PluginManager(String pluginDirAsString, ClassLoader lafLoader)
@@ -139,7 +141,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 				catch (Throwable th)
 				{
-					Debug.error("Error occured unloading client plugin: " + plugin.getName(), th); //$NON-NLS-1$ 
+					Debug.error("Error occured unloading client plugin: " + plugin.getName(), th); //$NON-NLS-1$
 				}
 			}
 			loadedClientPlugins = null;
@@ -156,7 +158,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 				catch (Throwable th)
 				{
-					Debug.error("Error ocured unloading server plugin: " + plugin.getClass().getName(), th); //$NON-NLS-1$ 
+					Debug.error("Error ocured unloading server plugin: " + plugin.getClass().getName(), th); //$NON-NLS-1$
 				}
 			}
 			loadedServerPlugins = null;
@@ -170,6 +172,19 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	{
 		pluginExtensions.clear();
 		supportLibExtensions.clear();
+		if (_pluginsClassLoader != null)
+		{
+			//present in java 7
+			try
+			{
+				Method closeMethod = URLClassLoader.class.getMethod("close", null);
+				closeMethod.invoke(_pluginsClassLoader, null);
+			}
+			catch (Exception ex)
+			{
+				// ignore
+			}
+		}
 		_pluginsClassLoader = null;
 		clientPluginExtensions = null;
 	}
@@ -273,7 +288,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	/**
 	 * Note: load clients first
-	 * 
+	 *
 	 * @return
 	 */
 	private Class<IServerPlugin>[] loadServerPluginDefs()
@@ -297,7 +312,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	public void init()
 	{
-		//ignore 
+		//ignore
 	}
 
 	//should only be called by app server
@@ -325,7 +340,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 					}
 					catch (Throwable th)
 					{
-						Debug.error("Error occured loading server plugin class " + element.getName(), th); //$NON-NLS-1$ 
+						Debug.error("Error occured loading server plugin class " + element.getName(), th); //$NON-NLS-1$
 					}
 				}
 
@@ -367,7 +382,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 						}
 						catch (Throwable th)
 						{
-							Debug.error("Error occured loading client plugin class " + element.instanceClass.getName(), th); //$NON-NLS-1$ 
+							Debug.error("Error occured loading client plugin class " + element.instanceClass.getName(), th); //$NON-NLS-1$
 						}
 					}
 				}
@@ -395,7 +410,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 						}
 						catch (Throwable th)
 						{
-							Debug.error("Error occured loading client plugin class " + clazzName, th); //$NON-NLS-1$ 
+							Debug.error("Error occured loading client plugin class " + clazzName, th); //$NON-NLS-1$
 						}
 					}
 				}
@@ -658,7 +673,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
@@ -680,7 +695,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 						}
 						catch (Throwable e)//incase method is missing in old plugin or the plugin designer did something stupid
 						{
-							Debug.error("Error occured informing client plugin " + plugin.getName(), e); //$NON-NLS-1$ 
+							Debug.error("Error occured informing client plugin " + plugin.getName(), e); //$NON-NLS-1$
 						}
 					}
 				}
@@ -690,7 +705,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	/**
 	 * Get the classloader (normally system classloader).
-	 * 
+	 *
 	 * @return ClassLoader
 	 */
 	public synchronized ClassLoader getClassLoader()

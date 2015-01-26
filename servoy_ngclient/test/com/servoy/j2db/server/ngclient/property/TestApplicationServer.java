@@ -302,6 +302,13 @@ final class TestApplicationServer implements IApplicationServerSingleton
 			{
 				return null;
 			}
+
+
+			@Override
+			public void dispose()
+			{
+
+			}
 		};
 	}
 

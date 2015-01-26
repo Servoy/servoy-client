@@ -32,4 +32,6 @@ public interface IBeanManagerInternal extends IBeanManager
 	public File getBeansDir();
 
 	public Map<String, List<ExtensionResource>> getLoadedBeanDefs();
+
+	public void dispose();
 }
