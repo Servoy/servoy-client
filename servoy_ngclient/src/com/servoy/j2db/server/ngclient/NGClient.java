@@ -407,18 +407,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean closeSolution(boolean force, Object[] args)
 	{
-		IWebsocketEndpoint current = WebsocketEndpoint.set(new WebsocketSessionEndpoints(getWebsocketSession()));
-		try
+		if (!force)
 		{
-			getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("reload", new Object[0]);
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
-		finally
-		{
-			WebsocketEndpoint.set(current);
+			IWebsocketEndpoint current = WebsocketEndpoint.set(new WebsocketSessionEndpoints(getWebsocketSession()));
+			try
+			{
+				getWebsocketSession().getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("reload", new Object[0]);
+			}
+			finally
+			{
+				WebsocketEndpoint.set(current);
+			}
 		}
 		return super.closeSolution(force, args);
 	}
