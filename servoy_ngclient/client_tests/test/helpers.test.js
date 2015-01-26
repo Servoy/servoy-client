@@ -258,6 +258,7 @@ describe('styles helpers', function() {
 	  		
 	 		$scope.$digest();
 	 		myDiv.triggerHandler(events[i])
+	 		$timeout.flush(100);
 	 		expect( called).toBe(true);
  		}
 	  });
@@ -277,6 +278,7 @@ describe('styles helpers', function() {
 	 		myDiv[0].triggerKey(65);
 	 		expect( called).toBe(false);
 	 		myDiv[0].triggerKey(13);
+	 		$timeout.flush(100);
 	 		expect( called).toBe(true);
 	  });
  	it("should apply svy-mnemonic", function() {

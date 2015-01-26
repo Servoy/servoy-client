@@ -47,7 +47,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			return $windowService.getFormUrl(formUrl);
 		}
 	}	
-}).factory("$utils",function($rootScope,$scrollbarConstants) {
+}).factory("$utils",function($rootScope,$scrollbarConstants,$timeout) {
 	
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -197,9 +197,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					if (!filterFunction || filterFunction(event)) {
 						if (timeout)
 						{
-							setTimeout(function(){scope.$apply(function() {
+							$timeout(function(){
 								fn(scope, {$event:event});
-							});},timeout);
+							},timeout);
 						}
 						else
 						{
@@ -426,7 +426,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-        	$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', 100);
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', null, 100);
         }
       };
 }).directive('svyBorder',  function () {

@@ -118,7 +118,8 @@ describe('servoydefaultTextfield component', function() {
  		$scope.$digest();
  		textComponent.triggerHandler("focus")
  		textComponent.triggerHandler("blur")
- 		
+
+ 		$timeout.flush();
  		expect( focus).toBe(true);
  		expect( blur).toBe(true);
 	  });
@@ -137,6 +138,7 @@ describe('servoydefaultTextfield component', function() {
  		textComponent[0].triggerKey(65);
  		expect( onaction).toBe(false);
  		textComponent[0].triggerKey(13);
+ 		$timeout.flush();
  		expect( onaction).toBe(true);
 	  });
 }); 
