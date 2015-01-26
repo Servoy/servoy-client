@@ -68,9 +68,10 @@ public class NGClientEntryFilter extends WebEntry
 		//when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
+			InputStream is = null;
 			try
 			{
-				InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties");
+				is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties");
 				Properties properties = new Properties();
 				properties.load(is);
 				locations = properties.getProperty("locations").split(";");
@@ -79,10 +80,13 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Debug.error("Exception during init components.properties reading", e);
 			}
-
+			finally
+			{
+				Utils.closeInputStream(is);
+			}
 			try
 			{
-				InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/services.properties");
+				is = fc.getServletContext().getResourceAsStream("/WEB-INF/services.properties");
 				Properties properties = new Properties();
 				properties.load(is);
 				services = properties.getProperty("locations").split(";");
@@ -91,7 +95,10 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Debug.error("Exception during init services.properties reading", e);
 			}
-
+			finally
+			{
+				Utils.closeInputStream(is);
+			}
 			Types.registerTypes();
 
 			super.init(fc);
