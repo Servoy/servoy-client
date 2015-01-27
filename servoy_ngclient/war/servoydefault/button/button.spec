@@ -12,7 +12,7 @@
 	        "dataProviderID" : { "type":"dataprovider", "tags": { "scope" :"design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "directEditPropertyName" : {"type" :"string",  "default" : "text"}, 
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
-	        "enabled" : { "type": "protected", "blockingOn": false, "default": true }, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onActionMethodID","onDoubleClickMethodID","onRightClickMethodID"] }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "format" : {"for":"dataProviderID" , "type" :"format"}, 

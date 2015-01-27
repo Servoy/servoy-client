@@ -450,6 +450,10 @@ public class SpecGenerator
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"LEFT\":2}, {\"CENTER\":0},{\"RIGHT\":4}], \"default\" : 0}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
+
 		buttonTypeMapping.put("directEditPropertyName", "{\"type\" :\"string\",  \"default\" : \"text\"}");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
 
@@ -458,6 +462,10 @@ public class SpecGenerator
 		portalTypeMapping.put("relatedFoundset", "foundset");
 		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
 		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"} }");
+		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName()+"\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 
 		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();
@@ -501,6 +509,9 @@ public class SpecGenerator
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"TOP\":1}, {\"CENTER\":0} ,{\"BOTTOM\":3}], \"default\" : 0}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
 		labelMapping.put("directEditPropertyName", "{\"type\" :\"string\",  \"default\" : \"text\"}");
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("label", labelMapping);
 
 		HashMap<String, String> listboxTypeMapping = new HashMap<String, String>();
@@ -534,11 +545,19 @@ public class SpecGenerator
 		HashMap<String, String> splitpaneMapping = new HashMap<String, String>();
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
+		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
+		splitpaneMapping.put("readOnly", "{ \"type\": \"protected\", \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
 
 		HashMap<String, String> tabpanelMapping = new HashMap<String, String>();
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
+		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
+		tabpanelMapping.put("readOnly", "{ \"type\": \"protected\", \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("tabpanel", tabpanelMapping);
 
 		HashMap<String, String> textareaTypeMapping = new HashMap<String, String>();
@@ -587,9 +606,19 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName(), "{\"type\" :\"boolean\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID.getPropertyName(), "form");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VISIBLE.getPropertyName(), "\"visible\"");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true }");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true }");
-		repoTypeMappingExceptions.put("readOnly", "protected");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true,\"for\": [\"" + StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()+ "\",\""
+																																													+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
+		repoTypeMappingExceptions.put("readOnly", "{ \"type\": \"protected\", \"for\": \"dataProviderID\" }");
 
 		//internal properties (properties that should not be generated for any component)
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());

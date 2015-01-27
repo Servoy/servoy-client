@@ -12,7 +12,7 @@
 	        "dataProviderID" : { "type":"dataprovider", "tags": { "scope" :"design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
 	        "editable" : {"type":"boolean", "default":true}, 
-	        "enabled" : { "type": "protected", "blockingOn": false, "default": true }, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "format" : {"for":"dataProviderID" , "type" :"format"}, 

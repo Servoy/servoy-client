@@ -12,7 +12,7 @@
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundset": "relatedFoundset"} }, 
-	        "enabled" : { "type": "protected", "blockingOn": false, "default": true }, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onDragEndMethodID","onDragMethodID","onDragOverMethodID","onDropMethodID"] }, 
 	        "foreground" : "color", 
 	        "headerHeight" : {"type" :"int",  "default" : 32}, 
 	        "initialSort" : "string", 

@@ -10,7 +10,7 @@
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type" :"dataprovider", "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}, "parsehtml":true }, 
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
-	        "enabled" : { "type": "protected", "blockingOn": false, "default": true }, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
