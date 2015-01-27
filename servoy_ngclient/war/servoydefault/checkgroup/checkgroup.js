@@ -39,7 +39,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
             
             if(checkedTotal==0 && allowNullinc ==0) return;// only push if it was actualy changed
             $scope.svyServoyapi.apply('dataProviderID')        
-            $scope.handlers.onFocusLostMethodID($event)
+            if($scope.handlers.onFocusLostMethodID) $scope.handlers.onFocusLostMethodID($event)
           }
           
           $scope.api.setScroll = function(x, y) {

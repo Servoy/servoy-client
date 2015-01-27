@@ -57,7 +57,7 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
        	 $scope.radioClicked = function($event)
        	 {
        		$scope.svyServoyapi.apply('dataProviderID');
-       		$scope.handlers.onFocusLostMethodID($event);
+       		if($scope.handlers.onFocusLostMethodID) $scope.handlers.onFocusLostMethodID($event);
        	 }
       },
       templateUrl: 'servoydefault/radiogroup/radiogroup.html'
