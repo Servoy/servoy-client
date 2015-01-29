@@ -161,7 +161,7 @@ public final class Settings extends SortedProperties
 		boolean serverTwoWay = Utils.getAsBoolean(getProperty("SocketFactory.useTwoWaySocket")); //$NON-NLS-1$
 		if (twoWay == null || !serverTwoWay)
 		{
-			setProperty(base.getHost() + base.getPort() + "SocketFactory.useTwoWaySocket", String.valueOf(serverTwoWay)); //$NON-NLS-1$ 
+			setProperty(base.getHost() + base.getPort() + "SocketFactory.useTwoWaySocket", String.valueOf(serverTwoWay)); //$NON-NLS-1$
 		}
 
 		if (currentIntegerformat != null)
@@ -278,7 +278,7 @@ public final class Settings extends SortedProperties
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void removePureServerValues()
 	{
@@ -328,7 +328,7 @@ public final class Settings extends SortedProperties
 		//1 load them in
 		super.load(inStream);
 
-		//2 convert properties to unencrypted form 
+		//2 convert properties to unencrypted form
 		try
 		{
 			Cipher desCipher = Cipher.getInstance("DESede"); //$NON-NLS-1$
@@ -635,7 +635,7 @@ public final class Settings extends SortedProperties
 	}
 
 	/**
-	 * Get all properties with prefixed key 
+	 * Get all properties with prefixed key
 	 * @param settings
 	 * @param string
 	 * @return
@@ -658,7 +658,7 @@ public final class Settings extends SortedProperties
 	}
 
 	/**
-	 * Remove all properties with prefixed key 
+	 * Remove all properties with prefixed key
 	 * @param settings
 	 * @param string
 	 * @return
@@ -715,5 +715,14 @@ public final class Settings extends SortedProperties
 	public Properties getAsProperties()
 	{
 		return this;
+	}
+
+
+	@Override
+	public String getProperty(String key)
+	{
+		// we do no more support repository team provider
+		if (Settings.START_AS_TEAMPROVIDER_SETTING.equals(key)) return Boolean.FALSE.toString();
+		return super.getProperty(key);
 	}
 }
