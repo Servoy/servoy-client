@@ -90,7 +90,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 					child.datetimepicker();
 					var x = child.data('DateTimePicker');
 					x.format(dateFormat);
-					x.date(ngModel.$viewValue);
+					x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
 					$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
 				}
 			};
