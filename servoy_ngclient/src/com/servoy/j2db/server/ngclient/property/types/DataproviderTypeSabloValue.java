@@ -41,6 +41,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -161,11 +162,12 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 				FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext.getWebObject());
 				if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
 				String str = ejw.toJSONString();
-				if (str == null || "".equals(str))
+				if (str == null || str.trim().length() == 0)
 				{
-					System.err.println(str);
+					Debug.error("A dataprovider that is not able to send itself to client... (" + typeOfDP + ", " + value + ")");
+					str = "null";
 				}
-				jsonValue = new JSONStringWithConversions(ejw.toJSONString(), jsonDataConversion);
+				jsonValue = new JSONStringWithConversions(str, jsonDataConversion);
 			}
 			else
 			{

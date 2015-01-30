@@ -55,6 +55,7 @@ public class Types
 
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGUUIDPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDimensionPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGFontPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGInsetsPropertyType.NG_INSTANCE);

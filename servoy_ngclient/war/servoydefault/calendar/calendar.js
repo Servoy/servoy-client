@@ -89,9 +89,17 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				{
 					child.datetimepicker();
 					var x = child.data('DateTimePicker');
-					x.format(dateFormat);
-					x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
-					$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
+					if (angular.isDefined(x)) { // can be undefined in find mode
+						x.format(dateFormat);
+						try {
+							$element.off("change.dp",inputChanged);
+							x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
+							$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
+						}
+						finally {
+							$element.on("change.dp",inputChanged);
+						}
+					}
 				}
 			};
 			var storedTooltip = false;
