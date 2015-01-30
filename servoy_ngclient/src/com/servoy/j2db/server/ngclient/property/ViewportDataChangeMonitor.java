@@ -56,7 +56,7 @@ public class ViewportDataChangeMonitor
 
 	protected final IChangeListener monitor;
 
-	protected String ignoreUpdateOnPkHash;
+//	protected String ignoreUpdateOnPkHash;
 
 	public ViewportDataChangeMonitor(IChangeListener monitor, ViewportRowDataProvider rowDataProvider)
 	{
@@ -107,42 +107,44 @@ public class ViewportDataChangeMonitor
 		if (!shouldSendWholeViewport())
 		{
 			// changed values that were sent from browser should not be sent back as they are already up-to-date
-			if (operationType != RowData.CHANGE || ignoreUpdateOnPkHash == null || newDataStartIndex != newDataEndIndex ||
-				!foundset.getRecord(newDataStartIndex).getPKHashKey().equals(ignoreUpdateOnPkHash))
+
+//			if (operationType != RowData.CHANGE || ignoreUpdateOnPkHash == null || newDataStartIndex != newDataEndIndex ||
+//				!foundset.getRecord(newDataStartIndex).getPKHashKey().equals(ignoreUpdateOnPkHash))
+//			{
+
+			boolean changed = (viewPortChanges.size() == 0);
+			try
 			{
-				boolean changed = (viewPortChanges.size() == 0);
-				try
+				IJSONStringWithConversions writtenAsJSON;
+				writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter<BaseWebObject>()
 				{
-					IJSONStringWithConversions writtenAsJSON;
-					writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter<BaseWebObject>()
+					@Override
+					public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<BaseWebObject> converter,
+						DataConversion clientDataConversions) throws JSONException
 					{
-						@Override
-						public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<BaseWebObject> converter,
-							DataConversion clientDataConversions) throws JSONException
-						{
-							rowDataProvider.writeRowData(newDataStartIndex, newDataEndIndex, foundset, w, clientDataConversions);
-							return true;
-						}
-					}, FullValueToJSONConverter.INSTANCE);
-
-					RowData newOperation = new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType);
-					if (operationType == RowData.CHANGE)
-					{
-						// it happens often that we get multiple change events for the same row one after another; don't sent each one to browser as it's not needed
-						while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
-						{
-							viewPortChanges.remove(viewPortChanges.size() - 1);
-						}
+						rowDataProvider.writeRowData(newDataStartIndex, newDataEndIndex, foundset, w, clientDataConversions);
+						return true;
 					}
-					viewPortChanges.add(newOperation);
+				}, FullValueToJSONConverter.INSTANCE);
 
-					if (changed && monitor != null) monitor.valueChanged();
-				}
-				catch (JSONException e)
+				RowData newOperation = new RowData(writtenAsJSON, relativeFirstRow, relativeLastRow, operationType);
+				if (operationType == RowData.CHANGE)
 				{
-					Debug.error(e);
+					// it happens often that we get multiple change events for the same row one after another; don't sent each one to browser as it's not needed
+					while (viewPortChanges.size() > 0 && viewPortChanges.get(viewPortChanges.size() - 1).isMadeIrrelevantBySubsequentRowData(newOperation))
+					{
+						viewPortChanges.remove(viewPortChanges.size() - 1);
+					}
 				}
+				viewPortChanges.add(newOperation);
+
+				if (changed && monitor != null) monitor.valueChanged();
 			}
+			catch (JSONException e)
+			{
+				Debug.error(e);
+			}
+//			}
 		}
 	}
 
@@ -184,18 +186,26 @@ public class ViewportDataChangeMonitor
 
 	/**
 	 * Ignores update record events for the record with given pkHash.
+	 *
+	 * @deprecated disabled for now. Should we really do this? when an update comes from client who's to say a data change handler or something won't\
+	 * change other properties of the componen/values of the record that should get sent to client?
 	 */
+	@Deprecated
 	protected void pauseRowUpdateListener(String pkHash)
 	{
-		this.ignoreUpdateOnPkHash = pkHash;
+//		this.ignoreUpdateOnPkHash = pkHash;
 	}
 
 	/**
 	 * Resumes listening normally to row updates.
+	 *
+	 * @deprecated disabled for now. Should we really do this? when an update comes from client who's to say a data change handler or something won't\
+	 * change other properties of the componen/values of the record that should get sent to client?
 	 */
+	@Deprecated
 	protected void resumeRowUpdateListener()
 	{
-		this.ignoreUpdateOnPkHash = null;
+//		this.ignoreUpdateOnPkHash = null;
 	}
 
 }

@@ -250,7 +250,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			@Override
 			public void dataLinkedPropertyRegistered(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
 			{
-				if (component == childComponent)
+				if (component == childComponent && targetDataLinks != TargetDataLinks.NOT_LINKED_TO_DATA)
 				{
 					if (targetDataLinks.recordLinked && !recordBasedProperties.contains(propertyName))
 					{

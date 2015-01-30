@@ -154,7 +154,9 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 		if (!checkChanged || javaValueForJSON == null || !javaValueForJSON.equals(newJavaValueForJSON))
 		{
 			if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
-			JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, clientConversion, null);
+			DataConversion clientConversionsInsideValuelist = new DataConversion();
+			JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, clientConversionsInsideValuelist, null);
+			// TODO send these to browser and use them in browser!
 		}
 		javaValueForJSON = newJavaValueForJSON;
 	}
