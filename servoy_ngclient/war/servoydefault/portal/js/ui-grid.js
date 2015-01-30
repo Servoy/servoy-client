@@ -15903,7 +15903,7 @@ module.filter('px', function() {
                             ($scope.grid, columnIndex, columns.length - 1);
                           }
                         }
-
+/*
                         else if (totalMouseMovement === 0) {
                           if (uiGridCtrl.grid.options.enableSorting && $scope.col.enableSorting) {
                             //sort the current column
@@ -15922,7 +15922,7 @@ module.filter('px', function() {
                               });
                           }
                         }
-
+*/
                         $document.off('mousemove', mouseMoveHandler);
                         $document.off('mouseup', mouseUpHandler);
                       };
