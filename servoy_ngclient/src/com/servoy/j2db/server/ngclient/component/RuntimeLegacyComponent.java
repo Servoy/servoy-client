@@ -136,9 +136,9 @@ public class RuntimeLegacyComponent implements Scriptable
 
 		if (!isLegacyProperty(name)) return Scriptable.NOT_FOUND;
 
-		if (component.isDesignOnlyProperty(name))
+		if (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name))
 		{
-			// cannot get design only properties
+			// cannot get design only or private properties
 			return Scriptable.NOT_FOUND;
 		}
 
@@ -208,9 +208,9 @@ public class RuntimeLegacyComponent implements Scriptable
 			}
 		}
 		name = convertName(name);
-		if (component.isDesignOnlyProperty(name))
+		if (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name))
 		{
-			// cannot set design only properties
+			// cannot set design only or private properties
 			return;
 		}
 
