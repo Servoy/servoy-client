@@ -25,7 +25,7 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Manifest;
@@ -132,21 +132,28 @@ public class ResourceProvider implements Filter
 
 		registerTypes();
 
-		ArrayList<IPackageReader> componentPackages = new ArrayList<>(componentReaders.values());
-		ArrayList<IPackageReader> servicePackages = new ArrayList<>(serviceReaders.values());
-		Enumeration<URL> findEntries = Activator.getContext().getBundle().findEntries("/war/", "MANIFEST.MF", true);
-		while (findEntries.hasMoreElements())
+		List<IPackageReader> componentPackages = new ArrayList<>(componentReaders.values());
+		List<IPackageReader> servicePackages = new ArrayList<>(serviceReaders.values());
+
+		for (URL url : Utils.iterate(Activator.getContext().getBundle().findEntries("/war/", "MANIFEST.MF", true)))
 		{
-			URL url = findEntries.nextElement();
-			if (url.toExternalForm().replace("META-INF/MANIFEST.MF", "").endsWith("services/"))
+			String pathPrefix = url.getPath().substring(0, url.getPath().indexOf("/META-INF/MANIFEST.MF"));
+			IPackageReader reader = new BundlePackageReader(Activator.getContext().getBundle(), url, pathPrefix);
+			if (pathPrefix.endsWith("services"))
 			{
-				servicePackages.add(new URLPackageReader(url));
+				servicePackages.add(reader);
 			}
 			else
 			{
-				componentPackages.add(new URLPackageReader(url));
+				componentPackages.add(reader);
 			}
 		}
+
+		// Add sablo services and components
+		Bundle sabloBundle = org.sablo.startup.Activator.getDefault().getContext().getBundle();
+		BundlePackageReader sabloReader = new BundlePackageReader(sabloBundle, sabloBundle.getEntry("META-INF/MANIFEST.MF"), "META-INF/resources");
+		servicePackages.add(sabloReader);
+		componentPackages.add(sabloReader);
 
 		WebComponentSpecProvider.init(componentPackages.toArray(new IPackageReader[componentPackages.size()]));
 		WebServiceSpecProvider.init(servicePackages.toArray(new IPackageReader[servicePackages.size()]));
@@ -281,18 +288,17 @@ public class ResourceProvider implements Filter
 	{
 	}
 
-	private static class URLPackageReader implements WebComponentPackage.IPackageReader
+	private static class BundlePackageReader implements WebComponentPackage.IPackageReader
 	{
 		private final URL urlOfManifest;
-		private final String packageName;
+		private final Bundle bundle;
+		private final String pathPrefix;
 
-		public URLPackageReader(URL urlOfManifest)
+		public BundlePackageReader(Bundle bundle, URL urlOfManifest, String pathPrefix)
 		{
+			this.bundle = bundle;
 			this.urlOfManifest = urlOfManifest;
-			String file = urlOfManifest.getFile();
-			int warIndex = file.indexOf("/war/");
-			int componentJarIndex = file.indexOf("/META-INF", warIndex + 5);
-			packageName = file.substring(warIndex + 5, componentJarIndex);
+			this.pathPrefix = pathPrefix;
 		}
 
 		/*
@@ -323,7 +329,10 @@ public class ResourceProvider implements Filter
 			{
 				Debug.log(e);
 			}
-			return packageName;
+
+			// fall back to based on directory name
+			String[] split = pathPrefix.split("/");
+			return split[split.length - 1];
 		}
 
 		@Override
@@ -350,15 +359,14 @@ public class ResourceProvider implements Filter
 		@Override
 		public URL getUrlForPath(String path)
 		{
-			String completePath = path.startsWith("/") ? "/war/" + packageName + path : "/war/" + packageName + '/' + path;
-			return Activator.getContext().getBundle().getEntry(completePath); // path includes /
+			// when pathprefix is already in path, do not add pathprefix
+			return bundle.getEntry(path.startsWith(pathPrefix) ? path : pathPrefix + (path.startsWith("/") ? path : '/' + path));
 		}
 
-		@SuppressWarnings("nls")
 		@Override
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
-			URL url = Activator.getContext().getBundle().getEntry("/war/" + packageName + '/' + path);
+			URL url = getUrlForPath(path);
 			if (url == null) return null;
 			InputStream is = null;
 			try
@@ -380,7 +388,7 @@ public class ResourceProvider implements Filter
 		@Override
 		public void reportError(String specpath, Exception e)
 		{
-			log.error("Cannot parse spec file '" + specpath + "' from package 'URLPackageReader[ " + urlOfManifest + " ]'. ", e);
+			log.error("Cannot parse spec file '" + specpath + "' from package 'BundlePackageReader[ " + urlOfManifest + " ]'. ", e);
 		}
 
 		/*

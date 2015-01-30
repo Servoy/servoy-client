@@ -63,6 +63,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2836,6 +2837,41 @@ public final class Utils
 	{
 		return iterable == null ? Collections.<T> emptyList() : iterable;
 	}
+
+	/**
+	 * Iterate over enumeration.
+	 * <pre>
+	 * for (T o: Utils.iterate(enumeration))
+	 * {
+	 *     o. ....
+	 * }
+	 * </pre>
+	 * @param enumeration when null, iterate over empty list
+	 */
+	public static <T> Iterable<T> iterate(final Enumeration<T> enumeration)
+	{
+		return iterate(enumeration == null ? null : new Iterator<T>()
+		{
+			@Override
+			public boolean hasNext()
+			{
+				return enumeration.hasMoreElements();
+			}
+
+			@Override
+			public T next()
+			{
+				return enumeration.nextElement();
+			}
+
+			@Override
+			public void remove()
+			{
+				throw new UnsupportedOperationException();
+			}
+		});
+	}
+
 
 	/**
 	 * Returns true if the given client/application type is a Swing client and false if it is not.
