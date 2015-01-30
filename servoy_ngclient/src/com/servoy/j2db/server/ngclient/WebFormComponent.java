@@ -122,7 +122,7 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.BaseWebObject#getEventHandler(java.lang.String)
 	 */
 	@Override
@@ -182,6 +182,16 @@ public class WebFormComponent extends Container implements IContextProvider
 	public static boolean isDesignOnlyProperty(PropertyDescription propertyDescription)
 	{
 		return propertyDescription != null && "design".equals(propertyDescription.getTag(TAG_SCOPE));
+	}
+
+	public boolean isPrivateProperty(String propertyName)
+	{
+		return isPrivateProperty(specification.getProperty(propertyName));
+	}
+
+	public static boolean isPrivateProperty(PropertyDescription propertyDescription)
+	{
+		return propertyDescription != null && "private".equals(propertyDescription.getTag(TAG_SCOPE));
 	}
 
 	public class FormcomponentEventHandler implements IEventHandler

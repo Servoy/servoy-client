@@ -84,9 +84,9 @@ public class RuntimeWebComponent implements Scriptable
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (String propName : specs.keySet())
 			{
-				if (!component.isDesignOnlyProperty(propName))
+				if (!component.isDesignOnlyProperty(propName) && !component.isPrivateProperty(propName))
 				{
-					// design properties cannot be accessed at runtime
+					// design properties and private properties cannot be accessed at runtime
 					// all handlers are design properties, all api is runtime
 					specProperties.add(propName);
 				}
