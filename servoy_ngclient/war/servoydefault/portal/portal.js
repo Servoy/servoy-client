@@ -1,8 +1,8 @@
-angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
-.directive('servoydefaultPortal', ['$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
+angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
+.directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService",
-                                   function($utils, $foundsetTypeConstants, $componentTypeConstants, 
+                                   function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
                                 		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService) {  
 	return {
@@ -56,6 +56,7 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 				}
 			}
 
+			var oldCellAPIs;
 			$scope.$watchCollection('model.childElements', function(newVal, oldVal) {
 				elements = $scope.model.childElements;
 				if (newVal != oldVal) {
@@ -63,22 +64,38 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
 					for (var someKey in rowProxyObjects)
 						disposeOfRowProxies(rowProxyObjects[someKey]);
+					
+					// add back apis cause incomming are probably fresh uninitialized ones {}
+					// and ui-grid tends to reuse existing components which have no reason to re-populate their api object...
+					var oldIndexToNewIndex = {};
+					for (var newIdx in newVal) {
+						var newElemName = newVal[newIdx].name;
+						for (var oldIdx in oldVal) {
+							if (newElemName === oldVal[oldIdx].name) {
+								oldIndexToNewIndex[oldIdx] = newIdx;
+								break;
+							}
+						}
+					}
+					oldCellAPIs = {};
+					for (var rowId in rowProxyObjects) {
+						var rowProxies = rowProxyObjects[rowId];
+						oldCellAPIs[rowId] = {};
+						for (var columnIdx in rowProxies) {
+							if (rowProxies[columnIdx].cellApi && angular.isDefined(oldIndexToNewIndex[columnIdx])) oldCellAPIs[rowId][oldIndexToNewIndex[columnIdx]] = rowProxies[columnIdx].cellApi;
+						}
+					}
+					
 					rowProxyObjects = {};
-
-//					// reset handlers so that the new ones will be used
-//					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.cellHandlers; });
-//					// add back apis cause incomming are probably fresh uninitialized ones {}
-//					onAllCells(function(cellProxies, pk, elementIndex) { updateColumnAPIFromCell(elements[elementIndex].api, cellProxies.cellApi, elementIndex); });
-//					onAllCells(function(cellProxies, pk, elementIndex) { delete cellProxies.mergedCellModel; });
 				}
 			})
 
-			function onAllCells(f) {
-				for (var pk in rowProxyObjects)
-					for (var elementIndex in rowProxyObjects[pk])
-						f(rowProxyObjects[pk][elementIndex], pk, elementIndex);
-			}
-			
+//			function onAllCells(f) {
+//				for (var pk in rowProxyObjects)
+//					for (var elementIndex in rowProxyObjects[pk])
+//						f(rowProxyObjects[pk][elementIndex], pk, elementIndex);
+//			}
+//			
 			$scope.rowHeight = $scope.model.rowHeight;
 
 			var rowTemplate = ''
@@ -92,24 +109,24 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
 					var columnTitle = el.model.text;
-//					if (!columnTitle) {
-//						// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
-//						if (el.forFoundset && el.forFoundset.recordBasedProperties && el.forFoundset.recordBasedProperties.length > 0) {
-//							columnTitle = el.forFoundset.recordBasedProperties[0];
-//							if (columnTitle && columnTitle.indexOf('.') >= 0) {
-//								columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
-//							}
-//						}
-//						if (!columnTitle) columnTitle = "";
-//					}
+					//					if (!columnTitle) {
+					//						// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
+					//						if (el.forFoundset && el.forFoundset.recordBasedProperties && el.forFoundset.recordBasedProperties.length > 0) {
+					//							columnTitle = el.forFoundset.recordBasedProperties[0];
+					//							if (columnTitle && columnTitle.indexOf('.') >= 0) {
+					//								columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
+					//							}
+					//						}
+					//						if (!columnTitle) columnTitle = "";
+					//					}
 					if (!columnTitle) columnTitle = "";
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
-						+ '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx
-						+ ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx
-						+ ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx
-						+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"';
+					+ '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx
+					+ ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx
+					+ ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx
+					+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"';
 					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
 					cellTemplate += '/>';
 					if($scope.model.multiLine) { 
@@ -146,8 +163,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 					}
 				}
 			}	
-			
-			
+
+
 			if($scope.model.multiLine) {
 				$scope.columnDefinitions.push({
 					width: rowWidth,
@@ -434,9 +451,15 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 			// so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
 			// it will execute on all cells
 			$scope.exScope.cellApiWrapper = function(ngGridRow, elementIndex) {
-				var cellProxies = getOrCreateElementProxies(ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY], elementIndex);
-
+				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
+					return {}
+				}
+				
+				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
+				
 				if (!cellProxies.cellApi) {
+
 					if (!angular.isDefined(cellProxies.unwatchFuncs)) cellProxies.unwatchFuncs = [];
 					var columnApi = elements[elementIndex].api;
 					cellProxies.cellApi = {}; // new cell API object
@@ -446,7 +469,23 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						{
 							setElementFindMode($scope.model.childElements[elementIndex], $scope.model.svy_findMode, $scope.model.svy_editable);
 						}
-				}));
+					}));
+					
+					// if the elements array changed, and due to the fact that ui-grid reuses components, re-apply old cellAPIs if available
+					// this is rarely the case, but it can happen
+					oldCellApi = $sabloUtils.getInDepthProperty(oldCellAPIs, rowId, elementIndex);
+					if (angular.isDefined(oldCellApi)) {
+						cellProxies.cellApi = oldCellApi;
+						updateColumnAPIFromCell(columnApi, cellProxies.cellApi, elementIndex);
+
+						delete oldCellAPIs[rowId][elementIndex];
+						var l = 0;
+						for (var tmp in oldCellAPIs[rowId]) { l++; break; }
+						if (l === 0) delete oldCellAPIs[rowId];;
+						l = 0;
+						for (var tmp in oldCellAPIs) { l++; break; }
+						if (l === 0) oldCellAPIs = undefined;
+					}
 				}
 				return cellProxies.cellApi;
 			}
@@ -463,6 +502,10 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 
 			$scope.exScope.cellServoyApiWrapper = function(ngGridRow, elementIndex) {
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
+					return {}
+				}
+				
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
 				if (!cellProxies.cellServoyApi) {
@@ -688,6 +731,8 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 						for (var oldRowId in rowProxyObjects) {
 							if (!newRowIDs[oldRowId]) {
 								disposeOfRowProxies(rowProxyObjects[oldRowId]);
+								var oldCellApi = $sabloUtils.getInDepthProperty(oldCellAPIs, oldRowId);
+								if (angular.isDefined(oldCellApi)) delete oldCellAPIs[oldRowId];
 								delete rowProxyObjects[oldRowId];
 							}
 						}
@@ -713,6 +758,10 @@ angular.module('servoydefaultPortal',['servoy','ui.grid','ui.grid.selection','ui
 			// make sure that the foundset's selection is correct server-side when cell handler triggers)
 			$scope.exScope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
+					return {}
+				}
+				
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
 				if (!cellProxies.cellHandlers) {
