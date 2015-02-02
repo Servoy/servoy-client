@@ -34,6 +34,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 					if (e.date) ngModel.$setViewValue(e.date.toDate());
 					else ngModel.$setViewValue(null);
 				}
+				ngModel.$setValidity("", true);
 				$scope.svyServoyapi.apply('dataProviderID');
 			}
 
@@ -74,6 +75,11 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 
 			$element.on("change.dp",inputChanged);
 
+			$element.on("error.dp",function(){
+				ngModel.$setValidity("", false);
+				$scope.$digest();
+			});
+			
 			$scope.findMode = false;
 			// special method that servoy calls when this component goes into find mode.
 			$scope.api.setFindMode = function(mode, editable) {
