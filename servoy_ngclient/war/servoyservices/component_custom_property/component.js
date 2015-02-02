@@ -111,9 +111,10 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				newValue = serverJSONValue;
 				
 				if (newValue) {
-					childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope);
 					
 					$sabloConverters.prepareInternalState(newValue);
+					childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope);
+					
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
 					var executeHandler = function(type,event,row) {
