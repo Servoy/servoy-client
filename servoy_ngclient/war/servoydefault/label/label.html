@@ -1,7 +1,7 @@
 <div svy-border='model.borderType' 
 	 svy-background='model.transparent ? "transparent" : model.background'
 	 svy-foreground='model.foreground'
-	 ng-class='model.styleClass ? model.styleClass : "svy-label"'
+	 ng-class='getClass()'
 	 ng-style="containerstyle"
      svy-margin='model.margin'
      svy-tabseq='(handlers.onActionMethodID || handlers.onDoubleClickMethodID || handlers.onRightClickMethodID) ? model.tabSeq : -2' 

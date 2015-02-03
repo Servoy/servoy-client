@@ -24,6 +24,7 @@
 	        "mnemonic" : "string", 
 	        "rolloverCursor" : {"type" :"int", "tags": { "scope" :"design" }}, 
 	        "rolloverImageMediaID" : {"type" : "media", "tags": { "scope" :"design" }}, 
+	        "showFocus" : {"type":"boolean", "default":true}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":80, "height":20}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :["btn","btn-default","btn-lg","btn-sm","btn-xs"]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 

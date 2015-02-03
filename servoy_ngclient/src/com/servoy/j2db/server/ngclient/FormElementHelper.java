@@ -470,7 +470,7 @@ public class FormElementHelper
 			if (!formWasModifiedViaSolutionModel) formTabSequences.putIfAbsent(flattenedForm, cachedTabSeq);
 		}
 
-		Integer controlledTabSeq = cachedTabSeq.get(persistIfAvailable);
+		Integer controlledTabSeq = cachedTabSeq.get(flattenedForm.getChild(persistIfAvailable.getUUID()));
 		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
 		return controlledTabSeq;

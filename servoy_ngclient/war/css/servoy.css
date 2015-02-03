@@ -33,6 +33,9 @@ label.svy-check-radio span{
 	vertical-align: middle;
 }
 
+div.svy-label-with-focus:focus{
+	border: thin solid black;	
+}
 
 /*BOOTSTRAP WINDOW CUSTOMIZATION*/
 .window .window-body,

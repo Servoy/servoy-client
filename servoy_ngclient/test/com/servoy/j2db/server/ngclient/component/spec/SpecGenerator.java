@@ -636,7 +636,7 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_FORMINDEX.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName());
-		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
+//		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWCLICK.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName());

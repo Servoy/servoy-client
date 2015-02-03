@@ -21,7 +21,20 @@ angular.module('servoydefaultLabel',['servoy'])
     	  
           $scope.containerstyle = {overflow:'hidden',position:'absolute'}
           $scope.contentstyle = {width:'100%',overflow:'hidden',position:'absolute',whiteSpace:'nowrap'}
-          
+          $scope.getClass = function() {
+        	  var classes = "";
+        	  if($scope.model.styleClass) {
+        		  classes += $scope.model.styleClass;
+        	  }
+        	  else {
+        		  classes += "svy-label";
+        	  }
+        	  if($scope.model.showFocus && ($scope.handlers.onActionMethodID || $scope.handlers.onDoubleClickMethodID || $scope.handlers.onRightClickMethodID)) {
+        		  classes += " svy-label-with-focus"
+        	  }
+
+        	  return classes;
+          }
       }
     };
 }])
