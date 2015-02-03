@@ -233,6 +233,7 @@ public class FormElementHelper
 				// now put real child component form element values in "childElements"
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
+				List<String> headersText = new ArrayList<>();
 				propertyPath.add(portalFormElement.getName());
 				propertyPath.add("childElements");
 
@@ -251,6 +252,35 @@ public class FormElementHelper
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesginer);
+							if (listViewPortal.isTableview())
+							{
+								String elementName = fe.getName();
+								boolean hasLabelFor = false;
+								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
+								while (graphicalComponents.hasNext())
+								{
+									GraphicalComponent gc = graphicalComponents.next();
+									if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
+										endPos >= gc.getLocation().y)
+									{
+										headersText.add(gc.getText());
+										hasLabelFor = true;
+										break;
+									}
+								}
+								if (!hasLabelFor)
+								{
+									if (fe.getPropertyValue("text") != null)
+									{
+										// legacy behavior, take text property
+										headersText.add(fe.getPropertyValue("text").toString());
+									}
+									else
+									{
+										headersText.add(null);
+									}
+								}
+							}
 							children.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
 							propertyPath.backOneLevel();
 
@@ -269,6 +299,10 @@ public class FormElementHelper
 				propertyPath.backOneLevel();
 				propertyPath.backOneLevel();
 				portalFormElementProperties.put("childElements", children.toArray());
+				if (listViewPortal.isTableview())
+				{
+					portalFormElementProperties.put("columnHeaders", headersText.toArray());
+				}
 
 				portalFormElementProperties.put("tabSeq", Integer.valueOf(minBodyPortalTabSeq)); // table view tab seq. is the minimum of it's children tabSeq'es
 
