@@ -1,0 +1,10 @@
+<input type="text" 
+	    ng-class='model.styleClass'
+	    ng-model="model.dataProviderID"
+	    placeholder="{{model.placeholderText}}"
+	    svy-focusgained='handlers.onFocusGainedMethodID($event)'
+	   	svy-focuslost='handlers.onFocusLostMethodID($event)'
+	   	svy-enter='handlers.onActionMethodID($event)'
+	   	svy-rightclick='handlers.onRightClickMethodID($event)'
+       	svy-autoapply
+	    />
