@@ -1,0 +1,10 @@
+<div ng-class='model.styleClass'>
+	<label>	
+		<input type="checkbox"
+			    ng-model ="selection"
+				ng-click="checkBoxClicked()"
+				svy-click='handlers.onActionMethodID($event)'
+				/>
+		 <span ng-bind="model.text"/>
+	</label>
+</div>
