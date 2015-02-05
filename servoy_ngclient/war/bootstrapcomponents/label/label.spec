@@ -7,6 +7,7 @@
 	"libraries": [],
 	"model":
 	{
+			"labelFor" : { "type" : "string", "tags": { "scope" :"design" } },
 			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :["label","label-default","label-primary","label-success","label-info","label-warning","label-danger"]},
 	        "text" : {"type":"tagstring" , "default":"Label"}
 	},
