@@ -1,0 +1,15 @@
+<div ng-class='model.styleClass' ng-show='model.valuelistID== null || model.valuelistID.length == 0'>
+  <label>
+  	<input type="{{model.inputType}}"'/>
+  	 <span>Select a valuelist</span>
+  </label>
+</div>
+<div ng-class='model.styleClass' ng-repeat="item in model.valuelistID">
+  <label>
+  	<input type="{{model.inputType}}" ng-model="selection[$index]"  
+  		ng-value="item.realValue"
+  		ng-click="itemClicked($event,$index)"
+        svy-click='handlers.onActionMethodID($event)'/>
+  	 <span ng-bind='item.displayValue'></span>
+  </label>
+</div>
