@@ -23,3 +23,7 @@ Web-Component: True
 
 Name: choicegroup/choicegroup.spec
 Web-Component: True
+
+Name: select/select.spec
+Web-Component: True
+
