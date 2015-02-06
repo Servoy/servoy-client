@@ -19,7 +19,6 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -810,8 +809,16 @@ public class Row
 	public void remove()
 	{
 		isRemoving = true;
-		Iterator<IRowChangeListener> rowChangeListenerIte = listeners.keySet().iterator();
-		while (rowChangeListenerIte.hasNext())
-			rowChangeListenerIte.next().rowRemoved();
+		Object[] array;
+		synchronized (listeners)
+		{
+			array = listeners.keySet().toArray();
+		}
+
+		for (Object element2 : array)
+		{
+			IRowChangeListener element = (IRowChangeListener)element2;
+			element.rowRemoved();
+		}
 	}
 }
