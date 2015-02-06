@@ -27,3 +27,6 @@ Web-Component: True
 Name: select/select.spec
 Web-Component: True
 
+Name: calendar/calendar.spec
+Web-Component: True
+
