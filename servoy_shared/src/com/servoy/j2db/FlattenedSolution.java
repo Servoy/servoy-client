@@ -796,7 +796,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/*
 	 * Get a flattened form from this flattened solution.
-	 * 
+	 *
 	 * <p>When the form does not have a parent, the form itself is returned
 	 */
 	public Form getFlattenedForm(IPersist persist)
@@ -913,6 +913,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	 */
 	public boolean formCanBeInstantiated(Form form)
 	{
+		if (form.isResponsiveLayout()) return true;
 		if (form != null)
 		{
 			// forms without parts are abstract

@@ -33,3 +33,6 @@ Web-Component: True
 Name: typeahead/typeahead.spec
 Web-Component: True
 
+Name: tablesspanel/tablesspanel.spec
+Web-Component: True
+
