@@ -224,6 +224,16 @@ public class FormLayoutGenerator
 			writer.print(" svy-id='");
 			writer.print(fe.getDesignId());
 			writer.print("'");
+			if (fe.getForm().isResponsiveLayout())
+			{
+				List<String> typeNames = fe.getSvyTypesNames();
+				if (typeNames.size() > 0)
+				{
+					writer.print(" svy-types='");
+					writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+					writer.print("'");
+				}
+			}
 		}
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());

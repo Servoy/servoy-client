@@ -1,0 +1,13 @@
+<div ng-class='model.styleClass' ng-show='!model.tabs || model.tabs.length == 0'>
+  <label>
+  	 <span>Select contained form</span>
+  </label>
+</div>
+<tabset  ng-class='model.styleClass'>
+    <tab ng-repeat="tab in model.tabs" active="tab.active" select="select(tab)" >
+      <tab-heading>
+        <span  ng-bind='tab.text'></span>
+      </tab-heading>
+      <div ng-include="getForm(tab)" ng-class='model.containerStyleClass'></div>
+    </tab>
+</tabset>

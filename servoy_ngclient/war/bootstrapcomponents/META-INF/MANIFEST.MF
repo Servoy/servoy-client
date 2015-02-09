@@ -36,3 +36,5 @@ Web-Component: True
 Name: tablesspanel/tablesspanel.spec
 Web-Component: True
 
+Name: tabpanel/tabpanel.spec
+Web-Component: True
