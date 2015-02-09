@@ -57,5 +57,7 @@ public interface IDataAdapterList extends ITagResolver
 
 	void removeRelatedForm(IWebFormController form);
 
+	void removeAllRelatedForms();
+
 	IRecordInternal getRecord();
 }
