@@ -73,7 +73,7 @@ import com.servoy.j2db.util.gui.AutoTransferFocusListener;
 
 /**
  * The Servoy tabpanel
- * 
+ *
  * @author jblok
  */
 public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData, ChangeListener, ISupportSecuritySettings, ITabPanel,
@@ -274,7 +274,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			if (fp != null && flp.getRelationName() != null)
 			{
 				IFoundSetInternal relatedFoundSet = parentState == null ? null : parentState.getRelatedFoundSet(flp.getRelationName(), sort);
-				if (relatedFoundSet != null) registerSelectionListeners(parentState, flp.getRelationName());
+				registerSelectionListeners(parentState, flp.getRelationName());
 				fp.loadData(relatedFoundSet, null);
 			}
 
@@ -468,7 +468,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	public boolean addTab(IForm formController, String formName, String tabname, String tabText, String tooltip, String iconURL, String fg, String bg,
 		String relationName, RelatedFoundSet relatedFs, int idx)
 	{
-		//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
+		//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based
 		//on the form that the tabpanel is placed on
 		if (formController != null)
 		{

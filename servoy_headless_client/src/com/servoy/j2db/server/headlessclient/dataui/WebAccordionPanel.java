@@ -90,7 +90,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents an accordion panel in the webbrowser.
- * 
+ *
  * @author lvostinar
  * @since 6.1
  *
@@ -681,7 +681,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		if (fp != null && flp.getRelationName() != null)
 		{
 			IFoundSetInternal relatedFoundset = parentState == null ? null : parentState.getRelatedFoundSet(flp.getRelationName(), sort);
-			if (relatedFoundset != null) registerSelectionListeners(parentState, flp.getRelationName());
+			registerSelectionListeners(parentState, flp.getRelationName());
 			fp.loadData(relatedFoundset, null);
 		}
 
@@ -819,7 +819,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	{
 		if (formController != null)
 		{
-			//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
+			//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based
 			//on the form that the tabpanel is placed on
 			WebForm webForm = findParent(WebForm.class);
 			if (webForm != null)

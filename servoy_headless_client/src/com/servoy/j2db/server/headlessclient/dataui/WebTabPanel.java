@@ -96,7 +96,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a tabpanel in the webbrowser.
- * 
+ *
  * @author jcompagner
  */
 public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
@@ -360,7 +360,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 					if (!dontRearrangeHere)
 					{
 						String jsCall = "rearrageTabsInTabPanel('" + WebTabPanel.this.getMarkupId() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
-						// Safari and Konqueror have some problems with the "domready" event, so for those 
+						// Safari and Konqueror have some problems with the "domready" event, so for those
 						// browsers we'll use the "load" event. Otherwise use "domready", it reduces the flicker
 						// effect when rearranging the tabs.
 						ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
@@ -737,7 +737,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		if (fp != null && flp.getRelationName() != null)
 		{
 			IFoundSetInternal relatedFoundset = parentState == null ? null : parentState.getRelatedFoundSet(flp.getRelationName(), sort);
-			if (relatedFoundset != null) registerSelectionListeners(parentState, flp.getRelationName());
+			registerSelectionListeners(parentState, flp.getRelationName());
 			fp.loadData(relatedFoundset, null);
 		}
 
@@ -870,7 +870,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		if (formController != null)
 		{
-			//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based 
+			//to make sure we don't have recursion on adding a tab, to a tabpanel, that is based
 			//on the form that the tabpanel is placed on
 			WebForm webForm = findParent(WebForm.class);
 			if (webForm != null)

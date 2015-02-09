@@ -334,7 +334,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 			if (fp != null && flp.getRelationName() != null)
 			{
 				IFoundSetInternal relatedFoundSet = parentState == null ? null : parentState.getRelatedFoundSet(flp.getRelationName(), sort);
-				if (relatedFoundSet != null) registerSelectionListeners(parentState, flp.getRelationName());
+				registerSelectionListeners(parentState, flp.getRelationName());
 				fp.loadData(relatedFoundSet, null);
 			}
 		}
@@ -526,7 +526,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 				{
 					return false;
 				}
-				// TODO do this check to check if the parent table has this relation? How to get the parent table 
+				// TODO do this check to check if the parent table has this relation? How to get the parent table
 				//				Table parentTable = null;
 				//				application.getSolution().getRelations(Solution.SOLUTION+Solution.MODULES, parentTable, true, false);
 			}
@@ -615,7 +615,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISplitPane#setOnDividerChangeMethodCmd(java.lang.String)
 	 */
 	public void setOnDividerChangeMethodCmd(String onDividerChangeMethodCmd)
@@ -625,7 +625,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISplitPane#addScriptExecuter(com.servoy.j2db.IScriptExecuter)
 	 */
 	public void addScriptExecuter(IScriptExecuter el)
@@ -635,7 +635,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabLayoutPolicy(int)
 	 */
 	public void setTabLayoutPolicy(int scroll_tab_layout)
@@ -645,7 +645,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#addTab(java.lang.String, int, com.servoy.j2db.ui.IFormLookupPanel, java.lang.String)
 	 */
 	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tooltip)
@@ -655,7 +655,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabForegroundAt(int, java.awt.Color)
 	 */
 	public void setTabForegroundAt(int index, Color fg)
@@ -665,7 +665,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabBackgroundAt(int, java.awt.Color)
 	 */
 	public void setTabBackgroundAt(int index, Color bg)
@@ -675,7 +675,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabEnabledAt(int, boolean)
 	 */
 	public void setTabEnabledAt(int index, boolean enabled)
@@ -686,7 +686,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setOnTabChangeMethodCmd(java.lang.String, java.lang.Object[])
 	 */
 	public void setOnTabChangeMethodCmd(String onTabChangeMethodCmd, Object[] onTabChangeArgs)
@@ -696,7 +696,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#removeTabAt(int)
 	 */
 	public boolean removeTabAt(int index)
@@ -706,7 +706,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#removeAllTabs()
 	 */
 	public boolean removeAllTabs()
@@ -716,7 +716,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#addTab(com.servoy.j2db.IForm, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.dataprocessing.RelatedFoundSet, int)
 	 */
@@ -728,7 +728,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabTextAt(int, java.lang.String)
 	 */
 	public void setTabTextAt(int i, String text)
@@ -738,7 +738,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabTextAt(int)
 	 */
 	public String getTabTextAt(int i)
@@ -748,7 +748,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setMnemonicAt(int, int)
 	 */
 	public void setMnemonicAt(int i, int mnemonic)
@@ -758,7 +758,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getMnemonicAt(int)
 	 */
 	public int getMnemonicAt(int i)
@@ -768,7 +768,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabNameAt(int)
 	 */
 	public String getTabNameAt(int i)
@@ -779,7 +779,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabFormNameAt(int)
 	 */
 	public String getTabFormNameAt(int i)
@@ -790,7 +790,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabIndex(int)
 	 */
 	public void setTabIndex(int index)
@@ -800,7 +800,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabIndex(java.lang.String)
 	 */
 	public void setTabIndex(String name)
@@ -811,7 +811,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#isTabEnabledAt(int)
 	 */
 	public boolean isTabEnabledAt(int index)
@@ -823,7 +823,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabIndex()
 	 */
 	public int getTabIndex()
@@ -834,7 +834,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getMaxTabIndex()
 	 */
 	public int getMaxTabIndex()
@@ -844,7 +844,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setHorizontalAlignment(int)
 	 */
 	public void setHorizontalAlignment(int alignment)
