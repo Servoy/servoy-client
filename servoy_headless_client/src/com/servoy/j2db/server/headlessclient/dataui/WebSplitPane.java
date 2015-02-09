@@ -76,7 +76,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * This class represents a split pane in the web client
- * 
+ *
  * @author gboros
  */
 public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
@@ -134,7 +134,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		{
 			if (getComponent().getRequest().getParameter("location") != null) //$NON-NLS-1$
 			{
-				setDividerLocationInternal(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$ 
+				setDividerLocationInternal(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$
 			}
 			if (getComponent().getRequest().getParameter("changed") != null && orient == TabPanel.SPLIT_HORIZONTAL) //$NON-NLS-1$
 			{
@@ -535,7 +535,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		if (fp != null && flp.getRelationName() != null)
 		{
 			IFoundSetInternal relatedFoundset = parentState == null ? null : parentState.getRelatedFoundSet(flp.getRelationName(), sort);
-			if (relatedFoundset != null) registerSelectionListeners(parentState, flp.getRelationName());
+			registerSelectionListeners(parentState, flp.getRelationName());
 			fp.loadData(relatedFoundset, null);
 		}
 	}
@@ -586,20 +586,20 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			pos = "top"; //$NON-NLS-1$
 		}
 
-		StringBuilder resizeScript = new StringBuilder("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		StringBuilder resizeScript = new StringBuilder("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
 		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = (YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
 			"-").append(getDividerSize()).append(")*dividerLocation;}"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("if(newDividerLocation < ").append(leftFormMinSize).append(") { newDividerLocation = ").append(leftFormMinSize).append(";};"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("if(dividerLocation != newDividerLocation) { wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
-			forceLayoutIfAnchored ? "&anchor=true" : "").append("&location=' + newDividerLocation);}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			forceLayoutIfAnchored ? "&anchor=true" : "").append("&location=' + newDividerLocation);}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim.toLowerCase()).append("', newDividerLocation + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim.toLowerCase()).append("', newDividerLocation + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$		
+		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return resizeScript;
 	}
@@ -621,7 +621,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		}
 
 		StringBuilder resizeScript = getDividerLocationJSSetter(false);
-		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ 
+		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -637,18 +637,18 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		}
 
 		dim = dim.toLowerCase();
-		resizeScript.append("var splitterDivs = splitter.getElementsByTagName('div');"); //$NON-NLS-1$ 
+		resizeScript.append("var splitterDivs = splitter.getElementsByTagName('div');"); //$NON-NLS-1$
 		resizeScript.append(
-			"for(var x = 0; x < splitterDivs.length; x++) { if(splitterDivs[x].parentNode == splitter && splitterDivs[x].id.match('yui') != null) { ").append( //$NON-NLS-1$ 
+			"for(var x = 0; x < splitterDivs.length; x++) { if(splitterDivs[x].parentNode == splitter && splitterDivs[x].id.match('yui') != null) { ").append( //$NON-NLS-1$
 			"YAHOO.util.Dom.setStyle(splitterDivs[x], '").append(dim).append("', '").append(dividerSize).append("px');").append(dividerBg != null ? "YAHOO.util.Dom.setStyle(splitterDivs[x], 'background-color', '" + dividerBg + "');" : "").append("break; } }; "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 
 		if (!continuousLayout)
 		{
 			resizeScript.append("YAHOO.util.Dom.setStyle(resize.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("resize.on('startResize', function(ev) {"); //$NON-NLS-1$  			
+			resizeScript.append("resize.on('startResize', function(ev) {"); //$NON-NLS-1$
 			resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'border', 'none');"); //$NON-NLS-1$			
+			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'border', 'none');"); //$NON-NLS-1$
 			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'padding', 0);"); //$NON-NLS-1$
 			resizeScript.append(
 				"this.getProxyEl().innerHTML = '<div style = \"filter: alpha(opacity=50); opacity: 0.5; -moz-opacity: 0.5; position: absolute; left: 0; right: 0; top: 0; bottom: 0; border-").append(orient == TabPanel.SPLIT_HORIZONTAL ? "right" : "bottom").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -658,17 +658,17 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		}
 
 		resizeScript.append("var dividerMoveTimer;"); //$NON-NLS-1$
-		resizeScript.append("resize.on('resize', function(ev) {"); //$NON-NLS-1$ 
+		resizeScript.append("resize.on('resize', function(ev) {"); //$NON-NLS-1$
 		resizeScript.append("var d = ev.").append(dim).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim).append("', (newLeftSize - ").append(dividerSize).append(") + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim).append("', (newLeftSize - ").append(dividerSize).append(") + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', d + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("clearTimeout(dividerMoveTimer);"); //$NON-NLS-1$
 		resizeScript.append("dividerMoveTimer = setTimeout(function() {wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));}, 200);"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-		resizeScript.append("});"); //$NON-NLS-1$ 
+		resizeScript.append("});"); //$NON-NLS-1$
 
-		resizeScript.append("resize.on('endResize', function(ev) {"); //$NON-NLS-1$ 
+		resizeScript.append("resize.on('endResize', function(ev) {"); //$NON-NLS-1$
 		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -681,17 +681,17 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			resizeScript.append("\nif(typeof(splitPanes) != \"undefined\")\n").append("{\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("splitPanes['").append(splitId).append("'] = new Array();\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("splitPanes['").append(splitId).append("']['orient'] = '").append(orient == TabPanel.SPLIT_HORIZONTAL ? "h" : "v").append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			resizeScript.append("splitPanes['").append(splitId).append("']['resize'] = resize;\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
-			resizeScript.append("splitPanes['").append(splitId).append("']['splitter'] = splitter;\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
+			resizeScript.append("splitPanes['").append(splitId).append("']['resize'] = resize;\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			resizeScript.append("splitPanes['").append(splitId).append("']['splitter'] = splitter;\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("splitPanes['").append(splitId).append("']['left'] = left;\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("splitPanes['").append(splitId).append("']['right'] = right;\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("splitPanes['").append(splitId).append("']['currentSize'] = splitter.offsetParent.offset").append(orient == TabPanel.SPLIT_HORIZONTAL ? "Width" : "Height").append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			resizeScript.append("splitPanes['").append(splitId).append("']['resizeWeight'] = ").append(resizeWeight).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			resizeScript.append("splitPanes['").append(splitId).append("']['resizeWeight'] = ").append(resizeWeight).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resizeScript.append("splitPanes['").append(splitId).append("']['dividerSize'] = ").append(dividerSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resizeScript.append("splitPanes['").append(splitId).append("']['leftMin'] = ").append(leftFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resizeScript.append("splitPanes['").append(splitId).append("']['rightMin'] = ").append(rightFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resizeScript.append("splitPanes['").append(splitId).append("']['callback'] = '").append(dividerUpdater.getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("}\n"); //$NON-NLS-1$		
+			resizeScript.append("}\n"); //$NON-NLS-1$
 
 			// even the PageContributor may do the layout, it can happen that it is doing before
 			// we set the divider, as both the layout script & divider script are just added with wicket
@@ -919,7 +919,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 				{
 					return false;
 				}
-				// TODO do this check to check if the parent table has this relation? How to get the parent table 
+				// TODO do this check to check if the parent table has this relation? How to get the parent table
 //				Table parentTable = null;
 //				application.getSolution().getRelations(Solution.SOLUTION+Solution.MODULES, parentTable, true, false);
 			}
@@ -993,7 +993,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISplitPane#setOnDividerChangeMethodCmd(java.lang.String)
 	 */
 	public void setOnDividerChangeMethodCmd(String onDividerChangeMethodCmd)
@@ -1003,7 +1003,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISplitPane#addScriptExecuter(com.servoy.j2db.IScriptExecuter)
 	 */
 	public void addScriptExecuter(IScriptExecuter el)
@@ -1018,7 +1018,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabLayoutPolicy(int)
 	 */
 	public void setTabLayoutPolicy(int scroll_tab_layout)
@@ -1028,7 +1028,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#addTab(java.lang.String, int, com.servoy.j2db.ui.IFormLookupPanel, java.lang.String)
 	 */
 	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tooltip)
@@ -1038,7 +1038,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabForegroundAt(int, java.awt.Color)
 	 */
 	public void setTabForegroundAt(int index, Color fg)
@@ -1048,7 +1048,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabBackgroundAt(int, java.awt.Color)
 	 */
 	public void setTabBackgroundAt(int index, Color bg)
@@ -1058,7 +1058,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabEnabledAt(int, boolean)
 	 */
 	public void setTabEnabledAt(int index, boolean enabled)
@@ -1069,7 +1069,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setOnTabChangeMethodCmd(java.lang.String, java.lang.Object[])
 	 */
 	public void setOnTabChangeMethodCmd(String onTabChangeMethodCmd, Object[] onTabChangeArgs)
@@ -1079,7 +1079,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#removeTabAt(int)
 	 */
 	public boolean removeTabAt(int index)
@@ -1089,7 +1089,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#removeAllTabs()
 	 */
 	public boolean removeAllTabs()
@@ -1099,7 +1099,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#addTab(com.servoy.j2db.IForm, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.dataprocessing.RelatedFoundSet, int)
 	 */
@@ -1111,7 +1111,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabTextAt(int, java.lang.String)
 	 */
 	public void setTabTextAt(int i, String text)
@@ -1121,7 +1121,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabTextAt(int)
 	 */
 	public String getTabTextAt(int i)
@@ -1131,7 +1131,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setMnemonicAt(int, int)
 	 */
 	public void setMnemonicAt(int i, int mnemonic)
@@ -1141,7 +1141,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getMnemonicAt(int)
 	 */
 	public int getMnemonicAt(int i)
@@ -1152,7 +1152,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabNameAt(int)
 	 */
 	public String getTabNameAt(int i)
@@ -1163,7 +1163,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabFormNameAt(int)
 	 */
 	public String getTabFormNameAt(int i)
@@ -1174,7 +1174,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabIndex(int)
 	 */
 	public void setTabIndex(int index)
@@ -1184,7 +1184,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setTabIndex(java.lang.String)
 	 */
 	public void setTabIndex(String name)
@@ -1194,7 +1194,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#isTabEnabledAt(int)
 	 */
 	public boolean isTabEnabledAt(int index)
@@ -1206,7 +1206,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getTabIndex()
 	 */
 	public int getTabIndex()
@@ -1216,7 +1216,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#getMaxTabIndex()
 	 */
 	public int getMaxTabIndex()
@@ -1226,7 +1226,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#setHorizontalAlignment(int)
 	 */
 	public void setHorizontalAlignment(int alignment)
