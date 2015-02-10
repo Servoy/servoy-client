@@ -293,7 +293,14 @@ public abstract class JarManager
 				}
 				catch (Throwable th)
 				{
-					Debug.trace(th.toString());
+					if (th instanceof SecurityException)
+					{
+						Debug.warn(th.toString());
+					}
+					else
+					{
+						Debug.trace(th.toString());
+					}
 				}
 				if (cls != null)
 				{
