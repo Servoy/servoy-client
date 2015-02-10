@@ -166,7 +166,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 					{
 						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 					}
-					if (args.has("relation") && !args.isNull("relation"))
+					if (isVisible && args.has("relation") && !args.isNull("relation"))
 					{
 						String relation = args.getString("relation");
 						FoundSet parentFs = parentForm.getFormModel();
