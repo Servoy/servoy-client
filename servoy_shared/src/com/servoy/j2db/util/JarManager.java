@@ -222,7 +222,7 @@ public abstract class JarManager
 			instanceClass = cls;
 			this.searchType = searchType;
 		}
-		
+
 		@Override
 		public String toString()
 		{
@@ -355,7 +355,14 @@ public abstract class JarManager
 					}
 					catch (Throwable th)
 					{
-						Debug.trace(th.toString());
+						if (th instanceof SecurityException)
+						{
+							Debug.warn(th.toString());
+						}
+						else
+						{
+							Debug.trace(th.toString());
+						}
 					}
 				}
 			}
@@ -426,7 +433,7 @@ public abstract class JarManager
 												{
 													ExtensionResource ref = new ExtensionResource(f.toURI().toURL(), reference, f.lastModified());
 													if (!ext.libs.contains(ref)) ext.libs.add(ref);
-													
+
 													addCommonPackageToDefinitions(ref, beanClassNames, packageJarMapping);
 													if (!subDirRetval.contains(ref)) subDirRetval.add(ref);
 												}
