@@ -525,6 +525,9 @@ function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 {
 	if(strEvent == "blur")
 	{
+		// because the blocker is requesting focus, it may cause a blur, that may cause an unwanted data change, so, ignore it
+		if(blockerOn) return;
+		
 		ignoreFocusGained = null;
 	}
 	if(strEvent != "focus" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
@@ -1778,8 +1781,10 @@ function onAjaxError()
 }
 
 var blockerTimeout = null;
+var blockerOn = false;
 
 function onABC() {
+	blockerOn = true;
 	wicketShow('blocker');
 	$('body').addClass('blocker');
 	var e=wicketGet('blocker');
@@ -1794,6 +1799,7 @@ function onABCDelayed() {
 
 function hideBlocker()
 {
+	blockerOn = false;
 	if(blockerTimeout)
 	{
 		clearTimeout(blockerTimeout);
