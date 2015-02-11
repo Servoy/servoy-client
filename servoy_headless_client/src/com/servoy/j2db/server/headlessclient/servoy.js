@@ -524,10 +524,7 @@ function eventCallback(el, strEvent, callbackUrl, event)
 function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 {
 	if(strEvent == "blur")
-	{
-		// because the blocker is requesting focus, it may cause a blur, that may cause an unwanted data change, so, ignore it
-		if(blockerOn) return;
-		
+	{	
 		ignoreFocusGained = null;
 	}
 	if(strEvent != "focus" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
@@ -616,7 +613,7 @@ function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 	{
 		modifiers = Servoy.Utils.getModifiers(event);
 		// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
-		if (Wicket.$(el.id).displayValue && Wicket.$(el.id).value == Wicket.$(el.id).displayValue)
+		if (blockerOn || (Wicket.$(el.id).displayValue && Wicket.$(el.id).value == Wicket.$(el.id).displayValue))
 		{
 			var wcall=wicketAjaxGet
 			(
