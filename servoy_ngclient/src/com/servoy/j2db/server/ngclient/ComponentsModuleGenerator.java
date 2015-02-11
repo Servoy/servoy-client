@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,12 +35,12 @@ import org.sablo.specification.WebServiceSpecProvider;
  * generates the /js/servoy-components.js file that has the servoy components module declared with all the webcomponents modules
  *
  */
-//@WebServlet("/js/servoy-components.js")
+@WebServlet("/js/servoy-components.js")
 public class ComponentsModuleGenerator extends HttpServlet
 {
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
