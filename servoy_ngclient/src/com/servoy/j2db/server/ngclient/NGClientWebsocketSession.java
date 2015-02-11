@@ -132,10 +132,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						StartupArguments argumentsScope = new StartupArguments(args);
 						String method = argumentsScope.getMethodName();
 						String firstArgument = argumentsScope.getFirstArgument();
-						if (method == null && solution.getOnOpenMethodID() != -1)
-						{
-							method = solution.getScriptMethod(solution.getOnOpenMethodID()).getName();
-						}
 						if (method != null)
 						{
 							try
