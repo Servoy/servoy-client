@@ -76,7 +76,7 @@ import com.servoy.j2db.util.UUID;
  *
  * @author jcompagner
  */
-@SuppressWarnings("nls")
+//@SuppressWarnings("nls")
 @WebServlet("/resources/*")
 public class MediaResourcesServlet extends HttpServlet
 {
