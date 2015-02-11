@@ -915,6 +915,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (form != null)
 		{
+			if (form.isResponsiveLayout()) return true;
 			// forms without parts are abstract
 			List<Form> formHierarchy = new ArrayList<Form>();
 			formHierarchy.add(form);

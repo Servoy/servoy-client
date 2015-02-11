@@ -195,6 +195,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	@Override
 	public boolean valueInTemplate(String formElementVal, PropertyDescription pd, FormElement formElement)
 	{
+		if (formElementVal == null) return true;
 		TagStringConfig config = ((TagStringConfig)pd.getConfig());
 		return !((wouldLikeToParseTags(config, formElement) && formElementVal.contains("%%")) || formElementVal.startsWith("i18n:"));
 	}

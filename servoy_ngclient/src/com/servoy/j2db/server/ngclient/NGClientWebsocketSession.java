@@ -41,10 +41,12 @@ import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -100,9 +102,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public void onOpen(final String solutionName)
+	public void onOpen(final String... args)
 	{
-		super.onOpen(solutionName);
+		super.onOpen(args);
+
+		final String solutionName = args[0];
 
 		if (Utils.stringIsEmpty(solutionName))
 		{
@@ -113,14 +117,39 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(client);
 		try
 		{
-			if (client.getSolution() != null)
+			Solution solution = client.getSolution();
+			if (solution != null)
 			{
-				if (!client.getSolution().getName().equals(solutionName))
+				if (!solution.getName().equals(solutionName))
 				{
 					client.closeSolution(true, null);
 				}
 				else
 				{
+					if (args.length > 1)
+					{
+						args[0] = "solution:" + args[0];
+						StartupArguments argumentsScope = new StartupArguments(args);
+						String method = argumentsScope.getMethodName();
+						String firstArgument = argumentsScope.getFirstArgument();
+						if (method == null && solution.getOnOpenMethodID() != -1)
+						{
+							method = solution.getScriptMethod(solution.getOnOpenMethodID()).getName();
+						}
+						if (method != null)
+						{
+							try
+							{
+								client.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
+									(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
+							}
+							catch (Exception e1)
+							{
+								client.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { method }), e1); //$NON-NLS-1$
+							}
+						}
+					}
+
 					String windowId = WebsocketEndpoint.get().getWindowId();
 					if (windowId == null || client.getRuntimeWindowManager().getWindow(windowId) == null)
 					{
@@ -140,7 +169,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						try
 						{
 							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
-							sendSolutionCSSURL(client.getSolution());
+							sendSolutionCSSURL(solution);
 						}
 						finally
 						{
@@ -160,7 +189,15 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
 						WebsocketEndpoint.get().setWindowId(client.getRuntimeWindowManager().createMainWindow());
+
+
+						if (args.length > 1)
+						{
+							args[0] = "solution:" + args[0];
+							client.handleArguments(args);
+						}
 						client.loadSolution(solutionName);
+
 					}
 					catch (RepositoryException e)
 					{
@@ -168,6 +205,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						sendInternalError(e);
 					}
 				}
+
+
 			});
 		}
 		catch (Exception e)
@@ -180,7 +219,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(null);
 		}
 	}
-
 
 	@Override
 	protected IServerService createFormService()

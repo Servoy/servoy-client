@@ -95,13 +95,18 @@ public class ResourceProvider implements Filter
 		initSpecProvider();
 	}
 
+	public static void refreshComponentResources(Collection<IPackageReader> readers)
+	{
+		removeComponentResources(readers);
+		initSpecProvider();
+	}
+
 	public static void removeComponentResources(Collection<IPackageReader> readers)
 	{
 		for (IPackageReader reader : readers)
 		{
 			componentReaders.remove(getName(reader));
 		}
-		initSpecProvider();
 	}
 
 	public static void addServiceResources(Collection<IPackageReader> readers)
@@ -113,13 +118,18 @@ public class ResourceProvider implements Filter
 		initSpecProvider();
 	}
 
+	public static void refreshServiceResources(Collection<IPackageReader> readers)
+	{
+		removeServiceResources(readers);
+		initSpecProvider();
+	}
+
 	public static void removeServiceResources(Collection<IPackageReader> readers)
 	{
 		for (IPackageReader reader : readers)
 		{
 			serviceReaders.remove(getName(reader));
 		}
-		initSpecProvider();
 	}
 
 	private synchronized static void initSpecProvider()
@@ -303,7 +313,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -314,7 +324,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -353,7 +363,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -382,7 +392,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
@@ -393,7 +403,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
 		 */
 		@Override

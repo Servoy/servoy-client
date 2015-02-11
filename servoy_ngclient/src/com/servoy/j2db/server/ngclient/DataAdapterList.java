@@ -11,6 +11,7 @@ import java.util.WeakHashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -119,16 +120,70 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return decryptedScript != null ? formController.eval(decryptedScript) : null;
 	}
 
+	private static boolean containsForm(IWebFormUI parent, IWebFormUI child)
+	{
+		Object childParentContainer = ((WebFormUI)child).getParentContainer();
+		if (childParentContainer instanceof WebFormComponent)
+		{
+			Container p = ((WebFormComponent)childParentContainer).getParent();
+			if (p instanceof IWebFormUI)
+			{
+				if (p.equals(parent))
+				{
+					return true;
+				}
+				else return containsForm(parent, (IWebFormUI)p);
+			}
+		}
+
+		return false;
+	}
+
 	public void addRelatedForm(IWebFormController form, String relation)
 	{
 		form.setParentFormController(formController);
+
+		Iterator<Entry<IWebFormController, String>> relatedFormsIte = relatedForms.entrySet().iterator();
+		Entry<IWebFormController, String> relatedFormEntry;
+		IWebFormController relatedForm;
+		String relatedFormRelation;
+		while (relatedFormsIte.hasNext())
+		{
+			relatedFormEntry = relatedFormsIte.next();
+			relatedForm = relatedFormEntry.getKey();
+			relatedFormRelation = relatedFormEntry.getValue();
+			if (relatedFormRelation.startsWith(relation) && relatedFormRelation.length() > relation.length())
+			{
+				if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
+				{
+					form.getFormUI().getDataAdapterList().addRelatedForm(relatedForm, relatedFormRelation.substring(relation.length() + 1));
+				}
+			}
+			else if (relation.startsWith(relatedFormRelation) && relation.length() > relatedFormRelation.length())
+			{
+				if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
+				{
+					relatedForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation.substring(relatedFormRelation.length() + 1));
+				}
+			}
+		}
+
 		relatedForms.put(form, relation);
 	}
 
 	public void removeRelatedForm(IWebFormController form)
 	{
+		form.getFormUI().getDataAdapterList().removeAllRelatedForms();
 		form.setParentFormController(null);
 		relatedForms.remove(form);
+	}
+
+	public void removeAllRelatedForms()
+	{
+		Iterator<IWebFormController> relForms = relatedForms.keySet().iterator();
+		while (relForms.hasNext())
+			relForms.next().setParentFormController(null);
+		relatedForms.clear();
 	}
 
 	private void setupModificationListener(String dataprovider)

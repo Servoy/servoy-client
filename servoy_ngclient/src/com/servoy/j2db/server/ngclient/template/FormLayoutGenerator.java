@@ -29,8 +29,8 @@ import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -99,7 +99,11 @@ public class FormLayoutGenerator
 			writer.print(String.format("data-svy-name=\"%1$s\" ", form.getName()));
 		}
 
-		writer.print("svy-formstyle=\"formStyle\" svy-layout-update svy-formload svy-autosave");
+		if (!form.isResponsiveLayout())
+		{
+			writer.print("svy-formstyle=\"formStyle\" ");
+		}
+		writer.print("svy-layout-update svy-formload svy-autosave ");
 		// skip the scrollbars for forms in table or list view then the portal component does this.
 		if (!isTableOrListView(form))
 		{
@@ -220,6 +224,16 @@ public class FormLayoutGenerator
 			writer.print(" svy-id='");
 			writer.print(fe.getDesignId());
 			writer.print("'");
+			if (fe.getForm().isResponsiveLayout())
+			{
+				List<String> typeNames = fe.getSvyTypesNames();
+				if (typeNames.size() > 0)
+				{
+					writer.print(" svy-types='");
+					writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+					writer.print("'");
+				}
+			}
 		}
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());

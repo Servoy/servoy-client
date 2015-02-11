@@ -1,4 +1,5 @@
-.ng-invalid {
+.ng-invalid, 
+.ng-invalid input{
 	background-color: #f90000;
 }
 
@@ -32,6 +33,9 @@ label.svy-check-radio span{
 	vertical-align: middle;
 }
 
+div.svy-label-with-focus:focus{
+	border: thin solid black;	
+}
 
 /*BOOTSTRAP WINDOW CUSTOMIZATION*/
 .window .window-body,
@@ -68,9 +72,13 @@ label.svy-check-radio span{
 
 .inherited_element
 {
-	border: 1px dotted red;
+	outline:1px dotted red;
 }
 
+.highlight_element
+{
+	outline:1px solid lightblue;
+}
 
 /* Side notes for calling out things (bs-callout from documentation)
 -------------------------------------------------- */

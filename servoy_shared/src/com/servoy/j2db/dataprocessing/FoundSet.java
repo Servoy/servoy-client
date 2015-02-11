@@ -5889,7 +5889,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -5954,6 +5954,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		String[] parts = fullRelationName.split("\\."); //$NON-NLS-1$
 		for (int i = 0; i < parts.length; i++)
 		{
+			if (currentRecord instanceof FindState)
+			{
+				String leftPart = parts[i];
+				for (int k = i + 1; k < parts.length; k++)
+				{
+					leftPart += "." + parts[k]; //$NON-NLS-1$
+				}
+				return currentRecord.getRelatedFoundSet(leftPart);
+			}
+
 			SQLSheet relatedSheet = sheet.getRelatedSheet(fsm.getApplication().getFlattenedSolution().getRelation(parts[i]), fsm.getSQLGenerator());
 			if (relatedSheet == null)
 			{

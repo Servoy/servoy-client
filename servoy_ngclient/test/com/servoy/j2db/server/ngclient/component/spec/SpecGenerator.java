@@ -382,6 +382,7 @@ public class SpecGenerator
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "relatedFoundset", -1, null));
 				model.add(cs.new Element(-1, IRepository.FIELDS, "childElements", -1, null));
+				model.add(cs.new Element(-1, IRepository.FIELDS, "columnHeaders", -1, null));
 				model.add(cs.new Element(-1, IRepository.INTEGER, "headerHeight", IRepository.INTEGER, 32));
 			}
 			if ("label".equals(componentSpec.getName()) || "button".equals(componentSpec.getName()))
@@ -462,6 +463,7 @@ public class SpecGenerator
 		portalTypeMapping.put("relatedFoundset", "foundset");
 		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
 		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"} }");
+		portalTypeMapping.put("columnHeaders", "{ \"type\" : \"tagstring[]\", \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName()+"\",\""
@@ -634,7 +636,7 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_FORMINDEX.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName());
-		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
+//		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWCLICK.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName());

@@ -43,6 +43,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -72,7 +73,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public Map<String, FormElementT> toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
+	public Map<String, FormElementT> toFormElementValue(JSONObject designValue, PropertyDescription mainProperty, FlattenedSolution flattenedSolution,
 		FormElement formElement, PropertyPath propertyPath)
 	{
 		if (designValue != null)
@@ -97,6 +98,26 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				finally
 				{
 					propertyPath.backOneLevel();
+				}
+			}
+			for (PropertyDescription pd : getCustomJSONTypeDefinition().getProperties().values())
+			{
+				if (!formElementValues.containsKey(pd.getName()))
+				{
+					if (pd.getDefaultValue() != null)
+					{
+						propertyPath.add(pd.getName());
+						formElementValues.put(pd.getName(), (FormElementT)NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd,
+							flattenedSolution, formElement, propertyPath));
+						propertyPath.backOneLevel();
+					}
+					else if (pd.getType() instanceof IDesignDefaultToFormElement< ? , ? , ? >)
+					{
+						propertyPath.add(pd.getName());
+						formElementValues.put(pd.getName(), (FormElementT)((IDesignDefaultToFormElement< ? , ? , ? >)pd.getType()).toDefaultFormElementValue(
+							pd, flattenedSolution, formElement, propertyPath));
+						propertyPath.backOneLevel();
+					}
 				}
 			}
 			return formElementValues;

@@ -22,12 +22,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -77,13 +74,14 @@ public class ComponentFactory
 				if (eventValue instanceof String)
 				{
 					UUID uuid = UUID.fromString((String)eventValue);
-					try
+					IPersist function = application.getFlattenedSolution().searchPersist(uuid);
+					if (function != null)
 					{
-						webComponent.add(eventName, ((AbstractPersistFactory)ApplicationServerRegistry.get().getLocalRepository()).getElementIdForUUID(uuid));
+						webComponent.add(eventName, function.getID());
 					}
-					catch (RepositoryException e)
+					else
 					{
-						Debug.error(e);
+						Debug.warn("Event handler for " + eventName + " not found (form " + fe.getForm().getName() + ", form element " + fe.getName() + ")");
 					}
 				}
 				else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)

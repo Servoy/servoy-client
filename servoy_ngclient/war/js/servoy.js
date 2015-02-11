@@ -131,7 +131,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		notNullOrEmpty : function (propPath){
 			return function(item) {
 				var propByStringPath = getPropByStringPath(item,propPath); 
-				return !(propByStringPath === null || propByStringPath == '')
+				return !(propByStringPath === null || propByStringPath === '')
 			}
 		},
 	    autoApplyStyle: function(scope,element,modelToWatch,cssPropertyName){
