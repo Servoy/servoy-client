@@ -268,6 +268,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public boolean isFindModeAware(Map<String, FormElementT> formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
 		FormElement formElement)
 	{
+		if (formElementValue == null) return false;
+
 		boolean isFindModeAware = false;
 
 		// just to give a chance to nested find mode aware properties to register themselves in FormElement
@@ -291,6 +293,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public TargetDataLinks getDataLinks(Map<String, FormElementT> formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
 		FormElement formElement)
 	{
+		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
+
 		ArrayList<String> dps = new ArrayList<>();
 		boolean recordLinked = false;
 

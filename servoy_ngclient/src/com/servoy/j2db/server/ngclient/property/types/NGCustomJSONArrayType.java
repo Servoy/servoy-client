@@ -250,6 +250,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	@Override
 	public boolean isFindModeAware(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
+		if (formElementValue == null) return false;
+
 		boolean isFindModeAware = false;
 
 		PropertyDescription entryPD = getCustomJSONTypeDefinition();
@@ -272,6 +274,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	@Override
 	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
+		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
+
 		ArrayList<String> dps = new ArrayList<>();
 		boolean recordLinked = false;
 
