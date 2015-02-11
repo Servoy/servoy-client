@@ -109,24 +109,24 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
 					var columnTitle = el.model.text;
-					//					if (!columnTitle) {
-					//						// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
-					//						if (el.forFoundset && el.forFoundset.recordBasedProperties && el.forFoundset.recordBasedProperties.length > 0) {
-					//							columnTitle = el.forFoundset.recordBasedProperties[0];
-					//							if (columnTitle && columnTitle.indexOf('.') >= 0) {
-					//								columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
-					//							}
-					//						}
-					//						if (!columnTitle) columnTitle = "";
-					//					}
+//					if (!columnTitle) {
+//						// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
+//						if (el.foundsetConfig && el.foundsetConfig.recordBasedProperties && el.foundsetConfig.recordBasedProperties.length > 0) {
+//							columnTitle = el.foundsetConfig.recordBasedProperties[0];
+//							if (columnTitle && columnTitle.indexOf('.') >= 0) {
+//								columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
+//							}
+//						}
+//						if (!columnTitle) columnTitle = "";
+//					}
 					if (!columnTitle) columnTitle = "";
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
-					+ '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx
-					+ ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx
-					+ ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx
-					+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"';
+						+ '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx
+						+ ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx
+						+ ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx
+						+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"';
 					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
 					cellTemplate += '/>';
 					if($scope.model.multiLine) { 
@@ -144,7 +144,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						}
 						var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0) 
 						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
-						var isSortable = $scope.model.sortable && el.forFoundset.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change 
+						var isSortable = $scope.model.sortable && el.foundsetConfig.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change 
 						$scope.columnDefinitions.push({
 							name:el.name,
 							displayName: columnTitle,
@@ -327,9 +327,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							if (!cellProxies.propertyUnwatchFuncs[k]) {
 								// skip this for special - row-by-row changing properties; it is handled separately later in code
 								var skip = false;
-								if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.recordBasedProperties) {
-									for (var i in elements[elementIndex].forFoundset.recordBasedProperties) {
-										skip = (elements[elementIndex].forFoundset.recordBasedProperties[i] === k);
+								if (elements[elementIndex].foundsetConfig && elements[elementIndex].foundsetConfig.recordBasedProperties) {
+									for (var i in elements[elementIndex].foundsetConfig.recordBasedProperties) {
+										skip = (elements[elementIndex].foundsetConfig.recordBasedProperties[i] === k);
 										if (skip) break;
 									}
 								}
@@ -349,9 +349,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 					// properties like tagstring and dataprovider are not set directly on the component but are more linked to the current record
 					// so we will take these from the foundset record and apply them to child elements
-					if (element.forFoundset && element.forFoundset.recordBasedProperties) {
-						for (var i in element.forFoundset.recordBasedProperties) {
-							var propertyName = element.forFoundset.recordBasedProperties[i];
+					if (element.foundsetConfig && element.foundsetConfig.recordBasedProperties) {
+						for (var i in element.foundsetConfig.recordBasedProperties) {
+							var propertyName = element.foundsetConfig.recordBasedProperties[i];
 							if (angular.isDefined(element.modelViewport) && angular.isDefined(element.modelViewport[rowIdToViewportRelativeRowIndex(rowId)]))
 								cellData[propertyName] = element.modelViewport[rowIdToViewportRelativeRowIndex(rowId)][propertyName];
 							// 2 way data link between element record based properties from modelViewport and the merged cell model
@@ -380,8 +380,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					{
 						callOnOneSelectedCellOnly = false;
 					}
-					else if (elements[elementIndex].forFoundset && elements[elementIndex].forFoundset.apiCallTypes) {
-						callOnOneSelectedCellOnly = (elements[elementIndex].forFoundset.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
+					else if (elements[elementIndex].foundsetConfig && elements[elementIndex].foundsetConfig.apiCallTypes) {
+						callOnOneSelectedCellOnly = (elements[elementIndex].foundsetConfig.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
 					}
 
 					// so if callOnOneSelectedCellOnly is true, then it will be called only once for one of the selected rows;

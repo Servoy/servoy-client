@@ -72,7 +72,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	private final Form form;
 	private Map<String, Object> propertyValues;
-	private Map<Class< ? >, Map<String, Object>> preprocessedPropertyInfo; // standard information that can be computed in template about some properties and will be needed at runtime; (infoType, (propertyName, infoObject))
+	private Map<Class< ? >, Map<PropertyDescription, Object>> preprocessedPropertyInfo; // standard information that can be computed in template about some properties and will be needed at runtime; (infoType, (propertyName, infoObject))
 	private final String componentType;
 
 	private final PersistBasedFormElementImpl persistImpl;
@@ -265,7 +265,7 @@ public final class FormElement implements IWebComponentInitializer
 						map.put(pd.getName(), ((IDesignDefaultToFormElement< ? , ? , ? >)pd.getType()).toDefaultFormElementValue(pd, fs, this, propertyPath));
 						propertyPath.backOneLevel();
 					}
-					else if (pd.getType().defaultValue() != null)
+					else if (pd.getType().defaultValue(pd) != null)
 					{
 						// remember that we can use type specified default value when this gets transformed to JSON
 						map.put(pd.getName(), NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER);
@@ -274,18 +274,19 @@ public final class FormElement implements IWebComponentInitializer
 
 				Object formElementValue = map.get(pd.getName());
 
-				// check find mode aware and data linked properties and remember what they will need at runtime
+				// check find mode aware and data linked properties and remember/cache what they will need at runtime
 				if (formElementValue != NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER)
 				{
+					// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
 					if (pd.getType() instanceof IDataLinkedType)
 					{
-						getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd.getName(),
+						getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd,
 							((IDataLinkedType)pd.getType()).getDataLinks(formElementValue, pd, fs, this));
 					}
 
 					if (pd.getType() instanceof IFindModeAwareType)
 					{
-						getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd.getName(),
+						getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd,
 							((IFindModeAwareType)pd.getType()).isFindModeAware(formElementValue, pd, fs, this));
 					}
 				}
@@ -299,19 +300,19 @@ public final class FormElement implements IWebComponentInitializer
 	 * @param propertyInfoType for example {@link IFindModeAwareType}.class or {@link IDataLinkedType}.class.
 	 * @return the pre-processed information object (it's type and meaning depends on propertyInfoType).
 	 */
-	public Object getPreprocessedPropertyInfo(Class< ? > propertyInfoType, String propertyName)
+	public Object getPreprocessedPropertyInfo(Class< ? > propertyInfoType, PropertyDescription key)
 	{
 		if (preprocessedPropertyInfo == null) return null;
-		Map<String, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
+		Map<PropertyDescription, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
 		if (m == null) return null;
 
-		return m.get(propertyName);
+		return m.get(key);
 	}
 
-	protected Map<String, Object> getOrCreatePreprocessedPropertyInfoMap(Class< ? > propertyInfoType)
+	public Map<PropertyDescription, Object> getOrCreatePreprocessedPropertyInfoMap(Class< ? > propertyInfoType)
 	{
 		if (preprocessedPropertyInfo == null) preprocessedPropertyInfo = new HashMap<>();
-		Map<String, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
+		Map<PropertyDescription, Object> m = preprocessedPropertyInfo.get(propertyInfoType);
 		if (m == null)
 		{
 			m = new HashMap<>();
@@ -480,7 +481,7 @@ public final class FormElement implements IWebComponentInitializer
 		if (propertyDescription != null)
 		{
 			// we want a defaut value to be set anyway because it was sent into template
-			return propertyDescription.getType().defaultValue();
+			return propertyDescription.getType().defaultValue(propertyDescription);
 		}
 		return null;
 	}

@@ -38,7 +38,6 @@ import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -85,6 +84,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	protected static final String MODEL_KEY = "model";
 	protected static final String MODEL_VIEWPORT_KEY = "model_vp";
 	protected static final String MODEL_VIEWPORT_CHANGES_KEY = "model_vp_ch";
+	protected static final String FOUNDSET_CONFIG_PROPERTY_NAME = "foundsetConfig";
+	protected static final String RECORD_BASED_PROPERTIES = "recordBasedProperties";
 
 	public static final String PROPERTY_NAME_KEY = "pn";
 	public static final String VALUE_KEY = "v";
@@ -132,7 +133,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 					if (o.getInt(CALL_ON_KEY) == CALL_ON_ALL_RECORDS) apisOnAll.add(o.getString(FUNCTION_NAME_KEY));
 				}
 			}
-			recordBasedProperties = findRecordAwareProperties(element, flattenedSolution);
+			recordBasedProperties = findRecordAwareRootProperties(element, flattenedSolution);
 		} // else viewPortData and apisOnAll are not relevant
 		return new ComponentTypeFormElementValue(element, apisOnAll, recordBasedProperties, propertyPath.currentPathCopy());
 	}
@@ -142,7 +143,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		return pd.getConfig() instanceof ComponentTypeConfig ? ((ComponentTypeConfig)pd.getConfig()).forFoundset : null;
 	}
 
-	protected List<String> findRecordAwareProperties(FormElement formElement, FlattenedSolution flattenedSolution)
+	protected List<String> findRecordAwareRootProperties(FormElement formElement, FlattenedSolution flattenedSolution)
 	{
 		List<String> m = new ArrayList<>();
 
@@ -153,14 +154,15 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		{
 			if (propertyDescriptorEntry.getValue().getType() instanceof IDataLinkedType)
 			{
-				TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class,
-					propertyDescriptorEntry.getValue().getName());
+				// as these are root-level component properties, their TargetDataLinks will always be cached (only array element values are not cached)
+				TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, propertyDescriptorEntry.getValue());
 				if (dataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && dataLinks != null && dataLinks.recordLinked)
 				{
 					m.add(propertyDescriptorEntry.getKey());
 				}
 			}
 		}
+
 		return m;
 	}
 
@@ -184,19 +186,32 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
+	public JSONWriter toTemplateJSONValue(final JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		// create children of component as specified by this property
-		FormElement fe = formElementValue.element;
+		final FormElement fe = formElementValue.element;
 		JSONUtils.addKeyIfPresent(writer, key);
 
 		writer.object();
 
-		writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName(pd), fe, fe.propertiesForTemplateJSON(),
-			formElementValue.recordBasedProperties, new FormElementToJSON(fe.getFlattendSolution()), formElement); // TODO here we could remove record based props from fe.propertiesForTemplateJSON(); but normally record based props will not write any value in template anyway
+		writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName(pd), fe, new IModelWriter()
+		{
+
+			@Override
+			public void writeComponentModel() throws JSONException
+			{
+				// TODO here we could remove record based props from fe.propertiesForTemplateJSON(); but normally record based props will not write any value in template anyway
+				TypedData<Map<String, Object>> modelProperties = fe.propertiesForTemplateJSON();
+				writer.object();
+				JSONUtils.writeDataWithConversions(new FormElementToJSON(fe.getFlattendSolution()), writer, modelProperties.content,
+					modelProperties.contentType, fe);
+				writer.endObject();
+			}
+
+		}, formElementValue.recordBasedProperties);
 
 		writer.endObject();
 
@@ -204,32 +219,30 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
-		FormElement fe, TypedData<Map<String, Object>> propertiesTypedData, List<String> recordBasedProperties, IToJSONConverter<ContextT> modelDataConverter,
-		ContextT contextObject) throws JSONException
+		FormElement componentFormElement, IModelWriter modelWriter, List<String> recordBasedProperties) throws JSONException
 	{
-		writer.key("componentDirectiveName").value(fe.getTypeName());
-		writer.key("name").value(fe.getName());
+		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
+		writer.key("componentDirectiveName").value(componentFormElement.getTypeName());
+		writer.key("name").value(componentFormElement.getName());
 		writer.key("model");
 
 		try
 		{
-			writer.object();
-			JSONUtils.writeDataWithConversions(modelDataConverter, writer, propertiesTypedData.content, propertiesTypedData.contentType, contextObject);
-			writer.endObject();
+			modelWriter.writeComponentModel();
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{
-			Debug.error("Problem detected when handling a component's (" + fe.getTagname() + ") properties / events.", e);
+			Debug.error("Problem detected when handling a component's (" + componentFormElement.getTagname() + ") properties / events.", e);
 			throw e;
 		}
 
 		writer.key("handlers").object();
-		for (String handleMethodName : fe.getHandlers())
+		for (String handleMethodName : componentFormElement.getHandlers())
 		{
 			writer.key(handleMethodName);
 			JSONObject handlerInfo = new JSONObject();
-			handlerInfo.put("formName", fe.getForm().getName());
-			handlerInfo.put("beanName", fe.getName());
+			handlerInfo.put("formName", componentFormElement.getForm().getName());
+			handlerInfo.put("beanName", componentFormElement.getName());
 			writer.value(handlerInfo);
 		}
 		writer.endObject();
@@ -237,10 +250,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (forFoundsetPropertyType != null)
 		{
 			writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
-			writer.key("forFoundset").object();
+			writer.key(FOUNDSET_CONFIG_PROPERTY_NAME).object();
 			if (recordBasedProperties != null)
 			{
-				writer.key("recordBasedProperties").array();
+				writer.key(RECORD_BASED_PROPERTIES).array();
 				for (String propertyName : recordBasedProperties)
 				{
 					writer.value(propertyName);
@@ -333,6 +346,12 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	{
 		String tmp = config.optString("forFoundset");
 		return tmp == null || tmp.length() == 0 ? null : new ComponentTypeConfig(tmp);
+	}
+
+
+	protected interface IModelWriter
+	{
+		void writeComponentModel() throws JSONException;
 	}
 
 }

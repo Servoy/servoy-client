@@ -58,7 +58,8 @@ import com.servoy.j2db.util.Debug;
  */
 public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
 	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>, ISabloComponentToRhino<Object>,
-	IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>, ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>
+	IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>, ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>,
+	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -244,6 +245,54 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public boolean isFindModeAware(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		boolean isFindModeAware = false;
+
+		PropertyDescription entryPD = getCustomJSONTypeDefinition();
+		for (Object value : formElementValue)
+		{
+			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
+			if (value != null && entryPD.getType() instanceof IFindModeAwareType)
+			{
+				if (((IFindModeAwareType)entryPD.getType()).isFindModeAware(value, entryPD, flattenedSolution, formElement))
+				{
+					isFindModeAware = true;
+					break;
+				}
+			}
+		}
+
+		return isFindModeAware;
+	}
+
+	@Override
+	public TargetDataLinks getDataLinks(Object[] formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		ArrayList<String> dps = new ArrayList<>();
+		boolean recordLinked = false;
+
+		PropertyDescription entryPD = getCustomJSONTypeDefinition();
+		for (Object value : formElementValue)
+		{
+			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those;
+			// if we ever need to cache these for performance we have to use something more unique (like property path) for formElement.getOrCreatePreprocessedPropertyInfoMap(...).put(...) and cache them for arrays as well
+			if (value != null && entryPD.getType() instanceof IDataLinkedType)
+			{
+				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(value, entryPD, flattenedSolution, formElement);
+				if (entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
+				{
+					dps.addAll(Arrays.asList(entryDPs.dataProviderIDs));
+					recordLinked |= entryDPs.recordLinked;
+				}
+			}
+		}
+
+		if (dps.size() == 0 && recordLinked == false) return TargetDataLinks.NOT_LINKED_TO_DATA;
+		else return new TargetDataLinks(dps.toArray(new String[dps.size()]), recordLinked);
 	}
 
 }

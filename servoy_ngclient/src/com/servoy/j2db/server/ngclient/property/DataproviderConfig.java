@@ -22,13 +22,11 @@ public class DataproviderConfig
 	private final String onDataChange;
 	private final String onDataChangeCallback;
 	private final boolean parseHtml;
-	private final String forFoundset;
 
-	public DataproviderConfig(String onDataChange, String onDataChangeCallback, String forFoundset, boolean parseHtml)
+	public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml)
 	{
 		this.onDataChange = onDataChange;
 		this.onDataChangeCallback = onDataChangeCallback;
-		this.forFoundset = forFoundset;
 		this.parseHtml = parseHtml;
 	}
 

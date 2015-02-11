@@ -23,6 +23,9 @@ Web-Service: True
 Name: component_custom_property/component.spec
 Web-Service: True
 
+Name: foundset_linked_property/foundsetLinked.spec
+Web-Service: True
+
 Name: custom_json_array_property/array.spec
 Web-Service: True
 

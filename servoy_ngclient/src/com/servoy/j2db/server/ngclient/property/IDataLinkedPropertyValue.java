@@ -24,7 +24,7 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 
 /**
- * Complex properties that are to be used within Servoy beans - interested in Servoy specific behavior.
+ * Complex properties that are to be used within Servoy beans - interested in Servoy specific data binding behavior.
  *
  * This value's property type must implement {@link IDataLinkedType}. Depending on how that interface is implemented, {@link #dataProviderOrRecordChanged(IRecordInternal, String, boolean, boolean, boolean)}
  * gets called when any dataProvider changes or only when one dataProvider changes.
@@ -32,7 +32,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  * @author acostescu
  * @see IDataLinkedType
  */
-public interface IServoyAwarePropertyValue extends ISmartPropertyValue
+public interface IDataLinkedPropertyValue extends ISmartPropertyValue
 {
 
 	/**

@@ -85,7 +85,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public FoundsetTypeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, FormElement formElement,
 		WebFormComponent component, DataAdapterList dal)
 	{
-		return new FoundsetTypeSabloValue(formElementValue, pd.getName());
+		return new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	@Override
 	public TargetDataLinks getDataLinks(JSONObject formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
-		return TargetDataLinks.LINKED_TO_ALL;
+		return TargetDataLinks.LINKED_TO_ALL; // if you change this you should call this method in FoundsetTypeSabloValue.attach as well when registering as listener to DAL
 	}
 
 }

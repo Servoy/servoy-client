@@ -24,25 +24,26 @@ package com.servoy.j2db.server.ngclient.property.types;
 public class TagStringConfig
 {
 
+	protected static final String DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT = "displayTagsPropertyName"; //$NON-NLS-1$
+	protected static final String DISPLAY_TAGS_CONFIG_OPT = "displayTags"; //$NON-NLS-1$
+	protected static final String USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT = "useParsedValueInRhino"; //$NON-NLS-1$
+	protected static final String FOR_FOUND_SET_CONFIG_OPT = "forFoundSet"; //$NON-NLS-1$
+
 	private final String displayTagsPropertyName;
 	private final boolean displayTags;
 	private final boolean useParsedValueInRhino;
-
-	private final String forFoundSet;
 
 	/**
 	 * @param displayTagsPropertyName Can be null. If non-null then the "tagstring" typed property will initially read the boolean value the property with name [displayTagsPropertyName].
 	 * If that property is true, tags (%%x%%) will be replaced, otherwise they will be ignored (in which case it will just replace i18n). If null, tags will be replaced or not based on config option "displayTags".
 	 * @param displayTags if displayTagsPropertyName is non-null it will be ignored. Otherwise, if true, this property will parse tags (%%x%%) otherwise it won't.
 	 * @param useParsedValueInRhino rhino JS scripting set/get will work with: if "false" the parsed (with tags/i18n already replaced, so static) value, if true the non-parsed (value containing %%x%% or i18n:..., which will be parsed) value.
-	 * @param forFoundSet
 	 */
-	public TagStringConfig(String displayTagsPropertyName, boolean displayTags, boolean useParsedValueInRhino, String forFoundSet)
+	public TagStringConfig(String displayTagsPropertyName, boolean displayTags, boolean useParsedValueInRhino)
 	{
 		this.displayTagsPropertyName = displayTagsPropertyName;
 		this.displayTags = displayTags;
 		this.useParsedValueInRhino = useParsedValueInRhino;
-		this.forFoundSet = forFoundSet;
 	}
 
 	public String getDisplayTagsPropertyName()
@@ -58,11 +59,6 @@ public class TagStringConfig
 	public boolean useParsedValueInRhino()
 	{
 		return useParsedValueInRhino;
-	}
-
-	public String getForFoundSet()
-	{
-		return forFoundSet;
 	}
 
 }

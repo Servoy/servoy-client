@@ -17,17 +17,28 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import org.sablo.specification.PropertyDescription;
 
 /**
- * Listens for register/unregister of data linked properties (to a DataAdapterList).
+ * Configuration object for properties of type {@link FoundsetLinkedPropertyType}.
  * @author acostescu
  */
-public interface IDataLinkedPropertyRegistrationListener
+public class FoundsetLinkedConfig
 {
 
-	void dataLinkedPropertyRegistered(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks);
+	protected final String forFoundset;
+	protected final Object wrappedConfig;
+	protected PropertyDescription wrappedPropertyDescription;
 
-	void dataLinkedPropertyUnregistered(IDataLinkedPropertyValue propertyValue);
+	public FoundsetLinkedConfig(String forFoundset, Object wrappedConfig)
+	{
+		this.forFoundset = forFoundset;
+		this.wrappedConfig = wrappedConfig;
+	}
+
+	public void setWrappedPropertyDescription(PropertyDescription wrappedPropertyDescription)
+	{
+		this.wrappedPropertyDescription = wrappedPropertyDescription;
+	}
 
 }

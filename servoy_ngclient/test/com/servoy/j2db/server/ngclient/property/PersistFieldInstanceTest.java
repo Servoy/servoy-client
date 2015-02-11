@@ -47,7 +47,7 @@ import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.types.ValueListPropertySabloValue;
+import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -130,9 +130,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 		Object property = wc.getProperty("valuelistID");
-		Assert.assertTrue(property != null ? property.getClass().getName() : "null", property instanceof ValueListPropertySabloValue &&
-			((ValueListPropertySabloValue)property).getValueList() instanceof CustomValueList);
-		Assert.assertEquals("#,###.00", ((CustomValueList)((ValueListPropertySabloValue)property).getValueList()).getFormat().getDisplayFormat());
+		Assert.assertTrue(property != null ? property.getClass().getName() : "null", property instanceof ValueListTypeSabloValue &&
+			((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);
+		Assert.assertEquals("#,###.00", ((CustomValueList)((ValueListTypeSabloValue)property).getValueList()).getFormat().getDisplayFormat());
 	}
 
 	@Test

@@ -37,7 +37,6 @@ import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
-import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -305,7 +304,8 @@ public class NGConversions
 			else if (type != null)
 			{
 				// use conversion 5.1 to convert from default sablo type value to browser JSON in this case
-				writer = JSONUtils.FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(), valueType, browserConversionMarkers, null); // webObject will always be null - this is template JSON
+				writer = JSONUtils.FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, type.defaultValue(valueType), valueType,
+					browserConversionMarkers, null); // webObject will always be null - this is template JSON
 			}
 			return writer;
 		}
@@ -371,18 +371,7 @@ public class NGConversions
 		}
 		else
 		{
-			retval = type.defaultValue();
-		}
-
-		// register data and find mode aware properties
-		if (pd.getType() instanceof IDataLinkedType)
-		{
-			dal.addDataLinkedProperty(component, pd.getName(), (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd.getName()));
-		}
-		if (pd.getType() instanceof IFindModeAwareType)
-		{
-			if (((Boolean)formElement.getPreprocessedPropertyInfo(IFindModeAwareType.class, pd.getName())).booleanValue()) dal.addFindModeAwareProperty(
-				component, pd);
+			retval = type.defaultValue(pd);
 		}
 
 		return retval;

@@ -39,6 +39,7 @@ import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -57,13 +58,9 @@ import com.servoy.j2db.util.Text;
 public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTypeSabloValue> implements
 	IFormElementToTemplateJSON<String, BasicTagStringTypeSabloValue>, ISupportTemplateValue<String>, IDataLinkedType<String, BasicTagStringTypeSabloValue>,
 	IFormElementToSabloComponent<String, BasicTagStringTypeSabloValue>, IConvertedPropertyType<BasicTagStringTypeSabloValue>,
-	ISabloComponentToRhino<BasicTagStringTypeSabloValue>, IRhinoToSabloComponent<BasicTagStringTypeSabloValue>
+	ISabloComponentToRhino<BasicTagStringTypeSabloValue>, IRhinoToSabloComponent<BasicTagStringTypeSabloValue>,
+	ICanBeLinkedToFoundset<String, BasicTagStringTypeSabloValue>
 {
-
-	protected static final String DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT = "displayTagsPropertyName"; //$NON-NLS-1$
-	protected static final String DISPLAY_TAGS_CONFIG_OPT = "displayTags"; //$NON-NLS-1$
-	protected static final String USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT = "useParsedValueInRhino"; //$NON-NLS-1$
-	protected static final String FOR_FOUND_SET_CONFIG_OPT = "forFoundSet"; //$NON-NLS-1$
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
 	public static final String TYPE_NAME = "tagstring";
@@ -85,24 +82,30 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		String displayTagsPropertyName = null;
 		boolean displayTags = true;
 		boolean useParsedValueInRhino = false;
-		String forFoundsetPropertyName = null;
+		// String forFoundsetPropertyName = null; // see FoundsetLinkedPropertyType for how tagstrings linked to foundsets work
 
 		if (json != null)
 		{
 			// see TagStringConfig docs for what the defaults mean
-			displayTagsPropertyName = json.optString(DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT, null);
-			displayTags = json.optBoolean(DISPLAY_TAGS_CONFIG_OPT, true);
-			useParsedValueInRhino = json.optBoolean(USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT, false);
-			forFoundsetPropertyName = json.optString(FOR_FOUND_SET_CONFIG_OPT, null);
+			displayTagsPropertyName = json.optString(TagStringConfig.DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT, null);
+			displayTags = json.optBoolean(TagStringConfig.DISPLAY_TAGS_CONFIG_OPT, true);
+			useParsedValueInRhino = json.optBoolean(TagStringConfig.USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT, false);
 		}
 
-		return new TagStringConfig(displayTagsPropertyName, displayTags, useParsedValueInRhino, forFoundsetPropertyName);
+		return new TagStringConfig(displayTagsPropertyName, displayTags, useParsedValueInRhino);
+	}
+
+	protected TagStringConfig getConfig(PropertyDescription pd)
+	{
+		return (TagStringConfig)pd.getConfig();
 	}
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
 	{
+		TagStringConfig config = getConfig(pd);
+
 		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
 		if (formElementValue != null && valueInTemplate(formElementValue, pd, formElement))
 		{
@@ -124,16 +127,16 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	public BasicTagStringTypeSabloValue fromJSON(Object newValue, BasicTagStringTypeSabloValue previousValue, IDataConverterContext dataConverterContext)
 	{
 		BaseWebObject webObject = dataConverterContext.getWebObject();
-		return createNewTagStringTypeSabloValue((String)newValue, previousValue != null ? previousValue.getDataAdapterList() : null, false, false,
+		return createNewTagStringTypeSabloValue((String)newValue, (previousValue != null ? previousValue.getDataAdapterList() : null), false, false,
 			dataConverterContext.getPropertyDescription(), webObject instanceof WebFormComponent ? ((WebFormComponent)webObject) : null,
-			((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication());
+			((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication(), false);
 	}
 
 	protected BasicTagStringTypeSabloValue createNewTagStringTypeSabloValue(String newDesignValue, DataAdapterList dataAdapterList, boolean tagParsingAllowed,
-		boolean htmlParsingAllowed, PropertyDescription propertyDescription, WebFormComponent component, INGApplication application)
+		boolean htmlParsingAllowed, PropertyDescription propertyDescription, WebFormComponent component, INGApplication application,
+		boolean basedOnFormElementValue)
 	{
 		BasicTagStringTypeSabloValue sabloValue;
-
 		TagStringConfig config = (TagStringConfig)propertyDescription.getConfig();
 		boolean wouldLikeToParseTags = wouldLikeToParseTags(config, component.getFormElement()); // this setting is decided at design/form-element time and won't change even if the value gets changed from rhino
 
@@ -141,8 +144,6 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		// the "&& !config.useParsedValueInRhino()" is an optimization; because if config.useParsedValueInRhino() is true, then no new value set from Rhino or scripting will be able to handle tags any more - so there's no need to hang on to DAL (if this changes, you can remove this check)
 		boolean needsToKeepDAL = (wouldLikeToParseTags && !config.useParsedValueInRhino());
 		DataAdapterList dal = (needsToKeepDAL ? dataAdapterList : null);
-
-		if (dataAdapterList != null) dataAdapterList.removeDataLinkedProperty(component, propertyDescription.getName());
 
 		if (newDesignValue == null)
 		{
@@ -157,9 +158,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			// TODO currently htmlParsingAllowed will be true here as well (the method is never called with true/false); but if that is needed in the future, we need to let TagStringTypeSabloValue of htmlParsingAllowed == false as well)
 			// data links are required; register them to DAL; normally DAL can't be null here
-			sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext());
-			dal.addDataLinkedProperty(component, propertyDescription.getName(),
-				getDataLinks(newDesignValue, propertyDescription, application.getFlattenedSolution(), component.getFormElement()));
+			sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription, component.getFormElement(),
+				basedOnFormElementValue);
 		}
 		else
 		// just some static string
@@ -249,7 +249,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		return createNewTagStringTypeSabloValue(formElementValue, dataAdapterList, true, true, pd, component,
-			((IContextProvider)component).getDataConverterContext().getApplication());
+			((IContextProvider)component).getDataConverterContext().getApplication(), true);
 	}
 
 	@Override
@@ -260,9 +260,9 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			// this code can interpret the new value as a static one or a a tag-aware one depending on the property's config: USE_PARSED_VALUE_IN_RHINO_CONFIG_OPT
 			String newDesignValue = rhinoValue instanceof String ? (String)rhinoValue : rhinoValue.toString();
-			return createNewTagStringTypeSabloValue(newDesignValue, previousComponentValue != null ? previousComponentValue.getDataAdapterList() : null,
+			return createNewTagStringTypeSabloValue(newDesignValue, (previousComponentValue != null ? previousComponentValue.getDataAdapterList() : null),
 				!((TagStringConfig)pd.getConfig()).useParsedValueInRhino(), true, pd, componentOrService instanceof WebFormComponent
-					? ((WebFormComponent)componentOrService) : null, ((IContextProvider)componentOrService).getDataConverterContext().getApplication());
+					? ((WebFormComponent)componentOrService) : null, ((IContextProvider)componentOrService).getDataConverterContext().getApplication(), false);
 		}
 		return null;
 	}

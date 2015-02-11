@@ -25,6 +25,7 @@ import org.sablo.specification.property.types.IPropertyTypeFactory;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 
 /**
@@ -46,8 +47,10 @@ public class Types
 		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
 		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
-		TypesRegistry.addType(DataproviderPropertyType.INSTANCE);
-		TypesRegistry.addType(TagStringPropertyType.INSTANCE);
+		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(),
+			DataproviderPropertyType.INSTANCE));
+		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(),
+			TagStringPropertyType.INSTANCE));
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaDataproviderPropertyType.INSTANCE);

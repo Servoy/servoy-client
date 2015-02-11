@@ -17,13 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.specification.PropertyDescription;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -37,18 +32,20 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 public abstract class ViewportRowDataProvider
 {
 
-	protected abstract void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException;
+	/**
+	 * @param generatedRowId null if {@link #shouldGenerateRowIds()} returns false
+	 */
+	protected abstract void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+		throws JSONException;
+
+	protected abstract boolean shouldGenerateRowIds();
 
 	protected void writeRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
 		throws JSONException
 	{
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
-		w.object().key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(record.getPKHashKey() + "_" + foundsetIndex); // TODO do we really need the "i"?
-
-		populateRowData(record, columnName, w, clientConversionInfo);
-
-		w.endObject();
+		populateRowData(record, columnName, w, clientConversionInfo, shouldGenerateRowIds() ? record.getPKHashKey() + "_" + foundsetIndex : null);
 	}
 
 	protected void writeRowData(int startIndex, int endIndex, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
@@ -61,8 +58,6 @@ public abstract class ViewportRowDataProvider
 		throws JSONException
 	{
 		w.array();
-		List<Map<String, Object>> rows = new ArrayList<>();
-		PropertyDescription rowTypes = null;
 		int size = foundset.getSize();
 		int end = Math.min(size - 1, endIndex);
 		if (startIndex <= end)

@@ -17,17 +17,16 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import org.sablo.specification.property.IPropertyType;
 
 /**
- * Listens for register/unregister of data linked properties (to a DataAdapterList).
+ * Tagging interface (also useful for generics) that marks a type as being wrappable in a {@link FoundsetLinkedPropertyType}.
+ *
  * @author acostescu
+ * @param <F> form element class type for types that have form element conversions defined.
+ * @param <T> sablo runtime property class type.
  */
-public interface IDataLinkedPropertyRegistrationListener
+public interface ICanBeLinkedToFoundset<F, T> extends IPropertyType<T>
 {
-
-	void dataLinkedPropertyRegistered(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks);
-
-	void dataLinkedPropertyUnregistered(IDataLinkedPropertyValue propertyValue);
 
 }

@@ -2,7 +2,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 // Valuelist type -------------------------------------------
 .run(function ($sabloConverters, $sabloUtils, $q) {
 	$sabloConverters.registerCustomPropertyHandler('valuelist', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			// if we have a deferred filter, notify that the new value arrived
 			if (currentClientValue && angular.isDefined(currentClientValue[$sabloConverters.INTERNAL_IMPL].deferredFilter)) {
 				componentScope.$evalAsync(function() {

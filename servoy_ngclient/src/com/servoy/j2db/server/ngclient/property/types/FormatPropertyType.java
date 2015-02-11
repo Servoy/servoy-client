@@ -82,7 +82,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public Object/* ComponentFormat */defaultValue()
+	public Object/* ComponentFormat */defaultValue(PropertyDescription pd)
 	{
 		return DESIGN_DEFAULT;
 	}

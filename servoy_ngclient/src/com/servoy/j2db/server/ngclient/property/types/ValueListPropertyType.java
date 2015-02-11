@@ -59,8 +59,8 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class ValueListPropertyType extends DefaultPropertyType<ValueListPropertySabloValue> implements IConvertedPropertyType<ValueListPropertySabloValue>,
-	IFormElementToSabloComponent<Object, ValueListPropertySabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListPropertySabloValue>
+public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
+	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -89,7 +89,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 	}
 
 	@Override
-	public ValueListPropertySabloValue fromJSON(Object newJSONValue, ValueListPropertySabloValue previousSabloValue, IDataConverterContext dataConverterContext)
+	public ValueListTypeSabloValue fromJSON(Object newJSONValue, ValueListTypeSabloValue previousSabloValue, IDataConverterContext dataConverterContext)
 	{
 		// handle any valuelist specific websocket incomming traffic
 		if (previousSabloValue != null && newJSONValue instanceof String)
@@ -103,7 +103,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ValueListPropertySabloValue sabloValue, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, ValueListTypeSabloValue sabloValue, DataConversion clientConversion,
 		IDataConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
@@ -128,7 +128,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 	}
 
 	@Override
-	public ValueListPropertySabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement,
+	public ValueListTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement,
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		ValueList val = null;
@@ -199,13 +199,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListProperty
 			}
 		}
 
-		return valueList != null ? new ValueListPropertySabloValue(valueList, dataAdapterList, dataproviderID) : null;
+		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, dataproviderID) : null;
 	}
 
 	@Override
 	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
-		return TargetDataLinks.LINKED_TO_ALL;
+		return TargetDataLinks.LINKED_TO_ALL; // if you change this you should call this method in ValueListTypeSabloValue.attach as well when registering as listener to DAL
 	}
 
 }

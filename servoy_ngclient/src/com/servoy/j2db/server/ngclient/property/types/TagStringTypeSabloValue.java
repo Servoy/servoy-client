@@ -23,9 +23,11 @@ import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
-import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Text;
 
@@ -35,18 +37,30 @@ import com.servoy.j2db.util.Text;
  *
  * @author acostescu
  */
-public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implements IServoyAwarePropertyValue
+public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implements IDataLinkedPropertyValue
 {
 
 	protected String tagReplacedValue;
 	protected IChangeListener changeMonitor;
-	protected PropertyDescription typeOfDP;
 	protected IServoyDataConverterContext dataConverterContext;
+	protected final TargetDataLinks dataLinks;
 
-	public TagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext)
+	public TagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext,
+		PropertyDescription pd, FormElement formElement, boolean initialFormElementBasedValue)
 	{
 		super(designValue, dataAdapterList);
+
 		this.dataConverterContext = dataConverterContext;
+		TargetDataLinks dl = null;
+		if (initialFormElementBasedValue)
+		{
+			dl = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd);
+		}
+		if (dl == null)
+		{
+			dl = ((TagStringPropertyType)pd.getType()).getDataLinks(getDesignValue(), pd, dataConverterContext.getSolution(), formElement);
+		}
+		dataLinks = dl;
 
 		updateTagReplacedValue();
 	}
@@ -61,12 +75,13 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject component)
 	{
 		this.changeMonitor = changeNotifier;
+		getDataAdapterList().addDataLinkedProperty(this, dataLinks);
 	}
 
 	@Override
 	public void detach()
 	{
-		// nothing to do here... we don't add any listener directly in the property type;
+		getDataAdapterList().removeDataLinkedProperty(this);
 	}
 
 	@Override

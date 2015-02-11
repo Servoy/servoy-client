@@ -15,27 +15,30 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.property.types;
+package com.servoy.j2db.server.ngclient.property;
 
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.ISmartPropertyValue;
 
-import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 
 /**
- * Interface for types that might be interested in find mode state.
- * For example dataprovider types that are not global/form variables want to know about this so as to no longer do specific conversions
- * when in find mode.
+ * Complex properties that are to be used within Servoy beans - interested in Servoy specific find mode behavior.
+ *
+ * This value's property type must implement {@link IFindModeAwareType}. Depending on how that interface is implemented, {@link #findModeChanged(boolean)}
+ * gets called when the find mode of the used {@link DataAdapterList} changes or not.
  *
  * @author acostescu
+ * @see IFindModeAwareType
  */
-public interface IFindModeAwareType<FormElementT, T> extends IPropertyType<T>
+public interface IFindModeAwarePropertyValue extends ISmartPropertyValue
 {
 
 	/**
-	 * Returns true if this property type is interested in find mode state or false otherwise.
+	 * Gets called when the find mode has changed for the foundset used by this property's component.
+	 *
+	 * @param then new find mode state.
 	 */
-	boolean isFindModeAware(FormElementT formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement);
+	void findModeChanged(boolean newFindMode);
 
 }

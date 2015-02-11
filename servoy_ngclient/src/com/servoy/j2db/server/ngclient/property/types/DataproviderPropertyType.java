@@ -32,6 +32,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -44,7 +45,8 @@ import com.servoy.j2db.util.ScopesUtils;
 public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTypeSabloValue> implements
 	IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>, ISupportTemplateValue<String>,
 	ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>,
-	IDataLinkedType<String, DataproviderTypeSabloValue>, IFindModeAwareType<String, DataproviderTypeSabloValue>
+	IDataLinkedType<String, DataproviderTypeSabloValue>, IFindModeAwareType<String, DataproviderTypeSabloValue>,
+	ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -66,7 +68,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	{
 		String onDataChange = null;
 		String onDataChangeCallback = null;
-		String forFoundSet = null;
+		// String forFoundSet = null; // see FoundsetLinkedPropertyType for how dataproviders linked to foundsets work
 		boolean hasParseHtml = false;
 		if (json != null)
 		{
@@ -77,10 +79,9 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 				onDataChangeCallback = onDataChangeObj.optString("callback", null);
 			}
 			hasParseHtml = json.optBoolean(HTMLStringPropertyType.CONFIG_OPTION_PARSEHTML);
-			forFoundSet = json.optString("forFoundSet");
 		}
 
-		return new DataproviderConfig(onDataChange, onDataChangeCallback, forFoundSet, hasParseHtml);
+		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml);
 	}
 
 	@Override
@@ -105,8 +106,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public DataproviderTypeSabloValue toSabloComponentValue(String formElementValue, PropertyDescription pd, FormElement formElement,
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return formElementValue != null ? new DataproviderTypeSabloValue(formElementValue, dataAdapterList, component, (DataproviderConfig)pd.getConfig())
-			: null;
+		return formElementValue != null ? new DataproviderTypeSabloValue(formElementValue, dataAdapterList, component, pd) : null;
 	}
 
 	@Override
@@ -156,20 +156,11 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public void findModeChanged(boolean newFindMode, DataproviderTypeSabloValue sabloValue, IDataConverterContext dataConverterContext)
-	{
-		if (sabloValue != null)
-		{
-			sabloValue.findModeChanged(newFindMode);
-		}
-	}
-
-	@Override
 	public boolean isFindModeAware(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
 		if (formElementValue == null) return false;
 
-		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd.getName());
+		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, pd);
 		if (dataLinks == null) dataLinks = getDataLinks(formElementValue, pd, flattenedSolution, formElement); // if it was not yet processed by formElement
 		return dataLinks.recordLinked;
 	}

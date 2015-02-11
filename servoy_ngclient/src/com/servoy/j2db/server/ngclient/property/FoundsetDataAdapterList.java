@@ -24,7 +24,6 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 
 /**
@@ -65,27 +64,27 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	}
 
 	@Override
-	public void addDataLinkedProperty(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
+	public void addDataLinkedProperty(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
 	{
-		super.addDataLinkedProperty(component, propertyName, targetDataLinks);
+		super.addDataLinkedProperty(propertyValue, targetDataLinks);
 		if (dataLinkedPropertyRegistrationListeners != null)
 		{
 			for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
 			{
-				l.dataLinkedPropertyRegistered(component, propertyName, targetDataLinks);
+				l.dataLinkedPropertyRegistered(propertyValue, targetDataLinks);
 			}
 		}
 	}
 
 	@Override
-	public void removeDataLinkedProperty(WebFormComponent component, String propertyName)
+	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
 	{
-		super.removeDataLinkedProperty(component, propertyName);
+		super.removeDataLinkedProperty(propertyValue);
 		if (dataLinkedPropertyRegistrationListeners != null)
 		{
 			for (IDataLinkedPropertyRegistrationListener l : dataLinkedPropertyRegistrationListeners)
 			{
-				l.dataLinkedPropertyUnregistered(component, propertyName);
+				l.dataLinkedPropertyUnregistered(propertyValue);
 			}
 		}
 	}

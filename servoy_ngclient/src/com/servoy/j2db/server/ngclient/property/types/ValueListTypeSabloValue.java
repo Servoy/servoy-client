@@ -39,7 +39,8 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
@@ -50,7 +51,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, ListDataListener
+public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener
 {
 
 	protected IValueList valueList;
@@ -59,7 +60,7 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 	protected final DataAdapterList dataAdapterList;
 	protected final String dataproviderID;
 
-	ValueListPropertySabloValue(IValueList valueList, DataAdapterList dataAdapterList, String dataproviderID)
+	ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, String dataproviderID)
 	{
 		this.valueList = valueList;
 		this.dataAdapterList = dataAdapterList;
@@ -116,11 +117,16 @@ public class ValueListPropertySabloValue implements IServoyAwarePropertyValue, L
 	{
 		this.changeMonitor = changeMonitor;
 		valueList.addListDataListener(this);
+
+		// register record changed listener
+		dataAdapterList.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
 	}
 
 	@Override
 	public void detach()
 	{
+		dataAdapterList.removeDataLinkedProperty(this);
+
 		this.changeMonitor = null;
 		if (filteredValuelist != null)
 		{

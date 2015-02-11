@@ -32,6 +32,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.DataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -41,8 +42,10 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -55,7 +58,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
+public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 {
 
 	public static final String FOUNDSET_SELECTOR = "foundsetSelector";
@@ -99,23 +102,38 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 	protected ViewportRowDataProvider rowDataProvider;
 
-	private final Map<String, String> elementsToDataproviders;
+	protected final Map<String, String> elementsToDataproviders;
 
+	protected final DataAdapterList parentDAL;
 
-	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName)
+	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL)
 	{
 		this.designJSONValue = designJSONValue;
 		this.propertyName = propertyName;
+		this.parentDAL = parentDAL;
 
 		rowDataProvider = new ViewportRowDataProvider()
 		{
 
 			@Override
-			protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
+			protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+				throws JSONException
 			{
+				w.object();
+				w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex is just a hint for where to start searching for the pk when needed
+
 				// we ignore columnName as foundset type is currently not able to send column level updates;
 				FoundsetTypeSabloValue.this.populateRowData(record, w, clientConversionInfo);
+
+				w.endObject();
 			}
+
+			@Override
+			protected boolean shouldGenerateRowIds()
+			{
+				return true;
+			}
+
 		};
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
 		viewPort = new FoundsetTypeViewport(changeMonitor);
@@ -163,6 +181,9 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 			}
 			includeDataProviders(dataproviders);
 		}
+
+		// register parent record changed listener
+		parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
 	}
 
 	/**
@@ -242,6 +263,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 	@Override
 	public void detach()
 	{
+		parentDAL.removeDataLinkedProperty(this);
 		viewPort.dispose();
 		if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 	}
@@ -540,7 +562,7 @@ public class FoundsetTypeSabloValue implements IServoyAwarePropertyValue
 
 								PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable(),
 									false); // this should be enough for when only foundset dataproviders are used
-								value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, null);
+								value = JSONUtils.fromJSONUnwrapped(null, value, new DataConverterContext(dataProviderPropDesc, webObject));
 
 								changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 								try

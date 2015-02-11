@@ -53,7 +53,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 	}
 
 	$sabloConverters.registerCustomPropertyHandler('JSON_arr', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			var newValue = currentClientValue;
 
 			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
@@ -86,7 +86,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 						if (conversionInfo) {
 							internalState.conversionInfo[c] = conversionInfo;
-							newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope);
+							newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope, componentModelGetter);
 						}
 
 						if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
@@ -119,7 +119,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 							if (conversionInfo) {
 								internalState.conversionInfo[idx] = conversionInfo;
-								currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope);
+								currentClientValue[idx] = val = $sabloConverters.convertFromServerToClient(val, conversionInfo, currentClientValue[idx], componentScope, componentModelGetter);
 							} else currentClientValue[idx] = val;
 
 							if (val && val[$sabloConverters.INTERNAL_IMPL] && val[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {

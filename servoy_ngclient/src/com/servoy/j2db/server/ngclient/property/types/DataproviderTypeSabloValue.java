@@ -36,10 +36,13 @@ import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
-import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -50,20 +53,20 @@ import com.servoy.j2db.util.UUID;
  *
  * @author acostescu
  */
-public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
+public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFindModeAwarePropertyValue
 {
 	protected final String dataProviderID;
 	protected final DataAdapterList dataAdapterList;
 	protected final IServoyDataConverterContext servoyDataConverterContext;
-	protected final DataproviderConfig dataproviderConfig;
 
 	protected Object value;
 	protected Object jsonValue;
 	protected IChangeListener changeMonitor;
 	protected PropertyDescription typeOfDP;
 	protected boolean findMode = false;
+	protected final PropertyDescription dpPD;
 
-	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, DataproviderConfig dataproviderConfig)
+	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
 	{
 		if (dataProviderID.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
 		{
@@ -76,7 +79,12 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 
 		this.dataAdapterList = dataAdapterList;
 		this.servoyDataConverterContext = component.getDataConverterContext();
-		this.dataproviderConfig = dataproviderConfig;
+		this.dpPD = dpPD;
+	}
+
+	protected DataproviderConfig getDataProviderConfig()
+	{
+		return (DataproviderConfig)dpPD.getConfig();
 	}
 
 	public String getDataProviderID()
@@ -95,15 +103,38 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 	@Override
 	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject component)
 	{
+		FormElement formElement = ((WebFormComponent)component).getFormElement();
+
 		this.changeMonitor = changeNotifier;
+
+		// register data link and find mode listeners as needed
+		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, dpPD);
+		if (dataLinks == null)
+		{
+			// they weren't cached in form element; get them again
+			dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID, dpPD, servoyDataConverterContext.getSolution(), formElement);
+		}
+		dataAdapterList.addDataLinkedProperty(this, dataLinks);
+
+		Boolean isFindModeAware = (Boolean)formElement.getPreprocessedPropertyInfo(IFindModeAwareType.class, dpPD);
+		if (isFindModeAware == null)
+		{
+			// they weren't cached in form element; get them again
+			isFindModeAware = ((DataproviderPropertyType)dpPD.getType()).isFindModeAware(dataProviderID, dpPD, servoyDataConverterContext.getSolution(),
+				formElement);
+		}
+		if (isFindModeAware != null && isFindModeAware.booleanValue() == true) dataAdapterList.addFindModeAwareProperty(this);
 	}
 
 	@Override
 	public void detach()
 	{
-		// nothing to do here... we don't add any listener directly in the property type;
+		// unregister listeners
+		dataAdapterList.removeDataLinkedProperty(this);
+		dataAdapterList.removeFindModeAwareProperty(this);
 	}
 
+	@Override
 	public void findModeChanged(boolean newFindMode)
 	{
 		// this normally only gets called for foundset based dataproviders (so not for global/form variables); DataproviderPropertyType.isFindModeAware(...)
@@ -121,7 +152,7 @@ public class DataproviderTypeSabloValue implements IServoyAwarePropertyValue
 		{
 			// see type of dataprovider; this is done only once - first time we get a new record
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
-				servoyDataConverterContext.getForm().getForm(), record.getParentFoundSet().getTable(), dataproviderConfig.hasParseHtml());
+				servoyDataConverterContext.getForm().getForm(), record.getParentFoundSet().getTable(), getDataProviderConfig().hasParseHtml());
 		}
 
 		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dataProviderID);

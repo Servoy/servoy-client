@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -60,7 +62,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	IDesignToFormElement<JSONObject, Map<String, FormElementT>, Map<String, SabloT>>,
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
 	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>,
-	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>
+	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>, IFindModeAwareType<Map<String, FormElementT>, Map<String, SabloT>>,
+	IDataLinkedType<Map<String, FormElementT>, Map<String, SabloT>>
 {
 
 	public NGCustomJSONObjectType(String typeName, PropertyDescription definition)
@@ -238,6 +241,58 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public boolean isFindModeAware(Map<String, FormElementT> formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
+		FormElement formElement)
+	{
+		boolean isFindModeAware = false;
+
+		// just to give a chance to nested find mode aware properties to register themselves in FormElement
+		for (Entry<String, PropertyDescription> entry : pd.getProperties().entrySet())
+		{
+			FormElementT value = formElementValue.get(entry.getKey());
+			PropertyDescription entryPD = entry.getValue();
+			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
+			if (value != null && entryPD.getType() instanceof IFindModeAwareType)
+			{
+				boolean b = ((IFindModeAwareType)entryPD.getType()).isFindModeAware(value, entryPD, flattenedSolution, formElement);
+				isFindModeAware |= b;
+				formElement.getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(entryPD, Boolean.valueOf(b));
+			}
+		}
+
+		return isFindModeAware;
+	}
+
+	@Override
+	public TargetDataLinks getDataLinks(Map<String, FormElementT> formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
+		FormElement formElement)
+	{
+		ArrayList<String> dps = new ArrayList<>();
+		boolean recordLinked = false;
+
+		// just to give a chance to nested find mode aware properties to register themselves in FormElement
+		for (Entry<String, PropertyDescription> entry : pd.getProperties().entrySet())
+		{
+			FormElementT value = formElementValue.get(entry.getKey());
+			PropertyDescription entryPD = entry.getValue();
+			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
+			if (value != null && entryPD.getType() instanceof IDataLinkedType)
+			{
+				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(value, entryPD, flattenedSolution, formElement);
+				formElement.getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(entryPD, entryDPs);
+				if (entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
+				{
+					dps.addAll(Arrays.asList(entryDPs.dataProviderIDs));
+					recordLinked |= entryDPs.recordLinked;
+				}
+			}
+		}
+
+		if (dps.size() == 0 && recordLinked == false) return TargetDataLinks.NOT_LINKED_TO_DATA;
+		else return new TargetDataLinks(dps.toArray(new String[dps.size()]), recordLinked);
 	}
 
 }

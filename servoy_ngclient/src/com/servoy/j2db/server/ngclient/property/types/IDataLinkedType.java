@@ -22,7 +22,6 @@ import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.property.IServoyAwarePropertyValue;
 
 /**
  * Interface for types that can have their value linked to data in a record or in a form/global variable.
@@ -47,7 +46,7 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 		/**
 		 * Used for properties that implement {@link IDataLinkedType} but decide not to be 'linked to data' based on their value.
 		 */
-		public static final TargetDataLinks NOT_LINKED_TO_DATA = null;
+		public static final TargetDataLinks NOT_LINKED_TO_DATA = new TargetDataLinks(null, false);
 
 		/**
 		 * Used by properties that are interested in changes to all data (record change or any dataProvider change).

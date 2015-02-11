@@ -1,7 +1,8 @@
 angular.module('foundset_custom_property', ['webSocketModule'])
 // Foundset type -------------------------------------------
 .value("$foundsetTypeConstants", {
-	ROW_ID_COL_KEY: '_svyRowId'
+	ROW_ID_COL_KEY: '_svyRowId',
+	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 })
 .run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
@@ -18,7 +19,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var NO_OP = "n";
 	
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope) {
+		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			var newValue = currentClientValue;
 			
 			// remove watches so that this update won't trigger them
@@ -58,9 +59,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					if (angular.isDefined(viewPortUpdate[ROWS])) {
 						$viewportModule.updateWholeViewport(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[ROWS],
-								viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][ROWS] ? viewPortUpdate[CONVERSIONS][ROWS] : undefined, componentScope);
+								viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][ROWS] ? viewPortUpdate[CONVERSIONS][ROWS] : undefined, componentScope, componentModelGetter);
 					} else if (angular.isDefined(viewPortUpdate[UPDATE_PREFIX + ROWS])) {
-						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] ? viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] : undefined, componentScope);
+						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] ? viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false);
 					}
 				}
 				
@@ -75,7 +76,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][CONVERSIONS] ? newValue[VIEW_PORT][CONVERSIONS][ROWS] : undefined);
 					if (newValue[VIEW_PORT][CONVERSIONS]) {
 						// relocate conversion info in internal state and convert
-						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS], componentScope);
+						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS], componentScope, componentModelGetter);
 						delete newValue[VIEW_PORT][CONVERSIONS];
 					}
 					
@@ -111,7 +112,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			// restore/add watches
 			if (angular.isDefined(newValue) && newValue !== null) {
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-				if (newValue[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope);
+				if (newValue[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope, false); // shouldn't need component model getter - takes rowids directly from viewport
 				if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
 					var changed = false;
 					if (internalState.ignoreSelectedChangeValue) {

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,8 +34,8 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
-import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -43,18 +44,21 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IDirtyPropertyListener;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.ComponentPropertyType.IModelWriter;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.IWrapperDataLinkedType;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONArrayType;
+import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONObjectType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 
@@ -77,10 +81,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected PropertyChangeListener forFoundsetPropertyListener;
 
 	protected boolean recordBasedPropertiesChanged = false;
-	protected boolean recordBasedPropertiesChangedFromTemplate = false;
+	protected boolean recordBasedPropertiesChangedComparedToTemplate = false;
 	protected ViewportDataChangeMonitor viewPortChangeMonitor;
 
-	protected IDataLinkedPropertyRegistrationListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
+	protected ComponentDataLinkedPropertyListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
 	protected final List<String> recordBasedProperties;
 
 	protected WebFormComponent parentComponent;
@@ -149,9 +153,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			parentComponent.removePropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener);
 
 			FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-			if (foundsetPropValue != null && viewPortChangeMonitor != null)
+			if (foundsetPropValue != null)
 			{
-				foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+				if (viewPortChangeMonitor != null) foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
+				if (dataLinkedPropertyRegistrationListener != null)
+				{
+					FoundsetDataAdapterList dal = foundsetPropValue.getDataAdapterList();
+					if (dal != null) dal.removeDataLinkedPropertyRegistrationListener(dataLinkedPropertyRegistrationListener);
+				}
 			}
 		}
 	}
@@ -182,7 +191,18 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
 		final IDataAdapterList dal = (foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
 
+		if (foundsetPropValue != null)
+		{
+			// do this before creating the component so that any attach() methods of it's properties that register data links get caught
+			((FoundsetDataAdapterList)dal).addDataLinkedPropertyRegistrationListener(createDataLinkedPropertyRegistrationListener());
+		}
+
 		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent);
+
+		if (foundsetPropValue != null)
+		{
+			dataLinkedPropertyRegistrationListener.componentIsNowAvailable();
+		}
 		childComponent.setDirtyPropertyListener(new IDirtyPropertyListener()
 		{
 			@Override
@@ -237,47 +257,57 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
-			((FoundsetDataAdapterList)dal).addDataLinkedPropertyRegistrationListener(getDataLinkedPropertyRegistrationListener());
 		}
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
-	protected IDataLinkedPropertyRegistrationListener getDataLinkedPropertyRegistrationListener()
+	protected IDataLinkedPropertyRegistrationListener createDataLinkedPropertyRegistrationListener()
 	{
-		return dataLinkedPropertyRegistrationListener = new IDataLinkedPropertyRegistrationListener()
+		return dataLinkedPropertyRegistrationListener = new ComponentDataLinkedPropertyListener();
+	}
+
+	protected String findComponentPropertyName(IDataLinkedPropertyValue propertyValueToFind)
+	{
+		Set<String> allPropNames = childComponent.getAllPropertyNames(true);
+		WebComponentSpecification spec = childComponent.getSpecification();
+		for (String n : allPropNames)
+			if (nestedPropertyFound(propertyValueToFind, childComponent.getProperty(n), spec.getProperty(n))) return n;
+		return null;
+	}
+
+	/**
+	 * Searches for a nested property value "propertyValueToFind" inside a possibly nested object/array "propertyValue"
+	 * TODO this is a hackish chunk of code; we should find a cleaner way to identify rootPropertyNames of data linked values!
+	 */
+	protected boolean nestedPropertyFound(IDataLinkedPropertyValue propertyValueToFind, Object propertyValue, PropertyDescription propertyDescription)
+	{
+		if (propertyValue == propertyValueToFind) return true;
+		if (propertyValue == null || propertyDescription == null) return false;
+
+		if (propertyDescription.getType() instanceof NGCustomJSONObjectType && propertyValue instanceof Map)
 		{
-
-			@Override
-			public void dataLinkedPropertyRegistered(WebFormComponent component, String propertyName, TargetDataLinks targetDataLinks)
+			PropertyDescription nestedPDs = ((NGCustomJSONObjectType)propertyDescription.getType()).getCustomJSONTypeDefinition();
+			for (Entry<String, Object> e : ((Map<String, Object>)propertyValue).entrySet())
 			{
-				if (component == childComponent && targetDataLinks != TargetDataLinks.NOT_LINKED_TO_DATA)
-				{
-					if (targetDataLinks.recordLinked && !recordBasedProperties.contains(propertyName))
-					{
-						recordBasedProperties.add(propertyName);
-
-						recordBasedPropertiesChanged = true;
-						recordBasedPropertiesChangedFromTemplate = true;
-						monitor.valueChanged();
-					}
-				}
+				if (nestedPropertyFound(propertyValueToFind, e.getValue(), nestedPDs.getProperty(e.getKey()))) return true;
 			}
-
-			@Override
-			public void dataLinkedPropertyUnregistered(WebFormComponent component, String propertyName)
+		}
+		else if (propertyDescription.getType() instanceof NGCustomJSONArrayType && propertyValue instanceof List)
+		{
+			PropertyDescription nestedPD = ((NGCustomJSONArrayType)propertyDescription.getType()).getCustomJSONTypeDefinition();
+			for (Object e : (List)propertyValue)
 			{
-				if (component == childComponent)
-				{
-					if (recordBasedProperties.remove(propertyName))
-					{
-						recordBasedPropertiesChanged = true;
-						recordBasedPropertiesChangedFromTemplate = true;
-						monitor.valueChanged();
-					}
-				}
+				if (nestedPropertyFound(propertyValueToFind, e, nestedPD)) return true;
 			}
+		}
+		else if (propertyDescription.getType() instanceof IWrapperDataLinkedType)
+		{
+			Pair<IDataLinkedPropertyValue, PropertyDescription> tmp = ((IWrapperDataLinkedType)propertyDescription.getType()).getWrappedDataLinkedValue(
+				propertyValue, propertyDescription);
+			return nestedPropertyFound(propertyValueToFind, tmp.getLeft(), tmp.getRight());
+		}
 
-		};
+		return false;
 	}
 
 	/**
@@ -287,7 +317,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	public JSONWriter initialToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
 		throws JSONException
 	{
-		if (recordBasedPropertiesChangedFromTemplate) return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
+		if (recordBasedPropertiesChangedComparedToTemplate) return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
 
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
@@ -419,67 +449,60 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	 * This is currently needed and can get called if the property is nested inside other complex properties (json object/array) that sometimes
 	 * might want/need to send again the entire content.
 	 */
-	public JSONWriter fullToJSON(JSONWriter writer, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType) throws JSONException
+	public JSONWriter fullToJSON(final JSONWriter writer, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType) throws JSONException
 	{
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		// create children of component as specified by this property
-		FormElement fe = formElementValue.element;
+		final FormElement fe = formElementValue.element;
 
 		writer.object();
 
 		// get template model values
-		TypedData<Map<String, Object>> formElementProperties = fe.propertiesForTemplateJSON();
+		final TypedData<Map<String, Object>> formElementProperties = fe.propertiesForTemplateJSON();
 
 		// we'll need to update them with runtime values
-		TypedData<Map<String, Object>> runtimeProperties = childComponent.getProperties();
+		final TypedData<Map<String, Object>> runtimeProperties = childComponent.getProperties();
 		childComponent.getAndClearChanges(); // just for clear
 
-		FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-		IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
-		final DataAdapterList dal = (DataAdapterList)(foundsetPropValue != null ? foundsetPropValue.getDataAdapterList() : formUI.getDataAdapterList());
-
 		// add to useful properties only those formElement properties that didn't get overriden at runtime (so form element value is still used)
-		boolean templateValuesAdded = false;
-		for (Entry<String, Object> fePropEntry : formElementProperties.content.entrySet())
+		boolean templateValuesRemoved = false;
+		Iterator<Entry<String, Object>> formElementPropertyIterator = formElementProperties.content.entrySet().iterator();
+		while (formElementPropertyIterator.hasNext())
 		{
-			if (!runtimeProperties.content.containsKey(fePropEntry.getKey()))
+			Entry<String, Object> fePropEntry = formElementPropertyIterator.next();
+			if (runtimeProperties.content.containsKey(fePropEntry.getKey()))
 			{
-				PropertyDescription propertyType = null;
-				if (formElementProperties.contentType != null) propertyType = formElementProperties.contentType.getProperty(fePropEntry.getKey());
-
-				Object sabloValue;
-				if (propertyType != null)
+				// it has a non-default runtime value; so template value will be ignored/not sent
+				if (!templateValuesRemoved)
 				{
-					sabloValue = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(fePropEntry.getValue(),
-						formElementProperties.contentType.getProperty(fePropEntry.getKey()), fe, childComponent, dal);
+					formElementProperties.content = new HashMap<String, Object>(formElementProperties.content); // otherwise it's unmodifiable
+					templateValuesRemoved = true;
 				}
-				else
-				{
-					// some hardcoded props "like offsetY" don't have a type; just send them as is
-					sabloValue = fePropEntry.getValue();
-				}
-
-				if (!templateValuesAdded)
-				{
-					runtimeProperties.content = new HashMap<String, Object>(runtimeProperties.content); // otherwise it's unmodifiable
-					templateValuesAdded = true;
-				}
-				runtimeProperties.content.put(fePropEntry.getKey(), sabloValue);
-
-				if (propertyType != null)
-				{
-					if (runtimeProperties.contentType == null) runtimeProperties.contentType = AggregatedPropertyType.newAggregatedProperty();
-					runtimeProperties.contentType.putProperty(fePropEntry.getKey(), propertyType);
-				}
+				formElementProperties.content.remove(fePropEntry.getKey());
 			}
 		}
 
-		// do this here after merging form element and runtime values so that form element record dependent properties get ignored as well
 		removeRecordDependentProperties(runtimeProperties);
+		removeRecordDependentProperties(formElementProperties);
 
-		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, fe, runtimeProperties, recordBasedProperties,
-			JSONUtils.FullValueToJSONConverter.INSTANCE, childComponent);
+		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, fe, new IModelWriter()
+		{
+
+			@Override
+			public void writeComponentModel() throws JSONException
+			{
+				writer.object();
+				DataConversion dataConversion = new DataConversion();
+				JSONUtils.writeData(new FormElementToJSON(fe.getFlattendSolution()), writer, formElementProperties.content, formElementProperties.contentType,
+					dataConversion, fe);
+				JSONUtils.writeData(JSONUtils.FullValueToJSONConverter.INSTANCE, writer, runtimeProperties.content, runtimeProperties.contentType,
+					dataConversion, childComponent);
+				JSONUtils.writeClientConversions(writer, dataConversion);
+				writer.endObject();
+			}
+
+		}, recordBasedProperties);
 		recordBasedPropertiesChanged = false;
 
 		writeWholeViewportToJSON(writer);
@@ -707,6 +730,78 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName + "' to value '" +
 				value + "' of component: " + childComponent + ". Record not found.", new RuntimeException());
 		}
+	}
+
+	protected final class ComponentDataLinkedPropertyListener implements IDataLinkedPropertyRegistrationListener
+	{
+		private final Map<IDataLinkedPropertyValue, String> oldDataLinkedValuesToRootPropertyName = new HashMap<IDataLinkedPropertyValue, String>();
+		private List<IDataLinkedPropertyValue> initiallyAddedValuesWhileComponentIsNull = new ArrayList<IDataLinkedPropertyValue>();
+
+		@Override
+		public void dataLinkedPropertyRegistered(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
+		{
+			if (targetDataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && targetDataLinks.recordLinked)
+			{
+				if (childComponent != null)
+				{
+					recordLinkedPropAdded(propertyValue);
+				}
+				else
+				{
+					initiallyAddedValuesWhileComponentIsNull.add(propertyValue);
+				}
+			}
+		}
+
+		protected void recordLinkedPropAdded(IDataLinkedPropertyValue propertyValue)
+		{
+			String propertyName = findComponentPropertyName(propertyValue);
+
+			if (propertyName != null)
+			{
+				oldDataLinkedValuesToRootPropertyName.put(propertyValue, propertyName);
+
+				if (!recordBasedProperties.contains(propertyName))
+				{
+					recordBasedProperties.add(propertyName);
+
+					recordBasedPropertiesChanged = true;
+					recordBasedPropertiesChangedComparedToTemplate = true;
+					monitor.valueChanged();
+				}
+			}
+		}
+
+		@Override
+		public void dataLinkedPropertyUnregistered(IDataLinkedPropertyValue propertyValue)
+		{
+			if (childComponent != null)
+			{
+				// when this gets called the component property value is probably already changed
+				// as usually data linked property values unregister themselves in detach();
+				// so we use this map to find the rootPropertyName if it's a value of this child component
+				String propertyName = oldDataLinkedValuesToRootPropertyName.remove(propertyValue);
+
+				if (propertyName != null && recordBasedProperties.remove(propertyName))
+				{
+					recordBasedPropertiesChanged = true;
+					recordBasedPropertiesChangedComparedToTemplate = true;
+					monitor.valueChanged();
+				}
+			}
+			else
+			{
+				initiallyAddedValuesWhileComponentIsNull.remove(propertyValue);
+			}
+		}
+
+		protected void componentIsNowAvailable()
+		{
+			for (IDataLinkedPropertyValue v : initiallyAddedValuesWhileComponentIsNull)
+				recordLinkedPropAdded(v);
+			initiallyAddedValuesWhileComponentIsNull = null;
+		}
+
 	}
 
 }

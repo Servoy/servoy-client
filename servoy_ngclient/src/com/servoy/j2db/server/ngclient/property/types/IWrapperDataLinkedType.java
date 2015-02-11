@@ -18,24 +18,26 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IPropertyType;
 
-import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.util.Pair;
 
 /**
- * Interface for types that might be interested in find mode state.
- * For example dataprovider types that are not global/form variables want to know about this so as to no longer do specific conversions
- * when in find mode.
+ * An IDataLinkedType that works with wrapped {@link IDataLinkedPropertyValue} instances. So the value of the property will use a wrapped {@link IDataLinkedPropertyValue}
+ * that can register as listener to the DAL instead of the actual value of the property registering to the DAL.
+ *
+ * TODO this interface is only needed for some code in {@link ComponentTypeSabloValue} that searches for a root property name based on a possibly nested value; it should be refactored somehow.
  *
  * @author acostescu
+ * @see IDataLinkedType
  */
-public interface IFindModeAwareType<FormElementT, T> extends IPropertyType<T>
+public interface IWrapperDataLinkedType<FormElementT, T> extends IDataLinkedType<FormElementT, T>
 {
 
 	/**
-	 * Returns true if this property type is interested in find mode state or false otherwise.
+	 * Returns the nested data linked property value if any and it's (so nested) property description.
 	 */
-	boolean isFindModeAware(FormElementT formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement);
+	Pair<IDataLinkedPropertyValue, PropertyDescription> getWrappedDataLinkedValue(T propertyValue, PropertyDescription pd);
 
 }

@@ -53,8 +53,10 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
+	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+		throws JSONException
 	{
+		w.object();
 		dal.setRecordQuietly(record);
 
 		if (columnName != null)
@@ -70,6 +72,7 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 				populateCellData(propertyName, w, clientConversionInfo);
 			}
 		}
+		w.endObject();
 	}
 
 	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
@@ -82,6 +85,12 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, clientConversionInfo, component);
 			clientConversionInfo.popNode();
 		}
+	}
+
+	@Override
+	protected boolean shouldGenerateRowIds()
+	{
+		return false;
 	}
 
 }

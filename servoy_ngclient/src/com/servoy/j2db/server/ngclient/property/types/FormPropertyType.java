@@ -140,7 +140,7 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 	}
 
 	@Override
-	public String defaultValue()
+	public String defaultValue(PropertyDescription pd)
 	{
 		return null;
 	}
