@@ -57,6 +57,8 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	public void setParentWindowName(String parentWindowName);
 
+	public Object getParentContainer();
+
 	public IServoyDataConverterContext getDataConverterContext();
 
 	public void contributeComponentToElementsScope(FormElement fe, WebComponentSpecification componentSpec, WebFormComponent component);

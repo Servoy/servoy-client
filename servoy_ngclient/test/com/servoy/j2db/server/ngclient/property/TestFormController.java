@@ -45,10 +45,12 @@ public class TestFormController implements IWebFormController
 
 	private final Form form;
 	private final INGApplication application;
+	private final IWebFormUI webFormUI;
 
 	public TestFormController(Form form, INGApplication application)
 	{
 		this.form = form;
+		this.webFormUI = new TestWebFormUI(this);
 		this.application = application;
 	}
 
@@ -637,8 +639,7 @@ public class TestFormController implements IWebFormController
 	@Override
 	public IWebFormUI getFormUI()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return webFormUI;
 	}
 
 	/*

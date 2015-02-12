@@ -122,7 +122,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private static boolean containsForm(IWebFormUI parent, IWebFormUI child)
 	{
-		Object childParentContainer = ((WebFormUI)child).getParentContainer();
+		Object childParentContainer = child.getParentContainer();
 		if (childParentContainer instanceof WebFormComponent)
 		{
 			Container p = ((WebFormComponent)childParentContainer).getParent();
@@ -184,17 +184,22 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			form.getFormUI().getDataAdapterList().removeParentRelatedForm(getForm());
 		}
 		relatedForms.remove(form);
-		for (IWebFormController relWFC : form.getFormUI().getDataAdapterList().getParentRelatedForms())
+		for (Object relWFC : form.getFormUI().getDataAdapterList().getParentRelatedForms().toArray())
 		{
-			relWFC.getFormUI().getDataAdapterList().removeRelatedForm(form, false);
+			((IWebFormController)relWFC).getFormUI().getDataAdapterList().removeRelatedForm(form, false);
 		}
+	}
+
+	public Map<IWebFormController, String> getRelatedForms()
+	{
+		return relatedForms;
 	}
 
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
 	public void addParentRelatedForm(IWebFormController form)
 	{
-		parentRelatedForms.add(form);
+		if (parentRelatedForms.indexOf(form) == -1) parentRelatedForms.add(form);
 	}
 
 	public void removeParentRelatedForm(IWebFormController form)

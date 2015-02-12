@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -58,6 +59,8 @@ public interface IDataAdapterList extends ITagResolver
 	void addRelatedForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController);
 
 	void removeRelatedForm(IWebFormController form, boolean shouldUpdateParentFormController);
+
+	Map<IWebFormController, String> getRelatedForms();
 
 	void addParentRelatedForm(IWebFormController form);
 
