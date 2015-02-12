@@ -10,35 +10,6 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	var PROPERTY_CHANGE = "propertyChange";
 
 	var CONVERSIONS = 'conversions';
-
-	function getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) {
-		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-
-		var newBeanModel = propertyValue[MODEL_KEY];
-		if (angular.isUndefined(oldBeanModel)) oldBeanModel = newBeanModel; // for child components who's custom prop. changed
-		var childChangedNotifier = getBeanPropertyChangeNotifier(propertyValue, componentScope); 
-		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
-		
-		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
-		var containerSize = {width: 0, height: 0};
-		
-		return $servoyInternal.getComponentChanges(newBeanModel, oldBeanModel, beanConversionInfo, internalState.beanLayout, containerSize, childChangedNotifier, componentScope);
-	};
-	
-	function getBeanPropertyChangeNotifier(propertyValue, componentScope) {
-		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-		return function (oldBeanModel) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
-			internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel, componentScope) });
-			if (internalState.changeNotifier) internalState.changeNotifier();
-		};
-	};
-	
-	function watchModel(beanModel, childChangedNotifier, componentScope) {
-		return componentScope.$watch($sabloUtils.generateWatchFunctionFor(beanModel, []), function(newvalue, oldvalue) {
-			if (oldvalue === newvalue) return;
-			childChangedNotifier(oldvalue);
-		}, true);
-	};
 	
 	/** Initializes internal state of a new value */
 	function initializeNewValue(newValue) {
@@ -74,7 +45,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				var didSomething = false;
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				if (!angular.isDefined(internalState)) {
-					$sabloConverters.prepareInternalState(newValue);
+					initializeNewValue(newValue);
 					internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				}
 
