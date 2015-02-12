@@ -16,7 +16,10 @@ module.exports = function(config){
        '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',
        './test/**/*.js',
-       '../war/servoydefault/*/*.html'
+       '../war/servoydefault/*/*.html',
+       '../war/servoyservices/component_custom_property/*.js',
+       '../war/servoyservices/foundset_custom_property/*.js',
+       '../war/servoyservices/foundset_viewport_module/*.js'
     ],
     exclude : [
 	  '../war/servoydefault/tabpanel/tabpanel_server.js',
