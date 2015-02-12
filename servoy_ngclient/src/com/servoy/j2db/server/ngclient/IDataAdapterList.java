@@ -61,6 +61,8 @@ public interface IDataAdapterList extends ITagResolver
 
 	void addParentRelatedForm(IWebFormController form);
 
+	void removeParentRelatedForm(IWebFormController form);
+
 	List<IWebFormController> getParentRelatedForms();
 
 	IRecordInternal getRecord();

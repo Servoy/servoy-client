@@ -141,7 +141,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addRelatedForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController)
 	{
-		if (shouldUpdateParentFormController) form.setParentFormController(formController);
+		if (shouldUpdateParentFormController)
+		{
+			form.setParentFormController(formController);
+		}
+		else
+		{
+			form.getFormUI().getDataAdapterList().addParentRelatedForm(getForm());
+		}
 
 		for (Entry<IWebFormController, String> relatedFormEntry : relatedForms.entrySet())
 		{
@@ -163,13 +170,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
-		form.getFormUI().getDataAdapterList().addParentRelatedForm(getForm());
 		relatedForms.put(form, relation);
 	}
 
 	public void removeRelatedForm(IWebFormController form, boolean shouldUpdateParentFormController)
 	{
-		if (shouldUpdateParentFormController) form.setParentFormController(null);
+		if (shouldUpdateParentFormController)
+		{
+			form.setParentFormController(null);
+		}
+		else
+		{
+			form.getFormUI().getDataAdapterList().removeParentRelatedForm(getForm());
+		}
 		relatedForms.remove(form);
 		for (IWebFormController relWFC : form.getFormUI().getDataAdapterList().getParentRelatedForms())
 		{
@@ -182,6 +195,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void addParentRelatedForm(IWebFormController form)
 	{
 		parentRelatedForms.add(form);
+	}
+
+	public void removeParentRelatedForm(IWebFormController form)
+	{
+		parentRelatedForms.remove(form);
 	}
 
 	public List<IWebFormController> getParentRelatedForms()
