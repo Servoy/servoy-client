@@ -180,7 +180,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 							// no selected record, then use prototype so we can get global relations
 							controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relation));
 						}
-						parentForm.getFormUI().getDataAdapterList().addRelatedForm(controller, relation);
+						parentForm.getFormUI().getDataAdapterList().addRelatedForm(controller, relation, true);
 					}
 				}
 				Utils.invokeLater(getApplication(), invokeLaterRunnables);

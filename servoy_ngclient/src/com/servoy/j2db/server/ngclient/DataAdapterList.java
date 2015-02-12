@@ -139,51 +139,54 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-	public void addRelatedForm(IWebFormController form, String relation)
+	public void addRelatedForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController)
 	{
-		form.setParentFormController(formController);
+		if (shouldUpdateParentFormController) form.setParentFormController(formController);
 
-		Iterator<Entry<IWebFormController, String>> relatedFormsIte = relatedForms.entrySet().iterator();
-		Entry<IWebFormController, String> relatedFormEntry;
-		IWebFormController relatedForm;
-		String relatedFormRelation;
-		while (relatedFormsIte.hasNext())
+		for (Entry<IWebFormController, String> relatedFormEntry : relatedForms.entrySet())
 		{
-			relatedFormEntry = relatedFormsIte.next();
-			relatedForm = relatedFormEntry.getKey();
-			relatedFormRelation = relatedFormEntry.getValue();
+			IWebFormController relatedForm = relatedFormEntry.getKey();
+			String relatedFormRelation = relatedFormEntry.getValue();
 			if (relatedFormRelation.startsWith(relation) && relatedFormRelation.length() > relation.length())
 			{
 				if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
 				{
-					form.getFormUI().getDataAdapterList().addRelatedForm(relatedForm, relatedFormRelation.substring(relation.length() + 1));
+					form.getFormUI().getDataAdapterList().addRelatedForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
 				}
 			}
 			else if (relation.startsWith(relatedFormRelation) && relation.length() > relatedFormRelation.length())
 			{
 				if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
 				{
-					relatedForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation.substring(relatedFormRelation.length() + 1));
+					relatedForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation.substring(relatedFormRelation.length() + 1), false);
 				}
 			}
 		}
 
+		form.getFormUI().getDataAdapterList().addParentRelatedForm(getForm());
 		relatedForms.put(form, relation);
 	}
 
-	public void removeRelatedForm(IWebFormController form)
+	public void removeRelatedForm(IWebFormController form, boolean shouldUpdateParentFormController)
 	{
-		form.getFormUI().getDataAdapterList().removeAllRelatedForms();
-		form.setParentFormController(null);
+		if (shouldUpdateParentFormController) form.setParentFormController(null);
 		relatedForms.remove(form);
+		for (IWebFormController relWFC : form.getFormUI().getDataAdapterList().getParentRelatedForms())
+		{
+			relWFC.getFormUI().getDataAdapterList().removeRelatedForm(form, false);
+		}
 	}
 
-	public void removeAllRelatedForms()
+	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
+
+	public void addParentRelatedForm(IWebFormController form)
 	{
-		Iterator<IWebFormController> relForms = relatedForms.keySet().iterator();
-		while (relForms.hasNext())
-			relForms.next().setParentFormController(null);
-		relatedForms.clear();
+		parentRelatedForms.add(form);
+	}
+
+	public List<IWebFormController> getParentRelatedForms()
+	{
+		return parentRelatedForms;
 	}
 
 	private void setupModificationListener(String dataprovider)

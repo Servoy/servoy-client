@@ -168,7 +168,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -398,7 +398,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (parentFormController != null && !visible && notifyVisibleSuccess)
 		{
 			IWebFormController parentFC = parentFormController.get();
-			if (parentFC != null) parentFC.getFormUI().getDataAdapterList().removeRelatedForm(this);
+			if (parentFC != null) parentFC.getFormUI().getDataAdapterList().removeRelatedForm(this, true);
 		}
 		if (notifyVisibleSuccess)
 		{

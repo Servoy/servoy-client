@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.WebComponent;
@@ -53,11 +55,13 @@ public interface IDataAdapterList extends ITagResolver
 
 	IWebFormController getForm();
 
-	void addRelatedForm(IWebFormController form, String relation);
+	void addRelatedForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController);
 
-	void removeRelatedForm(IWebFormController form);
+	void removeRelatedForm(IWebFormController form, boolean shouldUpdateParentFormController);
 
-	void removeAllRelatedForms();
+	void addParentRelatedForm(IWebFormController form);
+
+	List<IWebFormController> getParentRelatedForms();
 
 	IRecordInternal getRecord();
 }
