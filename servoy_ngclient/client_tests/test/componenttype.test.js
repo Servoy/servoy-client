@@ -146,7 +146,7 @@ describe("Test component_custom_property suite", function() {
       }
     };
     var converted = sabloConverters.convertFromServerToClient(updateValue,'component', serverValue, $scope);
-    expect(converted.modelViewport[0].dataProviderID.toString()).toBe('Wed Mar 01 2006 21:12:11 GMT+0200 (EET)');
+    expect(converted.modelViewport[0].dataProviderID.getTime()).toBe(1141240331660);
   });
 
   it("should send back nothing if update is falsy", function() {
