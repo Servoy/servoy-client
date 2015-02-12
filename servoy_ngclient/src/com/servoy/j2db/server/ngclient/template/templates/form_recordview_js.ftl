@@ -96,14 +96,14 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	formState.addWatches = function (beanNames) {
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
-		 		watches[beanName] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, ["model", "beanName"]), wrapper(beanName), true);
+		 		watches[beanName] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", "beanName"), wrapper(beanName), true);
 			}
 		}
 		else {
 		<#list parts as part>
 			<#if (part.baseComponents)??>
 				<#list part.baseComponents as bc><#-- TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes! -->
-					watches['${bc.name}'] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, ["model","${bc.name}"]), wrapper('${bc.name}'), true);
+					watches['${bc.name}'] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", "${bc.name}"), wrapper('${bc.name}'), true);
 				</#list>
 			</#if>
 		</#list>

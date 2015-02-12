@@ -42,7 +42,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	};
 	
 	function watchModel(beanModel, childChangedNotifier, componentScope) {
-		return componentScope.$watch($sabloUtils.generateWatchFunctionFor(beanModel, []), function(newvalue, oldvalue) {
+		return componentScope.$watch($sabloUtils.generateWatchFunctionFor(beanModel), function(newvalue, oldvalue) {
 			if (oldvalue === newvalue) return;
 			childChangedNotifier(oldvalue);
 		}, true);
