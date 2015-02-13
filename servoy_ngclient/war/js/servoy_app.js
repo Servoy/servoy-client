@@ -161,7 +161,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		   if (!solName) $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec($window.location.pathname)[1];
 		   else $solutionSettings.solutionName  = solName;
 		   $solutionSettings.windowName = webStorage.session.get("windowid");
-		   var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, [webStorage.session.get("sessionid"), $solutionSettings.windowName, $solutionSettings.solutionName])
+		   var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, [webStorage.session.get("sessionid"), $solutionSettings.windowName],{solution:$solutionSettings.solutionName})
 		   wsSession.onMessageObject(function (msg, conversionInfo) {
 			   // data got back from the server
 			   for(var formname in msg.forms) {

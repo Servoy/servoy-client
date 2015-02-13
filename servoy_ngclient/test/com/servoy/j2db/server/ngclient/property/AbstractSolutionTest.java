@@ -442,7 +442,7 @@ public abstract class AbstractSolutionTest
 					// TODO Auto-generated method stub
 
 				}
-			}, "1", null, "Test", null);
+			}, "1", null);
 			WebsocketEndpoint.set(endpoint);
 		}
 		catch (RepositoryException e)

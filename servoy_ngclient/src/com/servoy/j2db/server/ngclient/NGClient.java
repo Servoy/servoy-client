@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
@@ -884,7 +886,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					if (getClientInfo().getUserUid() != null)
 					{
 						//loadSolution(getSolution().getName());
-						wsSession.onOpen(getSolution().getName());
+						HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+						map.put(StartupArguments.PARAM_KEY_SOLUTION, Arrays.asList(new String[] { getSolution().getName() }));
+						wsSession.onOpen(map);
 						if (args.optBoolean("remember"))
 						{
 							JSONObject r = new JSONObject();

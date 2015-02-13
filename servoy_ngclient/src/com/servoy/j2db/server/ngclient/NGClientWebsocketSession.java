@@ -20,7 +20,9 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -102,11 +104,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public void onOpen(final String... args)
+	public void onOpen(final Map<String, List<String>> requestParams)
 	{
-		super.onOpen(args);
+		super.onOpen(requestParams);
 
-		final String solutionName = args[0];
+		if (requestParams == null)
+		{
+			WebsocketEndpoint.get().cancelSession("Solution name is required");
+			return;
+		}
+
+		final StartupArguments args = new StartupArguments(requestParams);
+		final String solutionName = args.getSolutionName();
 
 		if (Utils.stringIsEmpty(solutionName))
 		{
@@ -126,23 +135,19 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				else
 				{
-					if (args.length > 1)
+
+					String method = args.getMethodName();
+					String firstArgument = args.getFirstArgument();
+					if (method != null)
 					{
-						args[0] = "solution:" + args[0];
-						StartupArguments argumentsScope = new StartupArguments(args);
-						String method = argumentsScope.getMethodName();
-						String firstArgument = argumentsScope.getFirstArgument();
-						if (method != null)
+						try
 						{
-							try
-							{
-								client.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
-									(firstArgument == null ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
-							}
-							catch (Exception e1)
-							{
-								client.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { method }), e1); //$NON-NLS-1$
-							}
+							client.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
+								(firstArgument == null ? null : new Object[] { firstArgument, args.toJSMap() }), false, false);
+						}
+						catch (Exception e1)
+						{
+							client.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { method }), e1); //$NON-NLS-1$
 						}
 					}
 
@@ -187,11 +192,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						WebsocketEndpoint.get().setWindowId(client.getRuntimeWindowManager().createMainWindow());
 
 
-						if (args.length > 1)
-						{
-							args[0] = "solution:" + args[0];
-							client.handleArguments(args);
-						}
+						List<String> arguments = new ArrayList<String>();
+
+						if (args.getSolutionName() != null) arguments.add(StartupArguments.PARAM_KEY_SOLUTION + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
+							args.getSolutionName());
+						if (args.getFirstArgument() != null) arguments.add(StartupArguments.PARAM_KEY_ARGUMENT + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
+							args.getFirstArgument());
+						if (args.getMethodName() != null) arguments.add(StartupArguments.PARAM_KEY_METHOD + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
+							args.getMethodName());
+						client.handleArguments(arguments.toArray(new String[arguments.size()]), args);
+
 						client.loadSolution(solutionName);
 
 					}
