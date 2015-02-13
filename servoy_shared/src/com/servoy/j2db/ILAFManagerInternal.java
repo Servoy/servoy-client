@@ -38,4 +38,6 @@ public interface ILAFManagerInternal extends ILAFManager
 	public List<LookAndFeelInfo> getLAFInfos();
 
 	public Map<String, String> getLoadedThemes();
+
+	public void dispose();
 }

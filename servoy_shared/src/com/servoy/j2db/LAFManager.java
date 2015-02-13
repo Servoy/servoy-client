@@ -17,6 +17,8 @@
 package com.servoy.j2db;
 
 
+import java.lang.reflect.Method;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +38,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Manages lafs for the application.
- * 
+ *
  * @author jblok
  */
 public class LAFManager extends JarManager implements ILAFManager
@@ -193,5 +195,24 @@ public class LAFManager extends JarManager implements ILAFManager
 			mac = new Boolean(UIManager.getSystemLookAndFeelClassName().indexOf("apple") > -1); //$NON-NLS-1$
 		}
 		return mac.booleanValue();
+	}
+
+	public void dispose()
+	{
+		flushCachedItems();
+		if (_lafClassLoader instanceof URLClassLoader)
+		{
+			//present in java 7
+			try
+			{
+				Method closeMethod = URLClassLoader.class.getMethod("close", null);
+				closeMethod.invoke(_lafClassLoader, null);
+			}
+			catch (Exception ex)
+			{
+				// ignore
+			}
+		}
+		_lafClassLoader = null;
 	}
 }
