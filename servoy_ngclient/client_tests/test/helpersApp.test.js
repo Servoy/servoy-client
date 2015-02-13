@@ -42,17 +42,17 @@ describe('styles helpers', function() {
 		var template = $(' <div><div" svy-imagemediaid="myModel"></div></div>');
 		// this directive requires to be in a compnent with an isolated scope
 		var isolatedScope = $scope.$new(true);
-		isolatedScope.myModel = {img: 'image1.png', 
+		isolatedScope.myModel = {img: 'image1.png',
 				componentSize:{width: 16, height: 16},
 				rollOverImg:null, visible:true};
 		template.data('$isolateScope',isolatedScope);
 		var myDiv = $compile(template)(isolatedScope);
 		isolatedScope.$digest();
-		expect(myDiv[0].firstElementChild.style.backgroundImage).toContain('image1.png')
+		expect($(myDiv[0].firstElementChild).css('background-image')).toContain('image1.png');
 		// change image at runtime
 		isolatedScope.myModel = {img: 'image2.png?imageWidth=121&imageHeight=92', componentSize:{width: 16, height: 16},rollOverImg:null,visible:true};
 		isolatedScope.$digest();
-		expect(myDiv[0].firstElementChild.style.backgroundImage).toContain('image2.png')
+		expect($(myDiv[0].firstElementChild).css('background-image')).toContain('image2.png');
 	});
 
 }); 
