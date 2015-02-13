@@ -6,6 +6,7 @@ module.exports = function(config){
         '../war/servoydefault/**/*.html': ['ng-html2js']
     },
     files : [
+       {pattern: 'fileResources/**/*', watched: true, included: false, served: true},
        'lib/jquery.js',
        'lib/angular_1.3.4.js',
        'lib/angular-mocks_1.3.4.js',
@@ -19,7 +20,6 @@ module.exports = function(config){
        '../war/servoydefault/*/*.html',
        '../war/servoyservices/component_custom_property/*.js',
        '../war/servoyservices/foundset_custom_property/*.js',
-       {pattern: 'fileResources/**/*', watched: true, included: false, served: true},
        '../war/servoyservices/foundset_viewport_module/*.js'
     ],
     exclude : [

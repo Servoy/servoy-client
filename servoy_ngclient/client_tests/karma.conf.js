@@ -6,6 +6,7 @@ module.exports = function(config){
         '../war/servoydefault/**/*.html': ['ng-html2js']
     },
     files : [
+       {pattern: 'fileResources/**/*', watched: true, included: false, served: true},
        'lib/jquery.js',
        'lib/angular_1.3.4.js',
        'lib/angular-mocks_1.3.4.js',
