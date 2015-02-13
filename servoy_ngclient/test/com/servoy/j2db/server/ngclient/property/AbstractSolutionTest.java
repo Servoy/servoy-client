@@ -25,6 +25,8 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +59,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -123,6 +126,7 @@ public abstract class AbstractSolutionTest
 		WebComponentSpecProvider.init(getReaders(locations, inMemPackageReader));
 
 		WebServiceSpecProvider.init(getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null));
+		FormElementHelper.INSTANCE.reload();
 
 		final TestRepository tr = new TestRepository();
 		try
@@ -221,8 +225,9 @@ public abstract class AbstractSolutionTest
 				@Override
 				public Map<String, List<String>> getRequestParameterMap()
 				{
-					// TODO Auto-generated method stub
-					return null;
+					Map<String, List<String>> params = new HashMap<String, List<String>>();
+					params.put("solution", Arrays.asList("Test"));
+					return params;
 				}
 
 				@Override
