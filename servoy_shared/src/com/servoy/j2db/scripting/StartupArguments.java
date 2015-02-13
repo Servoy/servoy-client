@@ -17,13 +17,14 @@
 package com.servoy.j2db.scripting;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 
 /**
  *  This class represents a object containing all the startup arguments
- * 
+ *
  * @author gboros
  */
 @TerracottaInstrumentedClass
@@ -98,6 +99,18 @@ public class StartupArguments extends HashMap<String, Object>
 				keyValue = array;
 			}
 			else keyValue = sParamValue[0];
+		}
+		else if (value instanceof List< ? > && ((List<String>)value).size() > 0)
+		{
+			List<String> sParamValue = (List<String>)value;
+			if (sParamValue.size() > 1)
+			{
+				JSMap array = new JSMap("Array"); //$NON-NLS-1$
+				for (int i = 0; i < sParamValue.size(); i++)
+					array.put(Integer.valueOf(i), sParamValue.get(i));
+				keyValue = array;
+			}
+			else keyValue = sParamValue.get(0);
 		}
 
 		if (keyValue != null)
