@@ -5953,7 +5953,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					leftPart += "." + parts[k]; //$NON-NLS-1$
 				}
-				return currentRecord.getRelatedFoundSet(leftPart);
+				// only if 'leftPart' is a subpart of fullRelationName
+				if (leftPart.length() < fullRelationName.length())
+				{
+					return currentRecord.getRelatedFoundSet(leftPart);
+				}
 			}
 
 			SQLSheet relatedSheet = sheet.getRelatedSheet(fsm.getApplication().getFlattenedSolution().getRelation(parts[i]), fsm.getSQLGenerator());
