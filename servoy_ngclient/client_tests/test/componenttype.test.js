@@ -10,7 +10,7 @@ describe("Test component_custom_property suite", function() {
   var serverValue;
   var converted;
 
-  beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_){
+  beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, _$sabloUtils_){
     // The injector unwraps the underscores (_) from around the parameter
     //names when matching
     sabloConverters = _$sabloConverters_;
