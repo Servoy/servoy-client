@@ -5,5 +5,5 @@
 	"icon": "12grid/row.png",
 	"definition": "row.json",
 	"contains": ["column"],
-	"parents": ["form","container","column"]
+	"topContainer": true
 }

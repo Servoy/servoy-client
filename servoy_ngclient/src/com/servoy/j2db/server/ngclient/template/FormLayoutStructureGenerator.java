@@ -47,7 +47,7 @@ public class FormLayoutStructureGenerator
 	{
 		try
 		{
-			FormLayoutGenerator.generateFormStartTag(writer, form);
+			FormLayoutGenerator.generateFormStartTag(writer, form, design);
 			Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			while (components.hasNext())
 			{

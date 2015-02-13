@@ -5,7 +5,7 @@
 	"icon": "12grid/container.gif",
 	"definition": "container.json",
 	"contains": ["row"],
-	"parents": ["form"],
+	"topContainer": true,
 	"model": {
 		"class" :{ "type" :"styleclass", "tags": { "scope" :"design" } , "values" :["container","container-fluid"]}
 	}
