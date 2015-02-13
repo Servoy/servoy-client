@@ -673,7 +673,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						}
 					}	
 				}
-				$timeout(function(){
+				
+				function layoutColumnsAndGrid() {
 					$scope.gridApi.grid.gridWidth = gridUtil.elementWidth($element);
 					$scope.gridApi.grid.gridHeight = gridUtil.elementHeight($element);
 					if (!$scope.model.multiLine && (($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER))
@@ -706,6 +707,37 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						}
 					}
 					$scope.gridApi.grid.refreshCanvas(true);
+				}
+				
+				$timeout(function(){
+					layoutColumnsAndGrid();
+					
+					// watch for resize and re-layout when needed - but at most once every 200 ms
+					function justToIsolateScope() {
+						var minRelayoutPeriodPassed = true;
+						var pendingLayout = false;
+						$scope.$watchCollection(function() { return [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ] }, function(oldV, newV) {
+							if (oldV != newV) {
+								// the portal resized (browser window resize or split pane resize for example)
+								if (pendingLayout) return; // will layout later anyway
+								if (minRelayoutPeriodPassed) {
+									layoutColumnsAndGrid();
+									
+									minRelayoutPeriodPassed = false;
+									function wait200ms() {
+										if (pendingLayout) {
+											pendingLayout = false;
+											layoutColumnsAndGrid();
+											$timeout(wait200ms, 200);
+										} else minRelayoutPeriodPassed = true;
+									}
+									$timeout(wait200ms, 200);
+								} else pendingLayout = true;
+							}
+						})
+					}
+					justToIsolateScope();
+					
 					testNumberOfRows();
 					// reset what ui-grid did if somehow the row height was smaller then the elements height because it didn't layout yet
 					$element.children(".svyPortalGridStyle").height('');
