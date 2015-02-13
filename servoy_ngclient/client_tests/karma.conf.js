@@ -50,7 +50,6 @@ module.exports = function(config){
             'karma-script-launcher',
             'karma-jasmine'
             ],*/
-	browserNoActivityTimeout:999999,
     singleRun: true,
     //autoWatch : true,
     reporters: ['dots', 'junit'],
