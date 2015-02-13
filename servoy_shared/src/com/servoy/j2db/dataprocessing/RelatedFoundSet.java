@@ -53,7 +53,7 @@ import com.servoy.j2db.util.visitor.PackVisitor;
 
 /**
  * This class is normally found as related state from another state and therefore holds related data
- * 
+ *
  * @author jblok
  */
 public abstract class RelatedFoundSet extends FoundSet
@@ -133,7 +133,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	/**
 	 * Create multiple related foundsets in one call to the data server.
-	 * 
+	 *
 	 * @param factory
 	 * @param app
 	 * @param parents same length as whereArsgLists
@@ -877,7 +877,20 @@ public abstract class RelatedFoundSet extends FoundSet
 				Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
 				if (ph == null || !ph.isSet())
 				{
-					Debug.error("RelatedFoundset check for new row, creation args not found!!"); //$NON-NLS-1$
+					Column[] cols = relation.getForeignColumns();
+					StringBuilder columns = new StringBuilder();
+					columns.append("(");
+					if (cols != null && cols.length > 0)
+					{
+						for (Column col : cols)
+						{
+							columns.append(col.getName());
+							columns.append(",");
+						}
+						columns.setLength(columns.length() - 1);
+					}
+					columns.append(")");
+					Debug.error("RelatedFoundset check for relation:" + relationName + " for a new row, creation args " + columns + "not found!!"); //$NON-NLS-1$
 					return;//how can this happen??
 				}
 				// foreignData is a matrix as wide as the relation keys and 1 deep
@@ -885,7 +898,42 @@ public abstract class RelatedFoundSet extends FoundSet
 				Column[] cols = relation.getForeignColumns();
 				if (foreignData.length != cols.length)
 				{
-					Debug.error("RelatedFoundset check for new row, creation args and relation args are not the same!!"); //$NON-NLS-1$
+					StringBuilder columns = new StringBuilder();
+					columns.append("(");
+					if (cols.length > 0)
+					{
+						for (Column col : cols)
+						{
+							columns.append(col.getName());
+							columns.append(",");
+						}
+						columns.setLength(columns.length() - 1);
+					}
+					columns.append(")");
+
+					StringBuilder data = new StringBuilder();
+					data.append("(");
+					if (foreignData.length > 0)
+					{
+						for (Object[] d : foreignData)
+						{
+							data.append("[");
+							if (d.length > 0)
+							{
+								for (Object object : d)
+								{
+									data.append(object);
+									data.append(",");
+								}
+								data.setLength(data.length() - 1);
+							}
+							data.append("]");
+						}
+						data.setLength(data.length() - 1);
+					}
+					data.append(")");
+
+					Debug.error("RelatedFoundset check for relation:" + relationName + " for new row, creation args " + columns + " and relation args " + data + "  are not the same!!"); //$NON-NLS-1$
 					return;//how can this happen??
 				}
 
@@ -938,7 +986,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	{
 		// Only do a new query if the foundset is in a mustQuery state
 		// AND if it doesn't have edited records. These records should first be saved before
-		// doing a query for pks. Else those records could be removed from this related foundset 
+		// doing a query for pks. Else those records could be removed from this related foundset
 		// and never return again (or the next mustQuery comes around)
 		if (mustQueryForUpdates && !fsm.getEditRecordList().hasEditedRecords(this, false))
 		{
