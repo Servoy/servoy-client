@@ -1,4 +1,4 @@
-angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll'])
+angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService",
@@ -563,12 +563,29 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						var rows = $scope.foundset.viewPort.rows;
 						updatingGridSelection = true;
 						if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
+							var scrolledToSelection = false;
 							for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
 								var rowIdx = $scope.foundset.selectedRowIndexes[idx];
-								if (isInViewPort(rowIdx)) $scope.gridApi.selection.selectRow(rows[rowIdx]);
+								if (isInViewPort(rowIdx)) {
+									$scope.gridApi.selection.selectRow(rows[rowIdx]);
+									if(!scrolledToSelection) {
+										scrolledToSelection = true;
+										$scope.gridApi.cellNav.scrollTo($scope, rows[rowIdx], null);	
+									}
+								} else if(!scrolledToSelection) {
+									var nrRecordsToLoad = 0;
+									if(rowIdx < $scope.foundset.viewPort.startIndex) {
+										nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex;
+									} else {
+										nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.size + 1;
+									}
+									$scope.foundset.loadExtraRecordsAsync(nrRecordsToLoad);
+									break;
+								}
 							}
 						} else if (rows.length > 0) {
 							$scope.gridApi.selection.selectRow(rows[0]);
+							$scope.gridApi.cellNav.scrollTo($scope, rows[0], null);
 						}
 						updatingGridSelection = false;
 					}
