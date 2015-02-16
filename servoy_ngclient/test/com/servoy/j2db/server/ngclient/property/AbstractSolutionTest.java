@@ -42,6 +42,7 @@ import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import org.junit.After;
 import org.junit.Before;
 import org.sablo.InMemPackageReader;
 import org.sablo.specification.WebComponentPackage;
@@ -112,6 +113,13 @@ public abstract class AbstractSolutionTest
 		super();
 	}
 
+	@After
+	public void cleanup()
+	{
+		FormElementHelper.INSTANCE.reload();
+		ApplicationServerRegistry.clear();
+	}
+
 	@Before
 	public void buildSolution() throws Exception
 	{
@@ -126,7 +134,7 @@ public abstract class AbstractSolutionTest
 		WebComponentSpecProvider.init(getReaders(locations, inMemPackageReader));
 
 		WebServiceSpecProvider.init(getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null));
-		FormElementHelper.INSTANCE.reload();
+
 
 		final TestRepository tr = new TestRepository();
 		try
