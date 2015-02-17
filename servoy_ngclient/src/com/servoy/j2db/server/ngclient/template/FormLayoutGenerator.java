@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Utils;
 public class FormLayoutGenerator
 {
 
-	public static void generateRecordViewForm(PrintWriter writer, Form form, IServoyDataConverterContext context, boolean design)
+	public static void generateRecordViewForm(PrintWriter writer, Form form, IServoyDataConverterContext context, boolean design, boolean highlight)
 	{
 		generateFormStartTag(writer, form, design);
 		Iterator<Part> it = form.getParts();
@@ -80,7 +80,7 @@ public class FormLayoutGenerator
 					FormElement fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
 
 					generateFormElementWrapper(writer, fe, design, form);
-					generateFormElement(writer, fe, false);
+					generateFormElement(writer, fe, false, highlight);
 					generateEndDiv(writer);
 				}
 
@@ -151,6 +151,7 @@ public class FormLayoutGenerator
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 			Form currentForm = form;
 			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
+
 			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
 				writer.print(" class='inherited_element'");
@@ -196,8 +197,10 @@ public class FormLayoutGenerator
 //		return false;
 //	}
 
-	public static void generateFormElement(PrintWriter writer, FormElement fe, boolean design)
+	public static void generateFormElement(PrintWriter writer, FormElement fe, boolean design, boolean highlight)
 	{
+		if (highlight) writer.print("<div class='highlight_element" + (fe.getForm().isResponsiveLayout() ? "" : " inherit_size") + "'>");
+
 		writer.print("<");
 		writer.print(fe.getTagname());
 		writer.print(" name='");
@@ -246,6 +249,8 @@ public class FormLayoutGenerator
 		writer.print("</");
 		writer.print(fe.getTagname());
 		writer.println(">");
+		if (highlight) writer.print("</div>");
+
 	}
 
 	/**

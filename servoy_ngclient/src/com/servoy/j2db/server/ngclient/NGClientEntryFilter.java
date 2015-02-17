@@ -220,14 +220,14 @@ public class NGClientEntryFilter extends WebEntry
 										((HttpServletResponse)servletResponse).setContentType("text/html");
 										FormLayoutStructureGenerator.generateLayout(form,
 											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), w,
-											Utils.getAsBoolean(request.getParameter("design")));
+											Utils.getAsBoolean(request.getParameter("design")), Utils.getAsBoolean(request.getParameter("highlight")));
 									}
 									else if (uri.endsWith(".html"))
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
 										FormLayoutGenerator.generateRecordViewForm(w, form,
 											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
-											Utils.getAsBoolean(request.getParameter("design")));
+											Utils.getAsBoolean(request.getParameter("design")), Utils.getAsBoolean(request.getParameter("highlight")));
 									}
 									else if (uri.endsWith(".js"))
 									{

@@ -70,14 +70,17 @@ div.svy-label-with-focus:focus{
 	width: 300px;
 }
 
-.inherited_element
-{
+.inherited_element {
 	outline:1px dotted red;
 }
 
-.highlight_element
-{
+.highlight_element {
 	outline:1px solid lightblue;
+}
+
+.inherit_size {
+	width: inherit;
+	height: inherit; 
 }
 
 /* Side notes for calling out things (bs-callout from documentation)
