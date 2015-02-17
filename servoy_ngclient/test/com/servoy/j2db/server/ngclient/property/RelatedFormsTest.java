@@ -124,6 +124,9 @@ public class RelatedFormsTest extends AbstractSolutionTest
 		Assert.assertEquals(dataAdapterListF3.getParentRelatedForms().toString() + " should have:" + f2Controller, 0,
 			dataAdapterListF3.getParentRelatedForms().indexOf(f2Controller));
 
+		Assert.assertNotEquals(dataAdapterListF3.getParentRelatedForms().toString() + " should have:" + f2Controller, -1,
+			dataAdapterListF3.getParentRelatedForms().indexOf(f2Controller));
+
 		dataAdapterListF1.addRelatedForm(f4Controller, "relation2.relation3.relation4", true);
 //		relatedForms of f1 has now f2 and f3 and f4
 		Assert.assertEquals(3, dataAdapterListF1.getRelatedForms().size());
@@ -134,7 +137,6 @@ public class RelatedFormsTest extends AbstractSolutionTest
 		Assert.assertEquals("relation3.relation4", dataAdapterListF2.getRelatedForms().get(f4Controller));
 //		and f4 relatedParentsForms has f2 and f3
 		Assert.assertEquals(2, dataAdapterListF4.getParentRelatedForms().size());
-		System.err.println(dataAdapterListF4.getParentRelatedForms() + " should have " + f2Controller + " and " + f3Controller);
 		Assert.assertTrue(dataAdapterListF4.getParentRelatedForms() + " should have " + f2Controller,
 			dataAdapterListF4.getParentRelatedForms().indexOf(f2Controller) >= 0);
 		Assert.assertTrue(dataAdapterListF4.getParentRelatedForms() + " should have " + f3Controller,
