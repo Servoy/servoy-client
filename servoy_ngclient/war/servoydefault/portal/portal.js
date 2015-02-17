@@ -128,10 +128,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
-						+ '" svy-model="getExternalScopes().getMergedCellModel(row, ' + idx
-						+ ')" svy-api="getExternalScopes().cellApiWrapper(row, ' + idx
-						+ ')" svy-handlers="getExternalScopes().cellHandlerWrapper(row, ' + idx
-						+ ')" svy-servoyApi="getExternalScopes().cellServoyApiWrapper(row, ' + idx + ')"';
+						+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
+						+ ')" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
+						+ ')" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
+						+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
 					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
 					cellTemplate += '/>';
 					if($scope.model.multiLine) { 
@@ -141,7 +141,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if (rowWidth < (elX + el.model.size.width) ) {
 							rowWidth = elX + el.model.size.width;
 						}
-						rowTemplate = rowTemplate + '<div ng-style="getExternalScopes().getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
+						rowTemplate = rowTemplate + '<div ng-style="grid.appScope.getMultilineComponentWrapperStyle(' + idx + ')" >' + cellTemplate + '</div>';
 					}
 					else {
 						if($scope.rowHeight == undefined || ($scope.model.rowHeight == 0 && $scope.rowHeight < el.model.size.height)) {
@@ -225,9 +225,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				return (absoluteRowIndex >= $scope.foundset.viewPort.startIndex && absoluteRowIndex < ($scope.foundset.viewPort.startIndex + $scope.foundset.viewPort.size));
 			}
 
-			$scope.exScope = {};
-
-			$scope.exScope.getMultilineComponentWrapperStyle = function(elementIndex) {
+			$scope.getMultilineComponentWrapperStyle = function(elementIndex) {
 				var elModel = elements[elementIndex].model;
 				var containerModel = $scope.model;
 				var elLayout = {position: 'absolute'};
@@ -299,7 +297,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 
 			// merges component model and modelViewport (for record dependent properties like dataprovider/tagstring/...) the cell's element's model
-			$scope.exScope.getMergedCellModel = function(ngGridRow, elementIndex) {
+			$scope.getMergedCellModel = function(ngGridRow, elementIndex) {
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 				
@@ -455,7 +453,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			// cells provide API calls; one API call (from server) should execute on all cells of that element's column.
 			// so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
 			// it will execute on all cells
-			$scope.exScope.cellApiWrapper = function(ngGridRow, elementIndex) {
+			$scope.cellApiWrapper = function(ngGridRow, elementIndex) {
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
 					return {}
@@ -505,7 +503,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 			}
 
-			$scope.exScope.cellServoyApiWrapper = function(ngGridRow, elementIndex) {
+			$scope.cellServoyApiWrapper = function(ngGridRow, elementIndex) {
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
 					return {}
@@ -810,7 +808,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 			// each handler at column level gets it's rowId from the cell's wrapper handler below (to
 			// make sure that the foundset's selection is correct server-side when cell handler triggers)
-			$scope.exScope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
+			$scope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
 					return {}
