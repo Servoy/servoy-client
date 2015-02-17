@@ -33,6 +33,21 @@ angular.module('servoydefaultTypeahead',['servoy'])
     		  if($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;	          		
     		  return formatFilter(displayValue, displayFormat ,type);    	 
          }
+         var hasRealValues = false;
+         
+         $scope.$watch('model.valuelistID',function() {
+             if(!$scope.model.valuelistID) return; // not loaded yet
+             hasRealValues = false;
+             for(var i=0;i<$scope.model.valuelistID.length;i++){
+                 var item= $scope.model.valuelistID[i];
+                 if(item.realValue != item.displayValue)
+                 {	 
+                	 hasRealValues = true;
+                	 break;
+                 }
+               }
+           })
+           
           $scope.doSvyApply = function (){
         	  if($('[typeahead-popup]').attr('aria-hidden') == "true") {
 	    		  if ($scope.model.valuelistID) {
@@ -43,7 +58,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
 		     				 break;
 		     			  }
 		     		  }
-		     		  if(!hasMatchingDisplayValue) {
+		     		  if(!hasMatchingDisplayValue && hasRealValues) {
 		     			 $scope.model.dataProviderID = null;
 		     		  }
 	    		  }
