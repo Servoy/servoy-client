@@ -532,10 +532,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 
 			var updatingGridSelection = false;
+			var updatingFoundsetSelectionFromGrid = false;
 			
 			// bind foundset.selectedRowIndexes to what nggrid has to offer
 			function updateFoundsetSelectionFromGrid(newNGGridSelectedItems) {
 				if (updatingGridSelection) return;
+				updatingFoundsetSelectionFromGrid = true;
 				if (newNGGridSelectedItems.length == 0 && $scope.model.relatedFoundset.serverSize > 0) return; // we shouldn't try to set no selection if there are records; it will be an invalid request as server doesn't allow that
 				// update foundset object selection when it changes in ngGrid
 				var tmpSelectedRowIdxs = {};
@@ -552,23 +554,33 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if (!$scope.foundset.multiSelect || isInViewPort(idx)) $scope.foundset.selectedRowIndexes.splice(idx, 1);
 					}
 				}
+				$scope.$digest();
+				updatingFoundsetSelectionFromGrid = false;
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			}
-			var updateGridSelectionFromFoundset = function() {
+			var updateGridSelectionFromFoundset = function(scrollToSelection) {
 				$scope.$evalAsync(function () {
 					if ($scope.foundset)
 					{
 						var rows = $scope.foundset.viewPort.rows;
-						updatingGridSelection = true;
+						updatingGridSelection = true; 
 						if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
-							var scrolledToSelection = false;
+							var scrolledToSelection = !scrollToSelection;
+							var oldSelection = $scope.gridApi.selection.getSelectedRows();
+							// if first item in the old selection is the same as the first in the new selection,
+							// then ignore scrolling
+							if(oldSelection.length > 0 && rows[$scope.foundset.selectedRowIndexes[0]] &&
+									(oldSelection[0]._svyRowId == rows[$scope.foundset.selectedRowIndexes[0]]._svyRowId)) {
+								scrolledToSelection = true;
+							}
+							
 							for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
 								var rowIdx = $scope.foundset.selectedRowIndexes[idx];
 								if (isInViewPort(rowIdx)) {
 									$scope.gridApi.selection.selectRow(rows[rowIdx]);
 									if(!scrolledToSelection) {
 										scrolledToSelection = true;
-										$scope.gridApi.cellNav.scrollTo($scope, rows[rowIdx], null);	
+										$scope.gridApi.cellNav.scrollTo(rows[rowIdx]);
 									}
 								} else if(!scrolledToSelection) {
 									var nrRecordsToLoad = 0;
@@ -590,7 +602,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				});
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			};
-			$scope.$watchCollection('foundset.selectedRowIndexes', updateGridSelectionFromFoundset);
+			$scope.$watchCollection('foundset.selectedRowIndexes', function() { updateGridSelectionFromFoundset(!updatingFoundsetSelectionFromGrid) });
 			
 			$scope.gridOptions = {
 					data: 'foundset.viewPort.rows',
@@ -632,7 +644,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			$scope.gridOptions.onRegisterApi = function( gridApi ) {
 				$scope.gridApi = gridApi;
 				$scope.gridApi.grid.registerDataChangeCallback(function() {
-					updateGridSelectionFromFoundset();
+					updateGridSelectionFromFoundset(true);
 				},[uiGridConstants.dataChange.ROW]);
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
 					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
@@ -790,7 +802,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						}
 
 						// allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
-						updateGridSelectionFromFoundset();
+						updateGridSelectionFromFoundset(true);
 						$scope.gridApi.infiniteScroll.dataLoaded();
 					});
 				},0)
