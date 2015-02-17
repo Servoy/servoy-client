@@ -17,18 +17,19 @@
 
 package com.servoy.j2db.util.xmlxport;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-public class RootObjectInfo
+public class RootObjectInfo implements Serializable
 {
 	public String name = null;
 	public RootElementInfo elementInfo = new RootElementInfo();
 
-	public static class RootElementInfo
+	public static class RootElementInfo implements Serializable
 	{
 		public int typeId = 0;
 		public String uuid = null;
@@ -36,7 +37,7 @@ public class RootObjectInfo
 		public List<RootElementInfo> children = new ArrayList<RootElementInfo>();
 	}
 
-	public static class PropertyInfo
+	public static class PropertyInfo implements Serializable
 	{
 		public int contentId = 0;
 		public String value = null;

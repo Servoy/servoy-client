@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.util.xmlxport;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,7 +28,7 @@ import com.servoy.j2db.util.UUID;
 /**
  * * The <code>ImportInfo</code> contains all state information which is needed during the import.
  */
-public class ImportInfo
+public class ImportInfo implements Serializable
 {
 	public boolean cleanImport = false;
 	public Map<Integer, Map<String, String>> substitutionMap = new HashMap<Integer, Map<String, String>>();

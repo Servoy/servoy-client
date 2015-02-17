@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.util.xmlxport;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ import com.servoy.j2db.util.UUID;
  * @author sebster
  *
  */
-public class MappedUnresolvedUUIDResolver implements IUnresolvedUUIDResolver
+public class MappedUnresolvedUUIDResolver implements IUnresolvedUUIDResolver, Serializable
 {
 
 	private final Map uuidMap;

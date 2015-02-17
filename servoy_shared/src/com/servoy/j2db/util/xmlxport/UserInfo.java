@@ -20,10 +20,11 @@ package com.servoy.j2db.util.xmlxport;
 /**
  * User info in servoy files.
  */
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class UserInfo
+public class UserInfo implements Serializable
 {
 	public String uid = null;
 	public String name = null;

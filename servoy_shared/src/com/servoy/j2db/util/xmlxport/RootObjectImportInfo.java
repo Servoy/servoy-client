@@ -17,13 +17,14 @@
 
 package com.servoy.j2db.util.xmlxport;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
 import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.util.UUID;
 
-public class RootObjectImportInfo
+public class RootObjectImportInfo implements Serializable
 {
 	public boolean skip = false;
 	public IRootObject rootObject = null;

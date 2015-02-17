@@ -17,16 +17,17 @@
 
 package com.servoy.j2db.util.xmlxport;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GroupInfo
+public class GroupInfo implements Serializable
 {
 	public String name = null;
 	public String description = null;
 	public Set<GroupElementInfo> elementInfoSet = new HashSet<GroupElementInfo>();
 
-	public static class GroupElementInfo
+	public static class GroupElementInfo implements Serializable
 	{
 		public String elementUuid = null;
 		public int elementAccess = -1;
