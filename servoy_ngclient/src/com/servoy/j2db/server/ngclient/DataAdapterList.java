@@ -224,26 +224,33 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
 			isGlobalScopeListener = true;
 		}
+		else if (dataprovider == null)
+		{
+			formController.getFormScope().getModificationSubject().addModificationListener(this);
+			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
+		}
 	}
 
 	public void addDataLinkedProperty(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
 	{
 		if (targetDataLinks == TargetDataLinks.NOT_LINKED_TO_DATA || targetDataLinks == null) return;
 
-		if (targetDataLinks.dataProviderIDs != null)
+		String[] dataproviders = targetDataLinks.dataProviderIDs;
+		if (dataproviders == null)
 		{
-			for (String dpID : targetDataLinks.dataProviderIDs)
+			dataproviders = new String[] { null };
+		}
+		for (String dpID : dataproviders)
+		{
+			List<IDataLinkedPropertyValue> allLinksOfDP = dataProviderToLinkedComponentProperty.get(dpID);
+			if (allLinksOfDP == null)
 			{
-				List<IDataLinkedPropertyValue> allLinksOfDP = dataProviderToLinkedComponentProperty.get(dpID);
-				if (allLinksOfDP == null)
-				{
-					allLinksOfDP = new ArrayList<>();
-					dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
-				}
-				if (!allLinksOfDP.contains(propertyValue)) allLinksOfDP.add(propertyValue);
-
-				if (formController != null) setupModificationListener(dpID); // see if we need to listen to global/form scope changes
+				allLinksOfDP = new ArrayList<>();
+				dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
 			}
+			if (!allLinksOfDP.contains(propertyValue)) allLinksOfDP.add(propertyValue);
+
+			if (formController != null) setupModificationListener(dpID); // see if we need to listen to global/form scope changes
 		}
 
 		allComponentPropertiesLinkedToData.add(propertyValue);
@@ -360,8 +367,24 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		else
 		{
-			// announce to all - we don't know exactly what changed; maybe all DPs changed
 			List<IDataLinkedPropertyValue> interestedComponentProperties = dataProviderToLinkedComponentProperty.get(dataProvider);
+			if (interestedComponentProperties == null)
+			{
+				interestedComponentProperties = dataProviderToLinkedComponentProperty.get(null);
+			}
+			else
+			{
+				List<IDataLinkedPropertyValue> listenToAllComponentProperties = dataProviderToLinkedComponentProperty.get(null);
+				if (listenToAllComponentProperties != null && listenToAllComponentProperties.size() > 0)
+				{
+					interestedComponentProperties = new ArrayList<IDataLinkedPropertyValue>(interestedComponentProperties);
+					for (IDataLinkedPropertyValue dataLink : listenToAllComponentProperties)
+					{
+						if (!interestedComponentProperties.contains(dataLink)) interestedComponentProperties.add(dataLink);
+					}
+				}
+			}
+
 			if (interestedComponentProperties != null)
 			{
 				for (IDataLinkedPropertyValue x : interestedComponentProperties)

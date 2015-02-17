@@ -179,7 +179,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			filteredValuelist.removeListDataListener(this);
 			valueList.addListDataListener(this);
 			filteredValuelist = null;
-
+			if (changeMonitor != null) changeMonitor.valueChanged();
 		}
 	}
 

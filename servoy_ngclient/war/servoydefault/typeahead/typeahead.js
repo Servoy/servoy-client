@@ -16,7 +16,7 @@ angular.module('servoydefaultTypeahead',['servoy'])
          $scope.formatLabel = function (model){
         	 var displayFormat = undefined;
     		  var type = undefined;
-    		  var displayValue = null;
+    		  var displayValue = model;
     		  if ($scope.model.valuelistID)
     		  {
 	     		  for (var i=0; i< $scope.model.valuelistID.length; i++) {
