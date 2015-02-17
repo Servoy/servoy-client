@@ -1,4 +1,4 @@
- <ui-select ng-model="model.dataProviderID" theme="bootstrap" search-enabled="false"
+ <ui-select ng-model="model.dataProviderID" theme="bootstrap"
  		id="{{::model.svyMarkupId}}" 
  		ng-disabled="model.enabled == false"
  		svy-border='model.borderType'
@@ -16,7 +16,7 @@
  				svy-tabseq='model.tabSeq'
  				ng-style="style"
  				svy-margin='model.margin'>{{$select.selected.displayValue}}</ui-select-match>
-            <ui-select-choices repeat="item.realValue as item in model.valuelistID">
+            <ui-select-choices repeat="item.realValue as item in model.valuelistID | filter: $select.search">
               <div ng-bind-html="item.displayValue | htmlFilter"></div>
             </ui-select-choices>
      </ui-select>
