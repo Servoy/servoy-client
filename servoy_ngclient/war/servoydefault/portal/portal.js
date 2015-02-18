@@ -534,12 +534,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 
 			var updatingGridSelection = false;
-			var updatingFoundsetSelectionFromGrid = false;
 			
 			// bind foundset.selectedRowIndexes to what nggrid has to offer
 			function updateFoundsetSelectionFromGrid(newNGGridSelectedItems) {
 				if (updatingGridSelection) return;
-				updatingFoundsetSelectionFromGrid = true;
 				if (newNGGridSelectedItems.length == 0 && $scope.model.relatedFoundset.serverSize > 0) return; // we shouldn't try to set no selection if there are records; it will be an invalid request as server doesn't allow that
 				// update foundset object selection when it changes in ngGrid
 				var tmpSelectedRowIdxs = {};
@@ -556,8 +554,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if (!$scope.foundset.multiSelect || isInViewPort(idx)) $scope.foundset.selectedRowIndexes.splice(idx, 1);
 					}
 				}
-				$scope.$digest();
-				updatingFoundsetSelectionFromGrid = false;
+				updateGridSelectionFromFoundset(false);
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			}
 			var updateGridSelectionFromFoundset = function(scrollToSelection) {
@@ -604,7 +601,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				});
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			};
-			$scope.$watchCollection('foundset.selectedRowIndexes', function() { updateGridSelectionFromFoundset(!updatingFoundsetSelectionFromGrid) });
+			$scope.$watchCollection('foundset.selectedRowIndexes', function() { updateGridSelectionFromFoundset(true) });
 			
 			$scope.gridOptions = {
 					data: 'foundset.viewPort.rows',
