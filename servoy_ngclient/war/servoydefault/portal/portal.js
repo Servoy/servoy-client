@@ -162,7 +162,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							enableColumnResizing: isResizable,
 							enableColumnMenu: isSortable,
 							enableSorting:isSortable,
-							enableHiding: false
+							enableHiding: false,
+							allowCellFocus: false
 						});					
 						updateColumnDefinition($scope, idx);
 					}
@@ -176,6 +177,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					cellTemplate: rowTemplate,
 					name: "unique",
 					cellEditableCondition: false,
+					allowCellFocus: false
 				});
 			}
 
@@ -580,7 +582,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									$scope.gridApi.selection.selectRow(rows[rowIdx]);
 									if(!scrolledToSelection) {
 										scrolledToSelection = true;
-										$scope.gridApi.cellNav.scrollTo(rows[rowIdx]);
+										$timeout(function() { $scope.gridApi.cellNav.scrollTo(rows[rowIdx]); }, 0);
 									}
 								} else if(!scrolledToSelection) {
 									var nrRecordsToLoad = 0;
