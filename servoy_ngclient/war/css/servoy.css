@@ -175,3 +175,9 @@ div.svy-label-with-focus:focus{
 .ui-select-bootstrap > .ui-select-match {
 	padding:0px
 }
+.ui-select-search
+{
+	width:100%;
+	height:100%;
+	padding: 1px 5px;
+}

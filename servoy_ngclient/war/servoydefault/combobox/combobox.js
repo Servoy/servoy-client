@@ -74,8 +74,13 @@ angular.module('servoydefaultCombobox',['servoy','ui.select'])
          		scope.svyServoyapi.apply('dataProviderID');
      		},0);
      	}
-     	
       },
       templateUrl: 'servoydefault/combobox/combobox.html'
     };
-}]);
+}])
+.filter('emptyOrNull', function(){
+	  return function(item) {
+		  if (item === null || item === '') return '&nbsp;';
+   		  return item;
+	 };
+})
