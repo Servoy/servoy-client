@@ -53,7 +53,10 @@ public class StartupArguments extends HashMap<String, Object>
 	public StartupArguments(Map<String, ? > arguments)
 	{
 		super();
-		putAll(arguments);
+		for (Map.Entry<String, ? > entry : arguments.entrySet())
+		{
+			put(entry.getKey(), entry.getValue());
+		}
 	}
 
 	/**
