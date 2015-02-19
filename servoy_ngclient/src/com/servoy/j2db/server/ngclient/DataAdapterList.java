@@ -214,20 +214,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void setupModificationListener(String dataprovider)
 	{
-		if (!isFormScopeListener && isFormDataprovider(dataprovider))
+		if (!isFormScopeListener && (isFormDataprovider(dataprovider) || dataprovider == null))
 		{
 			formController.getFormScope().getModificationSubject().addModificationListener(this);
 			isFormScopeListener = true;
 		}
-		else if (!isGlobalScopeListener && isGlobalDataprovider(dataprovider))
+		if (!isGlobalScopeListener && (isGlobalDataprovider(dataprovider) || dataprovider == null))
 		{
 			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
 			isGlobalScopeListener = true;
-		}
-		else if (dataprovider == null)
-		{
-			formController.getFormScope().getModificationSubject().addModificationListener(this);
-			formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
 		}
 	}
 
