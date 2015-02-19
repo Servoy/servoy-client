@@ -95,7 +95,7 @@ import com.servoy.j2db.util.gui.SnapShot;
 
 /**
  * Application object from the SOM to handle all JS application calls
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Application", scriptingName = "application")
@@ -171,7 +171,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the names of the used client licenses (as strings in array).
 	 *
 	 * @sample var array = application.getLicenseNames();
-	 * 
+	 *
 	 * @return Client licenses names
 	 */
 	public String[] js_getLicenseNames() throws ServoyException
@@ -190,7 +190,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Get the active user count on the server (can be limited to current solution).
-	 * 
+	 *
 	 * @deprecated As of release 2.x, replaced by {@link #getActiveClientCount(boolean)}.
 	 */
 	@Deprecated
@@ -205,7 +205,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample var count = application.getActiveClientCount(true);
 	 *
 	 * @param currentSolutionOnly Boolean (true) to get the active user count on server only to the current solution
-	 * 
+	 *
 	 * @return Active user count on the server
 	 */
 	public int js_getActiveClientCount(boolean currentSolutionOnly) throws ServoyException
@@ -238,9 +238,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the parameters which are provided by startup.
 	 * It returns an array with 2 elements, a string that is the startup argument and a map containing all named startup arguments, or
 	 * null if there is no argument passed
-	 * 
-	 * @deprecated As of release 6.0, method was deprecated because startup arguments are received as arguments to solution onOpen event. 
-	 * 
+	 *
+	 * @deprecated As of release 6.0, method was deprecated because startup arguments are received as arguments to solution onOpen event.
+	 *
 	 * @sample
 	 * var args_array = application.getStartupArguments();
 	 * // the first element in the array is the 'argument' value from the startup
@@ -249,7 +249,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var startupArgumentObj = args_array[1];
 	 * var arg1 = startupArgumentObj['arg1_name'];
 	 * var arg2 = startupArgumentObj['arg2_name'];
-	 * 
+	 *
 	 * @return Array with 2 elements, a string that is the startup argument and a map containing all named startup arguments,
 	 * or null if there is no argument passed
 	 */
@@ -284,20 +284,20 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Adds a string of client information which gets stored on the server, 
+	 * Adds a string of client information which gets stored on the server,
 	 * and can be viewed on the Clients page of Servoy Server Administration Console.
-	 * 
-	 * The new piece of client information is added on behalf of the running 
+	 *
+	 * The new piece of client information is added on behalf of the running
 	 * Servoy client.
-	 * 
+	 *
 	 * This function can be called more than once, if you want to add multiple
 	 * lines of client information.
 	 *
-	 * NOTE: 
+	 * NOTE:
 	 * This function can also be used with the function <em>getClientCountForInfo</em>
-	 * to count the number of clients with matching addditional client information. 
+	 * to count the number of clients with matching addditional client information.
 	 *
-	 * @sample 
+	 * @sample
 	 * application.addClientInfo('SaaS company name');
 	 * application.addClientInfo('For any issues call +31-SA-AS');
 	 *
@@ -315,11 +315,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Removes a string of client information which is stored on the server and
 	 * previously was added using the application.addClientInfo('client info')
-	 * 
+	 *
 	 * This function can be called more than once, if you want to delete multiple
 	 * lines of client information.
 	 *
-	 * @sample 
+	 * @sample
 	 * var removed = application.removeClientInfo('SaaS company name');
 	 *
 	 * @param info A line of text to be removed from the client information
@@ -349,15 +349,15 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Gets the count for all clients displaying the same additional information 
+	 * Gets the count for all clients displaying the same additional information
 	 * in the Clients page of Servoy Server Administration Console.
 	 *
 	 * @sample
 	 * var count = application.getClientCountForInfo('SaaS company name');
 	 * application.output('Including yourself, there are ' + count + ' client(s) running on behalf of the company.');
 	 *
-	 * @param info The additional client info string to search for. 
-	 * 
+	 * @param info The additional client info string to search for.
+	 *
 	 * @return Number of clients
 	 */
 	public int js_getClientCountForInfo(String info) throws ServoyException
@@ -414,7 +414,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns true if the solution is running in the developer.
 	 *
 	 * @sample var flag = application.isInDeveloper();
-	 * 
+	 *
 	 * @return Boolean (true) if the solution is running in the developer, (false) otherwise
 	 */
 	@JSFunction
@@ -427,7 +427,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns the name of the current solution.
 	 *
 	 * @sample var solutionName = application.getSolutionName();
-	 * 
+	 *
 	 * @return Current solution name
 	 */
 	public String js_getSolutionName()
@@ -439,7 +439,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the solution release number.
 	 *
 	 * @sample var release = application.getSolutionRelease();
-	 * 
+	 *
 	 * @return Current solution release number
 	 */
 	public int js_getSolutionRelease()
@@ -458,7 +458,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * {
 	 * 	application.output(allPropertyNames[i] + " = " + application.getUserProperty(allPropertyNames[i]));
 	 * }
-	 * 
+	 *
 	 * @return Array of all user property names
 	 */
 	public String[] js_getUserPropertyNames()
@@ -472,7 +472,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample var value = application.getUserProperty('showOrders');
 	 *
 	 * @param name Name of the property
-	 * 
+	 *
 	 * @return Property value
 	 */
 	@JSFunction
@@ -501,12 +501,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name Name of the UI property
 	 * @param value New value of the UI property
-	 * 
+	 *
 	 * @return Boolean (true) if the UI property was set with the new value
-	 * 
+	 *
 	 * @deprecated use putClientProperty(Object,Object)
 	 */
 	@Deprecated
@@ -523,15 +523,15 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * //In smart client, use this to set javax.swing.UIDefaults properties.
 	 * application.putClientProperty('ToolTip.hideAccelerator', true)
 	 * //To change the comboboxes selection background color, do this:
-	 * application.putClientProperty('ComboBox.selectionBackground', new Packages.javax.swing.plaf.ColorUIResource(java.awt.Color.RED)) 
-	 * 
+	 * application.putClientProperty('ComboBox.selectionBackground', new Packages.javax.swing.plaf.ColorUIResource(java.awt.Color.RED))
+	 *
 	 * //In web client, use this to change the template directory.
 	 * //To change the default dir of templates/default to templates/green_skin, do this:
 	 * application.putClientProperty('templates.dir','green_skin');
 	 *
 	 * @param name Name of the client property
 	 * @param value New value of the client property
-	 * 
+	 *
 	 * @return Boolean (true) if the client property was set with the new value
 	 */
 	public boolean js_putClientProperty(Object name, Object value)
@@ -542,11 +542,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_putClientProperty(Object,Object)
-	 * 
+	 *
 	 * @sampleas js_putClientProperty(Object,Object)
-	 * 
+	 *
 	 * @param name Name of the client property
-	 * 
+	 *
 	 * @return the property value for the given name/key, null of nothing was found
 	 */
 	public Object js_getClientProperty(Object name)
@@ -558,7 +558,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Gets the name of the current Look And Feel specified in Application Preferences.
 	 *
 	 * @sample var laf = application.getCurrentLookAndFeelName();
-	 * 
+	 *
 	 * @return Current Look And Feel
 	 */
 	public String js_getCurrentLookAndFeelName()
@@ -590,9 +590,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Fill a custom type valuelist with values from array(s) or dataset.
-	 * 
+	 *
 	 * NOTE: if you modify values for checkbox/radio field, note that having one value in valuelist is a special case, so switching between one value and 0/multiple values after form is created may have side effects
-	 * 
+	 *
 	 * @sample
 	 * //set display values (return values will be same as display values)
 	 * application.setValueListItems('my_en_types',new Array('Item 1', 'Item 2', 'Item 3'));
@@ -603,11 +603,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * //do query and fill valuelist (see databaseManager for full details of queries/dataset)
 	 * //var query = 'select display_value,optional_real_value from test_table';
 	 * //var dataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), query, null, 25);
-	 * 
+	 *
 	 * //application.setValueListItems('my_en_types',dataset);
 	 *
 	 * @param name Name of the valuelist
-	 * @param displayValues Display values array 
+	 * @param displayValues Display values array
 	 */
 	@JSFunction
 	public void setValueListItems(String name, Object[] displayValues)
@@ -617,9 +617,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @sampleas setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @param name Name of the valuelist
 	 * @param displayValues Display values array
 	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
@@ -631,9 +631,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @sampleas setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @param name Name of the valuelist
 	 * @param displayValues Display values array
 	 * @param realValues Real values array
@@ -646,9 +646,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @sampleas setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @param name Name of the valuelist
 	 * @param dataset Dataset with display/real values
 	 */
@@ -659,9 +659,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @sampleas setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @param name Name of the valuelist
 	 * @param dataset Dataset with display/real values
 	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
@@ -689,9 +689,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @sampleas setValueListItems(String,Object[])
-	 * 
+	 *
 	 * @param name
 	 * @param displayValues Display values array
 	 * @param realValues Real values array
@@ -708,7 +708,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample var array = application.getValueListNames();
 	 *
-	 * @return Array with all valuelist names 
+	 * @return Array with all valuelist names
 	 */
 	public String[] js_getValueListNames()
 	{
@@ -746,7 +746,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * //employee_salary = dataset.getValue(1,1)
 	 *
 	 * @param name Name of the valuelist
-	 * 
+	 *
 	 * @return DataSet with valuelist's display values and real values
 	 */
 	public JSDataSet js_getValueListItems(String name)
@@ -795,7 +795,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param name Name of the valuelist
 	 *
 	 * @param realValue Real value of the valuelist
-	 * 
+	 *
 	 * @return Display value of the real value from the valuelist
 	 */
 	public Object js_getValueListDisplayValue(String name, Object realValue)
@@ -846,7 +846,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * }
 	 *
 	 * @param name The name of the valuelist
-	 * 
+	 *
 	 * @return Named array for the valuelist
 	 */
 	public NativeArray js_getValueListArray(String name)
@@ -901,14 +901,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		return null;
 	}
 
-	// Return -1L if str is not an index or the index value as lower 32 
+	// Return -1L if str is not an index or the index value as lower 32
 	// bits of the result
 	// Logic copied from ScriptRuntime
 	private static long indexFromString(String str)
 	{
 		// It must be a string.
 
-		// The length of the decimal string representation of 
+		// The length of the decimal string representation of
 		//  Integer.MAX_VALUE, 2147483647
 		final int MAX_VALUE_LENGTH = 10;
 
@@ -967,7 +967,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.setToolbarVisible('text',false);
 	 *
 	 * @param name Name of the toolbar
-	 * @param visible Visibility of the toolbar 
+	 * @param visible Visibility of the toolbar
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 	public void js_setToolbarVisible(String name, boolean visible)
@@ -982,7 +982,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the screen width in pixels.
 	 *
 	 * @sample var width = application.getScreenWidth();
-	 * 
+	 *
 	 * @return Screen width
 	 */
 	public int js_getScreenWidth()
@@ -994,7 +994,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the screen height in pixels.
 	 *
 	 * @sample var height = application.getScreenHeight();
-	 * 
+	 *
 	 * @return Screen height
 	 */
 	public int js_getScreenHeight()
@@ -1027,11 +1027,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the window X location in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample var x = application.getWindowX('customerDialog');
 	 *
-	 * @param windowName optional Window name 
-	 * 
+	 * @param windowName optional Window name
+	 *
 	 * @return Window X location
 	 */
 	@Deprecated
@@ -1053,11 +1053,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the window Y location in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample var y = application.getWindowY('customerDialog');
 	 *
 	 * @param windowName optional Name of the window
-	 * 
+	 *
 	 * @return Window Y location
 	 */
 	@Deprecated
@@ -1079,11 +1079,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the window width in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample var width = application.getWindowWidth('customerDialog');
 	 *
 	 * @param windowName optional Name of the window
-	 * 
+	 *
 	 * @return Window width
 	 */
 	@Deprecated
@@ -1104,11 +1104,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the window height in pixels. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample var height = application.getWindowHeight('customerDialog');
 	 *
 	 * @param windowName optional Name of the window
-	 * 
+	 *
 	 * @return Window height
 	 */
 	@Deprecated
@@ -1129,7 +1129,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Set the window size. If windowName is not specified or null, it will resize either the default dialog (if it is shown) or the main application window.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample application.setWindowSize(400,400,'customerDialog');
 	 *
 	 * @param width Window new width
@@ -1176,7 +1176,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Set the window location. If windowName is not specified or null, it will use either the default dialog (if it is shown) or the main application window.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample application.setWindowLocation(10,10,'customerDialog');
 	 *
 	 * @param x Window new X location
@@ -1221,13 +1221,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Set the status area value.
-	 * 
+	 *
 	 * NOTE: Most modern browsers do not support status bar and status text anymore. This method sets status property of the window using javascript.
-	 * 
+	 *
 	 * @sample application.setStatusText('Your status text','Your status tooltip text');
 	 *
 	 * @param text New status text
-	 * @param tooltip Status tooltip text 
+	 * @param tooltip Status tooltip text
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
 	public void js_setStatusText(String text, String tooltip)
@@ -1252,7 +1252,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get all the printer names in an array.
 	 *
 	 * @sample var printersArray = application.getPrinters();
-	 * 
+	 *
 	 * @return All printer names
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -1272,12 +1272,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Gets the HTTP server url.
-	 * 
+	 *
 	 * @description-mc
 	 * Gets the application server URL for mobile client to connect to.
 	 *
 	 * @sample var url = application.getServerURL();
-	 * 
+	 *
 	 * @return HTTP server URL
 	 */
 	@JSFunction
@@ -1286,7 +1286,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		String url = application.getServerURL().toString();
 		// if it does has a / in it (after http(s)://) and it doesn't end with /
 		// add a / because this means that we are in a context then the urls should
-		// be http://hostname:port/context/ 
+		// be http://hostname:port/context/
 		if (url.indexOf('/', 8) != -1 && !url.endsWith("/")) //$NON-NLS-1$
 		{
 			url += '/';
@@ -1301,7 +1301,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * var type = application.getApplicationType();
 	 * //see application type contstant
-	 * 
+	 *
 	 * @return Constant application type
 	 */
 	@JSFunction
@@ -1313,7 +1313,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Closes the currently open solution and optionally opens another solution, calling a specified global method with the specified arguments.
 	 * If the user has been logged in, this function keeps the user logged in and in the newly open solution, the login is skipped and the solution goes straight to the first form.
-	 * If you want to go to a different url, you need to call application.showURL(url) before calling application.closeSolution() (this is only applicable for Web Client). 
+	 * If you want to go to a different url, you need to call application.showURL(url) before calling application.closeSolution() (this is only applicable for Web Client).
 	 * An alternative option is security.logout() which also does a log out for the user (for solutions that require authentication).
 	 *
 	 * @sample
@@ -1324,7 +1324,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * //application.closeSolution('solution_name','global_method_name','my_argument');
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
-	 * 
+	 *
 	 */
 	public void js_closeSolution()
 	{
@@ -1333,10 +1333,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_closeSolution()
-	 * 
+	 *
 	 * @sampleas js_closeSolution()
-	 * 
-	 * @param solutionToLoad Name of the solution to load 
+	 *
+	 * @param solutionToLoad Name of the solution to load
 	 */
 	public void js_closeSolution(String solutionToLoad)
 	{
@@ -1345,10 +1345,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_closeSolution()
-	 * 
+	 *
 	 * @sampleas js_closeSolution()
-	 * 
-	 * @param solutionToLoad Name of the solution to load 
+	 *
+	 * @param solutionToLoad Name of the solution to load
 	 * @param methodName Name of the global method to call
 	 */
 	public void js_closeSolution(String solutionToLoad, String methodName)
@@ -1358,10 +1358,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_closeSolution()
-	 * 
+	 *
 	 * @sampleas js_closeSolution()
-	 *  
-	 * @param solutionToLoad Name of the solution to load 
+	 *
+	 * @param solutionToLoad Name of the solution to load
 	 * @param methodName Name of the global method to call
 	 * @param methodArgument Argument passed to the global method
 	 */
@@ -1414,7 +1414,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample
 	 * // exit application
-	 * application.exit(); 
+	 * application.exit();
 	 */
 	public void js_exit()
 	{
@@ -1445,23 +1445,23 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * // Runs a binary located in the user's home directory. The application will run in the current working
 	 * // directory, which in general is the one where Servoy was started from.
 	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3");
-	 * // The same as above, but run the application in the user's home directory. 
-	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3", "#", "#", "c:\\Users\\myself\\");	
+	 * // The same as above, but run the application in the user's home directory.
+	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3", "#", "#", "c:\\Users\\myself\\");
 	 * // The same as above, but also set an environment variable for the called program.
 	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "c:\\Users\\myself\\");
 	 * // For non-Windows systems:
 	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3");
-	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "#", "/home/myself/");	
-	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "/home/myself/myapp");	
+	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "#", "/home/myself/");
+	 * application.executeProgramInBackground("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "/home/myself/myapp");
 	 * // Open a file with the default application associated with it. (on Windows)
-	 * application.executeProgramInBackground("rundll32.exe", "url.dll,FileProtocolHandler", "filename");	
+	 * application.executeProgramInBackground("rundll32.exe", "url.dll,FileProtocolHandler", "filename");
 	 * // Open a file with the default application associated with it. (on Linux)
 	 * application.executeProgramInBackground("xdg-open", "filename");
 	 * // Open a file with the default application associated with it. (on MacOS)
 	 * application.executeProgramInBackground("open", "filename");
 	 * // Open a file with a specific application (on MacOS).
-	 * application.executeProgramInBackground("open", "-a", "OpenOffice.org.app", "filename.doc"); 
-	 * 
+	 * application.executeProgramInBackground("open", "-a", "OpenOffice.org.app", "filename.doc");
+	 *
 	 * @param programName Name (fullpath) of the program to execute
 	 * @param arg1 optional Argument
 	 * @param arg2 optional Argument
@@ -1470,7 +1470,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param environmentvar1 optional Environment variable
 	 * @param environmentvarN optional Environment variable
 	 * @param # optional Divider between program environment vars and startdir
-	 * @param startdirectory optional Program start directory 
+	 * @param startdirectory optional Program start directory
 	 */
 	@Deprecated
 	public void js_executeProgramInBackground(final String... vargs)
@@ -1503,16 +1503,16 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * // Runs a binary located in the user's home directory. The application will run in the current working
 	 * // directory, which in general is the one where Servoy was started from.
 	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3");
-	 * // The same as above, but run the application in the user's home directory. 
-	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3", "#", "#", "c:\\Users\\myself\\");	
+	 * // The same as above, but run the application in the user's home directory.
+	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3", "#", "#", "c:\\Users\\myself\\");
 	 * // The same as above, but also set an environment variable for the called program.
 	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "c:\\Users\\myself\\");
 	 * // For non-Windows systems:
 	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3");
-	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "#", "/home/myself/");	
+	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "#", "/home/myself/");
 	 * application.executeProgram("/home/myself/myapp", "arg1", "arg2", "arg3", "#", "MY_ENV_VAR=something", "#", "/home/myself/myapp");
 	 * // Open a file with the default application associated with it. (on Windows)
-	 * application.executeProgram("rundll32.exe", "url.dll,FileProtocolHandler", "filename");	
+	 * application.executeProgram("rundll32.exe", "url.dll,FileProtocolHandler", "filename");
 	 * // Open a file with the default application associated with it. (on Linux)
 	 * application.executeProgram("xdg-open", "filename");
 	 * // Open a file with the default application associated with it. (on MacOS)
@@ -1529,7 +1529,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param environmentvarN optional Environment variable
 	 * @param # optional Divider between program environment vars and startdir
 	 * @param startdirectory optional Program start directory
-	 * 
+	 *
 	 * @return The output generated by the program execution.
 	 */
 	@Deprecated
@@ -1581,37 +1581,37 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		{
 			setLastErrorCode(ServoyException.EXECUTE_PROGRAM_FAILED);
 			throw new ApplicationException(ServoyException.EXECUTE_PROGRAM_FAILED, e);
-//			application.reportError(application.getI18NMessage("servoy.error.executing.program") + vargs[0], e); 
+//			application.reportError(application.getI18NMessage("servoy.error.executing.program") + vargs[0], e);
 		}
 		return output.toString();
 	}
 
 	/**
 	 * Execute a program and returns output. Specify the cmd as you would do in a console.
-	 * 
+	 *
 	 * @sample
 	 * // For Windows systems:
 	 * // Runs a binary located in the user's home directory. The application will run in the current working
 	 * // directory, which in general is the one where Servoy was started from.
 	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"]);
-	 * // The same as above, but run the application in the user's home directory. 
-	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], null, "c:\\Users\\myself\\");	
+	 * // The same as above, but run the application in the user's home directory.
+	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], null, "c:\\Users\\myself\\");
 	 * // The same as above, but also set an environment variable for the called program.
 	 * application.executeProgram("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "c:\\Users\\myself\\");
 	 * // For non-Windows systems:
 	 * application.executeProgram("/home/myself/myapp", ["arg1", "arg2", "arg3"]);
-	 * application.executeProgram("/home/myself/myapp", ["arg1", "arg2", "arg3"], null, "/home/myself/");	
+	 * application.executeProgram("/home/myself/myapp", ["arg1", "arg2", "arg3"], null, "/home/myself/");
 	 * application.executeProgram("/home/myself/myapp", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "/home/myself/");
 	 * // Open a file with the default application associated with it. (on Windows)
-	 * application.executeProgram("rundll32.exe", ["url.dll,FileProtocolHandler", "filename"]);	
+	 * application.executeProgram("rundll32.exe", ["url.dll,FileProtocolHandler", "filename"]);
 	 * // Open a file with the default application associated with it. (on Linux)
 	 * application.executeProgram("xdg-open", ["filename"]);
 	 * // Open a file with the default application associated with it. (on MacOS)
 	 * application.executeProgram("open", ["filename"]);
 	 * // Open a file with a specific application (on MacOS).
 	 * application.executeProgram("open", ["-a", "OpenOffice.org.app", "filename.doc"]);
-	 * 
-	 * 
+	 *
+	 *
 	 * @param program (fullpath) of the program to execute
 	 * @param params an array of strings as program arguments
 	 * @param environmentVars array of strings, each element of which has environment variable settings in the format name=value, or null if the subprocess should inherit the environment of the current process.
@@ -1625,7 +1625,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		StringBuilder output = new StringBuilder();
 		try
 		{
-			//startDir can be null or any string 
+			//startDir can be null or any string
 			File _startDir = (startDir == null ? null : new File(startDir));
 			String[] commandWithParams = Utils.arrayJoin(new String[] { program }, params);
 
@@ -1653,9 +1653,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_executeProgram(String,String[],String[],String)
-	 * 
+	 *
 	 * @sampleas js_executeProgram(String,String[],String[],String)
-	 * 
+	 *
 	 * @param program (fullpath) of the program to execute
 	 * @param params an array of strings as program arguments
 	 * @param environmentVars array of strings, each element of which has environment variable settings in the format name=value, or null if the subprocess should inherit the environment of the current process.
@@ -1669,9 +1669,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_executeProgram(String,String[],String[],String)
-	 * 
+	 *
 	 * @sampleas js_executeProgram(String,String[],String[],String)
-	 * 
+	 *
 	 * @param program (fullpath) of the program to execute
 	 * @param params an array of strings as program arguments
 	 * @return The output generated by the program execution.
@@ -1684,9 +1684,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_executeProgram(String,String[],String[],String)
-	 * 
+	 *
 	 * @sampleas js_executeProgram(String,String[],String[],String)
-	 * 
+	 *
 	 * @param program (fullpath) of the program to execute
 	 * @return The output generated by the program execution.
 	 * @throws ApplicationException
@@ -1698,30 +1698,30 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Execute a program in the background. Specify the cmd as you would do in a console.
-	 * 
+	 *
 	 * @sample
 	 * // For Windows systems:
 	 * // Runs a binary located in the user's home directory. The application will run in the current working
 	 * // directory, which in general is the one where Servoy was started from.
 	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"]);
-	 * // The same as above, but run the application in the user's home directory. 
-	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], null, "c:\\Users\\myself\\");	
+	 * // The same as above, but run the application in the user's home directory.
+	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], null, "c:\\Users\\myself\\");
 	 * // The same as above, but also set an environment variable for the called program.
 	 * application.executeProgramInBackground("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "c:\\Users\\myself\\");
 	 * // For non-Windows systems:
 	 * application.executeProgramInBackground("/home/myself/myapp", ["arg1", "arg2", "arg3"]);
-	 * application.executeProgramInBackground("/home/myself/myapp", ["arg1", "arg2", "arg3"], null, "/home/myself/");	
+	 * application.executeProgramInBackground("/home/myself/myapp", ["arg1", "arg2", "arg3"], null, "/home/myself/");
 	 * application.executeProgramInBackground("/home/myself/myapp", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "/home/myself/");
 	 * // Open a file with the default application associated with it. (on Windows)
-	 * application.executeProgramInBackground("rundll32.exe", ["url.dll,FileProtocolHandler", "filename"]);	
+	 * application.executeProgramInBackground("rundll32.exe", ["url.dll,FileProtocolHandler", "filename"]);
 	 * // Open a file with the default application associated with it. (on Linux)
 	 * application.executeProgramInBackground("xdg-open", ["filename"]);
 	 * // Open a file with the default application associated with it. (on MacOS)
 	 * application.executeProgramInBackground("open", ["filename"]);
 	 * // Open a file with a specific application (on MacOS).
 	 * application.executeProgram("open", ["-a", "OpenOffice.org.app", "filename.doc"]);
-	 * 
-	 * 
+	 *
+	 *
 	 * @param program (fullpath) of the program to execute
 	 * @param params an array of strings as program arguments
 	 * @param environmentVars array of strings, each element of which has environment variable settings in the format name=value, or null if the subprocess should inherit the environment of the current process.
@@ -1748,9 +1748,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_executeProgramInBackground(String,String[],String[],String)
-	 * 
+	 *
 	 * @sampleas js_executeProgramInBackground(String,String[],String[],String)
-	 * 
+	 *
 	 * @param program (fullpath) of the program to execute
 	 * @param params an array of strings as program arguments
 	 * @param environmentVars array of strings, each element of which has environment variable settings in the format name=value, or null if the subprocess should inherit the environment of the current process.
@@ -1763,9 +1763,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_executeProgramInBackground(String,String[],String[],String)
-	 * 
+	 *
 	 * @sampleas js_executeProgramInBackground(String,String[],String[],String)
-	 * 
+	 *
 	 * @param program (fullpath) of the program to execute
 	 * @param params an array of strings as program arguments
 	 * @throws ApplicationException
@@ -1777,9 +1777,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_executeProgramInBackground(String,String[],String[],String)
-	 * 
+	 *
 	 * @sampleas js_executeProgramInBackground(String,String[],String[],String)
-	 * 
+	 *
 	 * @param program (fullpath) of the program to execute
 	 *
 	 * @throws ApplicationException
@@ -1837,14 +1837,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample
 	 * application.showURL('http://www.example.com');
-	 * 
+	 *
 	 * //webclient specific additional parameters...
 	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window
 	 * //3rd parameter: dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 * //3rd or 4th parameter: a timeout in seconds when the url should be shown, immediately/0 is default'
 	 *
-	 * @param url URL to show 
-	 * 
+	 * @param url URL to show
+	 *
 	 * @return Boolean (true) if URL was shown
 	 */
 	public boolean js_showURL(String url)
@@ -1854,12 +1854,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showURL(String)
-	 * 
+	 *
 	 * @sampleas js_showURL(String)
 	 *
-	 * @param url URL to show 
+	 * @param url URL to show
 	 * @param webclientTarget Target frame or named dialog/window
-	 * 
+	 *
 	 * @return Boolean (true) if URL was shown
 	 */
 	public boolean js_showURL(String url, String webclientTarget)
@@ -1869,13 +1869,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showURL(String)
-	 * 
+	 *
 	 * @sampleas js_showURL(String)
 	 *
-	 * @param url URL to show 
+	 * @param url URL to show
 	 * @param webclientTarget Target frame or named dialog/window
 	 * @param webclientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
-	 * 
+	 *
 	 * @return Boolean (true) if URL was shown
 	 */
 	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions)
@@ -1885,13 +1885,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showURL(String)
-	 * 
+	 *
 	 * @sampleas js_showURL(String)
 	 *
-	 * @param url URL to show 
+	 * @param url URL to show
 	 * @param webclientTarget Target frame or named dialog/window
 	 * @param timeout A timeout in seconds when the url should be shown
-	 * 
+	 *
 	 * @return Boolean (true) if URL was shown
 	 */
 	public boolean js_showURL(String url, String webclientTarget, Number timeout)
@@ -1901,14 +1901,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showURL(String)
-	 * 
+	 *
 	 * @sampleas js_showURL(String)
 	 *
-	 * @param url URL to show 
+	 * @param url URL to show
 	 * @param webclientTarget Target frame or named dialog/window
 	 * @param webclientTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
 	 * @param timeout A timeout in seconds when the url should be shown
-	 * 
+	 *
 	 * @return Boolean (true) if URL was shown
 	 */
 	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions, Number timeout)
@@ -1950,7 +1950,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the name of the localhost.
 	 *
 	 * @sample var hostName = application.getHostName();
-	 * 
+	 *
 	 * @return Name of the localhost
 	 */
 	public String js_getHostName()
@@ -1963,7 +1963,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the clients' IP address.
 	 *
 	 * @sample var ip = application.getIPAddress();
-	 * 
+	 *
 	 * @return IP address of the client
 	 */
 	public String js_getIPAddress()
@@ -1992,7 +1992,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Gets a string from the clipboard, null if not a string or empty.
 	 *
 	 * @sample var fromClipboard = application.getClipboardString();
-	 * 
+	 *
 	 * @return The string from the clipboard
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2086,7 +2086,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Then this call will really return a time that is the locals webclients time.
 	 *
 	 * @sample var clienttime = application.getTimeStamp();
-	 * 
+	 *
 	 * @return Current time at the client
 	 */
 	public Date js_getTimeStamp()
@@ -2098,7 +2098,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns a date object initialized on server with current date and time.
 	 *
 	 * @sample var servertime = application.getServerTimeStamp();
-	 * 
+	 *
 	 * @return Server time
 	 */
 	public Date js_getServerTimeStamp() throws Exception
@@ -2110,7 +2110,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get a new UUID (also known as GUID)
 	 *
 	 * @sample var new_uuid = application.getNewUUID();
-	 * 
+	 *
 	 * @deprecated As of release 5.0, replaced by {@link #getUUID()}.
 	 */
 	@Deprecated
@@ -2144,7 +2144,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var uuid_object2 = application.getUUID(new_uuid_object.toBytes());  // convert a byte array representing an uuid to an uuid object
 	 *
 	 * @param uuidString String representing an uuid
-	 * 
+	 *
 	 * @return The new UUID object
 	 */
 	public UUID js_getUUID(String uuidString)
@@ -2162,7 +2162,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var uuid_object2 = application.getUUID(new_uuid_object.toBytes());  // convert a byte array representing an uuid to an uuid object
 	 *
 	 * @param byteArray Byte array representing an uuid
-	 * 
+	 *
 	 * @return The new UUID object
 	 */
 	public UUID js_getUUID(byte[] byteArray)
@@ -2175,7 +2175,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns the application version.
 	 *
 	 * @sample application.getVersion();
-	 * 
+	 *
 	 * @return Application version
 	 */
 	public String js_getVersion()
@@ -2185,18 +2185,18 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Show the form specified by the parameter, that can be a name (is case sensitive!) or a form object.
-	 * This will show the form in the active/currently focused window. So when called from a form in a dialog the dialog will show the form. 
+	 * This will show the form in the active/currently focused window. So when called from a form in a dialog the dialog will show the form.
 	 *
 	 * @sample application.showForm('MyForm');
-	 * 
+	 *
 	 * @param form Form object or name
 	 */
 	public void js_showForm(Object form)
 	{
 		String f = null;
-		if (form instanceof FormController)
+		if (form instanceof BasicFormController)
 		{
-			f = ((FormController)form).getName();
+			f = ((BasicFormController)form).getName();
 		}
 		else if (form instanceof FormScope)
 		{
@@ -2218,19 +2218,19 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Test if the form is currently showing in a window.
-	 * 
+	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample
 	 * if(application.isFormInWindow(forms.formname))
 	 * {
 	 * 	//close window
 	 * }
-	 * 
+	 *
 	 * @param form Form object or name
-	 * 
+	 *
 	 * @return Boolean (true) if the form is showing in a window, (false) otherwise
-	 * 
+	 *
 	 */
 	@Deprecated
 	public boolean js_isFormInWindow(Object form)
@@ -2239,9 +2239,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 		// can't test if the form is visible, in onhide the form controller is already made not visible.
 		// but it is still in a visible dialog.
-		if (fp != null /* && fp.isFormVisible() */)
+		if (fp != null/* && fp.isFormVisible() */)
 		{
-			return ((IFormUIInternal< ? >)fp.getFormUI()).isFormInWindow();
+			if (fp.getFormUI() instanceof IFormUIInternal) return ((IFormUIInternal< ? >)fp.getFormUI()).isFormInWindow();
+			else Debug.warn("Use of no-longer-supported deprecated method detected: application.isFormInWindow. Returning false."); //$NON-NLS-1$
 		}
 		return false;
 	}
@@ -2258,15 +2259,15 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	private IFormController getFormController(Object form)
 	{
 		IFormController fp = null;
-		if (form instanceof FormController)
+		if (form instanceof BasicFormController)
 		{
-			fp = (FormController)form;
+			fp = (BasicFormController)form;
 		}
 		else if (form instanceof FormScope)
 		{
 			fp = ((FormScope)form).getFormController();
 		}
-		else if (form instanceof BasicFormController.JSForm && ((BasicFormController.JSForm)form).getFormPanel() instanceof FormController)
+		else if (form instanceof BasicFormController.JSForm)
 		{
 			fp = ((BasicFormController.JSForm)form).getFormPanel();
 		}
@@ -2281,7 +2282,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Creates a new window that can be used for displaying forms. Initially the window is not visible.
 	 * If there is already a window with the given name, it will be closed and destroyed prior to creating the new window.
 	 * Use the form controller show() and showRecords() methods in order to show a form in this window.
-	 * 
+	 *
 	 * @sample
 	 * // create and show a window, with specified title, initial location and size
 	 * // type of the window can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW
@@ -2293,7 +2294,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * // create and show a non-modal dialog with default initial bounds/title
 	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
-	 * 
+	 *
 	 * @param windowName the name of the window. Should not be null.
 	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
 	 * @return the newly created window.
@@ -2307,7 +2308,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Creates a new window that can be used for displaying forms. Initially the window is not visible.
 	 * If there is already a window with the given name, it will be closed and destroyed prior to creating the new window.
 	 * Use the form controller show() and showRecords() methods in order to show a form in this window.
-	 * 
+	 *
 	 * @sample
 	 * // create and show a window, with specified title, initial location and size
 	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
@@ -2317,7 +2318,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * // create and show a non-modal dialog with default initial bounds/title
 	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
-	 * 
+	 *
 	 * @param windowName the name of the window. Should not be null.
 	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
 	 * @param parentWindow the parent JSWindow object. If it is not specified, the current window will be used as parent. This parameter is only used by dialogs.
@@ -2330,14 +2331,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Get a window by window name. When not supplying a name, the main application window is grabbed.
-	 * 
+	 *
 	 * @sample
 	 * // close and dispose window resources
 	 * var win = application.getWindow("someWindowName");
 	 * if (win != null) {
 	 * 	win.destroy();
 	 * }
-	 * 
+	 *
 	 * @param name the name of the window. If not specified, the main application JSWindow will be returned.
 	 * @return the JSWindow with the specified name, or null if no such window exists.
 	 */
@@ -2356,7 +2357,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Get the main application window. This is the window that is created first for this client. 
+	 * Get the main application window. This is the window that is created first for this client.
 	 *
 	 * In a smart client this is always just the first started window where the solution is loaded in.
 	 * In a webclient the user may open the same solution in a new tab in the same browser. In that case the main solution
@@ -2364,11 +2365,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.getActiveWindow() will always return the currently active/focused window or dialog.
 	 * If you need the window of the current top-level form, controller.getWindow() of that form will
 	 * always return the correct window.
-	 * 
+	 *
 	 * @sample
 	 * // close and dispose window resources
 	 * var mainAppWindow = application.getWindow();
-	 * 
+	 *
 	 * @return the main application JSWindow.
 	 */
 	public JSWindow js_getWindow()
@@ -2379,13 +2380,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * This gets the currently focused active window; this can be the main application window or a modal dialog.
 	 * For a webclient getWindow() can return the main window that is not really the main for the current tab in the browser
-	 * that can return the previous tab that a user could have opened. For this method is better suited because this 
+	 * that can return the previous tab that a user could have opened. For this method is better suited because this
 	 * will give you the actual tab in the browser. Another call would be form.controller.getWindow() of a form that you know in which window it resides.
-	 * 
+	 *
 	 * @sample
 	 * // get the currently active/focused window or dialog
 	 * var activeWindow = application.getActiveWindow();
-	 * 
+	 *
 	 * @return the current active/focussed window.
 	 */
 	public JSWindow js_getActiveWindow()
@@ -2398,13 +2399,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * NOTE:
 	 * In the Smart Client, no code is executed after the function showFormInDialog <em>if the dialog is modal</em>.
-	 * 
+	 *
 	 * NOTE:
 	 * x, y, width and height coordinates are only applied the first time the specified dialog is shown.
 	 * Use APP_UI_PROPERTY.DIALOG_FULL_SCREEN for these values when the dialog should be full-screen.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects)
-	 * 
+	 *
 	 * @sample
 	 * //Show the specified form in a modal dialog, on default initial location and size (x,y,w,h)
 	 * //application.showFormInDialog(forms.contacts);
@@ -2480,17 +2481,17 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			dialogName = replaceFailingCharacters(dialogName);
 
 			String f = null;
-			if (form instanceof FormController)
+			if (form instanceof BasicFormController)
 			{
-				f = ((FormController)form).getName();
+				f = ((BasicFormController)form).getName();
 			}
 			else if (form instanceof FormScope)
 			{
 				f = ((FormScope)form).getFormController().getName();
 			}
-			else if (form instanceof FormController.JSForm)
+			else if (form instanceof BasicFormController.JSForm)
 			{
-				f = ((FormController.JSForm)form).getFormPanel().getName();
+				f = ((BasicFormController.JSForm)form).getFormPanel().getName();
 			}
 			else if (form instanceof String)
 			{
@@ -2518,14 +2519,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * NOTE:
 	 * Forms in windows cannot be modal. They are more independent then dialogs, even non-modal ones. For example in SC, a non-modal dialog will always
-	 * be shown on top of the parent window and it will not have a separate entry in the OS window manager (for example Windows taskbar). 
-	 * 
+	 * be shown on top of the parent window and it will not have a separate entry in the OS window manager (for example Windows taskbar).
+	 *
 	 * NOTE:
 	 * x, y, width and height coordinates are only applied the first time the specified window is shown.
 	 * Use APP_UI_PROPERTY.FULL_SCREEN for these values when the window should be full-screen.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects)
-	 * 
+	 *
 	 * @sample
 	 * //Show the specified form in a window, on default initial location and size
 	 * //application.showFormInWindow(forms.contacts);
@@ -2580,15 +2581,15 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			windowName = replaceFailingCharacters(windowName);
 
 			String formName = null;
-			if (form instanceof FormController)
+			if (form instanceof BasicFormController)
 			{
-				formName = ((FormController)form).getName();
+				formName = ((BasicFormController)form).getName();
 			}
 			else if (form instanceof FormScope)
 			{
 				formName = ((FormScope)form).getFormController().getName();
 			}
-			else if (form instanceof FormController.JSForm)
+			else if (form instanceof BasicFormController.JSForm)
 			{
 				formName = ((FormController.JSForm)form).getFormPanel().getName();
 			}
@@ -2615,24 +2616,24 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Close all visible windows (except main application window). Returns true if operation was successful.
-	 * 
+	 *
 	 * @sample
 	 * var win = application.createWindow("aWindowName", JSWindow.WINDOW, null);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
 	 * controller.show(win);
-	 * 
+	 *
 	 * var win2 = application.createWindow("anotherWindowName", JSWindow.WINDOW, null);
 	 * win2.setInitialBounds(100, 100, 300, 300);
 	 * win2.title = "This is another window";
 	 * controller.show(win2);
-	 * 
+	 *
 	 * var qdialog = plugins.dialogs.showQuestionDialog("QuestionDialog","Do you want to close the windows?","Yes","No");
 	 * if (qdialog == "Yes") {
 	 * 	application.closeAllWindows();
 	 * 	controller.show(null);
 	 * }
-	 * 
+	 *
 	 * @return Boolean true if all windows were closed and false otherwise.
 	 */
 	public boolean js_closeAllWindows()
@@ -2644,13 +2645,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Close the dialog with the given name (call this method to hide the form shown with 'showFormInDialog'). If (true) is passed, then all the windows will be closed. If the name is missing or null, the default dialog will be closed.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample
 	 * application.closeFormDialog(); // closes the current dialog
 	 * //application.closeFormDialog('dialogname'); //closes the dialog with the specific name
 	 *
 	 * @param dialogName/closeAll optional Name of the dialog to close, or (true) to close all open dialogs.
-	 * 
+	 *
 	 * @return Boolean (true) if the dialog(s) were closed, (false) otherwise
 	 */
 	@Deprecated
@@ -2663,13 +2664,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Close the dialog/window with the given name (call this method to hide the form shown with 'showFormInDialog' or 'showFormInWindow'). If (true) is passed, then all the windows/dialogs will be closed. If the name is missing or null, the default dialog/window will be closed.
 	 *
 	 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects).
-	 * 
+	 *
 	 * @sample
 	 * application.closeForm(); // closes the current dialog/window
 	 * //application.closeForm('windowOrDialogName'); //closes the dialog/window with this specific name
 	 *
 	 * @param windowOrDialogName/closeAll optional Name of the dialog/window to close, or (true) to close all open dialogs/windows.
-	 * 
+	 *
 	 * @return Boolean (true) if the dialog(s)/window(s) were closed, (false) otherwise
 	 */
 	@Deprecated
@@ -2729,11 +2730,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showCalendar()
-	 * 
+	 *
 	 * @sampleas js_showCalendar()
-	 * 
+	 *
 	 * @param selectedDate Default selected date
-	 * 
+	 *
 	 * @return Selected date or null if canceled
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2744,11 +2745,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showCalendar()
-	 * 
+	 *
 	 * @sampleas js_showCalendar()
-	 * 
+	 *
 	 * @param dateFormat Date format
-	 * 
+	 *
 	 * @return Selected date or null if canceled
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2759,12 +2760,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showCalendar()
-	 * 
+	 *
 	 * @sampleas js_showCalendar()
-	 * 
+	 *
 	 * @param selectedDate Default selected date
 	 * @param dateFormat Date format
-	 * 
+	 *
 	 * @return Selected date or null if canceled
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2792,11 +2793,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showColorChooser()
-	 * 
+	 *
 	 * @sampleas js_showColorChooser()
 	 *
 	 * @param colorString Default color
-	 * 
+	 *
 	 * @return selected color or null if canceled
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2827,11 +2828,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showFontChooser()
-	 * 
+	 *
 	 * @sampleas js_showFontChooser()
 	 *
 	 * @param defaultFont Default font
-	 * 
+	 *
 	 * @return selected font
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2860,9 +2861,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showI18NDialog()
-	 * 
-	 * @sampleas js_showI18NDialog() 
-	 * 
+	 *
+	 * @sampleas js_showI18NDialog()
+	 *
 	 * @param keyToSelect Default selected key
 	 *
 	 * @return selected I18N key or null if cancel is pressed
@@ -2875,13 +2876,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_showI18NDialog()
-	 * 
-	 * @sampleas js_showI18NDialog() 
-	 * 
+	 *
+	 * @sampleas js_showI18NDialog()
+	 *
 	 * @param keyToSelect Default selected key
 	 *
 	 * @param languageToSelect Default selected language
-	 * 
+	 *
 	 * @return selected I18N key or null if cancel is pressed
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2913,10 +2914,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Updates the UI (painting). If in a script an element changed and the script continues doing 
+	 * Updates the UI (painting). If in a script an element changed and the script continues doing
 	 * things, you can give an number in ms how long this can take.
 	 * Warning: this gives the UI time to paint, but this also means that it will give the ui time to respond to all other events,
-	 * so if a user keeps clicking on other stuff this will also be handled right away inside this call. 
+	 * so if a user keeps clicking on other stuff this will also be handled right away inside this call.
 	 *
 	 * @sample
 	 * application.updateUI(500);
@@ -2930,9 +2931,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * @clonedesc js_updateUI()
-	 * 
+	 *
 	 * @sampleas js_updateUI()
-	 * 
+	 *
 	 * @param milliseconds How long the update should take in milliseconds
 	 */
 	@ServoyClientSupport(ng = false, mc = false, sc = true, wc = false)
@@ -2945,7 +2946,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns the user name when logged in ('unknown' when not logged in)
 	 *
 	 * @sample var uname = application.getUserName();
-	 * 
+	 *
 	 * @deprecated As of release 2.0, replaced by {@link security#getUserName(Object[])}.
 	 */
 	@Deprecated
@@ -2968,7 +2969,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns the name of the operating system.
 	 *
 	 * @sample var osname = application.getOSName();
-	 * 
+	 *
 	 * @return Name of the operating system
 	 */
 	@SuppressWarnings("nls")
@@ -2979,9 +2980,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Set if numpad enter should behave like focus next.
-	 * 
+	 *
 	 * @sample application.setNumpadEnterAsFocusNextEnabled(true);
-	 * 
+	 *
 	 * @param enabled Boolean (true) if numpad enter should behave like focus next
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
@@ -2997,7 +2998,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Enable/disable the auto save when clicking anywhere on a form and the focus get lost.
 	 *
 	 * @sample application.setFocusLostSaveEnabled(false);
-	 * 
+	 *
 	 * @deprecated  As of release 3.0, replaced by {@link databaseManager#setAutoSave(boolean)}.
 	 */
 	@Deprecated
@@ -3027,7 +3028,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 		plugins.dialogs.showInfoDialog('Alert',  'There is printed in printpreview',  'OK')
 	 * 	}
 	 * }
-	 * 
+	 *
 	 * @return Boolean (true) is the last print preview did print, (false) otherwise
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -3042,7 +3043,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * //Sleep for 3 seconds
 	 * application.sleep(3000);
-	 * 
+	 *
 	 * @param ms Sleep time in milliseconds
 	 */
 	public void js_sleep(int ms)
@@ -3073,7 +3074,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 	}
 
-	/** 
+	/**
 	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#createTempFile(String, String)}.
 	 */
 	@Deprecated
@@ -3164,7 +3165,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#writeFile(Object, byte[])}. 
+	 * @deprecated  As of release 2.x, replaced by {@link plugins.file#writeFile(Object, byte[])}.
 	 */
 	@Deprecated
 	public boolean js_writeFile(String fileName, byte[] data)
@@ -3363,7 +3364,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns the last key modifiers of last action (shift = 1,ctrl = 2,meta = 4,alt = 8)
 	 *
 	 * @deprecated As of release 5.0, replaced by JSEvent functionality; event object is received as parameter to event method.
-	 * 
+	 *
 	 * @sample
 	 * //get the last key modifiers of last user action (shift = 1,ctrl = 2,meta = 4,alt = 8)
 	 * var m = application.getLastKeyModifiers();
@@ -3371,7 +3372,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * {
 	 * 	//do shift action
 	 * }
-	 * 
+	 *
 	 */
 	@Deprecated
 	public int js_getLastKeyModifiers()
@@ -3395,7 +3396,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param designFormName Name of the design form
 	 * @param newInstanceScriptName Name of the new form instance
-	 * 
+	 *
 	 * @return Boolean (true) if the instance was created succesfully, (false) otherwise
 	 */
 	public boolean js_createNewFormInstance(String designFormName, String newInstanceScriptName)
@@ -3428,7 +3429,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Returns the last error code or 0 if no error has happend, calling also clears errorCode
 	 *
 	 * @deprecated As of release 3.0, replaced by onError solution event.
-	 * 
+	 *
 	 * @sample
 	 * var error = application.getLastErrorCode();
 	 * //if (error != 0) showErrorDialog();
@@ -3445,7 +3446,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Enable or disable the error capture, if enabled you can use getLastErrorCode()
 	 *
 	 * @deprecated As of release 3.0, replaced by onError solution event.
-	 * 
+	 *
 	 * @sample
 	 * //turn on error capture
 	 * application.setErrorCapture(true);
@@ -3479,7 +3480,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/** Container for element that triggers current event method
-	 * 
+	 *
 	 * @author rgansevles
 	 *
 	 */

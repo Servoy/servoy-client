@@ -36,7 +36,7 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.base.scripting.api.IJSUtils;
 import com.servoy.base.util.ITagResolver;
-import com.servoy.j2db.FormController;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -79,15 +79,15 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Returns true if the (related)foundset exists and has records.
-	 * Another use is, to pass a record and qualified relations string to test multiple relations/foundset at once  
+	 * Another use is, to pass a record and qualified relations string to test multiple relations/foundset at once
 	 *
 	 * @sample
-	 * //test the orders_to_orderitems foundset 
+	 * //test the orders_to_orderitems foundset
 	 * if (%%elementName%%.hasRecords(orders_to_orderitems))
 	 * {
 	 * 	//do work on relatedFoundSet
 	 * }
-	 * //test the orders_to_orderitems.orderitems_to_products foundset to be reached from the current record 
+	 * //test the orders_to_orderitems.orderitems_to_products foundset to be reached from the current record
 	 * //if (%%elementName%%.hasRecords(foundset.getSelectedRecord(),'orders_to_orderitems.orderitems_to_products'))
 	 * //{
 	 * //	//do work on deeper relatedFoundSet
@@ -95,7 +95,7 @@ public class JSUtils implements IJSUtils
 	 *
 	 * @param foundset the foundset to be tested
 
-	 * @return true if exists 
+	 * @return true if exists
 	 */
 	@JSFunction
 	public boolean hasRecords(IJSFoundSet foundset)//needed for calcs
@@ -109,9 +109,9 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * @clonedesc hasRecords(IJSFoundSet)
-	 * 
+	 *
 	 * @sampleas hasRecords(IJSFoundSet)
-	 * 
+	 *
 	 * @param record A JSRecord to test.
 	 * @param relationString The relation name.
 	 *
@@ -126,13 +126,13 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns a string containing the character for the unicode number.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns a big dot
 	 * var dot = utils.getUnicodeCharacter(9679);
 	 *
 	 * @param unicodeCharacterNumber the number indicating the unicode character
-	 * 
-	 * @return a string containing the unicode character 
+	 *
+	 * @return a string containing the unicode character
 	 */
 	public String js_getUnicodeCharacter(int unicodeCharacterNumber)//no cast from int to char possible in javascript
 	{
@@ -178,9 +178,9 @@ public class JSUtils implements IJSUtils
 				settings = record.getParentFoundSet().getFoundSetManager().getApplication().getSettings();
 				tagResolver = TagResolver.createResolver(record);
 			}
-			else if (scriptable instanceof FormController)
+			else if (scriptable instanceof BasicFormController)
 			{
-				final FormController fc = (FormController)scriptable;
+				final BasicFormController fc = (BasicFormController)scriptable;
 				IFoundSetInternal fs = fc.getFoundSet();
 				final ITagResolver defaultTagResolver = (fs != null) ? TagResolver.createResolver(fs.getRecord(fs.getSelectedIndex())) : null;
 				settings = fc.getApplication().getSettings();
@@ -235,7 +235,7 @@ public class JSUtils implements IJSUtils
 	 * Parse a string to a date object.
 	 *
 	 * @sample
-	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss'); 
+	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss');
 	 *
 	 * @param date the date as text
 	 * @param format the format to parse the to date
@@ -294,12 +294,12 @@ public class JSUtils implements IJSUtils
 		return ""; //$NON-NLS-1$
 	}
 
-	/** 
+	/**
 	 * Returns a datestamp from the timestamp (sets hours,minutes,seconds and milliseconds to 0).
-	 * 
+	 *
 	 * @sample
 	 * var date = utils.timestampToDate(application.getTimeStamp());
-	 * 
+	 *
 	 * @param date object to be stripped from its time elements
 	 * @return the stripped date object
 	 */
@@ -318,13 +318,13 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the number of words, starting from the left.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'this is a'
 	 * var retval = utils.stringLeftWords('this is a test',3);
 	 *
 	 * @param text to process
 	 * @param numberof_words to return
-	 * @return the string with number of words form the left  
+	 * @return the string with number of words form the left
 	 */
 	public String js_stringLeftWords(String text, Number numberof_words)
 	{
@@ -362,14 +362,14 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns a substring from the original string.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'is a'
 	 * var retval = utils.stringMiddleWords('this is a test',2,2);
 	 *
-	 * @param text to process 
-	 * @param i_start start word index 
+	 * @param text to process
+	 * @param i_start start word index
 	 * @param numberof_words the word count to return
-	 * @return the string with number of words form the left and  
+	 * @return the string with number of words form the left and
 	 */
 	public String js_stringMiddleWords(String text, Number i_start, Number numberof_words)
 	{
@@ -412,13 +412,13 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the number of words, starting from the right.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'is a test'
 	 * var retval = utils.stringRightWords('this is a test',3);
 	 *
 	 * @param text to process
 	 * @param numberof_words to return
-	 * @return the string with number of words form the right  
+	 * @return the string with number of words form the right
 	 */
 	public String js_stringRightWords(String text, Number numberof_words)
 	{
@@ -460,13 +460,13 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the number of times searchString appears in textString.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 2 as count
 	 * var count = utils.stringPatternCount('this is a test','is');
 	 *
 	 * @param text the text to process
 	 * @param toSearchFor the string to search for
-	 * @return the occurrenceCount that the search string is found in the text 
+	 * @return the occurrenceCount that the search string is found in the text
 	 */
 	public int js_stringPatternCount(String text, String toSearchFor)
 	{
@@ -511,16 +511,16 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the position of the string to search for, from a certain start position and occurrence.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 4 as position
 	 * var pos = utils.stringPosition('This is a test','s',1,1)
 	 *
 	 * @param textString the text to process
 	 * @param toSearchFor the string to search
-	 * @param i_start the start index to search from 
-	 * @param i_occurrence the occurrence 
-	 * 
-	 * @return the position 
+	 * @param i_start the start index to search from
+	 * @param i_occurrence the occurrence
+	 *
+	 * @return the position
 	 */
 	public int js_stringPosition(String textString, String toSearchFor, Number i_start, Number i_occurrence)
 	{
@@ -597,13 +597,13 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Replaces a portion of a string with replacement text from a specified index.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'this was a test'
 	 * var retval = utils.stringIndexReplace('this is a test',6,2,'was');
 	 *
 	 * @param text the text to process
-	 * @param i_start the start index to work from 
-	 * @param i_size the size of the text to replace 
+	 * @param i_start the start index to work from
+	 * @param i_size the size of the text to replace
 	 * @param replacement_text the replacement text
 	 * @return the changed text string
 	 */
@@ -648,14 +648,14 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Replaces a portion of a string with replacement text.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'these are cow 1 and cow 2.'
 	 * var retval = utils.stringReplace('these are test 1 and test 2.','test','cow');
 	 *
 	 * @param text the text to process
 	 * @param search_text the string to search
 	 * @param replacement_text the replacement text
-	 * 
+	 *
 	 * @return the changed text string
 	 */
 	@SuppressWarnings("nls")
@@ -688,12 +688,12 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns a string with the requested number of characters, starting from the left.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'this i'
 	 * var retval = utils.stringLeft('this is a test',6);
 	 *
 	 * @param text the text to process
-	 * @param i_size the size of the text to return 
+	 * @param i_size the size of the text to return
 	 * @return the result text string
 	 */
 	public String js_stringLeft(String text, Number i_size)
@@ -718,13 +718,13 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns a substring from the original string.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'his'
 	 * var retval = utils.stringMiddle('this is a test',2,3);
 	 *
 	 * @param text the text to process
-	 * @param i_start the start index to work from 
-	 * @param i_size the size of the text to return 
+	 * @param i_start the start index to work from
+	 * @param i_size the size of the text to return
 	 * @return the result text string
 	 */
 	public String js_stringMiddle(String text, Number i_start, Number i_size)
@@ -752,12 +752,12 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns a string with the requested number of characters, starting from the right.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'a test'
 	 * var retval = utils.stringLeft('this is a test',6);
 	 *
 	 * @param text the text to process
-	 * @param i_size the size of the text to return 
+	 * @param i_size the size of the text to return
 	 * @return the result text string
 	 */
 	public String js_stringRight(String text, Number i_size)
@@ -783,9 +783,9 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Filters characters out of from a string and leaves digits, returns the number. Uses locale decimal separator.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 65567
-	 * var retval = utils.stringToNumber('fg65gf567'); 
+	 * var retval = utils.stringToNumber('fg65gf567');
 	 *
 	 * @param textString the text to process
 	 * @return the resulting number
@@ -798,13 +798,13 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Filters characters out of from a string and leaves digits, returns the number. Decimal separator is specified as parameter.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 65.567
-	 * var retval = utils.stringToNumber('fg65gf.567','.'); 
+	 * var retval = utils.stringToNumber('fg65gf.567','.');
 	 *
 	 * @param textString the text to process
 	 * @param decimalSeparator decimal separator
-	 * 
+	 *
 	 * @return the resulting number
 	 */
 	public double js_stringToNumber(String textString, String decimalSeparator)
@@ -862,12 +862,12 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Returns the PBKDF2 hash for specified text. This method is preferred above the old MD5 hash for enhanced security.
-	 * It uses a default of 2000 iterations. The string that is returned can only be used in the utils.validatePBKDF2Hash(password,thisReturnValue) 
+	 * It uses a default of 2000 iterations. The string that is returned can only be used in the utils.validatePBKDF2Hash(password,thisReturnValue)
 	 * to check if this hash is a result of that password.
 	 * This will always be false: utils.stringPBKDF2Hash("test") == utils.stringPBKDF2Hash("test"). Because for the same string in multiply calls it will not generate the same hash.
 	 * So you can only check it like this: utils.validatePBKDF2Hash("test",utils.stringPBKDF2Hash("test"))
 	 *
-	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2 
+	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2
 	 * @sample var hashed_password = utils.stringPBKDF2Hash(user_password)
 	 *
 	 * @param textString the text to process
@@ -885,7 +885,7 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the PBKDF2 hash for specified text. This method is preferred above the old MD5 hash for enhanced security.
 	 *
-	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2 
+	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2
 	 * @sample var hashed_password = utils.stringPBKDF2Hash(user_password,5000)
 	 *
 	 * @param textString the text to process
@@ -904,10 +904,10 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Validates the given password against the given hash. The hash should be generated by one of the stringPBKDF2Hash(password [,iteration]) functions. If hash is null or empty string the method will return false.
 	 *
-	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2 
-	 * @sample 
+	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2
+	 * @sample
 	 * if (utils.validatePBKDF2Hash(user_password, hashFromDb)) {
-	 *    // logged in 
+	 *    // logged in
 	 * }
 	 *
 	 * @param password the password to test against
@@ -926,7 +926,7 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the md5 hash (encoded as base64) for specified text.
 	 *
-	 * NOTE: MD5 (Message-Digest Algorythm 5) is a hash function with a 128-bit hash value, for more info see: http://en.wikipedia.org/wiki/MD5 
+	 * NOTE: MD5 (Message-Digest Algorythm 5) is a hash function with a 128-bit hash value, for more info see: http://en.wikipedia.org/wiki/MD5
 	 * @sample var hashed_password = utils.stringMD5HashBase64(user_password)
 	 *
 	 * @param textString the text to process
@@ -943,8 +943,8 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Returns the md5 hash (encoded as base16) for specified text.
-	 * 
-	 * NOTE: MD5 (Message-Digest Algorythm 5) is a hash function with a 128-bit hash value, for more info see: http://en.wikipedia.org/wiki/MD5 
+	 *
+	 * NOTE: MD5 (Message-Digest Algorythm 5) is a hash function with a 128-bit hash value, for more info see: http://en.wikipedia.org/wiki/MD5
 	 * @sample var hashed_password = utils.stringMD5HashBase16(user_password)
 	 *
 	 * @param textString the text to process
@@ -962,7 +962,7 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the string without leading or trailing spaces.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'text'
 	 * var retval = utils.stringTrim('   text   ');
 	 *
@@ -1002,8 +1002,8 @@ public class JSUtils implements IJSUtils
 	 * @sample
 	 * var textalNumber = utils.numberFormat(16.749, 2); //returns 16.75
 	 *
-	 * @param number the number to format 
-	 * @param digits nr of digits 
+	 * @param number the number to format
+	 * @param digits nr of digits
 	 * @return the resulting number in text
 	 */
 	@JSFunction
@@ -1026,8 +1026,8 @@ public class JSUtils implements IJSUtils
 	 * @sample
 	 * var textalNumber2 = utils.numberFormat(100006.749, '#,###.00'); //returns 100,006.75
 	 *
-	 * @param number the number to format 
-	 * @param format the format 
+	 * @param number the number to format
+	 * @param format the format
 	 * @return the resulting number in text
 	 */
 	@JSFunction
@@ -1046,9 +1046,9 @@ public class JSUtils implements IJSUtils
 	}
 
 	/**
-	 * @param number the number to format 
+	 * @param number the number to format
 	 * @param digitsOrFormat nr of digits or the format
-	 * 
+	 *
 	 * @deprecated use numberFormat(Number, String) or numberFormat(Number, Number)
 	 */
 	@Deprecated
@@ -1081,38 +1081,38 @@ public class JSUtils implements IJSUtils
 	 * // precision is a non-negative decimal integer usually used to restrict the number of characters
 	 * // conversion is a character indicating how the argument should be formatted
 	 * // typical conversion values: b(boolean), s(string), c(character), d(decimal integer), f(floating number), t(prefix for date and time)
-	 * // Date/Time Conversions (used after 't' prefix): 
-	 * 		// 'H' 	Hour of the day for the 24-hour clock, formatted as two digits with a leading zero as necessary i.e. 00 - 23. 
-	 * 		// 'I' 	Hour for the 12-hour clock, formatted as two digits with a leading zero as necessary, i.e. 01 - 12. 
-	 * 		// 'k' 	Hour of the day for the 24-hour clock, i.e. 0 - 23. 
-	 * 		// 'l' 	Hour for the 12-hour clock, i.e. 1 - 12. 
-	 * 		// 'M' 	Minute within the hour formatted as two digits with a leading zero as necessary, i.e. 00 - 59. 
+	 * // Date/Time Conversions (used after 't' prefix):
+	 * 		// 'H' 	Hour of the day for the 24-hour clock, formatted as two digits with a leading zero as necessary i.e. 00 - 23.
+	 * 		// 'I' 	Hour for the 12-hour clock, formatted as two digits with a leading zero as necessary, i.e. 01 - 12.
+	 * 		// 'k' 	Hour of the day for the 24-hour clock, i.e. 0 - 23.
+	 * 		// 'l' 	Hour for the 12-hour clock, i.e. 1 - 12.
+	 * 		// 'M' 	Minute within the hour formatted as two digits with a leading zero as necessary, i.e. 00 - 59.
 	 * 		// 'S' 	Seconds within the minute, formatted as two digits with a leading zero as necessary, i.e. 00 - 60 ("60" is a special value required to support leap seconds).
 	 * 		// 'L' 	Millisecond within the second formatted as three digits with leading zeros as necessary, i.e. 000 - 999.
-	 * 		// 'p' 	Locale-specific morning or afternoon marker in lower case, e.g."am" or "pm". Use of the conversion prefix 'T' forces this output to upper case. 
+	 * 		// 'p' 	Locale-specific morning or afternoon marker in lower case, e.g."am" or "pm". Use of the conversion prefix 'T' forces this output to upper case.
 	 * 		// 'z' 	RFC 822 style numeric time zone offset from GMT, e.g. -0800.
 	 * 		// 'Z' 	A string representing the abbreviation for the time zone.
 	 * 		// 'B' 	Locale-specific full month name, e.g. "January", "February".
-	 * 		// 'b' 	Locale-specific abbreviated month name, e.g. "Jan", "Feb". 
-	 * 		// 'h' 	Same as 'b'. 
-	 * 		// 'A' 	Locale-specific full name of the day of the week, e.g. "Sunday", "Monday" 
-	 * 		// 'a' 	Locale-specific short name of the day of the week, e.g. "Sun", "Mon" 
-	 * 		// 'C' 	Four-digit year divided by 100, formatted as two digits with leading zero as necessary, i.e. 00 - 99 
-	 * 		// 'Y' 	Year, formatted as at least four digits with leading zeros as necessary, e.g. 0092 equals 92 CE for the Gregorian calendar. 
+	 * 		// 'b' 	Locale-specific abbreviated month name, e.g. "Jan", "Feb".
+	 * 		// 'h' 	Same as 'b'.
+	 * 		// 'A' 	Locale-specific full name of the day of the week, e.g. "Sunday", "Monday"
+	 * 		// 'a' 	Locale-specific short name of the day of the week, e.g. "Sun", "Mon"
+	 * 		// 'C' 	Four-digit year divided by 100, formatted as two digits with leading zero as necessary, i.e. 00 - 99
+	 * 		// 'Y' 	Year, formatted as at least four digits with leading zeros as necessary, e.g. 0092 equals 92 CE for the Gregorian calendar.
 	 * 		// 'y' 	Last two digits of the year, formatted with leading zeros as necessary, i.e. 00 - 99.
-	 * 		// 'j' 	Day of year, formatted as three digits with leading zeros as necessary, e.g. 001 - 366 for the Gregorian calendar. 
-	 * 		// 'm' 	Month, formatted as two digits with leading zeros as necessary, i.e. 01 - 13. 
-	 * 		// 'd' 	Day of month, formatted as two digits with leading zeros as necessary, i.e. 01 - 31 
+	 * 		// 'j' 	Day of year, formatted as three digits with leading zeros as necessary, e.g. 001 - 366 for the Gregorian calendar.
+	 * 		// 'm' 	Month, formatted as two digits with leading zeros as necessary, i.e. 01 - 13.
+	 * 		// 'd' 	Day of month, formatted as two digits with leading zeros as necessary, i.e. 01 - 31
 	 * 		// 'e' 	Day of month, formatted as two digits, i.e. 1 - 31.
-	 * 
+	 *
 	 * 		// common compositions for date/time conversion
-	 * 		// 'R' 	Time formatted for the 24-hour clock as "%tH:%tM" 
-	 * 		// 'T' 	Time formatted for the 24-hour clock as "%tH:%tM:%tS". 
-	 * 		// 'r' 	Time formatted for the 12-hour clock as "%tI:%tM:%tS %Tp". The location of the morning or afternoon marker ('%Tp') may be locale-dependent. 
-	 * 		// 'D' 	Date formatted as "%tm/%td/%ty". 
-	 * 		// 'F' 	ISO 8601 complete date formatted as "%tY-%tm-%td". 
+	 * 		// 'R' 	Time formatted for the 24-hour clock as "%tH:%tM"
+	 * 		// 'T' 	Time formatted for the 24-hour clock as "%tH:%tM:%tS".
+	 * 		// 'r' 	Time formatted for the 12-hour clock as "%tI:%tM:%tS %Tp". The location of the morning or afternoon marker ('%Tp') may be locale-dependent.
+	 * 		// 'D' 	Date formatted as "%tm/%td/%ty".
+	 * 		// 'F' 	ISO 8601 complete date formatted as "%tY-%tm-%td".
 	 * 		// 'c' 	Date and time formatted as "%ta %tb %td %tT %tZ %tY", e.g. "Sun Jul 20 16:17:00 EDT 1969".
-	 * 
+	 *
 	 * utils.stringFormat('%s Birthday: %2$tm %2$te,%2$tY',new Array('My',new Date(2009,0,1))) // returns My Birthday: 01 1,2009
 	 * utils.stringFormat('The time is: %1$tH:%1$tM:%1$tS',new Array(new Date(2009,0,1,12,0,0))) // returns The time is: 12:00:00
 	 * utils.stringFormat('My %s: %2$.0f, my float: %2$.2f',new Array('integer',10)) // returns My integer: 10, my float: 10.00
@@ -1172,7 +1172,7 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns the number of words in the text string.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns '4' as result
 	 * var retval = utils.stringWordCount('this is a test');
 	 *
@@ -1214,7 +1214,7 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * @clonedesc js_stringEscapeMarkup(String)
-	 * @sampleas js_stringEscapeMarkup(String) 
+	 * @sampleas js_stringEscapeMarkup(String)
 	 *
 	 * @param textString the text to process
 	 * @param escapeSpaces boolean indicating to escape spaces
@@ -1227,7 +1227,7 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * @clonedesc js_stringEscapeMarkup(String)
-	 * @sampleas js_stringEscapeMarkup(String) 
+	 * @sampleas js_stringEscapeMarkup(String)
 	 *
 	 * @param textString the text to process
 	 * @param escapeSpaces boolean indicating to escape spaces
@@ -1245,12 +1245,12 @@ public class JSUtils implements IJSUtils
 	/**
 	 * Returns all words starting with capital chars.
 	 *
-	 * @sample 
+	 * @sample
 	 * //returns 'This Is A Test'
 	 * var retval = utils.stringInitCap('This is A test');
 	 *
 	 * @param text the text to process
-	 * 
+	 *
 	 * @return the changed text
 	 */
 	public String js_stringInitCap(String text)
