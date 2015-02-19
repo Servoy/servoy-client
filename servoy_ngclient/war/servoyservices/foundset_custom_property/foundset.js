@@ -43,7 +43,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
-					currentClientValue[$sabloConverters.INTERNAL_IMPL].ignoreSelectedChangeValue = currentClientValue[SELECTED_ROW_INDEXES]; // don't send back to server selection that came from server
 					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
@@ -102,9 +101,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					internalState.isChanged = function() { return internalState.requests && (internalState.requests.length > 0); }
 					
 					// private state/impl
-
-					// watch for client selection changes and send them to server
-					internalState.ignoreSelectedChangeValue = newValue[SELECTED_ROW_INDEXES]; // ignore initial watch change
 				}
 				
 			}
@@ -113,18 +109,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			if (angular.isDefined(newValue) && newValue !== null) {
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				if (newValue[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope, false); // shouldn't need component model getter - takes rowids directly from viewport
-				if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel) {
-					var changed = false;
-					if (internalState.ignoreSelectedChangeValue) {
-						if (internalState.ignoreSelectedChangeValue.length == newSel.length) {
-							var i;
-							for (i = 0; i < internalState.ignoreSelectedChangeValue.length; i++)
-								if (internalState.ignoreSelectedChangeValue[i] !== newSel[i]) { changed = true; break; }
-						} else changed = true;
-						internalState.ignoreSelectedChangeValue = null;
-					} else changed = true;
-
-					if (changed) {
+				if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel, oldSel) {
+					if (newSel !== oldSel) {
 						internalState.requests.push({newClientSelection: newSel});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
