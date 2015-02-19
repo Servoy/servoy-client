@@ -435,6 +435,17 @@ public class FormElementHelper
 		WebComponentSpecProvider.reload();
 	}
 
+	public void flush(Collection<IPersist> changes)
+	{
+		if (changes != null)
+		{
+			for (IPersist persist : changes)
+			{
+				persistWrappers.remove(persist);
+			}
+		}
+	}
+
 	/**
 	 * Generates a Servoy controlled tab-sequence-index. We try to avoid sending default (0 or null) tabSeq even
 	 * for forms that do use default tab sequence in order to avoid problems with nesting default and non-default tabSeq forms.
