@@ -185,8 +185,7 @@ public class FormElementHelper
 				portal.put("name", name);
 				portal.put("multiLine", !listViewPortal.isTableview());
 				portal.put("rowHeight", !listViewPortal.isTableview() ? bodyheight : getRowHeight(form));
-				portal.put("scrollbars",
-					isInDesigner ? (ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER + ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) : form.getScrollbars());
+				portal.put("scrollbars", form.getScrollbars());
 				if (listViewPortal.isTableview())
 				{
 					int headerHeight = 30;
