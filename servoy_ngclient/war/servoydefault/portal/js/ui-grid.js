@@ -6905,7 +6905,7 @@ angular.module('ui.grid')
         if ( self.grid.scrollDirection === uiGridConstants.scrollDirection.UP ) {
           findIndex = rowIndex > 0 ? self.grid.options.excessRows : 0;
           for ( i = 0; i < rowCache.length; i++) {
-            if (rowCache[i].entity.$$hashKey === self.renderedRows[findIndex].entity.$$hashKey) {
+            if (self.grid.options.rowIdentity(rowCache[i].entity) === self.grid.options.rowIdentity(self.renderedRows[findIndex].entity)) {
               rowIndex = i;
               break;
             }
@@ -6916,7 +6916,7 @@ angular.module('ui.grid')
         else if ( self.grid.scrollDirection === uiGridConstants.scrollDirection.DOWN ) {
           findIndex = minRows;
           for ( i = 0; i < rowCache.length; i++) {
-            if (rowCache[i].entity.$$hashKey === self.renderedRows[findIndex].entity.$$hashKey) {
+            if (self.grid.options.rowIdentity(rowCache[i].entity) === self.grid.options.rowIdentity(self.renderedRows[findIndex].entity)) {
               rowIndex = i;
               break;
             }
