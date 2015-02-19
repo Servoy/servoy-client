@@ -1,138 +1,138 @@
 angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that window is a component with handlers
 .factory('$servoyWindowManager', ['$timeout', '$rootScope','$http','$q','$templateCache','$injector','$controller','$compile','WindowType',
-                           function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {
+                                  function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {
 	var WM = new WindowManager();
 	var winInstances = {}
 	return {
 		BSWindowManager: WM,
 		instances: winInstances,
 		open : function (windowOptions) {
-	            var dialogOpenedDeferred = $q.defer();
+			var dialogOpenedDeferred = $q.defer();
 
-	         //prepare an instance of a window to be injected into controllers and returned to a caller
-	            var windowInstance =windowOptions.windowInstance; 
-	            
-	        //merge and clean up options
-	            windowOptions.resolve = windowOptions.resolve || {};
-	        //verify options
-	            if (!windowOptions.template && !windowOptions.templateUrl) {
-	              throw new Error('One of template or templateUrl options is required.');
-	            }
-	            
-	        // wait for templateURL and resolve options
-	        var templateAndResolvePromise =
-	                $q.all([getTemplatePromise(windowOptions)].concat(getResolvePromises(windowOptions.resolve)));
-	           	        
-	          templateAndResolvePromise.then(function(tplAndVars){	  
-	        //initialize dialog scope and controller	  
-	              var windowScope = (windowOptions.scope || $rootScope).$new();
-	              windowScope.$close = windowInstance.close;
-	              windowScope.$dismiss = windowInstance.dismiss;
+			//prepare an instance of a window to be injected into controllers and returned to a caller
+			var windowInstance =windowOptions.windowInstance; 
 
-	              var ctrlLocals = {};
-	              var resolveIter = 1;
+			//merge and clean up options
+			windowOptions.resolve = windowOptions.resolve || {};
+			//verify options
+			if (!windowOptions.template && !windowOptions.templateUrl) {
+				throw new Error('One of template or templateUrl options is required.');
+			}
 
-	              //controllers
-	              if (windowOptions.controller) {
-	                ctrlLocals.$scope = windowScope;
-	                ctrlLocals.windowInstance = windowInstance;
-	                angular.forEach(windowOptions.resolve, function (value, key) {
-	                  ctrlLocals[key] = tplAndVars[resolveIter++];
-	                });
+			// wait for templateURL and resolve options
+			var templateAndResolvePromise =
+				$q.all([getTemplatePromise(windowOptions)].concat(getResolvePromises(windowOptions.resolve)));
 
-	                $controller(windowOptions.controller, ctrlLocals);
-	              }  	        	  
-	           var isModal = (ctrlLocals.windowInstance.type == WindowType.MODAL_DIALOG);
-	           
-	        //resolve initial bounds
-	           var location = null;
-	           var size = null;
-	           if(windowInstance.initialBounds){
-	        	   var bounds = windowInstance.initialBounds;
-	        	   location = {x:bounds.x,
-	        			       y:bounds.y};
-	        	   size = {width:bounds.width,height:bounds.height}
-	           }
-	           if(windowInstance.location){
-	        	   location = windowInstance.location;	        	   
-	           }
-	           if(windowInstance.size){
-	        	   size = windowInstance.size;
-	           }
-	           //-1 means default size and location(center)
-	           if(!location || (location.x <0 && location.y <0)) location=centerWindow(windowInstance.form.size)
-	           if(!size || size.width<0 || size.height<0) size =null;
-	           
-	           //convert servoy x,y to library top , left
-	           var loc = {left:location.x,top:location.y}
+			templateAndResolvePromise.then(function(tplAndVars){	  
+				//initialize dialog scope and controller	  
+				var windowScope = (windowOptions.scope || $rootScope).$new();
+				windowScope.$close = windowInstance.close;
+				windowScope.$dismiss = windowInstance.dismiss;
 
-	           var compiledWin = $compile( tplAndVars[0])(windowScope);
-	        //create the bs window instance
-	        	var win = WM.createWindow({
-	        		id:windowInstance.name,
-	        		fromElement: compiledWin,
-	                title: "Loading...",
-	                resizable:!!windowInstance.resizable,
-	                location:loc,
-	                size:size,
-		            isModal:isModal 
-	            })
-	            
-	        	//set servoy managed bootstrap-window Instance
-	        	windowInstance.bsWindowInstance =win;
-	          },function resolveError(reason) {
-	        	  	dialogOpenedDeferred.reject(reason);
-	          });
-	        
-	        //notify dialog opened or error	
-	           templateAndResolvePromise.then(function () {
-	                dialogOpenedDeferred.resolve(true);
-	              }, function () {
-	                dialogOpenedDeferred.reject(false);
-	           });	        	
-	           
-	        return dialogOpenedDeferred.promise;
+				var ctrlLocals = {};
+				var resolveIter = 1;
+
+				//controllers
+				if (windowOptions.controller) {
+					ctrlLocals.$scope = windowScope;
+					ctrlLocals.windowInstance = windowInstance;
+					angular.forEach(windowOptions.resolve, function (value, key) {
+						ctrlLocals[key] = tplAndVars[resolveIter++];
+					});
+
+					$controller(windowOptions.controller, ctrlLocals);
+				}  	        	  
+				var isModal = (ctrlLocals.windowInstance.type == WindowType.MODAL_DIALOG);
+
+				//resolve initial bounds
+				var location = null;
+				var size = null;
+				if(windowInstance.initialBounds){
+					var bounds = windowInstance.initialBounds;
+					location = {x:bounds.x,
+							y:bounds.y};
+					size = {width:bounds.width,height:bounds.height}
+				}
+				if(windowInstance.location){
+					location = windowInstance.location;	        	   
+				}
+				if(windowInstance.size){
+					size = windowInstance.size;
+				}
+				//-1 means default size and location(center)
+				if(!location || (location.x <0 && location.y <0)) location=centerWindow(windowInstance.form.size)
+				if(!size || size.width<0 || size.height<0) size =null;
+
+				//convert servoy x,y to library top , left
+				var loc = {left:location.x,top:location.y}
+
+				var compiledWin = $compile( tplAndVars[0])(windowScope);
+				//create the bs window instance
+				var win = WM.createWindow({
+					id:windowInstance.name,
+					fromElement: compiledWin,
+					title: "Loading...",
+					resizable:!!windowInstance.resizable,
+					location:loc,
+					size:size,
+					isModal:isModal 
+				})
+
+				//set servoy managed bootstrap-window Instance
+				windowInstance.bsWindowInstance =win;
+			},function resolveError(reason) {
+				dialogOpenedDeferred.reject(reason);
+			});
+
+			//notify dialog opened or error	
+			templateAndResolvePromise.then(function () {
+				dialogOpenedDeferred.resolve(true);
+			}, function () {
+				dialogOpenedDeferred.reject(false);
+			});	        	
+
+			return dialogOpenedDeferred.promise;
 		}
-		
+
 	}	
-	
-	
-//utiliy functions	
-    function getTemplatePromise(options) {
-        return options.template ? $q.when(options.template) :
-          $http.get(options.templateUrl, {cache: $templateCache}).then(function (result) {
-            return result.data;
-          });
-    }
-    
-    function getResolvePromises(resolves) {
-        var promisesArr = [];
-        angular.forEach(resolves, function (value) {
-          if (angular.isFunction(value) || angular.isArray(value)) {
-            promisesArr.push($q.when($injector.invoke(value)));
-          }
-        });
-        return promisesArr;
-     }
-    function centerWindow(formSize){
-    	var body = $('body');
-    	var browserWindow =  $(window);
-        var top, left,
-            bodyTop = parseInt(body.position().top, 10) + parseInt(body.css('paddingTop'), 10);
-            left = (browserWindow.width() / 2) - (formSize.width / 2);
-            top = (browserWindow.height() / 2) - (formSize.height / 2);
-        if (top < bodyTop) {
-            top = bodyTop;
-        }
-       return {x:left,y:top}
-    };
-    
+
+
+//	utiliy functions	
+	function getTemplatePromise(options) {
+		return options.template ? $q.when(options.template) :
+			$http.get(options.templateUrl, {cache: $templateCache}).then(function (result) {
+				return result.data;
+			});
+	}
+
+	function getResolvePromises(resolves) {
+		var promisesArr = [];
+		angular.forEach(resolves, function (value) {
+			if (angular.isFunction(value) || angular.isArray(value)) {
+				promisesArr.push($q.when($injector.invoke(value)));
+			}
+		});
+		return promisesArr;
+	}
+	function centerWindow(formSize){
+		var body = $('body');
+		var browserWindow =  $(window);
+		var top, left,
+		bodyTop = parseInt(body.position().top, 10) + parseInt(body.css('paddingTop'), 10);
+		left = (browserWindow.width() / 2) - (formSize.width / 2);
+		top = (browserWindow.height() / 2) - (formSize.height / 2);
+		if (top < bodyTop) {
+			top = bodyTop;
+		}
+		return {x:left,y:top}
+	};
+
 }]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $servoyInternal, $sabloApplication, webStorage, WindowType) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
 	var sol = $solutionSettings.solutionName+'.'
-	
+
 	// track main app window size change
 	var mwResizeTimeoutID;
 	$window.addEventListener('resize',function() { 
@@ -141,69 +141,69 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			$sabloApplication.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
 		}, 500);
 	});
-	
+
 	return {
 		create: function (name,type){
 			// dispose old one
 			if(instances[name]){
-				
+
 			}
 			if(!instances[name]){
 				var win = 
-					{name:name,
-					 type:type,
-					 title:'',
-					 opacity:1,
-					 undecorated:false,
-					 bsWindowInstance:null,  // bootstrap-window instance , available only after creation 
-				     hide: function (result) {
-				    	 win.bsWindowInstance.close();
-				    	 if(!this.storeBounds){
-				    		  delete this.location;
-				    		  delete this.size;
-				    	 }
-				     },
-				     setLocation:function(location){
-				    	 this.location = location;
-				    	 if(win.bsWindowInstance){
-				    		 win.bsWindowInstance.$el.css('left',this.location.x+'px');
-					    	 win.bsWindowInstance.$el.css('top',this.location.y+'px'); 
-				    	 }
-				    	 if(this.storeBounds) storage.add(sol+name+'.storedBounds.location',location)
-				     },
-				     setSize:function(size){
-				    	 this.size = size;
-				    	 if(win.bsWindowInstance){
-				    		 win.bsWindowInstance.setSize(size);				    		 
-				    	 }				    	 
-				    	 if(this.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
-				     },
-				     onResize:function($event,size){
-				    	win.size = size;				    	
-				    	if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
-				    	$sabloApplication.callService("$windowService", "resize", {name:win.name,size:win.size},true);
-				     },
-				     onMove:function($event,location){
-				    	 win.location = {x:location.left,y:location.top};
-				    	 if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win.location)
-				    	 $sabloApplication.callService("$windowService", "move", {name:win.name,location:win.location},true);
-				     },
-				     toFront:function(){
-				    	 $servoyWindowManager.BSWindowManager.setFocused(this.bsWindowInstance)
-				     },
-				     toBack:function(){
-				    	 $servoyWindowManager.BSWindowManager.sendToBack(this.bsWindowInstance)
-				     },
-				     clearBounds: function(){
-				    	 storage.remove(sol+name+'.storedBounds.location')
-				    	 storage.remove(sol+name+'.storedBounds.size')
-				     }
-					};
-				
+				{name:name,
+						type:type,
+						title:'',
+						opacity:1,
+						undecorated:false,
+						bsWindowInstance:null,  // bootstrap-window instance , available only after creation 
+						hide: function (result) {
+							win.bsWindowInstance.close();
+							if(!this.storeBounds){
+								delete this.location;
+								delete this.size;
+							}
+						},
+						setLocation:function(location){
+							this.location = location;
+							if(win.bsWindowInstance){
+								win.bsWindowInstance.$el.css('left',this.location.x+'px');
+								win.bsWindowInstance.$el.css('top',this.location.y+'px'); 
+							}
+							if(this.storeBounds) storage.add(sol+name+'.storedBounds.location',location)
+						},
+						setSize:function(size){
+							this.size = size;
+							if(win.bsWindowInstance){
+								win.bsWindowInstance.setSize(size);				    		 
+							}				    	 
+							if(this.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
+						},
+						onResize:function($event,size){
+							win.size = size;				    	
+							if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
+							$sabloApplication.callService("$windowService", "resize", {name:win.name,size:win.size},true);
+						},
+						onMove:function($event,location){
+							win.location = {x:location.left,y:location.top};
+							if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win.location)
+							$sabloApplication.callService("$windowService", "move", {name:win.name,location:win.location},true);
+						},
+						toFront:function(){
+							$servoyWindowManager.BSWindowManager.setFocused(this.bsWindowInstance)
+						},
+						toBack:function(){
+							$servoyWindowManager.BSWindowManager.sendToBack(this.bsWindowInstance)
+						},
+						clearBounds: function(){
+							storage.remove(sol+name+'.storedBounds.location')
+							storage.remove(sol+name+'.storedBounds.size')
+						}
+				};
+
 				instances[name] = win;
 				return win;
 			}
-			
+
 		},
 		show: function(name,form, title) {	
 			var instance = instances[name];
@@ -251,23 +251,28 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			}
 		},
 		switchForm: function(name,form,navigatorForm) {		
-        		if(instances[name] && instances[name].type != WindowType.WINDOW){
-        			instances[name].form = form;
-        			instances[name].navigatorForm = navigatorForm;    			
-        		}
-        		else if($solutionSettings.windowName == name) { // main window form switch
-        			$solutionSettings.mainForm = form;
-        			$solutionSettings.navigatorForm = navigatorForm;
-        		}
-        		if (!$rootScope.$$phase) $rootScope.$digest();
+			$sabloApplication.getFormState(form.name).then(function (formState) {
+				// if first show of this form in browser window then request initial data (dataproviders and such)
+				$servoyInternal.requestInitialData(form.name, formState);
+			});
+			
+			if(instances[name] && instances[name].type != WindowType.WINDOW) {
+				instances[name].form = form;
+				instances[name].navigatorForm = navigatorForm;    			
+			}
+			else if ($solutionSettings.windowName == name) { // main window form switch
+				$solutionSettings.mainForm = form;
+				$solutionSettings.navigatorForm = navigatorForm;
+			}
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		setTitle: function(name,title) {
-				if(instances[name] && instances[name].type!= WindowType.WINDOW){
-					instances[name].title =title;
-	    		}else{
-	    			$solutionSettings.solutionTitle = title;
-	    			if (!$rootScope.$$phase) $rootScope.$digest();
-	    		}
+			if(instances[name] && instances[name].type!= WindowType.WINDOW){
+				instances[name].title =title;
+			}else{
+				$solutionSettings.solutionTitle = title;
+				if (!$rootScope.$$phase) $rootScope.$digest();
+			}
 		},
 		setInitialBounds:function(name,initialBounds){
 			if(instances[name]){
@@ -326,27 +331,27 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			}
 		},
 		reload: function() {
-        		$window.location.reload(true);
+			$window.location.reload(true);
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
-				$sabloApplication.clearformState(formName)
-				eval(controllerCode);
-				formTemplateUrls[formName] = realFormUrl;
-				if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
-				if (!$rootScope.$$phase) $rootScope.$digest();
+			$sabloApplication.clearformState(formName)
+			eval(controllerCode);
+			formTemplateUrls[formName] = realFormUrl;
+			if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		touchForm: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
-					formTemplateUrls[formName] = "";
-					if (!$rootScope.$$phase) $rootScope.$digest();
+				formTemplateUrls[formName] = "";
+				if (!$rootScope.$$phase) $rootScope.$digest();
 			}
 		},
- 		getFormUrl: function(formName) {
+		getFormUrl: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
-					formTemplateUrls[formName] = "";
-					$sabloApplication.callService("$windowService", "touchForm", {name:formName},true);
+				formTemplateUrls[formName] = "";
+				$sabloApplication.callService("$windowService", "touchForm", {name:formName},true);
 			}
 			else if (realFormUrl.length == 0)
 			{
@@ -356,7 +361,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			return realFormUrl;
 		}
 	}
-	
+
 }).value('WindowType',{
 	DIALOG:0,
 	MODAL_DIALOG:1,
@@ -375,11 +380,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}
 		return windowInstance.navigatorForm.templateURL;
 	}
-	
+
 	$scope.isUndecorated = function(){
 		return $scope.win.undecorated || ($scope.win.opacity<1)
 	}
-	
+
 	$scope.getBodySize = function(){
 		var win = $scope.win;
 		var width = win.size ? win.size.width:win.form.size.width;
@@ -390,13 +395,13 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {'width':width+'px','height':height+'px'}
 	}
 	$sabloApplication.callService('formService', 'formvisibility', {formname:windowInstance.form.name,visible:true})
-	
+
 	$scope.cancel = function () {
 		var promise = $sabloApplication.callService("$windowService", "windowClosing", {window:windowInstance.name},false);
 		promise.then(function(ok) {
-    		if (ok) {
-    			$windowService.hide(windowInstance.name);
-    		}
-    	})
+			if (ok) {
+				$windowService.hide(windowInstance.name);
+			}
+		})
 	};
 });

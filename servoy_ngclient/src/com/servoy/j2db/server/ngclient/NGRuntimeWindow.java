@@ -66,22 +66,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		return (INGApplication)super.getApplication();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicMainContainer#getContainerName()
-	 */
 	@Override
 	public String getContainerName()
 	{
 		return getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicMainContainer#getController()
-	 */
 	@Override
 	public IWebFormController getController()
 	{
@@ -108,11 +98,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		this.navigatorID = navigatorID;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicMainContainer#setController(com.servoy.j2db.IFormController)
-	 */
 	@Override
 	public void setController(IFormController form)
 	{
@@ -127,11 +112,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IBasicMainContainer#getHistory()
-	 */
 	@Override
 	public History getHistory()
 	{
@@ -139,11 +119,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
-	 */
 	@Override
 	public void resetBounds()
 	{
@@ -153,11 +128,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#setLocation(int, int)
-	 */
 	@Override
 	public void setLocation(int x, int y)
 	{
@@ -179,33 +149,18 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		this.y = y;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#getX()
-	 */
 	@Override
 	public int getX()
 	{
 		return x;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#getY()
-	 */
 	@Override
 	public int getY()
 	{
 		return y;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#setSize(int, int)
-	 */
 	@Override
 	public void setSize(int width, int height)
 	{
@@ -227,22 +182,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		this.height = height;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWidth()
-	 */
 	@Override
 	public int getWidth()
 	{
 		return width;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#getHeight()
-	 */
 	@Override
 	public int getHeight()
 	{
@@ -344,22 +289,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			new Object[] { this.getName(), titleString });
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#isVisible()
-	 */
 	@Override
 	public boolean isVisible()
 	{
 		return visible;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#toFront()
-	 */
 	@Override
 	public void toFront()
 	{
@@ -368,11 +303,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#toBack()
-	 */
 	@Override
 	public void toBack()
 	{
@@ -380,11 +310,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			new Object[] { this.getName() });
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#getWrappedObject()
-	 */
 	@Override
 	public Object getWrappedObject()
 	{
@@ -423,11 +348,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			new Object[] { getName(), isTransparent });
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#hideUI()
-	 */
 	@Override
 	public void hideUI()
 	{
@@ -453,11 +373,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			new Object[] { getName(), String.valueOf(storeBounds) });
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#doOldShow(java.lang.String, boolean, boolean)
-	 */
 	@Override
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{

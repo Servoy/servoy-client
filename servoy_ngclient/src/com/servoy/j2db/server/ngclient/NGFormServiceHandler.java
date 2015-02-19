@@ -190,7 +190,6 @@ public class NGFormServiceHandler extends FormServiceHandler
 			}
 			case "formLoaded" :
 			{
-				// "requestData" was already treated by "super" call; just let the system know that this form is now ready for use client-side
 				getWebsocketSession().formCreated(args.optString("formname"));
 				break;
 			}
