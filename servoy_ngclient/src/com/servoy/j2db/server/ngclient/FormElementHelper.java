@@ -160,7 +160,7 @@ public class FormElementHelper
 		return flattenedSolution;
 	}
 
-	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesginer)
+	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner)
 	{
 		Form form = listViewPortal.getForm();
 		Part bodyPart = null;
@@ -185,7 +185,8 @@ public class FormElementHelper
 				portal.put("name", name);
 				portal.put("multiLine", !listViewPortal.isTableview());
 				portal.put("rowHeight", !listViewPortal.isTableview() ? bodyheight : getRowHeight(form));
-				portal.put("scrollbars", form.getScrollbars());
+				portal.put("scrollbars",
+					isInDesigner ? (ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER + ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) : form.getScrollbars());
 				if (listViewPortal.isTableview())
 				{
 					int headerHeight = 30;
@@ -200,7 +201,7 @@ public class FormElementHelper
 				portal.put("anchors", IAnchorConstants.ALL);
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
-				location.put("y", isInDesginer ? startPos : 0);
+				location.put("y", isInDesigner ? startPos : 0);
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
 //				size.put("width", (listViewPortal.isTableview() && !fillsWidth) ? getGridWidth(form) : form.getWidth());
@@ -217,7 +218,7 @@ public class FormElementHelper
 
 				PropertyPath propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
-				FormElement portalFormElement = new FormElement("servoydefault-portal", portal, form, name, fs, propertyPath, isInDesginer);
+				FormElement portalFormElement = new FormElement("servoydefault-portal", portal, form, name, fs, propertyPath, isInDesigner);
 				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
 				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
 				if (pd == null)
@@ -251,7 +252,7 @@ public class FormElementHelper
 						{
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
-							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesginer);
+							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
 							{
 								String elementName = fe.getName();
