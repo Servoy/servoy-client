@@ -340,13 +340,6 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
-		touchForm: function(formName) {
-			var realFormUrl = formTemplateUrls[formName];
-			if (realFormUrl == null) {
-				formTemplateUrls[formName] = "";
-				if (!$rootScope.$$phase) $rootScope.$digest();
-			}
-		},
 		getFormUrl: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {

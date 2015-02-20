@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.j2db.dataprocessing.IRecord;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
@@ -109,7 +110,8 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	{
 		// if the current record is already not in the foundset anymore, just ignore this change.
 		// this is because the row of the record could still fire a ModificationEvent change at the moment the record is removed from the foundset.
-		if (getRecord().getParentFoundSet().getRecordIndex(getRecord()) != -1)
+		IRecordInternal r = getRecord();
+		if (r == null || r.getParentFoundSet().getRecordIndex(r) != -1)
 		{
 			super.valueChanged(e);
 		}

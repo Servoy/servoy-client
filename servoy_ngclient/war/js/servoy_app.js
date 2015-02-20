@@ -316,15 +316,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 }).factory("$formService",function($sabloApplication,$windowService,$servoyInternal) {
 	return {
 		showForm: function(formname,parentForm,beanName,relationname,formIndex) {
-			// first just touch the form here so it doesn't happen later on again.
 			if (!formname) {
 				throw "formname is undefined";
 			}
-			$windowService.touchForm(formname)
 			$sabloApplication.getFormState(formname).then(function (formState) {
 				// if first show of this form in browser window then request initial data (dataproviders and such)
-				$servoyInternal.requestInitialData(formname, formState);
 				$sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
+				$servoyInternal.requestInitialData(formname, formState);
 			});
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex) {
