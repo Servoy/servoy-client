@@ -80,7 +80,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a drop down field in the webbrowser.
- * 
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")
@@ -913,7 +913,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	 */
 	public boolean isReadOnly()
 	{
-		return !isEnabled();
+		return !isEditable();
 	}
 
 	public void setReadOnly(boolean b)
@@ -1191,7 +1191,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
 	}
 
 	@Override
