@@ -96,7 +96,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	formState.addWatches = function (beanNames) {
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
-		 		watches[beanName] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", "beanName"), wrapper(beanName), true);
+		 		watches[beanName] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", beanName), wrapper(beanName), true);
 			}
 		}
 		else {
