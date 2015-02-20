@@ -776,4 +776,11 @@ public class WebFormUI extends Container implements IWebFormUI
 			new ArrayList<IPersist>(formController.getForm().getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR)).iterator(),
 			getDataConverterContext());
 	}
+
+	@Override
+	public String toString()
+	{
+		return "FormUI for " + (formController != null ? formController.toString() : "");
+	}
+
 }

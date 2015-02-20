@@ -322,7 +322,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			$sabloApplication.getFormState(formname).then(function (formState) {
 				// if first show of this form in browser window then request initial data (dataproviders and such)
 				$sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
-				$servoyInternal.requestInitialData(formname, formState);
+				if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formname, formState);
 			});
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex) {
@@ -629,18 +629,18 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	mainForm: {},
 	navigatorForm: {width:0},
 	solutionTitle: "",
-	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	styleSheetPath: undefined,
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage, $sabloApplication) {
 	$servoyInternal.connect();
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
 		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";
 	}
 	$scope.getNavigatorFormUrl = function() {
-		if ( $solutionSettings.navigatorForm.templateURL && $solutionSettings.navigatorForm.templateURL.lastIndexOf("default_navigator_container.html") == -1) {
+		var templateURLOrFormName = $solutionSettings.navigatorForm.templateURL; // can be directly default nav. url or if not the name of the navigator form
+		if (templateURLOrFormName && templateURLOrFormName.lastIndexOf("default_navigator_container.html") == -1) {
 			return $windowService.getFormUrl($solutionSettings.navigatorForm.templateURL);
 		}
 		return $solutionSettings.navigatorForm.templateURL;
