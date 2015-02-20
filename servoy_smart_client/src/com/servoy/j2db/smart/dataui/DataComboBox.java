@@ -1770,7 +1770,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	 */
 	public boolean isReadOnly()
 	{
-		return !isEnabled();
+		return !isEditable();
 	}
 
 	public void setReadOnly(boolean b)
