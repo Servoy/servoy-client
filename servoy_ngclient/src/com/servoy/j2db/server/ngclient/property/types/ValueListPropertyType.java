@@ -116,7 +116,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				// if not writing properties, then it means the valuelist is already on the client, so
 				// send it only if it is changed
 				int formViewType = ((WebFormComponent)webObject).getFormElement().getForm().getView();
-				if ((webObject instanceof WebFormComponent &&
+				if ((webObject instanceof WebFormComponent && ((WebFormComponent)webObject).getDataConverterContext().getApplication().isInDesigner() &&
 					(formViewType == IFormConstants.VIEW_TYPE_RECORD || formViewType == IFormConstants.VIEW_TYPE_RECORD_LOCKED) && !((WebFormComponent)webObject).isWritingComponentProperties()))
 				{
 					checkIfChanged = true;
@@ -129,7 +129,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	@Override
 	public ValueListTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement,
-		WebFormComponent component, DataAdapterList dataAdapterList)
+			WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		ValueList val = null;
 		IValueList valueList = null;
