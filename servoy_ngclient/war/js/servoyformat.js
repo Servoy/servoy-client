@@ -60,7 +60,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		//treat percents and per thousants
 		var centIndex = -1;
 		var milIndex = -1;
-		var MILLSIGN = '\u2030' //‰
+		var MILLSIGN = '\u2030' //ï¿½
 		if(servoyFormat.indexOf("%") >-1){
 			data *= 100;
 			centIndex = partchedFrmt.indexOf("%")
@@ -73,7 +73,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		}
 		if(servoyFormat.indexOf("-") > -1) data *=-1;	
 		
-		partchedFrmt = partchedFrmt.replaceAll('¤','$');
+		partchedFrmt = partchedFrmt.replaceAll('ï¿½','$');
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
 		partchedFrmt = partchedFrmt.replaceAll('#','0');
 
@@ -279,11 +279,13 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			 element.on('focus',function(){
 				 if(svyFormat){
 					 if(svyFormat.edit && svyFormat.isMask) {
-						 if(svyFormat.allowedCharacters){
-							 element.mask(svyFormat.edit,{placeholder: svyFormat.placeHolder},{allowedCharacters: svyFormat.allowedCharacters}); 
-						 }else{
-							 element.mask(svyFormat.edit,{placeholder: svyFormat.placeHolder});
-						 }
+							 var settings = {};
+							 if (svyFormat.placeHolder)
+								 settings.placeholder = svyFormat.placeHolder;
+							 if (svyFormat.allowedCharacters)
+								 settings.allowedCharacters = svyFormat.allowedCharacters;
+							 
+							 element.mask(svyFormat.edit,settings);
 					 }else if(svyFormat.edit){
 						 $scope.$evalAsync(function(){
 							 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
