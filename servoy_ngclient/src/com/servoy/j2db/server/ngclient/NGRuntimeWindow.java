@@ -386,7 +386,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			switchForm(controller);
 		}
 
-		Map<String, Object> arguments = new HashMap<String, Object>();
 		Form form = getApplication().getFlattenedSolution().getForm(formName);
 		String titleArg = getTitle();
 		titleArg = titleArg == null ? form.getName() : titleArg;
