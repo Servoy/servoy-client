@@ -60,7 +60,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		//treat percents and per thousants
 		var centIndex = -1;
 		var milIndex = -1;
-		var MILLSIGN = '\u2030' //�
+		var MILLSIGN = '\u2030' //‰
 		if(servoyFormat.indexOf("%") >-1){
 			data *= 100;
 			centIndex = partchedFrmt.indexOf("%")
@@ -73,7 +73,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		}
 		if(servoyFormat.indexOf("-") > -1) data *=-1;	
 		
-		partchedFrmt = partchedFrmt.replaceAll('�','$');
+		partchedFrmt = partchedFrmt.replaceAll('¤','$');
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
 		partchedFrmt = partchedFrmt.replaceAll('#','0');
 
