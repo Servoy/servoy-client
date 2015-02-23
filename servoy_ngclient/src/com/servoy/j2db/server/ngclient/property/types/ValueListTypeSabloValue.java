@@ -59,6 +59,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected IChangeListener changeMonitor;
 	protected final DataAdapterList dataAdapterList;
 	protected final String dataproviderID;
+	private IRecordInternal previousRecord;
 
 	ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, String dataproviderID)
 	{
@@ -141,7 +142,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	@Override
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
-		if (dataProvider == null || Utils.equalObjects(dataProvider, dataproviderID))
+		if (previousRecord != null && !previousRecord.equals(record) || Utils.equalObjects(dataProvider, dataproviderID))
 		{
 			revertFilter();
 		}
@@ -150,6 +151,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			valueList.fill(record);
 			if (fireChangeEvent && changeMonitor != null) changeMonitor.valueChanged(); // TODO please optimize this, maybe the valuelist didn't actually change!
 		}
+		previousRecord = record;
 	}
 
 	private List<Map<String, Object>> javaValueForJSON;
