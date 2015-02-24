@@ -168,7 +168,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -248,6 +248,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void destroy()
 	{
+		if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
 		unload();
 		if (formUI != null)
 		{

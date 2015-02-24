@@ -124,6 +124,8 @@ public interface IBasicFormManager extends IFormManager
 	 */
 	IFormController showFormInContainer(String formName, IBasicMainContainer container, String title, boolean closeAll, String dialogName);
 
+	void removeFormController(BasicFormController fp);
+
 	public static class History
 	{
 		private static final int DEFAULT_HISTORY_SIZE = 10;
@@ -244,7 +246,7 @@ public interface IBasicFormManager extends IFormManager
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public boolean getButtonsEnabled()
 		{
@@ -269,7 +271,7 @@ public interface IBasicFormManager extends IFormManager
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public void clear()
 		{

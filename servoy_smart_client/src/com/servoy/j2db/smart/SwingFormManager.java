@@ -32,6 +32,7 @@ import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -57,7 +58,7 @@ import com.servoy.j2db.util.gui.JMenuAlwaysEnabled;
 
 public class SwingFormManager extends FormManager implements ISwingFormManager, ActionListener
 {
-	protected Map formUser; // FormUIController -> Container    
+	protected Map formUser; // FormUIController -> Container
 
 	// Map thats stores containers that er in printpreview: IMainContainer -> PrintPreviewHolder
 	protected Map printPreviews;
@@ -104,7 +105,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 //									removePreview();
 //									showPreview(f);
 //									break;
-//			
+//
 							case IModeManager.FIND_MODE :
 							case IModeManager.EDIT_MODE :
 								((FormManager)getApplication().getFormManager()).showFormInMainPanel(name);
@@ -242,9 +243,9 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		Form currentMainShowingForm = null;
 		if (currentContainer != null)
 		{
-			// only enable command on the current container. They must be enabled else commands are disabled or not 
+			// only enable command on the current container. They must be enabled else commands are disabled or not
 			// disabled based on the main container. Now they will be set to enabled based on who has the focus
-			//if (currentContainer != getMainContainer(null) || 
+			//if (currentContainer != getMainContainer(null) ||
 			if (currentContainer.getController() == null) return;
 			currentMainShowingForm = currentContainer.getController().getForm();
 		}
@@ -381,7 +382,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 
 	/**
 	 * Method showScriptInMenu.
-	 * 
+	 *
 	 * @param sm
 	 * @return boolean
 	 */
@@ -419,7 +420,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 	}
 
 	@Override
-	protected void removeFormUser(FormController fp)
+	protected void removeFormUser(BasicFormController fp)
 	{
 		Container user = (Container)formUser.remove(fp);
 		if (user != null)

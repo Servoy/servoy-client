@@ -60,7 +60,6 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.IScriptable;
@@ -68,7 +67,6 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -146,7 +144,7 @@ public class FormController extends BasicFormController
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
@@ -203,7 +201,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#getBasicFormManager()
 	 */
 	@Override
@@ -556,7 +554,7 @@ public class FormController extends BasicFormController
 			}
 			containerImpl.destroy();
 
-			if (fm != null) fm.removeFormPanel(this);
+			if (fm != null) fm.removeFormController(this);
 			fm = null;
 
 			unload();
@@ -719,7 +717,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#requestFocus()
 	 */
 	public void requestFocus()

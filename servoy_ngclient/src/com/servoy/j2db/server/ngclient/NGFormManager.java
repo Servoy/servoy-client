@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IBasicMainContainer;
@@ -221,6 +222,11 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			fc = leaseFormPanel(name);
 		}
 		return fc;
+	}
+
+	public void removeFormController(BasicFormController fp)
+	{
+		createdFormControllers.remove(fp.getName());
 	}
 
 	@Override

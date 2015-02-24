@@ -30,6 +30,7 @@ import org.apache.wicket.PageMap;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -71,7 +72,7 @@ public class WebFormManager extends FormManager
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.FormManager#makeSolutionSettings(com.servoy.j2db.persistence.Solution)
 	 */
 	@Override
@@ -165,7 +166,7 @@ public class WebFormManager extends FormManager
 	}
 
 	@Override
-	protected void removeFormUser(FormController fp)
+	protected void removeFormUser(BasicFormController fp)
 	{
 	}
 
@@ -371,7 +372,7 @@ public class WebFormManager extends FormManager
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.FormManager#destroySolutionSettings()
 	 */
 	@Override
