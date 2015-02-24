@@ -21,6 +21,8 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
@@ -32,10 +34,14 @@ import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
  * TODO is format really mapped on a special object (like ParsedFormat)
@@ -44,7 +50,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  *
  */
 public class FormatPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>/* <ComponentFormat> */,
-	ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>
+	ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>, ISabloComponentToRhino<Object> /* <ComponentFormat */,
+	IRhinoToSabloComponent<Object> /* <ComponentFormat */
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -178,7 +185,34 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		return formElementValue;
 	}
 
-	// TODO implement RHINO conversion interfaces for JS access to the property on server; recreate ComponentFormat object (it has quite a lot of dependencies, application, pesist  etc)
-	// see case SVY-7527
+	@Override
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return true;
+	}
 
+	@Override
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		if (webComponentValue instanceof ComponentFormat)
+		{
+			return ((ComponentFormat)webComponentValue).parsedFormat.getFormatString();
+		}
+		return null;
+	}
+
+	@Override
+	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		if (rhinoValue != null)
+		{
+			WebFormComponent wfc = (WebFormComponent)componentOrService;
+			INGApplication application = wfc.getDataConverterContext().getApplication();
+			IDataProviderLookup dataproviderLookup = wfc.getDataConverterContext().getSolution().getDataproviderLookup(application.getFoundSetManager(),
+				wfc.getFormElement().getForm());
+			String dataproviderId = (String)wfc.getFormElement().getPropertyValue((String)pd.getConfig());
+			return ComponentFormat.getComponentFormat(rhinoValue.toString(), dataproviderId, dataproviderLookup, application);
+		}
+		return null;
+	}
 }

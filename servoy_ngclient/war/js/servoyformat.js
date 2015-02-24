@@ -274,6 +274,12 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			 var useMask = false;
 			 $scope.$watch(attrs['svyFormat'], function(newVal){
 				 svyFormat = newVal;
+				 var viewValue = ngModelController.$modelValue;
+                for (var i in ngModelController.$formatters) {
+                    viewValue = ngModelController.$formatters[i](viewValue);
+                }
+                ngModelController.$viewValue = viewValue;
+                ngModelController.$render();
 			 })
 			 
 			 element.on('focus',function(){
@@ -310,7 +316,6 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		    ngModelController.$formatters.push(modelToView);
 		    
 		    function viewToModel(viewValue) {
-		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
 		    	var data = viewValue
 		    	if(svyFormat){
 			    	var format = null;
@@ -329,7 +334,6 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		    }
 		    
 		    function modelToView(modelValue) {
-		    	var svyFormat =$scope.$eval(attrs['svyFormat'])
 		    	var data = modelValue;
 		    	if(svyFormat){
 			    	var format = null;
