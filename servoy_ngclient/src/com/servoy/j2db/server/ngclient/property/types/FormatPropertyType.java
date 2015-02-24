@@ -122,6 +122,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		map.put("type", type);
 
 		boolean isMask = format.parsedFormat.isMask();
+		boolean isAllUppercase = format.parsedFormat.isAllUpperCase();
+		boolean isAllLowercase = format.parsedFormat.isAllLowerCase();
 		String mask = format.parsedFormat.getEditFormat();
 		if (isMask && type.equals("DATETIME"))
 		{
@@ -140,6 +142,12 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		map.put("placeHolder", placeHolder);
 		map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());
 		map.put("display", format.parsedFormat.getDisplayFormat());
+
+		if (isAllLowercase || isAllUppercase)
+		{
+			if (isAllUppercase) map.put("text-transform", "uppercase");
+			else map.put("text-transform", "lowercase");
+		}
 
 		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion, null);
 	}
