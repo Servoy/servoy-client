@@ -363,6 +363,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		updateController(form, name, formUrl, false);
 	}
 
+	public void destroyForm(String name)
+	{
+		try
+		{
+			getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("destroyController", new Object[] { name });
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+	}
+
 	@Override
 	public void solutionLoaded(Solution solution)
 	{

@@ -45,12 +45,10 @@ import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
-import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -556,28 +554,12 @@ public class FormController extends BasicFormController
 			{
 				setDesignMode(null);
 			}
-			if (form.getOnUnLoadMethodID() > 0)
-			{
-				executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, new Object[] { getJSEvent(formScope) }, Boolean.TRUE, true, true);
-			}
 			containerImpl.destroy();
-
-			application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
-			((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
 
 			if (fm != null) fm.removeFormPanel(this);
 			fm = null;
 
-			if (formModel != null)
-			{
-				((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
-				((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
-				//			formModel.removeEditListener(this);
-				((ISwingFoundSet)formModel).removeTableModelListener(this);
-				formModel.flushAllCachedItems();//to make sure all data is gc'ed
-			}
-			setFormModelInternal(null);
-			lastState = null;
+			unload();
 
 			if (view != null) //it may not yet exist
 			{
@@ -593,9 +575,6 @@ public class FormController extends BasicFormController
 			}
 
 			deleteRenderers();
-
-			SolutionScope solScope = application.getScriptEngine().getSolutionScope();
-			((CreationalPrototype)solScope.get("forms", solScope)).removeFormPanel(this); //$NON-NLS-1$
 
 			hmChildrenJavaMembers = null;
 			if (scriptExecuter != null)

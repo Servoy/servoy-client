@@ -32,6 +32,7 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
@@ -565,4 +566,26 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE))) });
 	}
 
+	public void destroy()
+	{
+		if (record != null)
+		{
+			setRecord(null, false);
+		}
+		if (formController != null && formController.getFormScope() != null)
+		{
+			formController.getFormScope().getModificationSubject().removeModificationListener(this);
+		}
+		if (formController != null && formController.getApplication() != null && formController.getApplication().getScriptEngine() != null)
+		{
+			IExecutingEnviroment er = formController.getApplication().getScriptEngine();
+			if (er.getScopesScope() != null)
+			{
+				er.getScopesScope().getModificationSubject().removeModificationListener(this);
+			}
+		}
+		dataProviderToLinkedComponentProperty.clear();
+		allComponentPropertiesLinkedToData.clear();
+		findModeAwareProperties.clear();
+	}
 }

@@ -293,7 +293,9 @@ public class WebFormUI extends Container implements IWebFormUI
 	@Override
 	public void destroy()
 	{
-		for (WebComponent c : components.values())
+		if (dataAdapterList != null) dataAdapterList.destroy();
+		Collection<WebComponent> componentsList = new ArrayList<WebComponent>(components.values());
+		for (WebComponent c : componentsList)
 		{
 			c.dispose();
 		}

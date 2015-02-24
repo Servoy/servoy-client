@@ -1088,6 +1088,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	public void destroy()
 	{
+		SolutionScope solScope = application.getScriptEngine().getSolutionScope();
+		((CreationalPrototype)solScope.get("forms", solScope)).removeFormPanel(this); //$NON-NLS-1$
+
 		if (scriptableForm != null)
 		{
 			scriptableForm.destroy();
@@ -1099,6 +1102,27 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 		formScope = null;
 		destroyed = true;
+	}
+
+	public void unload()
+	{
+		if (form.getOnUnLoadMethodID() > 0)
+		{
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, new Object[] { getJSEvent(formScope) }, Boolean.TRUE, true, true);
+		}
+		application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
+		((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
+
+		if (formModel != null)
+		{
+			((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
+			((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
+			//			formModel.removeEditListener(this);
+			((ISwingFoundSet)formModel).removeTableModelListener(this);
+			formModel.flushAllCachedItems();//to make sure all data is gc'ed
+		}
+		setFormModelInternal(null);
+		lastState = null;
 	}
 
 	public void checkInitialized()
