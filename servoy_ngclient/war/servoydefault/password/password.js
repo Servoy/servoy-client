@@ -12,11 +12,11 @@ angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassw
     	 // fill in the api defined in the spec file
     	 $scope.api.onDataChangeCallback = function(event, returnval) {
     		 if(!returnval) {
-    			 $element[0].focus();
+    			 $element[0].childNodes[0].focus();
     		 }
     	 },
     	 $scope.api.requestFocus = function() { 
-    		  $element[0].focus()
+    		  $element[0].childNodes[0].focus()
     	 }
     	 
     	// special method that servoy calls when this component goes into find mode.
