@@ -349,13 +349,6 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		destroyController : function(formName){
 			$sabloApplication.clearFormState(formName);
 		},
-		touchForm: function(formName) {
-			var realFormUrl = formTemplateUrls[formName];
-			if (realFormUrl == null) {
-				formTemplateUrls[formName] = "";
-				if (!$rootScope.$$phase) $rootScope.$digest();
-			}
-		},
 		getFormUrl: function(formName) {
 			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
