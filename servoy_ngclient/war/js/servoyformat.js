@@ -270,19 +270,22 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		  require: 'ngModel',
 		  priority: 1,
 		  link: function($scope, element, attrs, ngModelController) {
-			 var svyFormat = $scope.$eval(attrs['svyFormat'])
 			 var useMask = false;
-			 $scope.$watch(attrs['svyFormat'], function(newVal){
-				 svyFormat = newVal;
-				 var viewValue = ngModelController.$modelValue;
-                for (var i in ngModelController.$formatters) {
-                    viewValue = ngModelController.$formatters[i](viewValue);
-                }
-                ngModelController.$viewValue = viewValue;
-                ngModelController.$render();
+			 $scope.$watch(attrs['svyFormat'], function(newVal, oldVal){
+				 if (newVal !== oldVal) {
+					 var formatters = ngModelController.$formatters; 
+					 var idx = formatters.length;
+				     var viewValue = ngModelController.$modelValue;
+				     while (idx--) {
+				        viewValue = formatters[idx](viewValue);
+				     }
+		             ngModelController.$viewValue = viewValue;
+		             ngModelController.$render();
+				 }
 			 })
 			 
 			 element.on('focus',function(){
+				 var svyFormat = $scope.$eval(attrs['svyFormat'])
 				 if(svyFormat){
 					 if(svyFormat.edit && svyFormat.isMask) {
 							 var settings = {};
@@ -301,6 +304,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				 }				 			  
 			 })
 			 element.on('blur',function(){
+				 var svyFormat = $scope.$eval(attrs['svyFormat'])
 				 if(svyFormat){
 					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
 					 $scope.$evalAsync(function(){
@@ -316,6 +320,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		    ngModelController.$formatters.push(modelToView);
 		    
 		    function viewToModel(viewValue) {
+		    	 var svyFormat = $scope.$eval(attrs['svyFormat'])
 		    	var data = viewValue
 		    	if(svyFormat){
 			    	var format = null;
@@ -334,6 +339,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		    }
 		    
 		    function modelToView(modelValue) {
+		    	 var svyFormat = $scope.$eval(attrs['svyFormat'])
 		    	var data = modelValue;
 		    	if(svyFormat){
 			    	var format = null;
