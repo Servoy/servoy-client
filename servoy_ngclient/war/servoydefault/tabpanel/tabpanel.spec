@@ -21,7 +21,7 @@
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
 	        "tabIndex" : "int", 
 	        "tabOrientation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"default" :0}, {"TOP":1}, {"HIDE":-1}]}, 
-	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
+	        "tabSeq" : {"type" :"tabseq"}, 
 	        "tabs" : {"type":"tab[]", "droppable":true}, 
 	        "transparent" : "boolean", 
 	        "visible" : "visible" 

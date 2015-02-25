@@ -69,6 +69,7 @@ import com.servoy.j2db.util.Debug;
 public final class FormElement implements IWebComponentInitializer
 {
 	public static final String ERROR_BEAN = "servoydefault-errorbean";
+	public static final String SVY_NAME_PREFIX = "svy_";
 
 	private final Form form;
 	private Map<String, Object> propertyValues;
@@ -398,7 +399,7 @@ public final class FormElement implements IWebComponentInitializer
 		String name = rawValue;
 		if (name == null)
 		{
-			name = "svy_" + uniqueIdWithinForm;
+			name = SVY_NAME_PREFIX + uniqueIdWithinForm;
 		}
 		if (Character.isDigit(name.charAt(0)))
 		{

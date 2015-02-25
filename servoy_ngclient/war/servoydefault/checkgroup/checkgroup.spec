@@ -21,7 +21,7 @@
 	        "scrollbars" : {"type" :"scrollbars", "tags": { "scope" :"design" }}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :["form-control", "input-sm", "svy-padding-xs"]}, 
-	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
+	        "tabSeq" : {"type" :"tabseq"}, 
 	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 
