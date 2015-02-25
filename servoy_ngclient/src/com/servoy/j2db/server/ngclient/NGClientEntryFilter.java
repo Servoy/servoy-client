@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -208,13 +209,6 @@ public class NGClientEntryFilter extends WebEntry
 
 									boolean html = uri.endsWith(".html");
 									PrintWriter w = servletResponse.getWriter();
-//									if (!tableview && html && form.getLayoutGrid() != null)
-//									{
-//										((HttpServletResponse)servletResponse).setContentType("text/html");
-//										FormWithInlineLayoutGenerator.generate(form, wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
-//											: new ServoyDataConverterContext(fs), w);
-//									}
-//									else
 									if (html && form.isResponsiveLayout())
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
@@ -243,9 +237,11 @@ public class NGClientEntryFilter extends WebEntry
 							else
 							{
 								//prepare for possible index.html lookup
-								jsContributions = getFormScriptReferences(fs);
-								variableSubstitution = new HashMap<String, String>();
+								Map<String, String> variableSubstitution = new HashMap<String, String>();
 								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
+								super.doFilter(servletRequest, servletResponse, filterChain, Arrays.asList("css/servoy.css"), getFormScriptReferences(fs),
+									variableSubstitution);
+								return;
 							}
 						}
 						finally
@@ -255,34 +251,14 @@ public class NGClientEntryFilter extends WebEntry
 					}
 				}
 			}
-			super.doFilter(servletRequest, servletResponse, filterChain);
+			Debug.log("No solution found for this request, calling the default filter: " + uri);
+			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null);
 		}
 		catch (RuntimeException | Error e)
 		{
 			Debug.error(e);
 			throw e;
 		}
-		finally
-		{
-			jsContributions = null;//prevent leaks or state between requests
-			variableSubstitution = null;
-		}
-	}
-
-	private Collection<String> jsContributions;
-
-	@Override
-	protected Collection<String> getJSContributions()
-	{
-		return jsContributions;
-	}
-
-	private Map<String, String> variableSubstitution;
-
-	@Override
-	protected Map<String, String> getVariableSubstitution()
-	{
-		return variableSubstitution;
 	}
 
 	/**
@@ -333,13 +309,5 @@ public class NGClientEntryFilter extends WebEntry
 			return getClass().getResource("index.html");
 		}
 		return super.getIndexPageResource(request);
-	}
-
-	@Override
-	protected Collection<String> getCSSContributions()
-	{
-		ArrayList<String> css = new ArrayList<String>();
-		css.add("css/servoy.css");
-		return css;
 	}
 }
