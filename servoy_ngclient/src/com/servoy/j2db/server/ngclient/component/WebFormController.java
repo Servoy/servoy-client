@@ -415,7 +415,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					PropertyDescription pd = properties.iterator().next();
 					Integer value = (Integer)component.getProperty(pd.getName());
 					defaultTabSequence = defaultTabSequence && value.intValue() == 0;
-					if (!component.getName().startsWith(FormElement.SVY_NAME_PREFIX))
+					if (!component.getName().startsWith(FormElement.SVY_NAME_PREFIX) && value.intValue() > 0)
 					{
 						map.put(value, component.getName());
 					}
