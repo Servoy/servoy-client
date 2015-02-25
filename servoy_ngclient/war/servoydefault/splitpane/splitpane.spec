@@ -19,7 +19,7 @@
 	        "size" : {"type" :"dimension",  "default" : {"width":300, "height":300}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
 	        "tabOrientation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"default" :0}, {"TOP":1}, {"HIDE":-1}]}, 
-	        "tabSeq" : {"type" :"tabseq"}, 
+	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "tabs" : {"type":"tab[]", "droppable":true}, 
 	        "transparent" : "boolean", 
 	        "visible" : "visible" 

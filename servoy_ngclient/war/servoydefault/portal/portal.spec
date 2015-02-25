@@ -32,7 +32,7 @@
 	        "size" : {"type" :"dimension",  "default" : {"width":200, "height":200}}, 
 	        "sortable" : "boolean", 
 	        "styleClass" : "string", 
-	        "tabSeq" : {"type" :"tabseq"}, 
+	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "transparent" : "boolean", 
 	        "visible" : "visible" 
 	},

@@ -22,7 +22,7 @@
 	        "placeholderText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
-	        "tabSeq" : {"type" :"tabseq"}, 
+	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 

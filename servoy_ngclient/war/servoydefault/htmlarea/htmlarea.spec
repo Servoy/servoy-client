@@ -23,7 +23,7 @@
 	        "scrollbars" : {"type" :"scrollbars", "tags": { "scope" :"design" }}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":370, "height":250}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
-	        "tabSeq" : {"type" :"tabseq"}, 
+	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 

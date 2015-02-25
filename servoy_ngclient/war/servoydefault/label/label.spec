@@ -28,7 +28,7 @@
 	        "showFocus" : {"type":"boolean", "default":true}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":80, "height":20}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
-	        "tabSeq" : {"type" :"tabseq"}, 
+	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "textRotation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[0,90,180,270]}, 
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
