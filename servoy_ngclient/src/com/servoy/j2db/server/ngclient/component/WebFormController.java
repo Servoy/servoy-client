@@ -18,7 +18,9 @@
 package com.servoy.j2db.server.ngclient.component;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,6 +39,7 @@ import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -402,6 +405,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (tabSequence == null)
 		{
 			Map<Integer, String> map = new TreeMap<Integer, String>();
+			boolean defaultTabSequence = true;
 			for (WebComponent component : formUI.getComponents())
 			{
 				WebComponentSpecification spec = component.getSpecification();
@@ -409,13 +413,26 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				if (properties.size() == 1)
 				{
 					PropertyDescription pd = properties.iterator().next();
+					Integer value = (Integer)component.getProperty(pd.getName());
+					defaultTabSequence = defaultTabSequence && value.intValue() == 0;
 					if (!component.getName().startsWith(FormElement.SVY_NAME_PREFIX))
 					{
-						map.put((Integer)component.getProperty(pd.getName()), component.getName());
+						map.put(value, component.getName());
 					}
 				}
 			}
-			if (map.size() > 0)
+			if (defaultTabSequence)
+			{
+				ArrayList<String> sequence = new ArrayList<String>();
+				Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
+				while (it.hasNext())
+				{
+					IFormElement element = it.next();
+					if (element.getName() != null) sequence.add(element.getName());
+				}
+				tabSequence = sequence.toArray(new String[sequence.size()]);
+			}
+			else
 			{
 				tabSequence = map.values().toArray(new String[map.size()]);
 			}
