@@ -11,11 +11,14 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 			$scope.findMode = false;
 			$scope.style = {width:'100%',height:'100%',overflow:'hidden'}
 			
-			if ($scope.model.format["text-transform"])
-				$scope.style["text-transform"] = $scope.model.format["text-transform"];
-			
 			var storedTooltip = false;
 			// fill in the api defined in the spec file
+
+			$scope.$watch($attrs['svyFormat'], function(newVal, oldVal){
+				if (newVal && newVal["text-transform"])
+					$scope.style["text-transform"] = newVal["text-transform"];
+			});
+
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
 				if(!returnval || stringValue) {
