@@ -383,14 +383,16 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			if (elements[i] instanceof RuntimeWebComponent)
 			{
-				RuntimeWebComponent comp = (RuntimeWebComponent)elements[i];
-				WebComponentSpecification spec = comp.getWebComponentSpecification();
+				WebFormComponent component = ((RuntimeWebComponent)elements[i]).getComponent();
+				WebComponentSpecification spec = component.getSpecification();
 				Collection<PropertyDescription> properties = spec.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 				if (properties.size() == 1)
 				{
-					comp.put(properties.iterator().next().getName(), null, Integer.valueOf(i + 1));
+					PropertyDescription pd = properties.iterator().next();
+					Integer val = Integer.valueOf(i + 1);
+					if (!val.equals(component.getProperty(pd.getName()))) component.setProperty(pd.getName(), val);
 				}
-				tabSequence[i] = comp.getName();
+				tabSequence[i] = component.getName();
 			}
 			else
 			{
