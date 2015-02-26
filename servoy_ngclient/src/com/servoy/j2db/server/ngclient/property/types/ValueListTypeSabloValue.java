@@ -40,6 +40,7 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -59,12 +60,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected IChangeListener changeMonitor;
 	protected final DataAdapterList dataAdapterList;
 	protected final String dataproviderID;
+	protected final ValueListConfig config;
 	private IRecordInternal previousRecord;
 
-	ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, String dataproviderID)
+	ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID)
 	{
 		this.valueList = valueList;
 		this.dataAdapterList = dataAdapterList;
+		this.config = config;
 		this.dataproviderID = dataproviderID;
 	}
 

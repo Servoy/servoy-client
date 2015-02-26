@@ -47,6 +47,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -79,7 +80,16 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		return json == null ? "" : json.optString("for");
+		String dataprovider = "";
+		String def = null;
+		boolean canOptimize = true;
+		if (json != null)
+		{
+			dataprovider = json.optString("for");
+			def = json.optString("default");
+			canOptimize = json.optBoolean("canOptimize", true);
+		}
+		return new ValueListConfig(dataprovider, def, canOptimize);
 	}
 
 	@Override
@@ -119,7 +129,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				{
 					WebFormComponent wfc = (WebFormComponent)webObject;
 					int formViewType = wfc.getFormElement().getForm().getView();
-					if (!wfc.getFormElement().getTypeName().equals("servoydefault-typeahead") &&
+					if (sabloValue.config.canOptimize() &&
 						(formViewType == IFormConstants.VIEW_TYPE_RECORD || formViewType == IFormConstants.VIEW_TYPE_RECORD_LOCKED) &&
 						!wfc.isWritingComponentProperties())
 					{
@@ -151,7 +161,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
 		}
 
-		String dataproviderID = (pd.getConfig() != null ? (String)formElement.getPropertyValue((String)pd.getConfig()) : null);
+		ValueListConfig config = (ValueListConfig)pd.getConfig();
+		String dataproviderID = (pd.getConfig() != null ? (String)formElement.getPropertyValue(config.getFor()) : null);
 
 		if (val != null)
 		{
@@ -187,7 +198,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		}
 		else
 		{
-			if (formElement.getTypeName().equals("servoydefault-typeahead"))
+			if ("autoVL".equals(config.getDefaultValue()))
 			{
 				String dp = (String)formElement.getPropertyValue(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName());
 				IWebFormUI formUI = component.findParent(WebFormUI.class);
@@ -204,7 +215,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 
-		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, dataproviderID) : null;
+		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID) : null;
 	}
 
 	@Override
