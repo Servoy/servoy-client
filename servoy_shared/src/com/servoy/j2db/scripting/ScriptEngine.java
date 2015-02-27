@@ -684,34 +684,48 @@ public class ScriptEngine implements IScriptSupport
 				}
 				Context.exit();
 			}
-			if (Context.getCurrentContext() == null && !application.isShutDown())
-			{
-				if (application.isEventDispatchThread() && !(scope instanceof TableScope))
-				{
-					application.getFlattenedSolution().checkStateForms(application);
-				}
-				String userUidAfter = application.getClientInfo().getUserUid();
-				if (!Utils.stringSafeEquals(userUidBefore, userUidAfter))
-				{
-					// user was authenticated or logged out
-					// Use invokeLater because the event that triggered this method may be followed by using code that still needs to run with the old solution (SVY-3335).
-					final String uidBefore = userUidBefore;
-					final String uidAfter = userUidAfter;
-					application.invokeLater(new Runnable()
-					{
-						public void run()
-						{
-							application.handleClientUserUidChanged(uidBefore, uidAfter);
-						}
-					});
-				}
-			}
+			testClientUidChange(scope, userUidBefore);
 		}
 		return retValue;
 	}
 
+	/**
+	 * @param scope
+	 * @param userUidBefore
+	 */
+	private void testClientUidChange(Scriptable scope, String userUidBefore)
+	{
+		if (Context.getCurrentContext() == null && !application.isShutDown())
+		{
+			if (application.isEventDispatchThread() && !(scope instanceof TableScope))
+			{
+				application.getFlattenedSolution().checkStateForms(application);
+			}
+			String userUidAfter = application.getClientInfo().getUserUid();
+			if (!Utils.stringSafeEquals(userUidBefore, userUidAfter))
+			{
+				// user was authenticated or logged out
+				// Use invokeLater because the event that triggered this method may be followed by using code that still needs to run with the old solution (SVY-3335).
+				final String uidBefore = userUidBefore;
+				final String uidAfter = userUidAfter;
+				application.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						application.handleClientUserUidChanged(uidBefore, uidAfter);
+					}
+				});
+			}
+		}
+	}
+
 	public Object eval(Scriptable scope, String eval_string)
 	{
+		String userUidBefore = null;
+		if (Context.getCurrentContext() == null)
+		{
+			userUidBefore = application.getClientInfo().getUserUid();
+		}
 		Context cx = Context.enter();
 		try
 		{
@@ -762,6 +776,7 @@ public class ScriptEngine implements IScriptSupport
 		finally
 		{
 			Context.exit();
+			testClientUidChange(scope, userUidBefore);
 		}
 		return null;
 	}
