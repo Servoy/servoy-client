@@ -25,6 +25,8 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,12 +42,17 @@ import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.sablo.InMemPackageReader;
 import org.sablo.specification.WebComponentPackage;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IWebsocketSession;
+import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.ChangeHandler;
@@ -57,6 +64,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
@@ -158,7 +166,6 @@ public abstract class AbstractSolutionTest
 			endpoint = new NGClientEndpoint();
 			endpoint.start(new Session()
 			{
-
 				@Override
 				public void setMaxTextMessageBufferSize(int arg0)
 				{
@@ -221,8 +228,7 @@ public abstract class AbstractSolutionTest
 				@Override
 				public Map<String, List<String>> getRequestParameterMap()
 				{
-					// TODO Auto-generated method stub
-					return null;
+					return Collections.singletonMap("solution", Arrays.asList("Test"));
 				}
 
 				@Override
@@ -443,11 +449,23 @@ public abstract class AbstractSolutionTest
 
 				}
 			}, "1", null, "Test");
+
+			IWebsocketSession wsSession = WebsocketSessionManager.getSession(endpoint.getEndpointType(), "1");
+			Assert.assertNotNull("no wsSession", wsSession);
+
+			CurrentWindow.set(new NGClientWebsocketSessionWindows(wsSession));
 		}
 		catch (RepositoryException e)
 		{
 			e.printStackTrace();
+			Assert.fail(e.getMessage());
 		}
+	}
+
+	@After
+	public void tearDown() throws Exception
+	{
+		CurrentWindow.set(null);
 	}
 
 	protected abstract void setupData() throws ServoyException;

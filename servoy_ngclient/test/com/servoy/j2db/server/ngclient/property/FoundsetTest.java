@@ -61,9 +61,6 @@ import com.servoy.j2db.util.ServoyException;
 @SuppressWarnings("nls")
 public class FoundsetTest extends AbstractSolutionTest
 {
-
-	private static final String SERVOY_PROPERTIES = null;
-
 	@Override
 	protected InMemPackageReader getTestComponents() throws IOException
 	{
@@ -426,7 +423,6 @@ public class FoundsetTest extends AbstractSolutionTest
 		foundSet.deleteRecord(0);
 		foundSet.deleteRecord(2);//last record is now at index 2
 		Assert.assertEquals(2, rawPropertyValue.foundset.getSize());
-
 	}
 
 	@Test
@@ -445,8 +441,6 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		Assert.assertEquals(FoundsetTypeChangeMonitor.SEND_FOUNDSET_SIZE | FoundsetTypeChangeMonitor.SEND_SELECTED_INDEXES,
 			rawPropertyValue.changeMonitor.changeFlags);
-
-
 	}
 
 	@Test
