@@ -25,8 +25,6 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,14 +40,12 @@ import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
-import org.junit.After;
 import org.junit.Before;
 import org.sablo.InMemPackageReader;
 import org.sablo.specification.WebComponentPackage;
 import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
-import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.ChangeHandler;
@@ -60,7 +56,6 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
-import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -104,6 +99,7 @@ public abstract class AbstractSolutionTest
 	};
 	protected Solution solution;
 	protected TestNGClient client;
+	protected NGClientEndpoint endpoint;
 
 	/**
 	 *
@@ -111,13 +107,6 @@ public abstract class AbstractSolutionTest
 	public AbstractSolutionTest()
 	{
 		super();
-	}
-
-	@After
-	public void cleanup()
-	{
-		FormElementHelper.INSTANCE.reload();
-		ApplicationServerRegistry.clear();
 	}
 
 	@Before
@@ -134,7 +123,6 @@ public abstract class AbstractSolutionTest
 		WebComponentSpecProvider.init(getReaders(locations, inMemPackageReader));
 
 		WebServiceSpecProvider.init(getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null));
-
 
 		final TestRepository tr = new TestRepository();
 		try
@@ -167,7 +155,7 @@ public abstract class AbstractSolutionTest
 			};
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
-			NGClientEndpoint endpoint = new NGClientEndpoint();
+			endpoint = new NGClientEndpoint();
 			endpoint.start(new Session()
 			{
 
@@ -233,9 +221,8 @@ public abstract class AbstractSolutionTest
 				@Override
 				public Map<String, List<String>> getRequestParameterMap()
 				{
-					Map<String, List<String>> params = new HashMap<String, List<String>>();
-					params.put("solution", Arrays.asList("Test"));
-					return params;
+					// TODO Auto-generated method stub
+					return null;
 				}
 
 				@Override
@@ -455,8 +442,7 @@ public abstract class AbstractSolutionTest
 					// TODO Auto-generated method stub
 
 				}
-			}, "1", null);
-			WebsocketEndpoint.set(endpoint);
+			}, "1", null, "Test");
 		}
 		catch (RepositoryException e)
 		{

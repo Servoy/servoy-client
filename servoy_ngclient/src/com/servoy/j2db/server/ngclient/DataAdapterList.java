@@ -466,14 +466,25 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (onDataChange != null && webComponent.hasEvent(onDataChange))
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange);
-				Object returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
+				Object returnValue = null;
+				Exception exception = null;
+				try
+				{
+					returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
+				}
+				catch (Exception e)
+				{
+					Debug.error("Error during onDataChange webComponent=" + webComponent, e);
+					exception = e;
+				}
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
 					WebComponentApiDefinition call = new WebComponentApiDefinition(onDataChangeCallback);
 					call.addParameter(new PropertyDescription("event", TypesRegistry.getType("object")));
 					call.addParameter(new PropertyDescription("returnValue", TypesRegistry.getType("object")));
-					webComponent.invokeApi(call, new Object[] { event, returnValue });
+					call.addParameter(new PropertyDescription("exception", TypesRegistry.getType("object")));
+					webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 				}
 			}
 		}
@@ -560,7 +571,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			x.findModeChanged(findMode);
 		}
 
-		getApplication().getWebsocketSession().getService("$servoyInternal").executeAsyncServiceCall(
+		getApplication().getWebsocketSession().getClientService("$servoyInternal").executeAsyncServiceCall(
 			"setFindMode",
 			new Object[] { formController.getName(), Boolean.valueOf(findMode), Boolean.valueOf(!Boolean.TRUE.equals(getApplication().getClientProperty(
 				IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE))) });

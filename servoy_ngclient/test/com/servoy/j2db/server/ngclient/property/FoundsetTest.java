@@ -34,7 +34,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.Container;
 import org.sablo.InMemPackageReader;
-import org.sablo.websocket.WebsocketEndpoint;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
@@ -95,7 +94,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
 	 */
 	@Override
@@ -231,8 +230,6 @@ public class FoundsetTest extends AbstractSolutionTest
 	@Test
 	public void foundsetReadByDataproviders() throws JSONException
 	{
-		WebsocketEndpoint endpoint = (WebsocketEndpoint)WebsocketEndpoint.get();
-
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
@@ -282,8 +279,6 @@ public class FoundsetTest extends AbstractSolutionTest
 	@Test
 	public void foundsetWithDynamicDataproviders() throws JSONException
 	{
-		WebsocketEndpoint endpoint = (WebsocketEndpoint)WebsocketEndpoint.get();
-
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 		JSONObject object = new JSONObject(full);

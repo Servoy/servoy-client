@@ -153,7 +153,7 @@ public class WebServiceScriptable implements Scriptable
 		{
 			return new WebServiceFunction(application.getWebsocketSession(), apiFunction, serviceSpecification.getName());
 		}
-		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 		Object value = service.getProperty(name);
 		PropertyDescription desc = serviceSpecification.getProperty(name);
 		if (desc != null)
@@ -182,7 +182,7 @@ public class WebServiceScriptable implements Scriptable
 		PropertyDescription desc = serviceSpecification.getProperty(name);
 		if (desc != null)
 		{
-			BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+			BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 			IPropertyType< ? > type = desc.getType();
 			// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
 			return !(type instanceof ISabloComponentToRhino< ? >) ||
@@ -190,7 +190,7 @@ public class WebServiceScriptable implements Scriptable
 		}
 		WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction != null) return true;
-		return application.getWebsocketSession().getService(serviceSpecification.getName()).getProperties().content.containsKey(name);
+		return application.getWebsocketSession().getClientService(serviceSpecification.getName()).getProperties().content.containsKey(name);
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class WebServiceScriptable implements Scriptable
 	public void put(String name, Scriptable start, Object value)
 	{
 		PropertyDescription desc = serviceSpecification.getProperty(name);
-		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 		if (desc != null)
 		{
 			Object previousVal = service.getProperty(name);
@@ -265,7 +265,7 @@ public class WebServiceScriptable implements Scriptable
 	public Object[] getIds()
 	{
 		ArrayList<String> al = new ArrayList<>();
-		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getService(serviceSpecification.getName());
+		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
 		for (String name : serviceSpecification.getAllPropertiesNames())
 		{
 			PropertyDescription pd = serviceSpecification.getProperty(name);

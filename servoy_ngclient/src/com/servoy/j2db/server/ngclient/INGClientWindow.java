@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2014 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2015 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,20 +17,37 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import org.sablo.IChangeListener;
-import org.sablo.websocket.IWebsocketSession;
+import org.sablo.websocket.IWindow;
 
-import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.Form;
 
 /**
- * Interface for classes handling a websocket session based on a client.
+ * Represents the client side window object on the server for NGClient.
+ *
  * @author rgansevles
+ *
  */
-public interface INGClientWebsocketSession extends IWebsocketSession, IChangeListener
+public interface INGClientWindow extends IWindow
 {
-	INGApplication getClient();
+	/**
+	 * @param form
+	 * @param name
+	 */
+	void updateForm(Form form, String name);
 
-	void solutionLoaded(Solution flattenedSolution);
+	/**
+	 * @param formName
+	 */
+	void formCreated(String formName);
 
-	void closeSession(String redirectUrl);
+	void destroyForm(String name);
+
+	/**
+	 * 
+	 * @param flattenedForm
+	 * @param realInstanceName
+	 * @param async
+	 */
+	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
+
 }

@@ -81,7 +81,7 @@ public class TestNGClient extends NGClient
 		super(new NGClientWebsocketSession("1")
 		{
 			@Override
-			protected IEventDispatcher createDispatcher()
+			protected IEventDispatcher createEventDispatcher()
 			{
 				return new IEventDispatcher()
 				{
@@ -138,7 +138,7 @@ public class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#createDataServer()
 	 */
 	@Override
@@ -410,7 +410,7 @@ public class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.NGClient#getLocale()
 	 */
 	@Override
@@ -421,7 +421,7 @@ public class TestNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#createRepository()
 	 */
 	@Override

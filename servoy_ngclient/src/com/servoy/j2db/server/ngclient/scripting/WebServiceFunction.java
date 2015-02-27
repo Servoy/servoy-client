@@ -53,8 +53,8 @@ public class WebServiceFunction extends WebBaseFunction
 		try
 		{
 			PropertyDescription retPD = definition != null ? definition.getReturnType() : null;
-			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(session.getService(serviceName).executeServiceCall(definition.getName(), args),
-				retPD, (BaseWebObject)session.getService(serviceName), thisObj);
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(session.getClientService(serviceName).executeServiceCall(definition.getName(), args),
+				retPD, (BaseWebObject)session.getClientService(serviceName), thisObj);
 		}
 		catch (IOException e)
 		{

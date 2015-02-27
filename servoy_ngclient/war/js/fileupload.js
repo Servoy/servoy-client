@@ -1,4 +1,4 @@
-angular.module('servoyfileupload',['webStorageModule','angularFileUpload']).directive('svyFileupload', function ($modal, $upload, $window, $parse, webStorage) {
+angular.module('servoyfileupload',['webStorageModule', 'angularFileUpload', 'sabloApp']).directive('svyFileupload', function ($modal, $upload, $window, $parse, webStorage, $sabloApplication) {
 	return {
 		restrict: 'A',
         link: function ($scope, $element, $attrs) {
@@ -44,7 +44,7 @@ angular.module('servoyfileupload',['webStorageModule','angularFileUpload']).dire
     	        	}
     	        }
     	        
-    	        $scope.uploadURL = "resources/upload/" + webStorage.session.get("sessionid") + "/" + formname + "/" + beanname + "/" + propertyname;
+    	        $scope.uploadURL = "resources/upload/" + $sabloApplication.getSessionId() + "/" + formname + "/" + beanname + "/" + propertyname;
     	        $scope.uploadFile = null;
     	        $scope.modalInstance = null;
             	

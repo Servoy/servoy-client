@@ -23,7 +23,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
-import org.sablo.services.FormServiceHandler;
+import org.sablo.services.server.FormServiceHandler;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -45,23 +45,16 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGFormServiceHandler extends FormServiceHandler
 {
-	/**
-	 * @param websocketSession
-	 */
+	private final INGClientWebsocketSession websocketSession;
+
 	public NGFormServiceHandler(INGClientWebsocketSession websocketSession)
 	{
-		super(websocketSession);
-	}
-
-	@Override
-	public INGClientWebsocketSession getWebsocketSession()
-	{
-		return (INGClientWebsocketSession)super.getWebsocketSession();
+		this.websocketSession = websocketSession;
 	}
 
 	protected INGApplication getApplication()
 	{
-		return getWebsocketSession().getClient();
+		return websocketSession.getClient();
 	}
 
 	@Override
@@ -78,7 +71,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 			case "svyPush" :
 			{
 				String formName = args.getString("formname");
-				IWebFormUI form = (IWebFormUI)getWebsocketSession().getForm(formName);
+				IWebFormUI form = (IWebFormUI)NGClientWindow.getCurrentWindow().getForm(formName);
 				if (form == null)
 				{
 					log.warn("svyPush for unknown form '" + formName + "'");
@@ -185,12 +178,13 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				Utils.invokeLater(getApplication(), invokeLaterRunnables);
 				Form form = getApplication().getFormManager().getPossibleForm(formName);
-				if (form != null) getWebsocketSession().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true);
+				if (form != null) NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true);
 				return Boolean.valueOf(ok);
 			}
+
 			case "formLoaded" :
 			{
-				getWebsocketSession().formCreated(args.optString("formname"));
+				NGClientWindow.getCurrentWindow().formCreated(args.optString("formname"));
 				break;
 			}
 
@@ -202,6 +196,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 		return null;
 	}
+
 
 	@Override
 	protected JSONString requestData(String formName) throws JSONException

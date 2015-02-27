@@ -23,10 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.sablo.eventthread.WebsocketSessionEndpoints;
+import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
@@ -38,11 +37,12 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
-import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.ILogLevel;
 
@@ -183,11 +183,11 @@ public class DebugNGClient extends NGClient implements IDebugClient
 				((WebFormController)controller).initFormUI();
 				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables);
 			}
-			WebsocketSessionEndpoints allendpoints = new WebsocketSessionEndpoints(getWebsocketSession());
+			WebsocketSessionWindows allendpoints = new NGClientWebsocketSessionWindows(getWebsocketSession());
 			allendpoints.executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "reload", null, null);
 			try
 			{
-				allendpoints.sendMessage(null, null, true, FullValueToJSONConverter.INSTANCE);
+				allendpoints.flush();
 			}
 			catch (IOException e)
 			{

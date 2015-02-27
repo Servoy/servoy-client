@@ -17,43 +17,32 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
-import org.sablo.Container;
-import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
-import org.sablo.eventthread.WebsocketSessionEndpoints;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.BaseWebsocketSession;
+import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.IWebsocketEndpoint;
-import org.sablo.websocket.WebsocketEndpoint;
+import org.sablo.websocket.IWindow;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.StartupArguments;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
-import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -67,8 +56,6 @@ import com.servoy.j2db.util.Utils;
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
 	private NGClient client;
-
-	private final ConcurrentMap<IWebsocketEndpoint, ConcurrentMap<String, Pair<String, Boolean>>> endpointForms = new ConcurrentHashMap<>();
 
 	public NGClientWebsocketSession(String uuid)
 	{
@@ -86,9 +73,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public Container getForm(String formName)
+	public IWindow createWindow(String windowName)
 	{
-		return (Container)client.getFormManager().getForm(formName).getFormUI();
+		return new NGClientWindow(this, windowName);
 	}
 
 	@Override
@@ -98,7 +85,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	protected IEventDispatcher createDispatcher()
+	protected IEventDispatcher createEventDispatcher()
 	{
 		return new NGEventDispatcher(client);
 	}
@@ -110,7 +97,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 		if (requestParams == null)
 		{
-			WebsocketEndpoint.get().cancelSession("Solution name is required");
+			CurrentWindow.get().cancelSession("Solution name is required");
 			return;
 		}
 
@@ -119,7 +106,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 		if (Utils.stringIsEmpty(solutionName))
 		{
-			WebsocketEndpoint.get().cancelSession("Invalid solution name");
+			CurrentWindow.get().cancelSession("Invalid solution name");
 			return;
 		}
 
@@ -151,17 +138,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 					}
 
-					String windowId = WebsocketEndpoint.get().getWindowId();
-					if (windowId == null || client.getRuntimeWindowManager().getWindow(windowId) == null)
-					{
-						// TODO can this happen? What is now the current form?
-						WebsocketEndpoint.get().setWindowId(client.getRuntimeWindowManager().createMainWindow());
-						// make sure a form is set?
-					}
-					else
-					{
-						client.getRuntimeWindowManager().setCurrentWindowName(windowId);
-					}
+					client.getRuntimeWindowManager().setCurrentWindowName(CurrentWindow.get().getUuid());
 					IWebFormController currentForm = client.getFormManager().getCurrentForm();
 					if (currentForm != null)
 					{
@@ -189,8 +166,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					try
 					{
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
-						WebsocketEndpoint.get().setWindowId(client.getRuntimeWindowManager().createMainWindow());
-
+						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
 
 						List<String> arguments = new ArrayList<String>();
 
@@ -203,7 +179,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						client.handleArguments(arguments.toArray(new String[arguments.size()]), args);
 
 						client.loadSolution(solutionName);
-
 					}
 					catch (RepositoryException e)
 					{
@@ -232,149 +207,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return new NGFormServiceHandler(this);
 	}
 
-//	public void handleMessage(final JSONObject obj)
-//	{
-//		if (client != null) J2DBGlobals.setServiceProvider(client);
-//		try
-//		{
-//		}
-//		catch (Exception e)
-//		{
-//			Debug.error(e);
-//			sendInternalError(e);
-//		}
-//		finally
-//		{
-//			J2DBGlobals.setServiceProvider(null);
-//		}
-//	}
-
-	@Override
-	public void formCreated(String formName)
-	{
-		ConcurrentMap<String, Pair<String, Boolean>> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
-		if (formsOnClient.containsKey(formName))
-		{
-			String formUrl = formsOnClient.get(formName).getLeft();
-			synchronized (formUrl)
-			{
-				formsOnClient.get(formName).setRight(Boolean.TRUE);
-				getEventDispatcher().resume(formUrl);
-			}
-		}
-	}
-
-	@Override
-	public void registerEndpoint(IWebsocketEndpoint endpoint)
-	{
-		super.registerEndpoint(endpoint);
-		endpointForms.put(endpoint, new ConcurrentHashMap<String, Pair<String, Boolean>>());
-	}
-
-	@Override
-	public void deregisterEndpoint(IWebsocketEndpoint endpoint)
-	{
-		super.deregisterEndpoint(endpoint);
-		endpointForms.remove(endpoint);
-	}
-
-	@Override
-	public void touchForm(Form form, String realInstanceName, boolean async)
-	{
-		if (form == null) return;
-		ConcurrentMap<String, Pair<String, Boolean>> formsOnClient = endpointForms.get(WebsocketEndpoint.get());
-		if (formsOnClient == null) return; // endpoint is not registered for forms (ex: there is a api call from a scheduler, that will want to touch the form, but there are no forms for that endpoint)
-		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + formName + ".html";
-		if (formsOnClient.putIfAbsent(formName, new Pair<String, Boolean>(formUrl, Boolean.FALSE)) == null)
-		{
-			// form is not yet on the client, send over the controller
-			updateController(form, formName, formUrl, !async);
-		}
-		else
-		{
-			formUrl = formsOnClient.get(formName).getLeft();
-		}
-
-		// if sync wait until we got response from client as it is loaded
-		if (!async)
-		{
-			if (!formsOnClient.get(formName).getRight().booleanValue())
-			{
-				// really send the changes
-				sendChanges();
-				getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL);
-			}
-		}
-	}
-
-	/**
-	 * @param formUrl
-	 * @param fs
-	 * @param form
-	 */
-	protected void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
-	{
-		try
-		{
-			String realUrl = formUrl;
-			FlattenedSolution fs = client.getFlattenedSolution();
-			Solution sc = fs.getSolutionCopy(false);
-			boolean copy = false;
-			if (sc != null && sc.getChild(form.getUUID()) != null)
-			{
-				realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getUuid();
-				copy = true;
-			}
-			else if (!form.getName().endsWith(realFormName))
-			{
-				realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getUuid();
-			}
-			else
-			{
-				realUrl = realUrl + "?sessionId=" + getUuid();
-			}
-			StringWriter sw = new StringWriter(512);
-			if (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
-			{
-				new FormTemplateGenerator(new ServoyDataConverterContext(client), true, false).generate(form, realFormName, "form_recordview_js.ftl", sw);
-			}
-			if (client.isEventDispatchThread() && forceLoad)
-			{
-				getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
-			}
-			else
-			{
-				getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad) });
-			}
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
-	}
-
-	@Override
-	public void updateForm(Form form, String name)
-	{
-		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
-		updateController(form, name, formUrl, false);
-	}
-
-	public void destroyForm(String name)
-	{
-		try
-		{
-			getService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("destroyController", new Object[] { name });
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
-	}
-
 	@Override
 	public void solutionLoaded(Solution solution)
 	{
@@ -390,7 +222,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			if (styleSheetMedia != null)
 			{
 				String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName();
-				getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
+				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { path });
 			}
 			else
 			{
@@ -399,25 +231,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		else
 		{
-			getService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { });
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheet", new Object[] { });
 		}
-	}
-
-	@Override
-	protected Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
-		Map<String, Object> callContributions)
-	{
-		Map<String, Object> call = new HashMap<>();
-		if (callContributions != null) call.putAll(callContributions);
-
-		IWebFormController form = client.getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
-		touchForm(form.getForm(), form.getName(), false);
-		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
-		{
-			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
-			call.put("propertyPath", componentContext.getPropertyPath());
-		}
-		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
 	}
 
 	@Override
@@ -436,24 +251,20 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		this.closeSession(null);
 	}
 
-	public void closeSession(String redirectUrl)
+	public void closeSession(final String redirectUrl)
 	{
-		if (client.getWebsocketSession() != null)
+		CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(client.getWebsocketSession()), new Runnable()
 		{
-			IWebsocketEndpoint current = WebsocketEndpoint.set(new WebsocketSessionEndpoints(client.getWebsocketSession()));
-			try
+			@Override
+			public void run()
 			{
 				Map<String, Object> detail = new HashMap<>();
 				String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
 				if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
 				if (redirectUrl != null) detail.put("redirectUrl", redirectUrl);
-				getService("$sessionService").executeAsyncServiceCall("expireSession", new Object[] { detail });
+				getClientService("$sessionService").executeAsyncServiceCall("expireSession", new Object[] { detail });
 			}
-			finally
-			{
-				WebsocketEndpoint.set(current);
-			}
-		}
+		});
 		super.closeSession();
 	}
 
@@ -479,7 +290,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
 		String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
 		if (htmlView != null) internalError.put("viewUrl", htmlView);
-		WebsocketEndpoint.get().getWebsocketSession().getService("$sessionService").executeAsyncServiceCall("setInternalServerError",
-			new Object[] { internalError });
+		CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError", new Object[] { internalError });
 	}
 }

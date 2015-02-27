@@ -79,20 +79,9 @@ public final class FormElement implements IWebComponentInitializer
 	private final PersistBasedFormElementImpl persistImpl;
 	private final String uniqueIdWithinForm;
 
-	private boolean inDesigner;
+	private final boolean inDesigner;
 
 	private FlattenedSolution fs;
-
-	public FormElement(Form form)
-	{
-		this.form = form;
-		this.persistImpl = new PersistBasedFormElementImpl(form, this);
-		this.componentType = null;
-		this.uniqueIdWithinForm = String.valueOf(form.getID());
-
-		Map<String, Object> map = persistImpl.getFlattenedPropertiesMap();
-		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
-	}
 
 	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner)
 	{

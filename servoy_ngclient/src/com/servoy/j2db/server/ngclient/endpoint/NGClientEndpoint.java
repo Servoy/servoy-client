@@ -18,8 +18,6 @@
 package com.servoy.j2db.server.ngclient.endpoint;
 
 
-import java.io.IOException;
-
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -27,8 +25,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-
-import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 
@@ -39,19 +35,22 @@ import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
  *
  */
 
-@ServerEndpoint(value = "/websocket/{sessionid}/{windowid}")
-public class NGClientEndpoint extends WebsocketEndpoint
+@ServerEndpoint(value = "/websocket/{sessionid}/{windowname}/{windowid}")
+public class NGClientEndpoint extends BaseNGClientEndpoint
 {
 	public NGClientEndpoint()
 	{
 		super(WebsocketSessionFactory.CLIENT_ENDPOINT);
 	}
 
+	@Override
 	@OnOpen
-	public void start(Session newSession, @PathParam("sessionid") String sessionid, @PathParam("windowid")
-	final String windowid) throws Exception
+	public void start(Session newSession, @PathParam("sessionid")
+	String sessionid, @PathParam("windowname")
+	String windowname, @PathParam("windowid")
+	String windowid) throws Exception
 	{
-		super.start(newSession, sessionid, windowid);
+		super.start(newSession, sessionid, windowname, windowid);
 	}
 
 	@Override
@@ -68,17 +67,11 @@ public class NGClientEndpoint extends WebsocketEndpoint
 		super.onClose();
 	}
 
+	@Override
 	@OnError
 	public void onError(Throwable t)
 	{
-		if (t instanceof IOException)
-		{
-			log.error("IOException happened", t.getMessage()); // TODO if it has no message but has a 'cause' it will not print anything useful
-		}
-		else
-		{
-			log.error("IOException happened", t);
-		}
+		super.onError(t);
 	}
 
 }
