@@ -169,18 +169,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			{
 				element.on(domEvent, function(event) {
 					if (!filterFunction || filterFunction(event)) {
-						if (timeout)
-						{
-							$timeout(function(){
-								fn(scope, {$event:event});
-							},timeout);
-						}
-						else
-						{
-							scope.$apply(function() {
-								fn(scope, {$event:event});
-							});
-						}
+						if (!timeout) timeout = 0;
+						// always use timeout because this event could be triggered by a angular call (requestFocus) thats already in a digest cycle.
+						$timeout(function(){
+							fn(scope, {$event:event});
+						},timeout);
 						return true;
 					}
 				}); 
