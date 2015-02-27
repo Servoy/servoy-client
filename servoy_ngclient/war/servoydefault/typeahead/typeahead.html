@@ -16,6 +16,7 @@
 	   ng-readonly="model.editable == false"  
        ng-model="model.dataProviderID" 
        svy-tooltip='model.toolTipText'
+       svy-format="findMode ? '' : model.format"
        typeahead-min-length="-1"
        typeahead-append-to-body="true"
        typeahead="value.realValue as value.displayValue  | formatFilter:model.format.display:model.format.type
