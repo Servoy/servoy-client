@@ -107,7 +107,7 @@ public class WebComponentSpecTest
 		Assert.assertTrue(pd.getType() == TypesRegistry.getType("valuelist"));
 		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
-		Assert.assertEquals("mydataprovider", pd.getConfig());
+		Assert.assertEquals("mydataprovider", ((ValueListConfig)pd.getConfig()).getFor());
 	}
 
 	@Test

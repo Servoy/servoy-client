@@ -179,7 +179,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 						for (PropertyDescription formatPd : properties)
 						{
 							// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
-							if (pd.getConfig().equals(formatPd.getConfig()))
+							if (config.getFor().equals(formatPd.getConfig()))
 							{
 								format = (String)formElement.getPropertyValue(formatPd.getName());
 								break;
