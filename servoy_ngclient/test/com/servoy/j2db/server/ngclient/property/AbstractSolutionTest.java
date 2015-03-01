@@ -160,6 +160,13 @@ public abstract class AbstractSolutionTest
 					}
 					return b;
 				}
+
+				@Override
+				public boolean isInDesigner()
+				{
+					// to prevent some caching which causes tests to influence each other
+					return true;
+				}
 			};
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);
