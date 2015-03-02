@@ -94,6 +94,8 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	var watches = {};
 
 	formState.addWatches = function (beanNames) {
+	    // always first remove the existign watches if there are any.
+		formState.removeWatches(beanNames);
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
 		 		watches[beanName] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", beanName), wrapper(beanName), true);
@@ -129,4 +131,13 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	formState.getScope = function() { return $scope; }
 	
 	$scope.$watch("formProperties", wrapper(''), true);
+	
+	$scope.$on("$destroy", function() {
+		formState.removeWatches();
+		delete formState.removeWatches;
+		delete formState.getScope;
+		delete formState.addWatches;
+		delete formState.handlers;
+	}
+	);
 });	
