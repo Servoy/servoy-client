@@ -51,6 +51,5 @@ public interface INGClientWindow extends IWindow
 	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
 
 	@Override
-	public INGClientWebsocketSession getSession();
-
+	INGClientWebsocketSession getSession();
 }

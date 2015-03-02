@@ -51,7 +51,6 @@ import org.sablo.specification.WebComponentPackage.IPackageReader;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.J2DBGlobals;
@@ -63,6 +62,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -457,7 +457,7 @@ public abstract class AbstractSolutionTest
 				}
 			}, "1", null, "Test");
 
-			IWebsocketSession wsSession = WebsocketSessionManager.getSession(endpoint.getEndpointType(), "1");
+			INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(endpoint.getEndpointType(), "1");
 			Assert.assertNotNull("no wsSession", wsSession);
 
 			CurrentWindow.set(new NGClientWebsocketSessionWindows(wsSession));

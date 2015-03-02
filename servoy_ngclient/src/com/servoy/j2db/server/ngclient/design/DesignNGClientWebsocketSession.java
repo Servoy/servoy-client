@@ -24,9 +24,9 @@ import java.util.UUID;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
-import org.sablo.websocket.IWindow;
 import org.sablo.websocket.impl.ClientService;
 
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClientWindow;
 
@@ -59,7 +59,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 	}
 
 	@Override
-	public IWindow createWindow(String windowName)
+	public INGClientWindow createWindow(String windowName)
 	{
 		return new DesignNGClientWindow(this, UUID.randomUUID().toString());
 	}

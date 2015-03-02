@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient.eventthread;
 
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.websocket.IWebsocketSession;
-import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
@@ -38,7 +37,7 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	/**
 	 * @param session
 	 */
-	public NGClientWebsocketSessionWindows(IWebsocketSession session)
+	public NGClientWebsocketSessionWindows(INGClientWebsocketSession session)
 	{
 		super(session);
 	}
@@ -65,9 +64,9 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	@Override
 	public void destroyForm(String name)
 	{
-		for (IWindow window : getSession().getWindows())
+		for (INGClientWindow window : getSession().getWindows())
 		{
-			((INGClientWindow)window).destroyForm(name);
+			window.destroyForm(name);
 		}
 	}
 

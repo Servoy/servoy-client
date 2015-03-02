@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Collection;
+
 import org.sablo.IChangeListener;
 import org.sablo.websocket.IWebsocketSession;
 
@@ -33,4 +35,7 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 	void solutionLoaded(Solution flattenedSolution);
 
 	void closeSession(String redirectUrl);
+
+	@Override
+	public Collection<INGClientWindow> getWindows();
 }

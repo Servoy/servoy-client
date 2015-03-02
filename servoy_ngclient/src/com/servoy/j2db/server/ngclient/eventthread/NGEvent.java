@@ -22,6 +22,7 @@ import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 
 
 /**
@@ -40,6 +41,12 @@ public class NGEvent extends Event
 	{
 		super(client.getWebsocketSession(), runnable, eventLevel);
 		this.client = client;
+	}
+
+	@Override
+	protected INGClientWebsocketSession getSession()
+	{
+		return (INGClientWebsocketSession)super.getSession();
 	}
 
 	@Override

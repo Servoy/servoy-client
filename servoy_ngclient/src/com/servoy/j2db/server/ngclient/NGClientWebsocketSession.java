@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,6 @@ import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -73,9 +73,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public IWindow createWindow(String windowName)
+	public INGClientWindow createWindow(String windowName)
 	{
 		return new NGClientWindow(this, windowName);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Collection<INGClientWindow> getWindows()
+	{
+		return (Collection<INGClientWindow>)super.getWindows();
 	}
 
 	@Override
