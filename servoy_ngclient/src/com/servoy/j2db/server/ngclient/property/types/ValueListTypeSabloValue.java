@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,7 +95,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", filteredValuelist.getRealElementAt(i));
 				Object displayValue = filteredValuelist.getElementAt(i);
-				map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
+				if (!(displayValue instanceof Timestamp))
+				{
+					map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
+				}
+				else map.put("displayValue", displayValue);
+
 				array.add(map);
 			}
 			jsonValue = array;
@@ -107,7 +113,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", valueList.getRealElementAt(i));
 				Object displayValue = valueList.getElementAt(i);
-				map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
+				if (!(displayValue instanceof Timestamp))
+				{
+					map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
+				}
+				else map.put("displayValue", displayValue);
+
 				array.add(map);
 			}
 			jsonValue = array;
