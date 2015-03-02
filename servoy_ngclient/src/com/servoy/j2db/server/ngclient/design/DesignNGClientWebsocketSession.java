@@ -69,7 +69,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 	public void onOpen(Map<String, List<String>> requestParams)
 	{
 		// always generate a new window id. The window session seems to be shared over multiply swt browsers.
-		NGClientWindow.getCurrentWindow().getSession().getClient().getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getName());
+		NGClientWindow.getCurrentWindow().getSession().getClient().getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
 		super.onOpen(requestParams);
 		if (getClient().getSolution() != null)
 		{
@@ -79,7 +79,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#closeSession()
 	 */
 	@Override
