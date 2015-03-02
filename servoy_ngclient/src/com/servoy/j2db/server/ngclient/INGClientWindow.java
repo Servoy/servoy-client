@@ -43,11 +43,14 @@ public interface INGClientWindow extends IWindow
 	void destroyForm(String name);
 
 	/**
-	 * 
+	 *
 	 * @param flattenedForm
 	 * @param realInstanceName
 	 * @param async
 	 */
 	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
+
+	@Override
+	public INGClientWebsocketSession getSession();
 
 }

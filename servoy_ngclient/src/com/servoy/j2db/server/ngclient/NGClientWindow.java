@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Sablo window for NGClient
- * 
+ *
  * @author rgansevles
  *
  */
@@ -58,9 +58,9 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		this.websocketSession = websocketSession;
 	}
 
-	public static NGClientWindow getCurrentWindow()
+	public static INGClientWindow getCurrentWindow()
 	{
-		return (NGClientWindow)CurrentWindow.get();
+		return (INGClientWindow)CurrentWindow.get();
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWindow#getEndpoint()
 	 */
 	@Override

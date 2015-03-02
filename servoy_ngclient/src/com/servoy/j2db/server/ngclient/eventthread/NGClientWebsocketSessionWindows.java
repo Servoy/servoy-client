@@ -22,6 +22,7 @@ import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
 
 /**
@@ -55,11 +56,12 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 		// ignore
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.INGClientWindow#destroyForm(java.lang.String)
-	 */
+	@Override
+	public INGClientWebsocketSession getSession()
+	{
+		return (INGClientWebsocketSession)super.getSession();
+	}
+
 	@Override
 	public void destroyForm(String name)
 	{

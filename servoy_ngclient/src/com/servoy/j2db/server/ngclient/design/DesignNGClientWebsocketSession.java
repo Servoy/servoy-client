@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.design;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.websocket.CurrentWindow;
@@ -60,7 +61,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 	@Override
 	public IWindow createWindow(String windowName)
 	{
-		return new DesignNGClientWindow(this, windowName);
+		return new DesignNGClientWindow(this, UUID.randomUUID().toString());
 	}
 
 
@@ -68,7 +69,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 	public void onOpen(Map<String, List<String>> requestParams)
 	{
 		// always generate a new window id. The window session seems to be shared over multiply swt browsers.
-		NGClientWindow.getCurrentWindow().getClient().getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getUuid());
+		NGClientWindow.getCurrentWindow().getSession().getClient().getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getName());
 		super.onOpen(requestParams);
 		if (getClient().getSolution() != null)
 		{
@@ -78,7 +79,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#closeSession()
 	 */
 	@Override
