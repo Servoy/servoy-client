@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class ServoyModificationWatcher implements IModificationWatcher
 {
 	/** logger */
-	private static final Logger log = LoggerFactory.getLogger(ServoyModificationWatcher.class);
+	private static final Logger log = LoggerFactory.getLogger(ServoyModificationWatcher.class.getCanonicalName());
 
 	/** maps <code>IModifiable</code> objects to <code>Entry</code> objects */
 	private final Map<IModifiable, Entry> modifiableToEntry = new ConcurrentHashMap<IModifiable, Entry>();
