@@ -113,31 +113,6 @@ public class RootObjectCache
 	}
 
 
-	/**
-	 * Cache a new root object. THE ROOT OBJECT MUST CONTAIN VALID META DATA AND THE META DATA SHOULD HAVE ALREADY BEEN SAVED!
-	 * 
-	 * @param rootObject the new root object to add to the cache
-	 * @throws RepositoryException if the root object is already cached or does not have release 1
-	 */
-	private synchronized void cacheNewRootObject(IRootObject rootObject) throws RepositoryException
-	{
-		Integer key = new Integer(rootObject.getID());
-		if (rootObjectsById.containsKey(key))
-		{
-			throw new RepositoryException("cannot cache new root object with id " + rootObjectsById + " because it already exists");
-		}
-		CacheRecord cacheRecord = new CacheRecord();
-		cacheRecord.rootObjectMetaData = rootObject.getRootObjectMetaData();
-		if (rootObject.getReleaseNumber() != 1)
-		{
-			throw new RepositoryException("cannot cache new root object with release " + rootObject.getReleaseNumber());
-		}
-		cacheRecord.rootObjects = new HashMap<Integer, IRootObject>();
-		cacheRecord.rootObjects.put(new Integer(1), rootObject);
-		rootObjectsById.put(key, cacheRecord);
-		rootObjectsByName.put(new RootObjectKey(rootObject.getName(), rootObject.getTypeID()), cacheRecord);
-	}
-
 	public synchronized void cacheRootObject(IRootObject rootObject) throws RepositoryException
 	{
 		CacheRecord cacheRecord = getCacheRecordEnsureNotNull(rootObject.getID());
