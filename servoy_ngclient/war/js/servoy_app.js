@@ -222,9 +222,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		applyBeanData: applyBeanData,
 		getComponentChanges: getComponentChanges,
 
-		initFormState: function(formName, beanDatas, formProperties, formScope) {
+		initFormState: function(formName, beanDatas, formProperties, formScope,resolve) {
 
-			var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope);
+			var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope,resolve);
 
 			if (!state || state.layout) return state; // already initialized
 
@@ -622,6 +622,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 				scope.formProperties.size.width = element.prop('offsetWidth');
 				scope.formProperties.size.height = element.prop('offsetHeight');
+				
+				$sabloApplication.resolveFormState(formname);
 			},0);
 		}
 	}

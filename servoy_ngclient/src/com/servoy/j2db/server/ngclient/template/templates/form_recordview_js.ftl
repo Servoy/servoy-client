@@ -24,7 +24,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	}
 
 	var formProperties = ${propertiesString}
-	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope);
+	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false);
 	
 	$scope.model = formState.model;
 	$scope.api = formState.api;
