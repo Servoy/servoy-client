@@ -125,9 +125,15 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public void suspend(Object suspendID, int minEventLevelToDispatch)
+					public void suspend(Object suspendID, int minEventLevelToDispatch, long timeout)
 					{
 					}
+
+					@Override
+					public void cancelSuspend(Integer suspendID, String reason)
+					{
+					}
+
 				};
 			}
 		});

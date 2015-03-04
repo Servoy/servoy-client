@@ -19,6 +19,10 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeoutException;
+
+import org.sablo.eventthread.IEventDispatcher;
 
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
@@ -30,6 +34,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -395,7 +400,18 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
-			getApplication().getWebsocketSession().getEventDispatcher().suspend(this);
+			try
+			{
+				getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT, IEventDispatcher.NO_TIMEOUT);
+			}
+			catch (CancellationException e)
+			{
+				throw e; // full browser refresh while waiting for modal to close?
+			}
+			catch (TimeoutException e)
+			{
+				Debug.error("Modal dialog suspend timed out. This should never happen");
+			}
 		}
 	}
 

@@ -21,9 +21,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeoutException;
 
 import org.sablo.Container;
 import org.sablo.WebComponent;
+import org.sablo.eventthread.EventDispatcher;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.BaseWindow;
@@ -69,11 +72,6 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		return (INGClientWebsocketSession)super.getSession();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.websocket.BaseWindow#getEndpoint()
-	 */
 	@Override
 	public INGClientWebsocketEndpoint getEndpoint()
 	{
@@ -138,16 +136,22 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				{
 					Debug.error(e);
 				}
-				websocketSession.getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL);
+				try
+				{
+					websocketSession.getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.DEFAULT_TIMEOUT);
+				}
+				catch (CancellationException e)
+				{
+					throw e; // full browser refresh while doing this?
+				}
+				catch (TimeoutException e)
+				{
+					throw new RuntimeException(e); // timeout... something went wrong; propagate this exception to calling code...
+				}
 			}
 		}
 	}
 
-	/**
-	 * @param formUrl
-	 * @param fs
-	 * @param form
-	 */
 	protected void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
 	{
 		try

@@ -41,7 +41,6 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -144,7 +143,7 @@ public class NGClientEntryFilter extends WebEntry
 	{
 		try
 		{
-			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.internal.reloadSpecsAllTheTime", "false")))
+			if (Utils.getAsBoolean(System.getProperty("servoy.internal.reloadSpecsAllTheTime", "false"))) // can be used in servoy.properties file with 'system.property.' prefix
 			{
 				WebComponentSpecProvider.reload();
 			}

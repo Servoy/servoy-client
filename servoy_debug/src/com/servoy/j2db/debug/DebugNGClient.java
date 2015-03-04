@@ -140,11 +140,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		getWebsocketSession().closeSession("/solutions/" + current.getName() + "/index.html");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.NGClient#loadSolution(java.lang.String)
-	 */
 	@Override
 	public void loadSolution(String solutionName) throws RepositoryException
 	{

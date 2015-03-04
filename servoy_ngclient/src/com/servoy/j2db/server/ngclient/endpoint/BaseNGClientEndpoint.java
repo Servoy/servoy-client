@@ -42,33 +42,18 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 		super(endpointType);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint#addFormIfAbsent(java.lang.String, java.lang.String)
-	 */
 	@Override
 	public boolean addFormIfAbsent(String formName, String formUrl)
 	{
 		return formsOnClient.putIfAbsent(formName, new Pair<String, Boolean>(formUrl, Boolean.FALSE)) == null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint#getFormUrl(java.lang.String)
-	 */
 	@Override
 	public String getFormUrl(String formName)
 	{
 		return formsOnClient.containsKey(formName) ? formsOnClient.get(formName).getLeft() : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint#markFormCreated(java.lang.String)
-	 */
 	@Override
 	public void markFormCreated(String formName)
 	{
@@ -78,11 +63,6 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint#isFormCreated(java.lang.String)
-	 */
 	@Override
 	public boolean isFormCreated(String formName)
 	{

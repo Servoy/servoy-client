@@ -53,7 +53,6 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -74,7 +73,7 @@ public class FormElementHelper
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
-		if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue())
+		if (Boolean.valueOf(System.getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue())
 		{
 			WebComponentSpecProvider.reload();
 		}
