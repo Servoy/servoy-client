@@ -43,10 +43,13 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.plugins.IClientPluginAccess;
+import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
+import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
@@ -777,7 +780,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			((NGClientWebsocketSession)wsSession).setClient(this);
 			if (e.getErrorCode() == ServoyException.NO_LICENSE)
 			{
-				getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setNoLicense", new Object[] { getLicenseAndMaintenanceDetail() });
+				getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setNoLicense",
+					new Object[] { getLicenseAndMaintenanceDetail() });
 			}
 			else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
 			{
@@ -865,6 +869,33 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
+	private IMediaUploadCallback mediaUploadCallback;
+
+	public IMediaUploadCallback getMediaUploadCallback()
+	{
+		return mediaUploadCallback;
+	}
+
+	public void showFileOpenDialog(IMediaUploadCallback callback, boolean multiSelect, String dialogTitle)
+	{
+		try
+		{
+			mediaUploadCallback = callback;
+			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("showFileOpenDialog",
+				new Object[] { dialogTitle == null ? Messages.getString("servoy.filechooser.title") : dialogTitle, Boolean.valueOf(multiSelect) });
+		}
+		catch (IOException ex)
+		{
+			Debug.error(ex);
+		}
+	}
+
+	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
+	{
+		MediaInfo mediaInfo = MediaResourcesServlet.getMediaInfo(bs, filename, mimetype, contentDisposition);
+		return "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();
+	}
+
 	/*
 	 * @see org.sablo.websocket.IServerService#executeMethod(java.lang.String, org.json.JSONObject)
 	 */
@@ -913,5 +944,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public boolean isInDesigner()
 	{
 		return false;
+	}
+
+	@Override
+	protected IClientPluginAccess createClientPluginAccess()
+	{
+		return new NGClientPluginAccessProvider(this);
 	}
 }

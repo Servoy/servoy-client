@@ -764,7 +764,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 }])
-.factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope) {
+.factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
@@ -864,6 +864,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			} else {
 				showDefaultLoginWindow();
 			}		
+		},
+		showFileOpenDialog: function(title, multiselect) {
+			$svyFileuploadUtils.open("resources/upload/" + $sabloApplication.getSessionId(), title, multiselect);
 		}
 	}
 

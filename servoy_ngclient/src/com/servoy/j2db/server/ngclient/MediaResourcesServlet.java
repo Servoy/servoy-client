@@ -17,9 +17,12 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,6 +51,8 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.plugins.IMediaUploadCallback;
+import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -70,7 +75,8 @@ import com.servoy.j2db.util.UUID;
  * </ul>
  * Post:
  * <ul>
- * <li>/resources/upload/[clientuuid]/[formName]/[elementName]/[propertyName] - for binary upload</li>
+ * <li>/resources/upload/[clientuuid]/[formName]/[elementName]/[propertyName] - for binary upload targeting an element property</li>
+ * <li>/resources/upload/[clientuuid] - for binary upload of files selected with the built-in file selector</li>
  * </ul>
  *
  * @author jcompagner
@@ -87,16 +93,22 @@ public class MediaResourcesServlet extends HttpServlet
 	// while it's still in use there
 	private static final WeakHashMap<byte[], MediaInfo> mediaBytesMap = new WeakHashMap<>();
 
-	public static synchronized MediaInfo getMediaInfo(byte[] mediaBytes)
+	public static synchronized MediaInfo getMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
 	{
 		MediaInfo mediaInfo = null;
 		if (!mediaBytesMap.containsKey(mediaBytes))
 		{
-			mediaInfo = new MediaInfo(UUID.randomUUID().toString(), MimeTypes.getContentType(mediaBytes, null));
+			mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType,
+				contentDisposition);
 			mediaBytesMap.put(mediaBytes, mediaInfo);
 		}
 
 		return mediaInfo == null ? mediaBytesMap.get(mediaBytes) : mediaInfo;
+	}
+
+	public static synchronized MediaInfo getMediaInfo(byte[] mediaBytes)
+	{
+		return getMediaInfo(mediaBytes, null, null, null);
 	}
 
 	@Override
@@ -143,7 +155,7 @@ public class MediaResourcesServlet extends HttpServlet
 				String decrypt = SecuritySupport.decrypt(Settings.getInstance(), encrypted);
 				String clientUUID = req.getParameter("uuid");
 				found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(clientUUID), decrypt),
-					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt));
+					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
 			}
 			catch (Exception e)
 			{
@@ -165,7 +177,8 @@ public class MediaResourcesServlet extends HttpServlet
 			{
 				if (HTTPUtils.checkAndSetUnmodified(request, response, entry.getValue().getLastModifiedTimeStamp())) return true;
 
-				return sendData(response, entry.getKey(), entry.getValue().getContentType(), null);
+				return sendData(response, entry.getKey(), entry.getValue().getContentType(), entry.getValue().getFileName(),
+					entry.getValue().getContentDisposition());
 			}
 		}
 		return false;
@@ -212,7 +225,7 @@ public class MediaResourcesServlet extends HttpServlet
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime())) return true;
 
-		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName());
+		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
 	}
 
 	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientUUID, String mediaName)
@@ -260,7 +273,7 @@ public class MediaResourcesServlet extends HttpServlet
 		return client;
 	}
 
-	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName) throws IOException
+	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
 	{
 		boolean dataWasSent = false;
 		if (mediaData != null && mediaData.length > 0)
@@ -272,6 +285,10 @@ public class MediaResourcesServlet extends HttpServlet
 			}
 			if (ct != null) resp.setContentType(ct);
 			resp.setContentLength(mediaData.length);
+			if (fileName != null)
+			{
+				resp.setHeader("Content-disposition", (contentDisposition == null ? "attachment" : contentDisposition) + "; filename=\"" + fileName + "\"");
+			}
 			ServletOutputStream outputStream = resp.getOutputStream();
 			outputStream.write(mediaData);
 			outputStream.flush();
@@ -287,42 +304,61 @@ public class MediaResourcesServlet extends HttpServlet
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
 
-		if (paths.length == 5 && paths[0].equals("upload"))
+		if ((paths.length == 2 || paths.length == 5) && paths[0].equals("upload"))
 		{
 			if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").startsWith("multipart/form-data"))
 			{
 				try
 				{
 					String clientID = paths[1];
-					String formName = paths[2];
-					String elementName = paths[3];
-					final String propertyName = paths[4];
+					String formName = paths.length == 5 ? paths[2] : null;
+					String elementName = paths.length == 5 ? paths[3] : null;
+					final String propertyName = paths.length == 5 ? paths[4] : null;
 					final INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(
 						WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 					if (wsSession != null)
 					{
 						ServletFileUpload upload = new ServletFileUpload();
 						FileItemIterator iterator = upload.getItemIterator(req);
+						ArrayList<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						if (iterator.hasNext())
 						{
 							FileItemStream item = iterator.next();
 							byte[] data = read(item.openStream());
-							final Map<String, Object> fileData = new HashMap<String, Object>();
-							fileData.put("", data);
-							fileData.put(IMediaFieldConstants.FILENAME, item.getName());
-							fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
 
-							final IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
-							final WebFormComponent webComponent = form.getWebComponent(elementName);
-							CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(wsSession), new Runnable()
+							if (formName != null && elementName != null && propertyName != null)
 							{
-								@Override
-								public void run()
+								final Map<String, Object> fileData = new HashMap<String, Object>();
+								fileData.put("", data);
+								fileData.put(IMediaFieldConstants.FILENAME, item.getName());
+								fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
+
+								final IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
+								final WebFormComponent webComponent = form.getWebComponent(elementName);
+								CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(wsSession), new Runnable()
 								{
-									form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData);
-									wsSession.valueChanged();
-								}
-							});
+									@Override
+									public void run()
+									{
+										form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData);
+										wsSession.valueChanged();
+									}
+								});
+							}
+							else
+							{
+								// it is a file from the built-in file selector
+								aFileUploadData.add(new FileUploadData(item.getName(), item.getContentType(), data));
+							}
+						}
+						if (aFileUploadData.size() > 0)
+						{
+							IMediaUploadCallback mediaUploadCallback = ((NGClient)wsSession.getClient()).getMediaUploadCallback();
+							if (mediaUploadCallback != null)
+							{
+								mediaUploadCallback.uploadComplete(aFileUploadData.toArray(new FileUploadData[aFileUploadData.size()]));
+								mediaUploadCallback.onSubmit();
+							}
 						}
 					}
 				}
@@ -354,22 +390,36 @@ public class MediaResourcesServlet extends HttpServlet
 		}
 	}
 
-	public static class MediaInfo
+	public static final class MediaInfo
 	{
 		private final String name;
+		private final String fileName;
 		private final String contentType;
+		private final String contentDisposition;
 		private final long modifiedTimeStamp;
 
-		MediaInfo(String name, String contentType)
+		MediaInfo(String name, String fileName, String contentType, String contentDisposition)
 		{
 			this.name = name;
+			this.fileName = fileName;
 			this.contentType = contentType;
+			this.contentDisposition = contentDisposition;
 			modifiedTimeStamp = System.currentTimeMillis();
 		}
 
 		public String getName()
 		{
 			return name;
+		}
+
+		public String getFileName()
+		{
+			return fileName;
+		}
+
+		public String getContentDisposition()
+		{
+			return contentDisposition;
 		}
 
 		public String getContentType()
@@ -380,6 +430,63 @@ public class MediaResourcesServlet extends HttpServlet
 		public long getLastModifiedTimeStamp()
 		{
 			return modifiedTimeStamp;
+		}
+
+	}
+
+	private static final class FileUploadData implements IUploadData
+	{
+		String name;
+		String contentType;
+		byte[] data;
+
+		private FileUploadData(String name, String contentType, byte[] data)
+		{
+			this.name = name;
+			this.contentType = contentType;
+			this.data = data;
+		}
+
+		public String getName()
+		{
+			String fixedName = name.replace('\\', '/');
+			String[] tokenized = fixedName.split("/"); //$NON-NLS-1$
+			return tokenized[tokenized.length - 1];
+		}
+
+		public String getContentType()
+		{
+			return contentType;
+		}
+
+		public byte[] getBytes()
+		{
+			return data;
+		}
+
+		/**
+		 * @see com.servoy.j2db.plugins.IUploadData#getFile()
+		 */
+		public File getFile()
+		{
+			// does not represent a real file object.
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
+		 */
+		public InputStream getInputStream() throws IOException
+		{
+			return new ByteArrayInputStream(data);
+		}
+
+		@Override
+		public long lastModified()
+		{
+			return System.currentTimeMillis();
 		}
 
 	}

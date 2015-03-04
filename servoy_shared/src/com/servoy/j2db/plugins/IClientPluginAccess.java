@@ -66,6 +66,11 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	/**
 	 * Constant returned by getApplicationType
 	 */
+	public static final int NG_CLIENT = IApplication.NG_CLIENT;
+
+	/**
+	 * Constant returned by getApplicationType
+	 */
 	public static final int RUNTIME = IApplication.RUNTIME;
 
 
