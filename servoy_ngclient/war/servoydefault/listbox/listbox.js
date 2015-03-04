@@ -1,4 +1,12 @@
-angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbox', function($parse) {  
+angular.module('servoydefaultListbox',['servoy'])
+.run(["$templateCache","$http",function($templateCache,$http){
+	$http.get("servoydefault/listbox/listbox.html").then(function(result){
+		$templateCache.put("servoydefault/listbox/listbox.html", result.data);
+    });
+	$http.get("servoydefault/listbox/listbox_multiple.html").then(function(result){
+		$templateCache.put("servoydefault/listbox/listbox_multiple.html", result.data);
+    });	
+}]).directive('servoydefaultListbox', ['$parse','$templateCache','$compile',function($parse,$templateCache,$compile) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -7,15 +15,11 @@ angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbo
 			api: "=svyApi",
 			svyServoyapi: "="
 		},
-		require: 'ngModel',
-		compile: function(tElement, tAttrs) {
-			var isMultiSelect = true;
-			if ($parse(tAttrs.svyModel)(angular.element(tElement).scope()).multiselectListbox != true)
-			{
-				false;
-				tElement.removeAttr("multiple");
-			}
-			return function($scope, $element, $attrs, ngModel) {
+		link: function($scope, $element, $attrs) {
+				var isMultiSelect = $scope.model.multiselectListbox;
+				$element.html($templateCache.get(isMultiSelect ? "servoydefault/listbox/listbox_multiple.html" : "servoydefault/listbox/listbox.html"));
+		        $compile($element.contents())($scope);
+		        
 				$scope.style = {width:'100%',height:'100%',overflow:'hidden'}
 				$scope.findMode = false;
 				$scope.$watch('model.dataProviderID', function() {
@@ -29,7 +33,7 @@ angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbo
 						if(isMultiSelect){
 							$scope.convertModel = ($scope.model.dataProviderID+'').split('\n');	
 						}else{
-							$scope.convertModel = [$scope.model.dataProviderID]
+							$scope.convertModel = $scope.model.dataProviderID
 						}
 					}
 				})
@@ -45,7 +49,7 @@ angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbo
 						if(isMultiSelect){
 							newValue = $scope.convertModel.join('\n');	
 						}else{
-							newValue = $scope.convertModel[0];	
+							newValue = $scope.convertModel;	
 						}						 
 					}
 					if (oldValue != newValue)
@@ -97,12 +101,10 @@ angular.module('servoydefaultListbox',['servoy']).directive('servoydefaultListbo
 						$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
 					}
 				}; 
-			} 
 		},
-		templateUrl: 'servoydefault/listbox/listbox.html',
 		replace: true
 	};
-})
+}])
 
 
 
