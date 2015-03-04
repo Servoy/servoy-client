@@ -46,13 +46,19 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	@Override
 	public void updateForm(Form form, String name)
 	{
-		// ignore
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			window.updateForm(form, name);
+		}
 	}
 
 	@Override
 	public void formCreated(String formName)
 	{
-		// ignore
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			window.formCreated(formName);
+		}
 	}
 
 	@Override
@@ -73,7 +79,10 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	@Override
 	public void touchForm(Form flattenedForm, String realInstanceName, boolean async)
 	{
-		// ignore
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			window.touchForm(flattenedForm, realInstanceName, async);
+		}
 	}
 
 }
