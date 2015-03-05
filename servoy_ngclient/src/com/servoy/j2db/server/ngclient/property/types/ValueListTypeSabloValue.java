@@ -113,12 +113,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("realValue", valueList.getRealElementAt(i));
 				Object displayValue = valueList.getElementAt(i);
-				if (!(displayValue instanceof Timestamp))
+				if (displayValue instanceof Timestamp)
+				{
+					map.put("displayValue", displayValue);
+				}
+				else
 				{
 					map.put("displayValue", displayValue != null ? dataAdapterList.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
 				}
-				else map.put("displayValue", displayValue);
-
 				array.add(map);
 			}
 			jsonValue = array;

@@ -47,8 +47,6 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				try {
 					$element.off("change.dp",inputChanged);
 					var x = child.data('DateTimePicker');
-					if (typeof ngModel.$viewValue === 'number')
-						ngModel.$viewValue = new Date(ngModel.$viewValue);
 					if (x) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 					else {
 						// in find mode 

@@ -259,7 +259,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				  type = 'DATETIME';
 			  }
 			  
-			  if (typeof input === 'string' && type !== "TEXT") return input;
+			  if (((typeof input === 'string') || (input instanceof String)) && type !== "TEXT") return input;
 
 			  ret = $formatterUtils.format(input,servoyFormat,type);
 		  }catch(e){

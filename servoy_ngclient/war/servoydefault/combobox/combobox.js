@@ -94,12 +94,12 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
       var i = 0;
       var realValue = input;
       if (input && valuelist) {
+        if (input.realValue) {
+              realValue = input.realValue;
+        }
         //TODO performance upgrade: change the valuelist to a hashmap so that this for loop is no longer needed. 
         //maybe to something like {realValue1:displayValue1, realValue2:displayValue2, ...}
         for (i = 0; i < valuelist.length; i++) {
-          if (input.realValue) {
-            realValue = input.realValue;
-          }
           if (realValue === valuelist[i].realValue) {
             return valuelist[i].displayValue;
           }
