@@ -132,12 +132,17 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	
 	$scope.$watch("formProperties", wrapper(''), true);
 	
-	$scope.$on("$destroy", function() {
-		formState.removeWatches();
-		delete formState.removeWatches;
-		delete formState.getScope;
-		delete formState.addWatches;
-		delete formState.handlers;
+	var destroyListener = $scope.$on("$destroy", function() {
+		destroyListener();
+		if (formState && formState.removeWatches) {
+			formState.removeWatches();
+			delete formState.removeWatches;
+			delete formState.getScope;
+			delete formState.addWatches;
+			delete formState.handlers;
+			formState = null;
+		}
+		else console.log("no formstate for ${name}" + formState + " " + $scope.$id);
 	}
 	);
 });	
