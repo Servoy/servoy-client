@@ -102,29 +102,36 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			var rowWidth = 0;
 
 			$scope.columnDefinitions = [];
+			
+			function getColumnTitle(idx) {
+				var columnTitle = null;
+				if ($scope.model.columnHeaders && idx < $scope.model.columnHeaders.length)
+				{
+					columnTitle = $scope.model.columnHeaders[idx];
+				}	
+				if (!columnTitle) columnTitle = elements[idx].model.text;
+	//			if (!columnTitle) {
+	//				// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
+	//				if (el.foundsetConfig && el.foundsetConfig.recordBasedProperties && el.foundsetConfig.recordBasedProperties.length > 0) {
+	//					columnTitle = el.foundsetConfig.recordBasedProperties[0];
+	//					if (columnTitle && columnTitle.indexOf('.') >= 0) {
+	//						columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
+	//					}
+	//				}
+	//				if (!columnTitle) columnTitle = "";
+	//			}
+				if (!columnTitle) columnTitle = "";
+				return columnTitle;
+			}
+
 			if (elements)
 			{
 				for (var idx = 0; idx < elements.length; idx++) {
 					var el = elements[idx]; 
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
-					var columnTitle = null;
-					if ($scope.model.columnHeaders && idx < $scope.model.columnHeaders.length)
-					{
-						columnTitle = $scope.model.columnHeaders[idx];
-					}	
-					if (!columnTitle) columnTitle = el.model.text;
-//					if (!columnTitle) {
-//						// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
-//						if (el.foundsetConfig && el.foundsetConfig.recordBasedProperties && el.foundsetConfig.recordBasedProperties.length > 0) {
-//							columnTitle = el.foundsetConfig.recordBasedProperties[0];
-//							if (columnTitle && columnTitle.indexOf('.') >= 0) {
-//								columnTitle = columnTitle.substring(columnTitle.lastIndexOf('.'));
-//							}
-//						}
-//						if (!columnTitle) columnTitle = "";
-//					}
-					if (!columnTitle) columnTitle = "";
+					
+					var columnTitle = getColumnTitle(idx);
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
@@ -185,12 +192,23 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				scope.$watch('model.childElements[' + idx + '].model.visible', function (newVal, oldVal) {
 					scope.columnDefinitions[idx].visible = scope.model.childElements[idx].model.visible;
 				}, false);
+				
 				scope.$watch('model.childElements[' + idx + '].model.size.width', function (newVal, oldVal) {
-					if(newVal != oldVal)
+					if(newVal !== oldVal)
 					{
 						scope.columnDefinitions[idx].width = scope.model.childElements[idx].model.size.width;
 					}
 				}, false);
+
+				scope.$watchCollection('model.columnHeaders', function (newVal, oldVal) {
+					if(newVal !== oldVal && newVal)
+					{
+						for (var idx = 0; idx < scope.columnDefinitions.length; idx++)
+							scope.columnDefinitions[idx].displayName = getColumnTitle(idx);
+						
+						scope.gridApi.grid.buildColumns();
+					}
+				});
 			}
 
 			function getOrCreateRowProxies(rowId) {
