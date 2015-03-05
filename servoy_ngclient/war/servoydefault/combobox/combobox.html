@@ -1,6 +1,7 @@
  <ui-select ng-model="model.dataProviderID" theme="bootstrap"  reset-search-input="true"
  		id="{{::model.svyMarkupId}}" 
  		ng-disabled="model.enabled == false"
+ 		ng-style="style"
  		svy-border='model.borderType'
 	 	svy-background='model.transparent ? "transparent" : model.background'
 	 	svy-foreground='model.foreground'
@@ -16,7 +17,7 @@
  				svy-tabseq='model.tabSeq'
  				ng-style="style"
  				svy-margin='model.margin'>{{($select.selected ? $select.selected : model.dataProviderID) | showDisplayValue:model.valuelistID | formatFilter:model.format.display:model.format.type}}</ui-select-match>
-            <ui-select-choices repeat="item.realValue as item in model.valuelistID | filter: $select.search">
+            <ui-select-choices repeat="item.realValue as item in model.valuelistID | filter: $select.search" append-to-body='true'>
               <div ng-style="style" >{{item.realValue | showDisplayValue:model.valuelistID | formatFilter:model.format.display:model.format.type}}</div>
             </ui-select-choices>
      </ui-select>

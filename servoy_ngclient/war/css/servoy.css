@@ -181,3 +181,16 @@ div.svy-label-with-focus:focus{
 	height:100%;
 	padding: 1px 5px;
 }
+.ui-select-match > .form-control
+{
+	height: 100%;
+	line-height: 100%;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.ui-select-match-text
+{
+	top: 25%;
+	position:relative;
+}
