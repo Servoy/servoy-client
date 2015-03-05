@@ -258,6 +258,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				  servoyFormat = 'MM/dd/yyyy hh:mm aa';
 				  type = 'DATETIME';
 			  }
+			  
+			  if (typeof input === 'string' && type !== "TEXT") return input;
+
 			  ret = $formatterUtils.format(input,servoyFormat,type);
 		  }catch(e){
 			  console.log(e);
