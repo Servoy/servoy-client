@@ -28,6 +28,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				var windowScope = (windowOptions.scope || $rootScope).$new();
 				windowScope.$close = windowInstance.close;
 				windowScope.$dismiss = windowInstance.dismiss;
+				windowInstance.$scope = windowScope;
 
 				var ctrlLocals = {};
 				var resolveIter = 1;
@@ -162,6 +163,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 								delete this.location;
 								delete this.size;
 							}
+							if (win.$scope) win.$scope.$destroy();
 						},
 						setLocation:function(location){
 							this.location = location;
