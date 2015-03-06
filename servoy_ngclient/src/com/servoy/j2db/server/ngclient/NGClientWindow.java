@@ -138,7 +138,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				}
 				try
 				{
-					websocketSession.getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.DEFAULT_TIMEOUT);
+					websocketSession.getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.CONFIGURED_TIMEOUT);
 				}
 				catch (CancellationException e)
 				{
