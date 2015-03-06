@@ -313,7 +313,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -324,7 +324,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -332,7 +332,7 @@ public class ResourceProvider implements Filter
 		{
 			try
 			{
-				String bundleName = getManifest().getMainAttributes().getValue("Bundle-Name");
+				String bundleName = WebComponentPackage.getBundleSymbolicName(getManifest());
 				if (bundleName != null) return bundleName;
 			}
 			catch (IOException e)
@@ -363,7 +363,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -392,7 +392,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
@@ -403,7 +403,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
 		 */
 		@Override
