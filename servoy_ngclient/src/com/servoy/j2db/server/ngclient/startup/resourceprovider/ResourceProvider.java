@@ -272,14 +272,9 @@ public class ResourceProvider implements Filter
 						response.setContentType("text/html");
 					}
 				}
-				InputStream is = connection.getInputStream();
-				try
+				try (InputStream is = connection.getInputStream())
 				{
 					Utils.streamCopy(is, response.getOutputStream());
-				}
-				finally
-				{
-					is.close();
 				}
 			}
 			else
@@ -348,16 +343,9 @@ public class ResourceProvider implements Filter
 		@Override
 		public Manifest getManifest() throws IOException
 		{
-			InputStream is = urlOfManifest.openStream();
-			try
+			try (InputStream is = urlOfManifest.openStream())
 			{
-				Manifest manifest = new Manifest();
-				manifest.read(is);
-				return manifest;
-			}
-			finally
-			{
-				is.close();
+				return new Manifest(is);
 			}
 		}
 
@@ -378,15 +366,10 @@ public class ResourceProvider implements Filter
 		{
 			URL url = getUrlForPath(path);
 			if (url == null) return null;
-			InputStream is = null;
-			try
+
+			try (InputStream is = url.openStream())
 			{
-				is = url.openStream();
 				return Utils.getTXTFileContent(is, charset);
-			}
-			finally
-			{
-				if (is != null) is.close();
 			}
 		}
 
