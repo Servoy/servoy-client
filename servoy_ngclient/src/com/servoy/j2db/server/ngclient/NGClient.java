@@ -68,6 +68,7 @@ import com.servoy.j2db.util.Utils;
 
 // TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
 // then we can extend that one.
+@SuppressWarnings("nls")
 public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService
 {
 	private static final long serialVersionUID = 1L;
@@ -411,7 +412,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean closeSolution(boolean force, Object[] args)
 	{
-		if (!force)
+		if (!force && (args == null || args.length < 1))
 		{
 			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
 			{
@@ -421,7 +422,28 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 			});
 		}
-		return super.closeSolution(force, args);
+		String currentSolution = getSolutionName();
+		boolean isCloseSolution = super.closeSolution(force, args);
+		if (isCloseSolution && args != null && args.length > 0)
+		{
+			String openSolution = getPreferedSolutionNameToLoadOnInit();
+			if (openSolution == null) openSolution = currentSolution;
+			if (openSolution != null)
+			{
+				String m = getPreferedSolutionMethodNameToCall();
+				Object[] a = getPreferedSolutionMethodArguments();
+
+				StringBuilder url = new StringBuilder("solutions/").append(openSolution).append("/index.html");
+				if (m != null)
+				{
+					url.append("?m=").append(m);
+					if (a != null && a.length > 0) url.append("&a=").append(a[0]);
+				}
+
+				showURL(url.toString(), "_self", null, 0, true);
+			}
+		}
+		return isCloseSolution;
 	}
 
 	@Override
@@ -916,6 +938,14 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 						//loadSolution(getSolution().getName());
 						HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 						map.put(StartupArguments.PARAM_KEY_SOLUTION, Arrays.asList(new String[] { getSolution().getName() }));
+						if (getPreferedSolutionMethodNameToCall() != null)
+						{
+							map.put(StartupArguments.PARAM_KEY_METHOD, Arrays.asList(new String[] { getPreferedSolutionMethodNameToCall() }));
+						}
+						if (getPreferedSolutionMethodArguments() != null && getPreferedSolutionMethodArguments().length > 0)
+						{
+							map.put(StartupArguments.PARAM_KEY_ARGUMENT, Arrays.asList(new String[] { getPreferedSolutionMethodArguments()[0].toString() }));
+						}
 						wsSession.onOpen(map);
 						if (args.optBoolean("remember"))
 						{
@@ -950,5 +980,31 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	protected IClientPluginAccess createClientPluginAccess()
 	{
 		return new NGClientPluginAccessProvider(this);
+	}
+
+	@Override
+	public void logout(final Object[] solution_to_open_args)
+	{
+		if (getClientInfo().getUserUid() != null)
+		{
+			if (getSolution() != null)
+			{
+				boolean doLogOut = getClientInfo().getUserUid() != null;
+				if (getSolution() != null)
+				{
+					doLogOut = closeSolution(false, solution_to_open_args);
+				}
+				if (doLogOut && getSolution() == null)
+				{
+					credentials.clear();
+					getClientInfo().clearUserInfo();
+				}
+			}
+			else
+			{
+				credentials.clear();
+				getClientInfo().clearUserInfo();
+			}
+		}
 	}
 }
