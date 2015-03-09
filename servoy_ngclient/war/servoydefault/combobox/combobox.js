@@ -12,7 +12,9 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
         var minHeight = $scope.model.size.height + 'px';
         $scope.style = {
           'min-height': minHeight,
-          height: '100%'
+          height: '100%',
+          'min-width': $scope.model.size.width + 'px',
+          width: '100%'
         };
 
         $scope.findMode = false;

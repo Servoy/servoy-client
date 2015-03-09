@@ -170,7 +170,7 @@ div.svy-label-with-focus:focus{
 	left:auto;
 }
 .ui-select-bootstrap > .ui-select-choices {
-	width:auto
+	width: auto;
 }
 .ui-select-bootstrap > .ui-select-match {
 	padding:0px
@@ -193,4 +193,17 @@ div.svy-label-with-focus:focus{
 {
 	top: 25%;
 	position:relative;
+}
+.ui-select-choices-row>a
+{
+	padding-left: 0;
+	padding-right: 0;
+}
+.ui-select-choices-row>a>div
+{
+	padding-left: 20px;
+}
+.ui-select-choices
+{
+	overflow-x: hidden;
 }
