@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.10.0 - 2015-03-10T10:28:19.564Z
+ * Version: 0.11.1 - 2015-03-10T13:38:36.301Z
  * License: MIT
  */
 
@@ -277,6 +277,12 @@ uis.directive('uiSelectChoices',
         		scope.position = $position.offset(scope.container);
         		if ($select.searchEnabled) scope.position.top = scope.position.top + scope.container.prop('offsetHeight');
                 scope.dropdownStyle = {top: scope.position.top+'px', left: scope.position.left+'px'};
+        	}
+        });
+        scope.$on('$destroy', function(){
+        	if ($select.appendToBody)
+        	{
+        		scope.element.remove();
         	}
         });
       };
@@ -596,6 +602,11 @@ uis.controller('uiSelectCtrl',
     }
   };
 
+  ctrl.setFocus = function(){
+    if (!ctrl.focus && !ctrl.multiple) ctrl.focusser[0].focus();
+    if (!ctrl.focus && ctrl.multiple) _searchInput[0].focus();
+  };
+
   ctrl.clear = function($event) {
     ctrl.select(undefined);
     $event.stopPropagation();
@@ -653,29 +664,35 @@ uis.controller('uiSelectCtrl',
     return ctrl.placeholder;
   };
 
-  var containerSizeWatch;
-  ctrl.sizeSearchInput = function(){
+  var sizeWatch = null;
+  ctrl.sizeSearchInput = function() {
     var input = _searchInput[0],
-        container = _searchInput.parent().parent()[0];
-    _searchInput.css('width','10px');
-    var calculate = function(){
-      var newWidth = container.clientWidth - input.offsetLeft - 10;
-      if(newWidth < 50) newWidth = container.clientWidth;
-      _searchInput.css('width',newWidth+'px');
-    };
-    $timeout(function(){ //Give tags time to render correctly
-      if (container.clientWidth === 0 && !containerSizeWatch){
-        containerSizeWatch = $scope.$watch(function(){ return container.clientWidth;}, function(newValue){
-          if (newValue !== 0){
-            calculate();
-            containerSizeWatch();
-            containerSizeWatch = null;
+        container = _searchInput.parent().parent()[0],
+        calculateContainerWidth = function() {
+          // Return the container width only if the search input is visible
+          return container.clientWidth * !!input.offsetParent;
+        },
+        updateIfVisible = function(containerWidth) {
+          if (containerWidth === 0) {
+            return false;
+          }
+          var inputWidth = containerWidth - input.offsetLeft - 10;
+          if (inputWidth < 50) inputWidth = containerWidth;
+          _searchInput.css('width', inputWidth+'px');
+          return true;
+        };
+
+    _searchInput.css('width', '10px');
+    $timeout(function() { //Give tags time to render correctly
+      if (sizeWatch === null && !updateIfVisible(calculateContainerWidth())) {
+        sizeWatch = $scope.$watch(calculateContainerWidth, function(containerWidth) {
+          if (updateIfVisible(containerWidth)) {
+            sizeWatch();
+            sizeWatch = null;
           }
         });
-      }else if (!containerSizeWatch) {
-        calculate();
       }
-    }, 0, false);
+    });
   };
 
   function _handleDropDownSelection(key) {
@@ -1034,8 +1051,8 @@ uis.controller('uiSelectCtrl',
 }]);
 
 uis.directive('uiSelect',
-  ['$document', 'uiSelectConfig', 'uiSelectMinErr', '$compile', '$parse',
-  function($document, uiSelectConfig, uiSelectMinErr, $compile, $parse) {
+  ['$document', 'uiSelectConfig', 'uiSelectMinErr', '$compile', '$parse', '$timeout',
+  function($document, uiSelectConfig, uiSelectMinErr, $compile, $parse, $timeout) {
 
   return {
     restrict: 'EA',
@@ -1050,7 +1067,6 @@ uis.directive('uiSelect',
 
     controller: 'uiSelectCtrl',
     controllerAs: '$select',
-
     link: function(scope, element, attrs, ctrls, transcludeFn) {
       var $select = ctrls[0];
       var ngModel = ctrls[1];
@@ -1247,6 +1263,10 @@ uis.directive('uiSelect',
       attrs.$observe('disabled', function() {
         // No need to use $eval() (thanks to ng-disabled) since we already get a boolean instead of a string
         $select.disabled = attrs.disabled !== undefined ? attrs.disabled : false;
+        if ($select.multiple) {
+          // As the search input field may now become visible, it may be necessary to recompute its size
+          $select.sizeSearchInput();
+        }
       });
 
       attrs.$observe('resetSearchInput', function() {
@@ -1289,6 +1309,22 @@ uis.directive('uiSelect',
           $select.taggingTokens = {isActivated: true, tokens: tokens };
         }
       });
+
+      //Automatically gets focus when loaded
+      if (angular.isDefined(attrs.autofocus)){
+        $timeout(function(){
+          $select.setFocus();
+        });
+      }
+
+      //Gets focus based on scope event name (e.g. focus-on='SomeEventName')
+      if (angular.isDefined(attrs.focusOn)){
+        scope.$on(attrs.focusOn, function() {
+            $timeout(function(){
+              $select.setFocus();
+            });
+        });
+      }
 
       if ($select.multiple){
         scope.$watchCollection(function(){ return ngModel.$modelValue; }, function(newValue, oldValue) {
