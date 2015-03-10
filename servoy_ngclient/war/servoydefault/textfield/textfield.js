@@ -45,20 +45,6 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 			$scope.api.replaceSelectedText = $apifunctions.replaceSelectedText($element[0]);
 			$scope.api.selectAll = $apifunctions.selectAll($element[0]);
 
-			// special method that servoy calls when this component goes into find mode.
-			$scope.api.setFindMode = function(findMode, editable) {
-				$scope.findMode = findMode;
-				if (findMode)
-				{
-					$scope.wasEditable = $scope.model.editable;
-					if (!$scope.model.editable) $scope.model.editable = editable;
-				}
-				else
-				{
-					$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
-				}
-			};
-
 			$scope.api.setValueListItems = function(values) 
 			{
 				var valuelistItems = [];

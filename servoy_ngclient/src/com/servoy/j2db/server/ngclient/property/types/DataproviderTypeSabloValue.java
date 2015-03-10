@@ -173,7 +173,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IDataConverterContext dataConverterContext) throws JSONException
 	{
 		// TODO UUIDs are now just seen as strings
-		if (value instanceof UUID || value instanceof UUID)
+		if (value instanceof UUID)
 		{
 			value = value.toString();
 		}

@@ -71,18 +71,6 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
         	  $scope.model.valuelistID = valuelistItems;
           }
           
-         // special method that servoy calls when this component goes into find mode.
-       	 $scope.api.setFindMode = function(findMode, editable) {
-       	 	if (findMode)
-       	 	{
-       	 		$scope.wasEditable = $scope.model.editable;
-       	 		if (!$scope.model.editable) $scope.model.editable = editable;
-       	 	}
-       	 	else
-       	 	{
-       	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
-       	 	}
-       	 };
           
     /* helper functions*/
           function setSelectionFromDataprovider(){

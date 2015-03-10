@@ -19,19 +19,6 @@ angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassw
     		  $element[0].childNodes[0].focus()
     	 }
     	 
-    	// special method that servoy calls when this component goes into find mode.
-      	 $scope.api.setFindMode = function(findMode, editable) {
-      		$scope.findMode = findMode;
-      	 	if (findMode)
-      	 	{
-      	 		$scope.wasEditable = $scope.model.editable;
-      	 		if (!$scope.model.editable) $scope.model.editable = editable;
-      	 	}
-      	 	else
-      	 	{
-      	 		$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
-      	 	}
-      	 }; 
       },
       templateUrl: 'servoydefault/password/password.html'
     };

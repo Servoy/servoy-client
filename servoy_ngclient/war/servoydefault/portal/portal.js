@@ -427,48 +427,48 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 			}
 			
-			function setElementFindMode(element,findMode, editable)
-			{
-				if (element.api.setFindMode)
-				{
-					if (!findMode && element.model.svy_wasEditable == undefined) return;
-					var isEditable;
-					if (findMode)
-					{
-						element.model.svy_wasEditable = element.model.editable;
-						isEditable = editable;
-					}
-					else
-					{
-						isEditable = element.model.svy_wasEditable;
-						delete element.model.svy_wasEditable;
-					}
-					element.api.setFindMode(findMode, isEditable);
-				}
-				else
-				{
-					if (!findMode && element.model.svy_readOnlyBeforeFindMode == undefined) return;
-					if (findMode)
-					{
-						element.model.svy_readOnlyBeforeFindMode = element.model.readOnly;
-						element.model.readOnly = !editable;
-					}
-					else
-					{
-						element.model.readOnly = element.model.svy_readOnlyBeforeFindMode;
-						delete element.model.svy_readOnlyBeforeFindMode;
-					}
-				}
+			// function setElementFindMode(element,findMode, editable)
+			// {
+			// 	if (element.api.setFindMode)
+			// 	{
+			// 		if (!findMode && element.model.svy_wasEditable == undefined) return;
+			// 		var isEditable;
+			// 		if (findMode)
+			// 		{
+			// 			element.model.svy_wasEditable = element.model.editable;
+			// 			isEditable = editable;
+			// 		}
+			// 		else
+			// 		{
+			// 			isEditable = element.model.svy_wasEditable;
+			// 			delete element.model.svy_wasEditable;
+			// 		}
+			// 		element.api.setFindMode(findMode, isEditable);
+			// 	}
+			// 	else
+			// 	{
+			// 		if (!findMode && element.model.svy_readOnlyBeforeFindMode == undefined) return;
+			// 		if (findMode)
+			// 		{
+			// 			element.model.svy_readOnlyBeforeFindMode = element.model.readOnly;
+			// 			element.model.readOnly = !editable;
+			// 		}
+			// 		else
+			// 		{
+			// 			element.model.readOnly = element.model.svy_readOnlyBeforeFindMode;
+			// 			delete element.model.svy_readOnlyBeforeFindMode;
+			// 		}
+			// 	}
 
-			}
+			// }
 
-			function setElementsFindMode(findMode, editable)
-			{
-				for (var i =0; i < $scope.model.childElements.length; i++)
-				{
-					setElementFindMode($scope.model.childElements[i], findMode, editable);
-				}
-			}
+			// function setElementsFindMode(findMode, editable)
+			// {
+			// 	for (var i =0; i < $scope.model.childElements.length; i++)
+			// 	{
+			// 		setElementFindMode($scope.model.childElements[i], findMode, editable);
+			// 	}
+			// }
 			
 			// cells provide API calls; one API call (from server) should execute on all cells of that element's column.
 			// so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
@@ -857,12 +857,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 			
 
-			// special method that servoy calls when this component goes into find mode.
-			$scope.api.setFindMode = function(findMode, editable) {				
-				$scope.model.svy_findMode = findMode;
-				$scope.model.svy_editable = editable;
-				setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
-			};
+			// // special method that servoy calls when this component goes into find mode.
+			// $scope.api.setFindMode = function(findMode, editable) {				
+			// 	$scope.model.svy_findMode = findMode;
+			// 	$scope.model.svy_editable = editable;
+			// 	setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
+			// };
 		},
 		templateUrl: 'servoydefault/portal/portal.html',
 		replace: true

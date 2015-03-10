@@ -284,33 +284,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 				$sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
 			});
-		},
-
-		setFindMode: function(formName, findMode, editable){
-			$sabloApplication.getFormState(formName).then(function (formState) {
-				for (beanName in formState.model)
-				{
-					if (beanName != '') 
-					{
-						if (formState.api[beanName] && formState.api[beanName].setFindMode)
-						{
-							formState.api[beanName].setFindMode(findMode, editable);
-						}
-						else
-						{
-							if (findMode)
-							{
-								formState.model[beanName].svy_readOnlyBeforeFindMode = formState.model[beanName].readOnly;
-								formState.model[beanName].readOnly = true;
-							}
-							else
-							{
-								formState.model[beanName].readOnly = formState.model[beanName].svy_readOnlyBeforeFindMode;
-							}
-						}
-					}
-				}
-			});
 		}
 	}
 }).factory("$formService",function($sabloApplication,$windowService,$servoyInternal) {

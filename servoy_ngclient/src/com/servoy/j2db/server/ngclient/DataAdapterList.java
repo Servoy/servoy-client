@@ -18,7 +18,6 @@ import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.base.util.ITagResolver;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -570,11 +569,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			x.findModeChanged(findMode);
 		}
-
-		getApplication().getWebsocketSession().getClientService("$servoyInternal").executeAsyncServiceCall(
-			"setFindMode",
-			new Object[] { formController.getName(), Boolean.valueOf(findMode), Boolean.valueOf(!Boolean.TRUE.equals(getApplication().getClientProperty(
-				IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE))) });
 	}
 
 	public void destroy()

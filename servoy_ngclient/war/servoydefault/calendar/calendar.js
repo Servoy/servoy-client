@@ -24,11 +24,11 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				{
 					$scope.style.height = $scope.model.size.height;
 				}
-			})
+			});
 
 			$scope.$watch('model.format', function(){
 				setDateFormat($scope.model.format);
-			})
+			});
 
 			function inputChanged(e) {
 				if ($scope.findMode) {
@@ -40,7 +40,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				}
 				ngModel.$setValidity("", true);
 				$scope.svyServoyapi.apply('dataProviderID');
-			}
+			};
 
 			// when model change, update our view, set the date in the datepicker
 			ngModel.$render = function() {
@@ -92,33 +92,57 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			});
 			
 			$scope.findMode = false;
+
+//			$scope.$watch('model.findmode', function(){
+//				
+//				if ($scope.model.findmode) {
+//					var tmp = child.data('DateTimePicker');
+//					if (angular.isDefined(tmp)) tmp.destroy(); // can be undefined in find mode
+//				}
+//				else {
+//					child.datetimepicker();
+//					var x = child.data('DateTimePicker');
+//					if (angular.isDefined(x)) { // can be undefined in find mode
+//						x.format(dateFormat);
+//						try {
+//							$element.off("change.dp",inputChanged);
+//							x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
+//						}
+//						finally {
+//							$element.on("change.dp",inputChanged);
+//						}
+//					}
+//				}
+//
+//			});
+
 			// special method that servoy calls when this component goes into find mode.
-			$scope.api.setFindMode = function(mode, editable) {
-				$scope.findMode = mode;
-				if ($scope.findMode)
-				{
-					var tmp = child.data('DateTimePicker');
-					if (angular.isDefined(tmp)) tmp.destroy(); // can be undefined in find mode
-					$scope.wasEditable = $scope.model.editable;
-					if (!$scope.model.editable) $scope.model.editable = editable;
-				}
-				else
-				{
-					child.datetimepicker();
-					var x = child.data('DateTimePicker');
-					if (angular.isDefined(x)) { // can be undefined in find mode
-						x.format(dateFormat);
-						try {
-							$element.off("change.dp",inputChanged);
-							x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
-							$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
-						}
-						finally {
-							$element.on("change.dp",inputChanged);
-						}
-					}
-				}
-			};
+			// $scope.api.setFindMode = function(mode, editable) {
+			// 	$scope.findMode = mode;
+			// 	if ($scope.findMode)
+			// 	{
+			// 		var tmp = child.data('DateTimePicker');
+			// 		if (angular.isDefined(tmp)) tmp.destroy(); // can be undefined in find mode
+			// 		$scope.wasEditable = $scope.model.editable;
+			// 		if (!$scope.model.editable) $scope.model.editable = editable;
+			// 	}
+			// 	else
+			// 	{
+			// 		child.datetimepicker();
+			// 		var x = child.data('DateTimePicker');
+			// 		if (angular.isDefined(x)) { // can be undefined in find mode
+			// 			x.format(dateFormat);
+			// 			try {
+			// 				$element.off("change.dp",inputChanged);
+			// 				x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
+			// 				$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
+			// 			}
+			// 			finally {
+			// 				$element.on("change.dp",inputChanged);
+			// 			}
+			// 		}
+			// 	}
+			// };
 			var storedTooltip = false;
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'

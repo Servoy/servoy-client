@@ -87,20 +87,6 @@ angular.module('servoydefaultListbox',['servoy'])
 					}
 					$scope.model.valuelistID = valuelistItems;
 				}
-
-				// special method that servoy calls when this component goes into find mode.
-				$scope.api.setFindMode = function(findMode, editable) {
-					$scope.findMode = findMode;
-					if (findMode)
-					{
-						$scope.wasEditable = $scope.model.editable;
-						if (!$scope.model.editable) $scope.model.editable = editable;
-					}
-					else
-					{
-						$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable;
-					}
-				}; 
 		},
 		replace: true
 	};

@@ -58,7 +58,8 @@ public class ComponentFactory
 
 			for (String propName : fe.getRawPropertyValues().keySet())
 			{
-				if (componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
+				//TODO this if should not be necessary. currently in the case of "printable" hidden property
+				if (componentSpec.getProperty(propName) == null) continue;
 				Object value = fe.getPropertyValueConvertedForWebComponent(propName, webComponent, (DataAdapterList)dataAdapterList);
 				if (value == null) continue;
 				fillProperty(value, fe.getPropertyValue(propName), componentSpec.getProperty(propName), webComponent);
