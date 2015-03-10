@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.11.1 - 2015-03-10T13:38:36.317Z
+ * Version: 0.11.1 - 2015-03-10T17:13:39.960Z
  * License: MIT
  */
 
@@ -213,8 +213,11 @@
 }
 .ui-select-bootstrap.ui-select-choices-open
 {
-	max-height: 200px;
 	margin-top: -1px;
+}
+.ui-select-bootstrap.ui-select-choices
+{
+	max-height: 200px;
 }
 .ui-select-choices-open {
 	display:block;

@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.11.1 - 2015-03-10T13:38:36.301Z
+ * Version: 0.11.1 - 2015-03-10T17:13:39.960Z
  * License: MIT
  */
 
@@ -199,8 +199,8 @@ uis.service('RepeatParser', ['uiSelectMinErr','$parse', function(uiSelectMinErr,
 }]);
 
 uis.directive('uiSelectChoices',
-  ['uiSelectConfig', 'RepeatParser', 'uiSelectMinErr', '$compile', '$document','$position',
-  function(uiSelectConfig, RepeatParser, uiSelectMinErr, $compile, $document, $position) {
+  ['uiSelectConfig', 'RepeatParser', 'uiSelectMinErr', '$compile', '$document','$position','$window',
+  function(uiSelectConfig, RepeatParser, uiSelectMinErr, $compile, $document, $position, $window) {
 
   return {
     restrict: 'EA',
@@ -266,23 +266,34 @@ uis.directive('uiSelectChoices',
         	return $select.open && $select.items.length > 0;
         };
         scope.container = element.closest('.ui-select-container');
+        scope.choicesElement = element;
         if ($select.appendToBody)
         {
     		$document.find('body').append(element);
-    		scope.element = element;
         }
+        scope.showOnTop = function(position)
+        {
+            var viewport_bottom = $window.scrollY + $window.innerHeight;
+            var max_height = scope.choicesElement.css('max-height') != 'none' ? parseInt(scope.choicesElement.css('max-height'), 10) : 200;
+            return viewport_bottom < position.top + max_height;
+        };
         scope.$watch('$select.open', function(newValue) {
         	if (newValue)
         	{
-        		scope.position = $position.offset(scope.container);
-        		if ($select.searchEnabled) scope.position.top = scope.position.top + scope.container.prop('offsetHeight');
-                scope.dropdownStyle = {top: scope.position.top+'px', left: scope.position.left+'px'};
+        		var position = $select.appendToBody ? $position.offset(scope.container) : $position.position(scope.container);
+        		if ($select.searchEnabled) position.top = position.top + scope.container.prop('offsetHeight');
+        		scope.dropdownStyle = {top: position.top+'px', left: position.left+'px'};
+        		if (scope.showOnTop(position))
+        		{
+        			delete scope.dropdownStyle.top;
+        			scope.dropdownStyle.bottom = $window.scrollY + $window.innerHeight - $position.offset(scope.container).top + 'px';
+        		}
         	}
         });
         scope.$on('$destroy', function(){
         	if ($select.appendToBody)
         	{
-        		scope.element.remove();
+        		scope.choicesElement.remove();
         	}
         });
       };
@@ -1021,7 +1032,7 @@ uis.controller('uiSelectCtrl',
 
   // See https://github.com/ivaynberg/select2/blob/3.4.6/select2.js#L1431
   function _ensureHighlightVisible() {
-    var container = $scope.$select.appendToBody ? $scope.element: $element.querySelectorAll('.ui-select-choices-content');
+    var container = $scope.$select.appendToBody ? $scope.choicesElement: $element.querySelectorAll('.ui-select-choices-content');
     var choices = container.querySelectorAll('.ui-select-choices-row');
     if (choices.length < 1) {
       throw uiSelectMinErr('choices', "Expected multiple .ui-select-choices-row but got '{0}'.", choices.length);
