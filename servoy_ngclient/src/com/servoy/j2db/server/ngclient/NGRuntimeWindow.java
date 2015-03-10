@@ -501,7 +501,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public void destroy()
 	{
 		super.destroy();
-		hideUI();
+		if (visible) hideUI();
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroy",
 			new Object[] { getName() });
 	}
