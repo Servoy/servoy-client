@@ -14,7 +14,7 @@ describe('servoydefaultTextfield component', function() {
 					setFormReadOnly: function (formname, readOnly) {
 						
 					},
-					showForm: function(formname,relationname,formIndex) {
+					formWillShow: function(formname,relationname,formIndex) {
 					},
 					hideForm: function(formname,relationname,formIndex) {
 					},

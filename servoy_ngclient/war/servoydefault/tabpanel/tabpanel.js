@@ -98,7 +98,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
        }
        
        function setFormVisible(tab,event) {
-    	   if (tab.containsFormId) $scope.svyServoyapi.showForm(tab.containsFormId, tab.relationName);
+    	   if (tab.containsFormId) $scope.svyServoyapi.formWillShow(tab.containsFormId, tab.relationName);
 		   if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
 		   {
 			   $scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event instanceof MouseEvent ? event : null);

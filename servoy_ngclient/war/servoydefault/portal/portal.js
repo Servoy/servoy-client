@@ -534,7 +534,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				if (!cellProxies.cellServoyApi) {
 					var columnServoyApi = elements[elementIndex].servoyApi;
 					cellProxies.cellServoyApi = {
-							showForm: $scope.servoyApi.showForm,
+							formWillShow: $scope.servoyApi.formWillShow,
 							hideForm: $scope.servoyApi.hideForm,
 							setFormEnabled: $scope.servoyApi.setFormEnabled,
 							setFormReadOnly: $scope.servoyApi.setFormReadOnly,

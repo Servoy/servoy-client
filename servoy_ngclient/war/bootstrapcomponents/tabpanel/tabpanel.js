@@ -19,7 +19,7 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
     	  $scope.select = function(tab) {
     		  if (tab && tab.containedForm)
     		  {
-    			  $scope.svyServoyapi.showForm(tab.containedForm, tab.relationName); 
+    			  $scope.svyServoyapi.formWillShow(tab.containedForm, tab.relationName); 
     		  }	  
     	  }
     	  

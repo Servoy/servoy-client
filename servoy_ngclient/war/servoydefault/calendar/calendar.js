@@ -152,7 +152,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 					}
 					else {
 						ngModel.$setValidity("", true);
-						$scope.model.toolTipText = storedTooltip;
+						if (storedTooltip !== false) $scope.model.toolTipText = storedTooltip;
 						storedTooltip = false;
 					}
 			}

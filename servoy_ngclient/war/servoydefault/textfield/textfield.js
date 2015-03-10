@@ -10,7 +10,7 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 		link:function($scope, $element, $attrs, ngModel) {
 			$scope.findMode = false;
 			$scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-			
+
 			var storedTooltip = false;
 			// fill in the api defined in the spec file
 
@@ -21,20 +21,20 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
-				if(!returnval || stringValue) {
-					$element[0].focus();
-					ngModel.$setValidity("", false);
-					if (stringValue) {
-						if ( storedTooltip == false)
-							storedTooltip = $scope.model.toolTipText;
-						$scope.model.toolTipText = returnval;
+					if(!returnval || stringValue) {
+						$element[0].focus();
+						ngModel.$setValidity("", false);
+						if (stringValue) {
+							if ( storedTooltip == false)
+								storedTooltip = $scope.model.toolTipText;
+							$scope.model.toolTipText = returnval;
+						}
 					}
-				}
-				else {
-					ngModel.$setValidity("", true);
-					$scope.model.toolTipText = storedTooltip;
-					storedTooltip = false;
-				}
+					else {
+						ngModel.$setValidity("", true);
+						if (storedTooltip !== false) $scope.model.toolTipText = storedTooltip;
+						storedTooltip = false;
+					}
 			}
 			$scope.api.requestFocus = function() { 
 				$element[0].focus()

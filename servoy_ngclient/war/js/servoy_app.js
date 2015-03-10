@@ -286,15 +286,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			});
 		}
 	}
-}).factory("$formService",function($sabloApplication,$windowService,$servoyInternal) {
+}).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope) {
 	return {
-		showForm: function(formname,parentForm,beanName,relationname,formIndex) {
+		formWillShow: function(formname,notifyFormVisibility,parentForm,beanName,relationname,formIndex) {
+			if ($rootScope.updatingFormName === formname) {
+				$rootScope.updatingFormUrl = ''; // it's going to be shown; remove it from hidden DOM
+				$rootScope.updatingFormName = null;
+			}
+			
 			if (!formname) {
 				throw "formname is undefined";
 			}
 			$sabloApplication.getFormState(formname).then(function (formState) {
 				// if first show of this form in browser window then request initial data (dataproviders and such)
-				$sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
+				if (notifyFormVisibility) $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:true,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex}, true);
 				if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formname, formState);
 			});
 		},
@@ -310,9 +315,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		setFormReadOnly: function(formname, readOnly) {
 			$sabloApplication.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly},true)
 		},
-		getFormUrl: function(formUrl) {
-			return $windowService.getFormUrl(formUrl);
-		}
 	}	
 }).directive('svyAutosave',  function ($sabloApplication) {
 	return {
@@ -588,11 +590,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		link: function (scope, element, attrs) {
 			var formname = scope.formname;
 			$timeout(function() {
+				//console.log("---- resolving form state = " + formname + " [svyFormload]");
 				$sabloApplication.callService('formService', 'formLoaded', { formname: formname }, true);
 
-				if($windowService.getFormUrl(formname) == $rootScope.updatingFormUrl) {
-					$rootScope.updatingFormUrl = '';
-				}
 				scope.formProperties.size.width = element.prop('offsetWidth');
 				scope.formProperties.size.height = element.prop('offsetHeight');
 				

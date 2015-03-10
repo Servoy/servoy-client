@@ -52,10 +52,10 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
      	  });
     	  
     	  if ($scope.model.tabs && $scope.model.tabs[0] && $scope.model.tabs[0].containsFormId) {
-    		  $scope.svyServoyapi.showForm($scope.model.tabs[0].containsFormId, $scope.model.tabs[0].relationName,0);
+    		  $scope.svyServoyapi.formWillShow($scope.model.tabs[0].containsFormId, $scope.model.tabs[0].relationName,0);
     	  }
     	  if ($scope.model.tabs && $scope.model.tabs[1] && $scope.model.tabs[1].containsFormId) {
-    		  $scope.svyServoyapi.showForm($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);
+    		  $scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);
     	  }
     	  $scope.onChange = function() {
     		  if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,event);
@@ -171,7 +171,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
     			   active: false,
     			   disabled: false,
     			   foreground: null };
-       	      $scope.svyServoyapi.showForm($scope.model.tabs[0].containsFormId, $scope.model.tabs[0].relationName,0);
+       	      $scope.svyServoyapi.formWillShow($scope.model.tabs[0].containsFormId, $scope.model.tabs[0].relationName,0);
         	  return true;
           }
           
@@ -184,7 +184,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
        			   active: false,
        			   disabled: false,
        			   foreground: null };        	  
-       	      $scope.svyServoyapi.showForm($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);        	  
+       	      $scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);        	  
         	  return true;
           }
           

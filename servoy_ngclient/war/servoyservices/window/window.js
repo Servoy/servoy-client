@@ -1,5 +1,5 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services,$compile,$formService) {
+.factory("window",function($window,$services,$compile,$formService,$windowService) {
 	var scope = $services.getServiceScope('window');
 	return {
 		createShortcut: function(shortcutcombination,callback,contextFilter,args) {
@@ -86,9 +86,9 @@ angular.module('window',['servoy'])
 		},
 		showFormPopup : function(component,form,width,height)
 		{
-			$formService.showForm(form);
+			$formService.formWillShow(form, true);
 			scope.getFormUrl = function(){
-				return $formService.getFormUrl(form);
+				return $windowService.getFormUrl(form);
 			};
 			var body = $('body');
 			var style = 'position:absolute;z-index:999;';

@@ -128,7 +128,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {x:left,y:top}
 	};
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $servoyInternal, $sabloApplication, webStorage, WindowType) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
@@ -143,6 +143,39 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}, 500);
 	});
 
+	function getFormUrl(formName) {
+		var realFormUrl = formTemplateUrls[formName];
+		if (realFormUrl == null) {
+			formTemplateUrls[formName] = "";
+			$sabloApplication.callService("$windowService", "touchForm", {name:formName},true);
+		}
+		else if (realFormUrl.length == 0)
+		{
+			// waiting for updateForm to come
+			return null;
+		}
+		return realFormUrl;
+	}
+	
+	function prepareFormForUseInHiddenDiv(formName) {
+		// in order to call web component API's for example we will create appropriate DOM and create the directives/scopes (but hidden) so that API call doesn't go to destroyed web component...
+		var formURL = formTemplateUrls[formName];
+		if (formURL && formURL.length > 0) $rootScope.updatingFormUrl = formURL; // normally the form URL is already there
+		else {
+			$log.error("Trying to reload hidden form, but rel URL is empty; forcing reload...");
+			$rootScope.updatingFormUrl = getFormUrl(formName);
+		}
+		//console.log("$rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [prepareFormForUseInHiddenDiv - " + formName + "]");
+		$rootScope.updatingFormName = formName;
+	}
+	
+	$sabloApplication.contributeFormLoadHandler({
+		
+		// makes sure the given form is prepared (so DOM/directives are ready for use, not necessarily with initial data)
+		prepareDestroyedFormForUse: prepareFormForUseInHiddenDiv
+	
+	});
+	
 	return {
 		create: function (name,type){
 			// dispose old one
@@ -252,16 +285,12 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				$log.error("Trying to destroy window : '" + name + "' which is not created.");
 			}
 		},
-		switchForm: function(name,form,navigatorForm) {		
-			$sabloApplication.getFormState(form.name).then(function (formState) {
-				// if first show of this form in browser window then request initial data (dataproviders and such)
-				if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(form.name, formState);
-			});
+		switchForm: function(name,form,navigatorForm) {
+			// if first show of this form in browser window then request initial data (dataproviders and such)
+			$formService.formWillShow(form.name, false); // false because form was already made visible server-side
 			if (navigatorForm && navigatorForm.templateURL && navigatorForm.templateURL.lastIndexOf("default_navigator_container.html") == -1) {
-				$sabloApplication.getFormState(navigatorForm.templateURL).then(function (formState) {
-					// if first show of this form in browser window then request initial data (dataproviders and such)
-					if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(navigatorForm.templateURL, formState);
-				});
+				// if first show of this form in browser window then request initial data (dataproviders and such)
+				$formService.formWillShow(navigatorForm.templateURL, false); // false because form was already made visible server-side
 			}
 
 			if(instances[name] && instances[name].type != WindowType.WINDOW) {
@@ -345,32 +374,39 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			$sabloApplication.clearFormState(formName)
 			eval(controllerCode);
 			formTemplateUrls[formName] = realFormUrl;
-			if(forceLoad) $rootScope.updatingFormUrl = realFormUrl;
+			if(forceLoad) {
+				$rootScope.updatingFormUrl = realFormUrl;
+				$rootScope.updatingFormName = formName;
+				//console.log("$rootScope.updatingFormUrl = " + updatingFormUrl + " [updateController FORCED - " + formName + "]");
+			}
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},	
+		requireFormLoaded: function(formName) {
+			// in case updateController was called for a form before with forceLoad == false, the form URL might not really be loaded by the bean that triggered it
+			// because the bean changed it's mind, so when a new server side touchForm() comes for this form with forceLoad == true then we must make sure the
+			// form URL is used to create the directives/DOM and be ready for use
+			$timeout(function() { // $timeout (a random number of multiple ones) are used to try to avoid cases in which a component already will use the template URL in which case we avoid loading it in hidden div unnecessarily
+				$timeout(function() {
+					$timeout(function() {
+						$timeout(function() {
+							if ($sabloApplication.
+							prepareFormForUseInHiddenDiv(formName);
+							if (!$rootScope.$$phase) $rootScope.$digest();
+						}, 0);
+					}, 0);
+				}, 0);
+		},
 		destroyController : function(formName){
 			$sabloApplication.clearFormState(formName);
 		},
-		getFormUrl: function(formName) {
-			var realFormUrl = formTemplateUrls[formName];
-			if (realFormUrl == null) {
-				formTemplateUrls[formName] = "";
-				$sabloApplication.callService("$windowService", "touchForm", {name:formName},true);
-			}
-			else if (realFormUrl.length == 0)
-			{
-				// waiting for updateForm to come
-				return null;
-			}
-			return realFormUrl;
-		}
+		getFormUrl: getFormUrl
 	}
 
 }).value('WindowType',{
 	DIALOG:0,
 	MODAL_DIALOG:1,
 	WINDOW:2
-}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal,$sabloApplication) {
+}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal,$sabloApplication,$formService) {
 
 	// these scope variables can be accessed by child scopes
 	// for example the default navigator watches 'win' to see if it changed the current form
@@ -398,7 +434,8 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}
 		return {'width':width+'px','height':height+'px'}
 	}
-	$sabloApplication.callService('formService', 'formvisibility', {formname:windowInstance.form.name,visible:true})
+	
+	$formService.formWillShow(windowInstance.form.name, false);
 
 	$scope.cancel = function () {
 		var promise = $sabloApplication.callService("$windowService", "windowClosing", {window:windowInstance.name},false);

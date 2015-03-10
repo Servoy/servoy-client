@@ -116,10 +116,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			// form is not yet on the client, send over the controller
 			updateController(form, formName, formUrl, !async);
+			//System.out.println("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
+			if (async) Thread.dumpStack();
 		}
 		else
 		{
 			formUrl = getEndpoint().getFormUrl(formName);
+			//System.out.println("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
 		}
 
 		// if sync wait until we got response from client as it is loaded
@@ -127,6 +130,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			if (!getEndpoint().isFormCreated(formName))
 			{
+				//System.out.println("touchForm(" + async + ") - will suspend: " + form.getName());
 				// really send the changes
 				try
 				{
@@ -146,7 +150,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				}
 				catch (TimeoutException e)
 				{
-					throw new RuntimeException(e); // timeout... something went wrong; propagate this exception to calling code...
+					throw new RuntimeException("Touch form realInstanceName (" + form.getName() + ") timed out.", e); // timeout... something went wrong; propagate this exception to calling code...
 				}
 			}
 		}
@@ -224,6 +228,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			{
 				getEndpoint().markFormCreated(formName);
 				getSession().getEventDispatcher().resume(formUrl);
+				//System.out.println("formCreated(" + formUrl + ") - touchForm resumed: " + formName);
 			}
 		}
 	}

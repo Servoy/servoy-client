@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 	
-${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$sabloUtils) {
+${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$sabloUtils) {
 
 	var beans = {
 	<#list baseComponents as bc>
@@ -52,8 +52,8 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 
 	var servoyApi = function(beanname) {
 		return {
-			showForm: function(formname,relationname,formIndex) {
-				$formService.showForm(formname,$scope.formname,beanname,relationname,formIndex);
+			formWillShow: function(formname,relationname,formIndex) {
+				$formService.formWillShow(formname,true,$scope.formname,beanname,relationname,formIndex);
 			},
 			hideForm: function(formname,relationname,formIndex) {
 				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex);
@@ -65,7 +65,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 				$formService.setFormReadOnly(formname,readOnly);
 			},
 			getFormUrl: function(formUrl) {
-				return $formService.getFormUrl(formUrl);
+				return $windowService.getFormUrl(formUrl);
 			},
 			startEdit: function(propertyName) {
 				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)

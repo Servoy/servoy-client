@@ -14,7 +14,7 @@ describe('servoydefaultTabpanel component', function() {
 					setFormReadOnly: function (formname, readOnly) {
 						
 					},
-					showForm: function(formname,relationname,formIndex) {
+					formWillShow: function(formname,relationname,formIndex) {
 					},
 					hideForm: function(formname,relationname,formIndex) {
 					},
@@ -111,7 +111,7 @@ describe('servoydefaultTabpanel component', function() {
     		  }, 100)    		  
     		  return defered .promise
 			}    	  
-    	  	$scope.handlers.tabs.svy_servoyApi.showForm = dellayedOkPromise;    
+    	  	$scope.handlers.tabs.svy_servoyApi.formWillShow = dellayedOkPromise;    
 			$scope.handlers.tabs.svy_servoyApi.hideForm = dellayedOkPromise; 
   	  })
 	});

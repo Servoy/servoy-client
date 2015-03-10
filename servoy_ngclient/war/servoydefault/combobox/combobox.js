@@ -44,7 +44,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
         var storedTooltip = false;
      	scope.api.onDataChangeCallback = function(event, returnval) {
           var ngModel = element.children().controller("ngModel");
-          var stringValue = typeof returnval === 'string';
+				var stringValue = (typeof returnval === 'string' || returnval instanceof String);
           if (!returnval || stringValue) {
             element[0].focus();
             ngModel.$setValidity("", false);
@@ -57,7 +57,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
           }
           else {
             ngModel.$setValidity("", true);
-            scope.model.toolTipText = storedTooltip;
+					if (storedTooltip !== false) scope.model.toolTipText = storedTooltip;
             storedTooltip = false;
           }
         };
