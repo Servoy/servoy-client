@@ -31,10 +31,12 @@ import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -45,11 +47,12 @@ import com.servoy.j2db.util.Debug;
  */
 public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue> implements IConvertedPropertyType<FindModeSabloValue>,
 	IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>, ISabloComponentToRhino<FindModeSabloValue>,
-	IRhinoToSabloComponent<FindModeSabloValue>
+	IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
 {
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
 	public static final String TYPE_NAME = "findmode";
+	private static final FindModeSabloValue defaultValue = new FindModeSabloValue(null, null);
 
 	/*
 	 * (non-Javadoc)
@@ -95,7 +98,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	@Override
 	public FindModeSabloValue defaultValue(PropertyDescription pd)
 	{
-		return new FindModeSabloValue((FindModeConfig)pd.getConfig(), null);
+		return defaultValue;
 	}
 
 	/*
@@ -192,4 +195,19 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		return previousComponentValue;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON#toTemplateJSONValue(org.json.JSONWriter, java.lang.String,
+	 * java.lang.Object, org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, com.servoy.j2db.FlattenedSolution,
+	 * com.servoy.j2db.server.ngclient.FormElement)
+	 */
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
+	{
+		JSONUtils.addKeyIfPresent(writer, key);
+		writer.value(Boolean.FALSE);
+		return writer;
+	}
 }

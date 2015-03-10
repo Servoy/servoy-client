@@ -31,7 +31,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			});
 
 			function inputChanged(e) {
-				if ($scope.findMode) {
+				if ($scope.model.findmode) {
 					ngModel.$setViewValue(child.children("input").val());        		  
 				}
 				else {
@@ -47,7 +47,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				try {
 					$element.off("change.dp",inputChanged);
 					var x = child.data('DateTimePicker');
-					if (x) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
+					if (x && !$scope.model.findmode) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 					else {
 						// in find mode 
 						child.children("input").val(ngModel.$viewValue);
@@ -91,30 +91,25 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				$scope.$digest();
 			});
 			
-			$scope.findMode = false;
-
-//			$scope.$watch('model.findmode', function(){
-//				
-//				if ($scope.model.findmode) {
-//					var tmp = child.data('DateTimePicker');
-//					if (angular.isDefined(tmp)) tmp.destroy(); // can be undefined in find mode
-//				}
-//				else {
-//					child.datetimepicker();
-//					var x = child.data('DateTimePicker');
-//					if (angular.isDefined(x)) { // can be undefined in find mode
-//						x.format(dateFormat);
-//						try {
-//							$element.off("change.dp",inputChanged);
-//							x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
-//						}
-//						finally {
-//							$element.on("change.dp",inputChanged);
-//						}
-//					}
-//				}
-//
-//			});
+			$scope.$watch('model.findmode', function() {
+				if ($scope.model.findmode) {
+					//TODO now show input text field and hide the picker
+					// var tmp = child.data('DateTimePicker');
+					// tmp.disable(); 
+				} else {
+					//TODO hide the findmode textfield and make calendar work normally again
+					//child.datetimepicker(); will not work because it triggers a digest call and we are already in a digest call
+					var x = child.data('DateTimePicker');
+					// x.enable();
+					x.format(dateFormat);
+					try {
+						$element.off("change.dp", inputChanged);
+						x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
+					} finally {
+						$element.on("change.dp", inputChanged);
+					}
+				}
+			});
 
 			// special method that servoy calls when this component goes into find mode.
 			// $scope.api.setFindMode = function(mode, editable) {
