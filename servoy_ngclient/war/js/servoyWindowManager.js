@@ -156,26 +156,37 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}
 		return realFormUrl;
 	}
-	
+
 	function prepareFormForUseInHiddenDiv(formName) {
-		// in order to call web component API's for example we will create appropriate DOM and create the directives/scopes (but hidden) so that API call doesn't go to destroyed web component...
-		var formURL = formTemplateUrls[formName];
-		if (formURL && formURL.length > 0) $rootScope.updatingFormUrl = formURL; // normally the form URL is already there
-		else {
-			$log.error("Trying to reload hidden form, but rel URL is empty; forcing reload...");
-			$rootScope.updatingFormUrl = getFormUrl(formName);
-		}
-		//console.log("$rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [prepareFormForUseInHiddenDiv - " + formName + "]");
-		$rootScope.updatingFormName = formName;
+		$timeout(function() { // $timeout (a random number of multiple ones) are used to try to avoid cases in which a component already will use the template URL in which case we avoid loading it in hidden div unnecessarily
+			$timeout(function() {
+				$timeout(function() {
+					$timeout(function() {
+						$log.debug("svy * checking if prepareFormForUseInHiddenDiv needs to do something: " + formName);
+						if (!$sabloApplication.hasResolvedFormState(formName)) {
+							// in order to call web component API's for example we will create appropriate DOM and create the directives/scopes (but hidden) so that API call doesn't go to destroyed web component...
+							var formURL = formTemplateUrls[formName];
+							if (formURL && formURL.length > 0) $rootScope.updatingFormUrl = formURL; // normally the form URL is already there
+							else {
+								$log.error("svy * Trying to reload hidden form, but rel URL is empty; forcing reload... " + formName);
+								$rootScope.updatingFormUrl = getFormUrl(formName);
+							}
+							$log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [prepareFormForUseInHiddenDiv - " + formName + "]");
+							$rootScope.updatingFormName = formName;
+						}
+					}, 0);
+				}, 0);
+			}, 0);
+		}, 0);
 	}
-	
-	$sabloApplication.contributeFormLoadHandler({
-		
+
+	$sabloApplication.contributeFormResolver({
+
 		// makes sure the given form is prepared (so DOM/directives are ready for use, not necessarily with initial data)
-		prepareDestroyedFormForUse: prepareFormForUseInHiddenDiv
-	
+		prepareUnresolvedFormForUse: prepareFormForUseInHiddenDiv
+
 	});
-	
+
 	return {
 		create: function (name,type){
 			// dispose old one
@@ -377,7 +388,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if(forceLoad) {
 				$rootScope.updatingFormUrl = realFormUrl;
 				$rootScope.updatingFormName = formName;
-				//console.log("$rootScope.updatingFormUrl = " + updatingFormUrl + " [updateController FORCED - " + formName + "]");
+				$log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [updateController FORCED - " + formName + "]");
 			}
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},	
@@ -385,16 +396,9 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			// in case updateController was called for a form before with forceLoad == false, the form URL might not really be loaded by the bean that triggered it
 			// because the bean changed it's mind, so when a new server side touchForm() comes for this form with forceLoad == true then we must make sure the
 			// form URL is used to create the directives/DOM and be ready for use
-			$timeout(function() { // $timeout (a random number of multiple ones) are used to try to avoid cases in which a component already will use the template URL in which case we avoid loading it in hidden div unnecessarily
-				$timeout(function() {
-					$timeout(function() {
-						$timeout(function() {
-							if ($sabloApplication.
-							prepareFormForUseInHiddenDiv(formName);
-							if (!$rootScope.$$phase) $rootScope.$digest();
-						}, 0);
-					}, 0);
-				}, 0);
+			$log.debug("svy * requireFormLoaded: " + formName);
+			prepareFormForUseInHiddenDiv(formName);
+			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		destroyController : function(formName){
 			$sabloApplication.clearFormState(formName);
@@ -434,7 +438,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		}
 		return {'width':width+'px','height':height+'px'}
 	}
-	
+
 	$formService.formWillShow(windowInstance.form.name, false);
 
 	$scope.cancel = function () {

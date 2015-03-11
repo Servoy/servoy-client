@@ -63,7 +63,7 @@
 			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
 				ng-include="getNavigatorFormUrl()"></div>
 			<div ng-include="getMainFormUrl()" ng-style="getFormStyle(solutionSettings.ltrOrientation)"></div>
-			<div ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
+			<div hiddendiv="true" ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>
 		</div>
 		<div ng-if='getSessionProblemView()' ng-include='getSessionProblemView()'>		  
 		</div>

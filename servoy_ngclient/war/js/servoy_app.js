@@ -1,6 +1,7 @@
 var controllerProvider;
-angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider) {
+angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider,$logProvider) {
 	controllerProvider = $controllerProvider;
+	$logProvider.debugEnabled(false);
 }).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication) {
 
 	var deferredProperties = {};
@@ -226,7 +227,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 			var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope,resolve);
 
-			if (!state || state.layout) return state; // already initialized
+			if (!state || !state.initializing) return state; // already initialized
 
 			var layout = state.layout = {};
 			state.style = {
@@ -293,7 +294,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				$rootScope.updatingFormUrl = ''; // it's going to be shown; remove it from hidden DOM
 				$rootScope.updatingFormName = null;
 			}
-			
+
 			if (!formname) {
 				throw "formname is undefined";
 			}
@@ -584,20 +585,55 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 		}
 	};   
-}).directive('svyFormload',  function ($timeout, $sabloApplication, $windowService, $rootScope) {
+}).directive('svyFormload',  function ($timeout, $servoyInternal, $sabloApplication, $windowService, $rootScope, $log) {
 	return {
-		restrict: 'A',
-		link: function (scope, element, attrs) {
-			var formname = scope.formname;
-			$timeout(function() {
-				//console.log("---- resolving form state = " + formname + " [svyFormload]");
-				$sabloApplication.callService('formService', 'formLoaded', { formname: formname }, true);
+		restrict: 'E',
+		compile: function(tElem, tAttrs){
+			var formName = tAttrs.formname; 
+			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
+			var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
+			var blocked = false;
 
-				scope.formProperties.size.width = element.prop('offsetWidth');
-				scope.formProperties.size.height = element.prop('offsetHeight');
-				
-				$sabloApplication.resolveFormState(formname);
-			},0);
+			if (formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
+				$log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
+						", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
+				// someone already loaded or is loading this form....
+				if ($rootScope.updatingFormName === formName) {
+					// in updatingFormUrl must be cleared as this form will show or is already showing elsewhere
+					$rootScope.updatingFormUrl = '';
+					delete $rootScope.updatingFormName;
+				} else $log.error("svy * Unexpected: a form is being loaded twice at the same time(" + formName + ")");
+
+				if (inHiddenDiv) {
+					tElem.empty(); // don't allow loading stuff further in this directive - so effectively blocks the form from loading in $rootScope.updatingFormUrl
+					blocked = true;
+					// so the form is already (being) loaded in non-hidden div; hidden div can relax; it shouldn't load form twice
+				} else {
+					// else it is already loaded in hidden div but now it wants to load in non-hidden div; so this has priority; allow it
+					formState.getScope().hiddenDivFormDiscarded = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
+					if ($sabloApplication.hasResolvedFormState(formName)) $sabloApplication.unResolveFormState(formName);
+					else blocked = true;
+				}
+			}
+
+			return {
+				pre: function(scope, element, attrs) {},
+				post: function(scope, element, attrs){
+					if (blocked) return; // the form load was blocked by that tElem.empty() a few lines above (form is already loaded elsewhere)
+					$log.debug("svy * svyFormload = " + formName);
+
+					$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true);
+
+					$sabloApplication.resolveFormState(formName);
+					$sabloApplication.getFormState(formName).then(function(formState) {
+						$timeout(function() {
+							formState.properties.size.width = element.prop('offsetWidth'); // formState.properties == formState.getScope().formProperties here
+							formState.properties.size.height = element.prop('offsetHeight');
+						}, 0);
+						delete formState.resolving;
+					});
+				}
+			}
 		}
 	}
 }).value("$solutionSettings",  {

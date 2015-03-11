@@ -16,7 +16,6 @@
 -->
 	
 ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$sabloUtils) {
-
 	var beans = {
 	<#list baseComponents as bc>
 		'${bc.name}': ${bc.propertiesString}<#if bc_has_next>,</#if>
@@ -24,7 +23,9 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	}
 
 	var formProperties = ${propertiesString}
+	
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false);
+	formState.resolving = true;
 	
 	$scope.model = formState.model;
 	$scope.api = formState.api;
@@ -82,7 +83,6 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	</#list>
 	}
 	
-	formState.handlers = $scope.handlers;
 	
 	var wrapper = function(beanName) {
 		return function(newvalue,oldvalue) {
@@ -93,8 +93,10 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	
 	var watches = {};
 
+	formState.handlers = $scope.handlers;
+
 	formState.addWatches = function (beanNames) {
-	    // always first remove the existign watches if there are any.
+	    // always first remove the existing watches if there are any.
 		formState.removeWatches(beanNames);
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
@@ -104,7 +106,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 		else {
 		<#list parts as part>
 			<#if (part.baseComponents)??>
-				<#list part.baseComponents as bc><#-- TODO refine this watch; it doesn't need to go deep into complex properties as those handle their own changes! -->
+				<#list part.baseComponents as bc>
 					watches['${bc.name}'] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", "${bc.name}"), wrapper('${bc.name}'), true);
 				</#list>
 			</#if>
@@ -132,17 +134,21 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	
 	$scope.$watch("formProperties", wrapper(''), true);
 	
-	var destroyListener = $scope.$on("$destroy", function() {
-		destroyListener();
+	var destroyListenerUnreg = $scope.$on("$destroy", function() {
+		destroyListenerUnreg();
 		if (formState && formState.removeWatches) {
-			formState.removeWatches();
-			delete formState.removeWatches;
-			delete formState.getScope;
-			delete formState.addWatches;
-			delete formState.handlers;
+			if (!$scope.hiddenDivFormDiscarded) {
+				formState.removeWatches();
+				delete formState.removeWatches;
+				delete formState.getScope;
+				delete formState.addWatches;
+				delete formState.handlers;
+				$sabloApplication.unResolveFormState("${name}");
+			}
+			delete $scope.hiddenDivFormDiscarded;
 			formState = null;
 		}
 		else console.log("no formstate for ${name}" + formState + " " + $scope.$id);
-	}
-	);
+	});
+	
 });	

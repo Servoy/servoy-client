@@ -93,7 +93,7 @@ public class FormLayoutGenerator
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, boolean design)
 	{
-		writer.print(String.format("<div ng-controller=\"%1$s\" ", form.getName()));
+		writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", form.getName()));
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
 			writer.print(String.format("data-svy-name=\"%1$s\" ", form.getName()));
@@ -107,7 +107,7 @@ public class FormLayoutGenerator
 		{
 			writer.print(" style=\"height:100%\"");
 		}
-		writer.print("svy-layout-update svy-formload svy-autosave ");
+		writer.print("svy-layout-update svy-autosave ");
 		// skip the scrollbars for forms in table or list view then the portal component does this.
 		if (!isTableOrListView(form))
 		{
@@ -130,7 +130,7 @@ public class FormLayoutGenerator
 
 	public static void generateEndDiv(PrintWriter writer)
 	{
-		writer.println("</div>");
+		writer.println("</div></svy-formload>");
 	}
 
 	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form)

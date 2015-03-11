@@ -112,17 +112,17 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
 		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + formName + ".html";
-		if (getEndpoint().addFormIfAbsent(formName, formUrl))
+		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
+		if (nowSentToClient)
 		{
 			// form is not yet on the client, send over the controller
 			updateController(form, formName, formUrl, !async);
-			//System.out.println("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
-			if (async) Thread.dumpStack();
+			Debug.debug("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
 		}
 		else
 		{
 			formUrl = getEndpoint().getFormUrl(formName);
-			//System.out.println("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
+			Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
 		}
 
 		// if sync wait until we got response from client as it is loaded
@@ -130,7 +130,14 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			if (!getEndpoint().isFormCreated(formName))
 			{
-				//System.out.println("touchForm(" + async + ") - will suspend: " + form.getName());
+				if (!nowSentToClient)
+				{
+					// this means a previous async touchForm already sent URL and JS code (updateController) to client, but the client form was not yet loaded (directives, scopes....)
+					// so probably a tabpanel or component that asked for it changed it's mind and no longer showed it; make sure it will show before waiting!
+					websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("requireFormLoaded",
+						new Object[] { formName });
+				}
+				Debug.debug("touchForm(" + async + ") - will suspend: " + form.getName());
 				// really send the changes
 				try
 				{
@@ -228,7 +235,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			{
 				getEndpoint().markFormCreated(formName);
 				getSession().getEventDispatcher().resume(formUrl);
-				//System.out.println("formCreated(" + formUrl + ") - touchForm resumed: " + formName);
+				Debug.debug("formCreated(" + formUrl + "): " + formName);
 			}
 		}
 	}

@@ -15,7 +15,6 @@ angular.module('servoydefaultLabel',['servoy'])
       	handlers: "=svyHandlers"
       },
       link: function($scope, $element, $attrs) {
-    	  
     	  $element.html($templateCache.get($scope.model.labelFor && ($attrs.headercell == undefined) ? "template/servoydefault/label/labelfor.html" : "template/servoydefault/label/label.html"));
           $compile($element.contents())($scope);
     	  
