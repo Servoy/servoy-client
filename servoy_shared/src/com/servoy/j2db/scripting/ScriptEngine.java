@@ -612,6 +612,7 @@ public class ScriptEngine implements IScriptSupport
 					scopeName = ((LazyCompilationScope)parentScope).getScopeName();
 				}
 			}
+			String solutionName = application.getSolutionName();
 			methodName = scopeName + "." + methodName; //$NON-NLS-1$
 			try
 			{
@@ -637,14 +638,12 @@ public class ScriptEngine implements IScriptSupport
 					}
 				}
 
-
 				//run
 				if (!(application instanceof ISmartClientApplication))
 				{
 					long t1 = System.currentTimeMillis();
 					//	application.addPerformanceTiming(server, sql, 0 - t1);
-					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName,
-						0 - t1);
+					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(solutionName, methodName, 0 - t1);
 
 				}
 
@@ -680,7 +679,7 @@ public class ScriptEngine implements IScriptSupport
 				}
 				else
 				{
-					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName, 0);
+					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(solutionName, methodName, 0);
 				}
 				Context.exit();
 			}

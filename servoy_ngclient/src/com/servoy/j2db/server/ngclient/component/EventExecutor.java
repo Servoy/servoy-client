@@ -161,7 +161,7 @@ public class EventExecutor
 
 		try
 		{
-			return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, args, false, true);
+			return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, args, false, false);
 		}
 		catch (Exception ex)
 		{

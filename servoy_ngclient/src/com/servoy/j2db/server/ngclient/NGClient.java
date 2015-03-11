@@ -987,6 +987,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (getClientInfo().getUserUid() != null)
 		{
+			boolean doLogoutAndClearUserInfo = false;
 			if (getSolution() != null)
 			{
 				boolean doLogOut = getClientInfo().getUserUid() != null;
@@ -994,14 +995,26 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				{
 					doLogOut = closeSolution(false, solution_to_open_args);
 				}
-				if (doLogOut && getSolution() == null)
-				{
-					credentials.clear();
-					getClientInfo().clearUserInfo();
-				}
+				doLogoutAndClearUserInfo = doLogOut && getSolution() == null;
 			}
 			else
 			{
+				doLogoutAndClearUserInfo = true;
+			}
+
+			if (doLogoutAndClearUserInfo)
+			{
+				if (getApplicationServerAccess() != null && getClientID() != null)
+				{
+					try
+					{
+						getApplicationServerAccess().logout(getClientID());
+					}
+					catch (Exception ex)
+					{
+						Debug.log("Error during logout", ex);
+					}
+				}
 				credentials.clear();
 				getClientInfo().clearUserInfo();
 			}
