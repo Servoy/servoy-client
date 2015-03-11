@@ -41,26 +41,9 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				scope.model.valuelistID = valuelistItems;
 			};
 
-<<<<<<< Upstream, based on branch 'master' of https://github.com/Servoy/servoy-client.git
-        var storedTooltip = false;
-     	scope.api.onDataChangeCallback = function(event, returnval) {
-          var ngModel = element.children().controller("ngModel");
-=======
-			// special method that servoy calls when this component goes into find mode.
-			scope.api.setFindMode = function (findMode, editable) {
-				scope.findMode = findMode;
-				if (findMode) {
-					scope.wasEditable = scope.model.editable;
-					if (!scope.model.editable) {scope.model.editable = editable; }
-				} else {
-					scope.model.editable = scope.wasEditable;
-				}
-			};
-
 			var storedTooltip = false;
 			scope.api.onDataChangeCallback = function(event, returnval) {
 				var ngModel = element.children().controller("ngModel");
->>>>>>> b86a9f5 More fixes for SVY-7989 : The application freezes for 1 minute, apparently without any specific reason, no error in console, just on log.
 				var stringValue = (typeof returnval === 'string' || returnval instanceof String);
 				if (!returnval || stringValue) {
 					element[0].focus();
@@ -79,45 +62,6 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				}
 			};
 
-<<<<<<< Upstream, based on branch 'master' of https://github.com/Servoy/servoy-client.git
-        scope.onItemSelect = function (event) {
-          $timeout(function () {
-            if (scope.handlers.onActionMethodID) {
-              scope.handlers.onActionMethodID(event);
-            }
-            scope.svyServoyapi.apply('dataProviderID');
-          }, 0);
-        };
-      },
-      templateUrl: 'servoydefault/combobox/combobox.html'
-    };
-  }])
-  .filter('emptyOrNull', function () {
-    return function (item) {
-      if (item === null || item === '') {return '&nbsp;'; }
-      return item;
-    };
-  })
-  .filter('showDisplayValue', function () { // filter that takes the realValue as an input and returns the displayValue
-    return function (input, valuelist) {
-      var i = 0;
-      var realValue = input;
-      if (input && valuelist) {
-        if (input.hasOwnProperty("realValue")) {
-              realValue = input.realValue;
-        }
-        //TODO performance upgrade: change the valuelist to a hashmap so that this for loop is no longer needed. 
-        //maybe to something like {realValue1:displayValue1, realValue2:displayValue2, ...}
-        for (i = 0; i < valuelist.length; i++) {
-          if (realValue === valuelist[i].realValue) {
-            return valuelist[i].displayValue;
-          }
-        }
-      }
-      return input;
-    };
-  });
-=======
 			scope.onItemSelect = function (event) {
 				$timeout(function () {
 					if (scope.handlers.onActionMethodID) {
@@ -155,4 +99,3 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 		return input;
 	};
 });
->>>>>>> b86a9f5 More fixes for SVY-7989 : The application freezes for 1 minute, apparently without any specific reason, no error in console, just on log.
