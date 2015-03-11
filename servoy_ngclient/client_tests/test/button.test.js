@@ -124,6 +124,7 @@ describe('svyButton component', function() {
 		//console.log(buttonComponent[0]);
 		//console.log(Object.keys(buttonComponent[0].firstElementChild));
 		buttonComponent[0].firstElementChild.click();
+		 $timeout.flush();
 		expect( clicked).toBe(true);
 	});
 
@@ -146,7 +147,7 @@ describe('svyButton component', function() {
 		//buttonComponent[0].firstElementChild.dblclick()
 		angular.element(buttonComponent[0].firstElementChild).triggerHandler("dblclick")
 		angular.element(buttonComponent[0].firstElementChild).triggerHandler("contextmenu")
-
+		$timeout.flush();
 		expect(double).toBe(true);
 		expect(right).toBe(true);
 	});
