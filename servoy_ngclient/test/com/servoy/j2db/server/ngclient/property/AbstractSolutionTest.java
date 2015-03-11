@@ -62,6 +62,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
@@ -473,6 +474,8 @@ public abstract class AbstractSolutionTest
 	public void tearDown() throws Exception
 	{
 		CurrentWindow.set(null);
+		FormElementHelper.INSTANCE.reload();
+		ApplicationServerRegistry.clear();
 	}
 
 	protected abstract void setupData() throws ServoyException;
