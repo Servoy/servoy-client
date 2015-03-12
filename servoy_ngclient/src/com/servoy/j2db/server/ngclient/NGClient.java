@@ -422,7 +422,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 			});
 		}
-		String currentSolution = getSolutionName();
+
+		String currentSolution = isSolutionLoaded() ? getSolutionName() : null;
 		boolean isCloseSolution = super.closeSolution(force, args);
 		if (isCloseSolution && args != null && args.length > 0)
 		{
