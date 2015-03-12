@@ -622,7 +622,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					if (blocked) return; // the form load was blocked by that tElem.empty() a few lines above (form is already loaded elsewhere)
 					$log.debug("svy * svyFormload = " + formName);
 
-					$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true);
+					$timeout(function() {$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)});
 
 					$sabloApplication.resolveFormState(formName);
 					$sabloApplication.getFormState(formName).then(function(formState) {
