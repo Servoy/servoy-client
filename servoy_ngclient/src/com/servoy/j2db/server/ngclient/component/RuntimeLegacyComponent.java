@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
@@ -32,13 +32,21 @@ import org.sablo.specification.WebComponentSpecification;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ContentSpec.Element;
+import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportName;
+import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -48,7 +56,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 @SuppressWarnings("nls")
-public class RuntimeLegacyComponent implements Scriptable
+public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 {
 	private final WebFormComponent component;
 	private final PutPropertyCallable putCallable;
@@ -397,7 +405,7 @@ public class RuntimeLegacyComponent implements Scriptable
 		return clientProperties.get(key);
 	}
 
-	private abstract class PropertyCallable implements Callable
+	private abstract class PropertyCallable extends BaseFunction
 	{
 		protected final Scriptable scriptable;
 		protected String propertyName;
@@ -460,6 +468,67 @@ public class RuntimeLegacyComponent implements Scriptable
 			{
 				// return the design value string (so the dataprovider name, not its value)
 				return component.getFormElement().getPropertyValue(propertyName);
+			}
+
+			if ("elementType".equals(propertyName))
+			{
+				// return the design value string (so the dataprovider name, not its value)
+				IPersist persist = component.getFormElement().getPersistIfAvailable();
+				if (persist instanceof GraphicalComponent)
+				{
+					if (com.servoy.j2db.component.ComponentFactory.isButton((GraphicalComponent)persist))
+					{
+						return IRuntimeComponent.BUTTON;
+					}
+					return IRuntimeComponent.LABEL;
+				}
+				if (persist instanceof Field)
+				{
+					switch (((Field)persist).getDisplayType())
+					{
+						case Field.COMBOBOX :
+							return IRuntimeComponent.COMBOBOX;
+						case Field.TEXT_FIELD :
+							return IRuntimeComponent.TEXT_FIELD;
+						case Field.RADIOS :
+							return IRuntimeComponent.RADIOS;
+						case Field.CHECKS :
+							return IRuntimeComponent.CHECK;
+						case Field.CALENDAR :
+							return IRuntimeComponent.CALENDAR;
+						case Field.TYPE_AHEAD :
+							return IRuntimeComponent.TYPE_AHEAD;
+						case Field.TEXT_AREA :
+							return IRuntimeComponent.TEXT_AREA;
+						case Field.PASSWORD :
+							return IRuntimeComponent.PASSWORD;
+						case Field.SPINNER :
+							return IRuntimeComponent.SPINNER;
+						case Field.LIST_BOX :
+							return IRuntimeComponent.LISTBOX;
+						case Field.MULTISELECT_LISTBOX :
+							return IRuntimeComponent.MULTISELECT_LISTBOX;
+						case Field.IMAGE_MEDIA :
+							return IRuntimeComponent.IMAGE_MEDIA;
+						case Field.HTML_AREA :
+							return IRuntimeComponent.HTML_AREA;
+					}
+				}
+				if (persist instanceof TabPanel)
+				{
+					int orient = ((TabPanel)persist).getTabOrientation();
+					if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return IRuntimeComponent.SPLITPANE;
+					if (orient == TabPanel.ACCORDION_PANEL) return IRuntimeComponent.ACCORDIONPANEL;
+					return IRuntimeComponent.TABPANEL;
+				}
+				if (persist instanceof Portal)
+				{
+					return IRuntimeComponent.PORTAL;
+				}
+				if (persist instanceof RectShape)
+				{
+					return IRuntimeComponent.RECTANGLE;
+				}
 			}
 
 			if ("name".equals(propertyName))
