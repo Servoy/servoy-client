@@ -82,6 +82,68 @@ public class RuntimeLegacyComponent implements Scriptable
 	}
 
 	@Override
+	public boolean isInstance(String name)
+	{
+		return name.equals(getRuntimeName());
+	}
+
+	private String getRuntimeName()
+	{
+		IPersist persist = component.getFormElement().getPersistIfAvailable();
+		if (persist instanceof GraphicalComponent)
+		{
+			boolean dataPersist = ((GraphicalComponent)persist).getDataProviderID() == null && !((GraphicalComponent)persist).getDisplaysTags();
+			if (com.servoy.j2db.component.ComponentFactory.isButton((GraphicalComponent)persist))
+			{
+				return dataPersist ? "RuntimeButton" : "RuntimeDataButton";
+			}
+			return dataPersist ? "RuntimeLabel" : "RuntimeDataLabel";
+		}
+		if (persist instanceof Field)
+		{
+			switch (((Field)persist).getDisplayType())
+			{
+				case Field.COMBOBOX :
+					return "RuntimeComboBox";
+				case Field.TEXT_FIELD :
+				case Field.TYPE_AHEAD :
+					return "RuntimeTextField";
+				case Field.RADIOS :
+					return FormTemplateGenerator.isSingleValueComponent((IFormElement)persist) ? "RuntimeRadio" : "RuntimeRadios";
+				case Field.CHECKS :
+					return FormTemplateGenerator.isSingleValueComponent((IFormElement)persist) ? "RuntimeCheck" : "RuntimeChecks";
+				case Field.CALENDAR :
+					return "RuntimeCalendar";
+				case Field.TEXT_AREA :
+					return "RuntimeTextArea";
+				case Field.PASSWORD :
+					return "RuntimePassword";
+				case Field.SPINNER :
+					return "RuntimeSpinner";
+				case Field.LIST_BOX :
+				case Field.MULTISELECT_LISTBOX :
+					return ";RuntimeListBox";
+				case Field.IMAGE_MEDIA :
+					return "RuntimeMediaField";
+				case Field.HTML_AREA :
+					return "RuntimeHtmlArea";
+			}
+		}
+		if (persist instanceof TabPanel)
+		{
+			int orient = ((TabPanel)persist).getTabOrientation();
+			if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "RuntimeSplitPane";
+			if (orient == TabPanel.ACCORDION_PANEL) return "RuntimeAccordionPanel";
+			return "RuntimeTabPanel";
+		}
+		if (persist instanceof Portal)
+		{
+			return "RuntimePortal";
+		}
+		return null;
+	}
+
+	@Override
 	public String getClassName()
 	{
 		return null;

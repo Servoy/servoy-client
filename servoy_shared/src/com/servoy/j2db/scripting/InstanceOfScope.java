@@ -21,7 +21,7 @@ import org.mozilla.javascript.Scriptable;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class InstanceOfScope implements Scriptable
 {
@@ -49,6 +49,10 @@ public class InstanceOfScope implements Scriptable
 		{
 			Object unwrap = ((RecordingScriptable)instance).unwrap();
 			return cls.isInstance(unwrap);
+		}
+		else if (instance instanceof IInstanceOf)
+		{
+			return ((IInstanceOf)instance).isInstance(name);
 		}
 		return cls.isInstance(instance);
 	}

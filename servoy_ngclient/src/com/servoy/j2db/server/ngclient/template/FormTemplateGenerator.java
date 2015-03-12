@@ -202,7 +202,7 @@ public class FormTemplateGenerator
 	/**
 	 * @return false if the persist has no valuelist or at most one value in the valuelist, true otherwise
 	 */
-	private static boolean isSingleValueComponent(IFormElement persist)
+	public static boolean isSingleValueComponent(IFormElement persist)
 	{
 		Field field = (Field)persist;
 		if (field.getValuelistID() > 0)

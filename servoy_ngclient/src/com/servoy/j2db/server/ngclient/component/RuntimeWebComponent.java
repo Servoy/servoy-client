@@ -31,6 +31,7 @@ import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
 
+import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -42,7 +43,7 @@ import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
  * @author lvostinar
  *
  */
-public class RuntimeWebComponent implements Scriptable
+public class RuntimeWebComponent implements Scriptable, IInstanceOf
 {
 	private final WebFormComponent component;
 	private Scriptable prototypeScope;
@@ -95,9 +96,20 @@ public class RuntimeWebComponent implements Scriptable
 	}
 
 	@Override
+	public boolean isInstance(String name)
+	{
+		if ("RuntimeComponent".equals(name)) return true;
+		if (getPrototype() instanceof IInstanceOf)
+		{
+			return ((IInstanceOf)getPrototype()).isInstance(name);
+		}
+		return false;
+	}
+
+	@Override
 	public String getClassName()
 	{
-		return null;
+		return "RuntimeComponent";
 	}
 
 	@Override
