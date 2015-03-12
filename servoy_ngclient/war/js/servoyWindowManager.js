@@ -128,7 +128,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {x:left,y:top}
 	};
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
@@ -382,9 +382,18 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			$window.location.reload(true);
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
+			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
 			$sabloApplication.clearFormState(formName)
 			eval(controllerCode);
 			formTemplateUrls[formName] = realFormUrl;
+			// if the form was already intialized and visible, then make sure it is initialized again.
+			if (formState && formState.initializing === undefined && formState.getScope != undefined)
+			{
+				$sabloApplication.getFormState(formName).then(function (formState) {
+					if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formName, formState);
+				});
+			}
+			// TODO can this be an else if the above if? will it always force load anyway?
 			if(forceLoad) {
 				$rootScope.updatingFormUrl = realFormUrl;
 				$rootScope.updatingFormName = formName;
