@@ -206,7 +206,6 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 
 			var internalState;
 			if (newClientData && (internalState = newClientData[$sabloConverters.INTERNAL_IMPL])) {
-				var internalState = newClientData[$sabloConverters.INTERNAL_IMPL];
 				if (internalState.isChanged()) {
 					var changes = {};
 					changes[CONTENT_VERSION] = internalState[CONTENT_VERSION];
@@ -263,12 +262,15 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 						internalState.changedKeys = {};
 						return changes;
 					}
-				} else if (newClientData === oldClientData) {
+				} else if (angular.equals(newClientData, oldClientData)) { // can't use === because oldClientData is an angular clone not the same ref.
 					var x = {}; // no changes
 					x[NO_OP] = true;
 					return x;
 				}
 			}
+			
+			if (internalState) delete newClientData[$sabloConverters.INTERNAL_IMPL]; // some other new value was set; it's internal state is useless and will be re-initialized from server
+				
 			return newClientData;
 		}
 	});

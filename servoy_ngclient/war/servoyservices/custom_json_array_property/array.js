@@ -238,12 +238,15 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						internalState.changedIndexes = {};
 						return changes;
 					}
-				} else if (newClientData === oldClientData) {
+				} else if (angular.equals(newClientData, oldClientData)) {
 					var x = {}; // no changes
 					x[NO_OP] = true;
 					return x;
 				}
 			}
+
+			if (internalState) delete newClientData[$sabloConverters.INTERNAL_IMPL]; // some other new value was set; it's internal state is useless and will be re-initialized from server
+
 			return newClientData;
 		}
 	});
