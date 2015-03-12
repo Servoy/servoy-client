@@ -258,7 +258,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 
 		requestInitialData: function(formname, formState) {
-			if (formState.initializing) $sabloApplication.requestInitialData(formname, function(initialFormData) {
+			if (formState.initializing) $sabloApplication.requestInitialData(formname, function(initialFormData,formState) {
 				for (var beanName in initialFormData) {
 					if (beanName != '') {
 						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize)
