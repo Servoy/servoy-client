@@ -22,15 +22,16 @@ import javax.swing.JComponent;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.IRuntimeChecks;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
  * Scriptable checkbox group component.
- * 
+ *
  * @author lvostinar
  * @since 6.0
  */
-public class RuntimeCheckBoxChoice extends AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent>
+public class RuntimeCheckBoxChoice extends AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> implements IRuntimeChecks
 {
 	public RuntimeCheckBoxChoice(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
