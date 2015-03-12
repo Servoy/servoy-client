@@ -735,6 +735,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							}
 						}
 						totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;
+					    if (typeof($scope.gridApi.grid.scrollbarWidth) !== 'undefined' && $scope.gridApi.grid.scrollbarWidth !== undefined && $scope.gridApi.grid.scrollbarWidth > 0) {
+					    	totalWidth = totalWidth - $scope.gridApi.grid.scrollbarWidth;
+					    }
 						if (resizeWidth > 0 && totalWidth > 0)
 						{
 							for(var i = 0; i < $scope.model.childElements.length; i++) 
