@@ -90,6 +90,7 @@ import com.servoy.j2db.ui.runtime.IRuntimePassword;
 import com.servoy.j2db.ui.runtime.IRuntimeRadio;
 import com.servoy.j2db.ui.runtime.IRuntimeRadios;
 import com.servoy.j2db.ui.runtime.IRuntimeRtfArea;
+import com.servoy.j2db.ui.runtime.IRuntimeSpinner;
 import com.servoy.j2db.ui.runtime.IRuntimeTextArea;
 import com.servoy.j2db.ui.runtime.IRuntimeTextField;
 import com.servoy.j2db.util.Debug;
@@ -216,6 +217,7 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("RuntimeSplitPane", toplevelScope, new InstanceOfScope("RuntimeSplitPane", IScriptSplitPaneMethods.class));
 			toplevelScope.put("RuntimePortal", toplevelScope, new InstanceOfScope("RuntimePortal", IScriptPortalComponentMethods.class));
 			toplevelScope.put("RuntimeListBox", toplevelScope, new InstanceOfScope("RuntimeListBox", IRuntimeListBox.class));
+			toplevelScope.put("RuntimeSpinner", toplevelScope, new InstanceOfScope("RuntimeSpinner", IRuntimeSpinner.class));
 			toplevelScope.put("RuntimeAccordionPanel", toplevelScope, new InstanceOfScope("RuntimeAccordionPanel", IScriptAccordionPanelMethods.class));
 			toplevelScope.put("DataException", toplevelScope, new InstanceOfScope("DataException", DataException.class));
 
