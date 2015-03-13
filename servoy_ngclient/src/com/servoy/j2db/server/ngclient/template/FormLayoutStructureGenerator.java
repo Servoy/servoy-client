@@ -138,7 +138,7 @@ public class FormLayoutStructureGenerator
 		writer.print("</");
 		writer.print(container.getTagType());
 		writer.print(">");
-		writer.print("</div>");
+		if (highlight) writer.print("</div>");
 	}
 
 //	/**
