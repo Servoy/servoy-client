@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient.design;
 import java.util.List;
 import java.util.Map;
 
-import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.impl.ClientService;
@@ -79,7 +78,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#closeSession()
 	 */
 	@Override

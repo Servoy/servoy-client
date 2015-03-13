@@ -40,7 +40,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 {
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
@@ -49,8 +49,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 		resp.setContentType("text/javascript");
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
 
-		generateModules(sb, WebServiceSpecProvider.getInstance().getWebServiceSpecifications());
-		generateModules(sb, WebComponentSpecProvider.getInstance().getWebComponentSpecifications());
+		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
+		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		resp.setContentLength(sb.length());
