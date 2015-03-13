@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jsoup.helper.StringUtil;
+import org.sablo.specification.WebComponentPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
@@ -82,9 +83,10 @@ public class FormLayoutStructureGenerator
 			writer.print(container.getUUID().toString());
 			writer.print("'");
 			WebComponentSpecProvider.getInstance().getLayoutSpecifications();
-			Map<String, WebLayoutSpecification> map = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(container.getPackageName());
+			WebComponentPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
+				container.getPackageName());
 			WebLayoutSpecification spec = null;
-			if (map != null && (spec = map.get(container.getSpecName())) != null)
+			if (pkg != null && (spec = pkg.getSpecification(container.getSpecName())) != null)
 			{
 				List<String> allowedChildren = spec.getAllowedChildren();
 				if (allowedChildren.size() > 0)

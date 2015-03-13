@@ -117,7 +117,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		IExecutingEnviroment scriptEngine = super.createScriptEngine();
-		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getWebServiceSpecifications();
+		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
 		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
 		scope.setLocked(false);
 		for (WebComponentSpecification serviceSpecification : serviceSpecifications)

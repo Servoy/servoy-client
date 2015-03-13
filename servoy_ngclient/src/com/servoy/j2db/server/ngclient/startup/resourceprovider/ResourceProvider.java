@@ -306,29 +306,19 @@ public class ResourceProvider implements Filter
 			this.pathPrefix = pathPrefix;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
-		 */
 		@Override
 		public String getName()
 		{
 			return urlOfManifest.toExternalForm();
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
-		 */
 		@Override
 		public String getPackageName()
 		{
 			try
 			{
-				String bundleName = WebComponentPackage.getBundleSymbolicName(getManifest());
-				if (bundleName != null) return bundleName;
+				String packageName = WebComponentPackage.getPackageName(getManifest());
+				if (packageName != null) return packageName;
 			}
 			catch (IOException e)
 			{
@@ -338,6 +328,23 @@ public class ResourceProvider implements Filter
 			// fall back to based on directory name
 			String[] split = pathPrefix.split("/");
 			return split[split.length - 1];
+		}
+
+		@Override
+		public String getPackageDisplayname()
+		{
+			try
+			{
+				String packageDisplayname = WebComponentPackage.getPackageDisplayname(getManifest());
+				if (packageDisplayname != null) return packageDisplayname;
+			}
+			catch (IOException e)
+			{
+				Debug.log(e);
+			}
+
+			// fall back to symbolic name
+			return getPackageName();
 		}
 
 		@Override
