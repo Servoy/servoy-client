@@ -915,7 +915,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
-		MediaInfo mediaInfo = MediaResourcesServlet.getMediaInfo(bs, filename, mimetype, contentDisposition);
+		MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bs, filename, mimetype, contentDisposition);
 		return "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();
 	}
 
