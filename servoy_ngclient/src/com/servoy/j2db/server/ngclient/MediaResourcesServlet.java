@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
@@ -63,6 +63,7 @@ import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Supported resources URLs:<br><br>
@@ -85,30 +86,71 @@ import com.servoy.j2db.util.UUID;
 @WebServlet("/resources/*")
 public class MediaResourcesServlet extends HttpServlet
 {
-
 	public static final String FLATTENED_SOLUTION_ACCESS = "fs";
 	public static final String DYNAMIC_DATA_ACCESS = "dynamic";
 
-	// the key here is normally referenced inside the data model (record, ...) so it shouldn't get disposed
-	// while it's still in use there
-	private static final WeakHashMap<byte[], MediaInfo> mediaBytesMap = new WeakHashMap<>();
+	private static File tempDir;
+	private static final ConcurrentHashMap<String, MediaInfo> dynamicMediasMap = new ConcurrentHashMap<>();
 
-	public static synchronized MediaInfo getMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
+	public static MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
 	{
-		MediaInfo mediaInfo = null;
-		if (!mediaBytesMap.containsKey(mediaBytes))
-		{
-			mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType,
-				contentDisposition);
-			mediaBytesMap.put(mediaBytes, mediaInfo);
-		}
-
-		return mediaInfo == null ? mediaBytesMap.get(mediaBytes) : mediaInfo;
+		MediaInfo mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null)
+			: contentType, contentDisposition, mediaBytes);
+		dynamicMediasMap.put(mediaInfo.getName(), mediaInfo);
+		return mediaInfo;
 	}
 
-	public static synchronized MediaInfo getMediaInfo(byte[] mediaBytes)
+	public static MediaInfo createMediaInfo(byte[] mediaBytes)
 	{
-		return getMediaInfo(mediaBytes, null, null, null);
+		return createMediaInfo(mediaBytes, null, null, null);
+	}
+
+	private static void cleanupDynamicMediasMap(boolean forceAll)
+	{
+		long now = System.currentTimeMillis();
+		for (MediaInfo mediaInfo : dynamicMediasMap.values())
+		{
+			if (forceAll || now - mediaInfo.getLastAccessedTimeStamp() > 3600000)
+			{
+				mediaInfo.destroy();
+				dynamicMediasMap.remove(mediaInfo.getName());
+			}
+		}
+	}
+
+	@Override
+	public void init(ServletConfig context) throws ServletException
+	{
+		super.init(context);
+		try
+		{
+			tempDir = (File)context.getServletContext().getAttribute("javax.servlet.context.tempdir");
+			if (tempDir != null)
+			{
+				tempDir = new File(tempDir, DYNAMIC_DATA_ACCESS);
+				if (tempDir.exists())
+				{
+					tempDir.delete();
+				}
+				tempDir.mkdir();
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error("Cannot create temp folder for dynamic resources", ex);
+			tempDir = null;
+		}
+	}
+
+	@Override
+	public void destroy()
+	{
+		super.destroy();
+		cleanupDynamicMediasMap(true);
+		if (tempDir != null)
+		{
+			tempDir.delete();
+		}
 	}
 
 	@Override
@@ -168,19 +210,16 @@ public class MediaResourcesServlet extends HttpServlet
 
 	private boolean sendDynamicData(HttpServletRequest request, HttpServletResponse response, String dynamicID) throws IOException
 	{
-		Iterator<Map.Entry<byte[], MediaInfo>> entryIte = mediaBytesMap.entrySet().iterator();
-		Map.Entry<byte[], MediaInfo> entry;
-		while (entryIte.hasNext())
+		if (dynamicMediasMap.containsKey(dynamicID))
 		{
-			entry = entryIte.next();
-			if (dynamicID.equals(entry.getValue().getName()))
-			{
-				if (HTTPUtils.checkAndSetUnmodified(request, response, entry.getValue().getLastModifiedTimeStamp())) return true;
+			MediaInfo mediaInfo = dynamicMediasMap.get(dynamicID);
+			mediaInfo.touch();
+			cleanupDynamicMediasMap(false);
+			if (HTTPUtils.checkAndSetUnmodified(request, response, mediaInfo.getLastModifiedTimeStamp())) return true;
 
-				return sendData(response, entry.getKey(), entry.getValue().getContentType(), entry.getValue().getFileName(),
-					entry.getValue().getContentDisposition());
-			}
+			return sendData(response, mediaInfo.getData(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition());
 		}
+
 		return false;
 	}
 
@@ -392,19 +431,39 @@ public class MediaResourcesServlet extends HttpServlet
 
 	public static final class MediaInfo
 	{
+		private static final long MAX_DATA_SIZE_FOR_IN_MEMORY = 5242880; // 5MB
+
 		private final String name;
 		private final String fileName;
 		private final String contentType;
 		private final String contentDisposition;
 		private final long modifiedTimeStamp;
+		private long accessedTimeStamp;
+		private byte[] data;
 
-		MediaInfo(String name, String fileName, String contentType, String contentDisposition)
+		MediaInfo(String name, String fileName, String contentType, String contentDisposition, byte[] data)
 		{
 			this.name = name;
 			this.fileName = fileName;
 			this.contentType = contentType;
 			this.contentDisposition = contentDisposition;
-			modifiedTimeStamp = System.currentTimeMillis();
+			modifiedTimeStamp = accessedTimeStamp = System.currentTimeMillis();
+			if (data.length < MAX_DATA_SIZE_FOR_IN_MEMORY)
+			{
+				this.data = data;
+			}
+			else
+			{
+				this.data = null;
+				if (MediaResourcesServlet.tempDir != null)
+				{
+					Utils.writeFile(new File(MediaResourcesServlet.tempDir, name), data);
+				}
+				else
+				{
+					Debug.error("Cannot save dynamic data to servlet temp dir!");
+				}
+			}
 		}
 
 		public String getName()
@@ -432,6 +491,43 @@ public class MediaResourcesServlet extends HttpServlet
 			return modifiedTimeStamp;
 		}
 
+		public byte[] getData()
+		{
+			if (data == null)
+			{
+				return Utils.readFile(new File(MediaResourcesServlet.tempDir, name), -1);
+			}
+			return data;
+		}
+
+		public void touch()
+		{
+			accessedTimeStamp = System.currentTimeMillis();
+		}
+
+		public long getLastAccessedTimeStamp()
+		{
+			return accessedTimeStamp;
+		}
+
+		public void destroy()
+		{
+			if (data == null)
+			{
+				try
+				{
+					new File(MediaResourcesServlet.tempDir, name).delete();
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+			}
+			else
+			{
+				data = null;
+			}
+		}
 	}
 
 	private static final class FileUploadData implements IUploadData

@@ -58,7 +58,7 @@ public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> i
 		if (sabloValue != null)
 		{
 			writer.object();
-			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.getMediaInfo(sabloValue);
+			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(sabloValue);
 			writer.key("url").value("resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			writer.key("contentType").value(mediaInfo.getContentType()); //$NON-NLS-1$
 			writer.endObject();
