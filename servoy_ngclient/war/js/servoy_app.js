@@ -287,10 +287,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			});
 		}
 	}
-}).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope) {
+}).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log) {
 	return {
 		formWillShow: function(formname,notifyFormVisibility,parentForm,beanName,relationname,formIndex) {
+			$log.debug("svy * Form " + formname + " is preparing to show. Notify server needed: " + notifyFormVisibility);
 			if ($rootScope.updatingFormName === formname) {
+				$log.debug("svy * Form " + formname + " was set in hidden div. Clearing out hidden div.");
 				$rootScope.updatingFormUrl = ''; // it's going to be shown; remove it from hidden DOM
 				$rootScope.updatingFormName = null;
 			}
