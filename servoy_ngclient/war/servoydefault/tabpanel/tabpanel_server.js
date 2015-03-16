@@ -22,7 +22,6 @@
        
 	// the api defined in the spec file
        $scope.api.addTab = function(form, nameArg, tabText, tooltip, iconURL, fg, bg, relation, index) {
-    	   
     	   if (!$scope.model.tabs) $scope.model.tabs = [];
     	   var insertPosition = (index == undefined) ? $scope.model.tabs.length : ((index == -1 || index > $scope.model.tabs.length) ? $scope.model.tabs.length : index);
     	   for(var i = $scope.model.tabs.length; i > insertPosition; i--) {
@@ -40,13 +39,15 @@
     			   active: false,
     			   disabled: false,
     			   foreground: fg };
-    	   if ($scope.model.tabs.length == 1)
+    	   if ($scope.model.tabs.length == 1 || !$scope.model.tabIndex)
     	   {
+//    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = 1 (server side add first tab or tabIndex previously undefined); " + $scope.model.tabIndex);
     		   $scope.model.tabIndex = 1; 
     	   }
-    	   else
+    	   else if ($scope.model.tabIndex >= insertPosition) // here $scope.model.tabIndex should always be defined...
     	   {
-    		   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());  
+    		   $scope.model.tabIndex++;  
+//    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (server side add before current tabIndex)");
     	   }	   
     	   
     	   return true;
@@ -59,6 +60,7 @@
         	   }
         	   $scope.model.tabs.length = $scope.model.tabs.length - 1;
         	   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
+//    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (server side removeTabAt)");
         	   return true;
     	   }
     	   return false;
@@ -68,6 +70,7 @@
     	   if($scope.model.tabs.length > 0) {
     		   $scope.model.tabs.length = 0;
     		   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
+//    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (removeAllTabs)");
     		   return true;
     	   }
     	   return false;

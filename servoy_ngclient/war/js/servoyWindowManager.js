@@ -158,6 +158,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	}
 
 	function prepareFormForUseInHiddenDiv(formName) {
+		// the code should work even if we remove all the following timeouts, just execute directly - but these are mean as an optimization for the common cases 
 		$timeout(function() { // $timeout (a random number of multiple ones) are used to try to avoid cases in which a component already will use the template URL in which case we avoid loading it in hidden div unnecessarily
 			$timeout(function() {
 				$timeout(function() {
