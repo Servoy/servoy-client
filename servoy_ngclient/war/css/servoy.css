@@ -207,3 +207,7 @@ div.svy-label-with-focus:focus{
 {
 	overflow-x: hidden;
 }
+.modal-backdrop
+{
+	height: 100%
+}
