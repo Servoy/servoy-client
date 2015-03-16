@@ -130,7 +130,13 @@ public class FormLayoutGenerator
 
 	public static void generateEndDiv(PrintWriter writer)
 	{
-		writer.println("</div></svy-formload>");
+		writer.println("</div>");
+	}
+
+	public static void generateFormEndTag(PrintWriter writer)
+	{
+		generateEndDiv(writer);
+		writer.println("</svy-formload>");
 	}
 
 	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form)
