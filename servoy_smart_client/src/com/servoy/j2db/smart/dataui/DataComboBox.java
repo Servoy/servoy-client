@@ -319,7 +319,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComboBox#setPopupVisible(boolean)
 	 */
 	@Override
@@ -839,7 +839,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataui.IFieldComponent#setOpaque(boolean)
 	 */
 	@Override
@@ -1078,7 +1078,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Component#setName(java.lang.String)
 	 */
 	@Override
@@ -1186,7 +1186,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataui.IFieldComponent#setToolTipText(java.lang.String)
 	 */
 	@Override
@@ -1770,7 +1770,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	 */
 	public boolean isReadOnly()
 	{
-		return !isEditable();
+		return !isEnabled();
 	}
 
 	public void setReadOnly(boolean b)
