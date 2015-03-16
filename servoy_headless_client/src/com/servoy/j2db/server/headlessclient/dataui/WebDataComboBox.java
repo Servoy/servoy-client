@@ -913,7 +913,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	 */
 	public boolean isReadOnly()
 	{
-		return !isEditable();
+		return !isEnabled();
 	}
 
 	public void setReadOnly(boolean b)
