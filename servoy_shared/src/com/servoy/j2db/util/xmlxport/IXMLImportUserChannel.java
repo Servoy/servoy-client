@@ -276,4 +276,12 @@ public interface IXMLImportUserChannel extends InfoChannel
 	public int askUpdateSequences();
 
 	public String getImporterUsername();
+
+
+	/**
+	 * Should the importer first compact the solutions or not
+	 * 
+	 * @return boolean true if it should first compact
+	 */
+	public boolean compactSolutions();
 }
