@@ -110,10 +110,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				if (newValue[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope, false); // shouldn't need component model getter - takes rowids directly from viewport
 				if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel, oldSel) {
-					if (newSel !== oldSel) {
-						internalState.requests.push({newClientSelection: newSel});
-						if (internalState.changeNotifier) internalState.changeNotifier();
-					}
+					setTimeout(function() {
+						if (newSel !== oldSel) {
+							internalState.requests.push({newClientSelection: newSel});
+							if (internalState.changeNotifier) internalState.changeNotifier();
+						}
+					}, 50);
 				});
 			}
 
