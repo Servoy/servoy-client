@@ -149,7 +149,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#hide(boolean)
 	 */
 //	@Override
@@ -282,7 +282,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		MainPage mp = getMainPage();
 		if (mp != null)
 		{
-			return (mp.getController() != null) ? mp.getController().isFormVisible() : false;
+			return (mp.isShowingInDialog() || mp.isShowingInWindow());
 		}
 		return false;
 	}
