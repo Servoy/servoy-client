@@ -128,10 +128,7 @@ public class MediaResourcesServlet extends HttpServlet
 			if (tempDir != null)
 			{
 				tempDir = new File(tempDir, DYNAMIC_DATA_ACCESS);
-				if (tempDir.exists())
-				{
-					tempDir.delete();
-				}
+				deleteAll(tempDir);
 				tempDir.mkdir();
 			}
 		}
@@ -149,8 +146,19 @@ public class MediaResourcesServlet extends HttpServlet
 		cleanupDynamicMediasMap(true);
 		if (tempDir != null)
 		{
-			tempDir.delete();
+			deleteAll(tempDir);
 		}
+	}
+
+	private void deleteAll(File f)
+	{
+		if (!f.exists()) return;
+		if (f.isDirectory())
+		{
+			for (File fl : f.listFiles())
+				deleteAll(fl);
+		}
+		f.delete();
 	}
 
 	@Override
