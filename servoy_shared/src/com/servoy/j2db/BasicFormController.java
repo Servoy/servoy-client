@@ -143,6 +143,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		this.form = form;
 		this.namedInstance = namedInstance;
 		this.pageFormat = PersistHelper.createPageFormat(form.getDefaultPageFormat());
+		if (!application.getFlattenedSolution().formCanBeInstantiated(getForm()))
+		{
+			// abstract form
+			application.reportJSWarning("Form '" + namedInstance +
+				"' is abstract (no parts),and should not be created/touched because the elements are not there");
+		}
 	}
 
 	protected boolean setModel(FoundSet newModel) throws ServoyException
