@@ -25,8 +25,11 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Manifest;
 
@@ -130,6 +133,21 @@ public class ResourceProvider implements Filter
 		{
 			serviceReaders.remove(getName(reader));
 		}
+	}
+
+	public static Set<String> getDefaultPackageNames()
+	{
+		Set<String> result = new HashSet<String>();
+		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/");
+		while (paths.hasMoreElements())
+		{
+			String name = paths.nextElement().replace("war/", "");
+			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/"))
+			{
+				result.add(name.replace("/", ""));
+			}
+		}
+		return result;
 	}
 
 	private synchronized static void initSpecProvider()
@@ -358,7 +376,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -382,7 +400,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
@@ -393,7 +411,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
 		 */
 		@Override
