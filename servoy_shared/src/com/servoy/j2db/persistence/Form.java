@@ -2046,7 +2046,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * Returns true if this form is in responsive layout
 	 * Currently its always in responsive layout when it has layout containers
-	 * or if it is an form that has no parts.
+	 * or if it is an form that has no parts and no elements.
 	 *
 	 * @return true if in responsive layout
 	 */
@@ -2055,7 +2055,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		if (getLayoutContainers().hasNext()) return true;
 		//TODO is this always true? should a form have a special property?
 		// for example forms that are extended so pure abstract forms are seen as responsive..
-		if (!getParts().hasNext()) return true;
+		if (!getParts().hasNext() && !getFormElementsSortedByFormIndex().hasNext()) return true;
 		return false;
 	}
 
