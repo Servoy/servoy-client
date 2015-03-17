@@ -1,6 +1,6 @@
 /**
- * @license AngularJS v1.3.4
- * (c) 2010-2014 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.4.0-beta.5
+ * (c) 2010-2015 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window, angular, undefined) {
@@ -250,31 +250,31 @@ angular.mock.$ExceptionHandlerProvider = function() {
    *
    * @param {string} mode Mode of operation, defaults to `rethrow`.
    *
-   *   - `rethrow`: If any errors are passed to the handler in tests, it typically means that there
-   *                is a bug in the application or test, so this mock will make these tests fail.
    *   - `log`: Sometimes it is desirable to test that an error is thrown, for this case the `log`
    *            mode stores an array of errors in `$exceptionHandler.errors`, to allow later
    *            assertion of them. See {@link ngMock.$log#assertEmpty assertEmpty()} and
    *            {@link ngMock.$log#reset reset()}
+   *   - `rethrow`: If any errors are passed to the handler in tests, it typically means that there
+   *                is a bug in the application or test, so this mock will make these tests fail.
+   *                For any implementations that expect exceptions to be thrown, the `rethrow` mode
+   *                will also maintain a log of thrown errors.
    */
   this.mode = function(mode) {
-    switch (mode) {
-      case 'rethrow':
-        handler = function(e) {
-          throw e;
-        };
-        break;
-      case 'log':
-        var errors = [];
 
+    switch (mode) {
+      case 'log':
+      case 'rethrow':
+        var errors = [];
         handler = function(e) {
           if (arguments.length == 1) {
             errors.push(e);
           } else {
             errors.push([].slice.call(arguments, 0));
           }
+          if (mode === "rethrow") {
+            throw e;
+          }
         };
-
         handler.errors = errors;
         break;
       default:
@@ -581,20 +581,20 @@ function jsonStringToDate(string) {
         tzHour = 0,
         tzMin  = 0;
     if (match[9]) {
-      tzHour = int(match[9] + match[10]);
-      tzMin = int(match[9] + match[11]);
+      tzHour = toInt(match[9] + match[10]);
+      tzMin = toInt(match[9] + match[11]);
     }
-    date.setUTCFullYear(int(match[1]), int(match[2]) - 1, int(match[3]));
-    date.setUTCHours(int(match[4] || 0) - tzHour,
-                     int(match[5] || 0) - tzMin,
-                     int(match[6] || 0),
-                     int(match[7] || 0));
+    date.setUTCFullYear(toInt(match[1]), toInt(match[2]) - 1, toInt(match[3]));
+    date.setUTCHours(toInt(match[4] || 0) - tzHour,
+                     toInt(match[5] || 0) - tzMin,
+                     toInt(match[6] || 0),
+                     toInt(match[7] || 0));
     return date;
   }
   return string;
 }
 
-function int(str) {
+function toInt(str) {
   return parseInt(str, 10);
 }
 
@@ -606,8 +606,9 @@ function padNumber(num, digits, trim) {
   }
   num = '' + num;
   while (num.length < digits) num = '0' + num;
-  if (trim)
+  if (trim) {
     num = num.substr(num.length - digits);
+  }
   return neg + num;
 }
 
@@ -657,11 +658,12 @@ angular.mock.TzDate = function(offset, timestamp) {
     self.origDate = jsonStringToDate(timestamp);
 
     timestamp = self.origDate.getTime();
-    if (isNaN(timestamp))
+    if (isNaN(timestamp)) {
       throw {
         name: "Illegal Argument",
         message: "Arg '" + tsStr + "' passed into TzDate constructor is not a valid date string"
       };
+    }
   } else {
     self.origDate = new Date(timestamp);
   }
@@ -1119,7 +1121,7 @@ angular.mock.dump = function(object) {
    ```
  */
 angular.mock.$HttpBackendProvider = function() {
-  this.$get = ['$rootScope', createHttpBackendMock];
+  this.$get = ['$rootScope', '$timeout', createHttpBackendMock];
 };
 
 /**
@@ -1136,7 +1138,7 @@ angular.mock.$HttpBackendProvider = function() {
  * @param {Object=} $browser Auto-flushing enabled if specified
  * @return {Object} Instance of $httpBackend mock
  */
-function createHttpBackendMock($rootScope, $delegate, $browser) {
+function createHttpBackendMock($rootScope, $timeout, $delegate, $browser) {
   var definitions = [],
       expectations = [],
       responses = [],
@@ -1149,7 +1151,7 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
     return function() {
       return angular.isNumber(status)
           ? [status, data, headers, statusText]
-          : [200, status, data];
+          : [200, status, data, headers];
     };
   }
 
@@ -1166,7 +1168,9 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
     }
 
     function wrapResponse(wrapped) {
-      if (!$browser && timeout && timeout.then) timeout.then(handleTimeout);
+      if (!$browser && timeout) {
+        timeout.then ? timeout.then(handleTimeout) : $timeout(handleTimeout, timeout);
+      }
 
       return handleResponse;
 
@@ -1189,14 +1193,16 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
     }
 
     if (expectation && expectation.match(method, url)) {
-      if (!expectation.matchData(data))
+      if (!expectation.matchData(data)) {
         throw new Error('Expected ' + expectation + ' with different data\n' +
             'EXPECTED: ' + prettyPrint(expectation.data) + '\nGOT:      ' + data);
+      }
 
-      if (!expectation.matchHeaders(headers))
+      if (!expectation.matchHeaders(headers)) {
         throw new Error('Expected ' + expectation + ' with different headers\n' +
                         'EXPECTED: ' + prettyPrint(expectation.headers) + '\nGOT:      ' +
                         prettyPrint(headers));
+      }
 
       expectations.shift();
 
@@ -1232,8 +1238,8 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * Creates a new backend definition.
    *
    * @param {string} method HTTP method.
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(string|RegExp|function(string))=} data HTTP request body or function that receives
    *   data string and returns true if the data is as expected.
    * @param {(Object|function(Object))=} headers HTTP headers or function that receives http header
@@ -1278,10 +1284,10 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new backend definition for GET requests. For more info see `when()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(Object|function(Object))=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    * request is handled. You can save this object for later use and invoke `respond` again in
    * order to change how a matched request is handled.
    */
@@ -1292,10 +1298,10 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new backend definition for HEAD requests. For more info see `when()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(Object|function(Object))=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    * request is handled. You can save this object for later use and invoke `respond` again in
    * order to change how a matched request is handled.
    */
@@ -1306,10 +1312,10 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new backend definition for DELETE requests. For more info see `when()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(Object|function(Object))=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    * request is handled. You can save this object for later use and invoke `respond` again in
    * order to change how a matched request is handled.
    */
@@ -1320,12 +1326,12 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new backend definition for POST requests. For more info see `when()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(string|RegExp|function(string))=} data HTTP request body or function that receives
    *   data string and returns true if the data is as expected.
    * @param {(Object|function(Object))=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    * request is handled. You can save this object for later use and invoke `respond` again in
    * order to change how a matched request is handled.
    */
@@ -1336,12 +1342,12 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new backend definition for PUT requests.  For more info see `when()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(string|RegExp|function(string))=} data HTTP request body or function that receives
    *   data string and returns true if the data is as expected.
    * @param {(Object|function(Object))=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    * request is handled. You can save this object for later use and invoke `respond` again in
    * order to change how a matched request is handled.
    */
@@ -1352,9 +1358,9 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new backend definition for JSONP requests. For more info see `when()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    * request is handled. You can save this object for later use and invoke `respond` again in
    * order to change how a matched request is handled.
    */
@@ -1368,14 +1374,14 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * Creates a new request expectation.
    *
    * @param {string} method HTTP method.
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(string|RegExp|function(string)|Object)=} data HTTP request body or function that
    *  receives data string and returns true if the data is as expected, or Object if request body
    *  is in JSON format.
    * @param {(Object|function(Object))=} headers HTTP headers or function that receives http header
    *   object and returns true if the headers match the current expectation.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    *  request is handled. You can save this object for later use and invoke `respond` again in
    *  order to change how a matched request is handled.
    *
@@ -1407,10 +1413,10 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new request expectation for GET requests. For more info see `expect()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {Object=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    * request is handled. You can save this object for later use and invoke `respond` again in
    * order to change how a matched request is handled. See #expect for more info.
    */
@@ -1421,10 +1427,10 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new request expectation for HEAD requests. For more info see `expect()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {Object=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    *   request is handled. You can save this object for later use and invoke `respond` again in
    *   order to change how a matched request is handled.
    */
@@ -1435,10 +1441,10 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new request expectation for DELETE requests. For more info see `expect()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {Object=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    *   request is handled. You can save this object for later use and invoke `respond` again in
    *   order to change how a matched request is handled.
    */
@@ -1449,13 +1455,13 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new request expectation for POST requests. For more info see `expect()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(string|RegExp|function(string)|Object)=} data HTTP request body or function that
    *  receives data string and returns true if the data is as expected, or Object if request body
    *  is in JSON format.
    * @param {Object=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    *   request is handled. You can save this object for later use and invoke `respond` again in
    *   order to change how a matched request is handled.
    */
@@ -1466,13 +1472,13 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new request expectation for PUT requests. For more info see `expect()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(string|RegExp|function(string)|Object)=} data HTTP request body or function that
    *  receives data string and returns true if the data is as expected, or Object if request body
    *  is in JSON format.
    * @param {Object=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    *   request is handled. You can save this object for later use and invoke `respond` again in
    *   order to change how a matched request is handled.
    */
@@ -1483,13 +1489,13 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new request expectation for PATCH requests. For more info see `expect()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+   *   and returns true if the url matches the current definition.
    * @param {(string|RegExp|function(string)|Object)=} data HTTP request body or function that
    *  receives data string and returns true if the data is as expected, or Object if request body
    *  is in JSON format.
    * @param {Object=} headers HTTP headers.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    *   request is handled. You can save this object for later use and invoke `respond` again in
    *   order to change how a matched request is handled.
    */
@@ -1500,9 +1506,9 @@ function createHttpBackendMock($rootScope, $delegate, $browser) {
    * @description
    * Creates a new request expectation for JSONP requests. For more info see `expect()`.
    *
-   * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
-   *   and returns true if the url match the current definition.
-   * @returns {requestHandler} Returns an object with `respond` method that control how a matched
+   * @param {string|RegExp|function(string)} url HTTP url or function that receives an url
+   *   and returns true if the url matches the current definition.
+   * @returns {requestHandler} Returns an object with `respond` method that controls how a matched
    *   request is handled. You can save this object for later use and invoke `respond` again in
    *   order to change how a matched request is handled.
    */
@@ -1911,8 +1917,8 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * Creates a new backend definition.
  *
  * @param {string} method HTTP method.
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @param {(string|RegExp)=} data HTTP request body.
  * @param {(Object|function(Object))=} headers HTTP headers or function that receives http header
  *   object and returns true if the headers match the current definition.
@@ -1939,8 +1945,8 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * @description
  * Creates a new backend definition for GET requests. For more info see `when()`.
  *
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @param {(Object|function(Object))=} headers HTTP headers.
  * @returns {requestHandler} Returns an object with `respond` and `passThrough` methods that
  *   control how a matched request is handled. You can save this object for later use and invoke
@@ -1954,8 +1960,8 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * @description
  * Creates a new backend definition for HEAD requests. For more info see `when()`.
  *
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @param {(Object|function(Object))=} headers HTTP headers.
  * @returns {requestHandler} Returns an object with `respond` and `passThrough` methods that
  *   control how a matched request is handled. You can save this object for later use and invoke
@@ -1969,8 +1975,8 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * @description
  * Creates a new backend definition for DELETE requests. For more info see `when()`.
  *
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @param {(Object|function(Object))=} headers HTTP headers.
  * @returns {requestHandler} Returns an object with `respond` and `passThrough` methods that
  *   control how a matched request is handled. You can save this object for later use and invoke
@@ -1984,8 +1990,8 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * @description
  * Creates a new backend definition for POST requests. For more info see `when()`.
  *
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @param {(string|RegExp)=} data HTTP request body.
  * @param {(Object|function(Object))=} headers HTTP headers.
  * @returns {requestHandler} Returns an object with `respond` and `passThrough` methods that
@@ -2000,8 +2006,8 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * @description
  * Creates a new backend definition for PUT requests.  For more info see `when()`.
  *
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @param {(string|RegExp)=} data HTTP request body.
  * @param {(Object|function(Object))=} headers HTTP headers.
  * @returns {requestHandler} Returns an object with `respond` and `passThrough` methods that
@@ -2016,8 +2022,8 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * @description
  * Creates a new backend definition for PATCH requests.  For more info see `when()`.
  *
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @param {(string|RegExp)=} data HTTP request body.
  * @param {(Object|function(Object))=} headers HTTP headers.
  * @returns {requestHandler} Returns an object with `respond` and `passThrough` methods that
@@ -2032,15 +2038,15 @@ angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
  * @description
  * Creates a new backend definition for JSONP requests. For more info see `when()`.
  *
- * @param {string|RegExp|function(string)} url HTTP url or function that receives the url
- *   and returns true if the url match the current definition.
+ * @param {string|RegExp|function(string)} url HTTP url or function that receives a url
+ *   and returns true if the url matches the current definition.
  * @returns {requestHandler} Returns an object with `respond` and `passThrough` methods that
  *   control how a matched request is handled. You can save this object for later use and invoke
  *   `respond` or `passThrough` again in order to change how a matched request is handled.
  */
 angular.mock.e2e = {};
 angular.mock.e2e.$httpBackendDecorator =
-  ['$rootScope', '$delegate', '$browser', createHttpBackendMock];
+  ['$rootScope', '$timeout', '$delegate', '$browser', createHttpBackendMock];
 
 
 /**
@@ -2054,7 +2060,7 @@ angular.mock.e2e.$httpBackendDecorator =
  *
  * In addition to all the regular `Scope` methods, the following helper methods are available:
  */
-angular.mock.$RootScopeDecorator = function($delegate) {
+angular.mock.$RootScopeDecorator = ['$delegate', function($delegate) {
 
   var $rootScopePrototype = Object.getPrototypeOf($delegate);
 
@@ -2126,23 +2132,37 @@ angular.mock.$RootScopeDecorator = function($delegate) {
 
     return count;
   }
-};
+}];
 
 
 if (window.jasmine || window.mocha) {
 
   var currentSpec = null,
+      annotatedFunctions = [],
       isSpecRunning = function() {
         return !!currentSpec;
       };
 
+  angular.mock.$$annotate = angular.injector.$$annotate;
+  angular.injector.$$annotate = function(fn) {
+    if (typeof fn === 'function' && !fn.$inject) {
+      annotatedFunctions.push(fn);
+    }
+    return angular.mock.$$annotate.apply(this, arguments);
+  };
+
 
   (window.beforeEach || window.setup)(function() {
+    annotatedFunctions = [];
     currentSpec = this;
   });
 
   (window.afterEach || window.teardown)(function() {
     var injector = currentSpec.$injector;
+
+    annotatedFunctions.forEach(function(fn) {
+      delete fn.$inject;
+    });
 
     angular.forEach(currentSpec.$modules, function(module) {
       if (module && module.$$hashKey) {
