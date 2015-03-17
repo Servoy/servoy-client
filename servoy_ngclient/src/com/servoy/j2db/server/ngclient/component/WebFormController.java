@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.TreeMap;
 import org.mozilla.javascript.Function;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -275,15 +277,61 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	protected void focusFirstField()
 	{
-		// TODO Auto-generated method stub
+		focusField(null, false);
 
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	protected void focusField(String fieldName, boolean skipReadonly)
 	{
-		// TODO Auto-generated method stub
+		List<String> sequence = Arrays.asList(getTabSequence());
+		if (sequence.size() == 0) return;
+		int start = 0;
+		String currentFieldName = fieldName;
+		if (currentFieldName == null)
+		{
+			currentFieldName = sequence.get(0);
+		}
+		else
+		{
+			start = sequence.indexOf(currentFieldName);
+			if (start < 0) return;
+		}
 
+		int counter = start;
+		WebComponent component = null;
+		WebComponentApiDefinition apiFunction = null;
+		do
+		{
+			component = formUI.getComponent(currentFieldName);
+			apiFunction = component.getSpecification().getApiFunction("requestFocus");
+			if (apiFunction != null)
+			{
+				if (skipReadonly)
+				{
+					// TODO first https://support.servoy.com/browse/SVY-8024 should be fixed then this check should be on the property type.
+					if (Boolean.TRUE.equals(component.getProperty("readOnly")))
+					{
+						apiFunction = null;
+					}
+				}
+
+			}
+
+			if (apiFunction == null)
+			{
+				counter++;
+				if (counter == sequence.size()) counter = 0;
+				if (counter == start) return;
+				currentFieldName = sequence.get(counter);
+				component = formUI.getComponent(currentFieldName);
+				apiFunction = component.getSpecification().getApiFunction("requestFocus");
+			}
+		}
+		while (apiFunction == null);
+
+		component.invokeApi(apiFunction, null);
 	}
 
 	@Override

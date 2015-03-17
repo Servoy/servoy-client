@@ -335,6 +335,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	public void setReadOnly(boolean readOnly)
 	{
 		this.readOnly = readOnly;
+		// TODO see https://support.servoy.com/browse/SVY-8024 readonly should become a type, so no need to have here a "readonly" property based on name
 		propagatePropertyToAllComponents("readOnly", readOnly);
 	}
 
