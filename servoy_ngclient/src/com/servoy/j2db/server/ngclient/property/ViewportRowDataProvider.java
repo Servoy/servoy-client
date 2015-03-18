@@ -58,15 +58,18 @@ public abstract class ViewportRowDataProvider
 		throws JSONException
 	{
 		w.array();
-		int size = foundset.getSize();
-		int end = Math.min(size - 1, endIndex);
-		if (startIndex <= end)
+		if (foundset != null)
 		{
-			for (int i = startIndex; i <= endIndex; i++)
+			int size = foundset.getSize();
+			int end = Math.min(size - 1, endIndex);
+			if (startIndex <= end)
 			{
-				clientConversionInfo.pushNode(String.valueOf(i - startIndex));
-				writeRowData(i, columnName, foundset, w, clientConversionInfo);
-				clientConversionInfo.popNode();
+				for (int i = startIndex; i <= endIndex; i++)
+				{
+					clientConversionInfo.pushNode(String.valueOf(i - startIndex));
+					writeRowData(i, columnName, foundset, w, clientConversionInfo);
+					clientConversionInfo.popNode();
+				}
 			}
 		}
 		w.endArray();
