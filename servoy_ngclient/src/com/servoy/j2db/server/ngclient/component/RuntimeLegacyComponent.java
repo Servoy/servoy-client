@@ -100,12 +100,12 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		IPersist persist = component.getFormElement().getPersistIfAvailable();
 		if (persist instanceof GraphicalComponent)
 		{
-			boolean dataPersist = ((GraphicalComponent)persist).getDataProviderID() == null && !((GraphicalComponent)persist).getDisplaysTags();
+			boolean noData = ((GraphicalComponent)persist).getDataProviderID() == null && !((GraphicalComponent)persist).getDisplaysTags();
 			if (com.servoy.j2db.component.ComponentFactory.isButton((GraphicalComponent)persist))
 			{
-				return dataPersist ? "RuntimeButton" : "RuntimeDataButton";
+				return noData ? "RuntimeButton" : "RuntimeDataButton";
 			}
-			return dataPersist ? "RuntimeLabel" : "RuntimeDataLabel";
+			return noData ? "RuntimeLabel" : "RuntimeDataLabel";
 		}
 		if (persist instanceof Field)
 		{
