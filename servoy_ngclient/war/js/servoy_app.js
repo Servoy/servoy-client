@@ -592,47 +592,65 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		restrict: 'E',
 		compile: function(tElem, tAttrs){
 			var formName = tAttrs.formname; 
-			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
-			var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
+			$log.debug("svy * compile svyFormload for form = " + formName);
+			
+			// it sometimes happens that this gets called from a div that is detatched from the real page body somewhere in parents - and
+			// top-most $scope of parents is also destroyed already, although child scopes are not marked as destroyed; (this looks like an angular bug actually)
+			// for example sometimes when a recreateUI of the main form happens (and main form URL changes while the form remains the same);
+			// we should ignore such situations...
 			var blocked = false;
+			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
+			var someAncestor = tElem.get(0).parentNode;
+			while (someAncestor && someAncestor !== window.document) someAncestor = someAncestor.parentNode;
+			if (someAncestor === window.document) {
+				var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
 
-			if (formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
-				$log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
-						", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
-				// someone already loaded or is loading this form....
-				if ($rootScope.updatingFormName === formName) {
-					// in updatingFormUrl must be cleared as this form will show or is already showing elsewhere
-					$rootScope.updatingFormUrl = '';
-					delete $rootScope.updatingFormName;
-				} else $log.error("svy * Unexpected: a form is being loaded twice at the same time(" + formName + ")");
+				if (formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
+					$log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
+							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
+					// someone already loaded or is loading this form....
+					if ($rootScope.updatingFormName === formName) {
+						// in updatingFormUrl must be cleared as this form will show or is already showing elsewhere
+						$rootScope.updatingFormUrl = '';
+						delete $rootScope.updatingFormName;
+					} else $log.error("svy * Unexpected: a form is being loaded twice at the same time(" + formName + ")");
 
-				if (inHiddenDiv) {
-					tElem.empty(); // don't allow loading stuff further in this directive - so effectively blocks the form from loading in $rootScope.updatingFormUrl
-					blocked = true;
-					// so the form is already (being) loaded in non-hidden div; hidden div can relax; it shouldn't load form twice
-				} else {
-					// else it is already loaded in hidden div but now it wants to load in non-hidden div; so this has priority; allow it
-					formState.getScope().hiddenDivFormDiscarded = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
-					if ($sabloApplication.hasResolvedFormState(formName)) $sabloApplication.unResolveFormState(formName);
-					else blocked = true;
+					if (inHiddenDiv) {
+						tElem.empty(); // don't allow loading stuff further in this directive - so effectively blocks the form from loading in $rootScope.updatingFormUrl
+						blocked = true;
+						// so the form is already (being) loaded in non-hidden div; hidden div can relax; it shouldn't load form twice
+					} else {
+						// else it is already loaded in hidden div but now it wants to load in non-hidden div; so this has priority; allow it
+						formState.getScope().hiddenDivFormDiscarded = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
+						if ($sabloApplication.hasResolvedFormState(formName)) $sabloApplication.unResolveFormState(formName);
+						else formState.blockPostLinkInHidden = true;
+					}
 				}
+			} else {
+				tElem.empty(); // don't allow loading stuff further in this directive - it's probably being loaded in a floating DOM - not linked to page document // TODO how can we detect invalid case but still allow intentional loading of forms in floating DOM? we cant access nicely ancestor $scope.$$destroyed property from here
+				blocked = true;
 			}
 
 			return {
 				pre: function(scope, element, attrs) {},
-				post: function(scope, element, attrs){
+				post: function(scope, element, attrs) {
+					$log.debug("svy * postLink svyFormload for form = " + formName + ", hidden: " + inHiddenDiv);
 					if (blocked) return; // the form load was blocked by that tElem.empty() a few lines above (form is already loaded elsewhere)
-					$log.debug("svy * svyFormload = " + formName);
+					if (inHiddenDiv && formState.blockPostLinkInHidden) {
+						delete formState.blockPostLinkInHidden; // the form began to load in a real location; don't resolve it in hidden div anymore
+						return;
+					}
+					$log.debug("svy * svyFormload will resolve = " + formName);
 
 					$timeout(function() {$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)});
 
 					$sabloApplication.resolveFormState(formName);
-					$sabloApplication.getFormState(formName).then(function(formState) {
+					$sabloApplication.getFormState(formName).then(function(resolvedFormState) {
 						$timeout(function() {
-							formState.properties.size.width = element.prop('offsetWidth'); // formState.properties == formState.getScope().formProperties here
-							formState.properties.size.height = element.prop('offsetHeight');
+							resolvedFormState.properties.size.width = element.prop('offsetWidth'); // formState.properties == formState.getScope().formProperties here
+							resolvedFormState.properties.size.height = element.prop('offsetHeight');
 						}, 0);
-						delete formState.resolving;
+						delete resolvedFormState.resolving;
 					});
 				}
 			}

@@ -383,6 +383,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			$window.location.reload(true);
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
+			$log.debug("svy * updateController = " + formName + ", realFormUrl = " + realFormUrl);
 			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
 			$sabloApplication.clearFormState(formName)
 			eval(controllerCode);
@@ -391,6 +392,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if (formState && formState.initializing === undefined && formState.getScope != undefined)
 			{
 				$sabloApplication.getFormState(formName).then(function (formState) {
+					$log.debug("svy * updateController; checking to see if requestInitialData is needed = " + formName + " (" + formState.initializing + ", " + formState.initialDataRequested + ")");
 					if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formName, formState);
 				});
 			}
