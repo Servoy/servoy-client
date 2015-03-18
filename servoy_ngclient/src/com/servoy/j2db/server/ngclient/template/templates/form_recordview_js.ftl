@@ -16,7 +16,7 @@
 -->
 	
 ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$sabloUtils,$log) {
-	$log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
+	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
 	<#list baseComponents as bc>
@@ -28,7 +28,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false);
 	formState.resolving = true;
-	$log.debug("svy * ftl; resolving form = ${name}");
+	if ($log.debugEnabled) $log.debug("svy * ftl; resolving form = ${name}");
 	
 	$scope.model = formState.model;
 	$scope.api = formState.api;
@@ -138,7 +138,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	$scope.$watch("formProperties", wrapper(''), true);
 	
 	var destroyListenerUnreg = $scope.$on("$destroy", function() {
-		$log.debug("svy * ftl; form '${name}' - scope destroyed: " + $scope.$id);
+		if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope destroyed: " + $scope.$id);
 		destroyListenerUnreg();
 		if (formState && formState.removeWatches) {
 			if (!$scope.hiddenDivFormDiscarded) {

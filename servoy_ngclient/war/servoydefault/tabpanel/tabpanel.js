@@ -34,12 +34,12 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.$watch("model.tabIndex", function(newValue) {
-				$log.debug("svy * model.tabIndex = " + $scope.model.tabIndex + " -- " + new Date().getTime());
+				if ($log.debugEnabled) $log.debug("svy * model.tabIndex = " + $scope.model.tabIndex + " -- " + new Date().getTime());
 				refresh();
 			});
 
 			$scope.$watch("model.tabs", function(newValue) {
-				$log.debug("svy * model.tabs reference updated; length = " + ($scope.model.tabs ? $scope.model.tabs.length : undefined) + " -- " + new Date().getTime());
+				if ($log.debugEnabled) $log.debug("svy * model.tabs reference updated; length = " + ($scope.model.tabs ? $scope.model.tabs.length : undefined) + " -- " + new Date().getTime());
 				refresh();
 			});        
 
@@ -105,7 +105,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				{
 					$scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event instanceof MouseEvent ? event : null);
 				}   			
-				$log.debug("svy * selectedTab = '" + tab.containsFormId + "' -- " + new Date().getTime());
+				if ($log.debugEnabled) $log.debug("svy * selectedTab = '" + tab.containsFormId + "' -- " + new Date().getTime());
 				$scope.model.selectedTab = tab;
 				$scope.model.tabIndex = $scope.getTabIndex($scope.model.selectedTab);
 			}
@@ -122,7 +122,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.select = function(tab) {
-				$log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
+				if ($log.debugEnabled) $log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
 				if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId) || (tab == $scope.model.selectedTab)) return;
 				var selectEvent = $window.event ? $window.event : null;
 				if ($scope.model.selectedTab) {
@@ -131,9 +131,9 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						var formInWait = $scope.model.selectedTab.containsFormId;
 						$scope.waitingForServerVisibility[formInWait] = true;
 						var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId);
-						$log.debug("svy * Will hide previously selected form (tab): " + $scope.model.selectedTab.containsFormId);
+						if ($log.debugEnabled) $log.debug("svy * Will hide previously selected form (tab): " + $scope.model.selectedTab.containsFormId);
 						promise.then(function(ok) {
-							$log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);
+							if ($log.debugEnabled) $log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);
 							delete $scope.waitingForServerVisibility[formInWait];
 							if (ok) {
 								setFormVisible(tab,selectEvent);

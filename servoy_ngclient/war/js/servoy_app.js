@@ -290,9 +290,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 }).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log) {
 	return {
 		formWillShow: function(formname,notifyFormVisibility,parentForm,beanName,relationname,formIndex) {
-			$log.debug("svy * Form " + formname + " is preparing to show. Notify server needed: " + notifyFormVisibility);
+			if ($log.debugEnabled) $log.debug("svy * Form " + formname + " is preparing to show. Notify server needed: " + notifyFormVisibility);
 			if ($rootScope.updatingFormName === formname) {
-				$log.debug("svy * Form " + formname + " was set in hidden div. Clearing out hidden div.");
+				if ($log.debugEnabled) $log.debug("svy * Form " + formname + " was set in hidden div. Clearing out hidden div.");
 				$rootScope.updatingFormUrl = ''; // it's going to be shown; remove it from hidden DOM
 				$rootScope.updatingFormName = null;
 			}
@@ -592,7 +592,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		restrict: 'E',
 		compile: function(tElem, tAttrs){
 			var formName = tAttrs.formname; 
-			$log.debug("svy * compile svyFormload for form = " + formName);
+			if ($log.debugEnabled) $log.debug("svy * compile svyFormload for form = " + formName);
 			
 			// it sometimes happens that this gets called from a div that is detatched from the real page body somewhere in parents - and
 			// top-most $scope of parents is also destroyed already, although child scopes are not marked as destroyed; (this looks like an angular bug actually)
@@ -606,7 +606,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
 
 				if (formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
-					$log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
+					if ($log.debugEnabled) $log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
 							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
 					// someone already loaded or is loading this form....
 					if ($rootScope.updatingFormName === formName) {
@@ -634,13 +634,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return {
 				pre: function(scope, element, attrs) {},
 				post: function(scope, element, attrs) {
-					$log.debug("svy * postLink svyFormload for form = " + formName + ", hidden: " + inHiddenDiv);
+					if ($log.debugEnabled) $log.debug("svy * postLink svyFormload for form = " + formName + ", hidden: " + inHiddenDiv);
 					if (blocked) return; // the form load was blocked by that tElem.empty() a few lines above (form is already loaded elsewhere)
-					if (inHiddenDiv && formState.blockPostLinkInHidden) {
+					if (inHiddenDiv && formState && formState.blockPostLinkInHidden) {
 						delete formState.blockPostLinkInHidden; // the form began to load in a real location; don't resolve it in hidden div anymore
 						return;
 					}
-					$log.debug("svy * svyFormload will resolve = " + formName);
+					if ($log.debugEnabled) $log.debug("svy * svyFormload will resolve = " + formName);
 
 					$timeout(function() {$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)});
 

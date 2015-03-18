@@ -163,7 +163,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			$timeout(function() {
 				$timeout(function() {
 					$timeout(function() {
-						$log.debug("svy * checking if prepareFormForUseInHiddenDiv needs to do something: " + formName);
+						if ($log.debugEnabled) $log.debug("svy * checking if prepareFormForUseInHiddenDiv needs to do something: " + formName);
 						if (!$sabloApplication.hasResolvedFormState(formName)) {
 							// in order to call web component API's for example we will create appropriate DOM and create the directives/scopes (but hidden) so that API call doesn't go to destroyed web component...
 							var formURL = formTemplateUrls[formName];
@@ -172,7 +172,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 								$log.error("svy * Trying to reload hidden form, but rel URL is empty; forcing reload... " + formName);
 								$rootScope.updatingFormUrl = getFormUrl(formName);
 							}
-							$log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [prepareFormForUseInHiddenDiv - " + formName + "]");
+							if ($log.debugEnabled) $log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [prepareFormForUseInHiddenDiv - " + formName + "]");
 							$rootScope.updatingFormName = formName;
 						}
 					}, 0);
@@ -383,7 +383,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			$window.location.reload(true);
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
-			$log.debug("svy * updateController = " + formName + ", realFormUrl = " + realFormUrl);
+			if ($log.debugEnabled) $log.debug("svy * updateController = " + formName + ", realFormUrl = " + realFormUrl);
 			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
 			$sabloApplication.clearFormState(formName)
 			eval(controllerCode);
@@ -392,7 +392,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if (formState && formState.initializing === undefined && formState.getScope != undefined)
 			{
 				$sabloApplication.getFormState(formName).then(function (formState) {
-					$log.debug("svy * updateController; checking to see if requestInitialData is needed = " + formName + " (" + formState.initializing + ", " + formState.initialDataRequested + ")");
+					if ($log.debugEnabled) $log.debug("svy * updateController; checking to see if requestInitialData is needed = " + formName + " (" + formState.initializing + ", " + formState.initialDataRequested + ")");
 					if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formName, formState);
 				});
 			}
@@ -400,7 +400,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if(forceLoad) {
 				$rootScope.updatingFormUrl = realFormUrl;
 				$rootScope.updatingFormName = formName;
-				$log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [updateController FORCED - " + formName + "]");
+				if ($log.debugEnabled) $log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [updateController FORCED - " + formName + "]");
 			}
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},	
@@ -408,7 +408,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			// in case updateController was called for a form before with forceLoad == false, the form URL might not really be loaded by the bean that triggered it
 			// because the bean changed it's mind, so when a new server side touchForm() comes for this form with forceLoad == true then we must make sure the
 			// form URL is used to create the directives/DOM and be ready for use
-			$log.debug("svy * requireFormLoaded: " + formName);
+			if ($log.debugEnabled) $log.debug("svy * requireFormLoaded: " + formName);
 			prepareFormForUseInHiddenDiv(formName);
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
