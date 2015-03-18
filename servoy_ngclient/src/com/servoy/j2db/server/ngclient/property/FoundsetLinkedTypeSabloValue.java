@@ -430,44 +430,54 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
 		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
-		int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
 
-		if (recordIndex != -1)
+		if (foundset != null)
 		{
-			foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
+			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
 
-			viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
-			try
+			if (recordIndex != -1)
 			{
-				YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, value, new DataConverterContext(wrappedPropertyDescription, component));
+				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
-				if (newWrappedValue != wrappedSabloValue)
+				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
+				try
 				{
-					// do what component would do when a property changed
-					// TODO should we make current method return a completely new instance instead and leave component code do the rest?
-					if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
-					wrappedSabloValue = newWrappedValue;
-					if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor,
-						component);
+					YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, value, new DataConverterContext(wrappedPropertyDescription,
+						component));
 
-					// the full value has changed; the whole viewport might be affected
-					viewPortChangeMonitor.viewPortCompletelyChanged();
+					if (newWrappedValue != wrappedSabloValue)
+					{
+						// do what component would do when a property changed
+						// TODO should we make current method return a completely new instance instead and leave component code do the rest?
+						if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
+						wrappedSabloValue = newWrappedValue;
+						if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(
+							changeMonitor, component);
+
+						// the full value has changed; the whole viewport might be affected
+						viewPortChangeMonitor.viewPortCompletelyChanged();
+					}
+				}
+				catch (JSONException e)
+				{
+					Debug.error("Setting value for record dependent property '" + wrappedPropertyDescription + "' in foundset linked component to value: " +
+						value + " failed.", e);
+				}
+				finally
+				{
+					viewPortChangeMonitor.resumeRowUpdateListener();
 				}
 			}
-			catch (JSONException e)
+			else
 			{
-				Debug.error("Setting value for record dependent property '" + wrappedPropertyDescription + "' in foundset linked component to value: " + value +
-					" failed.", e);
-			}
-			finally
-			{
-				viewPortChangeMonitor.resumeRowUpdateListener();
+				Debug.error("Cannot set foundset linked record dependent property for (" + rowIDValue + ") property '" + wrappedPropertyDescription +
+					"' to value '" + value + "' of component: " + component + ". Record not found.", new RuntimeException());
 			}
 		}
 		else
 		{
 			Debug.error("Cannot set foundset linked record dependent property for (" + rowIDValue + ") property '" + wrappedPropertyDescription +
-				"' to value '" + value + "' of component: " + component + ". Record not found.", new RuntimeException());
+				"' to value '" + value + "' of component: " + component + ". Foundset is null.", new RuntimeException());
 		}
 	}
 

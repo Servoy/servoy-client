@@ -668,18 +668,26 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					{
 						String rowIDValue = startEditData.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 						IFoundSetInternal foundset = getFoundsetValue().getFoundset();
+						dal = getFoundsetValue().getDataAdapterList();
 
 						Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
-						int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-
-						dal = getFoundsetValue().getDataAdapterList();
-						if (recordIndex != -1)
+						if (foundset != null)
 						{
-							((FoundsetDataAdapterList)dal).setRecordQuietly(foundset.getRecord(recordIndex));
+							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+
+							if (recordIndex != -1)
+							{
+								((FoundsetDataAdapterList)dal).setRecordQuietly(foundset.getRecord(recordIndex));
+							}
+							else
+							{
+								Debug.error("Cannot find record for foundset linked record dependent component property - startEdit (" + rowIDValue +
+									"); property '" + propertyName, new RuntimeException());
+							}
 						}
 						else
 						{
-							Debug.error("Cannot find record for foundset linked record dependent component property - startEdit (" + rowIDValue +
+							Debug.error("Foundset is null while trying to startEdit for foundset linked record dependent component property (" + rowIDValue +
 								"); property '" + propertyName, new RuntimeException());
 						}
 					}
@@ -704,31 +712,39 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
 		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
-		int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-
-		if (recordIndex != -1)
+		if (foundset != null)
 		{
-			foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
+			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
 
-			viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
-			try
+			if (recordIndex != -1)
 			{
-				childComponent.putBrowserProperty(propertyName, value);
+				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
+
+				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
+				try
+				{
+					childComponent.putBrowserProperty(propertyName, value);
+				}
+				catch (JSONException e)
+				{
+					Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value +
+						" failed.", e);
+				}
+				finally
+				{
+					viewPortChangeMonitor.resumeRowUpdateListener();
+				}
 			}
-			catch (JSONException e)
+			else
 			{
-				Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.",
-					e);
-			}
-			finally
-			{
-				viewPortChangeMonitor.resumeRowUpdateListener();
+				Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName +
+					"' to value '" + value + "' of component: " + childComponent + ". Record not found.", new RuntimeException());
 			}
 		}
 		else
 		{
 			Debug.error("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName + "' to value '" +
-				value + "' of component: " + childComponent + ". Record not found.", new RuntimeException());
+				value + "' of component: " + childComponent + ". Foundset is null.", new RuntimeException());
 		}
 	}
 
