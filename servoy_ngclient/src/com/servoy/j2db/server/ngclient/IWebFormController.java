@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Map;
+
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
@@ -50,4 +52,8 @@ public interface IWebFormController extends IFormController
 	 * @return
 	 */
 	public boolean isRendering();
+
+	void setNavigatorProperties(Map<String, Object> navigatorProperties);
+
+	Map<String, Object> getNavigatorProperties();
 }

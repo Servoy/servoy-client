@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.awt.print.PrinterJob;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
@@ -68,7 +69,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#getFormModel()
 	 */
 	@Override
@@ -80,7 +81,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#touch()
 	 */
 	@Override
@@ -92,7 +93,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#getTable()
 	 */
 	@Override
@@ -104,7 +105,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#getFormScope()
 	 */
 	@Override
@@ -115,7 +116,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#recreateUI()
 	 */
 	@Override
@@ -127,7 +128,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#initForJSUsage(com.servoy.j2db.scripting.CreationalPrototype)
 	 */
 	@Override
@@ -139,7 +140,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#notifyVisible(boolean, java.util.List)
 	 */
 	@Override
@@ -151,7 +152,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#destroy()
 	 */
 	@Override
@@ -163,7 +164,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#initForJSUsage()
 	 */
 	@Override
@@ -175,7 +176,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#isFormVisible()
 	 */
 	@Override
@@ -187,7 +188,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#init()
 	 */
 	@Override
@@ -199,7 +200,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#isFormExecutingFunction()
 	 */
 	@Override
@@ -211,7 +212,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#executeOnLoadMethod()
 	 */
 	@Override
@@ -223,7 +224,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#notifyResized()
 	 */
 	@Override
@@ -235,7 +236,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#executeFunction(java.lang.String, java.lang.Object[], boolean, java.lang.Object, boolean, java.lang.String)
 	 */
 	@Override
@@ -247,7 +248,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#executeFunction(java.lang.String, java.lang.Object[], boolean, java.lang.Object, boolean, java.lang.String, boolean,
 	 * boolean, boolean)
 	 */
@@ -261,7 +262,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#wantEmptyFoundSet()
 	 */
 	@Override
@@ -273,7 +274,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#loadAllRecordsImpl(boolean)
 	 */
 	@Override
@@ -285,7 +286,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#refreshView()
 	 */
 	@Override
@@ -297,7 +298,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IFormController#setMode(int)
 	 */
 	@Override
@@ -309,7 +310,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#eval(java.lang.String)
 	 */
 	@Override
@@ -321,7 +322,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#setUsingAsExternalComponent(boolean)
 	 */
 	@Override
@@ -333,7 +334,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#loadAllRecords()
 	 */
 	@Override
@@ -345,7 +346,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#isShowingData()
 	 */
 	@Override
@@ -357,7 +358,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#deleteRecord()
 	 */
 	@Override
@@ -369,7 +370,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#deleteAllRecords()
 	 */
 	@Override
@@ -381,7 +382,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#newRecord()
 	 */
 	@Override
@@ -393,7 +394,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#duplicateRecord()
 	 */
 	@Override
@@ -405,7 +406,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#find()
 	 */
 	@Override
@@ -417,7 +418,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#isInFindMode()
 	 */
 	@Override
@@ -429,7 +430,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#removeLastFound()
 	 */
 	@Override
@@ -441,7 +442,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#performFind(boolean, boolean, boolean)
 	 */
 	@Override
@@ -453,7 +454,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#omitRecord()
 	 */
 	@Override
@@ -465,7 +466,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#showOmittedRecords()
 	 */
 	@Override
@@ -477,7 +478,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#invertRecords()
 	 */
 	@Override
@@ -489,7 +490,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#showSortDialog()
 	 */
 	@Override
@@ -501,7 +502,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#reLookupValues()
 	 */
 	@Override
@@ -513,7 +514,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#saveData()
 	 */
 	@Override
@@ -525,7 +526,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#printPreview()
 	 */
 	@Override
@@ -537,7 +538,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#print(boolean, boolean, boolean, java.awt.print.PrinterJob)
 	 */
 	@Override
@@ -549,7 +550,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#getView()
 	 */
 	@Override
@@ -561,7 +562,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#setView(int)
 	 */
 	@Override
@@ -573,7 +574,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#getDataSource()
 	 */
 	@Override
@@ -585,7 +586,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#isReadOnly()
 	 */
 	@Override
@@ -597,7 +598,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#getElements()
 	 */
 	@Override
@@ -609,7 +610,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#loadRecords(com.servoy.j2db.dataprocessing.IFoundSet)
 	 */
 	@Override
@@ -621,7 +622,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#getDesignTimeProperty(java.lang.String)
 	 */
 	@Override
@@ -633,7 +634,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#getFormUI()
 	 */
 	@Override
@@ -644,7 +645,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#getApplication()
 	 */
 	@Override
@@ -655,7 +656,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#getFoundSet()
 	 */
 	@Override
@@ -667,7 +668,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#setParentFormController(com.servoy.j2db.server.ngclient.IWebFormController)
 	 */
 	@Override
@@ -679,7 +680,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#setRendering(boolean)
 	 */
 	@Override
@@ -691,7 +692,7 @@ public class TestFormController implements IWebFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormController#isRendering()
 	 */
 	@Override
@@ -699,6 +700,30 @@ public class TestFormController implements IWebFormController
 	{
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormController#setActiveNavigatorDescription(java.util.Map)
+	 */
+	@Override
+	public void setNavigatorProperties(Map<String, Object> navigatorDescription)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IWebFormController#getActiveNavigatorDescription()
+	 */
+	@Override
+	public Map<String, Object> getNavigatorProperties()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -553,4 +553,19 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		return notifyVisibleSuccess;
 	}
+
+
+	private Map<String, Object> navigatorProperties;
+
+	@Override
+	public void setNavigatorProperties(Map<String, Object> navigatorDescription)
+	{
+		this.navigatorProperties = navigatorDescription;
+	}
+
+	@Override
+	public Map<String, Object> getNavigatorProperties()
+	{
+		return navigatorProperties;
+	}
 }

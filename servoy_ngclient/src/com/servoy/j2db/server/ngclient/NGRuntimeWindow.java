@@ -452,13 +452,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		switch (navigatorId)
 		{
 			case Form.NAVIGATOR_NONE :
-			{
-				// just make it an empty object.
-				Map<String, Integer> navSize = new HashMap<>();
-				navSize.put("width", 0);
-				navigatorForm.put("size", navSize);
 				break;
-			}
 			case Form.NAVIGATOR_DEFAULT :
 			{
 				navigatorForm.put("templateURL", "servoydefault/navigator/default_navigator_container.html");
@@ -471,10 +465,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			{
 				if (history.getIndex() > 0)
 				{
-					String prevForm = history.getFormName(history.getIndex());
-					if (prevForm != null && !formName.equals(prevForm))
+					String prevForm = history.getFormName(history.getIndex() - 1);
+					if (prevForm != null)
 					{
-						return getNavigatorProperties(getApplication().getFormManager().getForm(prevForm));
+						navigatorForm = getApplication().getFormManager().getForm(prevForm).getNavigatorProperties();
 					}
 				}
 				break;
@@ -494,6 +488,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 			}
 		}
+
+
+		if (navigatorForm.isEmpty()) // Form.NAVIGATOR_NONE
+		{
+			// just make it an empty object.
+			Map<String, Integer> navSize = new HashMap<>();
+			navSize.put("width", 0);
+			navigatorForm.put("size", navSize);
+		}
+
+		formController.setNavigatorProperties(navigatorForm);
 		return navigatorForm;
 	}
 

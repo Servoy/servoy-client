@@ -225,7 +225,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		int styleSheetID = solution.getStyleSheetID();
 		if (styleSheetID > 0)
 		{
-			Media styleSheetMedia = solution.getMedia(styleSheetID);
+			Media styleSheetMedia = client.getFlattenedSolution().getMedia(styleSheetID);
 			if (styleSheetMedia != null)
 			{
 				String path = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName();
