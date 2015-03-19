@@ -771,7 +771,21 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					function justToIsolateScope() {
 						var minRelayoutPeriodPassed = true;
 						var pendingLayout = false;
-						$scope.$watchCollection(function() { return [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ] }, function(oldV, newV) {
+						var elementSize = [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ];
+						var timeoutPromise = null;
+						function getNewSize() {
+							var newSize = [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ];
+							if (newSize[0] != elementSize[0] || newSize[1] != elementSize[1]){
+								elementSize = newSize;
+								$scope.$apply();
+							}
+						}
+						$scope.$watch(function() { 
+							if (timeoutPromise) $timeout.cancel(timeoutPromise);
+							timeoutPromise = $timeout(getNewSize,500, false);
+							return elementSize;
+						  }, 
+							function(oldV, newV) {
 							if (oldV != newV) {
 								// the portal resized (browser window resize or split pane resize for example)
 								if (pendingLayout) return; // will layout later anyway
