@@ -669,6 +669,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){
 					$scope.foundset.loadExtraRecordsAsync(Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size));
 				});
+			    gridApi.infiniteScroll.on.needLoadMoreDataTop($scope,function(){
+			    	$scope.gridApi.infiniteScroll.dataLoaded();
+				});
 				gridApi.colMovable.on.columnPositionChanged ($scope, function(colDef, originalPosition, newPosition) {
 					var reorderedColumns = $scope.gridApi.grid.columns;
 					for (var k = 0; k < reorderedColumns.length; k++) {
