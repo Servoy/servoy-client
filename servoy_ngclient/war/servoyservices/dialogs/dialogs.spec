@@ -5,6 +5,13 @@
 	"definition": "servoyservices/dialogs/dialogs.js",
 	"libraries": 
 	[
+		
+		{
+			"name": "bootstrap",
+			"version": "3.3.4",
+			"url": "servoyservices/dialogs/bootstrap.min.js",
+			"mimetype": "text/javascript"
+		},
 		{
 			"name": "bootbox",
 			"version": "4.3.0",
