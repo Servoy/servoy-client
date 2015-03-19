@@ -225,10 +225,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			var rowCache = {};
 			function rowIdToViewportRelativeRowIndex(rowId) {
 				var result = rowCache[rowId];
-				if (result === undefined) {
+				var rows = $scope.foundset.viewPort.rows;
+				if (result === undefined || !rows[result] || rows[result][$foundsetTypeConstants.ROW_ID_COL_KEY] !== rowId) {
 					rowCache = {};
-					for (var i = $scope.foundset.viewPort.rows.length - 1; i >= 0; i--)
-						rowCache[$scope.foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY]] = i;
+					for (var i = rows.length - 1; i >= 0; i--)
+						rowCache[rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY]] = i;
 					result = rowCache[rowId];
 				}
 				return result;
@@ -827,6 +828,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					});
 
 					$scope.$watchCollection('foundset.viewPort.rows', function() {
+						rowCache = {};
 						// check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding and any other watches
 						var newRowIDs = {};
 						if ($scope.foundset && $scope.foundset.viewPort && $scope.foundset.viewPort.rows) {
