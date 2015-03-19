@@ -222,11 +222,16 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				if (!rowProxies[elementIndex]) rowProxies[elementIndex] = {};
 				return rowProxies[elementIndex];
 			}
-
+			var rowCache = {};
 			function rowIdToViewportRelativeRowIndex(rowId) {
-				for (var i = $scope.foundset.viewPort.rows.length - 1; i >= 0; i--)
-					if ($scope.foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY] === rowId) return i;
-				return -1;
+				var result = rowCache[rowId];
+				if (result === undefined) {
+					rowCache = {};
+					for (var i = $scope.foundset.viewPort.rows.length - 1; i >= 0; i--)
+						rowCache[$scope.foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY]] = i;
+					result = rowCache[rowId];
+				}
+				return result;
 			}
 
 			function rowIdToAbsoluteRowIndex(rowId) {
