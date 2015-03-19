@@ -15,7 +15,9 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -37,11 +39,14 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 
 /**
  * TODO is format really mapped on a special object (like ParsedFormat)
@@ -118,7 +123,6 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 
 		Map<String, Object> map = new HashMap<>();
 		String type = Column.getDisplayTypeString(format.uiType);
-		if (type.equals("INTEGER")) type = "NUMBER";
 		map.put("type", type);
 
 		boolean isMask = format.parsedFormat.isMask();
@@ -142,6 +146,28 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		map.put("placeHolder", placeHolder);
 		map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());
 		map.put("display", format.parsedFormat.getDisplayFormat());
+		map.put("isNumberValidator", Boolean.valueOf(format.parsedFormat.isNumberValidator()));
+
+		if (type.equals("NUMBER") || type.equals("INTEGER") || format.parsedFormat.isNumberValidator())
+		{
+			BaseWebObject webObject = dataConverterContext.getWebObject();
+			Locale clientLocale;
+			if (webObject instanceof IContextProvider)
+			{
+				clientLocale = ((IContextProvider)webObject).getDataConverterContext().getApplication().getLocale();
+			}
+			else
+			{
+				Debug.warn("Cannot get client locale for : " + webObject.toString() + " , using system default");
+				clientLocale = Locale.getDefault();
+			}
+			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(clientLocale);
+			map.put("decimalSeparator", String.valueOf(dfs.getDecimalSeparator()));
+			map.put("groupingSeparator", String.valueOf(dfs.getGroupingSeparator()));
+			map.put("currencySymbol", dfs.getCurrencySymbol());
+			map.put("percent", String.valueOf(dfs.getPercent()));
+			map.put("maxLength", format.parsedFormat.getMaxLength() == null ? new Integer(-1) : format.parsedFormat.getMaxLength());
+		}
 
 		if (isAllLowercase || isAllUppercase)
 		{

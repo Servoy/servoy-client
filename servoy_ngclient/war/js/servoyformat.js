@@ -119,7 +119,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		{
 			var formatChar = servoyFormat[i];
 			var dataChar = data[i-offset];
-			if(dataChar == undefined) throw error
+			if(dataChar == undefined) break;
 			if(isEscaping  && formatChar!= "'"){
 				if(dataChar!=formatChar) throw error
 				ret+= dataChar;
@@ -223,7 +223,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		
 		format : function (data,servoyFormat,type){
 			if((!servoyFormat) || (!type) || (!data) ) return data;
-			if(type == "NUMBER"){
+			if((type == "NUMBER") || (type == "INTEGER")){
 				 return formatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
 				return formatText(data,servoyFormat);
@@ -235,7 +235,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		
 		unformat : function(data ,servoyFormat,type){
 			if((!servoyFormat)||(!type) || (!data) ) return data;
-			if(type == "NUMBER"){
+			if((type == "NUMBER") || (type == "INTEGER")){
 				return unformatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
 				return data;
@@ -292,8 +292,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				 if(svyFormat){
 					 if(svyFormat.edit && svyFormat.isMask) {
 							 var settings = {};
-							 if (svyFormat.placeHolder)
-								 settings.placeholder = svyFormat.placeHolder;
+							 settings.placeholder = svyFormat.placeHolder ? svyFormat.placeHolder : " ";
 							 if (svyFormat.allowedCharacters)
 								 settings.allowedCharacters = svyFormat.allowedCharacters;
 							 
@@ -316,7 +315,17 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 					 })	
 				 }				 
 			 })
-			  
+
+			 element.on('keypress',function(e){
+				 var svyFormat = $scope.$eval(attrs['svyFormat'])
+				 if(svyFormat.type == "INTEGER"){
+					 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+				 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
+					 return numbersonly(e, true, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+				 }
+				 return true;
+			 })			 
+			 
 			 //convert data from view format to model format
 		    ngModelController.$parsers.push(viewToModel);
 		    //convert data from model format to view format
@@ -359,6 +368,60 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		    	}
 		      return data; //converted
 		    }
+		    
+			function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar,obj,mlength) 
+			{
+				var key;
+				var keychar;
+				
+				if (window.event) {
+				   key = window.event.keyCode;
+				}
+				else if (e) {
+				   key = e.which;
+				}
+				else {
+				   return true;
+				}
+				
+				if ((key==null) || (key==0) || (key==8) ||  (key==9) || (key==13) || (key==27) 
+						|| (e.ctrlKey && key==97) || (e.ctrlKey && key==99) || (e.ctrlKey && key==118) || (e.ctrlKey && key==120)) { //added CTRL-A, X, C and V
+				   return true;
+				}
+
+				keychar = String.fromCharCode(key);
+
+				if (mlength > 0 && obj && obj.value)
+				{
+					var counter = 0;
+					if (("0123456789").indexOf(keychar) != -1) counter++;
+					var stringLength = obj.value.length;
+					for(var i=0;i<stringLength;i++)
+					{
+					   if (("0123456789").indexOf(obj.value.charAt(i)) != -1) counter++;
+					}
+					var selectedTxt = Servoy.Utils.getSelectedText(obj.id);
+					if(selectedTxt) counter = counter - selectedTxt.length; 
+					if (counter > mlength) return false;
+				}
+				
+				if ((("-0123456789").indexOf(keychar) > -1)) {
+				   return true;
+				}
+				else if (decimal && (keychar == decimalChar)) { 
+				  return true;
+				}
+				else if (keychar == groupingChar) { 
+				  return true;
+				}
+				else if (keychar == currencyChar) { 
+				  return true;
+				}
+				else if (keychar == percentChar) { 
+				  return true;
+				}
+				return false;
+			}
 		  }
 		}	
 }]);
