@@ -23,7 +23,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author acostache
  * @since 7.0
  */
-@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IMobileDialogProvider
 {
 	public String showWarningDialog(String dialogTitle, String dialogMessage);

@@ -413,36 +413,39 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean closeSolution(boolean force, Object[] args)
 	{
-		if (!force && (args == null || args.length < 1))
-		{
-			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
-			{
-				public void run()
-				{
-					getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("reload", new Object[0]);
-				}
-			});
-		}
 
 		String currentSolution = isSolutionLoaded() ? getSolutionName() : null;
 		boolean isCloseSolution = super.closeSolution(force, args);
-		if (isCloseSolution && args != null && args.length > 0)
+		if (isCloseSolution)
 		{
-			String openSolution = getPreferedSolutionNameToLoadOnInit();
-			if (openSolution == null) openSolution = currentSolution;
-			if (openSolution != null)
+			if (args == null || args.length < 1)
 			{
-				String m = getPreferedSolutionMethodNameToCall();
-				Object[] a = getPreferedSolutionMethodArguments();
-
-				StringBuilder url = new StringBuilder("solutions/").append(openSolution).append("/index.html");
-				if (m != null)
+				CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
 				{
-					url.append("?m=").append(m);
-					if (a != null && a.length > 0) url.append("&a=").append(a[0]);
-				}
+					public void run()
+					{
+						getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("reload", new Object[0]);
+					}
+				});
+			}
+			else
+			{
+				String openSolution = getPreferedSolutionNameToLoadOnInit();
+				if (openSolution == null) openSolution = currentSolution;
+				if (openSolution != null)
+				{
+					String m = getPreferedSolutionMethodNameToCall();
+					Object[] a = getPreferedSolutionMethodArguments();
 
-				showURL(url.toString(), "_self", null, 0, true);
+					StringBuilder url = new StringBuilder("solutions/").append(openSolution).append("/index.html");
+					if (m != null)
+					{
+						url.append("?m=").append(m);
+						if (a != null && a.length > 0) url.append("&a=").append(a[0]);
+					}
+
+					showURL(url.toString(), "_self", null, 0, true);
+				}
 			}
 		}
 		return isCloseSolution;
