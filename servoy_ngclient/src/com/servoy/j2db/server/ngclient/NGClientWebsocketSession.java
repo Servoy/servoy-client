@@ -251,11 +251,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-
 	@Override
-	public void closeSession()
+	public void dispose()
 	{
-		this.closeSession(null);
+		closeSession(null);
+		super.dispose();
 	}
 
 	public void closeSession(final String redirectUrl)
@@ -272,7 +272,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				getClientService("$sessionService").executeAsyncServiceCall("expireSession", new Object[] { detail });
 			}
 		});
-		super.closeSession();
 	}
 
 	@Override

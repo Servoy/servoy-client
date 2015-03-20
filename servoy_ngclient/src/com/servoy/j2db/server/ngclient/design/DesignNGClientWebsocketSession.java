@@ -76,15 +76,4 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.NGClientWebsocketSession#closeSession()
-	 */
-	@Override
-	public void closeSession()
-	{
-		getClient().closeSolution(false, null);
-		super.closeSession();
-	}
 }

@@ -25,6 +25,7 @@ import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -779,7 +780,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 				scheduledExecutorService = null;
 			}
-			getWebsocketSession().closeSession();
+			WebsocketSessionManager.removeSession(getWebsocketSession());
 		}
 	}
 
