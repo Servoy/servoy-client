@@ -76,4 +76,17 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 		}
 	}
 
+	/*
+	 * All editor windows are now closed. We shutdown the client in order to free up the license for the next DesignNGClient instantiation.
+	 * 
+	 * @see org.sablo.websocket.BaseWebsocketSession#sessionExpired()
+	 */
+	@Override
+	public void sessionExpired()
+	{
+		getClient().shutDown(true);
+		super.sessionExpired();
+	}
+
+
 }
