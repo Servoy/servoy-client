@@ -57,7 +57,10 @@ public class DataServerProxy implements IDataServer
 		{
 			mappedServers.remove(destinationName);
 		}
-		mappedServers.put(sourceName, destinationName);
+		else
+		{
+			mappedServers.put(sourceName, destinationName);
+		}
 	}
 
 	public String getMappedServerName(String sourceName)
