@@ -246,7 +246,7 @@ public class FormElementHelper
 					if (persist instanceof IFormElement)
 					{
 						Point loc = ((IFormElement)persist).getLocation();
-						if (startPos <= loc.y && endPos >= loc.y)
+						if (startPos <= loc.y && endPos > loc.y)
 						{
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
@@ -260,7 +260,7 @@ public class FormElementHelper
 								{
 									GraphicalComponent gc = graphicalComponents.next();
 									if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
-										endPos >= gc.getLocation().y)
+										endPos > gc.getLocation().y)
 									{
 										headersText.add(gc.getText());
 										hasLabelFor = true;
@@ -369,30 +369,6 @@ public class FormElementHelper
 		return false;
 	}
 
-	private int getGridWidth(Form form)
-	{
-		int rowWidth = 0;
-		Part part = getBodyPart(form);
-		int startPos = form.getPartStartYPos(part.getID());
-		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
-		{
-			IPersist persist = it.next();
-			if (persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (persist instanceof BaseComponent)
-			{
-				BaseComponent bc = (BaseComponent)persist;
-				Point location = bc.getLocation();
-				if (startPos <= location.y && endPos >= location.y)
-				{
-					rowWidth += bc.getSize().width + 0.5;//+borders
-				}
-			}
-		}
-		return rowWidth;
-	}
-
 	private int getRowHeight(Form form)
 	{
 		int rowHeight = 0;
@@ -408,7 +384,7 @@ public class FormElementHelper
 			{
 				BaseComponent bc = (BaseComponent)persist;
 				Point location = bc.getLocation();
-				if (startPos <= location.y && endPos >= location.y)
+				if (startPos <= location.y && endPos > location.y)
 				{
 					if (rowHeight == 0)
 					{
