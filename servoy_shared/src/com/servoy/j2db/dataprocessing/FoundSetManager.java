@@ -231,7 +231,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	/**
-	 * 
+	 *
 	 * @param table
 	 * @param dataSource
 	 * @param columnName when not null, only return true if the table has the column
@@ -454,7 +454,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * flushes/refreshes only related foundsets with a changed sql.
-	 * 
+	 *
 	 * @param caller
 	 * @param relationName
 	 * @param parentToIndexen
@@ -1246,7 +1246,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	/**
 	 * Get the table filters that are applicable on the sql for the server. Returns an array of table filters, the resulting array may be modified by the
 	 * caller.
-	 * 
+	 *
 	 * @param serverName
 	 * @param sql
 	 * @return
@@ -1327,7 +1327,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * Checks if the specified table has filter defined
-	 * 
+	 *
 	 * @param serverName
 	 * @param tableName
 	 * @return true if there is a filter defined for the table, otherwise false
@@ -2012,7 +2012,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * Returns the globalTransaction.
-	 * 
+	 *
 	 * @return GlobalTransaction
 	 */
 	public GlobalTransaction getGlobalTransaction()
@@ -2036,12 +2036,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public String getOriginalServerName(String serverName)
 	{
+		return getOriginalServerNames(serverName).iterator().next();
+	}
+
+	@Override
+	public Collection<String> getOriginalServerNames(String serverName)
+	{
 		IDataServer dataServer = application.getDataServer();
 		if (dataServer instanceof DataServerProxy)
 		{
-			return ((DataServerProxy)dataServer).getReverseMappedServerName(serverName);
+			return ((DataServerProxy)dataServer).getReverseMappedServerNames(serverName);
 		}
-		return serverName;
+		return Collections.singleton(serverName);
 	}
 
 	public String getSwitchedToServerName(String serverName)
@@ -2350,9 +2356,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * Container class for related foundset arguments and the hash
-	 * 
+	 *
 	 * @author rgansevles
-	 * 
+	 *
 	 */
 	private static class RelatedHashedArguments
 	{
@@ -2494,7 +2500,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * Test validity of data sources that are for this client.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean hasClientDataSources()
@@ -2505,9 +2511,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 *  Register this client as table user for all used tables.
-	 *  
+	 *
 	 * @param serverName when non-null limit to server name.
-	 * 
+	 *
 	 * @throws ServoyException
 	 */
 	public void registerClientTables(String serverName) throws ServoyException

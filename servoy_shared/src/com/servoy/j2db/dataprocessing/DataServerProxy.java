@@ -18,9 +18,12 @@ package com.servoy.j2db.dataprocessing;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.servoy.j2db.persistence.ITable;
@@ -35,7 +38,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Proxy class around a {@link IDataServer} instance for switchServer support.
- *  
+ *
  * @author jblok, rgansevles
  */
 public class DataServerProxy implements IDataServer
@@ -64,18 +67,35 @@ public class DataServerProxy implements IDataServer
 		return retval;
 	}
 
-	public String getReverseMappedServerName(String destName)
+	/**
+	 * Get all names of servers that map to the destName server.
+	 *
+	 * Will return a collection of at least 1 server.
+	 *
+	 * @param destName
+	 * @return
+	 */
+	public Collection<String> getReverseMappedServerNames(String destName)
 	{
-		Iterator<Map.Entry<String, String>> entries = mappedServers.entrySet().iterator();
-		while (entries.hasNext())
+		List<String> reverseMappedServerNames = null;
+		for (Entry<String, String> entry : mappedServers.entrySet())
 		{
-			Map.Entry<String, String> entry = entries.next();
 			if (destName != null && destName.equals(entry.getValue()))
 			{
-				return entry.getKey();
+				if (reverseMappedServerNames == null)
+				{
+					reverseMappedServerNames = new ArrayList<>(1);
+				}
+				reverseMappedServerNames.add(entry.getKey());
 			}
 		}
-		return destName;
+
+		if (reverseMappedServerNames != null)
+		{
+			return reverseMappedServerNames;
+		}
+
+		return Collections.singleton(destName);
 	}
 
 	public ISQLStatement createSQLStatement(int action, String serverName, String tableName, Object[] pkColumnData, String tid, String sql,
@@ -228,7 +248,7 @@ public class DataServerProxy implements IDataServer
 
 	/**
 	 * Log a message on the server
-	 * 
+	 *
 	 * @param msg
 	 */
 	public void logMessage(String msg) throws RemoteException
