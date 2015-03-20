@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.servoy.j2db.persistence.ITable;
@@ -26,7 +27,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * The foundset manager interface for handling all kinds of database functions.
- * 
+ *
  * @author jblok
  */
 public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvider
@@ -43,7 +44,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * Commit a transaction
-	 * 
+	 *
 	 * @param saveFirst boolean to configure if commit should be preceded by a save of all records
 	 * @param revertSavedRecords boolean used as rollback option, if true and transaction fails will revert saved records to their previous (database) values
 	 */
@@ -61,7 +62,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * Get the transaction id, the client may have.
-	 * 
+	 *
 	 * @param serverName the server name for which a transaction id is requested
 	 * @return String the transaction id, returns null if none present.
 	 */
@@ -69,7 +70,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * Get a datasource for a table object interface
-	 * 
+	 *
 	 * @param table the table
 	 * @return the datasource
 	 */
@@ -77,7 +78,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * Save all data, not encouraged to be used by plugins, leave save to solution.
-	 * 
+	 *
 	 * @see ISaveConstants
 	 * @return a constant, if autosave is disabled AUTO_SAVE_BLOCKED will be return and nothing is saved
 	 */
@@ -85,9 +86,9 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * Save specific record data, not encouraged to be used by plugins, leave save to solution.
-	 * 
+	 *
 	 * @see ISaveConstants
-	 * @return a constant, will allow to save individual record even when autosave is disabled 
+	 * @return a constant, will allow to save individual record even when autosave is disabled
 	 */
 	public int saveData(List<IRecord> recordsToSave);
 
@@ -105,6 +106,22 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	public String getOriginalServerName(String switched_to_servername);
 
 	/**
+	 * Get the orginal server names for the server after databaseManager.switchServer(original_servername, switched_to_servername).
+	 * When the server was not used with databaseManager.switchServer() the input server name is returned in a single-element collection.
+	 * <p>
+	 * This call can be used to find transactions in the client (which are based on kept with original_servername) for real underlying servers.
+	 * <pre>
+	 * Collection<String> originalServerNames = plugin.getClientPluginAccess().getDatabaseManager().getOriginalServerNames(serverName);
+	 * for (String originalServerName: originalServerNames) {
+	 * 	String tid = plugin.getClientPluginAccess().getDatabaseManager().getTransactionID(originalServerName);
+	 * 	...
+	 * }
+	 * </pre>
+	 * @param switched_to_servername
+	 */
+	public Collection<String> getOriginalServerNames(String switched_to_servername);
+
+	/**
 	 * Get the orginal server name for the server after databaseManager.switchServer(original_servername, switched_to_servername).
 	 * When the server was not used with databaseManager.switchServer() the input server name is returned.
 	 * @param original_servername
@@ -114,7 +131,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	/**
 	 * Notify the current client of data changes.
 	 * @see ISQLActionTypes for action.
-	 * 
+	 *
 	 * @param dataSource
 	 * @param pks when null, whole table is flushed
 	 * @param action
@@ -123,7 +140,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * Get a query factory for building queries.
-	 * 
+	 *
 	 * @return a query factory
 	 * @since 6.1
 	 */
@@ -147,51 +164,51 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * Will throw an exception if anything did go wrong when executing the query.
 	 *
 	 * <br>Table filters on the involved tables in the query are applied.
-	 * 
+	 *
 	 * @param query IQueryBuilder query.
-	 * @param max_returned_rows The maximum number of rows returned by the query.  
-	 * 
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
 	 * @return The IDataSet containing the results of the query.
-	 * 
+	 *
 	 * @since 6.1
 	 */
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException;
 
 	/**
 	 * Gets the list of records that couldn't be saved.
-	 * 
+	 *
 	 * @return The records for which save failed.
 	 */
 	public IRecord[] getFailedRecords();
 
 	/**
 	 * Request lock(s) for a foundset, can be a normal or related foundset.
-	 * The record_index can be -2 to lock all rows, -1 to lock the current row, or a specific row of >= 0 
+	 * The record_index can be -2 to lock all rows, -1 to lock the current row, or a specific row of >= 0
 	 * Optionally name the lock(s) so that it can be referenced in releaseAllLocks()
-	 * 
+	 *
 	 * @param fs Foundset used for locking.
 	 * @param index Record index to lock.
 	 * @param lockName Lock name.
-	 * 
+	 *
 	 * @return true if the lock could be acquired.
 	 */
 	public boolean acquireLock(IFoundSet fs, int index, String lockName);
 
 	/**
 	 * Returns true if the current client has any or the specified lock(s) acquired.
-	 * 
+	 *
 	 * @param lockName The lock name to check. If null, it means any lock.
-	 * 
+	 *
 	 * @return true if the current client has locks or the lock.
 	 */
 	boolean hasLocks(String lockName);
 
 	/**
 	 * Release all current locks the client has (optionally limited to named locks). Returns true if the locks are released.
-	 * 
+	 *
 	 * @param lockName The lock name to release or null for all locks.
-	 * 
-	 * @return true if all locks or the specified lock are released. 
+	 *
+	 * @return true if all locks or the specified lock are released.
 	 */
 	boolean releaseAllLocks(String lockName);
 
@@ -203,8 +220,8 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * if (plugin.getClientPluginAccess().getDatabaseManager().isNullColumnValidatorEnabled()) System.out.println("null validation enabled");
 	 * </pre>
 	 * @return true if null column validator is enabled; false otherwise
-	 * 
-	 * @see #setNullColumnValidatorEnabled(boolean) 
+	 *
+	 * @see #setNullColumnValidatorEnabled(boolean)
 	 */
 	public boolean isNullColumnValidatorEnabled();
 

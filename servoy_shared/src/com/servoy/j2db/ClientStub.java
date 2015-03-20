@@ -30,7 +30,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Remote class for server calls to client
- * 
+ *
  * @author jblok
  */
 public class ClientStub implements IUserClient
@@ -117,21 +117,26 @@ public class ClientStub implements IUserClient
 				{
 					public void run()
 					{
-						String ds = dataSource;
 						IDataServer dataServer = client.getDataServer();
 						if (dataServer instanceof DataServerProxy)
 						{
-							String[] dbServernameTablename = DataSourceUtils.getDBServernameTablename(ds);
+							String[] dbServernameTablename = DataSourceUtils.getDBServernameTablename(dataSource);
 							if (dbServernameTablename != null)
 							{
-								// map from real db server to server name from before switch-server
-								ds = DataSourceUtils.createDBTableDataSource(
-									((DataServerProxy)dataServer).getReverseMappedServerName(dbServernameTablename[0]), dbServernameTablename[1]);
+								// map from real db server to server names from before switch-server
+								for (String srv : ((DataServerProxy)dataServer).getReverseMappedServerNames(dbServernameTablename[0]))
+								{
+									((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(DataSourceUtils.createDBTableDataSource(
+										srv, dbServernameTablename[1]));
+								}
+								return;
 							}
 						}
-						((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(ds);
+
+						((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(dataSource);
 					}
 				};
+
 				if (client.isEventDispatchThread())
 				{
 					r.run();
@@ -143,7 +148,6 @@ public class ClientStub implements IUserClient
 			}
 		});
 	}
-
 
 	private final Stack<Object[]> datachanges = new Stack<Object[]>();
 	private Runnable datachangesHandler;
@@ -191,8 +195,15 @@ public class ClientStub implements IUserClient
 									IDataServer ds = client.getDataServer();
 									if (ds instanceof DataServerProxy)
 									{
-										sname = ((DataServerProxy)ds).getReverseMappedServerName(sname);
+										// possibly switched from multiple servers to the same destination server.
+										for (String srv : ((DataServerProxy)ds).getReverseMappedServerNames(sname))
+										{
+											((FoundSetManager)client.getFoundSetManager()).notifyDataChange(
+												DataSourceUtils.createDBTableDataSource(srv, tname), pksDataSet, action, insertColumndata);
+										}
+										return;
 									}
+									// not switched
 									((FoundSetManager)client.getFoundSetManager()).notifyDataChange(DataSourceUtils.createDBTableDataSource(sname, tname),
 										pksDataSet, action, insertColumndata);
 								}
