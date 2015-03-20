@@ -188,7 +188,7 @@ public class FormWrapper
 			if (formElementValidator.isComponentSpecValid(persist))
 			{
 				Point location = persist.getLocation();
-				if (startPos <= location.y && endPos >= location.y)
+				if (startPos <= location.y && endPos > location.y)
 				{
 					if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
 				}
