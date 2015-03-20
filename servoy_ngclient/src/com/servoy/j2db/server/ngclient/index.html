@@ -57,7 +57,7 @@
 				}
 		});
 	</script>
-	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" svy-tabseq="1" svy-tabseq-config="{root: true}">
+	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
 		<div ng-if='!getSessionProblemView()'>
 			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
 				ng-include="getNavigatorFormUrl()"></div>
