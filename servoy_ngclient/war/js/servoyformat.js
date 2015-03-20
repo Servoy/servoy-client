@@ -289,7 +289,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			 
 			 element.on('focus',function(){
 				 var svyFormat = $scope.$eval(attrs['svyFormat'])
-				 if(svyFormat){
+				 if(svyFormat && !$scope.model.findmode){
 					 if(svyFormat.edit && svyFormat.isMask) {
 							 var settings = {};
 							 settings.placeholder = svyFormat.placeHolder ? svyFormat.placeHolder : " ";
@@ -307,7 +307,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			 })
 			 element.on('blur',function(){
 				 var svyFormat = $scope.$eval(attrs['svyFormat'])
-				 if(svyFormat){
+				 if(svyFormat && !$scope.model.findmode){
 					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
 					 $scope.$evalAsync(function(){
 						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
@@ -318,10 +318,12 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 
 			 element.on('keypress',function(e){
 				 var svyFormat = $scope.$eval(attrs['svyFormat'])
-				 if(svyFormat.type == "INTEGER"){
-					 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
-				 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
-					 return numbersonly(e, true, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+				 if(svyFormat && !$scope.model.findmode){
+					 if(svyFormat.type == "INTEGER"){
+						 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+					 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
+						 return numbersonly(e, true, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+					 }
 				 }
 				 return true;
 			 })			 
@@ -332,9 +334,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		    ngModelController.$formatters.push(modelToView);
 		    
 		    function viewToModel(viewValue) {
-		    	 var svyFormat = $scope.$eval(attrs['svyFormat'])
+		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
 		    	var data = viewValue
-		    	if(svyFormat){
+		    	if(svyFormat && !$scope.model.findmode){
 			    	var format = null;
 			    	var type = svyFormat ? svyFormat.type: null;
 			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
@@ -347,13 +349,13 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				      	//ngModelController.$error ..
 			    	}
 		    	}
-		      return data; //converted
+		    	return data; //converted
 		    }
 		    
 		    function modelToView(modelValue) {
-		    	 var svyFormat = $scope.$eval(attrs['svyFormat'])
+		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
 		    	var data = modelValue;
-		    	if(svyFormat){
+		    	if(svyFormat && !$scope.model.findmode){
 			    	var format = null;
 			    	var type = svyFormat ? svyFormat.type: null;
 			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
@@ -366,7 +368,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				      	//ngModelController.$error ..
 			    	}
 		    	}
-		      return data; //converted
+		    	return data; //converted
 		    }
 		    
 			function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar,obj,mlength) 
