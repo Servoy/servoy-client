@@ -137,7 +137,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	{
 		this.current = current;
 		closeSolution(true, null);
-		getWebsocketSession().closeSession("/solutions/" + current.getName() + "/index.html");
+		getWebsocketSession().sendRedirect("/solutions/" + current.getName() + "/index.html");
 	}
 
 	@Override
@@ -149,7 +149,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		}
 		else if (getWebsocketSession() != null)
 		{
-			getWebsocketSession().closeSession(current != null ? "/solutions/" + current.getName() + "/index.html" : null);
+			getWebsocketSession().sendRedirect(current != null ? "/solutions/" + current.getName() + "/index.html" : null);
 		}
 	}
 

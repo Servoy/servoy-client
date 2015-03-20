@@ -780,7 +780,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 				scheduledExecutorService = null;
 			}
-			WebsocketSessionManager.removeSession(getWebsocketSession());
+			getWebsocketSession().sendRedirect(null);
+			WebsocketSessionManager.removeSession(getWebsocketSession().getUuid());
 		}
 	}
 

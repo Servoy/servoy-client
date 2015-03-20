@@ -34,7 +34,7 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	void solutionLoaded(Solution flattenedSolution);
 
-	void closeSession(String redirectUrl);
+	void sendRedirect(String redirectUrl);
 
 	@Override
 	public Collection<INGClientWindow> getWindows();

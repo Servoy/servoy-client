@@ -32,6 +32,7 @@ import org.sablo.websocket.BaseWebsocketSession;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -251,27 +252,22 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-	@Override
-	public void dispose()
+	public void sendRedirect(final String redirectUrl)
 	{
-		closeSession(null);
-		super.dispose();
-	}
-
-	public void closeSession(final String redirectUrl)
-	{
-		CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(client.getWebsocketSession()), new Runnable()
-		{
-			@Override
-			public void run()
+		IWindow curr = CurrentWindow.safeGet();
+		CurrentWindow.runForWindow(curr != null && redirectUrl != null ? curr : new NGClientWebsocketSessionWindows(client.getWebsocketSession()),
+			new Runnable()
 			{
-				Map<String, Object> detail = new HashMap<>();
-				String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
-				if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
-				if (redirectUrl != null) detail.put("redirectUrl", redirectUrl);
-				getClientService("$sessionService").executeAsyncServiceCall("expireSession", new Object[] { detail });
-			}
-		});
+				@Override
+				public void run()
+				{
+					Map<String, Object> detail = new HashMap<>();
+					String htmlfilePath = Settings.getInstance().getProperty("servoy.webclient.pageexpired.page");
+					if (htmlfilePath != null) detail.put("viewUrl", htmlfilePath);
+					if (redirectUrl != null) detail.put("redirectUrl", redirectUrl);
+					getClientService("$sessionService").executeAsyncServiceCall("expireSession", new Object[] { detail });
+				}
+			});
 	}
 
 	@Override
