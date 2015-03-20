@@ -66,6 +66,10 @@ angular.module('servoydefaultTypeahead', ['servoy'])
               }
             }
             $scope.svyServoyapi.apply('dataProviderID');
+          } 
+          else if (!hasRealValues)
+          {
+        	$scope.svyServoyapi.apply('dataProviderID');
           }
         }
 
