@@ -278,6 +278,19 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return new ServoyClientService(name, spec, this);
 	}
 
+	/*
+	 * All windows are now closed. We shutdown the client in order to free up the license/resources for the next NGClient instantiation.
+	 *
+	 * @see org.sablo.websocket.BaseWebsocketSession#sessionExpired()
+	 */
+	@Override
+	public void sessionExpired()
+	{
+		getClient().shutDown(true);
+		super.sessionExpired();
+	}
+
+
 	/**
 	 * Sets an internalServerError object on the client side which shows the internal server error page.
 	 * If it is run from the developer it also adds the stack trace
