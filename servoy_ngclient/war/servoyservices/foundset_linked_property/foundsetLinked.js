@@ -28,18 +28,30 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		internalState.recordLinked = false;
 		internalState.viewportSizeUnwatch = null;
 		internalState.conversionInfo = [];
+		internalState.requests = [];
 	}
 	
+	function removeAllWatches(value) {
+		if (value != null && angular.isDefined(value)) {
+			var iS = value[$sabloConverters.INTERNAL_IMPL];
+			$viewportModule.removeDataWatchesFromRows(value.length, iS);
+			if (iS.viewportSizeUnwatch) iS.viewportSizeUnwatch();
+		}
+	};
+
+	function addBackWatches(value, componentScope) {
+		if (angular.isDefined(value) && value !== null) {
+			var iS = value[$sabloConverters.INTERNAL_IMPL];
+			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true);
+		}
+	};
+
 	$sabloConverters.registerCustomPropertyHandler(CONVERSION_NAME, {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			var newValue = (currentClientValue ? currentClientValue : []);
 
 			// remove watches to avoid an unwanted detection of received changes
-			if (currentClientValue != null && angular.isDefined(currentClientValue)) {
-				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-				$viewportModule.removeDataWatchesFromRows(currentClientValue.length, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
-				if (iS.viewportSizeUnwatch) iS.viewportSizeUnwatch();
-			}
+			removeAllWatches(currentClientValue);
 
 			if (serverJSONValue != null && angular.isDefined(serverJSONValue)) {
 				var didSomething = false;
@@ -125,11 +137,20 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 			}
 			
 			// restore/add model watch
-			if (angular.isDefined(newValue) && newValue !== null) {
-				var iS = newValue[$sabloConverters.INTERNAL_IMPL];
-				$viewportModule.addDataWatchesToRows(newValue, iS, componentScope, true);
-			}
+			addBackWatches(newValue, componentScope);
 			return newValue;
+		},
+
+		updateAngularScope: function(clientValue, componentScope) {
+			removeAllWatches(clientValue);
+			if (componentScope) addBackWatches(clientValue, componentScope);
+
+			if (clientValue) {
+				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
+				if (internalState) {
+					$viewportModule.updateAngularScope(clientValue, internalState, componentScope, true);
+				}
+			}
 		},
 
 		fromClientToServer: function(newClientData, oldClientData) {

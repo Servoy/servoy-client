@@ -53,22 +53,84 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 		internalState.allChanged = false;
 	}
 	
+	function removeAllWatches(value) {
+		if (value != null && angular.isDefined(value)) {
+			var iS = value[$sabloConverters.INTERNAL_IMPL];
+			if (iS != null && angular.isDefined(iS)) {
+				if (iS.objStructureUnwatch) iS.objStructureUnwatch();
+				for (var key in iS.elUnwatch) {
+					iS.elUnwatch[key]();
+				}
+				iS.objStructureUnwatch = null;
+				iS.elUnwatch = null;
+			}
+		}
+	}
+
+	function addBackWatches(value, componentScope) {
+		if (value) {
+			var internalState = value[$sabloConverters.INTERNAL_IMPL];
+			internalState.elUnwatch = {};
+			for (var c in value) {
+				var elem = value[c];
+				if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+					// watch the child's value to see if it changes
+					if (angularAutoAddedKeys.indexOf(c) === -1 && componentScope) internalState.elUnwatch[c] = watchDumbElementForChanges(value, c, componentScope);
+				}
+			}
+
+			// watch for add/remove and such operations on object; this is helpful also when 'smart' child values (that have .setChangeNotifier)
+			// get changed completely by reference
+			if (componentScope) internalState.objStructureUnwatch = componentScope.$watchCollection(function() { return value; }, function(newWVal, oldWVal) {
+				if (newWVal === oldWVal) return;
+				var sendAllNeeded = (newWVal === null || oldWVal === null);
+				if (!sendAllNeeded) {
+					// see if the two objects have the same keys
+					var tmp = [];
+					var tzi;
+					for (var tz in newWVal) if (angularAutoAddedKeys.indexOf(tz) === -1) tmp.push(tz);
+					for (var tz in oldWVal) {
+						if (angularAutoAddedKeys.indexOf(tz) !== -1) continue;
+						
+						if ((tzi = tmp.indexOf(tz)) != -1) tmp.splice(tzi, 1);
+						else {
+							sendAllNeeded = true;
+							break;
+						}
+					}
+					sendAllNeeded = (tmp.length != 0);
+				}
+				
+				if (sendAllNeeded) {
+					internalState.allChanged = true;
+					internalState.notifier();
+				} else {
+					// some elements changed by reference; we only need to handle this for smart element values,
+					// as the others will be handled by the separate 'dumb' watches
+					
+					// we already checked that length and keys are the same above
+					var referencesChanged = false;
+					for (var j in newWVal) {
+						if (angularAutoAddedKeys.indexOf(j) !== -1) continue;
+						
+						if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+							changed = true;
+							internalState.changedIndexes[j] = { old: true };
+						}
+					}
+					
+					if (referencesChanged) internalState.notifier();
+				}
+			});
+		}
+	}
+
 	$sabloConverters.registerCustomPropertyHandler('JSON_obj', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			var newValue = currentClientValue;
 
 			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
-			if (currentClientValue != null && angular.isDefined(currentClientValue)) {
-				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-				if (iS != null && angular.isDefined(iS)) {
-					if (iS.objStructureUnwatch) iS.objStructureUnwatch();
-					for (var key in iS.elUnwatch) {
-						iS.elUnwatch[key]();
-					}
-					iS.objStructureUnwatch = null;
-					iS.elUnwatch = null;
-				}
-			}
+			removeAllWatches(currentClientValue);
 			
 			try
 			{
@@ -141,64 +203,27 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 				} else if (!serverJSONValue || !serverJSONValue[NO_OP]) newValue = null; // anything else would not be supported...	// TODO how to handle null values (special watches/complete object set from client)? if null is on server and something is set on client or the other way around?
 			} finally {
 				// add back watches if needed
-				if (newValue) {
-					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-					internalState.elUnwatch = {};
-					for (var c in newValue) {
-						var elem = newValue[c];
-						if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-							// watch the child's value to see if it changes
-							if (angularAutoAddedKeys.indexOf(key) === -1 && componentScope) internalState.elUnwatch[c] = watchDumbElementForChanges(newValue, c, componentScope);
-						}
-					}
-
-					// watch for add/remove and such operations on object; this is helpful also when 'smart' child values (that have .setChangeNotifier)
-					// get changed completely by reference
-					if (componentScope) internalState.objStructureUnwatch = componentScope.$watchCollection(function() { return newValue; }, function(newWVal, oldWVal) {
-						if (newWVal === oldWVal) return;
-						var sendAllNeeded = (newWVal === null || oldWVal === null);
-						if (!sendAllNeeded) {
-							// see if the two objects have the same keys
-							var tmp = [];
-							var tzi;
-							for (var tz in newWVal) if (angularAutoAddedKeys.indexOf(tz) === -1) tmp.push(tz);
-							for (var tz in oldWVal) {
-								if (angularAutoAddedKeys.indexOf(key) !== -1) continue;
-								
-								if ((tzi = tmp.indexOf(tz)) != -1) tmp.splice(tzi, 1);
-								else {
-									sendAllNeeded = true;
-									break;
-								}
-							}
-							sendAllNeeded = (tmp.length != 0);
-						}
-						
-						if (sendAllNeeded) {
-							internalState.allChanged = true;
-							internalState.notifier();
-						} else {
-							// some elements changed by reference; we only need to handle this for smart element values,
-							// as the others will be handled by the separate 'dumb' watches
-							
-							// we already checked that length and keys are the same above
-							var referencesChanged = false;
-							for (var j in newWVal) {
-								if (angularAutoAddedKeys.indexOf(j) !== -1) continue;
-								
-								if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-									changed = true;
-									internalState.changedIndexes[j] = { old: true };
-								}
-							}
-							
-							if (referencesChanged) internalState.notifier();
-						}
-					});
-				}
+				addBackWatches(newValue, componentScope);
 			}
 
 			return newValue;
+		},
+
+		updateAngularScope: function(clientValue, componentScope) {
+			removeAllWatches(clientValue);
+			if (componentScope) addBackWatches(clientValue, componentScope);
+
+			if (clientValue) {
+				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
+				if (internalState) {
+					for (var key in clientValue) {
+						if (angularAutoAddedKeys.indexOf(key) !== -1) continue;
+						
+						var elem = clientValue[key];
+						if (internalState.conversionInfo[key]) $sabloConverters.updateAngularScope(elem, internalState.conversionInfo[key], componentScope);
+					}
+				}
+			}
 		},
 
 		fromClientToServer: function(newClientData, oldClientData) {

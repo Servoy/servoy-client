@@ -223,35 +223,41 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		applyBeanData: applyBeanData,
 		getComponentChanges: getComponentChanges,
 
-		initFormState: function(formName, beanDatas, formProperties, formScope,resolve) {
+		initFormState: function(formName, beanDatas, formProperties, formScope, resolve) {
 
 			var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope,resolve);
 
-			if (!state || !state.initializing) return state; // already initialized
+			if (state) {
+				if (state.initializing) {
+					var layout = state.layout = {};
+					state.style = {
+							left: "0px",
+							top: "0px",
+							right: "0px",
+							bottom: "0px",
+							border: formProperties.border};
 
-			var layout = state.layout = {};
-			state.style = {
-					left: "0px",
-					top: "0px",
-					right: "0px",
-					bottom: "0px",
-					border: formProperties.border};
+					if(formProperties.addMinSize)
+					{
+						state.style.minWidth = formProperties.size.width + "px";
+						state.style.minHeight = formProperties.size.height + "px";
+					}	   
+					state.properties = formProperties;
 
-			if(formProperties.addMinSize)
-			{
-				state.style.minWidth = formProperties.size.width + "px";
-				state.style.minHeight = formProperties.size.height + "px";
-			}	   
-			state.properties = formProperties;
+					for (var beanName in beanDatas) {
+						// initialize with design data
+						layout[beanName] = { position: 'absolute' }
 
-			for (var beanName in beanDatas) {
-				// initialize with design data
-				layout[beanName] = { position: 'absolute' }
+						var newBeanConversionInfo = beanDatas[beanName].conversions;
+						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
 
-				var newBeanConversionInfo = beanDatas[beanName].conversions;
-				var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
-
-				applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, $sabloApplication.getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
+						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, $sabloApplication.getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
+					}
+				} else {
+					// already initialized in the past; just make sure 'smart' properties use the correct (new) scope
+					$sabloApplication.updateScopeForState(formName, formScope, state);
+					return state;
+				}
 			}
 
 			return state;
@@ -593,7 +599,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		compile: function(tElem, tAttrs){
 			var formName = tAttrs.formname; 
 			if ($log.debugEnabled) $log.debug("svy * compile svyFormload for form = " + formName);
-			
+
 			// it sometimes happens that this gets called from a div that is detatched from the real page body somewhere in parents - and
 			// top-most $scope of parents is also destroyed already, although child scopes are not marked as destroyed; (this looks like an angular bug actually)
 			// for example sometimes when a recreateUI of the main form happens (and main form URL changes while the form remains the same);

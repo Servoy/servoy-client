@@ -18,18 +18,38 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	
 	var NO_OP = "n";
 	
+	function removeAllWatches(value) {
+		if (value != null && angular.isDefined(value)) {
+			var iS = value[$sabloConverters.INTERNAL_IMPL];
+			if (iS.unwatchSelection) {
+				iS.unwatchSelection();
+				delete iS.unwatchSelection;
+			}
+			if (value[VIEW_PORT][ROWS]) $viewportModule.removeDataWatchesFromRows(value[VIEW_PORT][ROWS].length, iS);
+		}
+	};
+
+	function addBackWatches(value, componentScope) {
+		if (angular.isDefined(value) && value !== null) {
+			var internalState = value[$sabloConverters.INTERNAL_IMPL];
+			if (value[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(value[VIEW_PORT][ROWS], internalState, componentScope, false); // shouldn't need component model getter - takes rowids directly from viewport
+			if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return value[SELECTED_ROW_INDEXES]; }, function (newSel, oldSel) {
+				setTimeout(function() {
+					if (newSel !== oldSel) {
+						internalState.requests.push({newClientSelection: newSel});
+						if (internalState.changeNotifier) internalState.changeNotifier();
+					}
+				}, 50);
+			});
+		}
+	};
+
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			var newValue = currentClientValue;
 			
 			// remove watches so that this update won't trigger them
-			if (currentClientValue != null && angular.isDefined(currentClientValue)) {
-				if (currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection) {
-					currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection();
-					delete currentClientValue[$sabloConverters.INTERNAL_IMPL].unwatchSelection;
-				}
-				if (currentClientValue[VIEW_PORT][ROWS]) $viewportModule.removeDataWatchesFromRows(currentClientValue[VIEW_PORT][ROWS].length, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
-			}
+			removeAllWatches(currentClientValue);
 			
 			// see if this is an update or whole value and handle it
 			if (!serverJSONValue) {
@@ -106,20 +126,21 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			}
 			
 			// restore/add watches
-			if (angular.isDefined(newValue) && newValue !== null) {
-				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-				if (newValue[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(newValue[VIEW_PORT][ROWS], internalState, componentScope, false); // shouldn't need component model getter - takes rowids directly from viewport
-				if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return newValue[SELECTED_ROW_INDEXES]; }, function (newSel, oldSel) {
-					setTimeout(function() {
-						if (newSel !== oldSel) {
-							internalState.requests.push({newClientSelection: newSel});
-							if (internalState.changeNotifier) internalState.changeNotifier();
-						}
-					}, 50);
-				});
-			}
+			addBackWatches(newValue, componentScope);
 
 			return newValue;
+		},
+
+		updateAngularScope: function(clientValue, componentScope) {
+			removeAllWatches(clientValue);
+			if (componentScope) addBackWatches(clientValue, componentScope);
+
+			if (clientValue) {
+				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
+				if (internalState) {
+					$viewportModule.updateAngularScope(clientValue[VIEW_PORT][ROWS], internalState, componentScope, false);
+				}
+			}
 		},
 
 		fromClientToServer: function(newClientData, oldClientData) {

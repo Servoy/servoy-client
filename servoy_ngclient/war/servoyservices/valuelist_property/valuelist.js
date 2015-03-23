@@ -51,6 +51,11 @@ angular.module('valuelist_property', ['webSocketModule'])
 				}
 			}
 			return null; // should never happen
+		},
+		
+		updateAngularScope: function(clientValue, componentScope) {
+			// nothing to do here
 		}
+		
 	});
 })

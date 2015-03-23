@@ -140,6 +140,8 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	var destroyListenerUnreg = $scope.$on("$destroy", function() {
 		if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope destroyed: " + $scope.$id);
 		destroyListenerUnreg();
+		$sabloApplication.updateScopeForState("${name}", null);
+		
 		if (formState && formState.removeWatches) {
 			if (!$scope.hiddenDivFormDiscarded) {
 				formState.removeWatches();

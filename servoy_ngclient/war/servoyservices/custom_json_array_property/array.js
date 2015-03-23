@@ -1,5 +1,5 @@
 angular.module('custom_json_array_property', ['webSocketModule'])
-// CustomJSONArray type ------------------------------------------
+//CustomJSONArray type ------------------------------------------
 .run(function ($sabloConverters, $sabloUtils) {
 	var UPDATES = "u";
 	var INDEX = "i";
@@ -15,7 +15,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 			internalState.changeNotifier();
 		}
 	}
-	
+
 	function watchDumbElementForChanges(propertyValue, idx, componentScope) {
 		// if elements are primitives or anyway not something that wants control over changes, just add an in-depth watch
 		return componentScope.$watch(function() {
@@ -27,7 +27,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 			internalState.changeNotifier();
 		}, true);
 	}
-	
+
 	/** Initializes internal state on a new array value */
 	function initializeNewValue(newValue, contentVersion) {
 		$sabloConverters.prepareInternalState(newValue);
@@ -52,23 +52,64 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 		internalState.allChanged = false;
 	}
 
+	function removeAllWatches(value) {
+		if (value != null && angular.isDefined(value)) {
+			var iS = value[$sabloConverters.INTERNAL_IMPL];
+			if (iS != null && angular.isDefined(iS)) {
+				if (iS.arrayStructureUnwatch) iS.arrayStructureUnwatch();
+				for (var key in iS.elUnwatch) {
+					iS.elUnwatch[key]();
+				}
+				iS.arrayStructureUnwatch = null;
+				iS.elUnwatch = null;
+			}
+		}
+	}
+
+	function addBackWatches(value, componentScope) {
+		if (value) {
+			var internalState = value[$sabloConverters.INTERNAL_IMPL];
+			internalState.elUnwatch = {};
+			for (var c = 0; c < value.length; c++) {
+				var elem = value[c];
+				if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+					// watch the child's value to see if it changes
+					if (componentScope) internalState.elUnwatch[c] = watchDumbElementForChanges(value, c, componentScope);
+				}
+			}
+
+			// watch for add/remove and such operations on array; this is helpful also when 'smart' child values (that have .setChangeNotifier)
+			// get changed completely by reference
+			if (componentScope) internalState.arrayStructureUnwatch = componentScope.$watchCollection(function() { return value; }, function(newWVal, oldWVal) {
+				if (newWVal === oldWVal) return;
+
+				if (newWVal === null || oldWVal === null || newWVal.length !== oldWVal.length) {
+					internalState.allChanged = true;
+					internalState.changeNotifier();
+				} else {
+					// some elements changed by reference; we only need to handle this for smart element values,
+					// as the others will be handled by the separate 'dumb' watches
+					var referencesChanged = false;
+					for (var j in newWVal) {
+						if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+							changed = true;
+							internalState.changedIndexes[j] = { old: true };
+						}
+					}
+
+					if (referencesChanged) internalState.changeNotifier();
+				}
+			});
+		}
+	}
+
 	$sabloConverters.registerCustomPropertyHandler('JSON_arr', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			var newValue = currentClientValue;
 
-			// remove old watches and, at the end create new ones to avoid old watches getting triggered by server side change
-			if (currentClientValue != null && angular.isDefined(currentClientValue)) {
-				var iS = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-				if (iS != null && angular.isDefined(iS)) {
-					if (iS.arrayStructureUnwatch) iS.arrayStructureUnwatch();
-					for (var key in iS.elUnwatch) {
-						iS.elUnwatch[key]();
-					}
-					iS.arrayStructureUnwatch = null;
-					iS.elUnwatch = null;
-				}
-			}
-			
+			// remove old watches (and, at the end create new ones) to avoid old watches getting triggered by server side change
+			removeAllWatches(currentClientValue);
+
 			try
 			{
 				if (serverJSONValue && serverJSONValue[VALUE]) {
@@ -96,9 +137,9 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					}
 				} else if (serverJSONValue && serverJSONValue[UPDATES]) {
 					// granular updates received;
-					
+
 					if (serverJSONValue[INITIALIZE]) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // this can happen when an array value was set completely in browser and the child elements need to instrument their browser values as well in which case the server sends 'initialize' updates for both this array and 'smart' child elements
-					
+
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 
 					// if something changed browser-side, increasing the content version thus not matching next expected version,
@@ -129,8 +170,8 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						}
 					}
 					//else {
-					  // else we got an update from server for a version that was already bumped by changes in browser; ignore that, as browser changes were sent to server
-					  // and server will detect the problem and send back a full update
+					// else we got an update from server for a version that was already bumped by changes in browser; ignore that, as browser changes were sent to server
+					// and server will detect the problem and send back a full update
 					//}
 				} else if (serverJSONValue && serverJSONValue[INITIALIZE]) {
 					// only content version update - this happens when a full array value is set on this property client side; it goes to server
@@ -140,48 +181,30 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 				} else if (!serverJSONValue || !serverJSONValue[NO_OP]) newValue = null; // anything else would not be supported...	// TODO how to handle null values (special watches/complete array set from client)? if null is on server and something is set on client or the other way around?
 			} finally {
 				// add back watches if needed
-				if (newValue) {
-					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-					internalState.elUnwatch = {};
-					for (var c = 0; c < newValue.length; c++) {
-						var elem = newValue[c];
-						if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-							// watch the child's value to see if it changes
-							if (componentScope) internalState.elUnwatch[c] = watchDumbElementForChanges(newValue, c, componentScope);
-						}
-					}
-
-					// watch for add/remove and such operations on array; this is helpful also when 'smart' child values (that have .setChangeNotifier)
-					// get changed completely by reference
-					if (componentScope) internalState.arrayStructureUnwatch = componentScope.$watchCollection(function() { return newValue; }, function(newWVal, oldWVal) {
-						if (newWVal === oldWVal) return;
-
-						if (newWVal === null || oldWVal === null || newWVal.length !== oldWVal.length) {
-							internalState.allChanged = true;
-							internalState.changeNotifier();
-						} else {
-							// some elements changed by reference; we only need to handle this for smart element values,
-							// as the others will be handled by the separate 'dumb' watches
-							var referencesChanged = false;
-							for (var j in newWVal) {
-								if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-									changed = true;
-									internalState.changedIndexes[j] = { old: true };
-								}
-							}
-							
-							if (referencesChanged) internalState.changeNotifier();
-						}
-					});
-				}
+				addBackWatches(newValue, componentScope);
 			}
 
 			return newValue;
 		},
 
+		updateAngularScope: function(clientValue, componentScope) {
+			removeAllWatches(clientValue);
+			if (componentScope) addBackWatches(clientValue, componentScope);
+
+			if (clientValue) {
+				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
+				if (internalState) {
+					for (var c = 0; c < clientValue.length; c++) {
+						var elem = clientValue[c];
+						if (internalState.conversionInfo[c]) $sabloConverters.updateAngularScope(elem, internalState.conversionInfo[c], componentScope);
+					}
+				}
+			}
+		},
+
 		fromClientToServer: function(newClientData, oldClientData) {
 			// TODO how to handle null values (special watches/complete array set from client)? if null is on server and something is set on client or the other way around?
-			
+
 			var internalState;
 			if (newClientData && (internalState = newClientData[$sabloConverters.INTERNAL_IMPL])) {
 				if (internalState.isChanged()) {
@@ -206,7 +229,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 						for (var idx in internalState.changedIndexes) {
 							var newVal = newClientData[idx];
 							var oldVal = oldClientData ? oldClientData[idx] : undefined;
-							
+
 							var changed = (newVal !== oldVal);
 							if (!changed) {
 								if (internalState.elUnwatch[idx]) {

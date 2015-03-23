@@ -12,7 +12,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		if (componentScope) {
 			function queueChange(newData, oldData) {
 				var r = {};
-				
+
 				if (angular.isDefined(internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])) {
 					r[$foundsetTypeConstants.ROW_ID_COL_KEY] = internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]().viewPort.rows[idx][$foundsetTypeConstants.ROW_ID_COL_KEY];
 				} else r[$foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]; // if it doesn't have internalState[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] then it's probably the foundset property's viewport directly which has those in the viewport
@@ -27,7 +27,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				internalState.requests.push({viewportDataChanged: r});
 				if (internalState.changeNotifier) internalState.changeNotifier();
 			}
-			
+
 			function getCellValue() { return columnName == null ? viewPort[idx] : viewPort[idx][columnName] }; // viewport row can be just a value or an object of key/value pairs
 
 			if (getCellValue() && getCellValue()[$sabloConverters.INTERNAL_IMPL] && getCellValue()[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
@@ -165,7 +165,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 
 					if (simpleRowValue) {
 						viewPort[j] = rowUpdate.rows[relIdx];
-						
+
 						if (rowConversionUpdate) {
 							// update conversion info
 							if (angular.isUndefined(internalState[CONVERSIONS])) {
@@ -180,7 +180,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 						for (dpName in rowUpdate.rows[relIdx]) {
 							// update value
 							viewPort[j][dpName] = rowUpdate.rows[relIdx][dpName];
-	
+
 							if (rowConversionUpdate) {
 								// update conversion info
 								if (angular.isUndefined(internalState[CONVERSIONS])) {
@@ -192,7 +192,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 								}
 								internalState[CONVERSIONS][j][dpName] = rowConversionUpdate[dpName];
 							} else if (angular.isDefined(internalState[CONVERSIONS]) && angular.isDefined(internalState[CONVERSIONS][j])
-									 && angular.isDefined(internalState[CONVERSIONS][j][dpName])) delete internalState[CONVERSIONS][j][dpName];
+									&& angular.isDefined(internalState[CONVERSIONS][j][dpName])) delete internalState[CONVERSIONS][j][dpName];
 						}
 					}
 				}
@@ -243,13 +243,32 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		}
 	};
 
+	function updateAngularScope(viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/) {
+		var i;
+		for (i = viewPort.length - 1; i >= 0; i--) {
+			var conversionInfo = internalState[CONVERSIONS] ? internalState[CONVERSIONS][i] : undefined;
+			if (conversionInfo) {
+				if (simpleRowValue) {
+					if (conversionInfo) $sabloConverters.updateAngularScope(viewPort[i], conversionInfo, componentScope);
+				} else {
+					var columnName;
+					for (columnName in viewPort[i]) {
+						if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) $sabloConverters.updateAngularScope(viewPort[i][columnName], conversionInfo[columnName], componentScope);
+					}
+				}
+			}
+		}
+	};
+
 	return {
 		updateWholeViewport: updateWholeViewport,
 		updateViewportGranularly: updateViewportGranularly,
 
 		addDataWatchesToRows: addDataWatchesToRows,
 		removeDataWatchesFromRows: removeDataWatchesFromRows,
-		updateAllConversionInfo: updateAllConversionInfo
+		updateAllConversionInfo: updateAllConversionInfo,
+		// this will not remove/add viewport watches (use removeDataWatchesFromRows/addDataWatchesToRows for that) - it will just forward 'updateAngularScope' to viewport values that need it
+		updateAngularScope: updateAngularScope
 	};
 
 });
