@@ -151,6 +151,21 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			// the api defined in the spec file
+			/**
+			 * Adds a relationless or related form as a tab in a specified tabpanel.
+			 * @example %%prefix%%%%elementName%%.addTab(forms.orders,'ordersTab','Orders',null,null,'#000000','#BBCCEE');
+			 * @param form/formname the specified form/form name you wish to add as a tab
+			 * @param name optional the specified name for the tab or NULL (default is null)
+			 * @param tabText optional the specified text for the tab (default is null)
+			 * @param tooltip optional a specified tooltip for the tab (default is null)
+			 * @param iconURL optional a specified icon image or icon URL for the tab (default is null)
+			 * @param fg optional the HTML RGB Hexadecimal foreground color for the tab (default is null)
+			 * @param bg optional the HTML RGB Hexadecimal background color for the tab (default is null)
+			 * @param relatedfoundset/relationname optional the specified name of the related foundset (default is null)
+			 * @param index optional the specified index of a tab, default is -1, will add tab to the end, this index is 0 based
+			 * 
+			 * @return {Boolean} a value indicating if tab was successfully added
+			 */
 			$scope.api.addTab = function(form, nameArg, tabText, tooltip, iconURL, fg, bg, relation, index) {
 				// addTab from tabpanel_server.js will usually execute instead of this one (almost in all cases) - some client side only tests use this method
 				// the same is true for other API methods as well
@@ -174,6 +189,12 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				return true;
 			}
 
+			/**
+		   	 * Removes a specified tab in a tabpanel; can be based on a relation or relationless.
+		   	 * @example %%prefix%%%%elementName%%.removeTabAt(3)
+		   	 * @param index The index of the tab to remove.
+		   	 * @return {Boolean} a value indicating if tab was successfully removed
+		   	 */
 			$scope.api.removeTabAt = function(index) {
 				if(index > 0 && index <= $scope.model.tabs.length) {
 					for(var i = index - 1; i < $scope.model.tabs.length - 1; i++) {
@@ -186,6 +207,11 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				return false;
 			}
 
+			/**
+		   	 * Removes all tabs in the tabpanel.
+		   	 * @example %%prefix%%%%elementName%%.removeTabAt(3)
+		   	 * @return {Boolean} a value indicating if tabs were successfully removed
+		   	 */
 			$scope.api.removeAllTabs = function() {
 				if($scope.model.tabs.length > 0) {
 					$scope.model.tabs.length = 0;
@@ -194,11 +220,21 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				}
 				return false;
 			}
-
+			
+			/**
+	      	  * Returns the maximum tab index for a specified tabpanel.
+	      	  * @example var max = %%prefix%%%%elementName%%.getMaxTabIndex();
+	      	  * @return {number} maximum tab index, 1 in case of the splitpane
+	      	  */
 			$scope.api.getMaxTabIndex = function() {
 				return $scope.model.tabs.length; 
 			}
 
+			 /**
+	      	  * Returns form name of the selected tab in the tabpanel.
+	      	  * @example var formName = %%prefix%%%%elementName%%.getSelectedTabFormName();
+	      	  * @return {String} the name of the form
+	      	  */
 			$scope.api.getSelectedTabFormName = function() {
 				var selectedTab = $scope.getSelectedTab(); 
 				return selectedTab ? selectedTab.containsFormId : null;
@@ -208,47 +244,102 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				return null;
 			}
 
+			 /**
+	      	  * Returns the foreground color for a specified tab of a tabpanel. 
+	      	  * @example var color = %%prefix%%%%elementName%%.getTabFGColorAt(3); 
+	      	  * @param i the number of the specified tab
+	      	  * @return {String} color as hexadecimal RGB string
+	      	  */
 			$scope.api.getTabFGColorAt = function(index) {
 				var tab = $scope.getTabAt(index);
 				return tab ? tab.foreground  : '';
 			}
 
+			/**
+	      	  * Returns the form name for a specified tab of the tabpanel.
+	      	  * @example var formName = %%prefix%%%%elementName%%.getTabFormNameAt(3);
+	      	  * @param i index of the tab
+	      	  * @return {String} the name of the form
+	      	  */
 			$scope.api.getTabFormNameAt = function(index) {
 				var tab = $scope.getTabAt(index);
 				return tab ? tab.containsFormId  : '';
 			}
 
+			/**
+	      	  * Returns the name - the "name" design time property value - for a specified tab of the tabpanel. 
+	      	  * @example var tabName = %%prefix%%%%elementName%%.getTabNameAt(3);
+	      	  * @param i The number of the specified tab.
+	      	  * @return {String} The tab name
+	      	  */
 			$scope.api.getTabNameAt = function(index) {
 				var tab = $scope.getTabAt(index);
 				return tab ? tab.name  : '';
 			}
 
+			 /**
+	     	  * Returns the relation name for a specified tab of the tabpanel.
+	     	  * @example var relName = %%prefix%%%%elementName%%.getTabRelationNameAt(3);
+	     	  * @param i index of the tab
+	     	  * @return {String} relation name
+	     	  */
 			$scope.api.getTabRelationNameAt = function(index) {
 				var tab = $scope.getTabAt(index);
 				return tab ? tab.relationName  : '';
 			}
 
+			 /**
+	      	  * Returns the text for a specified tab of a tabpanel. 
+	      	  * @example var tabText = %%prefix%%%%elementName%%.getTabTextAt(3);
+	      	  * @param i The number of the specified tab.
+	      	  * @return {String} The tab text.
+	      	  */
 			$scope.api.getTabTextAt = function(index) {
 				var tab = $scope.getTabAt(index);
 				return tab ? tab.text  : '';
 			}
 
+			/**
+	      	  * Returns the enabled status of a specified tab in a tabpanel.
+	      	  * @example var status = %%prefix%%%%elementName%%.isTabEnabled(3); 
+	      	  * @param i the number of the specified tab
+	      	  * @return {Boolean} True if tab is enabled, false otherwise.
+	      	  */
 			$scope.api.isTabEnabled = function(index) {
 				return $scope.api.isTabEnabledAt(index);
 			}
 
+			/**
+	      	  * Returns the enabled status of a specified tab in a tabpanel.
+	      	  * @example var status = %%prefix%%%%elementName%%.isTabEnabled(3); 
+	      	  * @param i the number of the specified tab
+	      	  * @return {Boolean} True if tab is enabled, false otherwise.
+	      	  */
 			$scope.api.isTabEnabledAt = function(index) {
 				var tab = $scope.getTabAt(index);
 				return tab ? (tab.disabled == undefined ? true : !tab.disabled) : true;
 			}
 
+			
 			$scope.api.setTabBGColorAt = function(index, bgcolor) {
 			}
 
+			/**
+	      	  * Sets the status of a specified tab in a tabpanel.
+	      	  * @example %%prefix%%%%elementName%%.setTabEnabled(1,true);
+	       	  * @param i the number of the specified tab.
+	      	  * @param b true if enabled; or false if disabled.
+	      	  */
 			$scope.api.setTabEnabled = function(index, enabled) {
 				$scope.api.setTabEnabledAt(index, enabled);
 			}
 
+			/**
+	      	  * Sets the status of a specified tab in a tabpanel.
+	      	  * @example %%prefix%%%%elementName%%.setTabEnabledAt(1,true);
+	       	  * @param i the number of the specified tab.
+	      	  * @param b true if enabled; or false if disabled.
+	      	  */
 			$scope.api.setTabEnabledAt = function(index, enabled) {
 				var tab = $scope.getTabAt(index);
 				if(tab) {
@@ -256,6 +347,12 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				}
 			}
 
+			/**
+	           * Sets the foreground color for a specified tab in a splitpane.
+	      	   * @example %%prefix%%%%elementName%%.setTabFGColorAt(3,'#000000');
+	      	   * @param i the number of the specified tab
+	      	   * @param s the hexadecimal RGB color value to be set.
+	      	  */
 			$scope.api.setTabFGColorAt = function(index, fgcolor) {
 				var tab = $scope.getTabAt(index);
 				if(tab) {
@@ -263,6 +360,12 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				}    	   
 			}
 
+			/**
+			 * Sets the text for a specified tab in a tabpanel.
+			 * @example %%prefix%%%%elementName%%.setTabTextAt(3,'newTitle');
+			 * @param index the number of the specified tab
+			 * @param text the text to be set for the specified tab
+			 */
 			$scope.api.setTabTextAt = function(index, text) {
 				var tab = $scope.getTabAt(index);
 				if(tab) {

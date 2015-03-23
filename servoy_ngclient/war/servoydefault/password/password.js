@@ -15,6 +15,10 @@ angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassw
     			 $element[0].childNodes[0].focus();
     		 }
     	 },
+    	 /**
+    	 * Request the focus in this password field.
+    	 * @example %%prefix%%%%elementName%%.requestFocus();
+    	 */
     	 $scope.api.requestFocus = function() { 
     		  $element[0].childNodes[0].focus()
     	 }

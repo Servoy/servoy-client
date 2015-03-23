@@ -2,6 +2,12 @@ angular.module('testservice',['servoy'])
 .factory("testservice",function($window,$services) {
 	var scope = $services.getServiceScope('testservice');
 	return {
+		/**
+		 * Display an alert box.
+		 * @example 
+		 * plugins.testservice.text = "something"
+		 * plugins.testservice.talk()
+		 */
 		talk: function() {
 			alert("talk: " + scope.model.text);
 			scope.model.text = "something else"
