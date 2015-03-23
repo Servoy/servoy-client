@@ -1,4 +1,4 @@
-<tabset  ng-class='model.styleClass ? model.styleClass : "svy-tabpanel"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
+<tabset  ng-class='(model.styleClass ? model.styleClass : "")  + "svy-tabpanel"' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
     <tab ng-repeat="tab in model.tabs"
     	 active="tab.active" select="select(tab)" disabled="tab.disabled || !tab.containsFormId" >
       <tab-heading  svy-mnemonic='tab.mnemonic'>

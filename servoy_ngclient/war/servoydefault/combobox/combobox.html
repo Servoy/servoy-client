@@ -7,7 +7,7 @@
 	 	svy-foreground='model.foreground'
 		svy-tooltip='model.toolTipText'
 		svy-font='model.fontType'
-		class='{model.styleClass ? model.styleClass : "svy-combobox"}'
+		class='{(model.styleClass ? model.styleClass : "")  + "svy-combobox"}'
 		tabindex='-1'
 		on-select='onItemSelect($event)'>
  			<ui-select-match  placeholder="{{model.placeholderText}}" 

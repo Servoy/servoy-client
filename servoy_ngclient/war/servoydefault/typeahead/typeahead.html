@@ -9,7 +9,7 @@
 	   svy-enter='handlers.onActionMethodID($event)'
 	   svy-rightclick='handlers.onRightClickMethodID($event)'
 	   type="text" 
-	   ng-class='model.styleClass ? model.styleClass : "svy-typeahead form-control input-sm svy-padding-xs"'
+	   ng-class='(model.styleClass ? model.styleClass : "")  + "svy-typeahead form-control input-sm svy-padding-xs"'
  	   ng-style="style"
 	   svy-font='model.fontType'
 	   ng-disabled="model.enabled == false"

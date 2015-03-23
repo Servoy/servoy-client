@@ -9,7 +9,7 @@
 	   svy-focuslost='handlers.onFocusLostMethodID($event)'
 	   svy-enter='handlers.onActionMethodID($event)'
 	   svy-rightclick='handlers.onRightClickMethodID($event)'
-	   ng-class='model.styleClass ? model.styleClass : "svy-textfield svy-field form-control input-sm svy-padding-xs"'
+	   ng-class='(model.styleClass ? model.styleClass : "") + " svy-textfield svy-field form-control input-sm svy-padding-xs"'
 	   type="text" 
        ng-model="model.dataProviderID" svy-formatvldisplay='model.valuelistID'
        ng-disabled="model.enabled == false"
