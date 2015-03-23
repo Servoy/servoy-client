@@ -88,7 +88,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	};
 
 	function removeDataWatchesFromRow(idx, internalState) {
-		if (internalState.unwatchData) {
+		if (internalState.unwatchData && internalState.unwatchData[idx]) {
 			for (j = internalState.unwatchData[idx].length - 1; j >= 0; j--)
 				internalState.unwatchData[idx][j]();
 			delete internalState.unwatchData[idx];
