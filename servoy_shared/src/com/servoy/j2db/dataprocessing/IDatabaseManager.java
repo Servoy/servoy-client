@@ -101,8 +101,10 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * String originalServerName = plugin.getClientPluginAccess().getDatabaseManager().getOriginalServerName(serverName);
 	 * String tid = plugin.getClientPluginAccess().getDatabaseManager().getTransactionID(originalServerName);
 	 * </pre>
+	 * @deprecated Use {@link #getOriginalServerNames(String)}
 	 * @param switched_to_servername
 	 */
+	@Deprecated
 	public String getOriginalServerName(String switched_to_servername);
 
 	/**
