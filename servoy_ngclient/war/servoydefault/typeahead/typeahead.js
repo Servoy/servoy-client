@@ -1,5 +1,5 @@
 angular.module('servoydefaultTypeahead', ['servoy'])
-  .directive('servoydefaultTypeahead', ['formatFilterFilter', function(formatFilter) {
+  .directive('servoydefaultTypeahead', ['formatFilterFilter','$apifunctions', function(formatFilter,$apifunctions) {
     return {
       restrict: 'E',
       require: 'ngModel',
@@ -99,6 +99,24 @@ angular.module('servoydefaultTypeahead', ['servoy'])
           }
           $scope.model.valuelistID = valuelistItems;
         }
+        
+        /**
+		 * Returns the currently selected text in the specified typeahead. 
+		 * @example var my_text = %%prefix%%%%elementName%%.getSelectedText();
+		 * @return {String} The selected text in the text field.
+		 */
+		$scope.api.getSelectedText = $apifunctions.getSelectedText($element[0]);
+		/**
+		 * Replaces the selected text; if no text has been selected, the replaced value will be inserted at the last cursor position.
+		 * @example %%prefix%%%%elementName%%.replaceSelectedText('John');
+		 * @param s The replacement text.
+		 */
+		$scope.api.replaceSelectedText = $apifunctions.replaceSelectedText($element[0]);
+		/**
+		 * Selects all the contents of the typeahaead.
+		 * @example %%prefix%%%%elementName%%.selectAll();
+		 */
+		$scope.api.selectAll = $apifunctions.selectAll($element[0]);
 
         var storedTooltip = false;
         $scope.api.onDataChangeCallback = function(event, returnval) {
