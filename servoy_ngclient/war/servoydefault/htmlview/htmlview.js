@@ -63,6 +63,19 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
        $scope.api.getScrollY = function() {
       	 return $element.scrollTop();
        }
+
+       /**
+        * Gets the plain text for the formatted Html view.
+        * @example var my_text = %%prefix%%%%elementName%%.getAsPlainText();
+        * @return the plain text
+        */
+       $scope.api.getAsPlainText = function() {
+    	   if ($scope.model.dataProviderID)
+    	   {
+    		   return $scope.model.dataProviderID.replace(/<[^>]*>/g, '');
+    	   }
+    	   return null;
+       }
       },
       templateUrl: 'servoydefault/htmlview/htmlview.html'
  };
