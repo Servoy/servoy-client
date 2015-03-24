@@ -29,13 +29,22 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						});
 						
 						 ed.on('click',function(e) {
-							 $scope.handlers.onActionMethodID(createEvent(e));
+							 if ($scope.handlers.onActionMethodID)
+							 {
+								 $scope.handlers.onActionMethodID(createEvent(e));
+							 } 
 					     });
 						 ed.on('focus',function(e) {
+						  if ($scope.mustExecuteOnFocusGainedMethod !== false && $scope.handlers.onFocusGainedMethodID)
+						  {
 							 $scope.handlers.onFocusGainedMethodID(createEvent(e));
+						  }
 					     });
 						 ed.on('blur',function(e) {
-							 $scope.handlers.onFocusLostMethodID(createEvent(e));
+							 if ($scope.handlers.onFocusLostMethodID)
+							 {
+								 $scope.handlers.onFocusLostMethodID(createEvent(e));
+							 }
 					     });
 						 
 						 var createEvent = function(e)
@@ -138,7 +147,17 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			$scope.api.getAsPlainText = function() {
 				return $scope.editor.getContent().replace(/<[^>]*>/g, '');
 			}
-
+			
+	        /**
+	    	* Set the focus to this Html Area.
+	    	* @example %%prefix%%%%elementName%%.requestFocus();
+			* @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
+	    	*/
+			$scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) {
+				$scope.mustExecuteOnFocusGainedMethod = mustExecuteOnFocusGainedMethod;
+				$scope.editor.focus();
+				delete $scope.mustExecuteOnFocusGainedMethod;
+			}
 		},
 		templateUrl: 'servoydefault/htmlarea/htmlarea.html'
 	};
