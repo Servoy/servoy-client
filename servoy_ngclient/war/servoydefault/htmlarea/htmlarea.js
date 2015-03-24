@@ -113,12 +113,30 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 				selection.setContent(s);
 			}
 			/**
-			 * Selects all the contents of the htmlarea.
+			 * Selects all the contents of the Html Area.
 			 * @example %%prefix%%%%elementName%%.selectAll();
 			 */
 			$scope.api.selectAll = function () {
 				var ed = $scope.editor;
 				ed.selection.select(ed.getBody(), true);
+			}
+			
+			 /**
+			 * Returns the currently selected text in the specified Html Area. 
+			 * @example var my_text = %%prefix%%%%elementName%%.getSelectedText();
+			 * @return {String} The selected text in the Html Area.
+			 */
+			$scope.api.getSelectedText = function() {
+				return $scope.editor.selection.getContent();
+			}
+			
+			/**
+			 * Gets the plain text for the formatted Html Area.
+			 * @example var my_text = %%prefix%%%%elementName%%.getAsPlainText();
+			 * @return the plain text
+			 */
+			$scope.api.getAsPlainText = function() {
+				return $scope.editor.getContent().replace(/<[^>]*>/g, '');
 			}
 
 		},
