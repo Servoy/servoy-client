@@ -1,5 +1,5 @@
 /*!
- * ui-grid - v - 2015-03-19
+ * ui-grid - v - 2015-03-24
  * Copyright (c) 2015 ; License: MIT 
  */
 
@@ -116,8 +116,8 @@
     },
     scrollbars: {
       NEVER: 0,
-      ALWAYS: 1
-      //WHEN_NEEDED: 2
+      ALWAYS: 1,
+      WHEN_NEEDED: 2
     }
   });
 
@@ -1645,7 +1645,8 @@ angular.module('ui.grid')
             shown: function() {
               return this.context.gridCol.colDef.visible === true || this.context.gridCol.colDef.visible === undefined;
             },
-            context: { gridCol: $scope.grid.getColumn(colDef.name || colDef.field) }
+            context: { gridCol: $scope.grid.getColumn(colDef.name || colDef.field) },
+            leaveOpen: true
           };
           service.setMenuItemTitle( menuItem, colDef, $scope.grid );
           showHideColumns.push( menuItem );
@@ -1660,7 +1661,8 @@ angular.module('ui.grid')
             shown: function() {
               return !(this.context.gridCol.colDef.visible === true || this.context.gridCol.colDef.visible === undefined);
             },
-            context: { gridCol: $scope.grid.getColumn(colDef.name || colDef.field) }
+            context: { gridCol: $scope.grid.getColumn(colDef.name || colDef.field) },
+            leaveOpen: true
           };
           service.setMenuItemTitle( menuItem, colDef, $scope.grid );
           showHideColumns.push( menuItem );
@@ -1938,7 +1940,8 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
       icon: '=',
       shown: '=',
       context: '=',
-      templateUrl: '='
+      templateUrl: '=',
+      leaveOpen: '='
     },
     require: ['?^uiGrid', '^uiGridMenu'],
     templateUrl: 'ui-grid/uiGridMenuItem',
@@ -2002,7 +2005,9 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
 
               $scope.action.call(context, $event, title);
 
-              $scope.$emit('hide-menu');
+              if ( !$scope.leaveOpen ){
+                $scope.$emit('hide-menu');
+              }
             }
           };
 
@@ -2527,9 +2532,9 @@ angular.module('ui.grid')
   'use strict';
 
   angular.module('ui.grid').controller('uiGridController', ['$scope', '$element', '$attrs', 'gridUtil', '$q', 'uiGridConstants',
-                    '$templateCache', 'gridClassFactory', '$timeout', '$parse', '$compile', 'ScrollEvent',
+                    '$templateCache', 'gridClassFactory', '$timeout', '$parse', '$compile',
     function ($scope, $elm, $attrs, gridUtil, $q, uiGridConstants,
-              $templateCache, gridClassFactory, $timeout, $parse, $compile, ScrollEvent) {
+              $templateCache, gridClassFactory, $timeout, $parse, $compile) {
       // gridUtil.logDebug('ui-grid controller');
 
       var self = this;
@@ -2584,23 +2589,6 @@ angular.module('ui.grid')
         }
       }
 
-      function adjustInfiniteScrollPosition (scrollToRow) {
-
-        var scrollEvent = new ScrollEvent(self.grid, null, null, 'ui.grid.adjustInfiniteScrollPosition');
-        var totalRows = self.grid.renderContainers.body.visibleRowCache.length;
-        var percentage = ( scrollToRow + ( scrollToRow / ( totalRows - 1 ) ) ) / totalRows;
-
-        //for infinite scroll, never allow it to be at the zero position so the up button can be active
-        if ( percentage === 0 ) {
-          scrollEvent.y = {pixels: 1};
-        }
-        else {
-          scrollEvent.y = {percentage: percentage};
-        }
-        scrollEvent.fireScrollingEvent();
-
-      }
-
       function dataWatchFunction(newData) {
         // gridUtil.logDebug('dataWatch fired');
         var promises = [];
@@ -2639,20 +2627,6 @@ angular.module('ui.grid')
                 $scope.$evalAsync(function() {
                   self.grid.refreshCanvas(true);
                   self.grid.callDataChangeCallbacks(uiGridConstants.dataChange.ROW);
-
-                  $timeout(function () {
-                    //Process post load scroll events if using infinite scroll
-                    if ( self.grid.options.enableInfiniteScroll ) {
-                      //If first load, seed the scrollbar down a little to activate the button
-                      if ( self.grid.renderContainers.body.prevRowScrollIndex === 0 ) {
-                        adjustInfiniteScrollPosition(0);
-                      }
-                      //If we are scrolling up, we need to reseed the grid.
-                      if (self.grid.scrollDirection === uiGridConstants.scrollDirection.UP) {
-                        adjustInfiniteScrollPosition(self.grid.renderContainers.body.prevRowScrollIndex + 1 + self.grid.options.excessRows);
-                      }
-                    }
-                    }, 0);
                 });
               });
           });
@@ -2761,7 +2735,7 @@ angular.module('ui.grid').directive('uiGrid',
               grid.gridHeight = $scope.gridHeight = gridUtil.elementHeight($elm);
 
               // If the grid isn't tall enough to fit a single row, it's kind of useless. Resize it to fit a minimum number of rows
-              if (grid.gridHeight < grid.options.rowHeight) {
+              if (grid.gridHeight < grid.options.rowHeight && grid.options.enableMinHeightCheck) {
                 // Figure out the new height
                 var contentHeight = grid.options.minRowsToShow * grid.options.rowHeight;
                 var headerHeight = grid.options.showHeader ? grid.options.headerRowHeight : 0;
@@ -3809,185 +3783,85 @@ angular.module('ui.grid')
     return t;
   };
 
-    /**
-     * @ngdoc function
-     * @name getRow
-     * @methodOf ui.grid.class:Grid
-     * @description returns the GridRow that contains the rowEntity
-     * @param {object} rowEntity the gridOptions.data array element instance
-     */
-    Grid.prototype.getRow = function getRow(rowEntity) {
-      var self = this;
-      var rows = this.rows.filter(function (row) {
-        return self.options.rowEquality(row.entity, rowEntity);
-      });
-      return rows.length > 0 ? rows[0] : null;
-    };
+  /**
+   * @ngdoc function
+   * @name getRow
+   * @methodOf ui.grid.class:Grid
+   * @description returns the GridRow that contains the rowEntity
+   * @param {object} rowEntity the gridOptions.data array element instance
+   * @param {array} rows [optional] the rows to look in - if not provided then
+   * looks in grid.rows
+   */
+  Grid.prototype.getRow = function getRow(rowEntity, lookInRows) {
+    var self = this;
+    
+    lookInRows = typeof(lookInRows) === 'undefined' ? self.rows : lookInRows;
+    
+    var rows = lookInRows.filter(function (row) {
+      return self.options.rowEquality(row.entity, rowEntity);
+    });
+    return rows.length > 0 ? rows[0] : null;
+  };
 
 
-      /**
+  /**
    * @ngdoc function
    * @name modifyRows
    * @methodOf ui.grid.class:Grid
    * @description creates or removes GridRow objects from the newRawData array.  Calls each registered
    * rowBuilder to further process the row
    *
-   * Rows are identified using the gridOptions.rowEquality function
+   * This method aims to achieve three things:
+   * 1. the resulting rows array is in the same order as the newRawData, we'll call
+   * rowsProcessors immediately after to sort the data anyway
+   * 2. if we have row hashing available, we try to use the rowHash to find the row
+   * 3. no memory leaks - rows that are no longer in newRawData need to be garbage collected
+   * 
+   * The basic logic flow makes use of the newRawData, oldRows and oldHash, and creates
+   * the newRows and newHash
+   * 
+   * ```
+   * newRawData.forEach newEntity
+   *   if (hashing enabled)
+   *     check oldHash for newEntity
+   *   else
+   *     look for old row directly in oldRows
+   *   if !oldRowFound     // must be a new row
+   *     create newRow
+   *   append to the newRows and add to newHash
+   *   run the processors
+   * 
+   * Rows are identified using the hashKey if configured.  If not configured, then rows
+   * are identified using the gridOptions.rowEquality function
    */
   Grid.prototype.modifyRows = function modifyRows(newRawData) {
-    var self = this,
-        i,
-        rowhash,
-        found,
-        newRow;
-    if ((self.options.useExternalSorting || self.getColumnSorting().length === 0) && newRawData.length > 0) {
-        var oldRowHash = self.rowHashMap;
-        if (!oldRowHash) {
-           oldRowHash = {get: function(){return null;}};
-        }
-        self.createRowHashMap();
-        rowhash = self.rowHashMap;
-        var wasEmpty = self.rows.length === 0;
-        self.rows.length = 0;
-        for (i = 0; i < newRawData.length; i++) {
-            var newRawRow = newRawData[i];
-            found = oldRowHash.get(newRawRow);
-            if (found) {
-              newRow = found.row; 
-            }
-            else {
-              newRow = self.processRowBuilders(new GridRow(newRawRow, i, self));
-            }
-            self.rows.push(newRow);
-            rowhash.put(newRawRow, {
-                i: i,
-                entity: newRawRow,
-                row:newRow
-            });
-        }
-        //now that we have data, it is save to assign types to colDefs
-//        if (wasEmpty) {
-           self.assignTypes();
-//        }
-    } else {
-    if (self.rows.length === 0 && newRawData.length > 0) {
-      if (self.options.enableRowHashing) {
-        if (!self.rowHashMap) {
-          self.createRowHashMap();
-        }
-
-        for (i = 0; i < newRawData.length; i++) {
-          newRow = newRawData[i];
-
-          self.rowHashMap.put(newRow, {
-            i: i,
-            entity: newRow
-          });
-        }
-      }
-
-      self.addRows(newRawData);
-      //now that we have data, it is save to assign types to colDefs
-      self.assignTypes();
-    }
-    else if (newRawData.length > 0) {
-      var unfoundNewRows, unfoundOldRows, unfoundNewRowsToFind;
-
-      // If row hashing is turned on
-      if (self.options.enableRowHashing) {
-        // Array of new rows that haven't been found in the old rowset
-        unfoundNewRows = [];
-        // Array of new rows that we explicitly HAVE to search for manually in the old row set. They cannot be looked up by their identity (because it doesn't exist).
-        unfoundNewRowsToFind = [];
-        // Map of rows that have been found in the new rowset
-        var foundOldRows = {};
-        // Array of old rows that have NOT been found in the new rowset
-        unfoundOldRows = [];
-
-        // Create the row HashMap if it doesn't exist already
-        if (!self.rowHashMap) {
-          self.createRowHashMap();
-        }
-        rowhash = self.rowHashMap;
-        
-        // Make sure every new row has a hash
-        for (i = 0; i < newRawData.length; i++) {
-          newRow = newRawData[i];
-
-          // Flag this row as needing to be manually found if it didn't come in with a $$hashKey
-          var mustFind = false;
-          if (!self.options.getRowIdentity(newRow)) {
-            mustFind = true;
-          }
-
-          // See if the new row is already in the rowhash
-          found = rowhash.get(newRow);
-          // If so...
-          if (found) {
-            // See if it's already being used by as GridRow
-            if (found.row) {
-              // If so, mark this new row as being found
-              foundOldRows[self.options.rowIdentity(newRow)] = true;
-            }
-          }
-          else {
-            // Put the row in the hashmap with the index it corresponds to
-            rowhash.put(newRow, {
-              i: i,
-              entity: newRow
-            });
-            
-            // This row has to be searched for manually in the old row set
-            if (mustFind) {
-              unfoundNewRowsToFind.push(newRow);
-            }
-            else {
-              unfoundNewRows.push(newRow);
-            }
-          }
-        }
-
-        // Build the list of unfound old rows
-        for (i = 0; i < self.rows.length; i++) {
-          var row = self.rows[i];
-          var hash = self.options.rowIdentity(row.entity);
-          if (!foundOldRows[hash]) {
-            unfoundOldRows.push(row);
-          }
-        }
-      }
-
-      // Look for new rows
-      var newRows = unfoundNewRows || [];
-
-      // The unfound new rows is either `unfoundNewRowsToFind`, if row hashing is turned on, or straight `newRawData` if it isn't
-      var unfoundNew = (unfoundNewRowsToFind || newRawData);
-
-      // Search for real new rows in `unfoundNew` and concat them onto `newRows`
-      newRows = newRows.concat(self.newInN(self.rows, unfoundNew, 'entity'));
-      
-      self.addRows(newRows); 
-      
-      var deletedRows = self.getDeletedRows((unfoundOldRows || self.rows), newRawData);
-
-      for (i = 0; i < deletedRows.length; i++) {
-        if (self.options.enableRowHashing) {
-          self.rowHashMap.remove(deletedRows[i].entity);
-        }
-
-        self.rows.splice( self.rows.indexOf(deletedRows[i]), 1 );
-      }
-    }
-    // Empty data set
-    else {
-      // Reset the row HashMap
-      self.createRowHashMap();
-
-      // Reset the rows length!
-      self.rows.length = 0;
-    }
-    }
+    var self = this;
+    var oldRows = self.rows.slice(0);
+    var oldRowHash = self.rowHashMap || self.createRowHashMap();
+    self.rowHashMap = self.createRowHashMap();
+    self.rows.length = 0;
     
+    newRawData.forEach( function( newEntity, i ) {
+      var newRow;
+      if ( self.options.enableRowHashing ){
+        // if hashing is enabled, then this row will be in the hash if we already know about it
+        newRow = oldRowHash.get( newEntity );
+      } else {
+        // otherwise, manually search the oldRows to see if we can find this row
+        newRow = self.getRow(newEntity, oldRows);
+      }
+
+      // if we didn't find the row, it must be new, so create it
+      if ( !newRow ){
+        newRow = self.processRowBuilders(new GridRow(newEntity, i, self));
+      }
+
+      self.rows.push( newRow );
+      self.rowHashMap.put( newEntity, newRow );
+    });
+    
+    self.assignTypes();
+
     var p1 = $q.when(self.processRowsProcessors(self.rows))
       .then(function (renderableRows) {
         return self.setVisibleRows(renderableRows);
@@ -4001,18 +3875,6 @@ angular.module('ui.grid')
     return $q.all([p1, p2]);
   };
 
-  Grid.prototype.getDeletedRows = function(oldRows, newRows) {
-    var self = this;
-
-    var olds = oldRows.filter(function (oldRow) {
-      return !newRows.some(function (newItem) {
-        return self.options.rowEquality(newItem, oldRow.entity);
-      });
-    });
-    // var olds = self.newInN(newRows, oldRows, null, 'entity');
-    // dump('olds', olds);
-    return olds;
-  };
 
   /**
    * Private Undocumented Method
@@ -4773,7 +4635,7 @@ angular.module('ui.grid')
     var hashMap = new RowHashMap();
     hashMap.grid = self;
 
-    self.rowHashMap = hashMap;
+    return hashMap;
   };
   
   
@@ -5699,7 +5561,8 @@ angular.module('ui.grid')
    * - action: the method to call when the menu is clicked
    * - shown: a function to evaluate to determine whether or not to show the item
    * - active: a function to evaluate to determine whether or not the item is currently selected
-   * - context: context to pass to the action function??
+   * - context: context to pass to the action function, available in this.context in your handler
+   * - leaveOpen: if set to true, the menu should stay open after the action, defaults to false
    * @example
    * <pre>  $scope.gridOptions.columnDefs = [ 
    *   { field: 'field1', menuItems: [
@@ -5948,7 +5811,9 @@ angular.module('ui.grid')
     if (colDef.filter) {
       defaultFilters.push(colDef.filter);
     }
-    else {
+    else if ( colDef.filters ){
+      defaultFilters = colDef.filters;
+    } else {
       // Add an empty filter definition object, which will
       // translate to a guessed condition and no pre-populated
       // value for the filter <input>.
@@ -6012,9 +5877,25 @@ angular.module('ui.grid')
     // Only set filter if this is a newly added column, if we're updating an existing
     // column then we don't want to put the default filter back if the user may have already
     // removed it.
+    // However, we do want to keep the settings if they change, just not the term
     if ( isNew ) {
       self.setPropertyOrDefault(colDef, 'filter');
       self.setPropertyOrDefault(colDef, 'filters', defaultFilters);
+    } else if ( self.filters.length === defaultFilters.length ) {
+      self.filters.forEach( function( filter, index ){
+        if (typeof(defaultFilters[index].placeholder) !== 'undefined') {
+          filter.placeholder = defaultFilters[index].placeholder;
+        }
+        if (typeof(defaultFilters[index].flags) !== 'undefined') {
+          filter.flags = defaultFilters[index].flags;
+        }
+        if (typeof(defaultFilters[index].type) !== 'undefined') {
+          filter.type = defaultFilters[index].type;
+        }
+        if (typeof(defaultFilters[index].selectOptions) !== 'undefined') {
+          filter.selectOptions = defaultFilters[index].selectOptions;
+        }
+      });
     }
 
     // Remove this column from the grid sorting, include inside build columns so has
@@ -6548,7 +6429,7 @@ angular.module('ui.grid')
        * @name enableVerticalScrollbar
        * @propertyOf ui.grid.class:GridOptions
        * @description uiGridConstants.scrollbars.ALWAYS by default. This settings controls the vertical scrollbar for the grid.
-       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER
+       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER, uiGridConstants.scrollbars.WHEN_NEEDED
        */
       baseOptions.enableVerticalScrollbar = typeof(baseOptions.enableVerticalScrollbar) !== "undefined" ? baseOptions.enableVerticalScrollbar : uiGridConstants.scrollbars.ALWAYS;
       
@@ -6557,10 +6438,20 @@ angular.module('ui.grid')
        * @name enableHorizontalScrollbar
        * @propertyOf ui.grid.class:GridOptions
        * @description uiGridConstants.scrollbars.ALWAYS by default. This settings controls the horizontal scrollbar for the grid.
-       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER
+       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER, uiGridConstants.scrollbars.WHEN_NEEDED
        */
       baseOptions.enableHorizontalScrollbar = typeof(baseOptions.enableHorizontalScrollbar) !== "undefined" ? baseOptions.enableHorizontalScrollbar : uiGridConstants.scrollbars.ALWAYS;
-  
+
+      /**
+       * @ngdoc boolean
+       * @name enableMinHeightCheck
+       * @propertyOf ui.grid.class:GridOptions
+       * @description True by default. When enabled, a newly initialized grid will check to see if it is tall enough to display
+       * at least one row of data.  If the grid is not tall enough, it will resize the DOM element to display minRowsToShow number
+       * of rows.
+       */
+       baseOptions.enableMinHeightCheck = baseOptions.enableMinHeightCheck !== false;
+
       /**
        * @ngdoc boolean
        * @name minimumColumnSize
@@ -7012,48 +6903,19 @@ angular.module('ui.grid')
     if (rowCache.length > self.grid.options.virtualizationThreshold) {
       if (!(typeof(scrollTop) === 'undefined' || scrollTop === null)) {
         // Have we hit the threshold going down?
-        if (!self.grid.options.enableInfiniteScroll && self.prevScrollTop < scrollTop && rowIndex < self.prevRowScrollIndex + self.grid.options.scrollThreshold && rowIndex < maxRowIndex) {
+        if ( !self.grid.suppressParentScrollDown && self.prevScrollTop < scrollTop && rowIndex < self.prevRowScrollIndex + self.grid.options.scrollThreshold && rowIndex < maxRowIndex) {
           return;
         }
         //Have we hit the threshold going up?
-        if (!self.grid.options.enableInfiniteScroll && self.prevScrollTop > scrollTop && rowIndex > self.prevRowScrollIndex - self.grid.options.scrollThreshold && rowIndex < maxRowIndex) {
+        if ( !self.grid.suppressParentScrollUp && self.prevScrollTop > scrollTop && rowIndex > self.prevRowScrollIndex - self.grid.options.scrollThreshold && rowIndex < maxRowIndex) {
           return;
         }
       }
       var rangeStart = {};
       var rangeEnd = {};
 
-      //If infinite scroll is enabled, and we loaded more data coming from redrawInPlace, then recalculate the range and set rowIndex to proper place to scroll to
-      if ( self.grid.options.enableInfiniteScroll && self.grid.scrollDirection !== uiGridConstants.scrollDirection.NONE && postDataLoaded ) {
-        var findIndex = null;
-        var i = null;
-        if ( self.grid.scrollDirection === uiGridConstants.scrollDirection.UP ) {
-          findIndex = rowIndex > 0 ? self.grid.options.excessRows : 0;
-          for ( i = 0; i < rowCache.length; i++) {
-            if (self.grid.options.rowIdentity(rowCache[i].entity) === self.grid.options.rowIdentity(self.renderedRows[findIndex].entity)) {
-              rowIndex = i;
-              break;
-            }
-          }
-          rangeStart = Math.max(0, rowIndex);
-          rangeEnd = Math.min(rowCache.length, rangeStart + self.grid.options.excessRows + minRows);
-        }
-        else if ( self.grid.scrollDirection === uiGridConstants.scrollDirection.DOWN ) {
-          findIndex = minRows;
-          for ( i = 0; i < rowCache.length; i++) {
-            if (self.grid.options.rowIdentity(rowCache[i].entity) === self.grid.options.rowIdentity(self.renderedRows[findIndex].entity)) {
-              rowIndex = i;
-              break;
-            }
-          }
-          rangeStart = Math.max(0, rowIndex - self.grid.options.excessRows - minRows);
-          rangeEnd = Math.min(rowCache.length, rowIndex + minRows + self.grid.options.excessRows);
-        }
-      }
-      else {
-        rangeStart = Math.max(0, rowIndex - self.grid.options.excessRows);
-        rangeEnd = Math.min(rowCache.length, rowIndex + minRows + self.grid.options.excessRows);
-      }
+      rangeStart = Math.max(0, rowIndex - self.grid.options.excessRows);
+      rangeEnd = Math.min(rowCache.length, rowIndex + minRows + self.grid.options.excessRows);
 
       newRange = [rangeStart, rangeEnd];
     }
@@ -7375,13 +7237,13 @@ angular.module('ui.grid')
     var styles = {};
 
     if (self.name === 'body') {
-      styles['overflow-x'] = self.grid.options.enableHorizontalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : 'scroll';
+      styles['overflow-x'] = self.grid.options.enableHorizontalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : self.grid.options.enableHorizontalScrollbar === uiGridConstants.scrollbars.WHEN_NEEDED ? 'auto' : 'scroll';
       if (!self.grid.isRTL()) {
         if (self.grid.hasRightContainerColumns()) {
           styles['overflow-y'] = 'hidden';
         }
         else {
-          styles['overflow-y'] = self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : 'scroll';
+          styles['overflow-y'] = self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.WHEN_NEEDED ? 'auto' : 'scroll';
         }
       }
       else {
@@ -7389,17 +7251,17 @@ angular.module('ui.grid')
           styles['overflow-y'] = 'hidden';
         }
         else {
-          styles['overflow-y'] = self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : 'scroll';
+          styles['overflow-y'] = self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.WHEN_NEEDED ? 'auto' : 'scroll';
         }
       }
     }
     else if (self.name === 'left') {
       styles['overflow-x'] = 'hidden';
-      styles['overflow-y'] = self.grid.isRTL() ? (self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : 'scroll') : 'hidden';
+      styles['overflow-y'] = self.grid.isRTL() ? (self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.WHEN_NEEDED ? 'auto' : 'scroll') : 'hidden';
     }
     else {
       styles['overflow-x'] = 'hidden';
-      styles['overflow-y'] = !self.grid.isRTL() ? (self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : 'scroll') : 'hidden';
+      styles['overflow-y'] = !self.grid.isRTL() ? (self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.NEVER ? 'hidden' : self.grid.options.enableVerticalScrollbar === uiGridConstants.scrollbars.WHEN_NEEDED ? 'auto' : 'scroll') : 'hidden';
     }
 
     return styles;
@@ -7827,7 +7689,7 @@ angular.module('ui.grid')
           // Reset all rows to visible initially
           grid.registerRowsProcessor(function allRowsVisible(rows) {
             rows.forEach(function (row) {
-              row.visible = !row.forceInvisible;
+              row.visible = true;
             });
 
             return rows;
@@ -8396,7 +8258,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
     // Cache of sorting functions. Once we create them, we don't want to keep re-doing it
     //   this takes a piece of data from the cell and tries to determine its type and what sorting
     //   function to use for it
-    colSortFnCache: []
+    colSortFnCache: {}
   };
 
 
@@ -8783,7 +8645,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
     
     // put a custom index field on each row, used to make a stable sort out of unstable sorts (e.g. Chrome)
     var setIndex = function( row, idx ){
-      row.entity.$uiGridIndex = idx;
+      row.entity.$$uiGridIndex = idx;
     };
     rows.forEach(setIndex);
 
@@ -8813,7 +8675,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
       // then return the previous order using our custom
       // index variable
       if (tem === 0 ) {
-        return rowA.entity.$uiGridIndex - rowB.entity.$uiGridIndex;
+        return rowA.entity.$$uiGridIndex - rowB.entity.$$uiGridIndex;
       }
       
       // Made it this far, we don't have to worry about null & undefined
@@ -8828,9 +8690,9 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
     
     // remove the custom index field on each row, used to make a stable sort out of unstable sorts (e.g. Chrome)
     var clearIndex = function( row, idx ){
-       delete row.entity.$uiGridIndex;
+       delete row.entity.$$uiGridIndex;
     };
-    rows.forEach(setIndex);
+    rows.forEach(clearIndex);
     
     return newRows;
   };
@@ -8839,6 +8701,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
 }]);
 
 })();
+
 (function() {
 
 var module = angular.module('ui.grid');
@@ -15814,12 +15677,78 @@ module.filter('px', function() {
                  * @name setGrouping
                  * @methodOf  ui.grid.grouping.api:PublicApi
                  * @description Set the grouping configuration for this grid, 
-                 * used by the saveState feature
+                 * used by the saveState feature, but can also be used by any
+                 * user to specify a combined grouping and aggregation configuration
                  * @param {object} config the config you want to apply, in the format
                  * provided out by getGrouping
                  */
                 setGrouping: function ( config ) {
                   service.setGrouping(grid, config);
+                },
+                
+                /**
+                 * @ngdoc function
+                 * @name groupColumn
+                 * @methodOf  ui.grid.grouping.api:PublicApi
+                 * @description Adds this column to the existing grouping, at the end of the priority order.
+                 * If the column doesn't have a sort, adds one, by default ASC
+                 * 
+                 * This column will move to the left of any non-group columns, the
+                 * move is handled in a columnProcessor, so gets called as part of refresh
+                 * 
+                 * @param {string} columnName the name of the column we want to group
+                 */
+                groupColumn: function( columnName ) {
+                  var column = grid.getColumn(columnName);
+                  service.groupColumn(grid, column);
+                },
+
+                /**
+                 * @ngdoc function
+                 * @name ungroupColumn
+                 * @methodOf  ui.grid.grouping.api:PublicApi
+                 * @description Removes the groupPriority from this column.  If the
+                 * column was previously aggregated the aggregation will come back. 
+                 * The sort will remain.  
+                 * 
+                 * This column will move to the right of any other group columns, the
+                 * move is handled in a columnProcessor, so gets called as part of refresh
+                 * 
+                 * @param {string} columnName the name of the column we want to ungroup
+                 */
+                ungroupColumn: function( columnName ) {
+                  var column = grid.getColumn(columnName);
+                  service.ungroupColumn(grid, column);
+                },
+                
+                /**
+                 * @ngdoc function
+                 * @name clearGrouping
+                 * @methodOf  ui.grid.grouping.api:PublicApi
+                 * @description Clear any grouped columns and any aggregations.  Doesn't remove sorting,
+                 * as we don't know whether that sorting was added by grouping or was there beforehand
+                 * 
+                 */
+                clearGrouping: function() {
+                  service.clearGrouping(grid);
+                },
+                
+                /**
+                 * @ngdoc function
+                 * @name aggregateColumn
+                 * @methodOf  ui.grid.grouping.api:PublicApi
+                 * @description Sets the aggregation type on a column, if the 
+                 * column is currently grouped then it removes the grouping first.
+                 * If the aggregationType is null then will result in the aggregation
+                 * being removed
+                 * 
+                 * @param {string} columnName the column we want to aggregate
+                 * @param {string} aggregationType one of the recognised types
+                 * from uiGridGroupingConstants
+                 */
+                aggregateColumn: function( columnName, aggregationType){
+                  var column = grid.getColumn(columnName);
+                  service.aggregateColumn( grid, column, aggregationType );
                 }
               }
             }
@@ -16183,7 +16112,7 @@ module.filter('px', function() {
         },
 
 
-        /**
+         /**
          * @ngdoc function
          * @name ungroupColumn
          * @methodOf  ui.grid.grouping.service:uiGridGroupingService
@@ -16234,6 +16163,85 @@ module.filter('px', function() {
           column.grouping.aggregation = aggregationType;
           
           grid.queueGridRefresh();
+        },
+        
+
+       /**
+         * @ngdoc function
+         * @name setGrouping
+         * @methodOf  ui.grid.grouping.service:uiGridGroupingService
+         * @description Set the grouping based on a config object, used by the save state feature 
+         * (more specifically, by the restore function in that feature )
+         * 
+         * @param {Grid} grid grid object
+         * @param {object} config the config we want to set, same format as that returned by getGrouping
+         */
+        setGrouping: function ( grid, config ){
+          if ( typeof(config) === 'undefined' ){
+            return;
+          }
+          
+          // first remove any existing grouping
+          service.clearGrouping(grid);
+          
+          if ( config.grouping && config.grouping.length && config.grouping.length > 0 ){
+            config.grouping.forEach( function( group ) {
+              var col = grid.getColumn(group.colName);
+              
+              if ( col ) {
+                service.groupColumn( grid, col );
+              }
+            });
+          }
+
+          if ( config.aggregations && config.aggregations.length && config.aggregations.length > 0 ){
+            config.aggregations.forEach( function( aggregation ) {
+              var col = grid.getColumn(aggregation.colName);
+              
+              if ( col ) {
+                service.aggregateColumn( grid, col, aggregation.aggregation );
+              }
+            });
+          }
+          
+          if ( config.rowExpandedStates ){
+            grid.grouping.rowExpandedStates = config.rowExpandedStates;
+          }
+        },
+        
+        
+       /**
+         * @ngdoc function
+         * @name clearGrouping
+         * @methodOf  ui.grid.grouping.service:uiGridGroupingService
+         * @description Clear any grouped columns and any aggregations.  Doesn't remove sorting,
+         * as we don't know whether that sorting was added by grouping or was there beforehand
+         * 
+         * @param {Grid} grid grid object
+         */
+        clearGrouping: function( grid ) {
+          var currentGrouping = service.getGrouping(grid);
+          
+          if ( currentGrouping.grouping.length > 0 ){
+            currentGrouping.grouping.forEach( function( group ) {
+              if (!group.col){
+                // should have a group.colName if there's no col
+                group.col = grid.getColumn(group.colName);
+              }
+              service.ungroupColumn(grid, group.col);
+            });
+          }
+          
+          if ( currentGrouping.aggregations.length > 0 ){
+            currentGrouping.aggregations.forEach( function( aggregation ){
+              if (!aggregation.col){
+                // should have a group.colName if there's no col
+                aggregation.col = grid.getColumn(aggregation.colName);
+              }
+              service.aggregateColumn(grid, aggregation.col, null);
+            });
+          }
+          
         },
         
         
@@ -16814,12 +16822,12 @@ module.filter('px', function() {
                   }
                   break;
                 case uiGridGroupingConstants.aggregation.MIN:
-                  if (fieldValue !== null && (fieldValue < aggregation.value || aggregation.value === null)){
+                  if (fieldValue !== undefined && fieldValue !== null && (fieldValue < aggregation.value || aggregation.value === null)){
                     aggregation.value = fieldValue;
                   }
                   break;
                 case uiGridGroupingConstants.aggregation.MAX:
-                  if (fieldValue > aggregation.value){
+                  if (fieldValue !== undefined && fieldValue > aggregation.value){
                     aggregation.value = fieldValue;
                   }
                   break;
@@ -16833,49 +16841,7 @@ module.filter('px', function() {
               }
             }
           });
-        },
-        
-
-       /**
-         * @ngdoc function
-         * @name setGrouping
-         * @methodOf  ui.grid.grouping.service:uiGridGroupingService
-         * @description Set the grouping based on a config object, used by the save state feature 
-         * (more specifically, by the restore function in that feature )
-         * 
-         * @param {Grid} grid grid object
-         * @param {object} config the config we want to set, same format as that returned by getGrouping
-         */
-        setGrouping: function ( grid, config ){
-          if ( typeof(config) === 'undefined' ){
-            return;
-          }
-          
-          if ( config.grouping && config.grouping.length && config.grouping.length > 0 ){
-            config.grouping.forEach( function( group ) {
-              var col = grid.getColumn(group.colName);
-              
-              if ( col ) {
-                service.groupColumn( grid, col );
-              }
-            });
-          }
-
-          if ( config.aggregations && config.aggregations.length && config.aggregations.length > 0 ){
-            config.aggregations.forEach( function( aggregation ) {
-              var col = grid.getColumn(aggregation.colName);
-              
-              if ( col ) {
-                service.aggregateColumn( grid, col, aggregation.aggregation );
-              }
-            });
-          }
-          
-          if ( config.rowExpandedStates ){
-            grid.grouping.rowExpandedStates = config.rowExpandedStates;
-          }
         }
-
       };
 
       return service;
@@ -17810,7 +17776,7 @@ module.filter('px', function() {
    *
    *  @description Service for infinite scroll features
    */
-  module.service('uiGridInfiniteScrollService', ['gridUtil', '$compile', '$timeout', 'uiGridConstants', function (gridUtil, $compile, $timeout, uiGridConstants) {
+  module.service('uiGridInfiniteScrollService', ['gridUtil', '$compile', '$timeout', 'uiGridConstants', 'ScrollEvent', function (gridUtil, $compile, $timeout, uiGridConstants, ScrollEvent) {
 
     var service = {
 
@@ -17821,8 +17787,24 @@ module.filter('px', function() {
        * @description This method register events and methods into grid public API
        */
 
-      initializeGrid: function(grid) {
+      initializeGrid: function(grid, $scope) {
         service.defaultGridOptions(grid.options);
+        grid.infiniteScroll = { dataLoading: false, scrollUp: grid.options.infiniteScrollUp, scrollDown: grid.options.infiniteScrollDown };
+
+        if ( grid.options.infiniteScrollUp){
+          grid.suppressParentScrollUp = true;
+        }
+
+        if ( grid.options.infiniteScrollDown){
+          grid.suppressParentScrollDown = true;
+        }
+
+        if (grid.options.enableInfiniteScroll) {
+          grid.api.core.on.scrollEvent($scope, service.handleScroll);
+        }
+        
+        // tweak the scroll for infinite scroll up (if enabled)
+        service.adjustScroll(grid);
 
         /**
          *  @ngdoc object
@@ -17838,7 +17820,7 @@ module.filter('px', function() {
                * @ngdoc event
                * @name needLoadMoreData
                * @eventOf ui.grid.infiniteScroll.api:PublicAPI
-               * @description This event fires when scroll reached bottom percentage of grid
+               * @description This event fires when scroll reaches bottom percentage of grid
                * and needs to load data
                */
 
@@ -17849,7 +17831,7 @@ module.filter('px', function() {
                * @ngdoc event
                * @name needLoadMoreDataTop
                * @eventOf ui.grid.infiniteScroll.api:PublicAPI
-               * @description This event fires when scroll reached top percentage of grid
+               * @description This event fires when scroll reaches top percentage of grid
                * and needs to load data
                */
 
@@ -17864,20 +17846,40 @@ module.filter('px', function() {
                * @ngdoc function
                * @name dataLoaded
                * @methodOf ui.grid.infiniteScroll.api:PublicAPI
-               * @description This function is used as a promise when data finished loading.
-               * See infinite_scroll ngdoc for example of usage
+               * @description Call this function when you have loaded the additional data
+               * requested.  You can set noMoreDataTop or noMoreDataBottom to indicate
+               * that we've reached the end of your data set, we won't fire any more events
+               * for scroll in that direction.
+               * See infinite_scroll tutorial for example of usage
+               * @param {boolean} noMoreDataTop flag that there are no more pages upwards, so don't fire
+               * any more infinite scroll events upward
+               * @param {boolean} noMoreDataBottom flag that there are no more pages downwards, so don't 
+               * fire any more infinite scroll events downward 
                */
 
-              dataLoaded: function() {
-                grid.options.loadTimout = false;
+              dataLoaded: function( noMoreDataTop, noMoreDataBottom ) {
+                grid.infiniteScroll.dataLoading = false;
+                
+                if ( noMoreDataTop === true ){
+                  grid.infiniteScroll.scrollUp = false;
+                  grid.suppressParentScrollUp = false;
+                }
+
+                if ( noMoreDataBottom === true ){
+                  grid.infiniteScroll.scrollDown = false;
+                  grid.suppressParentScrollDown = false;
+                }
+                
+                service.adjustScroll(grid);
               }
             }
           }
         };
-        grid.options.loadTimout = false;
         grid.api.registerEventsFromObject(publicApi.events);
         grid.api.registerMethodsFromObject(publicApi.methods);
       },
+      
+      
       defaultGridOptions: function (gridOptions) {
         //default option to true unless it was explicitly set to false
         /**
@@ -17896,6 +17898,73 @@ module.filter('px', function() {
          *  <br/>Defaults to true
          */
         gridOptions.enableInfiniteScroll = gridOptions.enableInfiniteScroll !== false;
+
+        /**
+         * @ngdoc property
+         * @name infiniteScrollPercentage
+         * @propertyOf ui.grid.class:GridOptions
+         * @description This setting controls at what percentage remaining more data
+         * is requested by the infinite scroll, whether scrolling up or down.
+         * 
+         * TODO: it would be nice if this were percentage of a page, not percentage of the
+         * total scroll - as you get more and more data, the needMoreData event is triggered
+         * further and further away from the end (in terms of number of rows)
+         * <br> Defaults to 20
+         */
+        gridOptions.infiniteScrollPercentage = gridOptions.infiniteScrollPercentage || 20;
+
+        /**
+         * @ngdoc property
+         * @name infiniteScrollUp
+         * @propertyOf ui.grid.class:GridOptions
+         * @description Whether you allow infinite scroll up, implying that the first page of data
+         * you have displayed is in the middle of your data set.  If set to true then we trigger the
+         * needMoreDataTop event when the user hits the top of the scrollbar.  
+         * <br> Defaults to false
+         */
+        gridOptions.infiniteScrollUp = gridOptions.infiniteScrollUp === true;
+
+        /**
+         * @ngdoc property
+         * @name infiniteScrollDown
+         * @propertyOf ui.grid.class:GridOptions
+         * @description Whether you allow infinite scroll down, implying that the first page of data
+         * you have displayed is in the middle of your data set.  If set to true then we trigger the
+         * needMoreData event when the user hits the bottom of the scrollbar.  
+         * <br> Defaults to true
+         */
+        gridOptions.infiniteScrollDown = gridOptions.infiniteScrollDown !== false;
+      },
+
+
+      /**
+       * @ngdoc function
+       * @name handleScroll
+       * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
+       * @description Called whenever the grid scrolls, determines whether the scroll should
+       * trigger an infinite scroll request for more data
+       * @param {object} args the args from the event
+       */
+      handleScroll:  function (args) {
+        // don't request data if already waiting for data, or if source is coming from ui.grid.adjustInfiniteScrollPosition() function
+        if ( args.grid.infiniteScroll && args.grid.infiniteScroll.dataLoading || args.source === 'ui.grid.adjustInfiniteScrollPosition' ){
+          return;
+        }
+
+        if (args.y) {
+          var percentage;
+          if (args.grid.scrollDirection === uiGridConstants.scrollDirection.UP ) {
+            percentage = args.y.percentage;
+            if (percentage <= args.grid.options.infiniteScrollPercentage / 100){
+              service.loadData(args.grid);
+            }
+          } else if (args.grid.scrollDirection === uiGridConstants.scrollDirection.DOWN) {
+            percentage = 1 - args.y.percentage;
+            if (percentage <= args.grid.options.infiniteScrollPercentage / 100){
+              service.loadData(args.grid);
+            }
+          }
+        }
       },
 
 
@@ -17904,43 +17973,92 @@ module.filter('px', function() {
        * @name loadData
        * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
        * @description This function fires 'needLoadMoreData' or 'needLoadMoreDataTop' event based on scrollDirection
+       * and whether there are more pages upwards or downwards
+       * @param {Grid} grid the grid we're working on
        */
-
       loadData: function (grid) {
-        grid.options.loadTimout = true;
-        if (grid.scrollDirection === uiGridConstants.scrollDirection.UP) {
+        // save number of currently visible rows to calculate new scroll position later - we know that we want 
+        // to be at approximately the row we're currently at
+        grid.infiniteScroll.previousVisibleRows = grid.renderContainers.body.visibleRowCache.length;
+        grid.infiniteScroll.direction = grid.scrollDirection;
+        
+        if (grid.scrollDirection === uiGridConstants.scrollDirection.UP && grid.infiniteScroll.scrollUp ) {
+          grid.infiniteScroll.dataLoading = true;
           grid.api.infiniteScroll.raise.needLoadMoreDataTop();
-          return;
+        } else if (grid.scrollDirection === uiGridConstants.scrollDirection.DOWN && grid.infiniteScroll.scrollDown ) {
+          grid.infiniteScroll.dataLoading = true;
+          grid.api.infiniteScroll.raise.needLoadMoreData();
         }
-        grid.api.infiniteScroll.raise.needLoadMoreData();
       },
-
+      
+      
       /**
        * @ngdoc function
-       * @name checkScroll
+       * @name adjustScroll
        * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
-       * @description This function checks scroll position inside grid and
-       * calls 'loadData' function when scroll reaches 'infiniteScrollPercentage'
+       * @description Once we are informed that data has been loaded, adjust the scroll position to account for that
+       * addition and to make things look clean.  
+       * 
+       * If we're scrolling up we scroll to the first row of the old data set - 
+       * so we're assuming that you would have gotten to the top of the grid (from the 20% need more data trigger) by
+       * the time the data comes back.  If we're scrolling down we scoll to the last row of the old data set - so we're
+       * assuming that you would have gotten to the bottom of the grid (from the 80% need more data trigger) by the time
+       * the data comes back.  
+       * 
+       * Neither of these are good assumptions, but making this a smoother experience really requires
+       * that trigger to not be a percentage, and to be much closer to the end of the data (say, 5 rows off the end).  Even then
+       * it'd be better still to actually run into the end.  But if the data takes a while to come back, they may have scrolled
+       * somewhere else in the mean-time, in which case they'll get a jump back to the new data.  Anyway, this will do for
+       * now, until someone wants to do better.
+       * @param {Grid} grid the grid we're working on
        */
+      adjustScroll: function(grid){
+        $timeout(function () {
+          var percentage;
+          
+          if ( grid.infiniteScroll.direction === undefined ){
+            // called from initialize, tweak our scroll up a little
+            service.adjustInfiniteScrollPosition(grid, 0);
+          }
 
-      checkScroll: function(grid, scrollTop) {
+          var newVisibleRows = grid.renderContainers.body.visibleRowCache.length;
+          if ( grid.infiniteScroll.direction === uiGridConstants.scrollDirection.UP ){
+            percentage = ( newVisibleRows - grid.infiniteScroll.previousVisibleRows ) / newVisibleRows;
+            service.adjustInfiniteScrollPosition(grid, percentage);  
+          }
 
-        /* Take infiniteScrollPercentage value or use 20% as default */
-        var infiniteScrollPercentage = grid.options.infiniteScrollPercentage ? grid.options.infiniteScrollPercentage : 20;
-
-        if (!grid.options.loadTimout && scrollTop <= infiniteScrollPercentage) {
-          this.loadData(grid);
-          return true;
-        }
-        return false;
-      }
+          if ( grid.infiniteScroll.direction === uiGridConstants.scrollDirection.DOWN ){
+            percentage = grid.infiniteScroll.previousVisibleRows / newVisibleRows;            
+            service.adjustInfiniteScrollPosition(grid, percentage);  
+          }
+        }, 0);
+      },
+ 
+ 
       /**
-       * @ngdoc property
-       * @name infiniteScrollPercentage
-       * @propertyOf ui.grid.class:GridOptions
-       * @description This setting controls at what percentage of the scroll more data
-       * is requested by the infinite scroll
+       * @ngdoc function
+       * @name adjustInfiniteScrollPosition
+       * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
+       * @description This function fires 'needLoadMoreData' or 'needLoadMoreDataTop' event based on scrollDirection
+       * @param {Grid} grid the grid we're working on
+       * @param {number} percentage the percentage through the grid that we want to scroll to
        */
+      adjustInfiniteScrollPosition: function (grid, percentage) {
+        var scrollEvent = new ScrollEvent(grid, null, null, 'ui.grid.adjustInfiniteScrollPosition');
+
+        //for infinite scroll, if there are pages upwards then never allow it to be at the zero position so the up button can be active
+        if ( percentage === 0 && grid.infiniteScroll.scrollUp ) {
+          scrollEvent.y = {pixels: 1};
+        }
+        else {
+          scrollEvent.y = {percentage: percentage};
+        }
+        scrollEvent.fireScrollingEvent();
+      }
+
+      
+
+
     };
     return service;
   }]);
@@ -17986,7 +18104,7 @@ module.filter('px', function() {
         compile: function($scope, $elm, $attr){
           return {
             pre: function($scope, $elm, $attr, uiGridCtrl) {
-              uiGridInfiniteScrollService.initializeGrid(uiGridCtrl.grid);
+              uiGridInfiniteScrollService.initializeGrid(uiGridCtrl.grid, $scope);
             },
             post: function($scope, $elm, $attr) {
             }
@@ -17995,28 +18113,6 @@ module.filter('px', function() {
       };
     }]);
 
-  module.directive('uiGridViewport',
-    ['$compile', 'gridUtil', 'uiGridInfiniteScrollService', 'uiGridConstants',
-      function ($compile, gridUtil, uiGridInfiniteScrollService, uiGridConstants) {
-        return {
-          priority: -200,
-          scope: false,
-          link: function ($scope, $elm, $attr){
-            if ($scope.grid.options.enableInfiniteScroll) {
-              $scope.grid.api.core.on.scrollEvent($scope, function (args) {
-                  //Prevent circular scroll references, if source is coming from ui.grid.adjustInfiniteScrollPosition() function
-                  if (args.y && (args.source !== 'ui.grid.adjustInfiniteScrollPosition')) {
-                    var percentage = 100 - (args.y.percentage * 100);
-                    if ($scope.grid.scrollDirection === uiGridConstants.scrollDirection.UP) {
-                      percentage = (args.y.percentage * 100);
-                    }
-                    uiGridInfiniteScrollService.checkScroll($scope.grid, percentage);
-                  }
-              });
-            }
-          }
-        };
-      }]);
 })();
 (function () {
   'use strict';
@@ -19903,7 +19999,6 @@ module.filter('px', function() {
             var promise = grid.api.rowEdit.raise.saveRow( gridRow.entity );
             
             if ( gridRow.rowEditSavePromise ){
-              console.log(gridRow.rowEditSavePromise);
               gridRow.rowEditSavePromise.then( self.processSuccessPromise( grid, gridRow ), self.processErrorPromise( grid, gridRow ));
             } else {
               gridUtil.logError( 'A promise was not returned when saveRow event was raised, either nobody is listening to event, or event handler did not return a promise' );
@@ -21458,7 +21553,7 @@ module.filter('px', function() {
            *  @ngdoc object
            *  @name isRowSelectable
            *  @propertyOf  ui.grid.selection.api:GridOptions
-           *  @description Makes it possible to specify a method that evaluates for each and sets its "enableSelection" property.
+           *  @description Makes it possible to specify a method that evaluates for each row and sets its "enableSelection" property.
            */
 
           gridOptions.isRowSelectable = angular.isDefined(gridOptions.isRowSelectable) ? gridOptions.isRowSelectable : angular.noop;
@@ -21643,8 +21738,8 @@ module.filter('px', function() {
    </file>
    </example>
    */
-  module.directive('uiGridSelection', ['uiGridSelectionConstants', 'uiGridSelectionService', '$templateCache',
-    function (uiGridSelectionConstants, uiGridSelectionService, $templateCache) {
+  module.directive('uiGridSelection', ['uiGridSelectionConstants', 'uiGridSelectionService', '$templateCache', 'uiGridConstants',
+    function (uiGridSelectionConstants, uiGridSelectionService, $templateCache, uiGridConstants) {
       return {
         replace: true,
         priority: 0,
@@ -21671,11 +21766,24 @@ module.filter('px', function() {
                 uiGridCtrl.grid.addRowHeaderColumn(selectionRowHeaderDef);
               }
               
-              if (uiGridCtrl.grid.options.isRowSelectable !== angular.noop) {
-                uiGridCtrl.grid.registerRowBuilder(function(row, options) {
-                  row.enableSelection = uiGridCtrl.grid.options.isRowSelectable(row);
-                });
-              }
+              var processorSet = false;
+              var updateOptions = function(){
+                if (uiGridCtrl.grid.options.isRowSelectable !== angular.noop && processorSet !== true) {
+                  uiGridCtrl.grid.registerRowsProcessor(function(rows) {
+                    rows.forEach(function(row){
+                      row.enableSelection = uiGridCtrl.grid.options.isRowSelectable(row);
+                    });
+                    return rows;
+                  });
+                  processorSet = true;
+                }
+              };
+              
+              updateOptions();
+
+              var dataChangeDereg = uiGridCtrl.grid.registerDataChangeCallback( updateOptions, [uiGridConstants.dataChange.OPTIONS] );
+  
+              $scope.$on( '$destroy', dataChangeDereg);
             },
             post: function ($scope, $elm, $attrs, uiGridCtrl) {
 
@@ -22002,7 +22110,7 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/uiGridMenu',
-    "<div class=\"ui-grid-menu\" ng-if=\"shown\"><div class=\"ui-grid-menu-mid\" ng-show=\"shownMid\"><div class=\"ui-grid-menu-inner\"><ul class=\"ui-grid-menu-items\"><li ng-repeat=\"item in menuItems\" ui-grid-menu-item action=\"item.action\" name=\"item.title\" active=\"item.active\" icon=\"item.icon\" shown=\"item.shown\" context=\"item.context\" template-url=\"item.templateUrl\"></li></ul></div></div></div>"
+    "<div class=\"ui-grid-menu\" ng-if=\"shown\"><div class=\"ui-grid-menu-mid\" ng-show=\"shownMid\"><div class=\"ui-grid-menu-inner\"><ul class=\"ui-grid-menu-items\"><li ng-repeat=\"item in menuItems\" ui-grid-menu-item action=\"item.action\" name=\"item.title\" active=\"item.active\" icon=\"item.icon\" shown=\"item.shown\" context=\"item.context\" template-url=\"item.templateUrl\" leave-open=\"item.leaveOpen\"></li></ul></div></div></div>"
   );
 
 
