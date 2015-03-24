@@ -420,13 +420,16 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			if (args == null || args.length < 1)
 			{
-				CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
+				if (!force)
 				{
-					public void run()
+					CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
 					{
-						getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("reload", new Object[0]);
-					}
-				});
+						public void run()
+						{
+							getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("reload", new Object[0]);
+						}
+					});
+				}
 			}
 			else
 			{
