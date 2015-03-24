@@ -101,6 +101,14 @@ angular.module('servoydefaultTypeahead', ['servoy'])
         }
         
         /**
+    	* Request the focus to this typeahead.
+    	* @example %%prefix%%%%elementName%%.requestFocus();
+    	*/
+		$scope.api.requestFocus = function() { 
+			$element[0].focus()
+		}
+        
+        /**
 		 * Returns the currently selected text in the specified typeahead. 
 		 * @example var my_text = %%prefix%%%%elementName%%.getSelectedText();
 		 * @return {String} The selected text in the text field.
