@@ -94,7 +94,29 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
         	  }
         	  $scope.model.valuelistID = valuelistItems;
           }
-                 	 
+
+          /**
+           * Set the focus to the first radio button.
+           * @example %%prefix%%%%elementName%%.requestFocus();
+           * @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
+           */
+          $scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
+        	  var input = $element.find('input');
+        	  if (input)
+        	  {
+        		  if (mustExecuteOnFocusGainedMethod === false && $scope.handlers.onFocusGainedMethodID)
+        		  {
+        			  $(input[0]).unbind('focus');
+        			  input[0].focus();
+        			  $(input[0]).bind('focus', $scope.handlers.onFocusGainedMethodID)
+        		  }
+        		  else
+        		  {
+        			  input[0].focus();
+        		  }
+        	  }
+          }
+
        	 $scope.radioClicked = function($event)
        	 {
        		$scope.svyServoyapi.apply('dataProviderID');

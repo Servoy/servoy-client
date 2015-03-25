@@ -54,6 +54,25 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				}
 				scope.model.valuelistID = valuelistItems;
 			};
+			
+			/**
+	    	* Request the focus to this combobox.
+	    	* @example %%prefix%%%%elementName%%.requestFocus();
+	    	* @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
+	    	*/
+			scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
+				var input = element.find('.ui-select-match');
+				if (mustExecuteOnFocusGainedMethod === false && scope.handlers.onFocusGainedMethodID)
+				{
+					input.unbind('focus');
+					input[0].focus();
+					input.bind('focus', scope.handlers.onFocusGainedMethodID)
+				}
+				else
+				{
+					input[0].focus();
+				}
+			}
 
 			var storedTooltip = false;
 			scope.api.onDataChangeCallback = function(event, returnval) {
