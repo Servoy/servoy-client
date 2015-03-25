@@ -144,7 +144,7 @@ angular.module('servoydefaultListbox',['servoy'])
 				}
 				
 				/**
-		           * Set the focus to the first element in the list.
+		           * Set the focus to the listbox.
 		           * @example %%prefix%%%%elementName%%.requestFocus();
 		           * @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
 		           */
