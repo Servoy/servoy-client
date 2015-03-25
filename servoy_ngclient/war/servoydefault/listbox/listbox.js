@@ -142,6 +142,25 @@ angular.module('servoydefaultListbox',['servoy'])
 					}
 					$scope.model.valuelistID = valuelistItems;
 				}
+				
+				/**
+		           * Set the focus to the first element in the list.
+		           * @example %%prefix%%%%elementName%%.requestFocus();
+		           * @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
+		           */
+				$scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
+					var select = $element.find('select');
+					if (mustExecuteOnFocusGainedMethod === false && $scope.handlers.onFocusGainedMethodID)
+					{
+						select.unbind('focus');
+						select[0].focus();
+						select.bind('focus', $scope.handlers.onFocusGainedMethodID)
+					}
+					else
+					{
+						select[0].focus();
+					}
+				}
 		},
 		replace: true
 	};

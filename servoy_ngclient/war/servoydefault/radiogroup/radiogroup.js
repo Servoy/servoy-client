@@ -102,7 +102,7 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
            */
           $scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
         	  var input = $element.find('input');
-        	  if (input)
+        	  if (input[0])
         	  {
         		  if (mustExecuteOnFocusGainedMethod === false && $scope.handlers.onFocusGainedMethodID)
         		  {
