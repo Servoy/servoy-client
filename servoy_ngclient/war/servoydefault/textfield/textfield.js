@@ -37,11 +37,21 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 					}
 			}
 			/**
-	    	* Request the focus to this textaarea.
+	    	* Request the focus to this text field.
 	    	* @example %%prefix%%%%elementName%%.requestFocus();
+	    	* @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
 	    	*/
-			$scope.api.requestFocus = function() { 
-				$element[0].focus()
+			$scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
+				if (mustExecuteOnFocusGainedMethod === false && $scope.handlers.onFocusGainedMethodID)
+				{
+					$element.unbind('focus');
+					$element[0].focus();
+					$element.bind('focus', $scope.handlers.onFocusGainedMethodID)
+				}
+				else
+				{
+					$element[0].focus();
+				}
 			}
 
 			/**

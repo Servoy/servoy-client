@@ -31,12 +31,22 @@ angular.module('servoydefaultTextarea',['servoy']).directive('servoydefaultTexta
 						storedTooltip = false;
 					}
 			}
-		   /**
-	    	* Request the focus to this textaarea.
-	    	* @example %%prefix%%%%elementName%%.requestFocus();
-	    	*/
-			$scope.api.requestFocus = function() { 
-				$element[0].focus()
+			/**
+			 * Request the focus to this textarea.
+			 * @example %%prefix%%%%elementName%%.requestFocus();
+			 * @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
+			 */
+			$scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
+				if (mustExecuteOnFocusGainedMethod === false && $scope.handlers.onFocusGainedMethodID)
+				{
+					$element.unbind('focus');
+					$element[0].focus();
+					$element.bind('focus', $scope.handlers.onFocusGainedMethodID)
+				}
+				else
+				{
+					$element[0].focus();
+				}
 			}
 
 			/**
