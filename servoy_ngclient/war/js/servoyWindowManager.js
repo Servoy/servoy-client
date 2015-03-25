@@ -290,7 +290,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if (instance) {
 				instance.hide();
 			}else {
-				$log.error("Trying to hide window : '" + name + "' which is not created.");
+				$log.error("Trying to hide window : '" + name + "' which is not created. If this is due to a developer form change/save while dialog is open in client it is expected.");
 			}
 		},
 		destroy: function(name) {
@@ -298,7 +298,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if (instance) {
 				delete instances[name];
 			}else{
-				$log.error("Trying to destroy window : '" + name + "' which is not created.");
+				$log.error("Trying to destroy window : '" + name + "' which is not created. If this is due to a developer form change/save while dialog is open in client it is expected.");
 			}
 		},
 		switchForm: function(name,form,navigatorForm) {
