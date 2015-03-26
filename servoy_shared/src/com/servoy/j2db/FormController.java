@@ -149,7 +149,7 @@ public class FormController extends BasicFormController
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
@@ -206,7 +206,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getBasicFormManager()
 	 */
 	@Override
@@ -740,7 +740,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.swing.JComponent#requestFocus()
 	 */
 	public void requestFocus()
@@ -801,12 +801,15 @@ public class FormController extends BasicFormController
 
 		boolean notifyVisible = super.notifyVisible(visible, invokeLaterRunnables);
 
-		IDataRenderer[] array = getDataRenderers();
-		for (IDataRenderer dataRenderer : array)
+		if (notifyVisible)
 		{
-			if (dataRenderer != null)
+			IDataRenderer[] array = getDataRenderers();
+			for (IDataRenderer dataRenderer : array)
 			{
-				dataRenderer.notifyVisible(visible, invokeLaterRunnables);
+				if (dataRenderer != null)
+				{
+					dataRenderer.notifyVisible(visible, invokeLaterRunnables);
+				}
 			}
 		}
 		return notifyVisible;
