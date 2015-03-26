@@ -14,11 +14,6 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 			var storedTooltip = false;
 			// fill in the api defined in the spec file
 
-			$scope.$watch($attrs['svyFormat'], function(newVal, oldVal){
-				if (newVal && newVal["text-transform"])
-					$scope.style["text-transform"] = newVal["text-transform"];
-			});
-
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
 					if(!returnval || stringValue) {

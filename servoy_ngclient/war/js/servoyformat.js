@@ -313,6 +313,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
 						 ngModelController.$render();
 					 })	
+					 if (callChangeInOnBlur) {
+						 element.change();
+					 }
 				 }				 
 			 })
 
@@ -326,7 +329,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 					 }
 				 }
 				 return true;
-			 })			 
+			 })
+			 
+			 var callChangeInOnBlur = false;
 			 
 			 //convert data from view format to model format
 		    ngModelController.$parsers.push(viewToModel);
@@ -348,6 +353,23 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				      	//TODO set error state 
 				      	//ngModelController.$error ..
 			    	}
+			    	if (svyFormat.type == "TEXT" && (svyFormat.uppercase || svyFormat.lowercase)) {
+			    		var currentData = data;
+			    		if (svyFormat.uppercase) data = data.toUpperCase();
+			    		else if(svyFormat.lowercase) data = data.toLowerCase();
+			    		// if the data is really changed then this pushes it back to the interface
+			    		// problem is that then a dom onchange event will not happen..
+			    		// we must fire a change event then in the onblur.
+			    		if (currentData !== data) {
+				    		callChangeInOnBlur = true;
+				    		ngModelController.$viewValue = data;
+				    		ngModelController.$render();
+			    		}
+			    		else {
+			    			// this will be a change that will be recorded by the dom element itself
+			    			callChangeInOnBlur = false;
+			    		}
+					}
 		    	}
 		    	return data; //converted
 		    }
@@ -367,6 +389,10 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				      	//TODO set error state 
 				      	//ngModelController.$error ..
 			    	}
+			    	if (svyFormat.type == "TEXT") {
+			    		if (svyFormat.uppercase) data = data.toUpperCase();
+			    		else if(svyFormat.lowercase) data = data.toLowerCase();
+					}
 		    	}
 		    	return data; //converted
 		    }

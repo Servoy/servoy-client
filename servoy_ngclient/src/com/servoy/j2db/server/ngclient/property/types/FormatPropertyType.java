@@ -170,11 +170,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 			map.put("maxLength", format.parsedFormat.getMaxLength() == null ? new Integer(-1) : format.parsedFormat.getMaxLength());
 		}
 
-		if (isAllLowercase || isAllUppercase)
-		{
-			if (isAllUppercase) map.put("text-transform", "uppercase");
-			else map.put("text-transform", "lowercase");
-		}
+		if (isAllUppercase) map.put("uppercase", Boolean.valueOf(isAllUppercase));
+		else if (isAllLowercase) map.put("lowercase", Boolean.valueOf(isAllLowercase));
 
 		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion, null);
 	}
