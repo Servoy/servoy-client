@@ -313,9 +313,6 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
 						 ngModelController.$render();
 					 })	
-					 if (callChangeInOnBlur) {
-						 element.change();
-					 }
 				 }				 
 			 })
 
@@ -331,12 +328,12 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				 return true;
 			 })
 			 
-			 var callChangeInOnBlur = false;
-			 
 			 //convert data from view format to model format
 		    ngModelController.$parsers.push(viewToModel);
 		    //convert data from model format to view format
 		    ngModelController.$formatters.push(modelToView);
+		    
+		    var callChangeOnBlur = null;
 		    
 		    function viewToModel(viewValue) {
 		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
@@ -361,13 +358,24 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			    		// problem is that then a dom onchange event will not happen..
 			    		// we must fire a change event then in the onblur.
 			    		if (currentData !== data) {
-				    		callChangeInOnBlur = true;
+			    			var caret = element[0].selectionStart;
+				    		if (!callChangeOnBlur) {
+				    			callChangeOnBlur = function() {
+				    				element.change();
+				    			}
+				    			element.on("blur", callChangeOnBlur);
+				    		}
 				    		ngModelController.$viewValue = data;
 				    		ngModelController.$render();
+				    	    element[0].selectionStart = caret;
+				    		element[0].selectionEnd = caret;
 			    		}
 			    		else {
 			    			// this will be a change that will be recorded by the dom element itself
-			    			callChangeInOnBlur = false;
+			    			if (callChangeOnBlur) {
+			    				element.off("blur", callChangeOnBlur);
+			    				callChangeInOnBlur = null;
+			    			}
 			    		}
 					}
 		    	}
