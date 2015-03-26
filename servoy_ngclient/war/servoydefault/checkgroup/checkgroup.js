@@ -125,6 +125,28 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
         	  $scope.model.valuelistID = valuelistItems;
           }
           
+          /**
+           * Set the focus to the first checkbox.
+           * @example %%prefix%%%%elementName%%.requestFocus();
+           * @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
+           */
+          $scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
+        	  var input = $element.find('input');
+        	  if (input[0])
+        	  {
+	        	  if (mustExecuteOnFocusGainedMethod === false && $scope.handlers.onFocusGainedMethodID)
+	        	  {
+	        		  $(input[0]).unbind('focus');
+	        		  input[0].focus();
+	        		  $(input[0]).bind('focus', $scope.handlers.onFocusGainedMethodID)
+	        	  }
+	        	  else
+	        	  {
+	        		  input[0].focus();
+	        	  }
+        	  }
+          }
+          
           
     /* helper functions*/
           function setSelectionFromDataprovider(){

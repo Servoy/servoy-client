@@ -103,9 +103,19 @@ angular.module('servoydefaultTypeahead', ['servoy'])
         /**
     	* Request the focus to this typeahead.
     	* @example %%prefix%%%%elementName%%.requestFocus();
+    	* @param mustExecuteOnFocusGainedMethod (optional) if false will not execute the onFocusGained method; the default value is true
     	*/
-		$scope.api.requestFocus = function() { 
-			$element[0].focus()
+		$scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) { 
+			if (mustExecuteOnFocusGainedMethod === false && $scope.handlers.onFocusGainedMethodID)
+			{
+				$element.unbind('focus');
+				$element[0].focus();
+				$element.bind('focus', $scope.handlers.onFocusGainedMethodID)
+			}
+			else
+			{
+				$element[0].focus();
+			}
 		}
         
         /**
@@ -121,7 +131,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 		 */
 		$scope.api.replaceSelectedText = $apifunctions.replaceSelectedText($element[0]);
 		/**
-		 * Selects all the contents of the typeahaead.
+		 * Selects all the contents of the typeahead.
 		 * @example %%prefix%%%%elementName%%.selectAll();
 		 */
 		$scope.api.selectAll = $apifunctions.selectAll($element[0]);
