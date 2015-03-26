@@ -305,7 +305,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 					 }		
 				 }				 			  
 			 })
-			 element.on('blur',function(){
+			 element.on('change',function(){
 				 var svyFormat = $scope.$eval(attrs['svyFormat'])
 				 if(svyFormat && !$scope.model.findmode){
 					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
