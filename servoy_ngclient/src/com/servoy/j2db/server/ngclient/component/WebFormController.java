@@ -549,7 +549,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		if (notifyVisibleSuccess)
 		{
-			getFormUI().setComponentVisible(visible);
+			// TODO should notifyVisibleSuccess be altered by this call? See WebFormUI/WebFormComponent notifyVisible calls.
+			getFormUI().notifyVisible(visible, invokeLaterRunnables);
 		}
 		return notifyVisibleSuccess;
 	}

@@ -416,6 +416,21 @@ public class WebFormUI extends Container implements IWebFormUI
 	}
 
 	@Override
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	{
+		// TODO if there are multiply forms visible and only 1 is reporting that it can't be made invisible
+		// what to do with that state? Should it be rollbacked? Should everything be made visible again?
+		// See also WebFormComponent
+		boolean retValue = true;
+		for (WebComponent component : components.values())
+		{
+			retValue = retValue && ((WebFormComponent)component).notifyVisible(visible, invokeLaterRunnables);
+		}
+		if (retValue) setVisible(visible);
+		return retValue;
+	}
+
+	@Override
 	public void setLocation(Point location)
 	{
 		// TODO Auto-generated method stub

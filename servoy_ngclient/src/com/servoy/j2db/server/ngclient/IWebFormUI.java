@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -67,4 +68,10 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	@Override
 	public IWebFormController getController();
+
+	/**
+	 * @param visible
+	 * @param invokeLaterRunnables
+	 */
+	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables);
 }

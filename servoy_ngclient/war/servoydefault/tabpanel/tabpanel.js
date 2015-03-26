@@ -18,7 +18,11 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			$scope.bgstyle = {}
 			$scope.waitingForServerVisibility = {}
 
-
+			if ($scope.model.selectedTab) {
+			     // if the selected tab is already set then this is a reload of the form and we need to call formWillShow
+				 $scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId, $scope.model.selectedTab.relationName);
+			}
+			
 			function refresh() {
 				if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
 				var realTabIndex = $scope.model.tabIndex - 1;
@@ -100,6 +104,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			function setFormVisible(tab,event) {
+				console.log("form made visible: " + tab.containsFormId)
 				if (tab.containsFormId) $scope.svyServoyapi.formWillShow(tab.containsFormId, tab.relationName);
 				if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
 				{
@@ -122,6 +127,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.select = function(tab) {
+				console.log(tab)
 				if ($log.debugEnabled) $log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
 				if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId) || (tab == $scope.model.selectedTab)) return;
 				var selectEvent = $window.event ? $window.event : null;

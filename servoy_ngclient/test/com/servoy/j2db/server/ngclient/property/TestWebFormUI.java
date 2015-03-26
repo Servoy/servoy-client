@@ -230,6 +230,17 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#notifyVisible(boolean, java.util.List)
+	 */
+	@Override
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	{
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see com.servoy.j2db.ui.IComponent#isVisible()
 	 */

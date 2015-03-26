@@ -3,6 +3,7 @@ package com.servoy.j2db.server.ngclient;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -154,6 +155,27 @@ public class WebFormComponent extends Container implements IContextProvider
 			form.setParentContainer(this);
 			visibleForms.put(form, Integer.valueOf(formIndex));
 		}
+	}
+
+	/**
+	 * @param b
+	 */
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	{
+		// TODO if there are multiply forms visible and only 1 is reporting that it can't be made invisible
+		// what to do with that state? Should it be rollbacked? Should everything be made visible again?
+		// see also WebFormUI
+		boolean retValue = true;
+		for (IWebFormUI webUI : visibleForms.keySet())
+		{
+			retValue = retValue && webUI.getController().notifyVisible(visible, invokeLaterRunnables);
+		}
+
+		if (!visible && retValue)
+		{
+			visibleForms.clear();
+		}
+		return retValue;
 	}
 
 	public int getFormIndex(IWebFormUI form)
