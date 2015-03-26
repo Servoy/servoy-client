@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -179,7 +180,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElement formElement)
+	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		return false;
 	}

@@ -104,7 +104,7 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
+			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer, fs);
 			else return new FormElement(formElement, fs, propertyPath, designer);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
@@ -116,7 +116,7 @@ public class FormElementHelper
 				propertyPath.setShouldAddElementName();
 			}
 			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-				designer);
+				designer, fs);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -159,7 +159,8 @@ public class FormElementHelper
 		return flattenedSolution;
 	}
 
-	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner)
+	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner,
+		FlattenedSolution clientFlattenedSolution)
 	{
 		Form form = listViewPortal.getForm();
 		Part bodyPart = null;
@@ -253,30 +254,34 @@ public class FormElementHelper
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
 							{
-								String elementName = fe.getName();
-								boolean hasLabelFor = false;
-								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-								while (graphicalComponents.hasNext())
+								int access = clientFlattenedSolution.getSecurityAccess(persist.getUUID());
+								if ((access & IRepository.VIEWABLE) != 0)
 								{
-									GraphicalComponent gc = graphicalComponents.next();
-									if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
-										endPos > gc.getLocation().y)
+									String elementName = fe.getName();
+									boolean hasLabelFor = false;
+									Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
+									while (graphicalComponents.hasNext())
 									{
-										headersText.add(gc.getText());
-										hasLabelFor = true;
-										break;
+										GraphicalComponent gc = graphicalComponents.next();
+										if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
+											endPos > gc.getLocation().y)
+										{
+											headersText.add(gc.getText());
+											hasLabelFor = true;
+											break;
+										}
 									}
-								}
-								if (!hasLabelFor)
-								{
-									if (fe.getPropertyValue("text") != null)
+									if (!hasLabelFor)
 									{
-										// legacy behavior, take text property
-										headersText.add(fe.getPropertyValue("text").toString());
-									}
-									else
-									{
-										headersText.add(null);
+										if (fe.getPropertyValue("text") != null)
+										{
+											// legacy behavior, take text property
+											headersText.add(fe.getPropertyValue("text").toString());
+										}
+										else
+										{
+											headersText.add(null);
+										}
 									}
 								}
 							}

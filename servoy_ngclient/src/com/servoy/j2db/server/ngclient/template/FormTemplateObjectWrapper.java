@@ -22,8 +22,9 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 
 import freemarker.template.DefaultObjectWrapper;
@@ -77,7 +78,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		}
 		else if (obj instanceof IFormElement)
 		{
-			wrapped = FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context, null);
+			wrapped = new FormElementContext(FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context, null), context);
 		}
 		else
 		{

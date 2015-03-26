@@ -31,7 +31,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
@@ -56,7 +56,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	}
 
 	@Override
-	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElement formElement)
+	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		return false;
 	}
@@ -166,7 +166,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		if (fs != null)
 		{

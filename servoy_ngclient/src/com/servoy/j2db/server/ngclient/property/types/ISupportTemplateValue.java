@@ -19,7 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.specification.PropertyDescription;
 
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 
 /**
  * Types can implement this interface to tell the system that the type does or does not support values in the template.
@@ -31,5 +31,5 @@ import com.servoy.j2db.server.ngclient.FormElement;
  */
 public interface ISupportTemplateValue<FormElementT>
 {
-	boolean valueInTemplate(FormElementT object, PropertyDescription pd, FormElement formElement);
+	boolean valueInTemplate(FormElementT object, PropertyDescription pd, FormElementContext formElementContext);
 }

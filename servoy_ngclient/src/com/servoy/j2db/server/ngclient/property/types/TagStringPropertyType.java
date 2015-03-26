@@ -35,6 +35,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
@@ -102,12 +103,12 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		TagStringConfig config = getConfig(pd);
 
 		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
-		if (formElementValue != null && valueInTemplate(formElementValue, pd, formElement))
+		if (formElementValue != null && valueInTemplate(formElementValue, pd, formElementContext))
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
 			if (HtmlUtils.startsWithHtml(formElementValue))
@@ -193,11 +194,11 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public boolean valueInTemplate(String formElementVal, PropertyDescription pd, FormElement formElement)
+	public boolean valueInTemplate(String formElementVal, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		if (formElementVal == null) return true;
 		TagStringConfig config = ((TagStringConfig)pd.getConfig());
-		return !((wouldLikeToParseTags(config, formElement) && formElementVal.contains("%%")) || formElementVal.startsWith("i18n:"));
+		return !((wouldLikeToParseTags(config, formElementContext.getFormElement()) && formElementVal.contains("%%")) || formElementVal.startsWith("i18n:"));
 	}
 
 	/**

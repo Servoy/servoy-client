@@ -19,7 +19,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +42,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -106,7 +109,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
-		FlattenedSolution fs, FormElement formElement) throws JSONException
+		FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -115,19 +118,28 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		{
 			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).array();
 			DataConversion arrayConversionMarkers = new DataConversion();
-
 			for (int i = 0; i < formElementValue.length; i++)
 			{
 				arrayConversionMarkers.pushNode(String.valueOf(i));
 				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, null, formElementValue[i], getCustomJSONTypeDefinition(),
-					arrayConversionMarkers, fs, formElement);
+					arrayConversionMarkers, fs, formElementContext);
 				arrayConversionMarkers.popNode();
 			}
 			writer.endArray();
 			if (arrayConversionMarkers.getConversions().size() > 0)
 			{
+				// elements from the array may have been skipped when writing to template,
+				// so make sure the conversions keys are correct
+				Map<String, Object> conversions = arrayConversionMarkers.getConversions();
+				Map<String, Object> rebasedConversions = new HashMap<String, Object>();
+				int index = 0;
+				for (Map.Entry<String, Object> entry : conversions.entrySet())
+				{
+					rebasedConversions.put(String.valueOf(index++), entry.getValue());
+				}
+
 				writer.key("conversions").object();
-				JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
+				JSONUtils.writeConversions(writer, rebasedConversions);
 				writer.endObject();
 			}
 			writer.endObject();
@@ -148,8 +160,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			List<SabloT> list = new ArrayList<>(formElementValue.length);
 			for (Object element : formElementValue)
 			{
-				list.add((SabloT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(element, getCustomJSONTypeDefinition(), formElement, component,
-					dal));
+				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(element, getCustomJSONTypeDefinition(), formElement, component, dal);
+				if (v != null) list.add((SabloT)v);
 			}
 			return list;
 		}
@@ -226,7 +238,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public boolean valueInTemplate(Object[] values, PropertyDescription pd, FormElement fe)
+	public boolean valueInTemplate(Object[] values, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		if (values != null && values.length > 0)
 		{
@@ -237,7 +249,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				ISupportTemplateValue<Object> type = (ISupportTemplateValue<Object>)desc.getType();
 				for (Object object : values)
 				{
-					if (!type.valueInTemplate(object, desc, fe))
+					if (!type.valueInTemplate(object, desc, formElementContext))
 					{
 						return false;
 					}

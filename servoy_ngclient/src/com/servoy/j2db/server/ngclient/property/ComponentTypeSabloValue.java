@@ -45,6 +45,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IDirtyPropertyListener;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -198,7 +199,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent);
-
+		
 		if (foundsetPropValue != null)
 		{
 			dataLinkedPropertyRegistrationListener.componentIsNowAvailable();
@@ -486,7 +487,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(runtimeProperties);
 		removeRecordDependentProperties(formElementProperties);
 
-		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, fe, new IModelWriter()
+		final FormElementContext formElementContext = new FormElementContext(fe, null);
+		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, formElementContext, new IModelWriter()
 		{
 
 			@Override
@@ -495,7 +497,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				writer.object();
 				DataConversion dataConversion = new DataConversion();
 				JSONUtils.writeData(new FormElementToJSON(fe.getFlattendSolution()), writer, formElementProperties.content, formElementProperties.contentType,
-					dataConversion, fe);
+					dataConversion, formElementContext);
 				JSONUtils.writeData(JSONUtils.FullValueToJSONConverter.INSTANCE, writer, runtimeProperties.content, runtimeProperties.contentType,
 					dataConversion, childComponent);
 				JSONUtils.writeClientConversions(writer, dataConversion);

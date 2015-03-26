@@ -41,8 +41,10 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeFormElementValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -127,7 +129,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
+		DataConversion conversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -136,12 +138,13 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
 			DataConversion arrayConversionMarkers = new DataConversion();
-
+			FlattenedSolution clientFlattenedSolution = (formElementContext != null && formElementContext.getContext() != null) ? formElementContext.getContext().getSolution()
+				: null;
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
 				arrayConversionMarkers.pushNode(e.getKey());
 				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
-					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, fs, formElement);
+					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, fs, formElementContext);
 				arrayConversionMarkers.popNode();
 			}
 			writer.endObject();
@@ -176,8 +179,14 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			Map<String, SabloT> map = new HashMap<>(formElementValue.size());
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
-				map.put(e.getKey(), (SabloT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(),
-					getCustomJSONTypeDefinition().getProperty(e.getKey()), formElement, component, dal));
+				if (e.getValue() instanceof ComponentTypeFormElementValue &&
+					!((ComponentTypeFormElementValue)e.getValue()).isSecurityViewable(dal.getApplication().getFlattenedSolution()))
+				{
+					continue;
+				}
+				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(), getCustomJSONTypeDefinition().getProperty(e.getKey()),
+					formElement, component, dal);
+				if (v != null) map.put(e.getKey(), (SabloT)v);
 			}
 			return map;
 		}
@@ -244,7 +253,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public boolean valueInTemplate(Map<String, FormElementT> object, PropertyDescription pd, FormElement fe)
+	public boolean valueInTemplate(Map<String, FormElementT> object, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		if (object != null)
 		{
@@ -254,7 +263,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				FormElementT value = object.get(entry.getKey());
 				if (value != null && entry.getValue().getType() instanceof ISupportTemplateValue< ? >)
 				{
-					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value, entry.getValue(), fe))
+					if (!((ISupportTemplateValue)entry.getValue().getType()).valueInTemplate(value, entry.getValue(), formElementContext))
 					{
 						return false;
 					}

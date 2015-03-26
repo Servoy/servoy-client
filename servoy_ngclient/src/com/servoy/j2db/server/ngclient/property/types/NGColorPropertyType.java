@@ -27,6 +27,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -52,7 +53,7 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Color formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}

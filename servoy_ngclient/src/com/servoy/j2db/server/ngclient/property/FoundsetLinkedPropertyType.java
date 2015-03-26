@@ -35,6 +35,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
@@ -160,14 +161,14 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	}
 
 	@Override
-	public boolean valueInTemplate(YF formElementValue, PropertyDescription pd, FormElement formElement)
+	public boolean valueInTemplate(YF formElementValue, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		return true; // even if wrapped value is not in template, we still send the "forFoundset" config value
 	}
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, YF formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-		FlattenedSolution fs, FormElement formElement) throws JSONException
+		FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		browserConversionMarkers.convert(CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
@@ -176,12 +177,12 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(getConfig(pd).forFoundset);
 
 		if (wrappedType instanceof ISupportTemplateValue &&
-			((ISupportTemplateValue<YF>)wrappedType).valueInTemplate(formElementValue, getConfig(pd).wrappedPropertyDescription, formElement))
+			((ISupportTemplateValue<YF>)wrappedType).valueInTemplate(formElementValue, getConfig(pd).wrappedPropertyDescription, formElementContext))
 		{
 			DataConversion dataConversions = new DataConversion();
 			dataConversions.pushNode(SINGLE_VALUE);
 			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, SINGLE_VALUE, formElementValue, getConfig(pd).wrappedPropertyDescription,
-				browserConversionMarkers, fs, formElement);
+				browserConversionMarkers, fs, formElementContext);
 			JSONUtils.writeClientConversions(writer, dataConversions);
 		}
 

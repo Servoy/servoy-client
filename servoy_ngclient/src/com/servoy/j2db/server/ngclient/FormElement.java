@@ -556,13 +556,12 @@ public final class FormElement implements IWebComponentInitializer
 		return handlers;
 	}
 
-	// called by ftl template
 	public String getPropertiesString() throws JSONException
 	{
-		return propertiesAsTemplateJSON(null).toString();
+		return propertiesAsTemplateJSON(null, new FormElementContext(this, null)).toString();
 	}
 
-	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer) throws JSONException
+	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer, FormElementContext context) throws JSONException
 	{
 		TypedData<Map<String, Object>> propertiesTypedData = propertiesForTemplateJSON();
 
@@ -570,7 +569,7 @@ public final class FormElement implements IWebComponentInitializer
 		try
 		{
 			propertyWriter.object();
-			JSONUtils.writeDataWithConversions(new FormElementToJSON(fs), propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, this);
+			JSONUtils.writeDataWithConversions(new FormElementToJSON(fs), propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, context);
 			return propertyWriter.endObject();
 		}
 		catch (JSONException | IllegalArgumentException e)

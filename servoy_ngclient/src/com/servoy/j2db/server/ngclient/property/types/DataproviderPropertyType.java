@@ -30,6 +30,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
@@ -97,7 +98,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public boolean valueInTemplate(String object, PropertyDescription pd, FormElement formElement)
+	public boolean valueInTemplate(String object, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		return false; // we have no value until the client is created for dataproviders
 	}

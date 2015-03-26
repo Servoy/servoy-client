@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -93,7 +94,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElement formElement)
+	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		return false;
 	}
@@ -143,8 +144,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public ValueListTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement,
-			WebFormComponent component, DataAdapterList dataAdapterList)
+	public ValueListTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
 	{
 		ValueList val = null;
 		IValueList valueList = null;

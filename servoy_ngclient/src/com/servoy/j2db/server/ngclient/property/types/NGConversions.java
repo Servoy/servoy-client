@@ -33,6 +33,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -131,7 +132,7 @@ public class NGConversions
 		 * @return the JSON writer for easily continuing the write process in the caller.
 		 */
 		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-			FlattenedSolution fs, FormElement formElement) throws JSONException;
+			FlattenedSolution fs, FormElementContext formElementContext) throws JSONException;
 
 	}
 
@@ -253,15 +254,15 @@ public class NGConversions
 	 * @param formElement
 	 */
 	public JSONWriter convertFormElementToTemplateJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws IllegalArgumentException, JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws IllegalArgumentException, JSONException
 	{
-		return new FormElementToJSON(fs).toJSONValue(writer, key, value, valueType, browserConversionMarkers, formElement);
+		return new FormElementToJSON(fs).toJSONValue(writer, key, value, valueType, browserConversionMarkers, formElementContext);
 	}
 
 	/**
 	 * To be used for "Conversion 2".
 	 */
-	public static class FormElementToJSON implements IToJSONConverter<FormElement>
+	public static class FormElementToJSON implements IToJSONConverter<FormElementContext>
 	{
 		private final FlattenedSolution fs;
 
@@ -280,7 +281,7 @@ public class NGConversions
 		 */
 		@Override
 		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers,
-			FormElement formElement) throws JSONException, IllegalArgumentException
+			FormElementContext formElementContext) throws JSONException, IllegalArgumentException
 		{
 			IPropertyType< ? > type = (valueType != null ? valueType.getType() : null);
 
@@ -289,13 +290,13 @@ public class NGConversions
 				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
 				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, fs, formElement);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, fs, formElementContext);
 				}
-				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, valueType, formElement))
+				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, valueType, formElementContext))
 				{
 					return writer;
 				}
-				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers, formElement))
+				else if (!JSONUtils.defaultToJSONValue(this, writer, key, value, valueType, browserConversionMarkers, formElementContext))
 				{
 					JSONUtils.addKeyIfPresent(writer, key);
 					writer.value(value);

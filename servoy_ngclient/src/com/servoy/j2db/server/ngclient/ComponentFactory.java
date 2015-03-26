@@ -24,6 +24,7 @@ import org.sablo.specification.WebComponentSpecification;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -66,7 +67,31 @@ public class ComponentFactory
 			}
 
 			// overwrite accessible
-			if (persist != null && !((access & IRepository.ACCESSIBLE) != 0)) webComponent.setProperty("enabled", false);
+			if (persist != null)
+			{
+				int elementSecurity;
+				if (persist.getParent() instanceof Portal)
+				{
+					elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID());
+				}
+				else
+				{
+					elementSecurity = access;
+				}
+				if (!((elementSecurity & IRepository.ACCESSIBLE) != 0)) // element not accessible
+				{
+					webComponent.setProperty("enabled", false);
+				}
+				else
+				{
+					int formSecurity = application.getFlattenedSolution().getSecurityAccess(fe.getForm().getUUID());
+					if (!((formSecurity & IRepository.ACCESSIBLE) != 0)) // form not accessible
+					{
+						webComponent.setProperty("enabled", false);
+					}
+				}
+			}
+
 
 			// TODO should this be a part of type conversions for handlers instead?
 			for (String eventName : componentSpec.getHandlers().keySet())
@@ -105,7 +130,8 @@ public class ComponentFactory
 			boolean templatevalue = true;
 			if (propertySpec.getType() instanceof ISupportTemplateValue)
 			{
-				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue, propertySpec, component.getFormElement());
+				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue, propertySpec, new FormElementContext(
+					component.getFormElement(), null));
 			}
 			if (templatevalue)
 			{

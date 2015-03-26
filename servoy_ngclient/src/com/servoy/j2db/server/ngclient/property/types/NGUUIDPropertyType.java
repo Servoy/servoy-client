@@ -27,7 +27,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.UUID;
 
@@ -75,7 +75,7 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, UUID formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElement formElement) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}

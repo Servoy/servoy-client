@@ -19,6 +19,9 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.List;
 
+import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.server.ngclient.FormElement;
 
 /**
@@ -51,5 +54,15 @@ public class ComponentTypeFormElementValue
 		this.propertyPath = propertyPath;
 	}
 
+	public boolean isSecurityViewable(FlattenedSolution solution)
+	{
+		IPersist persist = element.getPersistIfAvailable();
+		if (persist != null && solution != null)
+		{
+			int access = solution.getSecurityAccess(persist.getUUID());
+			if (!((access & IRepository.VIEWABLE) != 0)) return false;
+		}
 
+		return true;
+	}
 }
