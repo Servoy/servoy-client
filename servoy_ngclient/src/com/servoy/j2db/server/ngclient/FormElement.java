@@ -38,6 +38,10 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.types.AggregatedPropertyType;
+import org.sablo.specification.property.types.DimensionPropertyType;
+import org.sablo.specification.property.types.IntPropertyType;
+import org.sablo.specification.property.types.PointPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -617,7 +621,26 @@ public final class FormElement implements IWebComponentInitializer
 			if (t != null) propertyTypes.putProperty(p.getKey(), t);
 		}
 
+		if (form != null && !form.isResponsiveLayout())
+		{
+			addAbsoluteLayoutProperty(properties, propertyTypes, "location", PointPropertyType.TYPE_NAME);
+			addAbsoluteLayoutProperty(properties, propertyTypes, "size", DimensionPropertyType.TYPE_NAME);
+			addAbsoluteLayoutProperty(properties, propertyTypes, "anchors", IntPropertyType.TYPE_NAME);
+		}
+
 		return new TypedData<>(properties, propertyTypes.hasChildProperties() ? propertyTypes : null);
+	}
+
+	private void addAbsoluteLayoutProperty(Map<String, Object> properties, PropertyDescription propertyTypes, String propertyName, String propertyTypeName)
+	{
+		if (properties.get(propertyName) == null && getRawPropertyValue(propertyName) != null)
+		{
+			properties.put(propertyName, getRawPropertyValue(propertyName));
+		}
+		if (propertyTypes.getProperty(propertyName) == null)
+		{
+			propertyTypes.putProperty(propertyName, new PropertyDescription(propertyName, TypesRegistry.getType(propertyTypeName)));
+		}
 	}
 
 	Dimension getDesignSize()
