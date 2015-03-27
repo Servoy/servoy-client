@@ -72,7 +72,7 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
        $scope.api.getAsPlainText = function() {
     	   if ($scope.model.dataProviderID)
     	   {
-    		   return $scope.model.dataProviderID.replace(/<[^>]*>/g, '');
+    		   return $element.text().trim().replace(/^ +/gm, '');
     	   }
     	   return null;
        }
