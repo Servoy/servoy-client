@@ -131,7 +131,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
 					
-					var columnTitle = getColumnTitle(idx);
+					var columnTitle = getColumnTitle(el.componentIndex ? el.componentIndex : idx);
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
@@ -170,7 +170,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							enableColumnMenu: isSortable,
 							enableSorting:isSortable,
 							enableHiding: false,
-							allowCellFocus: false
+							allowCellFocus: false,
+							svyColumnIndex: el.componentIndex ? el.componentIndex : idx
 						});					
 						updateColumnDefinition($scope, idx);
 					}
@@ -204,7 +205,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if(newVal !== oldVal && newVal)
 					{
 						for (var idx = 0; idx < scope.columnDefinitions.length; idx++)
-							scope.columnDefinitions[idx].displayName = getColumnTitle(idx);
+							scope.columnDefinitions[idx].displayName = getColumnTitle(scope.columnDefinitions[idx].displayName.svyColumnIndex ? scope.columnDefinitions[idx].displayName.svyColumnIndex : idx);
 						
 						scope.gridApi.grid.buildColumns();
 					}

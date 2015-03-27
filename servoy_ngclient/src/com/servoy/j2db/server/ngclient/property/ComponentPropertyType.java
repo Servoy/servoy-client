@@ -190,7 +190,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	public JSONWriter toTemplateJSONValue(final JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
 		DataConversion conversionMarkers, FlattenedSolution fs, final FormElementContext formElementContext) throws JSONException
 	{
-		FlattenedSolution clientFlattenedSolution = (formElementContext != null && formElementContext.getContext() != null) ? formElementContext.getContext().getSolution() : null;
+		FlattenedSolution clientFlattenedSolution = (formElementContext != null && formElementContext.getContext() != null)
+			? formElementContext.getContext().getSolution() : null;
 		if (!formElementValue.isSecurityViewable(clientFlattenedSolution))
 		{
 			return writer;
@@ -231,15 +232,21 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 		writer.key("componentDirectiveName").value(componentFormElementContext.getFormElement().getTypeName());
 		writer.key("name").value(componentFormElementContext.getName());
-		writer.key("model");
 
+		if (componentFormElementContext.getFormElement().getPropertyValue("componentIndex") != null)
+		{
+			writer.key("componentIndex").value(componentFormElementContext.getFormElement().getPropertyValue("componentIndex"));
+		}
+
+		writer.key("model");
 		try
 		{
 			modelWriter.writeComponentModel();
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{
-			Debug.error("Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.", e);
+			Debug.error(
+				"Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.", e);
 			throw e;
 		}
 

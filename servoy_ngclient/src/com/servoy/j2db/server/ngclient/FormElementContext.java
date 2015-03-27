@@ -30,6 +30,11 @@ public class FormElementContext
 	private final FormElement formElement;
 	private final IServoyDataConverterContext context;
 
+	public FormElementContext(FormElement formElement)
+	{
+		this(formElement, null);
+	}
+
 	public FormElementContext(FormElement formElement, IServoyDataConverterContext context)
 	{
 		this.formElement = formElement;

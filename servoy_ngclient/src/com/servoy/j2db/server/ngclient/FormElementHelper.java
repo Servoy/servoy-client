@@ -104,7 +104,7 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer, fs);
+			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
 			else return new FormElement(formElement, fs, propertyPath, designer);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
@@ -116,7 +116,7 @@ public class FormElementHelper
 				propertyPath.setShouldAddElementName();
 			}
 			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-				designer, fs);
+				designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -159,8 +159,7 @@ public class FormElementHelper
 		return flattenedSolution;
 	}
 
-	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner,
-		FlattenedSolution clientFlattenedSolution)
+	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner)
 	{
 		Form form = listViewPortal.getForm();
 		Part bodyPart = null;
@@ -254,36 +253,36 @@ public class FormElementHelper
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
 							{
-								int access = clientFlattenedSolution.getSecurityAccess(persist.getUUID());
-								if ((access & IRepository.VIEWABLE) != 0)
+								String elementName = fe.getName();
+								boolean hasLabelFor = false;
+								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
+								while (graphicalComponents.hasNext())
 								{
-									String elementName = fe.getName();
-									boolean hasLabelFor = false;
-									Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-									while (graphicalComponents.hasNext())
+									GraphicalComponent gc = graphicalComponents.next();
+									if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
+										endPos > gc.getLocation().y)
 									{
-										GraphicalComponent gc = graphicalComponents.next();
-										if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
-											endPos > gc.getLocation().y)
-										{
-											headersText.add(gc.getText());
-											hasLabelFor = true;
-											break;
-										}
-									}
-									if (!hasLabelFor)
-									{
-										if (fe.getPropertyValue("text") != null)
-										{
-											// legacy behavior, take text property
-											headersText.add(fe.getPropertyValue("text").toString());
-										}
-										else
-										{
-											headersText.add(null);
-										}
+										headersText.add(gc.getText());
+										hasLabelFor = true;
+										break;
 									}
 								}
+								if (!hasLabelFor)
+								{
+									if (fe.getPropertyValue("text") != null)
+									{
+										// legacy behavior, take text property
+										headersText.add(fe.getPropertyValue("text").toString());
+									}
+									else
+									{
+										headersText.add(null);
+									}
+								}
+
+								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
+								feRawProperties.put("componentIndex", Integer.valueOf(children.size()));
+								fe.updatePropertyValuesDontUse(feRawProperties);
 							}
 							children.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
 							propertyPath.backOneLevel();

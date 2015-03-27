@@ -558,7 +558,7 @@ public final class FormElement implements IWebComponentInitializer
 
 	public String getPropertiesString() throws JSONException
 	{
-		return propertiesAsTemplateJSON(null, new FormElementContext(this, null)).toString();
+		return propertiesAsTemplateJSON(null, new FormElementContext(this)).toString();
 	}
 
 	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer, FormElementContext context) throws JSONException

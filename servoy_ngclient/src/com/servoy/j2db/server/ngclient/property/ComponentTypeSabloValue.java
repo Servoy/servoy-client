@@ -199,7 +199,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		childComponent = ComponentFactory.createComponent(dal.getApplication(), dal, formElementValue.element, parentComponent);
-		
+
 		if (foundsetPropValue != null)
 		{
 			dataLinkedPropertyRegistrationListener.componentIsNowAvailable();
@@ -487,7 +487,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(runtimeProperties);
 		removeRecordDependentProperties(formElementProperties);
 
-		final FormElementContext formElementContext = new FormElementContext(fe, null);
+		final FormElementContext formElementContext = new FormElementContext(fe);
 		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, formElementContext, new IModelWriter()
 		{
 

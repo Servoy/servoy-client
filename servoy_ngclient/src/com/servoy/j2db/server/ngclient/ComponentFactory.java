@@ -131,7 +131,7 @@ public class ComponentFactory
 			if (propertySpec.getType() instanceof ISupportTemplateValue)
 			{
 				templatevalue = ((ISupportTemplateValue)propertySpec.getType()).valueInTemplate(formElementValue, propertySpec, new FormElementContext(
-					component.getFormElement(), null));
+					component.getFormElement()));
 			}
 			if (templatevalue)
 			{
