@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.design;
 
-import com.servoy.j2db.persistence.IPersistChangeListener;
 import com.servoy.j2db.persistence.Solution;
 
 /**
@@ -36,15 +35,4 @@ public interface IDesignerSolutionProvider
 	 * @return
 	 */
 	Solution getEditingSolution(String name);
-
-	/**
-	 * @param listener
-	 */
-	void addPersistListener(IPersistChangeListener listener);
-
-	/**
-	 * @param listener
-	 */
-	void removePersistListener(IPersistChangeListener listener);
-
 }

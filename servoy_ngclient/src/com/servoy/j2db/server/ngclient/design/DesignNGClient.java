@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.design;
 
+import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
@@ -26,18 +27,25 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.dataprocessing.Record;
+import com.servoy.j2db.persistence.IActiveSolutionHandler;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -46,12 +54,15 @@ import com.servoy.j2db.util.ServoyException;
  */
 public class DesignNGClient extends NGClient
 {
+	private final IDesignerSolutionProvider solutionProvider;
+
 	/**
 	 * @param wsSession
 	 */
-	public DesignNGClient(INGClientWebsocketSession wsSession) throws Exception
+	public DesignNGClient(INGClientWebsocketSession wsSession, IDesignerSolutionProvider solutionProvider) throws Exception
 	{
 		super(wsSession);
+		this.solutionProvider = solutionProvider;
 		setUseLoginSolution(false);
 		setTimeZone(TimeZone.getDefault());
 		setLocale(Locale.getDefault());
@@ -65,13 +76,53 @@ public class DesignNGClient extends NGClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.NGClient#getSolutionTypeFilter()
 	 */
 	@Override
 	protected int getSolutionTypeFilter()
 	{
 		return super.getSolutionTypeFilter() | SolutionMetaData.MODULE;
+	}
+
+	@Override
+	public void loadSolution(String solutionName) throws com.servoy.j2db.persistence.RepositoryException
+	{
+		SolutionMetaData metaData = (SolutionMetaData)solutionProvider.getActiveEditingSolution().getMetaData();
+		if (getSolution() == null || !getSolution().getName().equals(metaData.getName()))
+		{
+			loadSolution(metaData);
+		}
+		// fake this so that it seems to be in solution model node.
+		solutionRoot.getSolutionCopy(true);
+	}
+
+	@Override
+	protected IActiveSolutionHandler createActiveSolutionHandler()
+	{
+		return new AbstractActiveSolutionHandler(getApplicationServer())
+		{
+
+			@Override
+			protected Solution loadSolution(RootObjectMetaData solutionDef) throws RemoteException, RepositoryException
+			{
+				return solutionProvider.getEditingSolution(solutionDef.getName());
+			}
+
+			@Override
+			public IRepository getRepository()
+			{
+				try
+				{
+					return getApplicationServerAccess().getRepository();
+				}
+				catch (RemoteException e)
+				{
+					Debug.error(e);
+				}
+				return null;
+			}
+		};
 	}
 
 	@Override
@@ -94,7 +145,7 @@ public class DesignNGClient extends NGClient
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see com.servoy.j2db.scripting.ScriptEngine#getTableScope(com.servoy.j2db.persistence.ITable)
 			 */
 			@Override
