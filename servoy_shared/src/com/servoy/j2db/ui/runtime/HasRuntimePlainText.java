@@ -21,23 +21,25 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 /**
  * Interface for components with plain text support.
- * 
+ *
  * @author rgansevles
- * 
+ *
  *  @since 6.1
  *
  */
 public interface HasRuntimePlainText
 {
 	/**
-	 * Gets the plain text for the formatted HTML/RTF text of a specified field element with a design time display property of HTML_AREA/RTF only. It is for Smart Client use only.
+	 * Gets the plain text for the formatted HTML/RTF text of a specified field element with a design time display property of HTML_AREA/RTF only.
+	 *
+	 * NOTE: This does not work in Web Client.
 	 * 
 	 * NOTE: As of Servoy 4.x (and higher) you can also get/set the relative or absolute URL for an HTML_AREA field element. For more detail, see the .URL and .baseURL field element runtime properties earlier in this section.
-	 * 
+	 *
 	 * NOTE: For information about field element design time properties, see the section on Field elements in the Forms chapter of the Servoy Developer User's Guide.
 	 *
 	 * @sample var my_text = %%prefix%%%%elementName%%.getAsPlainText();
-	 * 
+	 *
 	 * @return the plain text
 	 */
 	@JSFunction
