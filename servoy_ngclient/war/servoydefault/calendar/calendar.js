@@ -92,15 +92,14 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			});
 			
 			$scope.$watch('model.findmode', function() {
-				if ($scope.model.findmode) {
-					//TODO now show input text field and hide the picker
-					// var tmp = child.data('DateTimePicker');
-					// tmp.disable(); 
-				} else {
-					//TODO hide the findmode textfield and make calendar work normally again
-					//child.datetimepicker(); will not work because it triggers a digest call and we are already in a digest call
+				if ($scope.model.findmode) 
+				{
+					child.data('DateTimePicker').destroy();
+				} 
+				else 
+				{
+					child.datetimepicker();
 					var x = child.data('DateTimePicker');
-					// x.enable();
 					x.format(dateFormat);
 					try {
 						$element.off("change.dp", inputChanged);
@@ -111,33 +110,6 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				}
 			});
 
-			// special method that servoy calls when this component goes into find mode.
-			// $scope.api.setFindMode = function(mode, editable) {
-			// 	$scope.findMode = mode;
-			// 	if ($scope.findMode)
-			// 	{
-			// 		var tmp = child.data('DateTimePicker');
-			// 		if (angular.isDefined(tmp)) tmp.destroy(); // can be undefined in find mode
-			// 		$scope.wasEditable = $scope.model.editable;
-			// 		if (!$scope.model.editable) $scope.model.editable = editable;
-			// 	}
-			// 	else
-			// 	{
-			// 		child.datetimepicker();
-			// 		var x = child.data('DateTimePicker');
-			// 		if (angular.isDefined(x)) { // can be undefined in find mode
-			// 			x.format(dateFormat);
-			// 			try {
-			// 				$element.off("change.dp",inputChanged);
-			// 				x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
-			// 				$scope.model.editable = $scope.wasEditable != undefined ? $scope.wasEditable : editable
-			// 			}
-			// 			finally {
-			// 				$element.on("change.dp",inputChanged);
-			// 			}
-			// 		}
-			// 	}
-			// };
 			var storedTooltip = false;
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
