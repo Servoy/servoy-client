@@ -25,6 +25,7 @@ import org.json.JSONWriter;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.util.Debug;
@@ -108,37 +109,41 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 		{
 			findMode = newFindMode;
 
-			if (findMode)
+			if (!Boolean.TRUE.equals(dataAdapterList.getApplication().getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
-				//when entering find mode we save the previous values first so that we can put them back when we exit findmode
-				Set<String> configPropertiesNames = config.configPropertiesNames();
-				for (String propertyName : configPropertiesNames)
+				if (findMode)
 				{
-					if (component.getProperty(propertyName) instanceof Boolean)
+					//when entering find mode we save the previous values first so that we can put them back when we exit findmode
+					Set<String> configPropertiesNames = config.configPropertiesNames();
+					for (String propertyName : configPropertiesNames)
 					{
-						saveOldConfigValues.put(propertyName, (Boolean)component.getProperty(propertyName));
+						if (component.getProperty(propertyName) instanceof Boolean)
+						{
+							saveOldConfigValues.put(propertyName, (Boolean)component.getProperty(propertyName));
+						}
+						else Debug.log("Warning! findmode config property value \"" + propertyName + //$NON-NLS-1$
+							"\" is NOT a Boolean in the actual component model. This property will not be affected by the findmode toggle."); //$NON-NLS-1$
 					}
-					else Debug.log("Warning! findmode config property value \"" + propertyName + //$NON-NLS-1$
-						"\" is NOT a Boolean in the actual component model. This property will not be affected by the findmode toggle."); //$NON-NLS-1$
-				}
-				//then we set in the component the configured values
-				for (String propertyName : configPropertiesNames)
-				{
-					Object configuredPropertyValue = config.getConfiguredPropertyValueOf(propertyName);
-					if (configuredPropertyValue instanceof Boolean)
+					//then we set in the component the configured values
+					for (String propertyName : configPropertiesNames)
 					{
-						component.setProperty(propertyName, configuredPropertyValue);
+						Object configuredPropertyValue = config.getConfiguredPropertyValueOf(propertyName);
+						if (configuredPropertyValue instanceof Boolean)
+						{
+							component.setProperty(propertyName, configuredPropertyValue);
+						}
+						else Debug.log("Warning! findmode config property value \"" + propertyName + //$NON-NLS-1$
+							"\" is NOT a Boolean. This property will not be affected by the findmode toggle."); //$NON-NLS-1$
 					}
-					else Debug.log("Warning! findmode config property value \"" + propertyName + //$NON-NLS-1$
-						"\" is NOT a Boolean. This property will not be affected by the findmode toggle."); //$NON-NLS-1$
 				}
-			}
-			else
-			{
-				//when we exit findmode, we put back the old values
-				for (String propertyName : saveOldConfigValues.keySet())
+				else
 				{
-					component.setProperty(propertyName, saveOldConfigValues.get(propertyName));
+					//when we exit findmode, we put back the old values
+					for (String propertyName : saveOldConfigValues.keySet())
+					{
+						component.setProperty(propertyName, saveOldConfigValues.get(propertyName));
+					}
+					saveOldConfigValues.clear();
 				}
 			}
 
