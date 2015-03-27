@@ -20,7 +20,7 @@
             return (number !== 0 && remainder <= 1 || remainder === 8 || remainder >= 20) ? 'ste' : 'de';
         },
         currency: {
-            symbol: '€ '
+            symbol: '\u20ac'
         }
     };
 
@@ -192,7 +192,7 @@
             return '.';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 
@@ -269,7 +269,7 @@
                             (b === 9) ? 'no' : 'to';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 
@@ -347,7 +347,7 @@
             return '.';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 
@@ -382,7 +382,7 @@
             return '.';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 
@@ -486,7 +486,7 @@
             return number === 1 ? 'er' : 'e';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 
@@ -554,7 +554,7 @@
             return 'º';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 
@@ -624,7 +624,7 @@
             return (number !== 0 && remainder <= 1 || remainder === 8 || remainder >= 20) ? 'ste' : 'de';
         },
         currency: {
-            symbol: '€ '
+            symbol: '\u20ac'
         }
     };
 
@@ -726,7 +726,7 @@
             return 'º';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 
@@ -835,7 +835,7 @@
             return '.';
         },
         currency: {
-            symbol: '€'
+            symbol: '\u20ac'
         }
     };
 

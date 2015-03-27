@@ -73,7 +73,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		}
 		if(servoyFormat.indexOf("-") > -1) data *=-1;	
 		
-		partchedFrmt = partchedFrmt.replaceAll('¤','$');
+		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
 		partchedFrmt = partchedFrmt.replaceAll('#','0');
 
