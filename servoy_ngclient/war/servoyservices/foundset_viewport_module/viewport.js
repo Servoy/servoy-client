@@ -28,10 +28,12 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				if (internalState.changeNotifier) internalState.changeNotifier();
 			}
 
-			function getCellValue() { return columnName == null ? viewPort[idx] : viewPort[idx][columnName] }; // viewport row can be just a value or an object of key/value pairs
+			function getCellValue() { 
+				return columnName == null ? viewPort[idx] : viewPort[idx][columnName]
+			}; // viewport row can be just a value or an object of key/value pairs
 
 			if (getCellValue() && getCellValue()[$sabloConverters.INTERNAL_IMPL] && getCellValue()[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-				// smart propery value
+				// smart property value
 
 				// watch for change-by reference
 				internalState.unwatchData[idx].push(

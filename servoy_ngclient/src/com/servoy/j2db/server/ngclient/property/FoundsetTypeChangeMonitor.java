@@ -279,7 +279,7 @@ public class FoundsetTypeChangeMonitor
 	 * @param lastRow the last row of the insertion.
 	 * @param viewPort the current viewPort.
 	 * @param viewPortExpandOnly if false, and records were inserted exactly at the viewPort start index, it will just slide the viewport;
-	 * if false, and records were requested for (so not actually inserted in the foundset, just a viewportExpand is happening) exactly
+	 * if true then records were requested for (so not actually inserted in the foundset, just a viewportExpand is happening) exactly
 	 * at the viewPort start index, it will actually insert the new records in the view port.
 	 */
 	public void recordsInserted(int firstRow, int lastRow, FoundsetTypeViewport viewPort, boolean viewPortExpandOnly)
@@ -299,6 +299,7 @@ public class FoundsetTypeChangeMonitor
 				// can this be done for an actual paging component? (if foundset is size 10, pagesize = 10 and they are on the first page) (TODO check)
 				if (viewPort.getStartIndex() == 0 && viewPort.getSize() == propertyValue.foundset.getSize() - (lastRow - firstRow + 1))
 				{
+					// special case - if showing all records in the foundset and new ones appear - expand the viewport to still include entire foundset
 					viewPort.size = propertyValue.foundset.getSize();
 					viewPortBoundsOnlyChanged();
 				}

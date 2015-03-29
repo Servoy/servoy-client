@@ -42,7 +42,7 @@ describe("Test component_custom_property suite", function() {
 		}
 		componentModelGetter = function() { return componentModel; };
 
-		var template = '<div"></div>';
+		var template = '<div></div>';
 		$compile(template)($scope);
 		converted = sabloConverters.convertFromServerToClient(serverValue,'component', $scope.model, $scope, componentModelGetter);
 		$scope.$digest();

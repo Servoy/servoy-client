@@ -297,7 +297,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			var instance = instances[name];
 			if (instance) {
 				delete instances[name];
-			}else{
+			} else {
 				$log.error("Trying to destroy window : '" + name + "' which is not created. If this is due to a developer form change/save while dialog is open in client it is expected.");
 			}
 		},
