@@ -37,6 +37,8 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
 
@@ -103,7 +105,14 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
 			call.put("propertyPath", componentContext.getPropertyPath());
 		}
-		return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+
+		Object ret = super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+		if (apiFunction.getReturnType().getType() instanceof ISabloComponentToRhino< ? >)
+		{
+			ret = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(ret, apiFunction.getReturnType(), receiver, null);
+		}
+
+		return ret;
 	}
 
 	@Override

@@ -16,14 +16,15 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONObject;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.DefaultPropertyType;
 
-import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
  * This is a special type that is used in api calls to let servoy know that the api should return a form server instance itself
@@ -31,7 +32,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
  * TODO this should be looked at for getRightForm for example of the SplitPane
  * @author jcompagner
  */
-public class FormScopePropertyType extends DefaultPropertyType<FormScope> implements IRhinoToSabloComponent<FormScope>
+public class FormScopePropertyType extends DefaultPropertyType<Object> implements IRhinoToSabloComponent<Object>, ISabloComponentToRhino<Object>
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
@@ -54,7 +55,7 @@ public class FormScopePropertyType extends DefaultPropertyType<FormScope> implem
 	}
 
 	@Override
-	public FormScope toSabloComponentValue(Object rhinoValue, FormScope previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
 		INGApplication app = ((IContextProvider)componentOrService).getDataConverterContext().getApplication();
 		if (rhinoValue instanceof String && app != null)
@@ -62,6 +63,23 @@ public class FormScopePropertyType extends DefaultPropertyType<FormScope> implem
 			return app.getFormManager().getForm((String)rhinoValue).getFormScope();
 		}
 		return null;
+	}
+
+	@Override
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		INGApplication app = ((IContextProvider)componentOrService).getDataConverterContext().getApplication();
+		if (webComponentValue instanceof String && app != null)
+		{
+			return app.getFormManager().getForm((String)webComponentValue).getFormScope();
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return true;
 	}
 
 }
