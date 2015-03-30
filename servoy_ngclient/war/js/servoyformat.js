@@ -318,7 +318,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 
 			 element.on('keypress',function(e){
 				 var svyFormat = $scope.$eval(attrs['svyFormat'])
-				 if(svyFormat && !$scope.model.findmode){
+				 if(svyFormat && !$scope.model.findmode && !attrs['typeahead']){
 					 if(svyFormat.type == "INTEGER"){
 						 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
 					 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
