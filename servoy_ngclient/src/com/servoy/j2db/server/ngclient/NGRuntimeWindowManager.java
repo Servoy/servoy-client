@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -163,16 +164,11 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.RuntimeWindowManager#getOrderedContainers()
-	 */
 	@Override
 	protected List<String> getOrderedContainers()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		// return them unordered for now, we do not have the order info in ngclient yet
+		return new ArrayList<String>(windows.keySet());
 	}
 
 	public void createMainWindow(String windowsUUID)
