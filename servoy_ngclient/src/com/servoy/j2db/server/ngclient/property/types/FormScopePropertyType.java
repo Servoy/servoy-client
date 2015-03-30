@@ -15,16 +15,20 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.Scriptable;
+import org.json.JSONWriter;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IPropertyConverter;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.websocket.utils.DataConversion;
 
+import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
  * This is a special type that is used in api calls to let servoy know that the api should return a form server instance itself
@@ -32,7 +36,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  * TODO this should be looked at for getRightForm for example of the SplitPane
  * @author jcompagner
  */
-public class FormScopePropertyType extends DefaultPropertyType<Object> implements IRhinoToSabloComponent<Object>, ISabloComponentToRhino<Object>
+public class FormScopePropertyType extends DefaultPropertyType<FormScope> implements IRhinoToSabloComponent<FormScope>, IPropertyConverter<FormScope>
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
@@ -55,7 +59,7 @@ public class FormScopePropertyType extends DefaultPropertyType<Object> implement
 	}
 
 	@Override
-	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public FormScope toSabloComponentValue(Object rhinoValue, FormScope previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
 		INGApplication app = ((IContextProvider)componentOrService).getDataConverterContext().getApplication();
 		if (rhinoValue instanceof String && app != null)
@@ -66,20 +70,29 @@ public class FormScopePropertyType extends DefaultPropertyType<Object> implement
 	}
 
 	@Override
-	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	public FormScope fromJSON(Object newJSONValue, FormScope previousSabloValue, IDataConverterContext dataConverterContext)
 	{
-		INGApplication app = ((IContextProvider)componentOrService).getDataConverterContext().getApplication();
-		if (webComponentValue instanceof String && app != null)
+		INGApplication app = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication();
+		if (newJSONValue instanceof String && app != null)
 		{
-			return app.getFormManager().getForm((String)webComponentValue).getFormScope();
+			return app.getFormManager().getForm((String)newJSONValue).getFormScope();
 		}
 		return null;
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	public JSONWriter toJSON(JSONWriter writer, String key, FormScope sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException
 	{
-		return true;
+		if (sabloValue != null)
+		{
+			writer.value(sabloValue.getFormController().getName());
+		}
+		else
+		{
+			writer.value(null);
+		}
+		return writer;
 	}
 
 }
