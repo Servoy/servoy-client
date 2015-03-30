@@ -103,13 +103,13 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 			$scope.columnDefinitions = [];
 			
-			function getColumnTitle(idx) {
+			function getColumnTitle(componentIdx, elementIdx) {
 				var columnTitle = null;
-				if ($scope.model.columnHeaders && idx < $scope.model.columnHeaders.length)
+				if ($scope.model.columnHeaders && componentIdx < $scope.model.columnHeaders.length)
 				{
-					columnTitle = $scope.model.columnHeaders[idx];
+					columnTitle = $scope.model.columnHeaders[componentIdx];
 				}	
-				if (!columnTitle) columnTitle = elements[idx].model.text;
+				if (!columnTitle) columnTitle = elements[elementIdx].model.text;
 	//			if (!columnTitle) {
 	//				// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
 	//				if (el.foundsetConfig && el.foundsetConfig.recordBasedProperties && el.foundsetConfig.recordBasedProperties.length > 0) {
@@ -131,7 +131,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
 					
-					var columnTitle = getColumnTitle(el.componentIndex ? el.componentIndex : idx);
+					var columnTitle = getColumnTitle(el.componentIndex ? el.componentIndex : idx, idx);
 
 					var portal_svy_name = $element[0].getAttribute('data-svy-name');
 					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
@@ -205,7 +205,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if(newVal !== oldVal && newVal)
 					{
 						for (var idx = 0; idx < scope.columnDefinitions.length; idx++)
-							scope.columnDefinitions[idx].displayName = getColumnTitle(scope.columnDefinitions[idx].displayName.svyColumnIndex ? scope.columnDefinitions[idx].displayName.svyColumnIndex : idx);
+							scope.columnDefinitions[idx].displayName = getColumnTitle(scope.columnDefinitions[idx].displayName.svyColumnIndex ? scope.columnDefinitions[idx].displayName.svyColumnIndex : idx, idx);
 						
 						scope.gridApi.grid.buildColumns();
 					}
