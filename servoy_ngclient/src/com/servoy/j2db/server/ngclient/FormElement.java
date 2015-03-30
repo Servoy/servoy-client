@@ -105,8 +105,9 @@ public final class FormElement implements IWebComponentInitializer
 		if (addNameToPath) propertyPath.add(getName());
 		Map<String, Object> map = persistImpl.getFormElementPropertyValues(fs, specProperties, propertyPath);
 
-		initTemplateProperties(specProperties, map, fs, propertyPath);
 		adjustLocationRelativeToPart(fs, map);
+		initTemplateProperties(specProperties, map, fs, propertyPath);
+
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
@@ -146,8 +147,9 @@ public final class FormElement implements IWebComponentInitializer
 			Debug.error("Error while parsing component design JSON", ex);
 		}
 
-		initTemplateProperties(specProperties, map, fs, propertyPath);
 		adjustLocationRelativeToPart(fs, map);
+		initTemplateProperties(specProperties, map, fs, propertyPath);
+
 		if (this.componentType == FormElement.ERROR_BEAN)
 		{
 			map.put("toolTipText", "component type: " + componentTypeString + " not found");
@@ -345,6 +347,14 @@ public final class FormElement implements IWebComponentInitializer
 				}
 			}
 		}
+
+		if (form != null && !form.isResponsiveLayout())
+		{
+			addAbsoluteLayoutProperty("location", PointPropertyType.TYPE_NAME);
+			addAbsoluteLayoutProperty("size", DimensionPropertyType.TYPE_NAME);
+			addAbsoluteLayoutProperty("anchors", IntPropertyType.TYPE_NAME);
+		}
+
 	}
 
 	public Map<String, Object> getRawPropertyValues()
@@ -620,26 +630,14 @@ public final class FormElement implements IWebComponentInitializer
 			if (t != null) propertyTypes.putProperty(p.getKey(), t);
 		}
 
-		if (form != null && !form.isResponsiveLayout())
-		{
-			addAbsoluteLayoutProperty(properties, propertyTypes, "location", PointPropertyType.TYPE_NAME);
-			addAbsoluteLayoutProperty(properties, propertyTypes, "size", DimensionPropertyType.TYPE_NAME);
-			addAbsoluteLayoutProperty(properties, propertyTypes, "anchors", IntPropertyType.TYPE_NAME);
-		}
 
 		return new TypedData<>(properties, propertyTypes.hasChildProperties() ? propertyTypes : null);
 	}
 
-	private void addAbsoluteLayoutProperty(Map<String, Object> properties, PropertyDescription propertyTypes, String propertyName, String propertyTypeName)
+	private void addAbsoluteLayoutProperty(String propertyName, String propertyTypeName)
 	{
-		if (properties.get(propertyName) == null && getRawPropertyValue(propertyName) != null)
-		{
-			properties.put(propertyName, getRawPropertyValue(propertyName));
-		}
-		if (propertyTypes.getProperty(propertyName) == null)
-		{
-			propertyTypes.putProperty(propertyName, new PropertyDescription(propertyName, TypesRegistry.getType(propertyTypeName)));
-		}
+		if (getWebComponentSpec().getProperty(propertyName) == null) getWebComponentSpec().putProperty(propertyName,
+			new PropertyDescription(propertyName, TypesRegistry.getType(propertyTypeName)));
 	}
 
 	Dimension getDesignSize()
