@@ -390,11 +390,6 @@ public class SpecGenerator
 				model.add(cs.new Element(-1, IRepository.FIELDS, "columnHeaders", -1, null));
 				model.add(cs.new Element(-1, IRepository.INTEGER, "headerHeight", IRepository.INTEGER, 32));
 			}
-			if ("label".equals(componentSpec.getName()) || "button".equals(componentSpec.getName()))
-			{
-				ContentSpec cs = new ContentSpec();
-				model.add(cs.new Element(-1, IRepository.GRAPHICALCOMPONENTS, "directEditPropertyName", IRepository.STRING, null));
-			}
 			if (componentSpec.getRepositoryType() == IRepository.TABPANELS)
 			{
 				ContentSpec cs = new ContentSpec();
@@ -490,8 +485,7 @@ public class SpecGenerator
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
-
-		buttonTypeMapping.put("directEditPropertyName", "{\"type\" :\"string\",  \"default\" : \"text\"}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" , \"tags\": { \"directEdit\" : \"true\" } }");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
 
 		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
@@ -552,10 +546,10 @@ public class SpecGenerator
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"TOP\":1}, {\"CENTER\":0} ,{\"BOTTOM\":3}], \"default\" : 0}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
-		labelMapping.put("directEditPropertyName", "{\"type\" :\"string\",  \"default\" : \"text\"}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" , \"tags\": { \"directEdit\" : \"true\" } }");
 		componentRepoTypeMappingExceptions.put("label", labelMapping);
 
 		HashMap<String, String> listboxTypeMapping = new HashMap<String, String>();

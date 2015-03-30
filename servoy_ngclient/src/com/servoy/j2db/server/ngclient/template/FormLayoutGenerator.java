@@ -20,8 +20,10 @@ package com.servoy.j2db.server.ngclient.template;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.helper.StringUtil;
+import org.sablo.specification.PropertyDescription;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -169,6 +171,13 @@ public class FormLayoutGenerator
 				writer.print("[" + StringUtil.join(typeNames, ",") + "]");
 				writer.print("'");
 			}
+			String directEditPropertyName = getDirectEditProperty(fe);
+			if (directEditPropertyName != null)
+			{
+				writer.print(" directEditPropertyName='");
+				writer.print(directEditPropertyName);
+				writer.print("'");
+			}
 		}
 		writer.println(">");
 	}
@@ -247,6 +256,13 @@ public class FormLayoutGenerator
 					writer.print("'");
 				}
 			}
+			String directEditPropertyName = getDirectEditProperty(fe);
+			if (directEditPropertyName != null)
+			{
+				writer.print(" directEditPropertyName='");
+				writer.print(directEditPropertyName);
+				writer.print("'");
+			}
 		}
 		writer.print(" svy-servoyApi='handlers.");
 		writer.print(fe.getName());
@@ -267,6 +283,19 @@ public class FormLayoutGenerator
 	private static String getDesignId(FormElement fe)
 	{
 		return (fe.getDesignId() == null && fe.getTypeName().equals("servoydefault-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
+	}
+
+	private static String getDirectEditProperty(FormElement fe)
+	{
+		Map<String, PropertyDescription> properties = fe.getWebComponentSpec(false).getProperties();
+		for (PropertyDescription pd : properties.values())
+		{
+			if (Utils.getAsBoolean(pd.getTag("directEdit")))
+			{
+				return pd.getName();
+			}
+		}
+		return null;
 	}
 
 	private static boolean isNotSelectable(FormElement fe)
