@@ -40,7 +40,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
         var hasRealValues = false;
 
         $scope.$watch('model.valuelistID', function() {
-          if (!$scope.model.valuelistID) return; // not loaded yet
+          if (!$scope.model.valuelistID || $scope.model.valuelistID.length == 0) return; // not loaded yet or already filtered
           hasRealValues = false;
           for (var i = 0; i < $scope.model.valuelistID.length; i++) {
             var item = $scope.model.valuelistID[i];
@@ -51,8 +51,17 @@ angular.module('servoydefaultTypeahead', ['servoy'])
           }
         })
 
+        var editing = false;
+        
+        $scope.startEdit = function() {
+        	editing = true;
+        }
+        
         $scope.doSvyApply = function() {
+          if (!editing) 
+        	  return;
           if ($('[typeahead-popup]').attr('aria-hidden') == "true") {
+        	editing = false;
             if ($scope.model.valuelistID) {
               var hasMatchingDisplayValue = false;
               for (var i = 0; i < $scope.model.valuelistID.length; i++) {
@@ -69,6 +78,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
           } 
           else if (!hasRealValues)
           {
+        	editing = false;
         	$scope.svyServoyapi.apply('dataProviderID');
           }
         }
