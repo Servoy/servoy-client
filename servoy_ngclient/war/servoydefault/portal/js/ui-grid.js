@@ -1,5 +1,5 @@
 /*!
- * ui-grid - v - 2015-03-24
+ * ui-grid - v - 2015-03-31
  * Copyright (c) 2015 ; License: MIT 
  */
 
@@ -671,8 +671,9 @@ function ($timeout, gridUtil, uiGridConstants, uiGridColumnMenuService) {
 
       $scope.hideColumn = function () {
         $scope.col.colDef.visible = false;
+        $scope.col.visible = false;
 
-        $scope.grid.refresh();
+        $scope.grid.queueGridRefresh();
         $scope.hideMenu();
         $scope.grid.api.core.notifyDataChange( uiGridConstants.dataChange.COLUMN );
         $scope.grid.api.core.raise.columnVisibilityChanged( $scope.col );        
@@ -1252,118 +1253,22 @@ function ($timeout, gridUtil, uiGridConstants, uiGridColumnMenuService) {
             gridUtil.disableAnimations($elm);
 
             function updateColumnWidths() {
-              // Get the width of the viewport
-              var availableWidth = containerCtrl.colContainer.getViewportWidth() - grid.scrollbarWidth;
+              // this styleBuilder always runs after the renderContainer, so we can rely on the column widths
+              // already being populated correctly
 
-              //if (typeof(uiGridCtrl.grid.verticalScrollbarWidth) !== 'undefined' && uiGridCtrl.grid.verticalScrollbarWidth !== undefined && uiGridCtrl.grid.verticalScrollbarWidth > 0) {
-              //  availableWidth = availableWidth + uiGridCtrl.grid.verticalScrollbarWidth;
-              //}
-
-              // The total number of columns
-              // var equalWidthColumnCount = columnCount = uiGridCtrl.grid.options.columnDefs.length;
-              // var equalWidth = availableWidth / equalWidthColumnCount;
-
-              var columnCache = containerCtrl.colContainer.visibleColumnCache,
-                  canvasWidth = 0,
-                  asteriskNum = 0,
-                  oneAsterisk = 0,
-                  leftoverWidth = availableWidth,
-                  hasVariableWidth = false;
+              var columnCache = containerCtrl.colContainer.visibleColumnCache;
               
-              var getColWidth = function(column){
-                if (column.widthType === "manual"){ 
-                  return +column.width; 
-                }
-                else if (column.widthType === "percent"){ 
-                  return parseInt(column.width.replace(/%/g, ''), 10) * availableWidth / 100;
-                }
-                else if (column.widthType === "auto"){
-                  // leftOverWidth is subtracted from after each call to this
-                  // function so we need to calculate oneAsterisk size only once
-                  if (oneAsterisk === 0) {
-                    oneAsterisk = parseInt(leftoverWidth / asteriskNum, 10);
-                  }
-                  return column.width.length * oneAsterisk; 
-                }
-              };
-              
-              // Populate / determine column width types:
-              columnCache.forEach(function(column){
-                column.widthType = null;
-                if (isFinite(+column.width)){
-                  column.widthType = "manual";
-                }
-                else if (gridUtil.endsWith(column.width, "%")){
-                  column.widthType = "percent";
-                  hasVariableWidth = true;
-                }
-                else if (angular.isString(column.width) && column.width.indexOf('*') !== -1){
-                  column.widthType = "auto";
-                  asteriskNum += column.width.length;
-                  hasVariableWidth = true;
-                }
-              });
-              
-              // For sorting, calculate width from first to last:
-              var colWidthPriority = ["manual", "percent", "auto"];
-              columnCache.filter(function(column){
-                // Only draw visible items with a widthType
-                return (column.visible && column.widthType); 
-              }).sort(function(a,b){
-                // Calculate widths in order, so that manual comes first, etc.
-                return colWidthPriority.indexOf(a.widthType) - colWidthPriority.indexOf(b.widthType);
-              }).forEach(function(column){
-                // Calculate widths:
-                var colWidth = getColWidth(column);
-                if (column.minWidth){
-                  colWidth = Math.max(colWidth, column.minWidth);
-                }
-                if (column.maxWidth){
-                  colWidth = Math.min(colWidth, column.maxWidth);
-                }
-                column.drawnWidth = Math.floor(colWidth);
-                canvasWidth += column.drawnWidth;
-                leftoverWidth -= column.drawnWidth;
-              });
-
-              // If the grid width didn't divide evenly into the column widths and we have pixels left over, dole them out to the columns one by one to make everything fit
-              if (hasVariableWidth && leftoverWidth > 0 && canvasWidth > 0 && canvasWidth < availableWidth) {
-                var remFn = function (column) {
-                  if (leftoverWidth > 0 && (column.widthType === "auto" || column.widthType === "percent")) {
-                    column.drawnWidth = column.drawnWidth + 1;
-                    canvasWidth = canvasWidth + 1;
-                    leftoverWidth--;
-                  }
-                };
-                var prevLeftover = 0;
-                do {
-                  prevLeftover = leftoverWidth;
-                  columnCache.forEach(remFn);
-                } while (leftoverWidth > 0 && leftoverWidth !== prevLeftover );
-              }
-              canvasWidth = Math.max(canvasWidth, availableWidth);
-
               // Build the CSS
               // uiGridCtrl.grid.columns.forEach(function (column) {
               var ret = '';
+              var canvasWidth = 0;
               columnCache.forEach(function (column) {
                 ret = ret + column.getColClassDefinition();
+                canvasWidth += column.drawnWidth;
               });
 
-              // Add the vertical scrollbar width back in to the canvas width, it's taken out in getViewportWidth
-              //if (grid.verticalScrollbarWidth) {
-              //  canvasWidth = canvasWidth + grid.verticalScrollbarWidth;
-              //}
-              // canvasWidth = canvasWidth + 1;
-
-              // if we have a grid menu, then we prune the width of the last column header
-              // to allow room for the button whilst still getting to the column menu
-              if (columnCache.length > 0) { // && grid.options.enableGridMenu) {
-                columnCache[columnCache.length - 1].headerWidth = columnCache[columnCache.length - 1].drawnWidth - 30;
-              }
-
-              containerCtrl.colContainer.canvasWidth = parseInt(canvasWidth, 10);
-
+              containerCtrl.colContainer.canvasWidth = canvasWidth;
+              
               // Return the styles back to buildStyles which pops them into the `customStyles` scope variable
               return ret;
             }
@@ -1378,7 +1283,7 @@ function ($timeout, gridUtil, uiGridConstants, uiGridColumnMenuService) {
             //todo: remove this if by injecting gridCtrl into unit tests
             if (uiGridCtrl) {
               uiGridCtrl.grid.registerStyleComputation({
-                priority: 5,
+                priority: 15,
                 func: updateColumnWidths
               });
             }
@@ -2193,7 +2098,7 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants) {
             function update() {
               var ret = '';
 
-              var canvasWidth = colContainer.getCanvasWidth();
+              var canvasWidth = colContainer.canvasWidth;
               var viewportWidth = colContainer.getViewportWidth();
 
               var canvasHeight = rowContainer.getCanvasHeight();
@@ -2846,18 +2751,16 @@ angular.module('ui.grid').directive('uiGrid',
                   width += col.drawnWidth || col.width || 0;
                 }
 
-                myWidth = width;
+                return width;
               }              
             }
             
             function updateContainerDimensions() {
-              // gridUtil.logDebug('update ' + $scope.side + ' dimensions');
-
               var ret = '';
               
               // Column containers
               if ($scope.side === 'left' || $scope.side === 'right') {
-                updateContainerWidth();
+                myWidth = updateContainerWidth();
 
                 // gridUtil.logDebug('myWidth', myWidth);
 
@@ -2865,7 +2768,7 @@ angular.module('ui.grid').directive('uiGrid',
                 $elm.attr('style', null);
 
                 var myHeight = grid.renderContainers.body.getViewportHeight(); // + grid.horizontalScrollbarHeight;
-
+                
                 ret += '.grid' + grid.id + ' .ui-grid-pinned-container-' + $scope.side + ', .grid' + grid.id + ' .ui-grid-pinned-container-' + $scope.side + ' .ui-grid-render-container-' + $scope.side + ' .ui-grid-viewport { width: ' + myWidth + 'px; height: ' + myHeight + 'px; } ';
               }
 
@@ -2873,9 +2776,8 @@ angular.module('ui.grid').directive('uiGrid',
             }
 
             grid.renderContainers.body.registerViewportAdjuster(function (adjustment) {
-              if ( myWidth === 0 || !myWidth ){
-                updateContainerWidth();
-              }
+              myWidth = updateContainerWidth();
+
               // Subtract our own width
               adjustment.width -= myWidth;
 
@@ -4772,8 +4674,9 @@ angular.module('ui.grid')
 
             container.innerHeaderHeight = innerHeaderHeight;
 
-            // Save the largest header height for use later
-            if (innerHeaderHeight > maxHeaderHeight) {
+            // If the header doesn't have an explicit height set, save the largest header height for use later
+            //   Explicit header heights are based off of the max we are calculating here. We never want to base the max on something we're setting explicitly
+            if (!container.explicitHeaderHeight && innerHeaderHeight > maxHeaderHeight) {
               maxHeaderHeight = innerHeaderHeight;
             }
           }
@@ -4788,8 +4691,9 @@ angular.module('ui.grid')
               rebuildStyles = true;
             }
 
-            // Save the largest header canvas height for use later
-            if (headerCanvasHeight > maxHeaderCanvasHeight) {
+            // If the header doesn't have an explicit canvas height, save the largest header canvas height for use later
+            //   Explicit header heights are based off of the max we are calculating here. We never want to base the max on something we're setting explicitly
+            if (!container.explicitHeaderCanvasHeight && headerCanvasHeight > maxHeaderCanvasHeight) {
               maxHeaderCanvasHeight = headerCanvasHeight;
             }
           }
@@ -4799,12 +4703,27 @@ angular.module('ui.grid')
         for (i = 0; i < containerHeadersToRecalc.length; i++) {
           container = containerHeadersToRecalc[i];
 
-          // If this header's height is less than another header's height, then explicitly set it so they're the same and one isn't all offset and weird looking
-          if (maxHeaderHeight > 0 && typeof(container.headerHeight) !== 'undefined' && container.headerHeight !== null && container.headerHeight < maxHeaderHeight) {
+          /* If:
+              1. We have a max header height
+              2. This container has a header height defined
+              3. And either this container has an explicit header height set, OR its header height is less than the max
+
+              then:
+
+              Give this container's header an explicit height so it will line up with the tallest header
+          */
+          if (
+            maxHeaderHeight > 0 && typeof(container.headerHeight) !== 'undefined' && container.headerHeight !== null &&
+            (container.explicitHeaderHeight || container.headerHeight < maxHeaderHeight)
+          ) {
             container.explicitHeaderHeight = maxHeaderHeight;
           }
 
-          if (typeof(container.headerCanvasHeight) !== 'undefined' && container.headerCanvasHeight !== null && maxHeaderCanvasHeight > 0 && container.headerCanvasHeight < maxHeaderCanvasHeight) {
+          // Do the same as above except for the header canvas
+          if (
+            maxHeaderCanvasHeight > 0 && typeof(container.headerCanvasHeight) !== 'undefined' && container.headerCanvasHeight !== null &&
+            (container.explicitHeaderCanvasHeight || container.headerCanvasHeight < maxHeaderCanvasHeight)
+          ) {
             container.explicitHeaderCanvasHeight = maxHeaderCanvasHeight;
           }
         }
@@ -6607,14 +6526,12 @@ angular.module('ui.grid')
     grid.registerStyleComputation({
       priority: 5,
       func: function () {
+        self.updateColumnWidths();
         return self.columnStyles;
       }
     });
   }
 
-  // GridRenderContainer.prototype.addRenderable = function addRenderable(renderable) {
-  //   this.renderables.push(renderable);
-  // };
 
   GridRenderContainer.prototype.reset = function reset() {
     // this.rowCache.length = 0;
@@ -6806,10 +6723,6 @@ angular.module('ui.grid')
     var self = this;
 
     var ret = self.canvasWidth;
-
-    //if (typeof(self.verticalScrollbarWidth) !== 'undefined' && self.verticalScrollbarWidth !== undefined && self.verticalScrollbarWidth > 0) {
-    //  ret = ret - self.verticalScrollbarWidth;
-    //}
 
     return ret;
   };
@@ -7020,210 +6933,150 @@ angular.module('ui.grid')
     return null;
   };
 
+    /**
+     *  @ngdoc boolean
+     *  @name updateColumnWidths
+     *  @propertyOf  ui.grid.class:GridRenderContainer
+     *  @description Determine the appropriate column width of each column across all render containers.
+     *  
+     *  Column width is easy when each column has a specified width.  When columns are variable width (i.e. 
+     *  have an * or % of the viewport) then we try to calculate so that things fit in.  The problem is that
+     *  we have multiple render containers, and we don't want one render container to just take the whole viewport
+     *  when it doesn't need to - we want things to balance out across the render containers.
+     * 
+     *  To do this, we use this method to calculate all the renderContainers, recognising that in a given render
+     *  cycle it'll get called once per render container, so it needs to return the same values each time.
+     * 
+     *  The constraints on this method are therefore:
+     *  - must return the same value when called multiple times, to do this it needs to rely on properties of the
+     *    columns, but not properties that change when this is called (so it shouldn't rely on drawnWidth)
+     * 
+     *  The general logic of this method is:
+     *  - calculate our total available width
+     *  - look at all the columns across all render containers, and work out which have widths and which have
+     *    constraints such as % or * or something else
+     *  - for those with *, count the total number of * we see and add it onto a running total, add this column to an * array
+     *  - for those with a %, allocate the % as a percentage of the viewport, having consideration of min and max
+     *  - for those with manual width (in pixels) we set the drawnWidth to the specified width
+     *  - we end up with an asterisks array still to process
+     *  - we look at our remaining width.  If it's greater than zero, we divide it up among the asterisk columns, then process
+     *    them for min and max width constraints
+     *  - if it's zero or less, we set the asterisk columns to their minimum widths
+     *  - we use parseInt quite a bit, as we try to make all our column widths integers
+     */
   GridRenderContainer.prototype.updateColumnWidths = function () {
     var self = this;
 
     var asterisksArray = [],
-        percentArray = [],
-        manualArray = [],
-        asteriskNum = 0,
-        totalWidth = 0;
+        asteriskNum = 0, 
+        usedWidthSum = 0,
+        ret = '';
 
     // Get the width of the viewport
-    var availableWidth = self.getViewportWidth() - self.grid.scrollbarWidth;
+    var availableWidth = self.grid.getViewportWidth() - self.grid.scrollbarWidth;
 
-    //if (typeof(self.grid.verticalScrollbarWidth) !== 'undefined' && self.grid.verticalScrollbarWidth !== undefined && self.grid.verticalScrollbarWidth > 0) {
-    //  availableWidth = availableWidth + self.grid.verticalScrollbarWidth;
-    //}
+    // get all the columns across all render containers, we have to calculate them all or one render container
+    // could consume the whole viewport
+    var columnCache = [];
+    angular.forEach(self.grid.renderContainers, function( container, name){
+      columnCache = columnCache.concat(container.visibleColumnCache);
+    });
 
-    // The total number of columns
-    // var equalWidthColumnCount = columnCount = uiGridCtrl.grid.options.columnDefs.length;
-    // var equalWidth = availableWidth / equalWidthColumnCount;
-
-    // The last column we processed
-    var lastColumn;
-
-    var manualWidthSum = 0;
-
-    var canvasWidth = 0;
-
-    var ret = '';
-
-
-    // uiGridCtrl.grid.columns.forEach(function(column, i) {
-
-    var columnCache = self.visibleColumnCache;
-
+    // look at each column, process any manual values or %, put the * into an array to look at later
     columnCache.forEach(function(column, i) {
-      // ret = ret + ' .grid' + uiGridCtrl.grid.id + ' .col' + i + ' { width: ' + equalWidth + 'px; left: ' + left + 'px; }';
-      //var colWidth = (typeof(c.width) !== 'undefined' && c.width !== undefined) ? c.width : equalWidth;
-
+      var width = 0;
       // Skip hidden columns
       if (!column.visible) { return; }
 
-      var colWidth,
-          isPercent = false;
-
-      if (!angular.isNumber(column.width)) {
-        isPercent = isNaN(column.width) && gridUtil.endsWith(column.width, "%");
-      }
-
-      if (angular.isString(column.width) && column.width.indexOf('*') !== -1) { //  we need to save it until the end to do the calulations on the remaining width.
-        asteriskNum = parseInt(asteriskNum + column.width.length, 10);
+      if (angular.isNumber(column.width)) {
+        // pixel width, set to this value
+        width = parseInt(column.width, 10);
+        usedWidthSum = usedWidthSum + width;
+        column.drawnWidth = width;
         
+      } else if (gridUtil.endsWith(column.width, "%")) {
+        // percentage width, set to percentage of the viewport
+        width = parseInt(parseInt(column.width.replace(/%/g, ''), 10) / 100 * availableWidth);
+        
+        if ( width > column.maxWidth ){
+          width = column.maxWidth;
+        }
+        
+        if ( width < column.minWidth ){
+          width = column.minWidth;
+        }
+        
+        usedWidthSum = usedWidthSum + width;
+        column.drawnWidth = width;
+      } else if (angular.isString(column.width) && column.width.indexOf('*') !== -1) { 
+        // is an asterisk column, the gridColumn already checked the string consists only of '****'
+        asteriskNum = asteriskNum + column.width.length;
         asterisksArray.push(column);
-      }
-      else if (isPercent) { // If the width is a percentage, save it until the very last.
-        percentArray.push(column);
-      }
-      else if (angular.isNumber(column.width)) {
-        manualWidthSum = parseInt(manualWidthSum + column.width, 10);
-        
-        canvasWidth = parseInt(canvasWidth, 10) + parseInt(column.width, 10);
-
-        column.drawnWidth = column.width;
       }
     });
 
-    // Get the remaining width (available width subtracted by the manual widths sum)
-    var remainingWidth = availableWidth - manualWidthSum;
+    // Get the remaining width (available width subtracted by the used widths sum)
+    var remainingWidth = availableWidth - usedWidthSum;
 
     var i, column, colWidth;
 
-    if (percentArray.length > 0) {
-      // Pre-process to make sure they're all within any min/max values
-      for (i = 0; i < percentArray.length; i++) {
-        column = percentArray[i];
-
-        var percent = parseInt(column.width.replace(/%/g, ''), 10) / 100;
-
-        colWidth = parseInt(percent * remainingWidth, 10);
-
-        if (column.colDef.minWidth && colWidth < column.colDef.minWidth) {
-          colWidth = column.colDef.minWidth;
-
-          remainingWidth = remainingWidth - colWidth;
-
-          canvasWidth += colWidth;
-          column.drawnWidth = colWidth;
-
-          // Remove this element from the percent array so it's not processed below
-          percentArray.splice(i, 1);
-        }
-        else if (column.colDef.maxWidth && colWidth > column.colDef.maxWidth) {
-          colWidth = column.colDef.maxWidth;
-
-          remainingWidth = remainingWidth - colWidth;
-
-          canvasWidth += colWidth;
-          column.drawnWidth = colWidth;
-
-          // Remove this element from the percent array so it's not processed below
-          percentArray.splice(i, 1);
-        }
-      }
-
-      percentArray.forEach(function(column) {
-        var percent = parseInt(column.width.replace(/%/g, ''), 10) / 100;
-        var colWidth = parseInt(percent * remainingWidth, 10);
-
-        canvasWidth += colWidth;
-
-        column.drawnWidth = colWidth;
-      });
-    }
-
     if (asterisksArray.length > 0) {
-      var asteriskVal = parseInt(remainingWidth / asteriskNum, 10);
+      // the width that each asterisk value would be assigned (this can be negative)
+      var asteriskVal = remainingWidth / asteriskNum;
 
-       // Pre-process to make sure they're all within any min/max values
-      for (i = 0; i < asterisksArray.length; i++) {
-        column = asterisksArray[i];
+      asterisksArray.forEach(function( column ){
+        var width = parseInt(column.width.length * asteriskVal, 10);
 
-        colWidth = parseInt(asteriskVal * column.width.length, 10);
-
-        if (column.colDef.minWidth && colWidth < column.colDef.minWidth) {
-          colWidth = column.colDef.minWidth;
-
-          remainingWidth = remainingWidth - colWidth;
-          asteriskNum--;
-
-          canvasWidth += colWidth;
-          column.drawnWidth = colWidth;
-
-          lastColumn = column;
-
-          // Remove this element from the percent array so it's not processed below
-          asterisksArray.splice(i, 1);
+        if ( width > column.maxWidth ){
+          width = column.maxWidth;
         }
-        else if (column.colDef.maxWidth && colWidth > column.colDef.maxWidth) {
-          colWidth = column.colDef.maxWidth;
-
-          remainingWidth = remainingWidth - colWidth;
-          asteriskNum--;
-
-          canvasWidth += colWidth;
-          column.drawnWidth = colWidth;
-
-          // Remove this element from the percent array so it's not processed below
-          asterisksArray.splice(i, 1);
+        
+        if ( width < column.minWidth ){
+          width = column.minWidth;
         }
-      }
-
-      // Redo the asterisk value, as we may have removed columns due to width constraints
-      asteriskVal = parseInt(remainingWidth / asteriskNum, 10);
-
-      asterisksArray.forEach(function(column) {
-        var colWidth = parseInt(asteriskVal * column.width.length, 10);
-
-        canvasWidth += colWidth;
-
-        column.drawnWidth = colWidth;
+        
+        usedWidthSum = usedWidthSum + width;
+        column.drawnWidth = width;
       });
     }
 
-    // If the grid width didn't divide evenly into the column widths and we have pixels left over, dole them out to the columns one by one to make everything fit
-    var leftoverWidth = availableWidth - parseInt(canvasWidth, 10);
 
-    if (leftoverWidth > 0 && canvasWidth > 0 && canvasWidth < availableWidth) {
-      var variableColumn = false;
-      // uiGridCtrl.grid.columns.forEach(function(col) {
-      columnCache.forEach(function(col) {
-        if (col.width && !angular.isNumber(col.width)) {
-          variableColumn = true;
-        }
-      });
+    // If the grid width didn't divide evenly into the column widths and we have pixels left over, or our  
+    // calculated widths would have the grid narrower than the available space, 
+    // dole the remainder out one by one to make everything fit
+    var leftoverWidth = availableWidth - usedWidthSum;
 
-      if (variableColumn) {
-        var remFn = function (column) {
-          if (leftoverWidth > 0) {
-            column.drawnWidth = column.drawnWidth + 1;
-            canvasWidth = canvasWidth + 1;
-            leftoverWidth--;
-          }
-        };
-        while (leftoverWidth > 0) {
-          columnCache.forEach(remFn);
-        }
+    var columnsToChange = true; 
+    
+    var processColumn = function(column){
+      if (isNaN(column.width) && column.drawnWidth < column.maxWidth && leftoverWidth > 0) {
+        column.drawnWidth++;
+        usedWidthSum++;
+        leftoverWidth--;
+        columnsToChange = true;
       }
+    };
+    
+    while (leftoverWidth > 0 && columnsToChange) {
+      columnsToChange = false;
+      columnCache.forEach(processColumn);
     }
 
-    if (canvasWidth < availableWidth) {
-      canvasWidth = availableWidth;
-    }
+    // all that was across all the renderContainers, now we need to work out what that calculation decided for
+    // our renderContainer
+    var canvasWidth = 0;
+    self.visibleColumnCache.forEach(function(column){
+      if ( column.visible ){
+        canvasWidth = canvasWidth + column.drawnWidth;
+      }
+    });
 
     // Build the CSS
     columnCache.forEach(function (column) {
       ret = ret + column.getColClassDefinition();
     });
 
-    // Add the vertical scrollbar width back in to the canvas width, it's taken out in getCanvasWidth
-    //if (self.grid.verticalScrollbarWidth) {
-    //  canvasWidth = canvasWidth + self.grid.verticalScrollbarWidth;
-    //}
-    // canvasWidth = canvasWidth + 1;
-
-    self.canvasWidth = parseInt(canvasWidth, 10);
+    self.canvasWidth = canvasWidth;
 
     // Return the styles back to buildStyles which pops them into the `customStyles` scope variable
     // return ret;
@@ -10010,6 +9863,93 @@ module.filter('px', function() {
 
 })();
 
+(function () {
+  angular.module('ui.grid').config(['$provide', function($provide) {
+    $provide.decorator('i18nService', ['$delegate', function($delegate) {
+      var lang = {
+              aggregate: {
+                  label: 'položky'
+              },
+              groupPanel: {
+                  description: 'Přesuntě záhlaví zde pro vytvoření skupiny dle sloupce.'
+              },
+              search: {
+                  placeholder: 'Hledat...',
+                  showingItems: 'Zobrazuji položky:',
+                  selectedItems: 'Vybrané položky:',
+                  totalItems: 'Celkem položek:',
+                  size: 'Velikost strany:',
+                  first: 'První strana',
+                  next: 'Další strana',
+                  previous: 'Předchozí strana',
+                  last: 'Poslední strana'
+              },
+              menu: {
+                  text: 'Vyberte sloupec:'
+              },
+              sort: {
+                  ascending: 'Seřadit od A-Z',
+                  descending: 'Seřadit od Z-A',
+                  remove: 'Odebrat seřazení'
+              },
+              column: {
+                  hide: 'Schovat sloupec'
+              },
+              aggregation: {
+                  count: 'celkem řádků: ',
+                  sum: 'celkem: ',
+                  avg: 'avg: ',
+                  min: 'min.: ',
+                  max: 'max.: '
+              },
+              pinning: {
+                  pinLeft: 'Zamknout v levo',
+                  pinRight: 'Zamknout v pravo',
+                  unpin: 'Odemknout'
+              },
+              gridMenu: {
+                  columns: 'Sloupce:',
+                  importerTitle: 'Importovat soubor',
+                  exporterAllAsCsv: 'Exportovat všechny data do csv',
+                  exporterVisibleAsCsv: 'Exportovat viditelné data do csv',
+                  exporterSelectedAsCsv: 'Exportovat vybranné data do csv',
+                  exporterAllAsPdf: 'Exportovat všechny data do pdf',
+                  exporterVisibleAsPdf: 'Exportovat viditelné data do pdf',
+                  exporterSelectedAsPdf: 'Exportovat vybranné data do pdf'
+              },
+              importer: {
+                  noHeaders: 'Názvy sloupců se nepodařilo získat, obsahuje soubor záhlaví?',
+                  noObjects: 'Data se nepodařilo zpracovat, obsahuje soubor řádky mimo záhlaví?',
+                  invalidCsv: 'Soubor nelze zpracovat, jedná se CSV?',
+                  invalidJson: 'Soubor nelze zpracovat, je to JSON?',
+                  jsonNotArray: 'Soubor musí obsahovat json. Ukončuji..'
+              },
+              pagination: {
+                  sizes: 'položek na stránku',
+                  totalItems: 'položek'
+              },
+              grouping: {
+                  group: 'Seskupit',
+                  ungroup: 'Odebrat seskupení',
+                  aggregate_count: 'Agregace: Count',
+                  aggregate_sum: 'Agregace: Sum',
+                  aggregate_max: 'Agregace: Max',
+                  aggregate_min: 'Agregace: Min',
+                  aggregate_avg: 'Agregace: Avg',
+                  aggregate_remove: 'Agregace: Odebrat'
+              }
+          };
+
+          // support varianty of different czech keys.
+          $delegate.add('cs', lang);
+          $delegate.add('cz', lang);
+          $delegate.add('cs-cz', lang);
+          $delegate.add('cs-CZ', lang);
+      return $delegate;
+    }]);
+  }]);
+})();
+
 (function(){
   angular.module('ui.grid').config(['$provide', function($provide) {
     $provide.decorator('i18nService', ['$delegate', function($delegate) {
@@ -10926,6 +10866,7 @@ module.filter('px', function() {
         },
         gridMenu: {
           columns: 'Colunas:',
+          importerTitle: 'Importar arquivo',
           exporterAllAsCsv: 'Exportar todos os dados como csv',
           exporterVisibleAsCsv: 'Exportar dados visíveis como csv',
           exporterSelectedAsCsv: 'Exportar dados selecionados como csv',
@@ -10939,12 +10880,27 @@ module.filter('px', function() {
           invalidCsv: 'Arquivo não pode ser processado. É um CSV válido?',
           invalidJson: 'Arquivo não pode ser processado. É um Json válido?',
           jsonNotArray: 'Arquivo json importado tem que conter um array. Abortando.'
+        },
+        pagination: {
+          sizes: 'itens por página',
+          totalItems: 'itens'
+        },
+        grouping: {
+          group: 'Agrupar',
+          ungroup: 'Desagrupar',
+          aggregate_count: 'Agr: Contar',
+          aggregate_sum: 'Agr: Soma',
+          aggregate_max: 'Agr: Max',
+          aggregate_min: 'Agr: Min',
+          aggregate_avg: 'Agr: Med',
+          aggregate_remove: 'Agr: Remover'
         }
       });
       return $delegate;
     }]);
 }]);
 })();
+
 (function () {
   angular.module('ui.grid').config(['$provide', function($provide) {
     $provide.decorator('i18nService', ['$delegate', function($delegate) {
@@ -10991,6 +10947,7 @@ module.filter('px', function() {
         },
         gridMenu: {
           columns: 'Colunas:',
+          importerTitle: 'Importar ficheiro',
           exporterAllAsCsv: 'Exportar todos os dados como csv',
           exporterVisibleAsCsv: 'Exportar dados visíveis como csv',
           exporterSelectedAsCsv: 'Exportar dados selecionados como csv',
@@ -10999,16 +10956,26 @@ module.filter('px', function() {
           exporterSelectedAsPdf: 'Exportar dados selecionados como pdf'
         },
         importer: {
-          noHeaders: 'Nomes de colunas não puderam ser derivados. O arquivo tem um cabeçalho?',
-          noObjects: 'Objetos não puderam ser derivados. Havia dados no arquivo, além dos cabeçalhos?',
-          invalidCsv: 'Arquivo não pode ser processado. É um CSV válido?',
-          invalidJson: 'Arquivo não pode ser processado. É um Json válido?',
-          jsonNotArray: 'Arquivo json importado tem que conter um array. Abortando.'
+          noHeaders: 'Nomes de colunas não puderam ser derivados. O ficheiro tem um cabeçalho?',
+          noObjects: 'Objetos não puderam ser derivados. Havia dados no ficheiro, além dos cabeçalhos?',
+          invalidCsv: 'Ficheiro não pode ser processado. É um CSV válido?',
+          invalidJson: 'Ficheiro não pode ser processado. É um Json válido?',
+          jsonNotArray: 'Ficheiro json importado tem que conter um array. Interrompendo.'
         },
         pagination: {
           sizes: 'itens por página',
           totalItems: 'itens'
-        }		
+        },
+        grouping: {
+          group: 'Agrupar',
+          ungroup: 'Desagrupar',
+          aggregate_count: 'Agr: Contar',
+          aggregate_sum: 'Agr: Soma',
+          aggregate_max: 'Agr: Max',
+          aggregate_min: 'Agr: Min',
+          aggregate_avg: 'Agr: Med',
+          aggregate_remove: 'Agr: Remover'
+        }        
       });
       return $delegate;
     }]);
@@ -14119,7 +14086,7 @@ module.filter('px', function() {
     function (uiGridExpandableService, $templateCache) {
       return {
         replace: true,
-        priority: 1000,
+        priority: 599,
         require: '^uiGrid',
         scope: false,
         compile: function () {
@@ -14230,6 +14197,10 @@ module.filter('px', function() {
                   return ret;
                 };
 
+ /*
+  * Commented out @PaulL1.  This has no purpose that I can see, and causes #2964.  If this code needs to be reinstated for some
+  * reason it needs to use drawnWidth, not width, and needs to check column visibility.  It should really use render container
+  * visible column cache also instead of checking column.renderContainer. 
                   function updateRowContainerWidth() {
                       var grid = $scope.grid;
                       var colWidth = 0;
@@ -14249,7 +14220,7 @@ module.filter('px', function() {
                           priority: 15,
                           func: updateRowContainerWidth
                       });
-                  }
+                  }*/
 
               },
               post: function ($scope, $elm, $attrs, controllers) {
@@ -17776,7 +17747,7 @@ module.filter('px', function() {
    *
    *  @description Service for infinite scroll features
    */
-  module.service('uiGridInfiniteScrollService', ['gridUtil', '$compile', '$timeout', 'uiGridConstants', 'ScrollEvent', function (gridUtil, $compile, $timeout, uiGridConstants, ScrollEvent) {
+  module.service('uiGridInfiniteScrollService', ['gridUtil', '$compile', '$timeout', 'uiGridConstants', 'ScrollEvent', '$q', function (gridUtil, $compile, $timeout, uiGridConstants, ScrollEvent, $q) {
 
     var service = {
 
@@ -17789,23 +17760,15 @@ module.filter('px', function() {
 
       initializeGrid: function(grid, $scope) {
         service.defaultGridOptions(grid.options);
-        grid.infiniteScroll = { dataLoading: false, scrollUp: grid.options.infiniteScrollUp, scrollDown: grid.options.infiniteScrollDown };
 
-        if ( grid.options.infiniteScrollUp){
-          grid.suppressParentScrollUp = true;
+        if (!grid.options.enableInfiniteScroll){
+          return;
         }
 
-        if ( grid.options.infiniteScrollDown){
-          grid.suppressParentScrollDown = true;
-        }
-
-        if (grid.options.enableInfiniteScroll) {
-          grid.api.core.on.scrollEvent($scope, service.handleScroll);
-        }
+        grid.infiniteScroll = { dataLoading: false };
+        service.setScrollDirections( grid, grid.options.infiniteScrollUp, grid.options.infiniteScrollDown );
+        grid.api.core.on.scrollEvent($scope, service.handleScroll);
         
-        // tweak the scroll for infinite scroll up (if enabled)
-        service.adjustScroll(grid);
-
         /**
          *  @ngdoc object
          *  @name ui.grid.infiniteScroll.api:PublicAPI
@@ -17847,31 +17810,111 @@ module.filter('px', function() {
                * @name dataLoaded
                * @methodOf ui.grid.infiniteScroll.api:PublicAPI
                * @description Call this function when you have loaded the additional data
-               * requested.  You can set noMoreDataTop or noMoreDataBottom to indicate
-               * that we've reached the end of your data set, we won't fire any more events
-               * for scroll in that direction.
+               * requested.  You should set scrollUp and scrollDown to indicate
+               * whether there are still more pages in each direction.
+               * 
+               * If you call dataLoaded without first calling `saveScrollPercentage` then we will
+               * scroll the user to the start of the newly loaded data, which usually gives a smooth scroll
+               * experience, but can give a jumpy experience with large `infiniteScrollRowsFromEnd` values, and 
+               * on variable speed internet connections.  Using `saveScrollPercentage` as demonstrated in the tutorial
+               * should give a smoother scrolling experience for users.
+               *  
                * See infinite_scroll tutorial for example of usage
-               * @param {boolean} noMoreDataTop flag that there are no more pages upwards, so don't fire
+               * @param {boolean} scrollUp if set to false flags that there are no more pages upwards, so don't fire
                * any more infinite scroll events upward
-               * @param {boolean} noMoreDataBottom flag that there are no more pages downwards, so don't 
+               * @param {boolean} scrollDown if set to false flags that there are no more pages downwards, so don't 
                * fire any more infinite scroll events downward 
+               * @returns {promise} a promise that is resolved when the grid scrolling is fully adjusted.  If you're
+               * planning to remove pages, you should wait on this promise first, or you'll break the scroll positioning
                */
-
-              dataLoaded: function( noMoreDataTop, noMoreDataBottom ) {
-                grid.infiniteScroll.dataLoading = false;
+              dataLoaded: function( scrollUp, scrollDown ) {
+                service.setScrollDirections(grid, scrollUp, scrollDown);
                 
-                if ( noMoreDataTop === true ){
-                  grid.infiniteScroll.scrollUp = false;
-                  grid.suppressParentScrollUp = false;
-                }
-
-                if ( noMoreDataBottom === true ){
-                  grid.infiniteScroll.scrollDown = false;
-                  grid.suppressParentScrollDown = false;
-                }
+                var promise = service.adjustScroll(grid).then(function() {
+                  grid.infiniteScroll.dataLoading = false;
+                });
                 
-                service.adjustScroll(grid);
+                return promise;
+              },
+              
+              /**
+               * @ngdoc function
+               * @name resetScroll
+               * @methodOf ui.grid.infiniteScroll.api:PublicAPI
+               * @description Call this function when you have taken some action that makes the current
+               * scroll position invalid.  For example, if you're using external sorting and you've resorted
+               * then you might reset the scroll, or if you've otherwise substantially changed the data, perhaps
+               * you've reused an existing grid for a new data set
+               * 
+               * You must tell us whether there is data upwards or downwards after the reset
+               * 
+               * @param {boolean} scrollUp flag that there are pages upwards, fire
+               * infinite scroll events upward
+               * @param {boolean} scrollDown flag that there are pages downwards, so 
+               * fire infinite scroll events downward
+               * @returns {promise} promise that is resolved when the scroll reset is complete
+               */
+              resetScroll: function( scrollUp, scrollDown ) {
+                service.setScrollDirections( grid, scrollUp, scrollDown);
+                
+                return service.adjustInfiniteScrollPosition(grid, 0);
+              },
+              
+              
+              /**
+               * @ngdoc function
+               * @name saveScrollPercentage
+               * @methodOf ui.grid.infiniteScroll.api:PublicAPI
+               * @description Saves the scroll percentage and number of visible rows before you adjust the data,
+               * used if you're subsequently going to call `dataRemovedTop` or `dataRemovedBottom` 
+               */
+              saveScrollPercentage: function() {
+                grid.infiniteScroll.prevScrolltopPercentage = grid.renderContainers.body.prevScrolltopPercentage;
+                grid.infiniteScroll.previousVisibleRows = grid.renderContainers.body.visibleRowCache.length;
+              },
+              
+              
+              /**
+               * @ngdoc function
+               * @name dataRemovedTop
+               * @methodOf ui.grid.infiniteScroll.api:PublicAPI
+               * @description Adjusts the scroll position after you've removed data at the top 
+               * @param {boolean} scrollUp flag that there are pages upwards, fire
+               * infinite scroll events upward
+               * @param {boolean} scrollDown flag that there are pages downwards, so 
+               * fire infinite scroll events downward
+               */
+              dataRemovedTop: function( scrollUp, scrollDown ) {
+                service.dataRemovedTop( grid, scrollUp, scrollDown );
+              },
+
+              /**
+               * @ngdoc function
+               * @name dataRemovedBottom
+               * @methodOf ui.grid.infiniteScroll.api:PublicAPI
+               * @description Adjusts the scroll position after you've removed data at the bottom 
+               * @param {boolean} scrollUp flag that there are pages upwards, fire
+               * infinite scroll events upward
+               * @param {boolean} scrollDown flag that there are pages downwards, so 
+               * fire infinite scroll events downward
+               */
+              dataRemovedBottom: function( scrollUp, scrollDown ) {
+                service.dataRemovedBottom( grid, scrollUp, scrollDown );
+              },
+              
+              /**
+               * @ngdoc function
+               * @name setScrollDirections
+               * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
+               * @description Sets the scrollUp and scrollDown flags, handling nulls and undefined,
+               * and also sets the grid.suppressParentScroll
+               * @param {boolean} scrollUp whether there are pages available up - defaults to false
+               * @param {boolean} scrollDown whether there are pages available down - defaults to true
+               */
+              setScrollDirections:  function ( scrollUp, scrollDown ) {
+                service.setScrollDirections( grid, scrollUp, scrollDown );
               }
+             
             }
           }
         };
@@ -17901,17 +17944,19 @@ module.filter('px', function() {
 
         /**
          * @ngdoc property
-         * @name infiniteScrollPercentage
+         * @name infiniteScrollRowsFromEnd
          * @propertyOf ui.grid.class:GridOptions
-         * @description This setting controls at what percentage remaining more data
-         * is requested by the infinite scroll, whether scrolling up or down.
+         * @description This setting controls how close to the end of the dataset a user gets before
+         * more data is requested by the infinite scroll, whether scrolling up or down.  This allows you to
+         * 'prefetch' rows before the user actually runs out of scrolling.
          * 
-         * TODO: it would be nice if this were percentage of a page, not percentage of the
-         * total scroll - as you get more and more data, the needMoreData event is triggered
-         * further and further away from the end (in terms of number of rows)
+         * Note that if you set this value too high it may give jumpy scrolling behaviour, if you're getting
+         * this behaviour you could use the `saveScrollPercentageMethod` right before loading your data, and we'll
+         * preserve that scroll position
+         * 
          * <br> Defaults to 20
          */
-        gridOptions.infiniteScrollPercentage = gridOptions.infiniteScrollPercentage || 20;
+        gridOptions.infiniteScrollRowsFromEnd = gridOptions.infiniteScrollRowsFromEnd || 20;
 
         /**
          * @ngdoc property
@@ -17939,6 +17984,25 @@ module.filter('px', function() {
 
       /**
        * @ngdoc function
+       * @name setScrollDirections
+       * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
+       * @description Sets the scrollUp and scrollDown flags, handling nulls and undefined,
+       * and also sets the grid.suppressParentScroll
+       * @param {grid} grid the grid we're operating on
+       * @param {boolean} scrollUp whether there are pages available up - defaults to false
+       * @param {boolean} scrollDown whether there are pages available down - defaults to true
+       */
+      setScrollDirections:  function ( grid, scrollUp, scrollDown ) {
+        grid.infiniteScroll.scrollUp = ( scrollUp === true );
+        grid.suppressParentScrollUp = ( scrollUp === true );
+
+        grid.infiniteScroll.scrollDown = ( scrollDown !== false);
+        grid.suppressParentScrollDown = ( scrollDown !== false);
+      },
+      
+
+      /**
+       * @ngdoc function
        * @name handleScroll
        * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
        * @description Called whenever the grid scrolls, determines whether the scroll should
@@ -17953,14 +18017,15 @@ module.filter('px', function() {
 
         if (args.y) {
           var percentage;
+          var targetPercentage = args.grid.options.infiniteScrollRowsFromEnd / args.grid.renderContainers.body.visibleRowCache.length;
           if (args.grid.scrollDirection === uiGridConstants.scrollDirection.UP ) {
             percentage = args.y.percentage;
-            if (percentage <= args.grid.options.infiniteScrollPercentage / 100){
+            if (percentage <= targetPercentage){
               service.loadData(args.grid);
             }
           } else if (args.grid.scrollDirection === uiGridConstants.scrollDirection.DOWN) {
             percentage = 1 - args.y.percentage;
-            if (percentage <= args.grid.options.infiniteScrollPercentage / 100){
+            if (percentage <= targetPercentage){
               service.loadData(args.grid);
             }
           }
@@ -17973,7 +18038,8 @@ module.filter('px', function() {
        * @name loadData
        * @methodOf ui.grid.infiniteScroll.service:uiGridInfiniteScrollService
        * @description This function fires 'needLoadMoreData' or 'needLoadMoreDataTop' event based on scrollDirection
-       * and whether there are more pages upwards or downwards
+       * and whether there are more pages upwards or downwards.  It also stores the number of rows that we had previously,
+       * and clears out any saved scroll position so that we know whether or not the user calls `saveScrollPercentage`
        * @param {Grid} grid the grid we're working on
        */
       loadData: function (grid) {
@@ -17981,6 +18047,7 @@ module.filter('px', function() {
         // to be at approximately the row we're currently at
         grid.infiniteScroll.previousVisibleRows = grid.renderContainers.body.visibleRowCache.length;
         grid.infiniteScroll.direction = grid.scrollDirection;
+        delete grid.infiniteScroll.prevScrolltopPercentage;
         
         if (grid.scrollDirection === uiGridConstants.scrollDirection.UP && grid.infiniteScroll.scrollUp ) {
           grid.infiniteScroll.dataLoading = true;
@@ -18011,10 +18078,12 @@ module.filter('px', function() {
        * somewhere else in the mean-time, in which case they'll get a jump back to the new data.  Anyway, this will do for
        * now, until someone wants to do better.
        * @param {Grid} grid the grid we're working on
+       * @returns {promise} a promise that is resolved when scrolling has finished
        */
       adjustScroll: function(grid){
+        var promise = $q.defer();
         $timeout(function () {
-          var percentage;
+          var newPercentage;
           
           if ( grid.infiniteScroll.direction === undefined ){
             // called from initialize, tweak our scroll up a little
@@ -18022,16 +18091,30 @@ module.filter('px', function() {
           }
 
           var newVisibleRows = grid.renderContainers.body.visibleRowCache.length;
+          var oldPercentage, oldTopRow;
+          
           if ( grid.infiniteScroll.direction === uiGridConstants.scrollDirection.UP ){
-            percentage = ( newVisibleRows - grid.infiniteScroll.previousVisibleRows ) / newVisibleRows;
-            service.adjustInfiniteScrollPosition(grid, percentage);  
+            console.log( 'prevTop was: ' + grid.infiniteScroll.prevScrolltopPercentage);
+            console.log( 'grid was: ' + grid);
+            oldPercentage = grid.infiniteScroll.prevScrolltopPercentage || 0;
+            oldTopRow = oldPercentage * grid.infiniteScroll.previousVisibleRows;
+            newPercentage = ( newVisibleRows - grid.infiniteScroll.previousVisibleRows + oldTopRow ) / newVisibleRows;
+            service.adjustInfiniteScrollPosition(grid, newPercentage).then(function() {
+              promise.resolve();
+            });  
           }
 
           if ( grid.infiniteScroll.direction === uiGridConstants.scrollDirection.DOWN ){
-            percentage = grid.infiniteScroll.previousVisibleRows / newVisibleRows;            
-            service.adjustInfiniteScrollPosition(grid, percentage);  
+            oldPercentage = grid.infiniteScroll.prevScrolltopPercentage || 1;
+            oldTopRow = oldPercentage * grid.infiniteScroll.previousVisibleRows;
+            newPercentage = oldTopRow / newVisibleRows;            
+            service.adjustInfiniteScrollPosition(grid, newPercentage).then(function() {
+              promise.resolve();
+            });  
           }
         }, 0);
+        
+        return promise.promise;
       },
  
  
@@ -18042,6 +18125,7 @@ module.filter('px', function() {
        * @description This function fires 'needLoadMoreData' or 'needLoadMoreDataTop' event based on scrollDirection
        * @param {Grid} grid the grid we're working on
        * @param {number} percentage the percentage through the grid that we want to scroll to
+       * @returns {promise} a promise that is resolved when the scrolling finishes
        */
       adjustInfiniteScrollPosition: function (grid, percentage) {
         var scrollEvent = new ScrollEvent(grid, null, null, 'ui.grid.adjustInfiniteScrollPosition');
@@ -18054,11 +18138,69 @@ module.filter('px', function() {
           scrollEvent.y = {percentage: percentage};
         }
         scrollEvent.fireScrollingEvent();
-      }
-
+        // change this once @swalters has merged his scrolling changes, which will return a promise from the fireScrollingEvent
+        var promise = $q.defer();
+        $timeout(function(){
+          promise.resolve();
+        });
+        return promise.promise;
+      },
       
+      
+      /**
+       * @ngdoc function
+       * @name dataRemovedTop
+       * @methodOf ui.grid.infiniteScroll.api:PublicAPI
+       * @description Adjusts the scroll position after you've removed data at the top. You should
+       * have called `saveScrollPercentage` before you remove the data, and if you're doing this in 
+       * response to a `needMoreData` you should wait until the promise from `loadData` has resolved
+       * before you start removing data  
+       * @param {Grid} grid the grid we're working on
+       * @param {boolean} scrollUp flag that there are pages upwards, fire
+       * infinite scroll events upward
+       * @param {boolean} scrollDown flag that there are pages downwards, so 
+       * fire infinite scroll events downward
+       * @returns {promise} a promise that is resolved when the scrolling finishes
+       */
+      dataRemovedTop: function( grid, scrollUp, scrollDown ) {
+        service.setScrollDirections( grid, scrollUp, scrollDown );
 
+        var newVisibleRows = grid.renderContainers.body.visibleRowCache.length;
+        var oldScrollRow = grid.infiniteScroll.prevScrolltopPercentage * grid.infiniteScroll.prevVisibleRows;
+        
+        // since we removed from the top, our new scroll row will be the old scroll row less the number
+        // of rows removed
+        var newScrollRow = oldScrollRow - ( grid.infiniteScroll.prevVisibleRows - newVisibleRows );
+        var newScrollPercent = newScrollRow / newVisibleRows;
+        
+        return service.adjustInfiniteScrollPosition( grid, newScrollPercent );
+      },
+  
+      /**
+       * @ngdoc function
+       * @name dataRemovedBottom
+       * @methodOf ui.grid.infiniteScroll.api:PublicAPI
+       * @description Adjusts the scroll position after you've removed data at the bottom.  You should
+       * have called `saveScrollPercentage` before you remove the data, and if you're doing this in 
+       * response to a `needMoreData` you should wait until the promise from `loadData` has resolved
+       * before you start removing data  
+       * @param {Grid} grid the grid we're working on
+       * @param {boolean} scrollUp flag that there are pages upwards, fire
+       * infinite scroll events upward
+       * @param {boolean} scrollDown flag that there are pages downwards, so 
+       * fire infinite scroll events downward
+       */
+      dataRemovedBottom: function( grid, scrollUp, scrollDown ) {
+        service.setScrollDirections( grid, scrollUp, scrollDown );
 
+        var newVisibleRows = grid.renderContainers.body.visibleRowCache.length;
+        var oldScrollRow = grid.infiniteScroll.prevScrolltopPercentage * grid.infiniteScroll.prevVisibleRows;
+        
+        // since we removed from the bottom, our new scroll row will be same as the old scroll row
+        var newScrollPercent = oldScrollRow / newVisibleRows;
+        
+        return service.adjustInfiniteScrollPosition( grid, newScrollPercent );
+      }
     };
     return service;
   }]);
@@ -18266,9 +18408,9 @@ module.filter('px', function() {
             }
           }
           columns[newPosition] = originalColumn;
+          grid.queueGridRefresh();
           $timeout(function () {
             grid.api.core.notifyDataChange( uiGridConstants.dataChange.COLUMN );
-            grid.queueGridRefresh();
             grid.api.colMovable.raise.columnPositionChanged(originalColumn.colDef, originalPosition, newPosition);
           });
         }
@@ -18392,7 +18534,15 @@ module.filter('px', function() {
                         //Left of cloned element should be aligned to original header cell.
                         movingElm.addClass('movingColumn');
                         var movingElementStyles = {};
-                        var elmLeft = $elm[0].getBoundingClientRect().left;
+                        var elmLeft;
+                        if (gridUtil.detectBrowser() === 'safari') {
+                          //Correction for Safari getBoundingClientRect,
+                          //which does not correctly compute when there is an horizontal scroll
+                          elmLeft = $elm[0].offsetLeft + $elm[0].offsetWidth - $elm[0].getBoundingClientRect().width;
+                        }
+                        else {
+                          elmLeft = $elm[0].getBoundingClientRect().left;
+                        }
                         movingElementStyles.left = (elmLeft - gridLeft) + 'px';
                         var gridRight = $scope.grid.element[0].getBoundingClientRect().right;
                         var elmRight = $elm[0].getBoundingClientRect().right;
@@ -19091,9 +19241,6 @@ module.filter('px', function() {
             col.grid.refresh()
                 .then(function () {
                     col.renderContainer = 'left';
-                    // Need to calculate the width. If col.drawnWidth is used instead then the width
-                    // will be 100% if it's the first column, 50% if it's the second etc.
-                    col.width = col.grid.canvasWidth / col.grid.columns.length;
                     col.grid.createLeftContainer();
             });
           }
@@ -19108,9 +19255,6 @@ module.filter('px', function() {
                 col.grid.refresh()
                     .then(function () {
                         col.renderContainer = 'right';
-                        // Need to calculate the width. If col.drawnWidth is used instead then the width
-                        // will be 100% if it's the first column, 50% if it's the second etc.
-                        col.width = col.grid.canvasWidth / col.grid.columns.length;
                         col.grid.createRightContainer();
                     });
             }
@@ -19136,12 +19280,7 @@ module.filter('px', function() {
             this.context.col.width = this.context.col.drawnWidth;
             this.context.col.grid.createLeftContainer();
 
-            // Need to call refresh twice; once to move our column over to the new render container and then
-            //   a second time to update the grid viewport dimensions with our adjustments
-            col.grid.refresh()
-              .then(function () {
-                col.grid.refresh();
-              });
+            col.grid.refresh();
           }
         };
 
@@ -19157,13 +19296,7 @@ module.filter('px', function() {
             this.context.col.width = this.context.col.drawnWidth;
             this.context.col.grid.createRightContainer();
 
-
-            // Need to call refresh twice; once to move our column over to the new render container and then
-            //   a second time to update the grid viewport dimensions with our adjustments
-            col.grid.refresh()
-              .then(function () {
-                col.grid.refresh();
-              });
+            col.grid.refresh();
           }
         };
 
@@ -19177,12 +19310,7 @@ module.filter('px', function() {
           action: function () {
             this.context.col.renderContainer = null;
 
-            // Need to call refresh twice; once to move our column over to the new render container and then
-            //   a second time to update the grid viewport dimensions with our adjustments
-            col.grid.refresh()
-              .then(function () {
-                col.grid.refresh();
-              });
+            col.grid.refresh();
           }
         };
 
@@ -19551,22 +19679,6 @@ module.filter('px', function() {
           $elm.addClass('right');
         }
 
-        // Resize all the other columns around col
-        function resizeAroundColumn(col) {
-          // Get this column's render container
-          var renderContainer = col.getRenderContainer();
-
-          renderContainer.visibleColumnCache.forEach(function (column) {
-            // Skip the column we just resized
-            if (column === col) { return; }
-            
-            var colDef = column.colDef;
-            if (!colDef.width || (angular.isString(colDef.width) && (colDef.width.indexOf('*') !== -1 || colDef.width.indexOf('%') !== -1))) {
-              column.width = column.drawnWidth;
-            }
-          });
-        }
-
         // Build the columns then refresh the grid canvas
         //   takes an argument representing the diff along the X-axis that the resize had
         function buildColumnsAndRefresh(xDiff) {
@@ -19663,9 +19775,6 @@ module.filter('px', function() {
           // check we're not outside the allowable bounds for this column
           col.width = constrainWidth(col, newWidth);
 
-          // All other columns because fixed to their drawn width, if they aren't already
-          resizeAroundColumn(col);
-
           buildColumnsAndRefresh(xDiff);
 
           uiGridResizeColumnsService.fireColumnSizeChanged(uiGridCtrl.grid, col.colDef, xDiff);
@@ -19750,9 +19859,6 @@ module.filter('px', function() {
           // check we're not outside the allowable bounds for this column
           col.width = constrainWidth(col, maxWidth);
           
-          // All other columns because fixed to their drawn width, if they aren't already
-          resizeAroundColumn(col);
-
           buildColumnsAndRefresh(xDiff);
           
           uiGridResizeColumnsService.fireColumnSizeChanged(uiGridCtrl.grid, col.colDef, xDiff);
@@ -20809,7 +20915,9 @@ module.filter('px', function() {
                 scrollFocus.rowVal = service.getRowVal( grid, rowCol.row );  
               }
             }
-          } else if ( grid.options.saveScroll ) {
+          }
+          
+          if ( grid.options.saveScroll || grid.options.saveFocus && !scrollFocus.colName && !scrollFocus.rowVal ) {
             scrollFocus.focus = false;
             if ( grid.renderContainers.body.prevRowScrollIndex ){
               scrollFocus.rowVal = service.getRowVal( grid, grid.renderContainers.body.visibleRowCache[ grid.renderContainers.body.prevRowScrollIndex ]);
@@ -21545,7 +21653,7 @@ module.filter('px', function() {
            *  @propertyOf  ui.grid.selection.api:GridOptions
            *  @description Shows the total number of selected items in footer if true.
            *  <br/>Defaults to true.
-           *  <br/>GridOptions.showFooter must also be set to true.
+           *  <br/>GridOptions.showGridFooter must also be set to true.
            */
           gridOptions.enableFooterTotalSelected = gridOptions.enableFooterTotalSelected !== false;
 
@@ -22203,7 +22311,7 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('ui-grid/columnResizer',
-    "<div ui-grid-column-resizer ng-if=\"grid.options.enableColumnResizing\" class=\"ui-grid-column-resizer\" col=\"col\" position=\"right\" render-index=\"renderIndex\"></div>"
+    "<div ui-grid-column-resizer ng-if=\"grid.options.enableColumnResizing\" class=\"ui-grid-column-resizer\" col=\"col\" position=\"right\" render-index=\"renderIndex\" unselectable=\"on\"></div>"
   );
 
 
