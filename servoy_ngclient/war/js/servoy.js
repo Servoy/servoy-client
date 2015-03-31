@@ -285,13 +285,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 				}
 
-				var svyServoyApi = findAttribute("svy-servoyApi");
 				var formName = null;
-
 				// Listen for change events to enable binding
 				element.bind('change', function() {
 					// model has not been updated yet
 					setTimeout(function() { 
+						var svyServoyApi = findAttribute("svy-servoyApi");
 						// use svy apply rather then pushChange because svy apply might get intercepted by components such as portals
 						// that have nested child web components
 						if (svyServoyApi && svyServoyApi.apply) {
@@ -306,6 +305,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				// Listen for start edit
 				element.bind('focus', function() {
 					setTimeout(function() {
+						var svyServoyApi = findAttribute("svy-servoyApi");
 						if (svyServoyApi && svyServoyApi.startEdit) {
 							svyServoyApi.startEdit(propertyname);
 						} else {
