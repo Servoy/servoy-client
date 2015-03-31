@@ -286,7 +286,6 @@ public class FoundsetTypeChangeMonitor
 	{
 		int oldChangeFlags = changeFlags;
 		boolean viewPortRecordChangesUpdated = false;
-
 		if (!viewPortExpandOnly && lastRow - firstRow >= 0) foundSetSizeChanged();
 		if (!shouldSendAll() && !shouldSendWholeViewPort())
 		{
@@ -294,16 +293,6 @@ public class FoundsetTypeChangeMonitor
 			if (viewPort.getStartIndex() <= (firstRow + (viewPortExpandOnly ? 1 : 0)) && firstRow <= viewPortEndIdx)
 			{
 				int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
-
-				// if this is a scrolling view (start index always 0, and the view port size is exactly the foundset for now just update the view port size
-				// can this be done for an actual paging component? (if foundset is size 10, pagesize = 10 and they are on the first page) (TODO check)
-				if (viewPort.getStartIndex() == 0 && viewPort.getSize() == propertyValue.foundset.getSize() - (lastRow - firstRow + 1))
-				{
-					// special case - if showing all records in the foundset and new ones appear - expand the viewport to still include entire foundset
-					viewPort.size = propertyValue.foundset.getSize();
-					viewPortBoundsOnlyChanged();
-				}
-
 				// add records that were inserted in viewPort
 				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 				{
