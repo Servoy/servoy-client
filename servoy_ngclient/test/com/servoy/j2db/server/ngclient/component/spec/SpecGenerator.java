@@ -355,6 +355,7 @@ public class SpecGenerator
 
 
 	private static final HashSet<String> addFindmodeModelEntries = new HashSet<String>();
+	private static final HashSet<String> addReadOnlyModelEntries = new HashSet<String>();
 
 	private void readModelAndHandlers(List<SpecTemplateModel> specTemplateList)
 	{
@@ -411,6 +412,14 @@ public class SpecGenerator
 				Element el = cs.new Element(-1, IRepository.FIELDS, "findmode", IRepository.STRING, null);
 				model.add(el);
 			}
+
+			if (addReadOnlyModelEntries.contains(componentSpec.getName()))
+			{
+				ContentSpec cs = new ContentSpec();
+				Element el = cs.new Element(-1, IRepository.FIELDS, "readOnly", IRepository.STRING, null);
+				model.add(el);
+			}
+
 			componentSpec.setModel(model);
 			componentSpec.setHandlers(handlers);
 		}
@@ -464,6 +473,36 @@ public class SpecGenerator
 		addFindmodeModelEntries.add("typeahead");
 
 
+		String readOnlyEnabled = "{ \"type\" : \"readOnly\", \"oppositeOf\" : \"enabled\"}";
+		String readOnlyEditable = "{ \"type\" : \"readOnly\", \"oppositeOf\" : \"editable\"}";
+
+
+//		addReadOnlyModelEntries.add("button");
+		addReadOnlyModelEntries.add("calendar");
+		addReadOnlyModelEntries.add("check");
+		addReadOnlyModelEntries.add("combobox");
+		addReadOnlyModelEntries.add("htmlarea");
+		addReadOnlyModelEntries.add("listbox");
+		addReadOnlyModelEntries.add("password");
+		addReadOnlyModelEntries.add("radio");
+		addReadOnlyModelEntries.add("spinner");
+		addReadOnlyModelEntries.add("textarea");
+		addReadOnlyModelEntries.add("textfield");
+		addReadOnlyModelEntries.add("typeahead");
+//		addReadOnlyModelEntries.add("checkgroup");
+//		addReadOnlyModelEntries.add("label");
+//		addReadOnlyModelEntries.add("radiogroup");
+//		addReadOnlyModelEntries.add("tabpanel");
+//		addReadOnlyModelEntries.add("htmlview");
+//		addReadOnlyModelEntries.add("imagemedia");
+//		addReadOnlyModelEntries.add("splitpane");
+//		addReadOnlyModelEntries.add("portal");
+//		addReadOnlyModelEntries.add("rectangle");
+
+
+
+
+
 		// component specific repository element mapping
 		HashMap<String, String> htmlViewRepoTypeMapping = new HashMap<String, String>();
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
@@ -507,12 +546,14 @@ public class SpecGenerator
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
 		calendarTypeMapping.put("findmode", findModeEnabledAndEditable);
+		calendarTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("calendar", calendarTypeMapping);
 
 		HashMap<String, String> checkTypeMapping = new HashMap<String, String>();
 		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"checkbox\"]}");
 		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		checkTypeMapping.put("findmode", findModeEnabledAndEditable);
+		checkTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("check", checkTypeMapping);
 
 		HashMap<String, String> checkGroupTypeMapping = new HashMap<String, String>();
@@ -528,12 +569,14 @@ public class SpecGenerator
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
 		comboTypeMapping.put("findmode", findModeEnabledAndEditable);
+		comboTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("combobox", comboTypeMapping);
 
 		HashMap<String, String> htmlAreaMapping = new HashMap<String, String>();
 		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":370, \"height\":250}}");
 		htmlAreaMapping.put("findmode", findModeEnabledAndEditable);
+		htmlAreaMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("htmlarea", htmlAreaMapping);
 
 		HashMap<String, String> imageMediaMapping = new HashMap<String, String>();
@@ -557,6 +600,7 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		listboxTypeMapping.put("findmode", findModeEnabledAndEditable);
+		listboxTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("listbox", listboxTypeMapping);
 
 		HashMap<String, String> passwordMapping = new HashMap<String, String>();
@@ -564,12 +608,14 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		passwordMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		passwordMapping.put("findmode", findModeEnabledAndEditable);
+		passwordMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("password", passwordMapping);
 
 		HashMap<String, String> radioTypeMapping = new HashMap<String, String>();
 		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"radio\"]}");
 		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		radioTypeMapping.put("findmode", findModeEnabledAndEditable);
+		radioTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("radio", radioTypeMapping);
 
 		HashMap<String, String> radioGroupTypeMapping = new HashMap<String, String>();
@@ -583,6 +629,7 @@ public class SpecGenerator
 		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		spinnerMapping.put("findmode", findModeEnabledAndEditable);
+		spinnerMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("spinner", spinnerMapping);
 
 		HashMap<String, String> splitpaneMapping = new HashMap<String, String>();
@@ -608,6 +655,7 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		textareaTypeMapping.put("findmode", findModeEnabledAndEditable);
+		textareaTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("textarea", textareaTypeMapping);
 
 		HashMap<String, String> textfieldTypeMapping = new HashMap<String, String>();
@@ -615,6 +663,7 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		textfieldTypeMapping.put("findmode", findModeEnabledAndEditable);
+		textfieldTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("textfield", textfieldTypeMapping);
 
 		HashMap<String, String> typeaheadTypeMapping = new HashMap<String, String>();
@@ -623,6 +672,7 @@ public class SpecGenerator
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ \"type\" : \"valuelist\", \"tags\": { \"scope\" :\"design\" }, \"for\": \"dataProviderID\", \"default\":\"autoVL\", \"canOptimize\":false}");
 		typeaheadTypeMapping.put("findmode", findModeEnabledAndEditable);
+		typeaheadTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
 
 		//speciffic repository element mapping

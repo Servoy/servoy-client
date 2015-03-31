@@ -45,6 +45,8 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -335,38 +337,26 @@ public class WebFormUI extends Container implements IWebFormUI
 	public void setReadOnly(boolean readOnly)
 	{
 		this.readOnly = readOnly;
-		// TODO see https://support.servoy.com/browse/SVY-8024 readonly should become a type, so no need to have here a "readonly" property based on name
 		propagatePropertyToAllComponents("readOnly", readOnly);
 	}
 
 	private void propagatePropertyToAllComponents(String property, boolean value)
 	{
-		if ("readOnly".equals(property))
+		for (WebComponent component : components.values())
 		{
-			// special case, we have to set editable property for legacy components
-			List<FormElement> formElements = getFormElements();
-			for (FormElement fe : formElements)
+			Object newValue = Boolean.valueOf(value);
+			if ("readOnly".equals(property))
 			{
-				WebComponent component = components.get(fe.getName());
-				if (component != null)
+				Object readonlyproperty = component.getProperty("readOnly");
+				if (readonlyproperty instanceof ReadonlySabloValue)
 				{
-					if (fe.isLegacy())
-					{
-						component.setProperty("editable", Boolean.valueOf(!value));
-					}
-					else
-					{
-						component.setProperty(property, Boolean.valueOf(value));
-					}
+					ReadonlySabloValue oldValue = (ReadonlySabloValue)readonlyproperty;
+					//use the rhino conversion to convert from boolean to ReadOnlySabloValue
+					PropertyDescription pd = ((WebFormComponent)component).getFormElement().getWebComponentSpec().getProperty("readOnly");
+					if (pd != null) newValue = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(Boolean.valueOf(value), oldValue, pd, component);
 				}
 			}
-		}
-		else
-		{
-			for (WebComponent component : components.values())
-			{
-				component.setProperty(property, Boolean.valueOf(value));
-			}
+			component.setProperty(property, newValue);
 		}
 	}
 

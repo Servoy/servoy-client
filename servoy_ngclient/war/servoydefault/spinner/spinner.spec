@@ -21,6 +21,7 @@
 	        "location" : "point", 
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 
 	        "placeholderText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
+	        "readOnly" : { "type" : "readOnly", "oppositeOf" : "editable"}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 

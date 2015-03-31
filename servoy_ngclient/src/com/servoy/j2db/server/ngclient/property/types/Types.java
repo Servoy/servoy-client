@@ -56,6 +56,7 @@ public class Types
 		TypesRegistry.addType(MediaDataproviderPropertyType.INSTANCE);
 		TypesRegistry.addType(HTMLStringPropertyType.INSTANCE);
 		TypesRegistry.addType(FindModePropertyType.INSTANCE);
+		TypesRegistry.addType(ReadonlyPropertyType.INSTANCE);
 
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);

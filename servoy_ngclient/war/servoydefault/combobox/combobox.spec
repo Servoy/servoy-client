@@ -21,6 +21,7 @@
 	        "location" : "point", 
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 
 	        "placeholderText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
+	        "readOnly" : { "type" : "readOnly", "oppositeOf" : "enabled"}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :["form-control", "input-sm", "svy-padding-xs", "select2-container-svy-xs"]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
