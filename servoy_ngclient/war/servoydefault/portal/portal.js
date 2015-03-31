@@ -674,7 +674,16 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
 				});
 				gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){
-					$scope.foundset.loadExtraRecordsAsync(Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size));
+					var extraSize = Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size);
+					if (extraSize !== 0)
+					{
+						$scope.foundset.loadExtraRecordsAsync(extraSize);
+					}	
+					else
+					{
+						// nothing to load, mark data as loaded
+						$scope.gridApi.infiniteScroll.dataLoaded();
+					}	
 				});
 			    gridApi.infiniteScroll.on.needLoadMoreDataTop($scope,function(){
 			    	$scope.gridApi.infiniteScroll.dataLoaded();
