@@ -219,6 +219,11 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		Object value;
 
 		PropertyDescription pd = webComponentSpec.getProperties().get(name);
+		if (pd == null)
+		{
+			pd = webComponentSpec.getProperties().get(convertName(name));
+			if (pd != null) name = convertName(name);
+		}
 		if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
 		{
 			value = ((ISabloComponentToRhino)pd.getType()).toRhinoValue(component.getProperty(name), pd, component, start);
