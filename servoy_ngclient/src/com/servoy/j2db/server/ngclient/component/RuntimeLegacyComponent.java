@@ -165,10 +165,14 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			putCallable.setProperty("clientProperty");
 			return putCallable;
 		}
+		if ("setValueListItems".equals(name))
+		{
+			putCallable.setProperty("valuelistID");
+			return putCallable;
+		}
 		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
 		{
 			String newName = name.substring(name.startsWith("is") ? 2 : 3);
-
 			// Make the bean property name.
 			char ch0 = newName.charAt(0);
 			if (Character.isUpperCase(ch0))
@@ -278,7 +282,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			}
 		}
 		name = convertName(name);
-		if (component.isDesignOnlyProperty(name))
+		if (component.isDesignOnlyProperty(name) && !"valuelistID".equals(name))
 		{
 			// cannot set design only or private properties
 			return;

@@ -67,36 +67,6 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 			 * @example %%prefix%%%%elementName%%.selectAll();
 			 */
 			$scope.api.selectAll = $apifunctions.selectAll($element[0]);
-
-			/**
-	         * Sets the display/real values to the custom valuelist of the element (if element has custom valuelist).
-	         * This does not affect the value list with same name list on other elements or value lists at application level.
-	         * Should receive a dataset parameter, first column is for display values, second column (optional) is for real values.
-	         * @example
-	         * var dataset = databaseManager.createEmptyDataSet(0,new Array('display_values','optional_real_values'));
-	         * dataset.addRow(['aa',1]);
-	         * dataset.addRow(['bb',2]);
-	         * dataset.addRow(['cc',3]);
-	         * // %%prefix%%%%elementName%% should have a valuelist attached
-	         * %%prefix%%%%elementName%%.setValueListItems(dataset);
-	         *
-	         * @param value first column is display value, second column is real value
-	         */
-			$scope.api.setValueListItems = function(values) 
-			{
-				var valuelistItems = [];
-				for (var i = 0; i < values.length; i++)
-				{
-					var item = {};
-					item['displayValue'] = values[i][0];
-					if (values[i][1] !== undefined)
-					{
-						item['realValue'] = values[i][1];
-					}
-					valuelistItems.push(item); 
-				}
-				$scope.model.valuelistID = valuelistItems;
-			}
 		},
 		templateUrl: 'servoydefault/textfield/textfield.html',
 		replace: true

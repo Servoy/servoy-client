@@ -120,6 +120,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 		}
+		if ("setValueListItems".equals(name) && prototypeScope instanceof RuntimeLegacyComponent)
+		{
+			return prototypeScope.get(name, start);
+		}
 		Function func = apiFunctions.get(name);
 		if (func != null)
 		{
@@ -161,7 +165,9 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			return !(type instanceof ISabloComponentToRhino< ? >) ||
 				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component);
 		}
+
 		if (apiFunctions.containsKey(name)) return true;
+		if ("setValueListItems".equals(name) && prototypeScope.has(name, start)) return true;
 
 		// check if we have a setter/getter for this property
 		if (name != null && name.length() > 0)

@@ -35,8 +35,11 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
+import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
+import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
@@ -50,7 +53,9 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -62,7 +67,8 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
-	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>
+	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
+	IRhinoToSabloComponent<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -225,4 +231,40 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		return TargetDataLinks.LINKED_TO_ALL; // if you change this you should call this method in ValueListTypeSabloValue.attach as well when registering as listener to DAL
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
+	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
+	 */
+	@Override
+	public ValueListTypeSabloValue toSabloComponentValue(Object rhinoValue, ValueListTypeSabloValue previousComponentValue, PropertyDescription pd,
+		BaseWebObject componentOrService)
+	{
+		Object vl = componentOrService.getProperty(pd.getName());
+		if (vl != null)
+		{
+			ValueListTypeSabloValue value = (ValueListTypeSabloValue)vl;
+			INGApplication application = value.dataAdapterList.getApplication();
+			IValueList list = value.getValueList();
+			IValueList newVl = null;
+			if (list != null && list instanceof CustomValueList && (rhinoValue instanceof JSDataSet || rhinoValue instanceof IDataSet))
+			{
+				String name = list.getName();
+				ValueList valuelist = application.getFlattenedSolution().getValueList(name);
+				if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
+				{
+					ParsedFormat format = ((CustomValueList)list).getFormat();
+					int type = ((CustomValueList)list).getValueType();
+					newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, rhinoValue);
+				}
+			}
+
+			ValueListConfig config = (ValueListConfig)pd.getConfig();
+			String dataproviderID = (componentOrService.getProperty(config.getFor()) != null
+				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
+			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID) : previousComponentValue;
+		}
+		return null;
+	}
 }
