@@ -79,7 +79,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 
 			$element.on("change.dp",inputChanged);
 
-			$element.on("error.dp",function(val){
+			function onError(val){
 				if (child.children("input").val() === '')
 				{
 					ngModel.$setViewValue(null);
@@ -89,7 +89,8 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				}	
 				ngModel.$setValidity("", false);
 				$scope.$digest();
-			});
+			}
+			$element.on("error.dp", onError);
 			
 			$scope.$watch('model.findmode', function() {
 				if ($scope.model.findmode) 
@@ -98,13 +99,19 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 				} 
 				else 
 				{
-					child.datetimepicker();
+					$element.off("error.dp");
+					child.datetimepicker({
+						useCurrent:false,
+						useStrict:true,
+						showClear: true
+					});
 					var x = child.data('DateTimePicker');
 					x.format(dateFormat);
 					try {
 						$element.off("change.dp", inputChanged);
 						x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
 					} finally {
+						$element.on("error.dp", onError);
 						$element.on("change.dp", inputChanged);
 					}
 				}
