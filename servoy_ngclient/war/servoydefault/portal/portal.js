@@ -47,12 +47,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if (rowProxy[elIdx].unwatchFuncs) {
 						rowProxy[elIdx].unwatchFuncs.forEach(function (f) { f(); });
 					}
-					if (rowProxy[elIdx].propertyUnwatchFuncs) {
-						var propertyUnwatchFuncs = rowProxy[elIdx].propertyUnwatchFuncs;
-						for (var propKey in propertyUnwatchFuncs) {
-							propertyUnwatchFuncs[propKey].forEach(function (f) { f(); });
-						};
-					}
 				}
 			}
 
@@ -90,12 +84,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 			})
 
-//			function onAllCells(f) {
-//				for (var pk in rowProxyObjects)
-//					for (var elementIndex in rowProxyObjects[pk])
-//						f(rowProxyObjects[pk][elementIndex], pk, elementIndex);
-//			}
-//			
 			$scope.rowHeight = $scope.model.rowHeight;
 
 			var rowTemplate = ''
@@ -328,7 +316,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 				
-				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
+				var relativeRowIndex = rowIdToViewportRelativeRowIndex(rowId);
+				if(relativeRowIndex < 0) {
 					return {}
 				}
 				
@@ -338,60 +327,30 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				if (!cellModel) {
 					var element = elements[elementIndex];
 
+					function CellData() {
+					}
+					CellData.prototype = element.model;
+					
 					var key;
-					var cellData = {};
+					var cellData = new CellData();
 
 					// some properties that have default values might only be sent later to client;
 					// if that happens, we need to then bind them two-way as well
 					if (!angular.isDefined(cellProxies.unwatchFuncs)) {
 						cellProxies.unwatchFuncs = [];
 					}
-					if (!angular.isDefined(cellProxies.propertyUnwatchFuncs)) {
-						cellProxies.propertyUnwatchFuncs = {};
-					}
-
-					function updateTwoWayBindings(listWithProperties, oldList) {
-						if (oldList === listWithProperties) return;
-						var k;
-						for (k in listWithProperties) {
-							if (!cellProxies.propertyUnwatchFuncs[k]) {
-								// skip this for special - row-by-row changing properties; it is handled separately later in code
-								var skip = false;
-								if (elements[elementIndex].foundsetConfig && elements[elementIndex].foundsetConfig.recordBasedProperties) {
-									for (var i in elements[elementIndex].foundsetConfig.recordBasedProperties) {
-										skip = (elements[elementIndex].foundsetConfig.recordBasedProperties[i] === k);
-										if (skip) break;
-									}
-								}
-
-								if (!skip) {
-									// copy initial values
-									if (angular.isUndefined(cellData[k])) cellData[k] = elements[elementIndex].model[k];
-									else if (angular.isUndefined(elements[elementIndex].model[k])) elements[elementIndex].model[k] = cellData[k];
-
-									// 2 way data link between element model and the merged cell model
-									// it is a bit strange here as 1 element model will be 2 way bound to N cell models
-									cellProxies.propertyUnwatchFuncs[k] = $utils.bindTwoWayObjectProperty(cellData, k, elements[elementIndex].model, k, false, $scope);
-								}
-							} 
-						}
-					};
 
 					// properties like tagstring and dataprovider are not set directly on the component but are more linked to the current record
 					// so we will take these from the foundset record and apply them to child elements
 					if (element.foundsetConfig && element.foundsetConfig.recordBasedProperties) {
 						for (var i in element.foundsetConfig.recordBasedProperties) {
 							var propertyName = element.foundsetConfig.recordBasedProperties[i];
-							if (angular.isDefined(element.modelViewport) && angular.isDefined(element.modelViewport[rowIdToViewportRelativeRowIndex(rowId)]))
-								cellData[propertyName] = element.modelViewport[rowIdToViewportRelativeRowIndex(rowId)][propertyName];
+							if (angular.isDefined(element.modelViewport) && angular.isDefined(element.modelViewport[relativeRowIndex]))
+								cellData[propertyName] = element.modelViewport[relativeRowIndex][propertyName];
 							// 2 way data link between element record based properties from modelViewport and the merged cell model
 							cellProxies.unwatchFuncs = cellProxies.unwatchFuncs.concat($utils.bindTwoWayObjectProperty(cellData, propertyName, elements, [elementIndex, "modelViewport", function() { return rowIdToViewportRelativeRowIndex(rowId); }, propertyName], false, $scope));
 						}
 					}
-
-					updateTwoWayBindings(element.model);
-					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return elements[elementIndex].model; }, updateTwoWayBindings));
-					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return cellData; }, updateTwoWayBindings));
 
 					cellProxies.mergedCellModel = cellModel = cellData;
 				} 
