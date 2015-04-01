@@ -69,7 +69,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	public void attachToBaseObject(IChangeListener changeMonitor, BaseWebObject component)
 	{
 		this.webComponent = (WebFormComponent)component;
-		if (readOnly && !isEditable())
+		if (readOnly && !oppositeValue())
 		{
 			addOppositeOfListener();
 			return;
@@ -77,12 +77,12 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 		if (readOnly)
 		{
-			setEditable(false);
+			setOppositeValue(false);
 			savedOppositeOfValue = true;
 		}
 		else
 		{
-			setEditable(savedOppositeOfValue);
+			setOppositeValue(savedOppositeOfValue);
 		}
 
 		addOppositeOfListener();
@@ -108,14 +108,14 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	}
 
 
-	private void setEditable(boolean b)
+	private void setOppositeValue(boolean b)
 	{
 
 		webComponent.setProperty(configuration.getOppositeOf(), b);
 	}
 
 
-	private boolean isEditable()
+	private boolean oppositeValue()
 	{
 		return (boolean)webComponent.getProperty(configuration.getOppositeOf());
 	}
@@ -142,7 +142,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	{
 		try
 		{
-			writer.value(!isEditable());
+			writer.value(!oppositeValue());
 		}
 		catch (JSONException e)
 		{
@@ -153,7 +153,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	public boolean getValue()
 	{
-		return !isEditable();
+		return !oppositeValue();
 	}
 
 	/**
