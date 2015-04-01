@@ -5184,7 +5184,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			ClientProperties cp = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
 			if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() != -1 && cp.getBrowserVersionMajor() < 8)
 			{
-				Debug.warn("Cannot set tableview to scroll mode for IE version " + cp.getBrowserVersionMajor()); //$NON-NLS-1$
+				Debug.warn("Cannot set tableview to scroll mode for IE version " + cp.getBrowserVersionMajor() + ", UA : " + cp.getNavigatorUserAgent()); //$NON-NLS-1$ //$NON-NLS-2$
 				this.isScrollMode = false;
 			}
 		}
