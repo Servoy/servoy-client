@@ -16,20 +16,24 @@ angular.module('valuelist_property', ['webSocketModule'])
 					var internalState = serverJSONValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
 					
 					// PUBLIC API to components; initialize the property value; make it 'smart'
-					serverJSONValue.filterList = function(filterString) {
-						var retVal = serverJSONValue;
-						
-						if (filterString) {
-						   var deferred = $q.defer();
-						   internalState.deferredFilter = deferred;
-						   retVal = deferred.promise;
-						   
-						   internalState.filterStringReq = filterString;
-						   if (internalState.changeNotifier) internalState.changeNotifier();
-						}
-						
-						return retVal;
-					};
+					Object.defineProperty(serverJSONValue, 'filterList',
+					{
+						value:  function(filterString) {
+							var retVal = serverJSONValue;
+
+							if (filterString) {
+								var deferred = $q.defer();
+								internalState.deferredFilter = deferred;
+								retVal = deferred.promise;
+
+								internalState.filterStringReq = filterString;
+								if (internalState.changeNotifier) internalState.changeNotifier();
+							}
+
+							return retVal;
+						},
+						enumerable: false
+					});
 					
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup
