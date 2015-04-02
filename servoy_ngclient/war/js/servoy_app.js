@@ -871,6 +871,23 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			// this returns first one of the languages array if the browser supports this (Chrome and FF) else it falls back to language or userLanguage (IE, and IE seems to return the right one from there) 
 			return navigator.languages? navigator.languages[0] : (navigator.language || navigator.userLanguage);
 		},
+		setLocale:function(language,country) {
+			try{ 
+				numeral.language((language + '-' + country).toLowerCase());
+				webStorage.session.add("locale", (language + '-' + country).toLowerCase())
+			} catch(e) {
+				try {
+					numeral.language(language + '-' + country);
+					webStorage.session.add("locale", language + '-' + country)
+				} catch(e2) {
+					try {
+						//try it with just the language part
+						numeral.language(language);
+						webStorage.session.add("locale", language)
+					} catch(e3) {}
+				}
+			}
+		},
 		showInfoPanel: function(url,w,h,t,closeText)
 		{
 			var infoPanel=document.createElement("div");
@@ -906,11 +923,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	}
 
 }])
-.run(function($window, $sabloApplication, $applicationService) {
+.run(function($window, $sabloApplication, $applicationService,webStorage) {
 	$window.executeInlineScript = function(formname, script, params) {
 		$sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)
 	}
-	var language = $applicationService.getLanguage();
+	var language = webStorage.session.get("locale");
+	if (!language) language = $applicationService.getLanguage();
 	// fix that only nl-nl is added but not just nl
 	numeral.language('nl',numeral.languageData('nl-nl'));
 	try{ 

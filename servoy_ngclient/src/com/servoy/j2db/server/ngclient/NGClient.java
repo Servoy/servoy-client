@@ -114,6 +114,20 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
+	 */
+	@Override
+	public void setLocale(Locale l)
+	{
+		boolean send = locale != null && !locale.equals(l);
+		super.setLocale(l);
+		if (send) getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setLocale",
+			new Object[] { l.getLanguage(), l.getCountry() });
+	}
+
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{

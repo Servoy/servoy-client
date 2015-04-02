@@ -230,7 +230,7 @@
                 (b === 3) ? 'rd' : 'th';
         },
         currency: {
-            symbol: '£'
+            symbol: '\u00A3'
         }
     };
 
@@ -520,7 +520,7 @@
             return '.';
         },
         currency: {
-            symbol: ' Ft'
+            symbol: 'Ft'
         }
     };
 
@@ -551,7 +551,7 @@
             trillion: 't'
         },
         ordinal: function (number) {
-            return 'º';
+            return '\u00ba';
         },
         currency: {
             symbol: '\u20ac'
@@ -579,16 +579,16 @@
             decimal: '.'
         },
         abbreviations: {
-            thousand: '千',
-            million: '百万',
-            billion: '十億',
-            trillion: '兆'
+            thousand: '\u5343',
+            million: '\u767E\u4E07',
+            billion: '\u5341\u5104',
+            trillion: '\u5146'
         },
         ordinal: function (number) {
             return '.';
         },
         currency: {
-            symbol: '¥'
+            symbol: '\u00A5'
         }
     };
 
@@ -689,7 +689,7 @@
             trillion: 't'
         },
         ordinal: function (number) {
-            return 'º';
+            return '\u00BA';
         },
         currency: {
             symbol: 'R$'
@@ -750,8 +750,8 @@
             decimal: ','
         },
         abbreviations: {
-            thousand: 'тыс.',
-            million: 'млн',
+            thousand: '\u0442\u044B\u0441\u002E',
+            million: '\u043C\u043B\u043D',
             billion: 'b',
             trillion: 't'
         },
@@ -788,8 +788,8 @@
             decimal: ','
         },
         abbreviations: {
-            thousand: 'тыс.',
-            million: 'млн',
+            thousand: '\u0442\u044B\u0441\u002E',
+            million: '\u043C\u043B\u043D',
             billion: 'b',
             trillion: 't'
         },
@@ -861,16 +861,16 @@
             decimal: '.'
         },
         abbreviations: {
-            thousand: 'พัน',
-            million: 'ล้าน',
-            billion: 'พันล้าน',
-            trillion: 'ล้านล้าน'
+            thousand: '\u0E1E\u0E31\u0E19',
+            million: '\u0E25\u0E49\u0E32\u0E19',
+            billion: '\u0E1E\u0E31\u0E19\u0E25\u0E49\u0E32\u0E19',
+            trillion: '\u0E25\u0E49\u0E32\u0E19\u0E25\u0E49\u0E32\u0E19'
         },
         ordinal: function (number) {
             return '.';
         },
         currency: {
-            symbol: '฿'
+            symbol: '\u0E3F'
         }
     };
 
@@ -962,10 +962,10 @@
             decimal: ','
         },
         abbreviations: {
-            thousand: 'тис.',
-            million: 'млн',
-            billion: 'млрд',
-            trillion: 'блн'
+            thousand: '\u0442\u0438\u0441\u002E',
+            million: '\u043C\u043B\u043D',
+            billion: '\u043C\u043B\u0440\u0434',
+            trillion: '\u0431\u043B\u043D'
         },
         ordinal: function () {
             // not ideal, but since in Ukrainian it can taken on 
