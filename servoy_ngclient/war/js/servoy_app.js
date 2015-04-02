@@ -653,8 +653,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					$sabloApplication.resolveFormState(formName);
 					$sabloApplication.getFormState(formName).then(function(resolvedFormState) {
 						$timeout(function() {
-							resolvedFormState.properties.size.width = element.prop('offsetWidth'); // formState.properties == formState.getScope().formProperties here
-							resolvedFormState.properties.size.height = element.prop('offsetHeight');
+							var formWidth = element.prop('offsetWidth');
+							var formHeight = element.prop('offsetHeight');
+							if (formWidth === 0 && formHeight === 0)
+							{
+								var formWidth = element.children().prop('offsetWidth');
+								var formHeight = element.children().prop('offsetHeight');
+							}	
+							resolvedFormState.properties.size.width = formWidth; // formState.properties == formState.getScope().formProperties here
+							resolvedFormState.properties.size.height = formHeight;
 						}, 0);
 						delete resolvedFormState.resolving;
 					});
