@@ -62,6 +62,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
     	  }
     	  
           $scope.getForm = function(tab) {
+        	  if (!tab) return null;
         	  return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
           }
           
