@@ -216,22 +216,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			return Scriptable.NOT_FOUND;
 		}
 
-		Object value;
-
-		PropertyDescription pd = webComponentSpec.getProperties().get(name);
-		if (pd == null)
-		{
-			pd = webComponentSpec.getProperties().get(convertName(name));
-			if (pd != null) name = convertName(name);
-		}
-		if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
-		{
-			value = ((ISabloComponentToRhino)pd.getType()).toRhinoValue(component.getProperty(name), pd, component, start);
-		}
-		else
-		{
-			value = convertValue(name, component.getProperty(convertName(name)));
-		}
+		Object value = convertValue(name, component.getProperty(convertName(name)), webComponentSpec.getProperties().get(convertName(name)), start);
 
 		if (isReadonly && value instanceof Boolean)
 		{
@@ -369,7 +354,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		return name;
 	}
 
-	private Object convertValue(String name, Object value)
+	private Object convertValue(String name, Object value, PropertyDescription pd, Scriptable start)
 	{
 		if ("width".equals(name) && value instanceof Dimension)
 		{
@@ -386,6 +371,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		if ("locationY".equals(name) && value instanceof Point)
 		{
 			return Integer.valueOf(((Point)value).y);
+		}
+		if (pd != null && pd.getType() instanceof ISabloComponentToRhino< ? >)
+		{
+			return ((ISabloComponentToRhino)pd.getType()).toRhinoValue(value, pd, component, start);
 		}
 		return value;
 	}
