@@ -58,7 +58,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
+public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, IFindModeAwarePropertyValue
 {
 
 	public static final String FOUNDSET_SELECTOR = "foundsetSelector";
@@ -184,6 +184,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 		// register parent record changed listener
 		parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
+		parentDAL.addFindModeAwareProperty(this);
 	}
 
 	/**
@@ -686,5 +687,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	protected void setColumnDataprovider(String name, String dataprovider)
 	{
 		elementsToDataproviders.put(name, dataprovider);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue#findModeChanged(boolean)
+	 */
+	@Override
+	public void findModeChanged(boolean newFindMode)
+	{
+		dataAdapterList.setFindMode(newFindMode);
 	}
 }

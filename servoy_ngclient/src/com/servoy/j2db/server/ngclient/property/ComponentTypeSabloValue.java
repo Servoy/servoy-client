@@ -103,6 +103,11 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		this.componentPropertyDescription = componentPropertyDescription;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
+	 */
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, org.sablo.BaseWebObject parentComponent)
 	{
@@ -126,8 +131,23 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			});
 		}
+		Iterator<PropertyDescription> it = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE).iterator();
+		if (it.hasNext())
+		{
+			PropertyDescription pd = it.next();
+			if (childComponent.getFormElement().getPropertyValue(pd.getName()) != null)
+			{
+				String dataProviderID = (String)childComponent.getFormElement().getPropertyValue(pd.getName());
+				Boolean isFindModeAware = ((DataproviderPropertyType)pd.getType()).isFindModeAware(dataProviderID, pd,
+					childComponent.getDataConverterContext().getSolution(), childComponent.getFormElement());
+				if (isFindModeAware != null && isFindModeAware.booleanValue() == true)
+				{
+					FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+					foundsetPropValue.getDataAdapterList().addFindModeAwareProperty((DataproviderTypeSabloValue)childComponent.getProperty(pd.getName()));
+				}
+			}
+		}
 	}
-
 
 	private void setDataproviderNameToFoundset()
 	{
@@ -214,7 +234,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					// this gets called whenever a property is flagged as dirty/changed/to be sent to browser
 					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
 					{
-						if (!((FoundsetDataAdapterList)dal).isQuietRecordChangeInProgress()) // if forFoundsetTypedPropertyName != null we are using a foundset DAL, so just cast
+						if (!((FoundsetDataAdapterList)dal).isQuietRecordChangeInProgress() && foundsetPropValue.getFoundset() != null &&
+							!foundsetPropValue.getFoundset().isInFindMode()) // if forFoundsetTypedPropertyName != null we are using a foundset DAL, so just cast
 						{
 							// for example valuelist properties can get filtered based on client sent filter in which case the property does change without
 							// any actual change in the record; in this case we need to mark it correctly in viewport as a change
@@ -821,5 +842,4 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 	}
-
 }
