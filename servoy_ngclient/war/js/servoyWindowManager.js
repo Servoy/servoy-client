@@ -393,7 +393,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			eval(controllerCode);
 			formTemplateUrls[formName] = realFormUrl;
 			// if the form was already intialized and visible, then make sure it is initialized again.
-			if (formState && formState.initializing === undefined && formState.getScope != undefined)
+			if (formState && formState.getScope != undefined)
 			{
 				$sabloApplication.getFormState(formName).then(function (formState) {
 					if ($log.debugEnabled) $log.debug("svy * updateController; checking to see if requestInitialData is needed = " + formName + " (" + formState.initializing + ", " + formState.initialDataRequested + ")");
