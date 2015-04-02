@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,6 +56,12 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class WebFormUI extends Container implements IWebFormUI
 {
+	/**
+	 *
+	 */
+	private static final String ENABLED = "enabled";
+	private static final String READONLY = "readOnly";
+
 	private static final class FormSpecification extends WebComponentSpecification
 	{
 		private FormSpecification()
@@ -74,6 +82,10 @@ public class WebFormUI extends Container implements IWebFormUI
 	private Object parentContainerOrWindowName;
 
 	protected IDataAdapterList dataAdapterList;
+
+	private PropertyChangeListener parentEnabledListener;
+
+	private PropertyChangeListener parentReadOnlyListener;
 
 	public WebFormUI(IWebFormController formController)
 	{
@@ -302,6 +314,7 @@ public class WebFormUI extends Container implements IWebFormUI
 			c.dispose();
 		}
 		components.clear();
+		cleanupListeners();
 	}
 
 	@Override
@@ -318,7 +331,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	public void setComponentEnabled(boolean enabled)
 	{
 		this.enabled = enabled;
-		propagatePropertyToAllComponents("enabled", enabled);
+		propagatePropertyToAllComponents(ENABLED, enabled);
 	}
 
 	@Override
@@ -337,7 +350,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	public void setReadOnly(boolean readOnly)
 	{
 		this.readOnly = readOnly;
-		propagatePropertyToAllComponents("readOnly", readOnly);
+		propagatePropertyToAllComponents(READONLY, readOnly);
 	}
 
 	private void propagatePropertyToAllComponents(String property, boolean value)
@@ -345,14 +358,14 @@ public class WebFormUI extends Container implements IWebFormUI
 		for (WebComponent component : components.values())
 		{
 			Object newValue = Boolean.valueOf(value);
-			if ("readOnly".equals(property))
+			if (READONLY.equals(property))
 			{
-				Object readonlyproperty = component.getProperty("readOnly");
+				Object readonlyproperty = component.getProperty(READONLY);
 				if (readonlyproperty instanceof ReadonlySabloValue)
 				{
 					ReadonlySabloValue oldValue = (ReadonlySabloValue)readonlyproperty;
 					//use the rhino conversion to convert from boolean to ReadOnlySabloValue
-					PropertyDescription pd = ((WebFormComponent)component).getFormElement().getWebComponentSpec().getProperty("readOnly");
+					PropertyDescription pd = ((WebFormComponent)component).getFormElement().getWebComponentSpec().getProperty(READONLY);
 					if (pd != null) newValue = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(Boolean.valueOf(value), oldValue, pd, component);
 				}
 			}
@@ -372,7 +385,42 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	public void setParentContainer(WebFormComponent parentContainer)
 	{
+		cleanupListeners();
 		this.parentContainerOrWindowName = parentContainer;
+		if (parentContainer != null)
+		{
+			parentReadOnlyListener = new PropertyChangeListener()
+			{
+				@Override
+				public void propertyChange(PropertyChangeEvent evt)
+				{
+					setReadOnly((boolean)evt.getNewValue());
+				}
+			};
+			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
+			parentEnabledListener = new PropertyChangeListener()
+			{
+				@Override
+				public void propertyChange(PropertyChangeEvent evt)
+				{
+					setComponentEnabled((boolean)evt.getNewValue());
+				}
+			};
+			parentContainer.addPropertyChangeListener(ENABLED, parentEnabledListener);
+		}
+	}
+
+	/**
+	 * Clean up editable and readonly listners that we added to the parent container before changing it.
+	 */
+	private void cleanupListeners()
+	{
+		if (parentContainerOrWindowName instanceof WebFormComponent && parentReadOnlyListener != null && parentEnabledListener != null)
+		{
+			WebFormComponent parent = (WebFormComponent)parentContainerOrWindowName;
+			parent.removePropertyChangeListener(READONLY, parentReadOnlyListener);
+			parent.removePropertyChangeListener(ENABLED, parentEnabledListener);
+		}
 	}
 
 	public Object getParentContainer()
@@ -396,6 +444,7 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	public void setParentWindowName(String parentWindowName)
 	{
+		cleanupListeners();
 		this.parentContainerOrWindowName = parentWindowName;
 	}
 

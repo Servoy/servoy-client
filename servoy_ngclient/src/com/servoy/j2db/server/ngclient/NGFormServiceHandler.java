@@ -29,7 +29,6 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
@@ -111,26 +110,6 @@ public class NGFormServiceHandler extends FormServiceHandler
 				catch (Exception ex)
 				{
 					Debug.error("Cannot execute inline script", ex);
-				}
-				break;
-			}
-
-			case "formreadOnly" :
-			{
-				IWebFormController form = getApplication().getFormManager().getForm(args.optString("formname"));
-				if (form != null)
-				{
-					((WebFormController)form).setReadOnly(args.optBoolean("readOnly", false));
-				}
-				break;
-			}
-
-			case "formenabled" :
-			{
-				IWebFormController form = getApplication().getFormManager().getForm(args.optString("formname"));
-				if (form != null)
-				{
-					((WebFormController)form).setComponentEnabled(args.optBoolean("enabled", true));
 				}
 				break;
 			}
