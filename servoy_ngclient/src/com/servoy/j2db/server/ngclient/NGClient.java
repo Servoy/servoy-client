@@ -114,6 +114,13 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
+	protected SolutionMetaData selectSolutionToLoad() throws RepositoryException
+	{
+		// don't return here the current solution, that should only be loaded really through 
+		// a request == websocket endpoint
+		return null;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
