@@ -34,6 +34,7 @@ import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWindow;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.Media;
@@ -121,28 +122,31 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (!client.isEventDispatchThread()) J2DBGlobals.setServiceProvider(client);
 		try
 		{
-			Solution solution = client.getSolution();
+			FlattenedSolution solution = client.getFlattenedSolution();
 			if (solution != null)
 			{
-				if (!solution.getName().equals(solutionName))
+				// test for the main solution meta data else a login solution will constantly be closed even if it is for the right main solution.
+				if (solution.getSolution() != null && !solutionName.equals(solution.getMainSolutionMetaData().getName()))
 				{
 					client.closeSolution(true, null);
 				}
 				else
 				{
-
-					String method = args.getMethodName();
-					String firstArgument = args.getFirstArgument();
-					if (method != null)
+					if (solution.isMainSolutionLoaded())
 					{
-						try
+						String method = args.getMethodName();
+						String firstArgument = args.getFirstArgument();
+						if (method != null)
 						{
-							client.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
-								(firstArgument == null ? null : new Object[] { firstArgument, args.toJSMap() }), false, false);
-						}
-						catch (Exception e1)
-						{
-							client.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { method }), e1); //$NON-NLS-1$
+							try
+							{
+								client.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
+									(firstArgument == null ? null : new Object[] { firstArgument, args.toJSMap() }), false, false);
+							}
+							catch (Exception e1)
+							{
+								client.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { method }), e1); //$NON-NLS-1$
+							}
 						}
 					}
 
@@ -155,7 +159,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						try
 						{
 							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
-							sendSolutionCSSURL(solution);
+							sendSolutionCSSURL(solution.getSolution());
 						}
 						finally
 						{
