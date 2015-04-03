@@ -8,12 +8,6 @@ describe('servoydefaultTabpanel component', function() {
 	var handlersMock = {			
 			tabs: {
 				svy_servoyApi: {
-					setFormEnabled: function (formname, enabled) {
-						
-					},
-					setFormReadOnly: function (formname, readOnly) {
-						
-					},
 					formWillShow: function(formname,relationname,formIndex) {
 					},
 					hideForm: function(formname,relationname,formIndex) {
