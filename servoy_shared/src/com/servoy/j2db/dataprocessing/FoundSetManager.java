@@ -999,7 +999,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public Collection<String> getInMemDataSourceNames()
 	{
-		return Collections.unmodifiableCollection(inMemDataSources.keySet());
+		List<String> inMemDataSourceNames = new ArrayList<String>(inMemDataSources.size());
+		{
+			for (String dataSource : inMemDataSources.keySet())
+			{
+				inMemDataSourceNames.add(DataSourceUtils.getInmemDataSourceName(dataSource));
+			}
+		}
+		return inMemDataSourceNames;
 	}
 
 	public String getDataSource(ITable table)
