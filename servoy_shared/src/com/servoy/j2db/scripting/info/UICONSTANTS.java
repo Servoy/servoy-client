@@ -26,10 +26,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
-	 * 
+	 *
 	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
 	 * Value can be true/false/null.
-	 * 
+	 *
 	 * If set to true, the affected TYPE_AHEAD(s) will show the pop-up when the field content is empty.
 	 * DEFAULT: true.
 	 *
@@ -43,10 +43,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
-	 * 
+	 *
 	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
 	 * Value can be true/false/null.
-	 * 
+	 *
 	 * If set to true, the affected TYPE_AHEAD(s) will show the pop-up when gaining focus.
 	 * DEFAULT: true.
 	 *
@@ -60,10 +60,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
-	 * 
+	 *
 	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
 	 * Value can be true/false/null.
-	 * 
+	 *
 	 * If set to true, the affected COMBOBOX will show the pop-up when gaining focus.
 	 * DEFAULT: true.
 	 *
@@ -77,10 +77,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
-	 * 
+	 *
 	 * If set on application it will affect all date formatted fields. If set on an element it will affect only that date formatted element/field (with priority over the application property).
 	 * Value can be true/false/null.
-	 * 
+	 *
 	 * If set to true, only selected part of the date will be affected when using up/down keys to cycle through values. (for example, pressing up when cursor is on minutes and minutes shows 59 will not result in hour change)
 	 * DEFAULT: false.
 	 *
@@ -94,11 +94,11 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
-	 * 
+	 *
 	 * If set on application it will affect all date formatted fields. CAUTION: this property must be set on application before the fields are created (for example in solution onOpen handler). Changing it after fields were created will not affect these existing fields.
 	 * If set on an element it will affect only that date formatted element/field (with priority over the application property).
 	 * Value can be true/false/null.
-	 * 
+	 *
 	 * If set to false, date formatted fields will not allow input of out-of-bounds values (like 62 minutes means 2 minutes and +1 hour).
 	 * DEFAULT: true.
 	 *
@@ -112,7 +112,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Value that can be used to specify that a dialog should completely fill the screen.
-	 * 
+	 *
 	 * @deprecated because of a rewrite of dialogs/windows (based in JSWindow objects)
 	 * @sample
 	 * application.showFormInDialog('customers',APP_UI_PROPERTY.DIALOG_FULL_SCREEN,APP_UI_PROPERTY.DIALOG_FULL_SCREEN,
@@ -123,7 +123,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Value that can be used to specify that a dialog/window should completely fill the screen.
-	 * 
+	 *
 	 * @deprecated because of a rewrite of dialogs/windows (based in JSWindow objects)
 	 * @sample
 	 * application.showFormInDialog('customers',APP_UI_PROPERTY.FULL_SCREEN,APP_UI_PROPERTY.FULL_SCREEN,
@@ -134,13 +134,13 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty().
-	 * 
+	 *
 	 * If set to true, the system standard Printing dialog will be used when printing is needed.
 	 * If set to false, the Servoy Printing dialog will be used.
-	 * 
+	 *
 	 * The value can be true/false/null.
-	 * DEFAULT: false 
-	 * 
+	 * DEFAULT: false
+	 *
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.USE_SYSTEM_PRINT_DIALOG, true)
 	 */
@@ -166,13 +166,13 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty().
-	 * 
+	 *
 	 * If set to true, fields that are read-only won't be editable in find mode
 	 * If set to false, fields that are read-only will be editable in find mode
-	 * 
+	 *
 	 * The value can be true/false
-	 * DEFAULT: false 
-	 * 
+	 * DEFAULT: false
+	 *
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.LEAVE_FIELDS_READONLY_IN_FIND_MODE, true)
 	 */
@@ -180,17 +180,17 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty().
-	 * 
+	 *
 	 * If set to true, table views in web client are scrollable by default
 	 * If set to false, table views in web client are not scrollable, but pageable by default
-	 * 
+	 *
 	 * The value can be true/false
-	 * DEFAULT: false 
-	 * 
+	 * DEFAULT: false
+	 *
 	 * When this property is set to true, you can control the size of the page by setting the servoy property "servoy.webclient.scrolling.tableview.multiplier".
 	 * The default value is 2. Setting the property to a higher value, will result in more data to be queried at once. You can also set it to a lower value, like 1 or 1.5 for example.
 	 * We strongly recommend that the default or lower size be used in order to avoid blocking situations due to the big request being made to the server.
-	 * 
+	 *
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
@@ -198,26 +198,41 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty().
-	 * 
+	 *
 	 * If set to true, scrollable table views in web client will keep the already loaded rows in the view
 	 * If set to false, scrollable table views in web client will unload not visible rows in the view
-	 * 
+	 *
 	 * The value can be true/false
-	 * DEFAULT: false 
-	 * 
+	 * DEFAULT: false
+	 *
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS, true)
 	 */
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
+
+	/**
+	 * Property that can be set using application.putClientProperty().
+	 *
+	 * If set to true, you can change selection in webclient tableview using up/down keys
+	 * If set to false, you cannot change selection via keyboard arrows
+	 *
+	 * The value can be true/false
+	 * DEFAULT: true
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_USE_KEY_NAVIGATION, false)
+	 */
+	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = IApplication.TABLEVIEW_WC_USE_KEY_NAVIGATION;
+
 	/**
 	 * Property that can be set using element.putClientProperty()
-	 * 
+	 *
 	 * If set to true, the element will accept javascript links in the input
 	 * If set to false, all 'javascript:' texts will be removed from the input
-	 * 
+	 *
 	 * The value can be true/false
-	 * DEFAULT: false 
-	 * 
+	 * DEFAULT: false
+	 *
 	 * @sample
 	 * element.putClientProperty(APP_UI_PROPERTY.ALLOW_JAVASCRIPT_LINK_INPUT, true)
 	 */
@@ -225,29 +240,29 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set on editable html area using element.putClientProperty()
-	 * 
-	 * The value must be a valid json string according to TinyMCE editor configuration (http://www.tinymce.com/wiki.php/configuration). 
-	 * It will be used to override/set configuration properties in order to customize the editor. 
-	 * 
-	 * 
+	 *
+	 * The value must be a valid json string according to TinyMCE editor configuration (http://www.tinymce.com/wiki.php/configuration).
+	 * It will be used to override/set configuration properties in order to customize the editor.
+	 *
+	 *
 	 * @sample
 	 * // adding a new TinyMCE plugin (same for skin or theme)
 	 * // this code assumes plugin.min.js was copied in web server at specified path
 	 * // NOTE: we use external plugin, not plugin, in order for file to be accessible from web server; for this example, pluging.min.js file must be copied under ServoyInstall/application_server/server/webapps/ROOT/tinymce/plugins/link
 	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{external_plugins: { "link": "../../../tinymce/plugins/link/plugin.min.js"}}')
-	 * 
+	 *
 	 * // change the editor configuration (add menubar, status bar and change toolbar)
 	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{menubar: "tools table format view insert edit", statusbar : true, toolbar: "undo redo | styleselect | bold italic"}')
 	 */
 	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
 	/**
 	 * Property that can be set using application.putClientProperty()
-	 * 
-	 * The value can be a positive integer representing the maximum number of rows that will be retrieved by query in database or related valuelist. 
+	 *
+	 * The value can be a positive integer representing the maximum number of rows that will be retrieved by query in database or related valuelist.
 	 * Can have a maximum value of 1000.
-	 * 
-	 * DEFAULT: 500 
-	 * 
+	 *
+	 * DEFAULT: 500
+	 *
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.VALUELIST_MAX_ROWS, 1000)
 	 */
