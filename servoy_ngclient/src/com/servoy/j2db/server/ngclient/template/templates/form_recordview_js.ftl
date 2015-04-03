@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
-	
+
 ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$sabloUtils,$log) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
@@ -25,11 +25,11 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	}
 
 	var formProperties = ${propertiesString}
-	
+
 	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false);
 	formState.resolving = true;
 	if ($log.debugEnabled) $log.debug("svy * ftl; resolving form = ${name}");
-	
+
 	$scope.model = formState.model;
 	$scope.api = formState.api;
 	$scope.layout = formState.layout;
@@ -40,7 +40,7 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 	<#list parts as part>
 	$scope.${part.name}Style = ${part.style};
 	</#list>
-	
+
 	var getExecutor = function(beanName,eventType) {
 		var callExecutor = function(args, rowId) {
 			return $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
@@ -62,12 +62,6 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 			hideForm: function(formname,relationname,formIndex) {
 				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex);
 			},
-			setFormEnabled: function(formname, enabled) {
-				$formService.setFormEnabled(formname,enabled);
-			},
-			setFormReadOnly: function(formname, readOnly) {
-				$formService.setFormReadOnly(formname,readOnly);
-			},
 			getFormUrl: function(formUrl) {
 				return $windowService.getFormUrl(formUrl);
 			},
@@ -85,15 +79,15 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
 	</#list>
 	}
-	
-	
+
+
 	var wrapper = function(beanName) {
 		return function(newvalue,oldvalue) {
 				if(oldvalue === newvalue) return;
 				$servoyInternal.sendChanges(newvalue,oldvalue, "${name}", beanName);
 		}
 	}
-	
+
 	var watches = {};
 
 	formState.handlers = $scope.handlers;
@@ -116,10 +110,10 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 		</#list>
 		}
 	}
-	
+
 	formState.removeWatches = function (beanNames) {
 		if (Object.getOwnPropertyNames(watches).length == 0) return false;
-		
+
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
 			 	if (watches[beanName]) watches[beanName]();
@@ -132,16 +126,16 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 		}
 		return true;
 	}
-	
+
 	formState.getScope = function() { return $scope; }
-	
+
 	$scope.$watch("formProperties", wrapper(''), true);
-	
+
 	var destroyListenerUnreg = $scope.$on("$destroy", function() {
 		if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope destroyed: " + $scope.$id);
 		destroyListenerUnreg();
 		$sabloApplication.updateScopeForState("${name}", null);
-		
+
 		if (formState && formState.removeWatches) {
 			if (!$scope.hiddenDivFormDiscarded) {
 				formState.removeWatches();
@@ -156,5 +150,5 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 		}
 		else console.log("no formstate for ${name}" + formState + " " + $scope.$id);
 	});
-	
-});	
+
+});

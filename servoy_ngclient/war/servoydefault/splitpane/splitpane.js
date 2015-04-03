@@ -14,26 +14,6 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
     	  
     	  $scope.resizeWeight = 0;
     	  
-    	  $scope.$watch("model.readOnly", function(newValue) {
-    		  if ($scope.model.tabs[0] && $scope.model.tabs[0].containsFormId)
-    		  {
-    			  $scope.svyServoyapi.setFormReadOnly($scope.model.tabs[0].containsFormId,newValue);
-    		  }
-    		  if ($scope.model.tabs[1] && $scope.model.tabs[1].containsFormId)
-    		  {
-    			  $scope.svyServoyapi.setFormReadOnly($scope.model.tabs[1].containsFormId,newValue);
-    		  }
-    	  });
-    	  $scope.$watch("model.enabled", function(newValue) {
-    		  if ($scope.model.tabs[0] && $scope.model.tabs[0].containsFormId)
-    		  {
-    			  $scope.svyServoyapi.setFormEnabled($scope.model.tabs[0].containsFormId,newValue);
-    		  }
-    		  if ($scope.model.tabs[1] && $scope.model.tabs[1].containsFormId)
-    		  {
-    			  $scope.svyServoyapi.setFormEnabled($scope.model.tabs[1].containsFormId,newValue);
-    		  }
-    	  });
     	  $scope.$watch("model.size.height", function(newValue, oldValue) {
     		 if($scope.model.tabOrientation == -3) {
     			 var delta = newValue - oldValue;

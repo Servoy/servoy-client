@@ -502,8 +502,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					cellProxies.cellServoyApi = {
 							formWillShow: $scope.servoyApi.formWillShow,
 							hideForm: $scope.servoyApi.hideForm,
-							setFormEnabled: $scope.servoyApi.setFormEnabled,
-							setFormReadOnly: $scope.servoyApi.setFormReadOnly,
 							getFormUrl: $scope.servoyApi.getFormUrl,
 							startEdit: function(property) {
 								return columnServoyApi.startEdit(property,rowId);

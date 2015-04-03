@@ -218,7 +218,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							}
 
 							// here we don't specify any of the following as all those can be forwarded by the parent component from it's own servoyApi:
-							// formWillShow, hideForm, setFormEnabled, setFormReadOnly,	getFormUrl
+							// formWillShow, hideForm, getFormUrl
 							serverJSONValue.servoyApi = {
 									/** rowId is only needed if the component is linked to a foundset */
 									startEdit: function(property, rowId) {

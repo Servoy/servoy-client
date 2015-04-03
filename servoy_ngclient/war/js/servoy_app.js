@@ -318,12 +318,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex});
 		},
-		setFormEnabled: function(formname, enabled) {
-			$sabloApplication.callService('formService', 'formenabled', {formname:formname,enabled:enabled},true)
-		},
-		setFormReadOnly: function(formname, readOnly) {
-			$sabloApplication.callService('formService', 'formreadOnly', {formname:formname,readOnly:readOnly},true)
-		},
 	}	
 }).directive('svyAutosave',  function ($sabloApplication) {
 	return {
