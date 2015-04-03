@@ -42,7 +42,7 @@ import com.servoy.j2db.util.keyword.Ident;
  * <br>
  * Normal Use: static methods <br>
  * <br>
- * 
+ *
  * @author jblok
  */
 public class DataSourceUtils extends DataSourceUtilsBase
@@ -55,7 +55,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 
 	/**
 	 * Get the server and table name from the datasource (when is is a db datasource)
-	 * 
+	 *
 	 * @param dataSource the dataSource
 	 * @return the server and table name (or null if not a db datasource)
 	 */
@@ -66,7 +66,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 
 	/**
 	 * Create the a database data source string from server and table. Normalizes tableName if needed.
-	 * 
+	 *
 	 * @param serverName the serverName
 	 * @param tableName the tableName
 	 * @return the datasource
@@ -81,7 +81,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 
 	/**
 	 * Create the a data source string for an inmemory table
-	 * 
+	 *
 	 * @param name
 	 * @return the datasource string
 	 */
@@ -92,8 +92,8 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	}
 
 	/**
-	 * Get the server and table name from the datasource (when is is a db datasource)
-	 * 
+	 * Get the datasource name from the in-mem datasource uri.
+	 *
 	 * @param dataSource the dataSource
 	 * @return the server and table name (or null if not a db datasource)
 	 */
@@ -139,7 +139,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 
 	/**
 	 * Get the sorted set of server names used server names in the data sources list
-	 * 
+	 *
 	 * @param dataSources server names
 	 * @return the sorted set of server names
 	 */
@@ -159,7 +159,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 
 	/**
 	 * Get the table names with the given server name in the data sources list
-	 * 
+	 *
 	 * @param dataSources
 	 * @param serverName
 	 * @return the sorted set of table names
@@ -197,9 +197,9 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	/**
 	 * Silently tries to get a table from the given datasource. If either server or table do not exist or something unexpected happens
 	 * it will return null.<br>
-	 * 
+	 *
 	 * It will try to get the server from the following sources in this order: rootObject, serverManager, app. server singleton's server manager, current client's foundset manager (in case it's not a standard server/table combo).
-	 *  
+	 *
 	 * @param rootObject if a solution should be used to get the server.
 	 * @param serverManager if this serverManager should be used to get the server.
 	 */

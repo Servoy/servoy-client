@@ -25,12 +25,14 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.Debug;
 
 /**
  * In scripting: <pre>datasources.mem</pre>
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 7.4
  *
  */
@@ -51,7 +53,7 @@ public class MemDataSource extends DefaultJavaScope
 	{
 		for (String name : application.getFoundSetManager().getInMemDataSourceNames())
 		{
-			put(name, this, new JSDataSource(application, name));
+			put(name, this, new JSDataSource(application, DataSourceUtils.createInmemDataSource(name)));
 		}
 
 		return true;
@@ -60,14 +62,28 @@ public class MemDataSource extends DefaultJavaScope
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		Object val = super.get(name, start);
+		// Allow mem:mydataas well because we inadvertently used the datasource as key before release 7.4.4 (SVY-8064)
+		String dsname = DataSourceUtils.getInmemDataSourceName(name);
+		if (dsname == null)
+		{
+			// correct argument myds
+			dsname = name;
+		}
+		else
+		{
+			// incorrect argument mem:myds
+			Debug.warn("Accessing in-memory datasource scriptable using datasource uri (" + name + "), please use datasource name (" + dsname + ")");
+		}
+
+		Object val = super.get(dsname, start);
 		if (val == null || val == Scriptable.NOT_FOUND)
 		{
 			// maybe added later
 			fill();
-			val = super.get(name, start);
+			val = super.get(dsname, start);
 		}
 
 		return val;
 	}
+
 }
