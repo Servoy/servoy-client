@@ -131,19 +131,22 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			});
 		}
-		Iterator<PropertyDescription> it = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE).iterator();
-		if (it.hasNext())
+		if (childComponent != null)
 		{
-			PropertyDescription pd = it.next();
-			if (childComponent.getFormElement().getPropertyValue(pd.getName()) != null)
+			Iterator<PropertyDescription> it = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE).iterator();
+			if (it.hasNext())
 			{
-				String dataProviderID = (String)childComponent.getFormElement().getPropertyValue(pd.getName());
-				Boolean isFindModeAware = ((DataproviderPropertyType)pd.getType()).isFindModeAware(dataProviderID, pd,
-					childComponent.getDataConverterContext().getSolution(), childComponent.getFormElement());
-				if (isFindModeAware != null && isFindModeAware.booleanValue() == true)
+				PropertyDescription pd = it.next();
+				if (childComponent.getFormElement().getPropertyValue(pd.getName()) != null)
 				{
-					FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-					foundsetPropValue.getDataAdapterList().addFindModeAwareProperty((DataproviderTypeSabloValue)childComponent.getProperty(pd.getName()));
+					String dataProviderID = (String)childComponent.getFormElement().getPropertyValue(pd.getName());
+					Boolean isFindModeAware = ((DataproviderPropertyType)pd.getType()).isFindModeAware(dataProviderID, pd,
+						childComponent.getDataConverterContext().getSolution(), childComponent.getFormElement());
+					if (isFindModeAware != null && isFindModeAware.booleanValue() == true)
+					{
+						FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
+						foundsetPropValue.getDataAdapterList().addFindModeAwareProperty((DataproviderTypeSabloValue)childComponent.getProperty(pd.getName()));
+					}
 				}
 			}
 		}
