@@ -101,6 +101,7 @@ public class FoundsetTypeViewport
 		else
 		{
 			this.startIndex = Math.max(positiveOrNegativeRecordNo + startIndex, 0);
+			this.size += (oldStartIndex - startIndex);
 			changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
 		}
 
