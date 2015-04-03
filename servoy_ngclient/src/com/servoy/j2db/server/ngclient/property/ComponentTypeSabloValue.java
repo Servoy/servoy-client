@@ -42,6 +42,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -62,6 +63,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONArrayType;
 import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONObjectType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Value used at runtime in Sablo component.
@@ -270,9 +272,23 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		for (String handler : childComponent.getFormElement().getHandlers())
 		{
 			Object value = childComponent.getFormElement().getPropertyValue(handler);
-			if (value != null)
+			if (value instanceof String)
 			{
-				childComponent.add(handler, ((Integer)value).intValue());
+				UUID uuid = UUID.fromString((String)value);
+				IPersist function = formUI.getController().getApplication().getFlattenedSolution().searchPersist(uuid);
+				if (function != null)
+				{
+					childComponent.add(handler, function.getID());
+				}
+				else
+				{
+					Debug.warn("Event handler for " + handler + " not found (form " + formUI.getController().getName() + ", form element " +
+						childComponent.getFormElement().getName() + ")");
+				}
+			}
+			else if (value instanceof Number && ((Number)value).intValue() > 0)
+			{
+				childComponent.add(handler, ((Number)value).intValue());
 			}
 		}
 
