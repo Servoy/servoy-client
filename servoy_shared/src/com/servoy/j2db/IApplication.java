@@ -102,6 +102,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 */
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = "webClientTableViewScrollableKeepLoadedRows"; //$NON-NLS-1$
 	/**
+	 * When Boolean.TRUE, you can use arrow up and down keys to change selection in tableview
+	 */
+	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = "webClientTableViewUseKeyNavigation"; //$NON-NLS-1$
+	/**
 	 * When Boolean.TRUE, component will accept javascript links in the input
 	 */
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = "allowJavascriptLinkInput"; //$NON-NLS-1$

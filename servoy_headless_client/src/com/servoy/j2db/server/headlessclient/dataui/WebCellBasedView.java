@@ -303,7 +303,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -1997,51 +1997,53 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return false;
 			}
 		});
-
-		add(new ServoyAjaxEventBehavior("onkeydown", null, true)
+		if (!Boolean.FALSE.equals(application.getClientProperty(IApplication.TABLEVIEW_WC_USE_KEY_NAVIGATION)))
 		{
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
+			add(new ServoyAjaxEventBehavior("onkeydown", null, true)
 			{
-				int i = fc.getFormModel().getSelectedIndex();
-				boolean downArrow = Utils.getAsBoolean(RequestCycle.get().getRequest().getParameter("downArrow"));
-				if (downArrow)
+				@Override
+				protected void onEvent(AjaxRequestTarget target)
 				{
-					i++;
-				}
-				else
-				{
-					i--;
-				}
-				if (i >= 0)
-				{
-					fc.getFormModel().setSelectedIndex(i);
-					WebEventExecutor.generateResponse(target, getPage());
-				}
-			}
-
-			@Override
-			protected CharSequence generateCallbackScript(final CharSequence partialCall)
-			{
-				return super.generateCallbackScript(partialCall + "+Servoy.Utils.getArrowParams()"); //$NON-NLS-1$
-			}
-
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator()
-			{
-				return new AjaxCallDecorator()
-				{
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public CharSequence decorateScript(CharSequence script)
+					int i = fc.getFormModel().getSelectedIndex();
+					boolean downArrow = Utils.getAsBoolean(RequestCycle.get().getRequest().getParameter("downArrow"));
+					if (downArrow)
 					{
-						return "return Servoy.Utils.testArrowKey(event, function() {" + script + "},'" + getMarkupId() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
+						i++;
 					}
-				};
-			}
+					else
+					{
+						i--;
+					}
+					if (i >= 0)
+					{
+						fc.getFormModel().setSelectedIndex(i);
+						WebEventExecutor.generateResponse(target, getPage());
+					}
+				}
 
-		});
+				@Override
+				protected CharSequence generateCallbackScript(final CharSequence partialCall)
+				{
+					return super.generateCallbackScript(partialCall + "+Servoy.Utils.getArrowParams()"); //$NON-NLS-1$
+				}
+
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxCallDecorator()
+					{
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public CharSequence decorateScript(CharSequence script)
+						{
+							return "return Servoy.Utils.testArrowKey(event, function() {" + script + "},'" + getMarkupId() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
+						}
+					};
+				}
+
+			});
+		}
 		if (!isListViewMode())
 		{
 			add(new ServoyAjaxEventBehavior("onclick", null, true)
@@ -2066,7 +2068,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						@Override
 						public CharSequence decorateScript(CharSequence script)
 						{
-							return "if ((event.target || event.srcElement) == this){ " + script + " }"; //$NON-NLS-1$ 
+							return "if ((event.target || event.srcElement) == this){ " + script + " }"; //$NON-NLS-1$
 						}
 					};
 				}
@@ -4517,7 +4519,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@Override
@@ -5250,7 +5252,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
