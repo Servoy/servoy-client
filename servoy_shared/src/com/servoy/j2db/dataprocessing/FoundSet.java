@@ -4195,7 +4195,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				IDataSet pks = pksAndRecords.getPks();
 				if (pks != null && pks.getRowCount() > toDelete)
 				{
-					pks.removeRow(toDelete);
+					if (toDelete != -1) pks.removeRow(toDelete);
 					int dbIndexLastPk = pksAndRecords.getDbIndexLastPk();
 					if (dbIndexLastPk > 0)
 					{
@@ -4213,7 +4213,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (getSize() == 0) setSelectedIndex(-1);
 
-		fireFoundSetEvent(toDelete, toDelete, FoundSetEvent.CHANGE_DELETE);
+		if (toDelete >= 0) fireFoundSetEvent(toDelete, toDelete, FoundSetEvent.CHANGE_DELETE);
 
 		if (aggregateCache.size() > 0)
 		{
@@ -5129,7 +5129,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#setSelectedIndex(java.lang.String)
 	 */
 	@Override
@@ -5881,7 +5881,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
