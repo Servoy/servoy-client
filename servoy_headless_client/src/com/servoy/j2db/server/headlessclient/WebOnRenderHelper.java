@@ -20,6 +20,7 @@ package com.servoy.j2db.server.headlessclient;
 import java.util.Properties;
 
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRender;
 
 
@@ -32,8 +33,8 @@ public class WebOnRenderHelper
 {
 	/**
 	 * Calls onRender for the renderComponent and clears its changed flag if
-	 * the callback did not change any properties
-	 * 
+	 * the callback did not change any properties and the value did not change
+	 *
 	 * @param renderComponent
 	 * @return true if properties were changed during onRender, otherwise returns false
 	 */
@@ -41,12 +42,13 @@ public class WebOnRenderHelper
 	{
 		if (renderComponent instanceof IProviderStylePropertyChanges)
 		{
-			Properties changesBeforeOnRender = (Properties)((IProviderStylePropertyChanges)renderComponent).getStylePropertyChanges().getChanges().clone();
+			IStylePropertyChanges spc = ((IProviderStylePropertyChanges)renderComponent).getStylePropertyChanges();
+			Properties changesBeforeOnRender = (Properties)spc.getChanges().clone();
 			renderComponent.fireOnRender(false);
-			Properties changesAfterOnRender = ((IProviderStylePropertyChanges)renderComponent).getStylePropertyChanges().getChanges();
+			Properties changesAfterOnRender = spc.getChanges();
 			if (changesBeforeOnRender.equals(changesAfterOnRender))
 			{
-				((IProviderStylePropertyChanges)renderComponent).getStylePropertyChanges().setRendered();
+				if (!spc.isValueChanged()) spc.setRendered();
 				return false;
 			}
 		}
