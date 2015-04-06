@@ -133,25 +133,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			});
 		}
-		if (childComponent != null)
-		{
-			Iterator<PropertyDescription> it = childComponent.getSpecification().getProperties(DataproviderPropertyType.INSTANCE).iterator();
-			if (it.hasNext())
-			{
-				PropertyDescription pd = it.next();
-				if (childComponent.getFormElement().getPropertyValue(pd.getName()) != null)
-				{
-					String dataProviderID = (String)childComponent.getFormElement().getPropertyValue(pd.getName());
-					Boolean isFindModeAware = ((DataproviderPropertyType)pd.getType()).isFindModeAware(dataProviderID, pd,
-						childComponent.getDataConverterContext().getSolution(), childComponent.getFormElement());
-					if (isFindModeAware != null && isFindModeAware.booleanValue() == true)
-					{
-						FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-						foundsetPropValue.getDataAdapterList().addFindModeAwareProperty((DataproviderTypeSabloValue)childComponent.getProperty(pd.getName()));
-					}
-				}
-			}
-		}
 	}
 
 	private void setDataproviderNameToFoundset()

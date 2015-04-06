@@ -58,7 +58,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, IFindModeAwarePropertyValue
+public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 {
 
 	public static final String FOUNDSET_SELECTOR = "foundsetSelector";
@@ -184,7 +184,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, IFindMo
 
 		// register parent record changed listener
 		parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
-		parentDAL.addFindModeAwareProperty(this);
 	}
 
 	/**
@@ -243,6 +242,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, IFindMo
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
 			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
+			if (foundset != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 		}
 	}
 
@@ -264,7 +264,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, IFindMo
 	@Override
 	public void detach()
 	{
-		parentDAL.removeDataLinkedProperty(this);
 		viewPort.dispose();
 		if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 	}
@@ -687,16 +686,5 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, IFindMo
 	protected void setColumnDataprovider(String name, String dataprovider)
 	{
 		elementsToDataproviders.put(name, dataprovider);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue#findModeChanged(boolean)
-	 */
-	@Override
-	public void findModeChanged(boolean newFindMode)
-	{
-		dataAdapterList.setFindMode(newFindMode);
 	}
 }
