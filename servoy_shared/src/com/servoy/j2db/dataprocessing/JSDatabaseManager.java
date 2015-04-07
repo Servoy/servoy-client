@@ -3714,7 +3714,15 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							if (index != -1)
 							{
 								Object sval = src_rec.getValue(c.getDataProviderID());
-								dest.setValue(c.getDataProviderID(), sval);
+								try
+								{
+									dest.setValue(c.getDataProviderID(), c.getAsRightType(sval, true));
+								}
+								catch (Exception e)
+								{
+									Debug.error("Could not copy matching field to " + dest_table.getName() + "." + c.getDataProviderID() + ". The value: '" +
+										sval + "' does not match the type of the destination.");
+								}
 							}
 						}
 						else if (src instanceof NativeObject)
