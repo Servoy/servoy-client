@@ -23,7 +23,7 @@ import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
 
 /**
  *  This class represents a object containing all the startup arguments
- * 
+ *
  * @author gboros
  */
 @TerracottaInstrumentedClass
@@ -35,7 +35,7 @@ public class StartupArguments extends HashMap<String, Object>
 	public static final String PARAM_KEY_METHOD = "method"; //$NON-NLS-1$
 	public static final String PARAM_KEY_ARGUMENT = "argument"; //$NON-NLS-1$
 	public static final String PARAM_KEY_CLIENT_IDENTIFIER = "CI"; //$NON-NLS-1$
-	private static final String PARAM_KEY_SHORT_SOLUTION = "s"; //$NON-NLS-1$
+	public static final String PARAM_KEY_SHORT_SOLUTION = "s"; //$NON-NLS-1$
 	private static final String PARAM_KEY_SHORT_METHOD = "m"; //$NON-NLS-1$
 	private static final String PARAM_KEY_SHORT_ARGUMENT = "a"; //$NON-NLS-1$
 
