@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sablo.WebEntry;
-import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -145,7 +144,7 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			if (Utils.getAsBoolean(System.getProperty("servoy.internal.reloadSpecsAllTheTime", "false"))) // can be used in servoy.properties file with 'system.property.' prefix
 			{
-				WebComponentSpecProvider.reload();
+				FormElementHelper.INSTANCE.reload(); // we can't reload just specs cause lately FormElement can add size/location/anchors to spec and we don't want to use old/cached/already initialized form elements while new specs were reloaded
 			}
 
 			HttpServletRequest request = (HttpServletRequest)servletRequest;

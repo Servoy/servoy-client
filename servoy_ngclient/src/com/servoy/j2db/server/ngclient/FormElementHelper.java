@@ -75,7 +75,7 @@ public class FormElementHelper
 	{
 		if (Boolean.valueOf(System.getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue())
 		{
-			WebComponentSpecProvider.reload();
+			reload(); // we can't reload just specs cause lately FormElement can add size/location/anchors to spec and we don't want to use old/cached/already initialized form elements while new specs were reloaded
 		}
 		List<FormElement> lst = new ArrayList<>();
 		while (iterator.hasNext())
