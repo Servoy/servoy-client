@@ -263,7 +263,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void configureEditorAndRenderer()
 	{
@@ -466,7 +466,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Component#setName(java.lang.String)
 	 */
 	@Override
@@ -540,7 +540,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			editorComponent.setFont(editList.getFont());
 			((JToggleButton)editorComponent).setSelected(isRowSelected(index));
 			editorComponent.setForeground(editList.getForeground());
-//			editorComponent.setBackground(editList.getBackground()); 
+//			editorComponent.setBackground(editList.getBackground());
 			if (value == null)
 			{
 				((JToggleButton)editorComponent).setText(""); //$NON-NLS-1$
@@ -1054,8 +1054,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 				}
 			}
 
-			if (data == null) return;
-
 			if (needEntireState)
 			{
 				if (resolver != null)
@@ -1475,7 +1473,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		if (enclosedComponent != null) enclosedComponent.requestFocus();
 	}
 
-	// If component not shown or not added yet 
+	// If component not shown or not added yet
 	// and request focus is called it should wait for the component
 	// to be created.
 	boolean wantFocus = false;

@@ -80,7 +80,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a multiply choice single select field in the webbrowser
- * 
+ *
  * @author jcompagner
  */
 public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane,
@@ -481,6 +481,21 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		}
 	}
 
+	@Override
+	public String getModelValue()
+	{
+		Object value = getModelObject();
+		if (value != null)
+		{
+			return super.getModelValue();
+		}
+		else
+		{
+			int index = getChoices().indexOf(null);
+			return getChoiceRenderer().getIdValue(null, index);
+		}
+	}
+
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListener()
 	 */
@@ -497,7 +512,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
 	}
 
 
@@ -1003,7 +1018,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -1015,7 +1030,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -1026,7 +1041,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
