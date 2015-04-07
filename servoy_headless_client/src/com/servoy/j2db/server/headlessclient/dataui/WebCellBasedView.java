@@ -303,7 +303,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -4519,7 +4519,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@Override
@@ -5252,7 +5252,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -5409,7 +5409,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
 			}
 
-			if (table.size() == 0 ||
+			if (table.size() > 0 &&
 				(((ListItem<IRecordInternal>)table.get(0)).getIndex() == 0 && ((ListItem<IRecordInternal>)table.get(table.size() - 1)).getIndex() == table.size() - 1)) // check if have all the row components loaded
 			{
 				boolean needToRenderRows = true;
