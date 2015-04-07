@@ -93,6 +93,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.DivDialogAction;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.JSChangeAction;
@@ -241,7 +242,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.apache.wicket.Page#getVersion(int)
 	 */
 	@Override
@@ -333,8 +334,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	public MainPage(PageParameters pp)
 	{
 		super();
-		String solution = pp.getString("solution"); //$NON-NLS-1$
-		if (solution != null)
+		if (pp.getString(StartupArguments.PARAM_KEY_SOLUTION) != null || pp.getString(StartupArguments.PARAM_KEY_SHORT_SOLUTION) != null)
 		{
 			throw new RestartResponseException(SolutionLoader.class, pp);
 		}
