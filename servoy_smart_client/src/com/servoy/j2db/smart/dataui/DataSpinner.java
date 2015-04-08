@@ -83,7 +83,7 @@ public class DataSpinner extends DataChoice
 			}
 
 			/**
-			 * This method belongs to the anonymous inner class AdjustmentListener(){...} .  
+			 * This method belongs to the anonymous inner class AdjustmentListener(){...} .
 			 * Currently only it uses this method when needing to change the selected index.
 			 * @param idx
 			 */
@@ -99,6 +99,7 @@ public class DataSpinner extends DataChoice
 				{
 					public void run()
 					{
+						enclosedComponent.editCellAt(idx);
 						setElementAt(Boolean.TRUE, idx);
 						boolean old = disableUserAdjustmentListeners;
 						try
@@ -163,6 +164,8 @@ public class DataSpinner extends DataChoice
 
 			public void contentsChanged(ListDataEvent e)
 			{
+				// wait for selection changed (-1) event 
+				if (e.getIndex0() == e.getIndex1() && e.getIndex0() >= 0) return;
 				ensureSelectedIsVisible(false);
 			}
 		});
@@ -309,7 +312,7 @@ public class DataSpinner extends DataChoice
 
 	/**
 	 * Model that allows a (first) null entry for situations where the dataProvider value is not part of the valuelist (so the component should show blank content).
-	 * 
+	 *
 	 * @author acostescu
 	 */
 	protected class SpinnerModel implements IEditListModel
