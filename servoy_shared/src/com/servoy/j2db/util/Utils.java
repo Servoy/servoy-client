@@ -2207,10 +2207,12 @@ public final class Utils
 			{
 				obj = BigDecimal.valueOf(((Long)obj).longValue());
 			}
-			else if (obj instanceof Double)
-			{
-				obj = BigDecimal.valueOf(((Double)obj).doubleValue());
-			}
+// Foundset.getCalculationValue uses Utils.roundNumber() which uses new BigDecimal(double) constructor + round(Half_UP) which is not the same as BigDecimal.valueOf(double) - for example when using value 125.620000000005 which cannot be correctly represented as double
+// so this code makes it non-equal and marks calculations as dirty unneeded; this will be changed in 8.0 but for now just do this check as before - convert all again to double (see below) and check that - in many cases it will be equal again because of equalsPrecision (which is most of the time default one)
+//			else if (obj instanceof Double)
+//			{
+//				obj = BigDecimal.valueOf(((Double)obj).doubleValue());
+//			}
 		}
 		else if (obj instanceof BigDecimal && !(oldObj instanceof BigDecimal))
 		{
@@ -2218,10 +2220,12 @@ public final class Utils
 			{
 				oldObj = BigDecimal.valueOf(((Long)oldObj).longValue());
 			}
-			else if (oldObj instanceof Double)
-			{
-				oldObj = BigDecimal.valueOf(((Double)oldObj).doubleValue());
-			}
+// Foundset.getCalculationValue uses Utils.roundNumber() which uses new BigDecimal(double) constructor + round(Half_UP) which is not the same as BigDecimal.valueOf(double) - for example when using value 125.620000000005 which cannot be correctly represented as double
+// so this code makes it non-equal and marks calculations as dirty unneeded; this will be changed in 8.0 but for now just do this check as before - convert all again to double (see below) and check that - in many cases it will be equal again because of equalsPrecision (which is most of the time default one)
+//			else if (oldObj instanceof Double)
+//			{
+//				oldObj = BigDecimal.valueOf(((Double)oldObj).doubleValue());
+//			}
 		}
 		// separate tests for BigDecimal and Long, the tests based on Double may give
 		// incorrect results for Long values not fitting in a double mantissa.
