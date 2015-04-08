@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.wicket.IPageMap;
 import org.apache.wicket.WicketRuntimeException;
+import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -47,6 +48,7 @@ import org.apache.wicket.util.upload.FileUploadException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
+import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField;
 import com.servoy.j2db.ui.IMediaFieldConstants;
@@ -54,7 +56,7 @@ import com.servoy.j2db.ui.IMediaFieldConstants;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class MediaUploadPage extends WebPage
 {
@@ -116,6 +118,9 @@ public class MediaUploadPage extends WebPage
 		add(form);
 		FeedbackPanel panel = new FeedbackPanel("feedback"); //$NON-NLS-1$
 		add(panel);
+
+		add(CSSPackageResource.getHeaderContribution("/servoy-webclient/templates/" + application.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) +
+			"/servoy_web_client_default.css"));
 	}
 
 	@SuppressWarnings({ "nls", "unchecked" })
@@ -279,6 +284,9 @@ public class MediaUploadPage extends WebPage
 		add(form);
 		FeedbackPanel panel = new FeedbackPanel("feedback");
 		add(panel);
+
+		add(CSSPackageResource.getHeaderContribution("/servoy-webclient/templates/" + application.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) +
+			"/servoy_web_client_default.css"));
 	}
 
 	public static class ServoyDiskFileItem extends DiskFileItem
@@ -355,7 +363,7 @@ public class MediaUploadPage extends WebPage
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException
