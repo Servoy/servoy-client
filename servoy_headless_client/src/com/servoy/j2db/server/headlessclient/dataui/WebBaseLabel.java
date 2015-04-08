@@ -83,7 +83,7 @@ import com.servoy.j2db.util.gui.JpegEncoder;
 
 /**
  * Base class for simples labels.
- * 
+ *
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
@@ -160,7 +160,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@SuppressWarnings("nls")
@@ -289,7 +289,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		if ((rolloverMedia = application.getFlattenedSolution().getMedia(rolloverId)) != null)
 		{
 			addRolloverBehaviors();
-			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$ 
+			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$
 		}
 	}
 
@@ -773,7 +773,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		if (accessible)
 		{
 			super.setEnabled(b);
-			//scriptable.getChangesRecorder().setChanged();
+			scriptable.getChangesRecorder().setChanged();
 		}
 	}
 
@@ -1010,7 +1010,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid,
 			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor,
-			cssclass, rotation, scriptable.isEnabled())); //$NON-NLS-1$
+			cssclass, rotation, scriptable.isEnabled()));
 	}
 
 	protected boolean hasHtmlOrImage()
@@ -1052,7 +1052,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIcon()
 	 */
 	public MediaResource getIcon()
@@ -1062,7 +1062,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconReference()
 	 */
 	public ResourceReference getIconReference()
@@ -1072,7 +1072,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMedia()
 	 */
 	public Media getMedia()
@@ -1082,7 +1082,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMediaOptions()
 	 */
 	public int getMediaOptions()
@@ -1092,7 +1092,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconUrl()
 	 */
 	public String getIconUrl()
@@ -1102,7 +1102,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getTextUrl()
 	 */
 	public String getTextUrl()
@@ -1112,7 +1112,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverIconReference()
 	 */
 	public ResourceReference getRolloverIconReference()
@@ -1122,7 +1122,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverMedia()
 	 */
 	public Media getRolloverMedia()
@@ -1132,7 +1132,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverUrl()
 	 */
 	public String getRolloverUrl()
