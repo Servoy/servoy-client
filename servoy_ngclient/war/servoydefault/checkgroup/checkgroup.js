@@ -136,14 +136,14 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
                // if(index == array.length-allowNullinc) return;
                 if(element == true) ret+= $scope.model.valuelistID[index+allowNullinc].realValue+'\n';
             });
-              if(ret =="") ret =null
+              ret = ret.replace(/\n$/, "");//remove the last \n
+              if(ret =="") ret = null
               return ret;
           }
           
-          function isValueListNull(item){
-              if(item.realValue == null && item.displayValue=='')
-              {return true;}
-              else return false
+          function isValueListNull(item)
+          {
+              return (item.realValue == null || item.realValue =='') && item.displayValue=='';
           }
       },
       templateUrl: 'servoydefault/checkgroup/checkgroup.html'
