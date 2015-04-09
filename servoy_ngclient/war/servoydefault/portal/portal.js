@@ -1,10 +1,10 @@
 angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
-                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService",
+                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce",
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -91,13 +91,24 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 			$scope.columnDefinitions = [];
 			
-			function getColumnTitle(componentIdx, elementIdx) {
+			function applyColumnTitle(columnDefinition, titleString) {
+				if (!titleString || titleString.trim().indexOf('<html>') != 0) {
+					columnDefinition.displayName = titleString;
+					columnDefinition.displayNameHTML = undefined;
+				} else {
+					columnDefinition.displayName = ".";
+					columnDefinition.displayNameHTML = $sce.trustAsHtml(titleString);
+				}
+			}
+			
+			function getColumnTitle(columnHeaderIdx, elementIdx) {
 				var columnTitle = null;
-				if ($scope.model.columnHeaders && componentIdx < $scope.model.columnHeaders.length)
+				if ($scope.model.columnHeaders && columnHeaderIdx < $scope.model.columnHeaders.length)
 				{
-					columnTitle = $scope.model.columnHeaders[componentIdx];
+					columnTitle = $scope.model.columnHeaders[columnHeaderIdx];
 				}	
-				if (!columnTitle) columnTitle = elements[elementIdx].model.text;
+				if (!columnTitle) columnTitle = elements[elementIdx].model.text; // here we should not use 'text' of lable and buttons as that doesn't have the same meaning as 'text' that maps to 'titleText' on other fields
+				if (!columnTitle && elements[elementIdx].modelViewport && elements[elementIdx].modelViewport.length > 0) columnTitle = elements[elementIdx].modelViewport[0].text;
 	//			if (!columnTitle) {
 	//				// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
 	//				if (el.foundsetConfig && el.foundsetConfig.recordBasedProperties && el.foundsetConfig.recordBasedProperties.length > 0) {
@@ -145,9 +156,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0) 
 						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
 						var isSortable = $scope.model.sortable && el.foundsetConfig.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change 
-						$scope.columnDefinitions.push({
+						var newL = $scope.columnDefinitions.push({
 							name:el.name,
-							displayName: columnTitle,
 							cellTemplate: cellTemplate,
 							visible: el.model.visible,
 							width: el.model.size.width,
@@ -160,7 +170,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							enableHiding: false,
 							allowCellFocus: false,
 							svyColumnIndex: el.componentIndex ? el.componentIndex : idx
-						});					
+						});
+						applyColumnTitle($scope.columnDefinitions[newL - 1], columnTitle);
 						updateColumnDefinition($scope, idx);
 					}
 				}
@@ -189,15 +200,24 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					}
 				}, false);
 
-				scope.$watchCollection('model.columnHeaders', function (newVal, oldVal) {
-					if(newVal !== oldVal && newVal)
-					{
-						for (var idx = 0; idx < scope.columnDefinitions.length; idx++)
-							scope.columnDefinitions[idx].displayName = getColumnTitle(scope.columnDefinitions[idx].displayName.svyColumnIndex ? scope.columnDefinitions[idx].displayName.svyColumnIndex : idx, idx);
-						
-						scope.gridApi.grid.buildColumns();
-					}
-				});
+				var columnHeaderIdx = scope.columnDefinitions[idx].svyColumnIndex ? scope.columnDefinitions[idx].svyColumnIndex : idx;
+				if (!scope.model.columnHeaders || columnHeaderIdx >= scope.model.columnHeaders.length || !scope.model.columnHeaders[columnHeaderIdx]) {
+					// that means component titleText matters for headers
+					function getComponentTitleText() {
+						var c = scope.model.childElements[idx];
+						var r = c.model.text;
+						if (!r && c.modelViewport && c.modelViewport.length > 0) r = c.modelViewport[0].text; // if titleText has displayTags = true and really uses tags (%%x%%)
+						return r;
+					};
+					
+					scope.$watch(getComponentTitleText, function (newVal, oldVal) {
+						if(newVal !== oldVal && scope.columnDefinitions[idx])
+						{
+							applyColumnTitle(scope.columnDefinitions[idx], getColumnTitle(columnHeaderIdx, idx));
+							scope.gridApi.grid.buildColumns();
+						}
+					});
+				}
 			}
 
 			function getOrCreateRowProxies(rowId) {
@@ -865,7 +885,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 .run(['$templateCache', function($templateCache) {
 	
   $templateCache.put('svy-ui-grid/ui-grid-row',
-    "<div sablo-tabseq=\"rowRenderIndex + 1\" sablo-tabseq-config=\"{container: true}\"><div ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div></div>"
+		  "<div sablo-tabseq=\"rowRenderIndex + 1\" sablo-tabseq-config=\"{container: true}\"><div ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div></div>"
+  );
+
+  $templateCache.put('ui-grid/uiGridHeaderCell',
+		  "<div ng-class=\"{ 'sortable': sortable }\"><!-- <div class=\"ui-grid-vertical-bar\">&nbsp;</div> --><div class=\"ui-grid-cell-contents\" col-index=\"renderIndex\"><span ng-if=\"!!col.colDef.displayNameHTML\"><span ng-bind-html=\"col.colDef.displayNameHTML CUSTOM_FILTERS\"></span></span><span ng-if=\"!col.colDef.displayNameHTML\"><span>{{ col.displayName CUSTOM_FILTERS }}</span></span> <span ui-grid-visible=\"col.sort.direction\" ng-class=\"{ 'ui-grid-icon-up-dir': col.sort.direction == asc, 'ui-grid-icon-down-dir': col.sort.direction == desc, 'ui-grid-icon-blank': !col.sort.direction }\">&nbsp;</span></div><div class=\"ui-grid-column-menu-button\" ng-if=\"grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false\" ng-click=\"toggleMenu($event)\" ng-class=\"{'ui-grid-column-menu-button-last-col': isLastCol}\"><i class=\"ui-grid-icon-angle-down\">&nbsp;</i></div><div ng-if=\"filterable\" class=\"ui-grid-filter-container\" ng-repeat=\"colFilter in col.filters\"><div ng-if=\"colFilter.type !== 'select'\"><input type=\"text\" class=\"ui-grid-filter-input\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\"><div class=\"ui-grid-filter-button\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div><div ng-if=\"colFilter.type === 'select'\"><select class=\"ui-grid-filter-select\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\" ng-options=\"option.value as option.label for option in colFilter.selectOptions\"></select><div class=\"ui-grid-filter-button-select\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div></div></div>"
   );
 
 }]);

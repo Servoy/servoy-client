@@ -105,20 +105,11 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
-		TagStringConfig config = getConfig(pd);
-
 		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
 		if (formElementValue != null && valueInTemplate(formElementValue, pd, formElementContext))
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			if (HtmlUtils.startsWithHtml(formElementValue))
-			{
-				// TODO - it could still return "value" if we know HTMLTagsConverter.convert() would not want to touch that (so simple HTML)
-				// design-time wrap (used by FormElement); no component available
-				// return empty value as we don't want to expose the actual design-time stuff that would normally get encrypted by HTMLTagsConverter.convert() or is not yet valid (blobloader without an application instance for example).
-				writer.value("<html></html>");
-			}
-			else writer.value(formElementValue);
+			writer.value(formElementValue);
 		}
 
 		return writer;
@@ -198,7 +189,11 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	{
 		if (formElementVal == null) return true;
 		TagStringConfig config = ((TagStringConfig)pd.getConfig());
-		return !((wouldLikeToParseTags(config, formElementContext.getFormElement()) && formElementVal.contains("%%")) || formElementVal.startsWith("i18n:"));
+
+		// TODO - it could still return "value" even for HTML if we know HTMLTagsConverter.convert() would not want to touch that (so simple HTML)
+		// but we don't want to expose the actual design-time stuff that would normally get encrypted by HTMLTagsConverter.convert() or is not yet valid (blobloader without an application instance for example).
+
+		return !((wouldLikeToParseTags(config, formElementContext.getFormElement()) && formElementVal.contains("%%")) || formElementVal.startsWith("i18n:") || HtmlUtils.startsWithHtml(formElementVal));
 	}
 
 	/**
