@@ -2239,7 +2239,7 @@ public final class Utils
 			return oldObj.equals(obj);
 		}
 
-		// Always cast to double so we don't lose precision.
+		// Always cast to double so we don't lose precision; actually BigDecimal can loose precision when converted to double
 		if (oldObj instanceof Number && obj instanceof Number)
 		{
 			if (oldObj instanceof Float || oldObj instanceof Double || oldObj instanceof BigDecimal || obj instanceof Float || obj instanceof Double ||
