@@ -65,14 +65,6 @@
 								"type":"int"
 			                	}             
 							 ]
-	        },
-	        "setValueListItems": {
-				"parameters":[
-								{                                                                 
- 								"name":"value",
-								"type":"dataset"
-			                	}             
-							 ]
 	        }
 	}
 	 

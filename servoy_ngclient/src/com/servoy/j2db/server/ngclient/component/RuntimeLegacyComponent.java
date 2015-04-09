@@ -78,6 +78,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		ScriptNameToSpecName.put("font", StaticContentSpecLoader.PROPERTY_FONTTYPE.getPropertyName());
 		ScriptNameToSpecName.put("imageURL", StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID.getPropertyName());
 		ScriptNameToSpecName.put("rolloverImageURL", StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName());
+		ScriptNameToSpecName.put("valueListItems", StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName());
 	}
 
 	public RuntimeLegacyComponent(WebFormComponent component)
@@ -165,11 +166,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			putCallable.setProperty("clientProperty");
 			return putCallable;
 		}
-		if ("setValueListItems".equals(name))
-		{
-			putCallable.setProperty("valuelistID");
-			return putCallable;
-		}
+
 		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
 		{
 			String newName = name.substring(name.startsWith("is") ? 2 : 3);
@@ -272,7 +269,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			}
 		}
 		name = convertName(name);
-		if (component.isDesignOnlyProperty(name) && !"valuelistID".equals(name))
+		if (component.isDesignOnlyProperty(name) && !StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName().equals(name))
 		{
 			// cannot set design only or private properties
 			return;
