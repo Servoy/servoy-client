@@ -1607,6 +1607,23 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return null;
 	}
 
+	public MainPage findMainPage()
+	{
+		WebForm currentForm = this;
+		while (currentForm != null)
+		{
+			MainPage parentPage = currentForm.getMainPage();
+			if (parentPage != null) return parentPage;
+			currentForm = currentForm.findParent(WebForm.class);
+		}
+		IMainContainer currentContainer = ((FormManager)formController.getApplication().getFormManager()).getCurrentContainer();
+		if (currentContainer instanceof MainPage)
+		{
+			return (MainPage)currentContainer;
+		}
+		return null;
+	}
+
 	private FormAnchorInfo formAnchorInfo;
 
 	private DesignModeBehavior designModeBehavior;
@@ -1771,10 +1788,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 			else
 			{
-				IMainContainer currentContainer = ((FormManager)formController.getApplication().getFormManager()).getCurrentContainer();
-				if (currentContainer instanceof MainPage)
+				MainPage parentPage = findMainPage();
+				if (parentPage != null)
 				{
-					((MainPage)currentContainer).componentToFocus(field);
+					parentPage.componentToFocus(field);
 				}
 				else
 				{
@@ -1785,11 +1802,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		else
 		{
 			// try to focus first component on page
-			IMainContainer currentContainer = ((FormManager)formController.getApplication().getFormManager()).getCurrentContainer();
-			if (currentContainer instanceof MainPage)
+			MainPage currentContainer = findMainPage();
+			if (currentContainer != null)
 			{
 				// can't find a suitable servoy field, use any wicket component
-				Component first = getDefaultFirstComponent((MarkupContainer)currentContainer);
+				Component first = getDefaultFirstComponent(currentContainer);
 				if (first == null)
 				{
 					Iterator< ? > it = ((MarkupContainer)currentContainer).iterator();
@@ -1803,7 +1820,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 						}
 					}
 				}
-				if (first != null) ((MainPage)currentContainer).componentToFocus(first);
+				if (first != null) currentContainer.componentToFocus(first);
 				else Debug.trace("cannot find default first component"); //$NON-NLS-1$
 			}
 			else
