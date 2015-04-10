@@ -43,10 +43,9 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	/**
 	 * Add a condition to the AND or OR condition list.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.orderdate.isNull)
-	 * 
+	 *
 	 * @param condition the condition to add
 	 */
 	public QBLogicalCondition js_add(QBCondition condition)

@@ -50,11 +50,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#upper(Object)
-	 * @param value 
+	 * @param value
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('Sample'))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('Sample')))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -65,11 +64,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#abs(Object)
-	 * @param value 
+	 * @param value
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynum.abs.eq(query.functions.abs(myval))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynum.abs.eq(query.functions.abs(myval)))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -80,11 +78,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#sqrt(Object)
-	 * @param value 
+	 * @param value
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynum.sqrt.eq(query.functions.sqrt(myval))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynum.sqrt.eq(query.functions.sqrt(myval)))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -95,11 +92,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#lower(Object)
-	 * @param value 
+	 * @param value
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.lower.eq(query.functions.lower('Sample'))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.lower.eq(query.functions.lower('Sample')))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -110,11 +106,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#trim(Object)
-	 * @param value 
+	 * @param value
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.trim.eq(query.functions.trim('Sample'))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.trim.eq(query.functions.trim('Sample')))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -125,11 +120,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#length(Object)
-	 * @param value 
+	 * @param value
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.len.eq(query.functions.len('Sample'))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.len.eq(query.functions.len('Sample')))
 	 * foundset.loadRecords(query);
 	 */
 	public QBFunction js_len(Object value)
@@ -145,11 +139,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#bit_length(Object)
-	 * @param value 
+	 * @param value
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.bit_length.eq(query.functions.bit_length('Sample'))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.bit_length.eq(query.functions.bit_length('Sample')))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -163,9 +156,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param value object to cast
 	 * @param type type see QUERY_COLUMN_TYPES
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.result.add(query.functions.cast("22",QUERY_COLUMN_TYPES.TYPE_INTEGER)).add(query.columns.amt_discount.cast(QUERY_COLUMN_TYPES.TYPE_STRING)); 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.result.add(query.functions.cast("22",QUERY_COLUMN_TYPES.TYPE_INTEGER)).add(query.columns.amt_discount.cast(QUERY_COLUMN_TYPES.TYPE_STRING));
 	 * application.output(databaseManager.getDataSetByQuery(query,1).getAsHTML())
 	 */
 	@JSFunction
@@ -180,9 +172,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param arg column name
 	 * @param pos position
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.substring(3).eq(query.functions.substring('Sample', 3))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.substring(3).eq(query.functions.substring('Sample', 3)))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -198,9 +189,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param pos position
 	 * @param len length
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.substring(3, 2).eq(query.functions.substring('Sample', 3, 2))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.substring(3, 2).eq(query.functions.substring('Sample', 3, 2)))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -218,9 +208,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param string1 string to locate
 	 * @param string2 string to search in
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.locate('amp').eq(query.functions.locate('Sample', 'amp'))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.locate('amp').eq(query.functions.locate('Sample', 'amp')))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -236,9 +225,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param string2 string to search in
 	 * @param start start pos
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.locate('amp', 1).eq(query.functions.locate('Sample', 'amp', 1))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.locate('amp', 1).eq(query.functions.locate('Sample', 'amp', 1)))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -250,12 +238,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#nullif(Object, Object)
-	 * @param arg1 
-	 * @param arg1 
+	 * @param arg1
+	 * @param arg1
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.shipname.nullif('none').eq(query.functions.nullif('Sample', 'none'))) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipname.nullif('none').eq(query.functions.nullif('Sample', 'none')))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -267,12 +254,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#mod(Object, Object)
-	 * @param dividend 
-	 * @param divisor 
+	 * @param dividend
+	 * @param divisor
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.mod(2).eq(query.functions.mod(myvar, 2)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.mod(2).eq(query.functions.mod(myvar, 2))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -284,12 +270,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#plus(Object, Object)
-	 * @param arg1 
-	 * @param arg2 
+	 * @param arg1
+	 * @param arg2
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.plus(2).eq(query.functions.plus(myvar, 2)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.plus(2).eq(query.functions.plus(myvar, 2))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -301,12 +286,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#minus(Object, Object)
-	 * @param arg1 
-	 * @param arg2 
+	 * @param arg1
+	 * @param arg2
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.minus(2).eq(query.functions.minus(myvar, 2)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.minus(2).eq(query.functions.minus(myvar, 2))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -318,12 +302,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#multiply(Object, Object)
-	 * @param arg1 
-	 * @param arg2 
+	 * @param arg1
+	 * @param arg2
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.multiply(2).eq(query.functions.multiply(myvar, 2)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.multiply(2).eq(query.functions.multiply(myvar, 2))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -335,12 +318,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#divide(Object, Object)
-	 * @param arg1 
-	 * @param arg2 
+	 * @param arg1
+	 * @param arg2
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.divide(2).eq(query.functions.divide(myvar, 2)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.divide(2).eq(query.functions.divide(myvar, 2))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -352,14 +334,13 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#concat(Object, Object)
-	 * @param arg1 
-	 * @param arg2 
+	 * @param arg1
+	 * @param arg2
 	 * @sample
-	 * 	/** @type {QBSelect<db:/udm/contacts>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/udm/contacts') //$NON-NLS-1$
+	 * 	var query = datasources.db.udm.contacts.createSelect();
 	 * 	query.result.add(query.columns.name_first.concat(' ').concat(query.columns.name_last))
 	 * 	var ds = databaseManager.getDataSetByQuery(query, -1)
-	 * 
+	 *
 	 */
 	@JSFunction
 	public QBFunction concat(Object arg1, Object arg2)
@@ -372,9 +353,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#floor(Object)
 	 * @param arg number object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.floor.eq(query.functions.floor(myvar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.floor.eq(query.functions.floor(myvar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -387,9 +367,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#round(Object)
 	 * @param arg number object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -402,9 +381,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#ceil(Object)
 	 * @param arg number object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mynumcol.ceil.eq(query.functions.ceil(myvar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.ceil.eq(query.functions.ceil(myvar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -417,9 +395,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#second(Object)
 	 * @param arg date object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mydatecol.second.eq(query.functions.second(mydatevar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.second.eq(query.functions.second(mydatevar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -432,9 +409,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#minute(Object)
 	 * @param arg date object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mydatecol.minute.eq(query.functions.minute(mydatevar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.minute.eq(query.functions.minute(mydatevar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -447,9 +423,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#hour(Object)
 	 * @param arg date object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mydatecol.hour.eq(query.functions.hour(mydatevar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.hour.eq(query.functions.hour(mydatevar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -462,9 +437,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#day(Object)
 	 * @param arg date object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mydatecol.day.eq(query.functions.day(mydatevar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.day.eq(query.functions.day(mydatevar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -477,9 +451,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#month(Object)
 	 * @param arg date object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mydatecol.month.eq(query.functions.month(mydatevar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.month.eq(query.functions.month(mydatevar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -492,9 +465,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#year(Object)
 	 * @param arg date object
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mydatecol.year.eq(query.functions.year(mydatevar)) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.year.eq(query.functions.year(mydatevar))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
@@ -507,9 +479,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#year(Object)
 	 * @param args arguments to coalesce
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
-	 * query.where.add(query.columns.mycol.coalesce('defval').eq(query.functions.coalesce(myvar, 'defval')) 
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mycol.coalesce('defval').eq(query.functions.coalesce(myvar, 'defval'))
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction

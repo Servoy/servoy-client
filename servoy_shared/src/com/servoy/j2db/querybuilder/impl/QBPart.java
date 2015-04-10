@@ -53,8 +53,7 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getParent()
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/person>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/person')
+	 * 	var query = datasources.db.example_data.person.createSelect();
 	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
 	 * 	foundset.loadRecords(query)
 	 */
@@ -67,11 +66,9 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getRoot()
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/order_details>} *&#47;
-	 * 	var subquery = databaseManager.createSelect('db:/example_data/order_details')
+	 * 	var subquery = datasources.db.example_data.order_details.createSelect();
 	 *
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.where.add(query
 	 * 		.or
 	 * 			.add(query.columns.order_id.not.isin([1, 2, 3]))

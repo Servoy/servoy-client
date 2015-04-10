@@ -31,9 +31,9 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Scope for datasources.db.myserver.mytable or datasources.mem['dsname']
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 7.4
  *
  */
@@ -51,10 +51,10 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 
 	/**
 	 * Get the datasource string.
-	 * 
+	 *
 	 * @sample
-	 * datasources.db.example_data.orders.getDatasource() // returns 'db:/example_data/orders' 
-	 * 
+	 * datasources.db.example_data.orders.getDatasource() // returns 'db:/example_data/orders'
+	 *
 	 * @return String datasource
 	 */
 	@JSFunction
@@ -64,7 +64,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	/**
-	 * Returns a foundset object for a specified datasource or server and tablename. 
+	 * Returns a foundset object for a specified datasource or server and tablename.
 	 *
 	 * @sample
 	 * var fs = datasources.db.example_data.orders.getFoundSet()
@@ -83,7 +83,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 
 	/**
 	 * Get the column names of a datasource.
-	 * 
+	 *
 	 * @return String[] column names
 	 */
 	public String[] js_getColumnNames()
@@ -102,16 +102,15 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 
 	/**
 	 *  Create a query builder for a data source.
-	 *  
+	 *
 	 *  @sample
-	 *  /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
 	 *  var q = datasources.db.example_data.book_nodes.createSelect()
 	 *  q.result.addPk()
 	 *  q.where.add(q.columns.label_text.not.isin(null))
 	 *  datasources.db.example_data.book_nodes.getFoundSet().loadRecords(q)
-	 *  
+	 *
 	 *  @return query builder
-	 * 
+	 *
 	 */
 	@JSFunction
 	public QBSelect createSelect() throws RepositoryException

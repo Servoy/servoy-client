@@ -23,7 +23,7 @@ import com.servoy.base.solutionmodel.IBaseSMRelation;
 
 /**
  * Solution model relation object.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -34,12 +34,11 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	/**
 	 * Constant for the joinType of a JSRelation. It is also used in solutionModel.newRelation(...) and in the QueryBuilder.
 	 *
-	 * @sample 
+	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.joinType = JSRelation.LEFT_OUTER_JOIN;
-	 * 
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 *
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
 	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
 	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
@@ -55,9 +54,8 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	/**
 	 * Constant for the joinType of a Query Builder join.
 	 *
-	 * @sample 
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * @sample
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
 	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.RIGHT_OUTER_JOIN, 'odetail')
 	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
@@ -72,7 +70,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 
 	/**
 	 * Removes the desired relation item from the specified relation.
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('myRelation', 'db:/myServer/parentTable', 'db:/myServer/childTable', JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('someColumn1', '=', 'someColumn2');
@@ -85,18 +83,18 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	 * 	application.output('operator: ' + item.operator);
 	 * 	application.output('foreign column: ' + item.foreignColumnName);
 	 * }
-	 * 
+	 *
 	 * @param primaryDataProviderID the primary data provider (column) name
-	 * @param operator the operator 
+	 * @param operator the operator
 	 * @param foreignColumnName the foreign column name
 	 */
 	public void removeRelationItem(String primaryDataProviderID, String operator, String foreignColumnName);
 
 	/**
 	 * Flag that tells if related records can be created through this relation.
-	 * 
+	 *
 	 * The default value of this flag is "false".
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowCreationRelatedRecords = true;
@@ -105,9 +103,9 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 
 	/**
 	 * Flag that tells if the parent record can be deleted while it has related records.
-	 * 
+	 *
 	 * The default value of this flag is "true".
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowParentDeleteWhenHavingRelatedRecords = false;
@@ -116,9 +114,9 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 
 	/**
 	 * Flag that tells if related records should be deleted or not when a parent record is deleted.
-	 * 
+	 *
 	 * The default value of this flag is "false".
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.deleteRelatedRecords = true;
@@ -128,7 +126,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	/**
 	 * Qualified name of the foreign data source. Contains both the name of the foreign
 	 * server and the name of the foreign table.
-	 * 
+	 *
 	 * @sample
 	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.primaryDataSource = 'db:/user_data/another_parent_table';
@@ -139,7 +137,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	/**
 	 * The join type that is performed between the primary table and the foreign table.
 	 * Can be "inner join" or "left outer join".
-	 * 
+	 *
 	 * @sampleas INNER_JOIN
 	 * @see #INNER_JOIN
 	 */
@@ -148,7 +146,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	/**
 	 * Qualified name of the primary data source. Contains both the name of the primary server
 	 * and the name of the primary table.
-	 * 
+	 *
 	 * @sampleas getForeignDataSource()
 	 * @see #getForeignDataSource()
 	 */
@@ -156,7 +154,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 
 	/**
 	 * The name of the relation.
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.name = 'anotherName';
@@ -181,7 +179,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 
 	/**
 	 * Returns an array of JSRelationItem objects representing the relation criteria defined for this relation.
-	 * 
+	 *
 	 * @sample
 	 * var criteria = relation.getRelationItems();
 	 * for (var i=0; i<criteria.length; i++)
@@ -192,25 +190,25 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	 *	application.output('operator: ' + item.operator);
 	 *	application.output('foreign column: ' + item.foreignColumnName);
 	 * }
-	 * 
+	 *
 	 * @return An array of JSRelationItem instances representing the relation criteria of this relation.
 	 */
 	public ISMRelationItem[] getRelationItems();
 
 	/**
-	 * Creates a new relation item for this relation. The primary dataprovider, the foreign data provider 
+	 * Creates a new relation item for this relation. The primary dataprovider, the foreign data provider
 	 * and one relation operators (like '=' '!=' '>' '<') must be provided.
 	 *
-	 * @sample 
+	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('another_parent_table_id', '=', 'another_child_table_parent_id');
 	 *
-	 * @param dataprovider The name of the primary dataprovider. 
+	 * @param dataprovider The name of the primary dataprovider.
 	 *
-	 * @param operator The operator used to relate the primary and the foreign dataproviders. 
+	 * @param operator The operator used to relate the primary and the foreign dataproviders.
 	 *
-	 * @param foreinColumnName The name of the foreign dataprovider. 
-	 * 
+	 * @param foreinColumnName The name of the foreign dataprovider.
+	 *
 	 * @return A JSRelationItem instance representing the newly added relation item.
 	 */
 	public ISMRelationItem newRelationItem(String dataprovider, String operator, String foreinColumnName);
@@ -218,9 +216,9 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	/**
 	 * A String which specified a set of sort options for the initial sorting of data
 	 * retrieved through this relation.
-	 * 
+	 *
 	 * Has the form "column_name asc, another_column_name desc, ...".
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.initialSort = 'another_child_table_text asc';

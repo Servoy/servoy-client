@@ -247,8 +247,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Create an ascending sort expression
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.sort
 	 * .add(query.joins.orders_to_order_details.columns.quantity.asc)
 	 * .add(query.columns.companyid)
@@ -263,8 +262,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Create an descending sort expression
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.sort
 	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
 	 * .add(query.columns.companyid)
@@ -279,8 +277,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Create an aggregate expression.
 	 * @sample
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * 	foundset.loadRecords(query)
@@ -294,8 +291,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Create an aggregate expression.
 	 * @sample
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
 	 * 	foundset.loadRecords(query)
@@ -309,8 +305,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Create an aggregate expression.
 	 * @sample
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
 	 * 	foundset.loadRecords(query)
@@ -324,8 +319,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Create an aggregate expression.
 	 * @sample
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.min(10))
 	 * 	foundset.loadRecords(query)
@@ -339,8 +333,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * Create an aggregate expression.
 	 * @sample
-	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.sum(10))
 	 * 	foundset.loadRecords(query)

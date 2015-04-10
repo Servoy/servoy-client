@@ -169,8 +169,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * Get the having-part of the query, used to add conditions.
 	 * The conditions added here are AND-ed.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * foundset.loadRecords(query)
@@ -227,8 +226,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * Get the sorting part of the query.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.sort
 	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
 	 * .add(query.columns.companyid)
@@ -247,8 +245,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * Get the group by clause from a query
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * foundset.loadRecords(query)
@@ -266,8 +263,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * Get the named parameters from a query.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.where.add(query.columns.contact_id.eq(query.getParameter('mycontactid')))
 	 *
 	 * 	// load orders where contact_id = 100
@@ -383,8 +379,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * Get the functions clause from a query, used for functions that are not tied to a column.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
+	 * var query = ddatasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('servoy'))) //$NON-NLS-1$
 	 * foundset.loadRecords(query)
 	 */

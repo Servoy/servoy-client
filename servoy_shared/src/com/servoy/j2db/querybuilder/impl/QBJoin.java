@@ -62,8 +62,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	/**
 	 * Get the on clause for the join.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/person>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/person')
+	 * var query = datasources.db.example_data.person.createSelect();
 	 * /** @type {QBJoin<db:/example_data/person>} *&#47;
 	 * var join1 = query.joins.add('db:/example_data/person')
 	 * join1.on.add(query.columns.parent_person_id.eq(join1.columns.person_id))

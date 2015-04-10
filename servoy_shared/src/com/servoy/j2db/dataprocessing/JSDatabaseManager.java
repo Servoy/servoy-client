@@ -1146,8 +1146,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @sample
 	 * // select customer data for order 1234
-	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
-	 * var q = databaseManager.createSelect("db:/example_data/customers");
+	 * var q = datasources.db.example_data.customers.createSelect();
 	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country);
 	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
 	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999);
@@ -1185,8 +1184,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @sample
 	 * // select customer data for order 1234
-	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
-	 * var q = databaseManager.createSelect("db:/example_data/customers");
+	 * var q = datasources.db.example_data.customers.createSelect();
 	 * q.result.add(q.columns.customer_id).add(q.columns.city).add(q.columns.country);
 	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
 	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, null, ['customer_id']);
@@ -1223,8 +1221,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @sample
 	 * // select customer data for order 1234
-	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
-	 * var q = databaseManager.createSelect("db:/example_data/customers");
+	 * var q = datasources.db.example_data.customers.createSelect()
 	 * q.result.add(q.columns.customer_id).add(q.columns.city).add(q.columns.country);
 	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
 	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, true, 999, null, ['customer_id']);
@@ -1367,8 +1364,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * var ds = databaseManager.getDataSetByQuery(q, maxReturnedRows);
 	 *
 	 * // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
-	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/book_nodes').result.addPk().root
+	 * var query = datasources.db.example_data.book_nodes.createSelect().result.addPk().root
 	 * query.where.add(query.columns.parent_id.eq(111))
 	 * 	.add(query.or
 	 * 	.add(query.columns.note_date.isNull)
@@ -1398,8 +1394,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * var ds = databaseManager.getDataSetByQuery(q, true, maxReturnedRows);
 	 *
 	 * // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
-	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/book_nodes').result.addPk().root
+	 * var query = datasources.db.example_data.book_nodes.createSelect().result.addPk().root
 	 * query.where.add(query.columns.parent_id.eq(111))
 	 * 	.add(query.or
 	 * 	.add(query.columns.note_date.isNull)
@@ -3909,8 +3904,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Create a QueryBuilder object for a datasource.
 	 * @sample
 	 *
-	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
-	 * var q = databaseManager.createSelect('db:/example_data/book_nodes')
+	 * var q = datasources.db.example_data.book_nodes.createSelect();
 	 * q.result.addPk()
 	 * q.where.add(q.columns.label_text.not.isin(null))
 	 * databaseManager.getFoundSet('db:/example_data/book_nodes').loadRecords(q)

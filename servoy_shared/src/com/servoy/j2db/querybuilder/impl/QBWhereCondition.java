@@ -67,8 +67,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	/**
 	 * Add a named condition to the AND or OR condition list.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add("mycond", query.columns.orderdate.isNull)
 	 *
 	 * @param name the name of the condition
@@ -109,8 +108,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	/**
 	 * Remove a named condition from the AND or OR condition list.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.remove("mycond")
 	 */
 	@JSFunction
@@ -127,8 +125,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	/**
 	 * Clear the conditions in the query where-clause.
 	 * @sample
-	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
-	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.clear()
 	 */
 	@JSFunction

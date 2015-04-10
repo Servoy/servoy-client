@@ -77,7 +77,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getAddEmptyValue()
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * vlist.addEmptyValue = JSValueList.EMPTY_VALUE_NEVER;
@@ -230,7 +230,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * Returns an array of the dataproviders that will be used to display the valuelist value.
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
 	 * vlist.dataSource = 'db:/example_data/parent_table';
 	 * vlist.setDisplayDataProviderIds('parent_table_text', 'parent_table_id');
@@ -328,7 +328,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
-	 * @param dataprovider2 The second return dataprovider. 
+	 * @param dataprovider2 The second return dataprovider.
 	 */
 	@JSFunction
 	public void setReturnDataProviderIds(String dataprovider1, String dataprovider2)
@@ -345,7 +345,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
-	 * @param dataprovider2 The second return dataprovider. 
+	 * @param dataprovider2 The second return dataprovider.
 	 *
 	 * @param dataprovider3 The third return dataprovider.
 	 */
@@ -358,7 +358,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * Returns an array of the dataproviders that will be used to define the valuelist value that is saved.
 	 *
-	 * @sampleas getDisplayDataProviderIds() 
+	 * @sampleas getDisplayDataProviderIds()
 	 *
 	 * @return An array of Strings representing the names of the return dataprovider.
 	 */
@@ -415,7 +415,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getName()
-	 * 
+	 *
 	 * @sampleas getUseTableFilter()
 	 */
 	@JSGetter
@@ -440,7 +440,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getRelationName()
-	 * 
+	 *
 	 * @sample
 	 * var rel = solutionModel.newRelation('parent_to_child', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * rel.newRelationItem('parent_table_id', '=', 'child_table_parent_id');
@@ -465,7 +465,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	}
 
 	/**
-	 * @deprecated relationName supports multiple levels relations 
+	 * @deprecated relationName supports multiple levels relations
 	 */
 	@Deprecated
 	public String js_getRelationNMName()
@@ -475,7 +475,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getSeparator()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
@@ -493,7 +493,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getServerName()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
@@ -511,7 +511,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getSortOptions()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
@@ -529,7 +529,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getTableName()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
@@ -547,7 +547,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getDataSource()
-	 * 
+	 *
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
 	 * vlist.dataSource = 'db:/example_data/parent_table';
@@ -581,7 +581,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getUseTableFilter()
-	 * 
+	 *
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
 	 * vlist.dataSource = 'db:/example_data/valuelists';
@@ -605,7 +605,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getValueListType()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
@@ -622,47 +622,46 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	}
 
 	/**
-	 * A global method that provides the data for the valuelist. The global method must provided the data 
+	 * A global method that provides the data for the valuelist. The global method must provided the data
 	 * as a JSDataSet.
-	 * 
+	 *
 	 * It is called when the valuelist needs data, it has 3 modes.
 	 * real and display params both null: return the whole list
 	 * only display is specified, called by a typeahead, return a filtered list
 	 * only real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list.
-	 * 
+	 *
 	 * In find mode the record with be the FindRecord which is just like a normal JSRecord (DataRecord) it has the same properties (column/dataproviders) but doesnt have its methods (like isEditing())
-	 * 
+	 *
 	 * The last argument is rawDisplayValue which contains the same text as displayValue but without converting it to lowercase.
-	 * 
+	 *
 	 * @sample
 	 * var listProvider = solutionModel.newGlobalMethod('globals', 'function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode, rawDisplayValue) {' +
 	 * 		'	' +
 	 * 		'var args = null;' +
-	 * 		'/** @type QBSelect<db:/example_data/employees> *&#47;' +
-	 * 		'var query = databaseManager.createSelect('db:/example_data/employees');' + 
-	 * 		'/** @type  {JSDataSet} *&#47;' + 
-	 * 		'var result = null;' + 
+	 * 		'var query = datasources.db.example_data.employees.createSelect();' +
+	 * 		'/** @type  {JSDataSet} *&#47;' +
+	 * 		'var result = null;' +
 	 * 		'if (displayValue == null && realValue == null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // return the complete list' +
 	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);' +
-	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' + 
+	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +
 	 * 		'} else if (displayValue != null) {' +
 	 * 		'  // TYPE_AHEAD filter call, return a filtered list' +
 	 * 		'  args = [displayValue + "%", displayValue + "%"]' +
 	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
 	 * 		'  root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));' +
-	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +  
+	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +
 	 * 		'} else if (realValue != null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
 	 * 		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
 	 * 		'  args = [realValue];' +
 	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
-	 * 		'  root.where.add(query.columns.employeeid.eq(args[0]));' + 
-	 * 		'  result = databaseManager.getDataSetByQuery(query,1);' + 
+	 * 		'  root.where.add(query.columns.employeeid.eq(args[0]));' +
+	 * 		'  result = databaseManager.getDataSetByQuery(query,1);' +
 	 * 		'}' +
-	 * 		'return result;' + 
+	 * 		'return result;' +
 	 * 		'}');
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
 	 * vlist.globalMethod = listProvider;
@@ -709,7 +708,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * @sample
 	 * var myValueList = solutionModel.getValueList('myValueListHere')
 	 *  //get fallback value list
-	 * var fallbackValueList = myValueList.fallbackValueList 
+	 * var fallbackValueList = myValueList.fallbackValueList
 	 */
 	@JSGetter
 	public JSValueList getFallbackValueList()
@@ -752,7 +751,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * Returns the UUID of the value list
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * application.output(vlist.getUUID().toString());
 	 */
@@ -790,7 +789,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -804,7 +803,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

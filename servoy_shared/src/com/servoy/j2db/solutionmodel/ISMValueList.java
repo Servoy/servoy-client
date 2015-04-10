@@ -24,7 +24,7 @@ import com.servoy.base.solutionmodel.IBaseSMValueList;
 
 /**
  * Solution model value list object.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -35,7 +35,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	/**
 	 * Constant to set/get the addEmptyValue property of a JSValueList.
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * vlist.addEmptyValue = JSValueList.EMPTY_VALUE_ALWAYS;
@@ -46,7 +46,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	/**
 	 * @clonedesc EMPTY_VALUE_ALWAYS
 	 * @see #EMPTY_VALUE_ALWAYS
-	 * 
+	 *
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
@@ -59,7 +59,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	/**
 	 * Property that tells if an empty value must be shown next to the items in the value list.
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * vlist.addEmptyValue = JSValueList.EMPTY_VALUE_NEVER;
@@ -118,7 +118,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	/**
 	 * Returns an array of the dataproviders that will be used to display the valuelist value.
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
 	 * vlist.dataSource = 'db:/example_data/parent_table';
 	 * vlist.setDisplayDataProviderIds('parent_table_text', 'parent_table_id');
@@ -160,7 +160,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
-	 * @param dataprovider2 The second return dataprovider. 
+	 * @param dataprovider2 The second return dataprovider.
 	 */
 	public void setReturnDataProviderIds(String dataprovider1, String dataprovider2);
 
@@ -174,7 +174,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
-	 * @param dataprovider2 The second return dataprovider. 
+	 * @param dataprovider2 The second return dataprovider.
 	 *
 	 * @param dataprovider3 The third return dataprovider.
 	 */
@@ -184,7 +184,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * Returns an array of the dataproviders that will be used to define the valuelist value that is saved.
 	 *
 	 * @sampleas getDisplayDataProviderIds()
-	 * @see #getDisplayDataProviderIds() 
+	 * @see #getDisplayDataProviderIds()
 	 *
 	 * @return An array of Strings representing the names of the return dataprovider.
 	 */
@@ -192,7 +192,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	/**
 	 * The name of the relation that is used for loading data from the database.
-	 * 
+	 *
 	 * @sample
 	 * var rel = solutionModel.newRelation('parent_to_child', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * rel.newRelationItem('parent_table_id', '=', 'child_table_parent_id');
@@ -209,16 +209,16 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * A String representing the separator that should be used when multiple
 	 * display dataproviders are set, when the value list has the type set to
 	 * database values.
-	 * 
+	 *
 	 * @sampleas DATABASE_VALUES
 	 * @see #DATABASE_VALUES
 	 */
 	public String getSeparator();
 
 	/**
-	 * The name of the database server that is used for loading the values when 
+	 * The name of the database server that is used for loading the values when
 	 * the value list has the type set to database values.
-	 * 
+	 *
 	 * @sampleas DATABASE_VALUES
 	 * @see #DATABASE_VALUES
 	 */
@@ -227,25 +227,25 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	/**
 	 * Sort options that are applied when the valuelist loads its data
 	 * from the database.
-	 * 
+	 *
 	 * @sampleas DATABASE_VALUES
 	 * @see #DATABASE_VALUES
 	 */
 	public String getSortOptions();
 
 	/**
-	 * The name of the database table that is used for loading the values when 
+	 * The name of the database table that is used for loading the values when
 	 * the value list has the type set to database values.
-	 * 
+	 *
 	 * @sampleas DATABASE_VALUES
 	 * @see #DATABASE_VALUES
 	 */
 	public String getTableName();
 
 	/**
-	 * Compact representation of the names of the server and table that 
+	 * Compact representation of the names of the server and table that
 	 * are used for loading the data from the database.
-	 * 
+	 *
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
 	 * vlist.dataSource = 'db:/example_data/parent_table';
@@ -257,7 +257,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	/**
 	 * Flag that tells if the name of the valuelist should be applied as a filter on the
 	 * 'valuelist_name' column when retrieving the data from the database.
-	 * 
+	 *
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
 	 * vlist.dataSource = 'db:/example_data/valuelists';
@@ -270,7 +270,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	/**
 	 * The type of the valuelist. Can be either custom values or database values.
-	 * 
+	 *
 	 * @sampleas DATABASE_VALUES
 	 * @see #DATABASE_VALUES
 	 */
@@ -288,47 +288,46 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public void setGlobalMethod(IBaseSMMethod method);
 
 	/**
-	 * A global method that provides the data for the valuelist. The global method must provided the data 
+	 * A global method that provides the data for the valuelist. The global method must provided the data
 	 * as a JSDataSet.
-	 * 
+	 *
 	 * It is called when the valuelist needs data, it has 3 modes.
 	 * real and display params both null: return the whole list
 	 * only display is specified, called by a typeahead, return a filtered list
 	 * only real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list.
-	 * 
+	 *
 	 * In find mode the record with be the FindRecord which is just like a normal JSRecord (DataRecord) it has the same properties (column/dataproviders) but doesnt have its methods (like isEditing())
-	 * 
+	 *
 	 * The last argument is rawDisplayValue which contains the same text as displayValue but without converting it to lowercase.
-	 * 
+	 *
 	 * @sample
 	 * var listProvider = solutionModel.newGlobalMethod('globals', 'function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode, rawDisplayValue) {' +
 	 * 		'	' +
 	 * 		'var args = null;' +
-	 * 		'/** @type QBSelect<db:/example_data/employees> *&#47;' +
-	 * 		'var query = databaseManager.createSelect('db:/example_data/employees');' + 
-	 * 		'/** @type  {JSDataSet} *&#47;' + 
-	 * 		'var result = null;' + 
+	 * 		'var query = datasources.db.example_data.employees.createSelect();' +
+	 * 		'/** @type  {JSDataSet} *&#47;' +
+	 * 		'var result = null;' +
 	 * 		'if (displayValue == null && realValue == null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // return the complete list' +
 	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);' +
-	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' + 
+	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +
 	 * 		'} else if (displayValue != null) {' +
 	 * 		'  // TYPE_AHEAD filter call, return a filtered list' +
 	 * 		'  args = [displayValue + "%", displayValue + "%"]' +
 	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
 	 * 		'  root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));' +
-	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +  
+	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +
 	 * 		'} else if (realValue != null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
 	 * 		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
 	 * 		'  args = [realValue];' +
 	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
-	 * 		'  root.where.add(query.columns.employeeid.eq(args[0]));' + 
-	 * 		'  result = databaseManager.getDataSetByQuery(query,1);' + 
+	 * 		'  root.where.add(query.columns.employeeid.eq(args[0]));' +
+	 * 		'  result = databaseManager.getDataSetByQuery(query,1);' +
 	 * 		'}' +
-	 * 		'return result;' + 
+	 * 		'return result;' +
 	 * 		'}');
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
 	 * vlist.globalMethod = listProvider;
@@ -342,8 +341,8 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * @sample
 	 * var myValueList = solutionModel.getValueList('myValueListHere')
 	 *  //get fallback value list
-	 * var fallbackValueList = myValueList.fallbackValueList 
-	 * 
+	 * var fallbackValueList = myValueList.fallbackValueList
+	 *
 	 */
 	public IBaseSMValueList getFallbackValueList();
 

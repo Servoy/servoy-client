@@ -32,9 +32,9 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Method templates, used for defining arguments in form designer (properties) and for creating new methods.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 @SuppressWarnings("nls")
 public class MethodTemplate implements IMethodTemplate
@@ -92,8 +92,7 @@ public class MethodTemplate implements IMethodTemplate
 					"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode"), new MethodArgument("rawDisplayValue",
 					ArgumentType.Boolean, "The raw displayValue without being converted to lower case") },
 				"var args = null;\n"
-					+ "/** @type QBSelect<db:/example_data/employees> */ \n"
-					+ "var query = databaseManager.createSelect('db:/example_data/employees');\n"
+					+ "var query = datasources.db.example_data.employees.createSelect();\n"
 					+ "/** @type  {JSDataSet} */\n"
 					+ "var result = null;\n"
 					+ "if (displayValue == null && realValue == null)\n"
@@ -181,7 +180,7 @@ public class MethodTemplate implements IMethodTemplate
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @param methodCode
 	 * @param tagToOutput PUBLIC_TAG/PROTECTED_TAG/PRIVATE_TAG
@@ -192,10 +191,10 @@ public class MethodTemplate implements IMethodTemplate
 		StringBuilder sb = new StringBuilder();
 		if (description != null && description.length() > 0)
 		{
-			String[] lines = description.split("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			String[] lines = description.split("\n"); //$NON-NLS-1$
 			for (int i = 0; i < lines.length; i++)
 			{
-				sb.append(" * ").append(lines[i]); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append(" * ").append(lines[i]); //$NON-NLS-1$
 				if (i == 0 && !lines[i].endsWith(".")) sb.append('.'); //$NON-NLS-1$
 				sb.append('\n');
 			}
@@ -205,7 +204,7 @@ public class MethodTemplate implements IMethodTemplate
 			if (sb.length() > 0) sb.append(" *\n"); //$NON-NLS-1$
 			for (String line : userTemplate.split("\n"))
 			{
-				sb.append(" * ").append(line).append('\n'); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append(" * ").append(line).append('\n'); //$NON-NLS-1$
 			}
 		}
 		if (args != null && args.length > 0)
@@ -233,7 +232,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 		if (signature != null && signature.getType() != null)
 		{
-			sb.append(" *\n * @returns {").append(signature.getType()).append('}'); //$NON-NLS-1$ 
+			sb.append(" *\n * @returns {").append(signature.getType()).append('}'); //$NON-NLS-1$
 			if (signature.getDescription() != null)
 			{
 				sb.append(' ').append(signature.getDescription());
@@ -307,7 +306,7 @@ public class MethodTemplate implements IMethodTemplate
 
 	/**
 	 * Get a template for the method key.
-	 * 
+	 *
 	 * @param context
 	 * @param methodKey
 	 */
@@ -331,7 +330,7 @@ public class MethodTemplate implements IMethodTemplate
 
 	/**
 	 * Get at template for overriding a method of a super form
-	 * 
+	 *
 	 * @param context
 	 * @param methodKey
 	 * @param formalArguments
