@@ -16,9 +16,11 @@ module.exports = function(config){
        'lib/phantomjs.polyfill.js',
        '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',
+       '../war/servoydefault/portal/js/ui-grid.js',
        './test/**/*.js',
        '../war/servoydefault/*/*.html',
        '../war/servoyservices/component_custom_property/*.js',
+       '../war/servoyservices/custom_json_array_property/*.js',
        '../war/servoyservices/foundset_custom_property/*.js',
        '../war/servoyservices/foundset_viewport_module/*.js'
     ],
