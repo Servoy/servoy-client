@@ -45,6 +45,7 @@ import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Utils;
@@ -79,6 +80,8 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		ScriptNameToSpecName.put("imageURL", StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID.getPropertyName());
 		ScriptNameToSpecName.put("rolloverImageURL", StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName());
 		ScriptNameToSpecName.put("valueListItems", StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName());
+		ScriptNameToSpecName.put("valueListName", StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName());
+
 	}
 
 	public RuntimeLegacyComponent(WebFormComponent component)
@@ -542,6 +545,16 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				component.getFormElement().getPersistIfAvailable() instanceof AbstractBase)
 			{
 				return Utils.parseJSExpression(((AbstractBase)component.getFormElement().getPersistIfAvailable()).getCustomDesignTimeProperty((String)args[0]));
+			}
+
+			if ("valueListName".equals(propertyName))
+			{
+				Object vl = component.getProperty(convertName(propertyName));
+				if (vl != null)
+				{
+					ValueListTypeSabloValue value = (ValueListTypeSabloValue)vl;
+					if (value.getValueList() != null) return value.getValueList().getName();
+				}
 			}
 
 			return scriptable.get(propertyName, null);
