@@ -17,9 +17,6 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -101,7 +98,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@Override
-	public QuerySelect build() throws RepositoryException
+	public QuerySelect build()
 	{
 		return AbstractBaseQuery.deepClone(getQuery());
 	}
@@ -449,13 +446,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 			val = placeholder == null ? new Placeholder(key) : placeholder;
 		}
-		else if (value instanceof Date && !(value instanceof Timestamp))
-		{
-			val = new Timestamp(((Date)value).getTime());
-		}
 		else
 		{
-			val = value;
+			val = convertDate(value)[0];
 		}
 		return new QueryColumnValue(val, null);
 	}

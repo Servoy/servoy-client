@@ -95,11 +95,11 @@ public class QBParameter extends QBPart implements IQueryBuilderParameter
 
 	/*
 	 * The quey object for parameter is the placeholder
-	 * 
+	 *
 	 * @see com.servoy.j2db.querybuilder.impl.QBPart#build()
 	 */
 	@Override
-	public IQueryElement build() throws RepositoryException
+	public IQueryElement build()
 	{
 		Placeholder placeholder = getParent().getQuery().getPlaceholder(key);
 		return placeholder == null ? new Placeholder(key) : placeholder;

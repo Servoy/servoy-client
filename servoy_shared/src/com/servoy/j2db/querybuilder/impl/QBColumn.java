@@ -27,8 +27,8 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
-import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -55,6 +55,20 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	protected QBCondition createCompareCondition(int operator, Object value)
 	{
+		if (value instanceof IQueryBuilder)
+		{
+			// condition with subquery
+			try
+			{
+				return createCondition(new SetCondition(operator, new IQuerySelectValue[] { getQuerySelectValue() }, ((IQueryBuilder)value).build(), true));
+			}
+			catch (RepositoryException e)
+			{
+				// does not happen
+				throw new RuntimeException(e);
+			}
+		}
+
 		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), getRoot().createOperand(value)));
 	}
 
@@ -136,14 +150,14 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @sample
 	 * query.where.add(query.columns.flag.isin(query2))
 	 */
-	public QBCondition js_isin(QBPart query) throws RepositoryException
+	public QBCondition js_isin(QBSelect query)
 	{
 		return in(query);
 	}
 
-	public QBCondition in(IQueryBuilderPart query) throws RepositoryException
+	public QBCondition in(IQueryBuilder query)
 	{
-		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, query.build(), true));
+		return createCompareCondition(IBaseSQLCondition.IN_OPERATOR, query);
 	}
 
 	/**
@@ -160,7 +174,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public QBCondition in(Object[] values)
 	{
 		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
-			new Object[][] { values == null ? new Object[0] : values }, true));
+			new Object[][] { values == null ? new Object[0] : convertDate(values) }, true));
 	}
 
 	/**

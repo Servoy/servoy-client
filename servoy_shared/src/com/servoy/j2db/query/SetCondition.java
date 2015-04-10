@@ -32,25 +32,25 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * The keys, operators and the matrix must have the same width.
  * <p>
  * The comparison is done by AND-ing all key value comparisons against matrix values for each row, per row the logic is OR-ed. For example
- * 
+ *
  * <pre>
  *          [ pk1, pk2 ]  ( =, &gt; )  [ 1  , 2  ]
  *                                  [ 10 , 20 ]
  *                                  [ 55 , 42 ]
  * </pre>
- * 
+ *
  * Means
- * 
+ *
  * <pre>
  *      pk1 = 1  AND pk2 &gt; 2
  * OR   pk1 = 10 AND pk2 &gt; 40
  * OR   pk1 = 55 AND pk2 &gt; 42
  * </pre>
- * 
+ *
  * When the boolean andCondition is set to false (by the negate method), AND and OR are used the other way around.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements ISQLCondition
 {
@@ -61,7 +61,7 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 
 	/**
 	 * Constructor for all the same operators.
-	 * 
+	 *
 	 * @param operator
 	 * @param keys
 	 * @param values
@@ -218,19 +218,38 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { operators, ReplacedObject.convertArray(keys,
-			Object.class), values, Boolean.valueOf(andCondition) });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
+			new Object[] { Integer.valueOf(2) /* version */, operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean.valueOf(andCondition) });
+		// Version 1: new Object[] { operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean.valueOf(andCondition) }
 	}
 
 	public SetCondition(ReplacedObject s)
 	{
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
+		int version;
+		if (members[0] instanceof Integer)
+		{
+			// versioned
+			version = ((Integer)members[i++]).intValue();
+		}
+		else
+		{
+			// unversioned, first version
+			version = 1;
+		}
+
 		operators = (int[])members[i++];
 		keys = (IQuerySelectValue[])ReplacedObject.convertArray((Object[])members[i++], IQuerySelectValue.class);
 		values = members[i++];
 		andCondition = ((Boolean)members[i++]).booleanValue();
-	}
 
+		if (version == 1 && operators.length == 1 && (operators[0] == IBaseSQLCondition.EQUALS_OPERATOR || operators[0] == IBaseSQLCondition.NOT_OPERATOR) &&
+			values instanceof ISQLSelect)
+		{
+			// Before release 8.0 a stored SetCondition was using EQUALS_OPERATOR for subselects, this has been changed to IN_OPERATOR, see SVY-8091.
+			operators[0] = operators[0] == IBaseSQLCondition.EQUALS_OPERATOR ? IBaseSQLCondition.IN_OPERATOR : IBaseSQLCondition.NOT_IN_OPERATOR;
+		}
+	}
 
 }

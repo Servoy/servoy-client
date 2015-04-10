@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.IQueryElement;
@@ -66,18 +69,18 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/order_details>} *&#47;
 	 * 	var subquery = databaseManager.createSelect('db:/example_data/order_details')
-	 * 	
+	 *
 	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.where.add(query
-	 * 		.or 
+	 * 		.or
 	 * 			.add(query.columns.order_id.not.isin([1, 2, 3]))
-	 * 			
+	 *
 	 * 			.add(query.exists(
 	 * 					subquery.where.add(subquery.columns.orderid.eq(query.columns.order_id)).root
 	 * 			))
 	 * 		)
-	 * 		
+	 *
 	 * 	foundset.loadRecords(query)
 	 */
 	@JSReadonlyProperty
@@ -90,4 +93,21 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	{
 		return getRoot().build();
 	}
+
+	/**
+	 * @param value
+	 * @return
+	 */
+	static Object[] convertDate(Object... value)
+	{
+		Object[] converted = new Object[value.length];
+		for (int i = 0; i < value.length; i++)
+		{
+			converted[i] = value[i] instanceof Date && !(value[i] instanceof Timestamp) ? new Timestamp(((Date)value[i]).getTime()) : value[i];
+		}
+
+		return converted;
+	}
+
+
 }

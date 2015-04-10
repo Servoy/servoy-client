@@ -94,7 +94,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * This class is used to generate the (in repository stored?) SQL(Prepared)Statements and to generate te sql for the user find
- * 
+ *
  * @author jblok
  */
 public class SQLGenerator
@@ -275,7 +275,7 @@ public class SQLGenerator
 
 		//1 do not remove sort or groupby test, will cause invalid queries
 		//1 this one causes error and can not be fixed,
-		//1 if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1) 
+		//1 if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1)
 		//1 sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
 
 		// retval may have set distinct and plainPKSelect flag based on previous sort columns, make sure to reset first
@@ -368,7 +368,7 @@ public class SQLGenerator
 							}
 						}
 
-						// if the aggregate has not been selected yet, add it and skip it in the result 
+						// if the aggregate has not been selected yet, add it and skip it in the result
 						QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1,
 							aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()), aggregate.getName(), null, true);
 						if (!columns.contains(skippedAggregate))
@@ -595,7 +595,7 @@ public class SQLGenerator
 
 	/**
 	 * Distinct is allowed if order by clause is a subset of the selected columns.
-	 * 
+	 *
 	 * @param sqlSelect
 	 * @return
 	 */
@@ -736,7 +736,7 @@ public class SQLGenerator
 				if (qCol == null)
 				{
 					// not a column and not an aggregate
-					Debug.log("Ignoring search on unknown/unsupported data provider '" + dataProviderID + "'"); //$NON-NLS-1$ //$NON-NLS-2$ 
+					Debug.log("Ignoring search on unknown/unsupported data provider '" + dataProviderID + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 					continue;
 				}
 
@@ -767,7 +767,7 @@ public class SQLGenerator
 						{
 							obj = ((Wrapper)obj).unwrap();
 						}
-						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString)) 
+						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString))
 						// and once to convert for query (getAsType(c.getDataProviderType(), null))
 						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(),
 							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false), false);
@@ -1069,7 +1069,7 @@ public class SQLGenerator
 		Table table = (Table)application.getFoundSetManager().getTable(dataSource);
 		if (table == null)
 		{
-			throw new RepositoryException("Cannot create sql: table not found for data source '" + dataSource + '\''); //$NON-NLS-1$ 
+			throw new RepositoryException("Cannot create sql: table not found for data source '" + dataSource + '\''); //$NON-NLS-1$
 		}
 		SQLSheet retval = new SQLSheet(application, table.getServerName(), table);
 
@@ -1163,7 +1163,7 @@ public class SQLGenerator
 				return;
 			}
 
-			//add primary keys if missing			
+			//add primary keys if missing
 			QueryTable foreignQTable = new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema());
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
@@ -1213,7 +1213,7 @@ public class SQLGenerator
 			swapped[x] = RelationItem.swapOperator(operators[x]);
 			if (swapped[x] == -1)
 			{
-				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName()); //$NON-NLS-1$ 
+				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName()); //$NON-NLS-1$
 			}
 			//column = ? construct
 			keys[x] = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(), foreign[x].getLength());
@@ -1223,7 +1223,7 @@ public class SQLGenerator
 
 	/**
 	 * Create a condition if the filter is applicable to the table.
-	 * 
+	 *
 	 * @param qTable
 	 * @param table
 	 * @param filter
@@ -1249,7 +1249,9 @@ public class SQLGenerator
 
 		QueryColumn qColumn = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale());
 		ISQLCondition filterWhere;
-		if (maskedOp == IBaseSQLCondition.IN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_IN_OPERATOR)
+		if (maskedOp == IBaseSQLCondition.EQUALS_OPERATOR || maskedOp == IBaseSQLCondition.NOT_OPERATOR || maskedOp == IBaseSQLCondition.IN_OPERATOR ||
+			maskedOp == IBaseSQLCondition.NOT_IN_OPERATOR || maskedOp == IBaseSQLCondition.GT_OPERATOR || maskedOp == IBaseSQLCondition.LT_OPERATOR ||
+			maskedOp == IBaseSQLCondition.GTE_OPERATOR || maskedOp == IBaseSQLCondition.LTE_OPERATOR)
 		{
 			Object inValues;
 			if (value instanceof List< ? >)
@@ -1286,9 +1288,7 @@ public class SQLGenerator
 					}
 				}
 			}
-			int setOperator = maskedOp == IBaseSQLCondition.IN_OPERATOR ? IBaseSQLCondition.EQUALS_OPERATOR : IBaseSQLCondition.NOT_OPERATOR;
-			filterWhere = new SetCondition(setOperator | (op & ~IBaseSQLCondition.OPERATOR_MASK), new IQuerySelectValue[] { qColumn }, inValues,
-				maskedOp == IBaseSQLCondition.IN_OPERATOR);
+			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues, true);
 		}
 		else if (maskedOp == IBaseSQLCondition.BETWEEN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_BETWEEN_OPERATOR)
 		{
@@ -1438,7 +1438,7 @@ public class SQLGenerator
 
 	/**
 	 * Create the sql for a single aggregate on a column.
-	 * 
+	 *
 	 * @param aggregee
 	 * @return
 	 */
@@ -1454,7 +1454,7 @@ public class SQLGenerator
 		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		select.addColumn(new QueryAggregate(aggregateType, (column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee,
 			"n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
-			: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()), "maxval")); //$NON-NLS-1$ 
+			: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()), "maxval")); //$NON-NLS-1$
 		return select;
 
 	}
@@ -1497,9 +1497,9 @@ public class SQLGenerator
 					column.getScale(), false);
 				QueryColumn outerColumn = new QueryColumn(outerTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
 					column.getScale(), false);
-				innerSelect.addCondition("EXISTS", new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, innerColumn, outerColumn)); //$NON-NLS-1$ 
+				innerSelect.addCondition("EXISTS", new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, innerColumn, outerColumn)); //$NON-NLS-1$
 			}
-			aggregateSqlSelect.addCondition("EXISTS", new ExistsCondition(innerSelect, true)); //$NON-NLS-1$ 
+			aggregateSqlSelect.addCondition("EXISTS", new ExistsCondition(innerSelect, true)); //$NON-NLS-1$
 		}
 
 		ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
@@ -1514,7 +1514,7 @@ public class SQLGenerator
 
 	/**
 	 * Create a condition for comparing a column like a value.
-	 * 
+	 *
 	 * @param selectValue
 	 * @param column
 	 * @param value

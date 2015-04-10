@@ -27,7 +27,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.querybuilder.IQueryBuilderPart;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
 
@@ -89,9 +89,9 @@ public class QBParameters extends DefaultJavaScope
 		}
 		try
 		{
-			if (value instanceof IQueryBuilderPart)
+			if (value instanceof IQueryBuilder)
 			{
-				value = ((IQueryBuilderPart)value).build();
+				value = ((IQueryBuilder)value).build();
 			}
 			getParameter(name).setValue(value);
 		}
