@@ -244,11 +244,25 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 		values = members[i++];
 		andCondition = ((Boolean)members[i++]).booleanValue();
 
-		if (version == 1 && operators.length == 1 && (operators[0] == IBaseSQLCondition.EQUALS_OPERATOR || operators[0] == IBaseSQLCondition.NOT_OPERATOR) &&
-			values instanceof ISQLSelect)
+
+		if (version == 1 && operators.length == 1 && (operators[0] == IBaseSQLCondition.EQUALS_OPERATOR || operators[0] == IBaseSQLCondition.NOT_OPERATOR))
 		{
+			boolean isQuery = false;
+			if (values instanceof ISQLSelect)
+			{
+				isQuery = true;
+			}
+			else if (values instanceof Placeholder)
+			{
+				isQuery = ((Placeholder)values).isSet() && ((Placeholder)values).getValue() instanceof ISQLSelect;
+			}
+
+
 			// Before release 8.0 a stored SetCondition was using EQUALS_OPERATOR for subselects, this has been changed to IN_OPERATOR, see SVY-8091.
-			operators[0] = operators[0] == IBaseSQLCondition.EQUALS_OPERATOR ? IBaseSQLCondition.IN_OPERATOR : IBaseSQLCondition.NOT_IN_OPERATOR;
+			if (isQuery)
+			{
+				operators[0] = operators[0] == IBaseSQLCondition.EQUALS_OPERATOR ? IBaseSQLCondition.IN_OPERATOR : IBaseSQLCondition.NOT_IN_OPERATOR;
+			}
 		}
 	}
 

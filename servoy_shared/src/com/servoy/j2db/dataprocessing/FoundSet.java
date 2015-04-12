@@ -1861,7 +1861,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
 			}
 			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH,
-				new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
+				new SetCondition(IBaseSQLCondition.IN_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
 					customQuery, whereArgs), true));
 
 			// set the previous sort, add all joins that are needed for this sort
@@ -5889,7 +5889,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
