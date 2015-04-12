@@ -29,7 +29,6 @@ import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
-import com.servoy.j2db.querybuilder.IQueryBuilderParameter;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -57,12 +56,12 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	protected QBCondition createCompareCondition(int operator, Object value)
 	{
-		if (value instanceof IQueryBuilderParameter || value instanceof IQueryBuilder)
+		if (value instanceof IQueryBuilder)
 		{
-			// condition with subquery or parameter that may become a query
+			// condition with subquery
 			try
 			{
-				return createCondition(new SetCondition(operator, new IQuerySelectValue[] { getQuerySelectValue() }, ((IQueryBuilderPart)value).build(), true));
+				return createCondition(new SetCondition(operator, new IQuerySelectValue[] { getQuerySelectValue() }, ((IQueryBuilder)value).build(), true));
 			}
 			catch (RepositoryException e)
 			{
@@ -71,6 +70,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 			}
 		}
 
+		// in case the value is a parameter that will hold a query the query will be used.
 		return createCondition(new CompareCondition(operator, this.getQuerySelectValue(), getRoot().createOperand(value)));
 	}
 
