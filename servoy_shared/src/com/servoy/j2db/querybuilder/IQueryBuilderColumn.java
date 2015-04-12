@@ -81,7 +81,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * query.where().add(query.getColumn("value").in(subQuery.result().add(query.getColumn("code")).getParent().where().add(subQuery.getColumn("flag").eq("T"))));
 	 * </pre>
 	 */
-	IQueryBuilderCondition in(IQueryBuilder query) throws RepositoryException;
+	IQueryBuilderCondition in(IQueryBuilderPart query) throws RepositoryException;
 
 	/**
 	 * Compare column with values.
