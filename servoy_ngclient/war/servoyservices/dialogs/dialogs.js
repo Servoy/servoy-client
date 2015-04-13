@@ -180,7 +180,7 @@ angular.module('dialogs',['servoy'])
 					var buttonModel = {
 						      label: buttonsText[i],
 						      callback: function(event) {
-						    	 dialogOpenedDeferred.resolve(event.target.innerText);
+						    	 dialogOpenedDeferred.resolve(event.target.innerHTML);
 						      }
 					}
 					if (i==0) buttonModel.className =  "btn-primary";
