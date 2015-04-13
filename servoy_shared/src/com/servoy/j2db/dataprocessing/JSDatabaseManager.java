@@ -3567,8 +3567,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 								}
 								catch (Exception e)
 								{
-									Debug.error("Could not copy matching field to " + dest_table.getName() + "." + c.getDataProviderID() + ". The value: '" +
-										sval + "' does not match the type of the destination.");
+									application.reportError("Could not copy matching field to " + dest_table.getName() + "." + c.getDataProviderID() +
+										". The value: '" + sval + "' does not match the type of the destination.", e);
 								}
 							}
 						}
