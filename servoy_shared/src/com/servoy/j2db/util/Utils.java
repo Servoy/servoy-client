@@ -2228,10 +2228,7 @@ public final class Utils
 		// note that 2.0 is not equal to 2.00 according to BigDecimal.equals()
 		if (oldObj instanceof BigDecimal && obj instanceof BigDecimal)
 		{
-			if (((BigDecimal)oldObj).compareTo((BigDecimal)obj) == 0) return true;
-			BigDecimal subtract = ((BigDecimal)oldObj).subtract((BigDecimal)obj).abs();
-			if (subtract.doubleValue() < equalsPrecision) return true;
-			return false;
+			return ((BigDecimal)oldObj).subtract((BigDecimal)obj).abs().doubleValue() < equalsPrecision;
 		}
 		if (oldObj instanceof Long && obj instanceof Long)
 		{
