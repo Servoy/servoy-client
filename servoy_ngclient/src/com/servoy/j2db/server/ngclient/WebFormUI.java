@@ -108,7 +108,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public final void init()
+	public void init()
 	{
 		components.clear();
 		IDataAdapterList previousDataAdapterList = dataAdapterList;

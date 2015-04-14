@@ -45,6 +45,13 @@ public class WebListFormUI extends WebFormUI
 	}
 
 	@Override
+	public void init()
+	{
+		listViewPortal = null;
+		super.init();
+	}
+
+	@Override
 	protected List<FormElement> getFormElements()
 	{
 		Form form = getController().getForm();
