@@ -376,14 +376,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		{
 			return ((ISabloComponentToRhino)pd.getType()).toRhinoValue(value, pd, component, start);
 		}
-		if ("valueListName".equals(name))
+		if ("valueListName".equals(name) && value != null)
 		{
-			Object vl = component.getProperty(convertName(name));
-			if (vl != null)
-			{
-				ValueListTypeSabloValue v = (ValueListTypeSabloValue)vl;
-				if (v.getValueList() != null) return v.getValueList().getName();
-			}
+			ValueListTypeSabloValue v = (ValueListTypeSabloValue)value;
+			if (v.getValueList() != null) return v.getValueList().getName();
 		}
 		return value;
 	}
