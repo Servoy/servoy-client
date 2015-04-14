@@ -11,6 +11,13 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 			$scope.findMode = false;
 			$scope.style = {width:'100%',height:'100%',overflow:'hidden'}
 
+			$scope.onClick = function(event){
+				if ($scope.model.editable == false && $scope.handlers.onActionMethodID)
+				{
+					$scope.handlers.onActionMethodID(event);
+				}	
+			}
+			
 			var storedTooltip = false;
 			// fill in the api defined in the spec file
 

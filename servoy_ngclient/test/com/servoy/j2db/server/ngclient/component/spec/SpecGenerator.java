@@ -709,11 +709,9 @@ public class SpecGenerator
 																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()+ "\",\""
 																																													+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true,\"for\": [\"" + StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
 																																													+ StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()+ "\",\""
 																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
+																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()+ "\"] }");
 		repoTypeMappingExceptions.put("readOnly", "{ \"type\": \"protected\", \"for\": \"dataProviderID\" }");
 
 		//internal properties (properties that should not be generated for any component)

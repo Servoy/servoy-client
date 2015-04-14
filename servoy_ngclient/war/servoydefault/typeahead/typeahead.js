@@ -16,6 +16,14 @@ angular.module('servoydefaultTypeahead', ['servoy'])
           height: '100%',
           overflow: 'hidden'
         }
+        
+        $scope.onClick = function(event){
+      	  if ($scope.model.editable == false && $scope.handlers.onActionMethodID)
+      	  {
+      		  $scope.handlers.onActionMethodID(event);
+      	  }	
+        }
+        
         $scope.findMode = false;
 
         $scope.formatLabel = function(model) {

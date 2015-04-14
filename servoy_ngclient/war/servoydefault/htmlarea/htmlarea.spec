@@ -11,7 +11,7 @@
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "dataProviderID" : { "type":"dataprovider", "tags": { "scope" :"design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
-	        "editable" : { "type": "protected", "blockingOn": false, "default": true,"for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
+	        "editable" : { "type": "protected", "blockingOn": false, "default": true,"for": ["dataProviderID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID"] }, 
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
 	        "findmode" : { "type":"findmode", "scope" : "private", "for" : { "enabled":true, "editable":true}}, 
 	        "fontType" : {"type":"font","stringformat":true}, 

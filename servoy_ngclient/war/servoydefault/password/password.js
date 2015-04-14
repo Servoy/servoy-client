@@ -9,6 +9,14 @@ angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassw
       controller: function($scope, $element, $attrs) {
           $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
           $scope.findMode = false;
+          
+          $scope.onClick = function(event){
+        	  if ($scope.model.editable == false && $scope.handlers.onActionMethodID)
+        	  {
+        		  $scope.handlers.onActionMethodID(event);
+        	  }	
+          }
+          
     	 // fill in the api defined in the spec file
     	 $scope.api.onDataChangeCallback = function(event, returnval) {
     		 if(!returnval) {
