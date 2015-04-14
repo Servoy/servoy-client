@@ -208,4 +208,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_LAYOUTGRID = "layoutGrid";
 	public static final String PROPERTY_STYLE = "style";
 	public static final String PROPERTY_CSSCLASS = "cssClasses";
+	public static final String PROPERTY_JSON = "json";
+	public static final String PROPERTY_TYPENAME = "typeName";
 }

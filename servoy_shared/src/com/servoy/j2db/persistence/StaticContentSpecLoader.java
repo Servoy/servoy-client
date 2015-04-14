@@ -21,6 +21,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.util.HashMap;
 
+import org.json.JSONObject;
+
 
 /**
  * @author jblok
@@ -252,6 +254,9 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_TOOLTIPTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TOOLTIPTEXT);
 	public static final TypedProperty<String> PROPERTY_PLACEHOLDERTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PLACEHOLDERTEXT);
 	public static final TypedProperty<Integer> PROPERTY_TEXTROTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TEXTROTATION);
+	//public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
+	public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
+	public static final TypedProperty<String> PROPERTY_TYPENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TYPENAME);
 
 	// deprecated or metadata properties
 	private static final TypedProperty<String> PROPERTY_SERVERNAME = new TypedProperty<String>("serverName"); //$NON-NLS-1$;
@@ -575,7 +580,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(247, IRepository.SOLUTIONS, PROPERTY_ONCLOSEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 
 			//decoi property is in real live the master_password_hash!!
-			//OBSOLETE:			cs.new Element(248,IRepository.SOLUTIONS,PROPERTY_LOADOPTIONS.getPropertyName(),IRepository.STRING); 
+			//OBSOLETE:			cs.new Element(248,IRepository.SOLUTIONS,PROPERTY_LOADOPTIONS.getPropertyName(),IRepository.STRING);
 		}
 
 		if (old_repository_version < 20)
@@ -691,7 +696,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 
 			cs.new Element(311, IRepository.METHODS, PROPERTY_LINENUMBEROFFSET.getPropertyName(), IRepository.INTEGER);
 
-			//new properties which makes others depreciated 
+			//new properties which makes others depreciated
 			cs.new Element(312, IRepository.METHODS, PROPERTY_DECLARATION.getPropertyName(), IRepository.STRING);
 			cs.new Element(313, IRepository.FORMS, PROPERTY_NAMEDFOUNDSET.getPropertyName(), IRepository.STRING);
 			cs.new Element(314, IRepository.FORMS, PROPERTY_DATASOURCE.getPropertyName(), IRepository.DATASOURCES);
@@ -830,7 +835,6 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		}
 		if (old_repository_version < 45)
 		{
-			// properties new in repository version 45, so if version < 45 we need to add them
 			cs.new Element(413, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(414, IRepository.LAYOUTCONTAINERS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
 			cs.new Element(415, IRepository.LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
@@ -840,6 +844,30 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(419, IRepository.LAYOUTCONTAINERS, PROPERTY_STYLE.getPropertyName(), IRepository.STRING);
 			cs.new Element(420, IRepository.LAYOUTCONTAINERS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(421, IRepository.LAYOUTCONTAINERS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
+		}
+		if (old_repository_version < 46)
+		{
+			// properties new in repository version 46, so if version < 46 we need to add them
+			cs.new Element(422, IRepository.WEBCOMPONENTS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(423, IRepository.WEBCOMPONENTS, PROPERTY_BEANXML.getPropertyName(), IRepository.STRING);
+			cs.new Element(424, IRepository.WEBCOMPONENTS, PROPERTY_BEANCLASSNAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(425, IRepository.WEBCOMPONENTS, PROPERTY_USESUI.getPropertyName(), IRepository.BOOLEAN);
+			cs.new Element(426, IRepository.WEBCOMPONENTS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
+			cs.new Element(427, IRepository.WEBCOMPONENTS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
+			cs.new Element(428, IRepository.WEBCOMPONENTS, PROPERTY_PRINTABLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(429, IRepository.WEBCOMPONENTS, PROPERTY_FORMINDEX.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(430, IRepository.WEBCOMPONENTS, PROPERTY_GROUPID.getPropertyName(), IRepository.STRING);
+			cs.new Element(431, IRepository.WEBCOMPONENTS, PROPERTY_LOCKED.getPropertyName(), IRepository.BOOLEAN);
+			cs.new Element(432, IRepository.WEBCOMPONENTS, PROPERTY_ANCHORS.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(433, IRepository.WEBCOMPONENTS, PROPERTY_ONACTIONMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(434, IRepository.WEBCOMPONENTS, PROPERTY_PARAMETERS.getPropertyName(), IRepository.STRING);
+			cs.new Element(435, IRepository.WEBCOMPONENTS, PROPERTY_TABSEQ.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(436, IRepository.WEBCOMPONENTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(437, IRepository.WEBCOMPONENTS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(438, IRepository.WEBCOMPONENTS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(439, IRepository.WEBCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(440, IRepository.WEBCOMPONENTS, PROPERTY_TYPENAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(441, IRepository.WEBCOMPONENTS, PROPERTY_JSON.getPropertyName(), IRepository.JSON, null);
 		}
 		//##add property adds here
 		return cs;

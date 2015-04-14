@@ -65,7 +65,7 @@ public class RepositoryHelper
 
 	/**
 	 * Get all the setMethods on the specified object via introspection
-	 * 
+	 *
 	 * @param the object
 	 * @return a map with name -> java.lang.reflect.Method
 	 */
@@ -104,7 +104,7 @@ public class RepositoryHelper
 
 	/**
 	 * Get all the getMethods on the specified object via introspection
-	 * 
+	 *
 	 * @param the object
 	 * @return a map with name -> java.lang.reflect.Method
 	 */
@@ -460,11 +460,11 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("locked")) //$NON-NLS-1$ 
+		if (name.equals("locked")) //$NON-NLS-1$
 		{
 			return false;
 		}
-		if (name.equals("beanClassName")) //$NON-NLS-1$ 
+		if (name.equals("beanClassName")) //$NON-NLS-1$
 		{
 			return false;
 		}
@@ -536,7 +536,7 @@ public class RepositoryHelper
 		{
 			return false;//TODO impl
 		}
-		if (name.equals("useRTF"))//useRTF is not longer used  //$NON-NLS-1$ 
+		if (name.equals("useRTF"))//useRTF is not longer used  //$NON-NLS-1$
 		{
 			return false;
 		}
@@ -608,6 +608,15 @@ public class RepositoryHelper
 		}
 
 		if (StaticContentSpecLoader.PROPERTY_LABELS.getPropertyName().equals(name))
+		{
+			return false;
+		}
+
+		if (StaticContentSpecLoader.PROPERTY_JSON.getPropertyName().equals(name))
+		{
+			return false;
+		}
+		if (StaticContentSpecLoader.PROPERTY_TYPENAME.getPropertyName().equals(name))
 		{
 			return false;
 		}

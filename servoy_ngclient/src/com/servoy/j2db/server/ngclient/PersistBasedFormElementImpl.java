@@ -91,6 +91,7 @@ class PersistBasedFormElementImpl
 				Map<String, Object> jsonMap = processPersistProperties(fs, specProperties, propertyPath);
 
 				jsonMap.remove(StaticContentSpecLoader.PROPERTY_BEANXML); // this is handled separately as NG component definition
+				jsonMap.remove(StaticContentSpecLoader.PROPERTY_JSON); // this is handled separately as NG component definition
 				try
 				{
 					// add beanXML (which is actually a JSON string here) defined properties to the map

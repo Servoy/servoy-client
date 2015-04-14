@@ -35,7 +35,7 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractRepository extends AbstractPersistFactory implements IDeveloperRepository
 {
-	public static final int repository_version = 45;
+	public static final int repository_version = 46;
 
 	/**
 	 * This repository is used by client
@@ -137,7 +137,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 * Search the persist in the parent tree.
 	 * <p>
 	 * optimized using the assumption that the persist is in a tree of similar structure to the tree of parent.
-	 * 
+	 *
 	 * @param parent
 	 * @param persist
 	 * @throws RepositoryException
@@ -228,7 +228,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	/**
 	 * Create a copy of a solution object without its children.
-	 * 
+	 *
 	 * @param solution
 	 * @throws RepositoryException
 	 */
@@ -244,7 +244,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	/**
 	 * Copy a persist from another solution to the solution.
-	 * 
+	 *
 	 * @param persist
 	 * @param dontSearch
 	 * @param solution
@@ -534,7 +534,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	/**
 	 * Remove persist from parent and register it and all children (recursive) as removed.
-	 * 
+	 *
 	 * @throws RepositoryException
 	 */
 	public void deleteObject(IPersist persist) throws RepositoryException
@@ -556,7 +556,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	/**
 	 * Re-add previously removed persist to parent and unregister it and all its children (recursive) as new.
-	 * 
+	 *
 	 * @throws RepositoryException
 	 */
 	public void undeleteObject(ISupportChilds parent, IPersist persist) throws RepositoryException
@@ -588,7 +588,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	/**
 	 * Load the server names which are defined in this repository<br>
 	 * Will also return the name of the server which created this repository
-	 * 
+	 *
 	 * @return the defined server names
 	 */
 	public String[] getServerNames(boolean sort) throws RepositoryException
@@ -600,7 +600,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 * Returns only valid server interfaces.
 	 * <p>
 	 * <b>NOTE: NEVER call this method from client code, always use solution.getServer(name), databaseManager.switchServer() is based on this!<b>
-	 * 
+	 *
 	 * @return the server
 	 */
 	public IServer getServer(String name)
@@ -682,7 +682,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	/**
 	 * Adds the given meta data object to the root object meta data cache.
-	 * 
+	 *
 	 * @param rootObjectMetaData the meta data to be added.
 	 */
 	public void addRootObjectMetaData(RootObjectMetaData rootObjectMetaData) throws RepositoryException

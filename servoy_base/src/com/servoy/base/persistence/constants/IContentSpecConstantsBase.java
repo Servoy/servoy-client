@@ -20,7 +20,7 @@ package com.servoy.base.persistence.constants;
 
 /**
  * Constants for contentSpec.
- * 
+ *
  * @author acostescu
  */
 public interface IContentSpecConstantsBase

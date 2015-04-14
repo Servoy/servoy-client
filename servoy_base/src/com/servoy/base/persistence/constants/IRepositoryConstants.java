@@ -63,7 +63,7 @@ public interface IRepositoryConstants
 	public static final int SCRIPTVARIABLES = 35;
 	public static final int SCRIPTCALCULATIONS = 36;
 	public static final int MEDIA = 37;
-	public static final int COLUMNS = 38; //SYNC_IDS called before, needed columns type for Ivalidatename searchcontext type 
+	public static final int COLUMNS = 38; //SYNC_IDS called before, needed columns type for Ivalidatename searchcontext type
 	public static final int TABLENODES = 39; // better name whould be datasource node
 	public static final int AGGREGATEVARIABLES = 40;
 	public static final int USER_PROPERTIES = 41;
@@ -72,5 +72,8 @@ public interface IRepositoryConstants
 	public static final int TABLES = 44;
 	public static final int STATS = 45;
 	public static final int LAYOUTCONTAINERS = 46;
+	public static final int WEBCOMPONENTS = 47;
+	public static final int WEBCUSTOMTYPES = 48;
+	public static final int JSON = 49;
 
 }

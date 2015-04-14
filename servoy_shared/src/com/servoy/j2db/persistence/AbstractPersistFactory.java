@@ -25,10 +25,13 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONException;
+
 import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.TreeBidiMap;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -36,7 +39,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public abstract class AbstractPersistFactory implements IPersistFactory
 {
@@ -44,7 +47,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 	private ContentSpec contentSpec = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public AbstractPersistFactory()
 	{
@@ -110,7 +113,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	/**
 	 * Create a repositoy object like Form,fields,portals,beans,etc.
-	 * 
+	 *
 	 * @param parent the parent
 	 * @param objectTypeId the type
 	 * @param elementId the element_id for creation
@@ -201,6 +204,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				object = new Media(parent, elementId, uuid);
 				break;
 
+			case IRepository.WEBCOMPONENTS :
+				object = new WebComponent(parent, elementId, uuid);
+				break;
+
 			case IRepository.SOLUTIONS :
 			case IRepository.STYLES :
 			case IRepository.TEMPLATES :
@@ -224,7 +231,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	/**
 	 * Converter method to convert String in object
-	 * 
+	 *
 	 * @param type_id the type
 	 * @param s the string
 	 * @return the object
@@ -279,7 +286,16 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 			case IRepository.BOOLEAN :
 				retval = Boolean.valueOf(Utils.getAsBoolean(s));
 				break;
-
+			case IRepository.JSON :
+				try
+				{
+					retval = new ServoyJSONObject(s, false);
+				}
+				catch (JSONException ex)
+				{
+					Debug.error(ex);
+				}
+				break;
 			default :
 				throw new RepositoryException("type with id=" + typeId + " does not exist");
 		}
@@ -322,7 +338,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	/**
 	 * Converter method to convert object in string
-	 * 
+	 *
 	 * @param type_id the type
 	 * @param obj the object
 	 * @return the string
@@ -371,6 +387,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 			case IRepository.TABLES :
 			case IRepository.DATASOURCES :
 			case IRepository.BLOBS :
+			case IRepository.JSON :
 				retval = obj.toString();
 				break;
 

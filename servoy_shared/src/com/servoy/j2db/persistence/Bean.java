@@ -26,7 +26,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Bean wrapper class, build the bean from the XML
- * 
+ *
  * @author jblok
  */
 public class Bean extends BaseComponent implements ISupportTabSeq
@@ -36,7 +36,12 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 */
 	protected Bean(ISupportChilds parent, int element_id, UUID uuid)
 	{
-		super(IRepository.BEANS, parent, element_id, uuid);
+		this(IRepository.BEANS, parent, element_id, uuid);
+	}
+
+	protected Bean(int type, ISupportChilds parent, int element_id, UUID uuid)
+	{
+		super(type, parent, element_id, uuid);
 	}
 
 	/*
@@ -59,7 +64,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Set the actionMethodID
-	 * 
+	 *
 	 * @param arg the actionMethodID
 	 */
 	public void setOnActionMethodID(int arg)
@@ -69,7 +74,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Get the method that is triggered when an onAction event occurs.
-	 * 
+	 *
 	 * @return the method that is triggered when an onAction event occurs
 	 */
 	public int getOnActionMethodID()
@@ -79,7 +84,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Set the beanXML
-	 * 
+	 *
 	 * @param xml the beanXML
 	 */
 	public void setBeanXML(String arg)
@@ -91,7 +96,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Get the bean object in XML format.
-	 * 
+	 *
 	 * @return a String object containing the bean object in XML format
 	 */
 	public String getBeanXML()
@@ -101,7 +106,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Get the mobile bean innerHTML.
-	 * 
+	 *
 	 * @return a String object containing the mobile bean innerHTML
 	 */
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
@@ -112,7 +117,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Set the mobile bean innerHTML
-	 * 
+	 *
 	 * @param innerHTML the mobile bean innerHTML
 	 */
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
@@ -123,7 +128,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Set the beanClassName
-	 * 
+	 *
 	 * @param arg the beanClassName
 	 */
 	public void setBeanClassName(String arg)
@@ -133,7 +138,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Get the class name of the bean.
-	 * 
+	 *
 	 * @return the class name of the bean
 	 */
 	public String getBeanClassName()
@@ -143,7 +148,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Set the parameters
-	 * 
+	 *
 	 * @param arg the parameters
 	 */
 	public void setParameters(String arg)
@@ -153,7 +158,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Get the parameters.
-	 * 
+	 *
 	 * @return the parameters
 	 */
 	public String getParameters()
@@ -163,7 +168,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Set the usesUI
-	 * 
+	 *
 	 * @param arg the usesUI
 	 */
 	public void setUsesUI(boolean arg)
@@ -173,7 +178,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Get the usesUI.
-	 * 
+	 *
 	 * @return the usesUI
 	 */
 	public boolean getUsesUI()
@@ -199,7 +204,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/**
 	 * Set the tabSeq
-	 * 
+	 *
 	 * @param arg the tabSeq
 	 */
 	public void setTabSeq(int arg)
@@ -214,7 +219,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.BaseComponent#getBackground()
 	 */
 	@Deprecated
@@ -226,7 +231,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.BaseComponent#getBorderType()
 	 */
 	@Deprecated
@@ -238,7 +243,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.BaseComponent#getFontType()
 	 */
 	@Deprecated
@@ -250,7 +255,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.BaseComponent#getForeground()
 	 */
 	@Override
@@ -262,7 +267,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.BaseComponent#getPrintSliding()
 	 */
 	@Deprecated
@@ -274,7 +279,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.BaseComponent#getStyleClass()
 	 */
 	@Deprecated
@@ -286,7 +291,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.BaseComponent#getTransparent()
 	 */
 	@Override
