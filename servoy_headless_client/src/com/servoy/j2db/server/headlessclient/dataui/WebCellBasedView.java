@@ -303,7 +303,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -2040,6 +2040,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							return "return Servoy.Utils.testArrowKey(event, function() {" + script + "},'" + getMarkupId() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					};
+				}
+
+				@Override
+				protected boolean blockRequest()
+				{
+					return false;
 				}
 
 			});
@@ -4519,7 +4525,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@Override
@@ -5252,7 +5258,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
