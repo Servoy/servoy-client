@@ -15,11 +15,14 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -32,6 +35,7 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
@@ -54,6 +58,7 @@ import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.UUID;
@@ -68,7 +73,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
 	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
-	IRhinoToSabloComponent<ValueListTypeSabloValue>
+	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -264,6 +269,51 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			String dataproviderID = (componentOrService.getProperty(config.getFor()) != null
 				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
 			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID) : previousComponentValue;
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
+	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
+	 */
+	@Override
+	public boolean isValueAvailableInRhino(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return webComponentValue != null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
+	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
+	 */
+	@Override
+	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		if (webComponentValue != null)
+		{
+			try
+			{
+				INGApplication application = webComponentValue.dataAdapterList.getApplication();
+				if (webComponentValue.valueList != null)
+				{
+					List<Object[]> rows = new ArrayList<Object[]>();
+					for (int i = 0; i < webComponentValue.valueList.getSize(); i++)
+					{
+						rows.add(new Object[] { webComponentValue.valueList.getElementAt(i), webComponentValue.valueList.getRealElementAt(i) });
+					}
+					return new JSDataSet(application, new BufferedDataSet(new String[] { "displayValue", "realValue" }, //$NON-NLS-1$ //$NON-NLS-2$
+						rows));
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
 		}
 		return null;
 	}
