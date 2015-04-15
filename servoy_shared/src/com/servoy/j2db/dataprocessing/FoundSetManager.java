@@ -183,7 +183,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/*
 	 * Flush locally in the current client, for client plugins
-	 *
+	 * 
 	 * @see com.servoy.j2db.dataprocessing.IDatabaseManager#notifyDataChange(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, int)
 	 */
 	public boolean notifyDataChange(String dataSource, IDataSet pks, int action)
@@ -359,7 +359,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetManagerInternal#reloadFoundsetMethod(java.lang.String, com.servoy.j2db.persistence.IScriptProvider)
 	 */
 	public void reloadFoundsetMethod(String dataSource, IScriptProvider scriptMethod)
@@ -1000,11 +1000,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public Collection<String> getInMemDataSourceNames()
 	{
 		List<String> inMemDataSourceNames = new ArrayList<>(inMemDataSources.size());
+		for (String dataSource : inMemDataSources.keySet())
 		{
-			for (String dataSource : inMemDataSources.keySet())
-			{
-				inMemDataSourceNames.add(DataSourceUtils.getInmemDataSourceName(dataSource));
-			}
+			inMemDataSourceNames.add(DataSourceUtils.getInmemDataSourceName(dataSource));
 		}
 		return inMemDataSourceNames;
 	}
