@@ -230,12 +230,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (state) {
 				if (state.initializing) {
 					var layout = state.layout = {};
-					state.style = {
+					var formStyle = {
 							left: "0px",
 							top: "0px",
 							right: "0px",
-							bottom: "0px",
-							border: formProperties.border};
+							bottom: "0px"};
+					if (formProperties.borderType)
+					{
+						var borderStyle = formProperties.borderType.borderStyle;
+						for (var key in borderStyle)
+						{
+							formStyle[key] = borderStyle[key];
+						}	
+					}	
+					state.style = formStyle;
 
 					if(formProperties.addMinSize)
 					{

@@ -237,7 +237,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 		return JSONUtils.toBrowserJSONFullValue(writer, key, javaResult, null, clientConversion, null);
 	}
 
-	private Map<String, Object> writeBorderToJson(Border value)
+	public static Map<String, Object> writeBorderToJson(Border value)
 	{
 		Map<String, Object> map = new HashMap<>();
 		if (value instanceof SpecialMatteBorder)
