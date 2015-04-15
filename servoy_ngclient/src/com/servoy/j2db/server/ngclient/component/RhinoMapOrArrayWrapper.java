@@ -67,17 +67,17 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		{
 			// allow it to use native JS array methods
 			NativeArray proto = new NativeArray(0);
-			proto.setPrototype(ScriptableObject.getArrayPrototype(startScriptable));
+			if (startScriptable != null) proto.setPrototype(ScriptableObject.getArrayPrototype(startScriptable));
 			setPrototype(proto); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
 		}
 		else if (wrappedValue instanceof Map)
 		{
 			// allow it to use native JS array methods
 			NativeObject proto = new NativeObject();
-			proto.setPrototype(ScriptableObject.getObjectPrototype(startScriptable));
+			if (startScriptable != null) proto.setPrototype(ScriptableObject.getObjectPrototype(startScriptable));
 			setPrototype(proto); // new instance so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
 		}
-		parent = ScriptableObject.getTopLevelScope(startScriptable);
+		if (startScriptable != null) parent = ScriptableObject.getTopLevelScope(startScriptable);
 	}
 
 	public Object getWrappedValue()

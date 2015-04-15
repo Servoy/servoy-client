@@ -87,6 +87,22 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
         	  }
           }
 
+          $scope.api.getSelectedElements = function()
+          {
+        	  var value  = $scope.model.dataProviderID;
+        	  if ($scope.model.valuelistID)
+        	  {
+        		  	for (var i =0;i<$scope.model.valuelistID.length;i++)
+        		  	{
+        		  		if ($scope.model.valuelistID[i].realValue == value)
+        		  		{
+        		  			return [value];
+        		  		}
+        		  	}
+        	  }  
+        	  return [];
+          }
+          
        	 $scope.radioClicked = function($event)
        	 {
        		$scope.svyServoyapi.apply('dataProviderID');
