@@ -20,11 +20,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
  * Interface for RuntimeChecks element
- * 
+ *
  * @author lvostinar
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeChecks", extendsComponent = "RuntimeComponent")
-public interface IRuntimeChecks extends IRuntimeBaseChecks
+public interface IRuntimeChecks extends IRuntimeBaseChecks, HasRuntimeValuelistItems
 {
 }
