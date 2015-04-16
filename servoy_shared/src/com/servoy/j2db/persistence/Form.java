@@ -2050,13 +2050,18 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @return true if in responsive layout
 	 */
+	@SuppressWarnings("nls")
 	public boolean isResponsiveLayout()
 	{
-		if (getLayoutContainers().hasNext()) return true;
-		//TODO is this always true? should a form have a special property?
-		// for example forms that are extended so pure abstract forms are seen as responsive..
-		if (!getParts().hasNext() && !getFormElementsSortedByFormIndex().hasNext()) return true;
-		return false;
+		Object customProperty = getCustomProperty(new String[] { "layout", "responsive" });
+		if (customProperty instanceof Boolean) return ((Boolean)customProperty).booleanValue();
+		// backwards, always just return true if it has layout containers.
+		return getLayoutContainers().hasNext();
+	}
+
+	public void setResponsiveLayout(boolean b)
+	{
+		putCustomProperty(new String[] { "layout", "responsive" }, Boolean.valueOf(b));
 	}
 
 }
