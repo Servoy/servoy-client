@@ -52,6 +52,7 @@ public class Types
 		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(),
 			TagStringPropertyType.INSTANCE));
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
+		TypesRegistry.addType(ServoyStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaDataproviderPropertyType.INSTANCE);
 		TypesRegistry.addType(HTMLStringPropertyType.INSTANCE);
