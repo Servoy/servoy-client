@@ -87,6 +87,11 @@ angular.module('servoydefaultRadiogroup',['servoy']).directive('servoydefaultRad
         	  }
           }
 
+          /**
+      	 * Gets the selected values (real values from valuelist) as array. The form element should have a dataProviderID assigned in order for this to work.
+      	 * @example var values = %%prefix%%%%elementName%%.getSelectedElements();
+      	 * @return array with selected values
+      	 */
           $scope.api.getSelectedElements = function()
           {
         	  var value  = $scope.model.dataProviderID;

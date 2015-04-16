@@ -131,6 +131,28 @@ angular.module('servoydefaultListbox',['servoy'])
 						select[0].focus();
 					}
 				}
+				
+				 /**
+		      	 * Gets the selected values (real values from valuelist) as array. The form element should have a dataProviderID assigned in order for this to work.
+		      	 * @example var values = %%prefix%%%%elementName%%.getSelectedElements();
+		      	 * @return array with selected values
+		      	 */
+		          $scope.api.getSelectedElements = function()
+		          {
+		        	  var value  = [];
+		        	  if ($scope.model.valuelistID)
+		        	  {
+		        		  	for (var i =0;i<$scope.model.valuelistID.length;i++)
+		        		  	{
+		        		  		if ($scope.convertModel.indexOf($scope.model.valuelistID[i].realValue) >= 0)
+		        		  		{
+		        		  			value.push($scope.model.valuelistID[i].realValue);
+		        		  		}
+		        		  	}
+		        	  }  
+		        	  return value;
+		          }
+		          
 		},
 		replace: true
 	};

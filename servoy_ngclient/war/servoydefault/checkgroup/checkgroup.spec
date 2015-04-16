@@ -45,6 +45,9 @@
 	        "getScrollY": {
 	            "returns": "int"
 	        },
+	        "getSelectedElements": {
+	            "returns": "object []"
+	        },
 	        "requestFocus": {
 				"parameters":[
 								{                                                                 

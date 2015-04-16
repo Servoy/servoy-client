@@ -116,7 +116,20 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
         	  }
           }
           
-          
+          /**
+        	 * Gets the selected values (real values from valuelist) as array. The form element should have a dataProviderID assigned in order for this to work.
+        	 * @example var values = %%prefix%%%%elementName%%.getSelectedElements();
+        	 * @return array with selected values
+        	 */
+            $scope.api.getSelectedElements = function()
+            {
+            	var ret = [];
+            	$scope.selection.forEach(function(element, index, array){
+            		if(element == true) ret.push($scope.model.valuelistID[index+allowNullinc].realValue);
+            	});
+            	return ret;
+            }
+            
     /* helper functions*/
           function setSelectionFromDataprovider(){
             if(!$scope.model.dataProviderID) return
