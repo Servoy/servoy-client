@@ -58,7 +58,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	}
 
 	/**
-	 * set the layout spec name
+	 * set the layout package name
 	 *
 	 * @param name
 	 */
@@ -68,7 +68,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	}
 
 	/**
-	 * returns the layouts spec name
+	 * returns the layouts package name
 	 *
 	 * @return String
 	 */

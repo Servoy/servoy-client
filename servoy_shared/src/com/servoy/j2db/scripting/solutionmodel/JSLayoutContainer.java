@@ -78,6 +78,53 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 		return layoutContainer;
 	}
 
+
+	/**
+	 * set the layout spec name
+	 *
+	 * @param name
+	 */
+	@JSSetter
+	public void setSpecName(String name)
+	{
+		checkModification();
+		layoutContainer.setSpecName(name);
+	}
+
+	/**
+	 * returns the layouts spec name
+	 *
+	 * @return String
+	 */
+	@JSGetter
+	public String getSpecName()
+	{
+		return layoutContainer.getSpecName();
+	}
+
+	/**
+	 * set the layout package name
+	 *
+	 * @param name
+	 */
+	@JSSetter
+	public void setPackageName(String name)
+	{
+		checkModification();
+		layoutContainer.setPackageName(name);
+	}
+
+	/**
+	 * returns the layouts package name
+	 *
+	 * @return String
+	 */
+	@JSGetter
+	public String getPackageName()
+	{
+		return layoutContainer.getPackageName();
+	}
+
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getTagType()
 	 *
