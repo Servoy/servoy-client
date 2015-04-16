@@ -169,6 +169,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							enableSorting:isSortable,
 							enableHiding: false,
 							allowCellFocus: false,
+							type: "string", // just put a type here, we don't know the type and we dont use the edit feature of ui-grid
 							svyColumnIndex: el.componentIndex ? el.componentIndex : idx
 						});
 						applyColumnTitle($scope.columnDefinitions[newL - 1], columnTitle);
