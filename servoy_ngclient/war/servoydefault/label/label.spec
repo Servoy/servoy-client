@@ -43,9 +43,6 @@
 	},
 	"api":
 	{
-	        "getLabelForElementName": {
-	            "returns": "string"
-	        },
 	        "getParameterValue": {
 	            "returns": "string",
 				"parameters":[

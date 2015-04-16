@@ -784,6 +784,7 @@ public class SpecGenerator
 		serverSideApi.add("setLocation");
 		serverSideApi.add("setSize");
 		serverSideApi.add("setValueListItems");
+		serverSideApi.add("getLabelForElementName");
 
 		final String callOnAll = "callOn: 1"; // ALL_RECORDS_IF_TEMPLATE; see globalServoyCustomTypes.spec
 		//metaDataForApi.put("setValueListItems", Arrays.asList(new String[] { callOnAll }));

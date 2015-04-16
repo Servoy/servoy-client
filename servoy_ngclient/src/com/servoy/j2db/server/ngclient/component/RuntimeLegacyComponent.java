@@ -26,6 +26,7 @@ import java.util.Map;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 
@@ -472,7 +473,23 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				// return the design value string (so the dataprovider name, not its value)
 				return component.getFormElement().getPropertyValue(propertyName);
 			}
-
+			if ("labelForElementName".equals(propertyName))
+			{
+				if (component.getFormElement().getPersistIfAvailable() instanceof GraphicalComponent)
+				{
+					GraphicalComponent gc = (GraphicalComponent)component.getFormElement().getPersistIfAvailable();
+					String labelFor = gc.getLabelFor();
+					if (labelFor != null)
+					{
+						WebComponent comp = component.getParent().getComponent(labelFor);
+						if (comp != null)
+						{
+							return comp.getName();
+						}
+					}
+				}
+				return null;
+			}
 			if ("elementType".equals(propertyName))
 			{
 				// return the design value string (so the dataprovider name, not its value)
