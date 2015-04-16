@@ -155,8 +155,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				servoyDataConverterContext.getForm().getForm(), record.getParentFoundSet().getTable(), getDataProviderConfig().hasParseHtml());
 		}
 
-		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(),
-			dataProviderID != null ? dataProviderID.toLowerCase() : null);
+		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dataProviderID);
 		if (v == Scriptable.NOT_FOUND) v = null;
 		boolean changed = ((v != value) && (v == null || !v.equals(value)));
 
