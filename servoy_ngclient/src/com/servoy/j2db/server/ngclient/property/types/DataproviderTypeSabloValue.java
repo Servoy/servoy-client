@@ -34,6 +34,9 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -155,7 +158,27 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				servoyDataConverterContext.getForm().getForm(), record.getParentFoundSet().getTable(), getDataProviderConfig().hasParseHtml());
 		}
 
-		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dataProviderID);
+		String dpID = dataProviderID;
+		IDataProviderLookup dpLookup = servoyDataConverterContext.getApplication().getFlattenedSolution().getDataproviderLookup(
+			servoyDataConverterContext.getApplication().getFoundSetManager(), servoyDataConverterContext.getForm().getForm());
+		if (dpLookup != null)
+		{
+			IDataProvider dp;
+			try
+			{
+				dp = dpLookup.getDataProvider(dataProviderID);
+				if (dp != null)
+				{
+					dpID = dp.getDataProviderID();
+				}
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
+		}
+
+		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dpID);
 		if (v == Scriptable.NOT_FOUND) v = null;
 		boolean changed = ((v != value) && (v == null || !v.equals(value)));
 
