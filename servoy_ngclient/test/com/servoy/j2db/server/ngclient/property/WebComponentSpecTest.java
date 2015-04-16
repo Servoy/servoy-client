@@ -29,10 +29,10 @@ import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
-import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.server.ngclient.property.types.NGDatePropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ServoyStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 
 /**
@@ -134,7 +134,7 @@ public class WebComponentSpecTest
 		Assert.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
+		Assert.assertTrue(pd.getType() == ServoyStringPropertyType.INSTANCE);
 		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
@@ -147,7 +147,7 @@ public class WebComponentSpecTest
 		Assert.assertEquals(spec.getProperties().toString(), 4, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == StringPropertyType.INSTANCE);
+		Assert.assertTrue(pd.getType() == ServoyStringPropertyType.INSTANCE);
 		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop2");
 		Assert.assertNotNull(pd);
@@ -173,7 +173,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd = spec.getProperties().get("myproperty");
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
-		Assert.assertTrue(((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition().getType() == StringPropertyType.INSTANCE);
+		Assert.assertTrue(((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition().getType() == ServoyStringPropertyType.INSTANCE);
 	}
 
 	@Test
@@ -194,7 +194,7 @@ public class WebComponentSpecTest
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
+		Assert.assertTrue(pd2.getType() == ServoyStringPropertyType.INSTANCE);
 		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
@@ -218,7 +218,7 @@ public class WebComponentSpecTest
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == StringPropertyType.INSTANCE);
+		Assert.assertTrue(pd2.getType() == ServoyStringPropertyType.INSTANCE);
 		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 	}
@@ -244,7 +244,7 @@ public class WebComponentSpecTest
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertTrue(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
-		Assert.assertTrue(((CustomJSONArrayType)pd2.getType()).getCustomJSONTypeDefinition().getType() == StringPropertyType.INSTANCE);
+		Assert.assertTrue(((CustomJSONArrayType)pd2.getType()).getCustomJSONTypeDefinition().getType() == ServoyStringPropertyType.INSTANCE);
 
 	}
 
@@ -277,7 +277,7 @@ public class WebComponentSpecTest
 		Assert.assertEquals(1, wct2.getProperties().size());
 		PropertyDescription pd3 = wct2.getProperty("typeproperty");
 		Assert.assertNotNull(pd3);
-		Assert.assertTrue(pd3.getType() == StringPropertyType.INSTANCE);
+		Assert.assertTrue(pd3.getType() == ServoyStringPropertyType.INSTANCE);
 		Assert.assertFalse(pd3.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
