@@ -170,7 +170,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		if (scopesAndFormsToReload[1].size() > 0)
 		{
 			FormElementHelper.INSTANCE.reload();
-			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(); // should we also use these?
 			for (IFormController controller : scopesAndFormsToReload[1])
 			{
 				boolean isVisible = controller.isFormVisible();
