@@ -14,7 +14,8 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 					'min-height': minHeight,
 					height: '100%',
 					'min-width': $scope.model.size.width + 'px',
-					width: '100%'
+					width: '100%',
+					overflow: 'hidden'
 			};
 
 			$scope.findMode = false;
