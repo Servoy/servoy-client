@@ -41,4 +41,12 @@ public class FoundsetLinkedConfig
 		this.wrappedPropertyDescription = wrappedPropertyDescription;
 	}
 
+	/**
+	 *
+	 */
+	public String getForFoundsetName()
+	{
+		return forFoundset;
+	}
+
 }
