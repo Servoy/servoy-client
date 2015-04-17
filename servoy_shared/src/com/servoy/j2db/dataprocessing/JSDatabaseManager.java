@@ -3616,8 +3616,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Returns true if no error occurred.
 	 *
 	 * NOTE: This function could be used to store a copy of records in an archive table. Use the getRecord() function to get the record as an object.
-	 *
+	 * Before trying this example, please make sure that the foundsets have some records loaded:
 	 * @sample
+	 * otherfoundset.loadAllRecords();
 	 * for( var i = 1 ; i <= foundset.getSize() ; i++ )
 	 * {
 	 * 	var srcRecord = foundset.getRecord(i);
@@ -3656,8 +3657,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
-	 * @param overwrite Boolean values to overwrite all values.
-
+	 * @param overwrite Boolean values to overwrite all values. If overwrite is false/not provided, then the non empty values are not overwritten in the destination record.
 	 * @return true if no errors happened.
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, Boolean overwrite) throws ServoyException
