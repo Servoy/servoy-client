@@ -107,7 +107,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				{
 					columnTitle = $scope.model.columnHeaders[columnHeaderIdx];
 				}	
-				if (!columnTitle) columnTitle = elements[elementIdx].model.text; // here we should not use 'text' of lable and buttons as that doesn't have the same meaning as 'text' that maps to 'titleText' on other fields
+				if (!columnTitle) columnTitle = elements[elementIdx].model.text; // here we should not use 'text' of label and buttons as that doesn't have the same meaning as 'text' that maps to 'titleText' on other fields
 				if (!columnTitle && elements[elementIdx].modelViewport && elements[elementIdx].modelViewport.length > 0) columnTitle = elements[elementIdx].modelViewport[0].text;
 	//			if (!columnTitle) {
 	//				// TODO use beautified dataProvider id or whatever other clients use as default, not directly the dataProvider id
@@ -202,16 +202,14 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}, false);
 
 				var columnHeaderIdx = scope.columnDefinitions[idx].svyColumnIndex ? scope.columnDefinitions[idx].svyColumnIndex : idx;
+				// NOTE: below !scope.model.columnHeaders[columnHeaderIdx] is also true for !"" - in case html or tastrings are used for columnHeaders
 				if (!scope.model.columnHeaders || columnHeaderIdx >= scope.model.columnHeaders.length || !scope.model.columnHeaders[columnHeaderIdx]) {
 					// that means component titleText matters for headers
-					function getComponentTitleText() {
-						var c = scope.model.childElements[idx];
-						var r = c.model.text;
-						if (!r && c.modelViewport && c.modelViewport.length > 0) r = c.modelViewport[0].text; // if titleText has displayTags = true and really uses tags (%%x%%)
-						return r;
+					function getTitleTextForWatch() {
+						return getColumnTitle(columnHeaderIdx, idx);
 					};
 					
-					scope.$watch(getComponentTitleText, function (newVal, oldVal) {
+					scope.$watch(getTitleTextForWatch, function (newVal, oldVal) {
 						if(newVal !== oldVal && scope.columnDefinitions[idx])
 						{
 							applyColumnTitle(scope.columnDefinitions[idx], getColumnTitle(columnHeaderIdx, idx));
