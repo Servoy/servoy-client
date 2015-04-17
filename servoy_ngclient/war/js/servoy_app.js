@@ -225,10 +225,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 		initFormState: function(formName, beanDatas, formProperties, formScope, resolve) {
 
+			var hasFormState = $sabloApplication.hasFormState(formName);
+			
 			var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope,resolve);
 
 			if (state) {
-				if (state.initializing) {
+				if (!hasFormState) {
 					var layout = state.layout = {};
 					var formStyle = {
 							left: "0px",
