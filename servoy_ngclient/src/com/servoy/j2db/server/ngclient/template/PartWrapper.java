@@ -27,6 +27,7 @@ import java.util.List;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -170,7 +171,7 @@ public class PartWrapper
 		}
 		else
 		{
-			comparator = Form.FORM_INDEX_COMPARATOR;
+			comparator = FlattenedForm.FORM_INDEX_COMPARATOR;
 		}
 		List<IFormElement> persists = context.getFlattenedObjects(comparator);
 		for (IFormElement persist : persists)
