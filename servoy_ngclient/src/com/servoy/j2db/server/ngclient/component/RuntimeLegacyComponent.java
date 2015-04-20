@@ -377,11 +377,6 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		{
 			return ((ISabloComponentToRhino)pd.getType()).toRhinoValue(value, pd, component, start);
 		}
-		if ("valueListName".equals(name) && value != null)
-		{
-			ValueListTypeSabloValue v = (ValueListTypeSabloValue)value;
-			if (v.getValueList() != null) return v.getValueList().getName();
-		}
 		return value;
 	}
 
@@ -567,6 +562,16 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				component.getFormElement().getPersistIfAvailable() instanceof AbstractBase)
 			{
 				return Utils.parseJSExpression(((AbstractBase)component.getFormElement().getPersistIfAvailable()).getCustomDesignTimeProperty((String)args[0]));
+			}
+
+			if ("valueListName".equals(propertyName))
+			{
+				Object vl = component.getProperty(convertName(propertyName));
+				if (vl != null)
+				{
+					ValueListTypeSabloValue value = (ValueListTypeSabloValue)vl;
+					if (value.getValueList() != null) return value.getValueList().getName();
+				}
 			}
 			return scriptable.get(propertyName, null);
 		}
