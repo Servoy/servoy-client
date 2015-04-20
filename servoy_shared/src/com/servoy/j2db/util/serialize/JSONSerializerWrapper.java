@@ -18,6 +18,7 @@ package com.servoy.j2db.util.serialize;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.jabsorb.JSONSerializer;
 import org.jabsorb.serializer.MarshallException;
@@ -37,6 +38,7 @@ import org.jabsorb.serializer.impl.RawJSONObjectSerializer;
 import org.jabsorb.serializer.impl.SetSerializer;
 import org.jabsorb.serializer.impl.StringSerializer;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
@@ -48,9 +50,9 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Wrapper for JSONSerializer, handles a few exceptions to the default JSONSerializer and adds a defaultSerializer for cases when no class hint is given.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 @SuppressWarnings("nls")
 public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
@@ -174,6 +176,60 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 					}
 					return super.isPrimitive(o);
 				}
+
+				@Override
+				protected Class getClassFromHint(Object o) throws UnmarshallException
+				{
+					if (o == null)
+					{
+						return null;
+					}
+					if (o instanceof JSONObject)
+					{
+						String className = "(unknown)";
+						try
+						{
+							className = ((JSONObject)o).getString("javaClass");
+							return Class.forName(className);
+						}
+						catch (Exception e)
+						{
+							throw new UnmarshallException("Class specified in javaClass hint not found: " + className, e);
+						}
+					}
+					if (o instanceof JSONArray)
+					{
+						JSONArray arr = (JSONArray)o;
+						if (arr.length() == 0)
+						{
+							// assume Object array (best guess)
+							return Object[].class;
+						}
+						// return type of first element
+						Class compClazz;
+						try
+						{
+							compClazz = getClassFromHint(arr.get(0));
+						}
+						catch (JSONException e)
+						{
+							throw (NoSuchElementException)new NoSuchElementException(e.getMessage()).initCause(e);
+						}
+						try
+						{
+							if (compClazz.isArray())
+							{
+								return Class.forName("[" + compClazz.getName());
+							}
+							return Class.forName("[L" + compClazz.getName() + ";");
+						}
+						catch (ClassNotFoundException e)
+						{
+							throw new UnmarshallException("problem getting array type", e);
+						}
+					}
+					return o.getClass();
+				}
 			};
 			try
 			{
@@ -234,9 +290,9 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 	}
 
 	/**
-	 * 
+	 *
 	 * Wrap to serialize with JSONRPC.
-	 * 
+	 *
 	 * @param obj to serialize to JSON
 	 * @return obj ready to be serialized with JSONRPC
 	 */
@@ -253,9 +309,9 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 	}
 
 	/**
-	 * 
+	 *
 	 * Unwrap from JSONRPC serialized object.
-	 * 
+	 *
 	 * @param obj deserialized from JSON
 	 * @return object
 	 */
