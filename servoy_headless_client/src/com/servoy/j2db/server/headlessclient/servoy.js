@@ -228,6 +228,9 @@ function filterBackKey(e)
 	return testKeyPressed(e, null,8);
 }
 
+var delta = 500;
+var lastKeypressTime = 0;
+
 function testKeyPressed(e, script,keyCode) 
 {
      var code;
@@ -248,6 +251,17 @@ function testKeyPressed(e, script,keyCode)
     	{
     		// down arrow key pressed
 	  		Servoy.Utils.downArrow = true;
+    	}
+    	else if (keyCode == 13)
+    	{
+    		// prevent double enter (action) trigger
+    		var thisKeypressTime = new Date();
+    		var doubleEnter = ( thisKeypressTime - lastKeypressTime <= delta );
+    		lastKeypressTime = thisKeypressTime;
+    		if ( doubleEnter )
+    		{
+    			return false;
+    		}
     	}
         if (script) script();
 	    return false;
