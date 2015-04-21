@@ -13,7 +13,7 @@
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
 	        "editable" : { "type": "protected", "blockingOn": false, "default": true,"for": ["dataProviderID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID"] }, 
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
-	        "findmode" : { "type":"findmode", "scope" : "private", "for" : { "enabled":true, "editable":true}}, 
+	        "findmode" : { "type":"findmode", "scope" : "private", "for" : {"editable":true}}, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
 	        "format" : {"for":"dataProviderID" , "type" :"format"}, 
