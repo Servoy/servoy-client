@@ -506,7 +506,7 @@ public class SpecGenerator
 		// component specific repository element mapping
 		HashMap<String, String> htmlViewRepoTypeMapping = new HashMap<String, String>();
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\" :\"dataprovider\", \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"parsehtml\":true }");
+			"{ \"type\" :\"dataprovider\", \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"parsehtml\":true, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" } , \"values\" :[]}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		componentRepoTypeMappingExceptions.put("htmlview", htmlViewRepoTypeMapping);
@@ -677,7 +677,7 @@ public class SpecGenerator
 
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\":\"dataprovider\", \"tags\": { \"scope\" :\"design\" }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}}");
+			"{ \"type\":\"dataprovider\", \"tags\": { \"scope\" :\"design\" }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":\"dataProviderID\" , \"type\" :\"format\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");

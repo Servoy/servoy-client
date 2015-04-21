@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
@@ -33,6 +36,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
@@ -48,6 +52,8 @@ import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -68,6 +74,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	protected PropertyDescription typeOfDP;
 	protected boolean findMode = false;
 	protected final PropertyDescription dpPD;
+	private TargetDataLinks dataLinks;
+	private Set<String> tagsDataProviders;
+	private boolean displaysTags;
 
 	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
 	{
@@ -111,7 +120,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		this.changeMonitor = changeNotifier;
 
 		// register data link and find mode listeners as needed
-		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, dpPD);
+		dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, dpPD);
 		if (dataLinks == null)
 		{
 			// they weren't cached in form element; get them again
@@ -127,6 +136,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				formElement);
 		}
 		if (isFindModeAware != null && isFindModeAware.booleanValue() == true) dataAdapterList.addFindModeAwareProperty(this);
+
+		DataproviderConfig config = (DataproviderConfig)dpPD.getConfig();
+		String dtpn = config.getDisplayTagsPropertyName();
+		Object dtPropVal = null;
+		if (dtpn != null)
+		{
+			dtPropVal = formElement.getPropertyValue(dtpn);
+			if (dtPropVal == null) dtPropVal = Boolean.FALSE;
+		}
+		displaysTags = dtpn != null && ((Boolean)dtPropVal).booleanValue() == true || (dtpn == null && config.shouldDisplayTags());
 	}
 
 	@Override
@@ -177,9 +196,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				Debug.error(e);
 			}
 		}
-
 		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dpID);
 		if (v == Scriptable.NOT_FOUND) v = null;
+
+		v = replaceTagsIfNeeded(v);
 		boolean changed = ((v != value) && (v == null || !v.equals(value)));
 
 		value = v;
@@ -191,6 +211,57 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			changeMonitor.valueChanged();
 		}
+	}
+
+	/**
+	 * Replaces tagstrings if displaysTags is true.
+	 * Also updates the datalinks for this property.
+	 * @param v the value of the dataprovider
+	 * @return
+	 */
+	private Object replaceTagsIfNeeded(Object v)
+	{
+		if (!displaysTags || !(v instanceof String)) return v;
+
+		String val = (String)v;
+		Object result = v;
+		if (val.contains("%%"))
+		{
+			final Set<String> dataProviders = new HashSet<>();
+			final boolean recordDP[] = new boolean[1];
+
+			result = Text.processTags(val, new ITagResolver()
+			{
+				@Override
+				public String getStringValue(String name)
+				{
+					String dp = name;
+					if (dp.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
+					{
+						dp = ScriptVariable.SCOPES_DOT_PREFIX + dp;
+					}
+
+					dataProviders.add(dp);
+					// TODO Can't it be something special like record count or current record which are special cases and could still not depend on record...?
+					recordDP[0] = recordDP[0] || (!ScopesUtils.isVariableScope(dp) && dataAdapterList.getForm().getForm().getScriptVariable(dp) == null);
+
+					return dataAdapterList.getStringValue(dp);
+				}
+			});
+
+			if (tagsDataProviders == null || tagsDataProviders.size() != dataProviders.size() || !tagsDataProviders.containsAll(dataProviders))
+			{
+				dataAdapterList.addDataLinkedProperty(this, dataLinks.concatDataLinks(dataProviders.toArray(new String[dataProviders.size()]), recordDP[0]));
+			}
+		}
+		else if (tagsDataProviders != null)
+		{
+			//remove links if the dataprovider value doesn't contain tags anymore
+			dataAdapterList.addDataLinkedProperty(this, dataLinks);
+			tagsDataProviders = null;
+		}
+
+		return result;
 	}
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IDataConverterContext dataConverterContext) throws JSONException

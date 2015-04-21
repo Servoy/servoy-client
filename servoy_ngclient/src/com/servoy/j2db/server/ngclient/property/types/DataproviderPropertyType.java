@@ -71,6 +71,9 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 		String onDataChangeCallback = null;
 		// String forFoundSet = null; // see FoundsetLinkedPropertyType for how dataproviders linked to foundsets work
 		boolean hasParseHtml = false;
+
+		String displayTagsPropertyName = null;
+		boolean displayTags = false;
 		if (json != null)
 		{
 			JSONObject onDataChangeObj = json.optJSONObject("ondatachange");
@@ -80,9 +83,11 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 				onDataChangeCallback = onDataChangeObj.optString("callback", null);
 			}
 			hasParseHtml = json.optBoolean(HTMLStringPropertyType.CONFIG_OPTION_PARSEHTML);
+			displayTagsPropertyName = json.optString(DataproviderConfig.DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT, null);
+			displayTags = json.optBoolean(DataproviderConfig.DISPLAY_TAGS_CONFIG_OPT, false);
 		}
 
-		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml);
+		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml, displayTagsPropertyName, displayTags);
 	}
 
 	@Override

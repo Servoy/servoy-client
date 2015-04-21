@@ -19,15 +19,22 @@ package com.servoy.j2db.server.ngclient.property;
 
 public class DataproviderConfig
 {
+	public static final String DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT = "displayTagsPropertyName"; //$NON-NLS-1$
+	public static final String DISPLAY_TAGS_CONFIG_OPT = "displayTags"; //$NON-NLS-1$
+
 	private final String onDataChange;
 	private final String onDataChangeCallback;
 	private final boolean parseHtml;
+	private final String displayTagsPropertyName;
+	private final boolean displayTags;
 
-	public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml)
+	public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml, String displayTagsPropertyName, boolean displayTags)
 	{
 		this.onDataChange = onDataChange;
 		this.onDataChangeCallback = onDataChangeCallback;
 		this.parseHtml = parseHtml;
+		this.displayTagsPropertyName = displayTagsPropertyName;
+		this.displayTags = displayTags;
 	}
 
 	public String getOnDataChange()
@@ -43,5 +50,15 @@ public class DataproviderConfig
 	public boolean hasParseHtml()
 	{
 		return parseHtml;
+	}
+
+	public String getDisplayTagsPropertyName()
+	{
+		return displayTagsPropertyName;
+	}
+
+	public boolean shouldDisplayTags()
+	{
+		return displayTags;
 	}
 }
