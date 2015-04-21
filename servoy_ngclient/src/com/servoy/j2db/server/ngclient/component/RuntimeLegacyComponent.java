@@ -19,8 +19,10 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.BaseFunction;
@@ -484,6 +486,33 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 					}
 				}
 				return null;
+			}
+			if ("labelForElementNames".equals(propertyName))
+			{
+				if (component.getFormElement().getPersistIfAvailable() instanceof Field)
+				{
+					Field field = (Field)component.getFormElement().getPersistIfAvailable();
+					String name = field.getName();
+					if (name != null)
+					{
+						List<String> labelFors = new ArrayList<String>();
+						for (WebComponent comp : component.getParent().getComponents())
+						{
+							if (comp instanceof WebFormComponent)
+							{
+								WebFormComponent c = (WebFormComponent)comp;
+								if (c.getFormElement().getPersistIfAvailable() instanceof GraphicalComponent &&
+									Utils.equalObjects(name, ((GraphicalComponent)c.getFormElement().getPersistIfAvailable()).getLabelFor()) &&
+									((GraphicalComponent)c.getFormElement().getPersistIfAvailable()).getName() != null)
+								{
+									labelFors.add(c.getName());
+								}
+							}
+						}
+						return labelFors.toArray(new String[0]);
+					}
+				}
+				return new String[0];
 			}
 			if ("elementType".equals(propertyName))
 			{
