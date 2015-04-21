@@ -1799,7 +1799,7 @@ function onABC() {
 	wicketShow('blocker');
 	$('body').addClass('blocker');
 	var e=wicketGet('blocker');
-	if (e != null && !blockerOn) e.focus();
+	if (e != null) e.focus();
 	onAjaxCall();
 }
 
