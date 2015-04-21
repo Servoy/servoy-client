@@ -6,6 +6,9 @@
 .svy-padding-xs {
 	padding: 1px 5px;
 }
+.svy-combobox .btn {
+	padding: 1px 5px;
+}
 
 input[type=date] {
 	line-height: normal;
