@@ -154,7 +154,7 @@ public class EventExecutor
 				List<Object> instanceMethodArguments = ((AbstractBase)persist).getInstanceMethodArguments(eventType);
 				if (instanceMethodArguments != null && instanceMethodArguments.size() > 0)
 				{
-					args = Utils.arrayMerge(args, instanceMethodArguments.toArray());
+					args = Utils.arrayMerge(args, Utils.parseJSExpressions(instanceMethodArguments));
 				}
 			}
 		}
