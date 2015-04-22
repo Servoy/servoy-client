@@ -45,6 +45,14 @@ angular.module('servoydefaultTypeahead', ['servoy'])
           if ($scope.model.format && $scope.model.format.type) type = $scope.model.format.type;
           return formatFilter(displayValue, displayFormat, type);
         }
+        $scope.onSelect = function(item,model,label){
+        	if (hasRealValues && $element.val() === model)
+        	{
+        		// if real value was typed we have to manually set display value because formatLabel will not be called
+        		$element.val(label);
+        	}	
+        }
+        
         var hasRealValues = false;
 
         $scope.$watch('model.valuelistID', function() {
