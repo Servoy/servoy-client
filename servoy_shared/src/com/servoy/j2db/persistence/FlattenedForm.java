@@ -35,7 +35,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form>
 {
-	public static final Comparator<IFormElement> FORM_INDEX_COMPARATOR = new Comparator<IFormElement>()
+	public static final Comparator<IFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IFormElement>()
 	{
 		public int compare(IFormElement element1, IFormElement element2)
 		{
@@ -220,7 +220,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	@Override
 	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
 	{
-		return new FormTypeIterator(getAllObjectsAsList(), FORM_INDEX_COMPARATOR);
+		return new FormTypeIterator(getAllObjectsAsList(), FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 	}
 
 	/**

@@ -171,7 +171,7 @@ public class PartWrapper
 		}
 		else
 		{
-			comparator = FlattenedForm.FORM_INDEX_COMPARATOR;
+			comparator = FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR;
 		}
 		List<IFormElement> persists = context.getFlattenedObjects(comparator);
 		for (IFormElement persist : persists)
