@@ -30,7 +30,7 @@ import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class ServoyBrowserInfoPage extends WebPage
 {
@@ -42,7 +42,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 	/**
 	 * Constructor. The page will redirect to the given url after waiting for the given number of seconds.
-	 * 
+	 *
 	 * @param continueTo the url to redirect to when the browser info is handled
 	 */
 	public ServoyBrowserInfoPage(final String continueTo)
@@ -74,7 +74,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 	/**
 	 * Set the url to continue to after this page.
-	 * 
+	 *
 	 * @param continueTo the url
 	 */
 	protected final void setContinueTo(String continueTo)
@@ -88,7 +88,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Construct.
-		 * 
+		 *
 		 * @param id component id
 		 */
 		public BrowserInfoForm(String id)
@@ -124,8 +124,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 			WebRequestCycle requestCycle = (WebRequestCycle)getRequestCycle();
 			WebSession session = (WebSession)getSession();
-			ServoyWebClientInfo clientInfo = new ServoyWebClientInfo(requestCycle);
-
+			ServoyWebClientInfo clientInfo = new ServoyWebClientInfo(requestCycle, propertiesBean.getNavigatorUserAgent());
 			clientInfo.setOrientation(propertiesBean.getInt(propertiesBean.getOrientation()));
 
 			ClientProperties properties = clientInfo.getProperties();
@@ -139,9 +138,13 @@ public class ServoyBrowserInfoPage extends WebPage
 	{
 		private int orientation = 0;
 
-		public ServoyWebClientInfo(WebRequestCycle requestCycle)
+		/**
+		 * @param requestCycle
+		 * @param navigatorUserAgent
+		 */
+		public ServoyWebClientInfo(WebRequestCycle requestCycle, String navigatorUserAgent)
 		{
-			super(requestCycle);
+			super(requestCycle, navigatorUserAgent);
 		}
 
 		/**
@@ -188,7 +191,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets browserHeight.
-		 * 
+		 *
 		 * @return browserHeight
 		 */
 		public String getBrowserHeight()
@@ -198,7 +201,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets browserWidth.
-		 * 
+		 *
 		 * @return browserWidth
 		 */
 		public String getBrowserWidth()
@@ -208,7 +211,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorAppCodeName.
-		 * 
+		 *
 		 * @return navigatorAppCodeName
 		 */
 		public String getNavigatorAppCodeName()
@@ -218,7 +221,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorAppName.
-		 * 
+		 *
 		 * @return navigatorAppName
 		 */
 		public String getNavigatorAppName()
@@ -228,7 +231,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorAppVersion.
-		 * 
+		 *
 		 * @return navigatorAppVersion
 		 */
 		public String getNavigatorAppVersion()
@@ -238,7 +241,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorCookieEnabled.
-		 * 
+		 *
 		 * @return navigatorCookieEnabled
 		 */
 		public Boolean getNavigatorCookieEnabled()
@@ -248,7 +251,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorJavaEnabled.
-		 * 
+		 *
 		 * @return navigatorJavaEnabled
 		 */
 		public Boolean getNavigatorJavaEnabled()
@@ -258,7 +261,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorLanguage.
-		 * 
+		 *
 		 * @return navigatorLanguage
 		 */
 		public String getNavigatorLanguage()
@@ -268,7 +271,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorPlatform.
-		 * 
+		 *
 		 * @return navigatorPlatform
 		 */
 		public String getNavigatorPlatform()
@@ -278,7 +281,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets navigatorUserAgent.
-		 * 
+		 *
 		 * @return navigatorUserAgent
 		 */
 		public String getNavigatorUserAgent()
@@ -288,7 +291,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets screenColorDepth.
-		 * 
+		 *
 		 * @return screenColorDepth
 		 */
 		public String getScreenColorDepth()
@@ -298,7 +301,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets screenHeight.
-		 * 
+		 *
 		 * @return screenHeight
 		 */
 		public String getScreenHeight()
@@ -308,7 +311,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets screenWidth.
-		 * 
+		 *
 		 * @return screenWidth
 		 */
 		public String getScreenWidth()
@@ -318,7 +321,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets utcOffset.
-		 * 
+		 *
 		 * @return utcOffset
 		 */
 		public String getUtcOffset()
@@ -328,7 +331,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Merge this with the given properties object.
-		 * 
+		 *
 		 * @param properties the properties object to merge with
 		 */
 		public void merge(ClientProperties properties)
@@ -353,7 +356,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets browserHeight.
-		 * 
+		 *
 		 * @param browserHeight browserHeight
 		 */
 		public void setBrowserHeight(String browserHeight)
@@ -363,7 +366,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets browserWidth.
-		 * 
+		 *
 		 * @param browserWidth browserWidth
 		 */
 		public void setBrowserWidth(String browserWidth)
@@ -373,7 +376,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorAppCodeName.
-		 * 
+		 *
 		 * @param navigatorAppCodeName navigatorAppCodeName
 		 */
 		public void setNavigatorAppCodeName(String navigatorAppCodeName)
@@ -383,7 +386,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorAppName.
-		 * 
+		 *
 		 * @param navigatorAppName navigatorAppName
 		 */
 		public void setNavigatorAppName(String navigatorAppName)
@@ -393,7 +396,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorAppVersion.
-		 * 
+		 *
 		 * @param navigatorAppVersion navigatorAppVersion
 		 */
 		public void setNavigatorAppVersion(String navigatorAppVersion)
@@ -403,7 +406,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorCookieEnabled.
-		 * 
+		 *
 		 * @param navigatorCookieEnabled navigatorCookieEnabled
 		 */
 		public void setNavigatorCookieEnabled(Boolean navigatorCookieEnabled)
@@ -413,7 +416,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorJavaEnabled.
-		 * 
+		 *
 		 * @param navigatorJavaEnabled navigatorJavaEnabled
 		 */
 		public void setNavigatorJavaEnabled(Boolean navigatorJavaEnabled)
@@ -423,7 +426,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorLanguage.
-		 * 
+		 *
 		 * @param navigatorLanguage navigatorLanguage
 		 */
 		public void setNavigatorLanguage(String navigatorLanguage)
@@ -433,7 +436,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorPlatform.
-		 * 
+		 *
 		 * @param navigatorPlatform navigatorPlatform
 		 */
 		public void setNavigatorPlatform(String navigatorPlatform)
@@ -443,7 +446,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets navigatorUserAgent.
-		 * 
+		 *
 		 * @param navigatorUserAgent navigatorUserAgent
 		 */
 		public void setNavigatorUserAgent(String navigatorUserAgent)
@@ -453,7 +456,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets screenColorDepth.
-		 * 
+		 *
 		 * @param screenColorDepth screenColorDepth
 		 */
 		public void setScreenColorDepth(String screenColorDepth)
@@ -463,7 +466,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets screenHeight.
-		 * 
+		 *
 		 * @param screenHeight screenHeight
 		 */
 		public void setScreenHeight(String screenHeight)
@@ -473,7 +476,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets screenWidth.
-		 * 
+		 *
 		 * @param screenWidth screenWidth
 		 */
 		public void setScreenWidth(String screenWidth)
@@ -483,7 +486,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets utcOffset.
-		 * 
+		 *
 		 * @param utcOffset utcOffset
 		 */
 		public void setUtcOffset(String utcOffset)
@@ -493,7 +496,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Sets utcDSTOffset.
-		 * 
+		 *
 		 * @param utcDSTOffset utcDSTOffset
 		 */
 		public void setUtcDSTOffset(String utcDSTOffset)
@@ -503,7 +506,7 @@ public class ServoyBrowserInfoPage extends WebPage
 
 		/**
 		 * Gets utcDSTOffset.
-		 * 
+		 *
 		 * @return utcDSTOffset
 		 */
 		public String getUtcDSTOffset()
