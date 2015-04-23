@@ -79,7 +79,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					isModal:isModal 
 				})
 
-				//set servoy managed bootstrap-window Instance
+				//set servoy managed bootstrap-window Instance				
 				windowInstance.bsWindowInstance =win;
 			},function resolveError(reason) {
 				dialogOpenedDeferred.reject(reason);
@@ -262,7 +262,10 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				if(instance.bsWindowInstance){
 					// do nothing switchform will switch the form.
 					return;
-				} 
+				} 		
+				if($(document).find('[svy-window]').length < 1) {
+					$("#mainForm").trigger("disableTabseq");
+				}
 				instance.title = title;
 				if(instance.storeBounds){
 					instance.size = storage.get(sol+name+'.storedBounds.size')
@@ -276,6 +279,10 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				}).then(function(){
 					instance.bsWindowInstance.$el.on('bswin.resize',instance.onResize)
 					instance.bsWindowInstance.$el.on('bswin.move',instance.onMove)
+					instance.bsWindowInstance.$el.on("setActive", function(ev, active) { 
+						$(ev.currentTarget).trigger(active ? "enableTabseq" : "disableTabseq");
+					});
+					instance.bsWindowInstance.setActive(true);
 				},function(reason){
 					throw reason;
 				})
@@ -287,8 +294,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		},
 		hide:function(name){
 			var instance = instances[name];
-			if (instance) {
+			if (instance) {				
 				instance.hide();
+				if($(document).find('[svy-window]').length < 2) {
+					$("#mainForm").trigger("enableTabseq");
+				}
 			}else {
 				$log.error("Trying to hide window : '" + name + "' which is not created. If this is due to a developer form change/save while dialog is open in client it is expected.");
 			}

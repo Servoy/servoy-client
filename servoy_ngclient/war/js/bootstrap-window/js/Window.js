@@ -191,6 +191,8 @@ var Window = null;
                 this.$windowTab.addClass('label-default');
             }
         }
+        
+        this.$el.trigger('setActive', active);
     };
 
     Window.prototype.setIndex = function(index) {
