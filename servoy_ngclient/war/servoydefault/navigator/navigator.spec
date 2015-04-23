@@ -7,7 +7,9 @@
 	"model":
 	{
 	    "currentIndex": "long",
-	    "maxIndex": "long"
+	    "maxIndex": "long",
+	    "minIndex": "long",
+	    "hasMore": "boolean"
 	},
 	"handlers":
 	{

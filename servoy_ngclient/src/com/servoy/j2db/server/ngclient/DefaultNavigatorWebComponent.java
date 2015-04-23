@@ -25,6 +25,7 @@ import org.sablo.IEventHandler;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
+import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 
@@ -41,7 +42,7 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 	 * @param fe
 	 * @param dataAdapterList
 	 */
-	public DefaultNavigatorWebComponent(IDataAdapterList dataAdapterList)
+	public DefaultNavigatorWebComponent(final IDataAdapterList dataAdapterList)
 	{
 		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, dataAdapterList.getApplication().getFlattenedSolution(),
 			new PropertyPath(), false), dataAdapterList);
@@ -52,7 +53,20 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 			{
 				if (foundset != null)
 				{
-					foundset.setSelectedIndex(((Integer)args[0]).intValue() - 1);
+					int index = ((Integer)args[0]).intValue();
+					if (index < 1)
+					{
+						index = 1;
+					}
+					else if (index > foundset.getSize())
+					{
+						index = foundset.getSize();
+					}
+					if (index != foundset.getSelectedIndex() + 1 &&
+						(dataAdapterList.getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) & (ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0)
+					{
+						foundset.setSelectedIndex(index - 1);
+					}
 				}
 				return null;
 			}
@@ -85,18 +99,32 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 		setProperty(DefaultNavigator.MAXINDEX_PROP, Integer.valueOf(maxIndex));
 	}
 
+	public void setMinIndex(int minIndex)
+	{
+		setProperty(DefaultNavigator.MININDEX_PROP, Integer.valueOf(minIndex));
+	}
+
 	private void foundsetChanged()
 	{
 		if (foundset != null)
 		{
 			setCurrentIndex(foundset.getSelectedIndex() + 1);
 			setMaxIndex(foundset.getSize());
+			if (foundset.getSize() > 0) setMinIndex(1);
+			else setMinIndex(0);
+			hasMore();
 		}
 		else
 		{
 			setCurrentIndex(0);
+			setMinIndex(0);
 			setMaxIndex(0);
 		}
+	}
+
+	public void hasMore()
+	{
+		setProperty(DefaultNavigator.FOUNDSET_HAS_MORE_ELEMENTS, Boolean.valueOf(((ISwingFoundSet)foundset).hadMoreRows()));
 	}
 
 	@Override

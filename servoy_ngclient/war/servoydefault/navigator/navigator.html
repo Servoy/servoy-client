@@ -2,6 +2,13 @@
 	<div style="svy-nav-slider">
 		<servoydefault-slider svy-model="slider_model" svy-handlers="slider_handlers" svy-servoyApi="slider_handlers.svy_servoyApi"></servoydefault-slider>
 	</div>
+	<div>
+    	<span ng-bind="model.minIndex" class="svy-nav-min-val"/>
+    	</br>
+    	<span class="svy-nav-separator">|</span>
+    	</br>
+    	<span ng-bind="maxIndexStringValue" class="svy-nav-max-val"/>
+    </div>
     <div class="svy-nav-input">
 		 <input type="text" ng-model="model.currentIndex" ng-blur="setIndex(model.currentIndex)" style="width:90%">
     </div>

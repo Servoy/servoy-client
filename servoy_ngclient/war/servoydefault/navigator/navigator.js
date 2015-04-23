@@ -22,7 +22,7 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
     		  if (!i) i = 1;
     		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
     	  }
-
+    	  
     	  $scope.slider_handlers.onStopMethodID = function(event, value) {
     		  $scope.setIndex(value);
     	  };    	  
@@ -41,6 +41,7 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
     	  $scope.$watch('model.maxIndex', function (newVal, oldVal, scope) 
     	  {
     		if(!newVal) return;
+    		$scope.maxIndexStringValue = $scope.model.hasMore ? $scope.model.maxIndex + '+' : $scope.model.maxIndex;
 	    	$scope.slider_model.min = $scope.model.maxIndex > 0? -1*$scope.model.maxIndex:0;
 	        $scope.slider_model.max = $scope.model.maxIndex > 0? -1:0;
     	  });
