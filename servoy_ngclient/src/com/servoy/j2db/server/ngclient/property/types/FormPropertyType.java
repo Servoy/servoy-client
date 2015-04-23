@@ -171,13 +171,13 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 		{
 			writer.key(key);
 			if (formElementContext.getContext().getApplication() instanceof DesignNGClient &&
-				((DesignNGClient)formElementContext.getContext().getApplication()).getShowData())
+				!((DesignNGClient)formElementContext.getContext().getApplication()).getShowData())
 			{
-				writer.value(form.getName());
+				writer.value(null);
 			}
 			else
 			{
-				writer.value(null);
+				writer.value(form.getName());
 			}
 		}
 		return writer;
