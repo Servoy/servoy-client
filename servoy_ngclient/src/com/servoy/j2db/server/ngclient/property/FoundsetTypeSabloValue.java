@@ -33,6 +33,7 @@ import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.DataConverterContext;
+import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -268,20 +269,20 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().removeListSelectionListener(getListSelectionListener());
 	}
 
-	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
+	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, IDataConverterContext dataConverterContext) throws JSONException
 	{
 		// TODO conversion markers should never be null I think, but it did happen (due to JSONUtils.toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType); will create a case for that
 		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		destinationJSON.object();
-		destinationJSON.key(SERVER_SIZE).value(foundset != null ? foundset.getSize() : 0);
+		destinationJSON.key(SERVER_SIZE).value(foundset != null && NGUtils.shouldShowData(dataConverterContext) ? foundset.getSize() : 0);
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
 		destinationJSON.key(MULTI_SELECT).value(foundset != null ? foundset.isMultiSelect() : false); // TODO listener and granular changes for this as well?
 
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
-		addViewPort(destinationJSON);
+		addViewPort(destinationJSON, dataConverterContext);
 		// end viewPort
 
 		destinationJSON.endObject();
@@ -291,6 +292,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	protected void addViewPort(JSONWriter destinationJSON) throws JSONException
 	{
+		addViewPort(destinationJSON, null);
+	}
+
+	protected void addViewPort(JSONWriter destinationJSON, IDataConverterContext dataConverterContext) throws JSONException
+	{
 		destinationJSON.object();
 		addViewPortBounds(destinationJSON);
 //		rows: [
@@ -298,7 +304,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 //	         	{ _svyRowId: 'someRowIdHASH2', nameColumn: "Yogy" },
 //				(...)
 //	    ]
-		if (foundset != null)
+		if (foundset != null && NGUtils.shouldShowData(dataConverterContext))
 		{
 			DataConversion clientConversionInfo = new DataConversion();
 
@@ -342,7 +348,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
 	{
-		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers);
+		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers, null);
 		else
 		{
 			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets

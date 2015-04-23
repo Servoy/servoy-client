@@ -91,7 +91,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
 	 */
 	@Override
@@ -108,7 +108,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -452,7 +452,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		viewPort.setBounds(0, 2);
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
-		rawPropertyValue.toJSON(jsonWriter, new DataConversion());
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), null);
 
 		Assert.assertEquals(
 			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
@@ -464,7 +464,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		viewPort.setBounds(1, 1);
 		StringWriter stringWriter2 = new StringWriter();
 		JSONWriter jsonWriter2 = new JSONWriter(stringWriter2);
-		rawPropertyValue.toJSON(jsonWriter2, new DataConversion());
+		rawPropertyValue.toJSON(jsonWriter2, new DataConversion(), null);
 
 		Assert.assertEquals(
 			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
@@ -474,7 +474,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		StringWriter stringWriter3 = new StringWriter();
 		JSONWriter jsonWriter3 = new JSONWriter(stringWriter3);
-		rawPropertyValue.toJSON(jsonWriter3, new DataConversion());
+		rawPropertyValue.toJSON(jsonWriter3, new DataConversion(), null);
 
 		Assert.assertEquals(
 			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
@@ -484,7 +484,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		stringWriter3 = new StringWriter();
 		jsonWriter3 = new JSONWriter(stringWriter3);
-		rawPropertyValue.toJSON(jsonWriter3, new DataConversion());
+		rawPropertyValue.toJSON(jsonWriter3, new DataConversion(), null);
 
 		Assert.assertEquals(
 			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
@@ -494,7 +494,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		stringWriter3 = new StringWriter();
 		jsonWriter3 = new JSONWriter(stringWriter3);
-		rawPropertyValue.toJSON(jsonWriter3, new DataConversion());
+		rawPropertyValue.toJSON(jsonWriter3, new DataConversion(), null);
 
 		Assert.assertEquals(
 			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",

@@ -55,14 +55,16 @@ import com.servoy.j2db.util.ServoyException;
 public class DesignNGClient extends NGClient
 {
 	private final IDesignerSolutionProvider solutionProvider;
+	private boolean showData = true;
 
 	/**
 	 * @param wsSession
 	 */
-	public DesignNGClient(INGClientWebsocketSession wsSession, IDesignerSolutionProvider solutionProvider) throws Exception
+	public DesignNGClient(INGClientWebsocketSession wsSession, IDesignerSolutionProvider solutionProvider, boolean showData) throws Exception
 	{
 		super(wsSession);
 		this.solutionProvider = solutionProvider;
+		this.showData = showData;
 		setUseLoginSolution(false);
 		setTimeZone(TimeZone.getDefault());
 		setLocale(Locale.getDefault());
@@ -202,5 +204,15 @@ public class DesignNGClient extends NGClient
 	public boolean isInDesigner()
 	{
 		return true;
+	}
+
+	public boolean getShowData()
+	{
+		return showData;
+	}
+
+	public void setShowData(boolean showData)
+	{
+		this.showData = showData;
 	}
 }

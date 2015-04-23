@@ -19,8 +19,10 @@ package com.servoy.j2db.server.ngclient.utils;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
+import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DoublePropertyType;
 import org.sablo.specification.property.types.LongPropertyType;
@@ -36,7 +38,9 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
@@ -143,4 +147,17 @@ public abstract class NGUtils
 	}
 
 
+	public static boolean shouldShowData(IDataConverterContext dataConverterContext)
+	{
+		boolean showData = true;
+		if (dataConverterContext != null)
+		{
+			BaseWebObject webObject = dataConverterContext.getWebObject();
+			if (webObject instanceof IContextProvider && ((IContextProvider)webObject).getDataConverterContext().getApplication() instanceof DesignNGClient)
+			{
+				showData = ((DesignNGClient)((IContextProvider)webObject).getDataConverterContext().getApplication()).getShowData();
+			}
+		}
+		return showData;
+	}
 }
