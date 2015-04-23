@@ -237,6 +237,10 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			return getDebugHeadlessClient();
 		}
+		else if (getDebugNGClient() != null && getDebugNGClient().getSolution() != null && RemoteDebugScriptEngine.isConnected(0))
+		{
+			return getDebugNGClient();
+		}
 		else
 		{
 			for (IDebugClient c : customDebugClients.values())
@@ -774,7 +778,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDesignerCallback#testAndStartDebugger()
 	 */
 	public void testAndStartDebugger()
@@ -784,7 +788,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDesignerCallback#addURLStreamHandler(java.lang.String, java.net.URLStreamHandler)
 	 */
 	@Override
