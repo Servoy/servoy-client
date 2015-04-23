@@ -124,7 +124,7 @@ public class SolutionMetaData extends RootObjectMetaData
 		if (root instanceof Solution)
 		{
 			isServoyNGSolution = ((Solution)root).getSolutionType() == SolutionMetaData.NG_CLIENT_ONLY ||
-				((Solution)root).getSolutionType() == SolutionMetaData.SOLUTION;
+				((Solution)root).getSolutionType() == SolutionMetaData.SOLUTION || ((Solution)root).getSolutionType() == SolutionMetaData.MODULE; // TODO can this be done? just all modules are also NG_CLIENT?
 		}
 		return isServoyNGSolution;
 	}
