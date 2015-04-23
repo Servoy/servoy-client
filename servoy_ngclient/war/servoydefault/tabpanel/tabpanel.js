@@ -24,15 +24,29 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 			
 			function refresh() {
+				var i = 0;
+				var realTabIndex = 1;
 				if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
-				var realTabIndex = $scope.model.tabIndex - 1;
+				
+				if (typeof $scope.model.tabIndex === 'number')
+					realTabIndex = $scope.model.tabIndex - 1;
+				else 
+					for(i=0;i<$scope.model.tabs.length;i++) {
+						if ($scope.model.tabs[i].name === $scope.model.tabIndex)
+						{	
+							realTabIndex = i;
+							break;
+						}
+					}
+				
 				if ($scope.model.tabs)
-					for(var i=0;i<$scope.model.tabs.length;i++) {
-						if (i == realTabIndex)
+					for(i=0; i<$scope.model.tabs.length; i++) {
+						if (i === realTabIndex)
 						{	
 							$scope.model.tabs[i].active = true;
 						}
-						else $scope.model.tabs[i].active = false;
+						else 
+							$scope.model.tabs[i].active = false;
 						$scope.model.tabs[i].disabled = false;
 					}
 			}
