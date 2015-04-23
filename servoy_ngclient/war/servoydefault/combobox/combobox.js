@@ -70,10 +70,10 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 
 			scope.onItemSelect = function (event) {
 				$timeout(function () {
+					scope.svyServoyapi.apply('dataProviderID');
 					if (scope.handlers.onActionMethodID) {
 						scope.handlers.onActionMethodID(event);
 					}
-					scope.svyServoyapi.apply('dataProviderID');
 				}, 0);
 			};
 		},
