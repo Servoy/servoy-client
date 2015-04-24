@@ -251,6 +251,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 			if (tagsDataProviders == null || tagsDataProviders.size() != dataProviders.size() || !tagsDataProviders.containsAll(dataProviders))
 			{
+				dataAdapterList.removeDataLinkedProperty(this);
 				dataAdapterList.addDataLinkedProperty(this, dataLinks.concatDataLinks(dataProviders.toArray(new String[dataProviders.size()]), recordDP[0]));
 			}
 		}
