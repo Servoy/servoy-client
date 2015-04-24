@@ -38,7 +38,6 @@ import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
@@ -54,8 +53,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	// all data-linked properties - contains 'dataProviderToLinkedComponentProperty' as well as other ones that are interested in any DP change
 	protected final List<IDataLinkedPropertyValue> allComponentPropertiesLinkedToData = new ArrayList<>(); // [(comp, propertyName), ...]
-	private Map<IDataLinkedPropertyValue, IDataLinkedType.TargetDataLinks> toUpdateComponentPropertiesLinkedToData = new HashMap<IDataLinkedPropertyValue, IDataLinkedType.TargetDataLinks>();
-	private boolean canUpdateDataLinkedProperties = true;
 
 	protected final List<IFindModeAwarePropertyValue> findModeAwareProperties = new ArrayList<>();
 
@@ -231,12 +228,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addDataLinkedProperty(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
 	{
-		if (!canUpdateDataLinkedProperties)
-		{
-			toUpdateComponentPropertiesLinkedToData.put(propertyValue, targetDataLinks);
-			return;
-		}
-
 		if (targetDataLinks == TargetDataLinks.NOT_LINKED_TO_DATA || targetDataLinks == null) return;
 
 		String[] dataproviders = targetDataLinks.dataProviderIDs;
@@ -364,12 +355,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (dataProvider == null)
 		{
 			// announce to all - we don't know exactly what changed; maybe all DPs changed
-			canUpdateDataLinkedProperties = false;
-			for (IDataLinkedPropertyValue x : allComponentPropertiesLinkedToData)
+			int currentSize = allComponentPropertiesLinkedToData.size();
+			for (int i = 0; i < currentSize; i++)
 			{
-				x.dataProviderOrRecordChanged(record, null, isFormDP, isGlobalDP, fireChangeEvent);
+				allComponentPropertiesLinkedToData.get(i).dataProviderOrRecordChanged(record, null, isFormDP, isGlobalDP, fireChangeEvent);
 			}
-			canUpdateDataLinkedProperties = true;
 		}
 		else
 		{
@@ -398,16 +388,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					x.dataProviderOrRecordChanged(record, dataProvider, isFormDP, isGlobalDP, fireChangeEvent);
 				}
 			}
-		}
-
-		if (!toUpdateComponentPropertiesLinkedToData.isEmpty())
-		{
-			for (IDataLinkedPropertyValue pv : toUpdateComponentPropertiesLinkedToData.keySet())
-			{
-				removeDataLinkedProperty(pv);
-				addDataLinkedProperty(pv, toUpdateComponentPropertiesLinkedToData.get(pv));
-			}
-			toUpdateComponentPropertiesLinkedToData = new HashMap<IDataLinkedPropertyValue, IDataLinkedType.TargetDataLinks>();
 		}
 
 		if (fireChangeEvent && changed)
