@@ -700,8 +700,7 @@ public class SQLGenerator
 					}
 
 					// a column
-					qCol = new QueryColumn(columnTable, ((Column)c).getID(), ((Column)c).getSQLName(), ((Column)c).getDataProviderType(),
-						((Column)c).getLength());
+					qCol = new QueryColumn(columnTable, ((Column)c).getID(), ((Column)c).getSQLName(), ((Column)c).getType(), ((Column)c).getLength());
 				}
 				else
 				{
