@@ -355,10 +355,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (dataProvider == null)
 		{
 			// announce to all - we don't know exactly what changed; maybe all DPs changed
-			int currentSize = allComponentPropertiesLinkedToData.size();
-			for (int i = 0; i < currentSize; i++)
+			for (IDataLinkedPropertyValue x : allComponentPropertiesLinkedToData.toArray(new IDataLinkedPropertyValue[allComponentPropertiesLinkedToData.size()]))
 			{
-				allComponentPropertiesLinkedToData.get(i).dataProviderOrRecordChanged(record, null, isFormDP, isGlobalDP, fireChangeEvent);
+				x.dataProviderOrRecordChanged(record, null, isFormDP, isGlobalDP, fireChangeEvent);
 			}
 		}
 		else
