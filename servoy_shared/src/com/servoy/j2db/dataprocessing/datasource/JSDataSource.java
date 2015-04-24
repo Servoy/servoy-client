@@ -21,7 +21,10 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSet;
+import com.servoy.j2db.dataprocessing.JSTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -86,7 +89,8 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	 *
 	 * @return String[] column names
 	 */
-	public String[] js_getColumnNames()
+	@JSFunction
+	public String[] getColumnNames()
 	{
 		try
 		{
@@ -99,6 +103,29 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		return null;
 	}
 
+	/**
+	 * Get the table of a datasource.
+	 *
+	 * @return JSTable table
+	 */
+	@JSFunction
+	public JSTable getTable()
+	{
+		try
+		{
+			ITable table = application.getFoundSetManager().getTable(datasource);
+			IServer server = application.getSolution().getServer(table.getServerName());
+			if (server != null)
+			{
+				return new JSTable(table, server);
+			}
+		}
+		catch (RepositoryException e)
+		{
+			Debug.log(e);
+		}
+		return null;
+	}
 
 	/**
 	 *  Create a query builder for a data source.
