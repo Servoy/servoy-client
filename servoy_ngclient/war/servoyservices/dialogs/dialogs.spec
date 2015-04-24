@@ -52,7 +52,7 @@
 
 				{
 					"name": "buttonsText",
-					"type": "object",
+					"type": "string...",
 					"optional": "true"
 				}
 			]
@@ -76,7 +76,7 @@
 
 				{
 					"name": "buttonsText",
-					"type": "object",
+					"type": "string...",
 					"optional": "true"
 				}
 			]
@@ -126,7 +126,7 @@
 
 				{
 					"name": "buttonsText",
-					"type": "object",
+					"type": "string...",
 					"optional": "true"
 				}
 			]
@@ -150,7 +150,7 @@
 
 				{
 					"name": "options",
-					"type": "object"
+					"type": "string..."
 				}
 			]
 		},
@@ -173,7 +173,7 @@
 
 				{
 					"name": "buttonsText",
-					"type": "object",
+					"type": "string...",
 					"optional": "true"
 				}
 			]

@@ -13,15 +13,6 @@ angular.module('dialogs',['servoy'])
 		 * @param buttonsText Array of button texts.
 		 */
 		showErrorDialog: function(dialogTitle,dialogMessage,buttonsText) {
-			if (arguments.length > 3)
-			{
-				var buttons = [];
-				for (var i=2;i<arguments.length;i++)
-				{
-					buttons.push(arguments[i]);
-				}
-				buttonsText = buttons;
-			}	
 			return this.showDialog(dialogTitle,dialogMessage,buttonsText,'type-error');
 		},
 		/**
@@ -36,15 +27,6 @@ angular.module('dialogs',['servoy'])
 		 * @param buttonsText Array of button texts.
 		 */
 		showInfoDialog: function(dialogTitle,dialogMessage,buttonsText) {
-			if (arguments.length > 3)
-			{
-				var buttons = [];
-				for (var i=2;i<arguments.length;i++)
-				{
-					buttons.push(arguments[i]);
-				}
-				buttonsText = buttons;
-			}		
 			return this.showDialog(dialogTitle,dialogMessage,buttonsText,'type-info');
 		},
 		/**
@@ -61,15 +43,6 @@ angular.module('dialogs',['servoy'])
 		 * @return {String}
 		 */
 		showQuestionDialog: function(dialogTitle,dialogMessage,buttonsText) {
-			if (arguments.length > 3)
-			{
-				var buttons = [];
-				for (var i=2;i<arguments.length;i++)
-				{
-					buttons.push(arguments[i]);
-				}
-				buttonsText = buttons;
-			}		
 			return this.showDialog(dialogTitle,dialogMessage,buttonsText,'type-question');
 		},
 		/**
@@ -113,15 +86,6 @@ angular.module('dialogs',['servoy'])
 		 */
 		showSelectDialog: function(dialogTitle,dialogMessage,options) {
 			if (!dialogTitle) dialogTitle = "Select value";
-			if (arguments.length > 3)
-			{
-				var temp = [];
-				for (var i=2;i<arguments.length;i++)
-				{
-					temp.push(arguments[i]);
-				}
-				options = temp;
-			}
 			for (var i=0;i<options.length;i++)
 			{
 				var text = options[i];
@@ -143,15 +107,6 @@ angular.module('dialogs',['servoy'])
 			return dialogOpenedDeferred.promise;
 		},
 		showWarningDialog: function(dialogTitle,dialogMessage,buttonsText) {
-			if (arguments.length > 3)
-			{
-				var buttons = [];
-				for (var i=2;i<arguments.length;i++)
-				{
-					buttons.push(arguments[i]);
-				}
-				buttonsText = buttons;
-			}		
 			return this.showDialog(dialogTitle,dialogMessage,buttonsText,'type-warning');
 		},
 		showDialog: function(dialogTitle,dialogMessage,buttonsText,extraClass)
