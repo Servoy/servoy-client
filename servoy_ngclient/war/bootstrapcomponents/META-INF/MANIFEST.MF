@@ -39,3 +39,6 @@ Web-Component: True
 
 Name: tabpanel/tabpanel.spec
 Web-Component: True
+
+Name: progressbar/progressbar.spec
+Web-Component: True
