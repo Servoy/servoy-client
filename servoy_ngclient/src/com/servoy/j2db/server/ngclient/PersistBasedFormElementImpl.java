@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
+import com.servoy.j2db.persistence.IWebComponent;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
@@ -82,10 +83,10 @@ class PersistBasedFormElementImpl
 
 	public Map<String, Object> getFormElementPropertyValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
-		if (persist instanceof Bean)
+		if (persist instanceof IWebComponent)
 		{
-			String customJSONString = ((Bean)persist).getBeanXML();
-			if (customJSONString != null)
+			JSONObject jsonProperties = ((IWebComponent)persist).getJson();
+			if (jsonProperties != null)
 			{
 				// convert from persist design-time value (which might be non-json) to the expected value
 				Map<String, Object> jsonMap = processPersistProperties(fs, specProperties, propertyPath);
@@ -95,7 +96,6 @@ class PersistBasedFormElementImpl
 				try
 				{
 					// add beanXML (which is actually a JSON string here) defined properties to the map
-					JSONObject jsonProperties = new JSONObject(customJSONString);
 					formElement.convertFromJSONToFormElementValues(fs, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(),
 						jsonProperties, propertyPath);
 				}
@@ -109,8 +109,8 @@ class PersistBasedFormElementImpl
 			else
 			{
 				Map<String, Object> defaultProperties = new HashMap<String, Object>();
-				defaultProperties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), ((Bean)persist).getSize());
-				defaultProperties.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), ((Bean)persist).getName());
+				defaultProperties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), ((IWebComponent)persist).getSize());
+				defaultProperties.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), ((IWebComponent)persist).getName());
 				defaultProperties.put("error", "Bean not supported in NGClient: " + persist);
 				return defaultProperties;
 			}

@@ -29,9 +29,9 @@ import com.servoy.j2db.util.UUID;
  *
  * @author gboros
  */
-public class WebCustomType extends Bean implements IWebObject
+public class WebCustomType extends AbstractBase implements IWebObject
 {
-	private final Bean parentBean;
+	private final IWebComponent parentElement;
 	private final String jsonKey;
 	private final String typeName;
 	private final int index;
@@ -43,18 +43,18 @@ public class WebCustomType extends Bean implements IWebObject
 	 * @param element_id
 	 * @param uuid
 	 */
-	public WebCustomType(Bean parentBean, String jsonKey, String typeName, int index, boolean isArray, boolean isNew)
+	public WebCustomType(IWebComponent parentElement, String jsonKey, String typeName, int index, boolean isArray, boolean isNew)
 	{
 		//we just tell the GhostBean that it has a parent, we do not tell the parent that it contains a GhostBean
-		super(IRepository.WEBCUSTOMTYPES, parentBean.getParent(), 0, UUID.randomUUID());
-		this.parentBean = parentBean;
+		super(IRepository.WEBCUSTOMTYPES, parentElement.getParent(), 0, UUID.randomUUID());
+		this.parentElement = parentElement;
 		this.jsonKey = jsonKey;
 		this.typeName = typeName;
 		this.index = index;
 
 		try
 		{
-			ServoyJSONObject entireModel = parentBean.getBeanXML() != null ? new ServoyJSONObject(parentBean.getBeanXML(), false) : new ServoyJSONObject();
+			JSONObject entireModel = parentElement.getJson() != null ? parentElement.getJson() : new ServoyJSONObject();
 			if (entireModel.has(jsonKey))
 			{
 				Object v = entireModel.get(jsonKey);
@@ -83,37 +83,6 @@ public class WebCustomType extends Bean implements IWebObject
 		return index;
 	}
 
-	@Override
-	public void setBeanXML(String arg)
-	{
-		try
-		{
-			setJson(new ServoyJSONObject(arg, false));
-		}
-		catch (JSONException ex)
-		{
-			Debug.error(ex);
-		}
-	}
-
-	@Override
-	public String getBeanXML()
-	{
-		return getJson() != null ? getJson().toString() : null;
-	}
-
-	@Override
-	public void setBeanClassName(String arg)
-	{
-		setTypeName(arg);
-	}
-
-	@Override
-	public String getBeanClassName()
-	{
-		return getTypeName();
-	}
-
 	public void setTypeName(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME, arg);
@@ -134,19 +103,9 @@ public class WebCustomType extends Bean implements IWebObject
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
 	}
 
-	@Override
-	public boolean hasProperty(String propertyName)
+	public IWebComponent getParentComponent()
 	{
-		if ("anchors".equals(propertyName) || "size".equals(propertyName) || "location".equals(propertyName))
-		{
-			return false;
-		}
-		return super.hasProperty(propertyName);
-	}
-
-	public Bean getParentBean()
-	{
-		return parentBean;
+		return parentElement;
 	}
 
 	/**
@@ -156,7 +115,7 @@ public class WebCustomType extends Bean implements IWebObject
 	{
 		String addIndex = "";
 		if (index >= 0) addIndex = "[" + index + "]";
-		return parentBean.getUUID() + "_" + jsonKey + addIndex + "_" + typeName;
+		return parent.getUUID() + "_" + jsonKey + addIndex + "_" + typeName;
 	}
 
 	/*
@@ -174,9 +133,25 @@ public class WebCustomType extends Bean implements IWebObject
 		return super.equals(obj);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IWebObject#setName(java.lang.String)
+	 */
 	@Override
-	public int getExtendsID()
+	public void setName(String arg)
 	{
-		return 0;
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IWebObject#getName()
+	 */
+	@Override
+	public String getName()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 }

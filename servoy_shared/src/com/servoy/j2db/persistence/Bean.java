@@ -20,7 +20,12 @@ package com.servoy.j2db.persistence;
 import java.awt.Color;
 import java.awt.Dimension;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -29,7 +34,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-public class Bean extends BaseComponent implements ISupportTabSeq
+public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 {
 	/**
 	 * Constructor I
@@ -312,4 +317,60 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 		return name + " [" + getBeanClassName() + ']'; //$NON-NLS-1$
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#getJson()
+	 */
+	@Override
+	public JSONObject getJson()
+	{
+		try
+		{
+			if (getBeanXML() != null) return new ServoyJSONObject(getBeanXML(), false);
+		}
+		catch (JSONException ex)
+		{
+			Debug.error(ex);
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#setJson(org.json.JSONObject)
+	 */
+	@Override
+	public void setJson(JSONObject o)
+	{
+		String beanXML = null;
+		if (o.length() > 0 && o instanceof ServoyJSONObject)
+		{
+			beanXML = ((ServoyJSONObject)o).toString(false);
+		}
+		setBeanXML(beanXML);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#getTypeName()
+	 */
+	@Override
+	public String getTypeName()
+	{
+		return getBeanClassName();
+	}	
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IWebObject#setTypeName(java.lang.String)
+	 */
+	@Override
+	public void setTypeName(String arg)
+	{
+		setBeanClassName(arg);
+	}
 }

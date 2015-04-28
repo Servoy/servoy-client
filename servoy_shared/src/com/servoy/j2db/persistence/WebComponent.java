@@ -37,7 +37,7 @@ import com.servoy.j2db.util.UUID;
 /**
  * @author gboros
  */
-public class WebComponent extends Bean implements IWebObject
+public class WebComponent extends BaseComponent implements IWebComponent
 {
 	/**
 	 * Constructor I
@@ -72,11 +72,9 @@ public class WebComponent extends Bean implements IWebObject
 	{
 		if (isCustomTypePropertiesLoaded && getCustomTypeProperties().size() > 0)
 		{
-			String beanXML = getBeanXML();
+			JSONObject entireModel = getJson() != null ? getJson() : new ServoyJSONObject();
 			try
 			{
-				ServoyJSONObject entireModel = beanXML != null ? new ServoyJSONObject(beanXML, false) : new ServoyJSONObject();
-
 				for (Map.Entry<String, Object> wo : getCustomTypeProperties().entrySet())
 				{
 					if (wo.getValue() instanceof WebCustomType)
@@ -93,14 +91,12 @@ public class WebComponent extends Bean implements IWebObject
 						entireModel.put(wo.getKey(), jsonArray);
 					}
 				}
-
-				beanXML = entireModel.toString();
 			}
 			catch (JSONException ex)
 			{
 				Debug.error(ex);
 			}
-			setBeanXML(beanXML);
+			setJson(entireModel);
 		}
 	}
 
@@ -118,7 +114,7 @@ public class WebComponent extends Bean implements IWebObject
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		if (!"beanXML".equals(propertyName) && !"beanClassName".equals(propertyName) && !"json".equals(propertyName) && !"typeName".equals(propertyName)) //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		if (!"json".equals(propertyName) && !"typeName".equals(propertyName)) //$NON-NLS-1$//$NON-NLS-2$
 		{
 			Map<String, Object> ctp = getCustomTypeProperties();
 			if (ctp.containsKey(propertyName)) return ctp.get(propertyName);
@@ -151,19 +147,19 @@ public class WebComponent extends Bean implements IWebObject
 	{
 		if (!isCustomTypePropertiesLoaded)
 		{
-			String beanClassName = getBeanClassName();
+			String typeName = getTypeName();
 			WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
-				? WebComponentSpecProvider.getInstance().getWebComponentSpecification(beanClassName) : null;
+				? WebComponentSpecProvider.getInstance().getWebComponentSpecification(typeName) : null;
 
-			if (beanClassName != null && spec != null)
+			if (typeName != null && spec != null)
 			{
-				String beanXML = getBeanXML();
-				if (beanXML != null)
+				if (getJson() != null)
 				{
+					JSONObject beanJSON = getJson();
 					Map<String, IPropertyType< ? >> foundTypes = spec.getFoundTypes();
 					try
 					{
-						JSONObject beanJSON = new JSONObject(beanXML);
+
 						for (String beanJSONKey : JSONObject.getNames(beanJSON))
 						{
 							Object object = beanJSON.get(beanJSONKey);
@@ -205,37 +201,6 @@ public class WebComponent extends Bean implements IWebObject
 		}
 
 		return customTypeProperties;
-	}
-
-	@Override
-	public void setBeanXML(String arg)
-	{
-		try
-		{
-			setJson(new ServoyJSONObject(arg, false));
-		}
-		catch (JSONException ex)
-		{
-			Debug.error(ex);
-		}
-	}
-
-	@Override
-	public String getBeanXML()
-	{
-		return getJson() != null ? getJson().toString() : null;
-	}
-
-	@Override
-	public void setBeanClassName(String arg)
-	{
-		setTypeName(arg);
-	}
-
-	@Override
-	public String getBeanClassName()
-	{
-		return getTypeName();
 	}
 
 	public void setTypeName(String arg)

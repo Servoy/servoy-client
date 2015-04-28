@@ -17,24 +17,11 @@
 
 package com.servoy.j2db.persistence;
 
-import org.json.JSONObject;
 
 /**
  * @author gboros
  *
  */
-public interface IWebObject extends IPersist
+public interface IWebComponent extends IWebObject, IFormElement
 {
-	public void setName(String arg);
-
-	public String getName();
-
-	public void setTypeName(String arg);
-
-	public String getTypeName();
-
-	public void setJson(JSONObject arg);
-
-	public JSONObject getJson();
-
 }

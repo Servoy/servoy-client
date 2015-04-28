@@ -583,8 +583,9 @@ public class RepositoryHelper
 		}
 		if (name.equals(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) &&
 			(Portal.class.isAssignableFrom(persistClass) || TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) ||
-				Field.class.isAssignableFrom(persistClass) || GraphicalComponent.class.isAssignableFrom(persistClass) ||
-				Tab.class.isAssignableFrom(persistClass) || Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
+				WebComponent.class.isAssignableFrom(persistClass) || Field.class.isAssignableFrom(persistClass) ||
+				GraphicalComponent.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass) ||
+				Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}

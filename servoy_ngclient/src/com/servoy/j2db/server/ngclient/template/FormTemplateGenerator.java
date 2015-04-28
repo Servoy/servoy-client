@@ -32,12 +32,14 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IWebComponent;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
@@ -88,7 +90,8 @@ public class FormTemplateGenerator
 
 	public static boolean isWebcomponentBean(IPersist persist)
 	{
-		return persist instanceof Bean && ((Bean)persist).getBeanClassName() != null && ((Bean)persist).getBeanClassName().indexOf('-') > 0;
+		return persist instanceof WebComponent ||
+			(persist instanceof Bean && ((Bean)persist).getBeanClassName() != null && ((Bean)persist).getBeanClassName().indexOf('-') > 0);
 	}
 
 	public static String getComponentTypeName(IFormElement persist)
@@ -109,14 +112,10 @@ public class FormTemplateGenerator
 
 	private static String getPersistComponentTypeName(IFormElement persist)
 	{
-		if (persist instanceof Bean)
+		if (persist instanceof IWebComponent && isWebcomponentBean(persist))
 		{
-			if (isWebcomponentBean(persist))
-			{
-
-				String beanClassName = ((Bean)persist).getBeanClassName();
-				return getComponentTypeName(beanClassName);
-			}
+			String type = ((IWebComponent)persist).getTypeName();
+			return getComponentTypeName(type);
 		}
 		else
 		{

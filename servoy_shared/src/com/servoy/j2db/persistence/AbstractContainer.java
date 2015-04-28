@@ -278,13 +278,13 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 * @param className the class name
 	 * @return the new bean
 	 */
-	public WebComponent createWebComponent(String name, String className) throws RepositoryException
+	public WebComponent createWebComponent(String name, String type) throws RepositoryException
 	{
 		WebComponent obj = (WebComponent)getRootObject().getChangeHandler().createNewObject(this, IRepository.WEBCOMPONENTS);
 		//set all the required properties
 
 		obj.setName(name == null ? "untitled" : name); //$NON-NLS-1$
-		obj.setBeanClassName(className);
+		obj.setTypeName(type);
 
 		addChild(obj);
 		return obj;

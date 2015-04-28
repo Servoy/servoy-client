@@ -849,25 +849,16 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		{
 			// properties new in repository version 46, so if version < 46 we need to add them
 			cs.new Element(422, IRepository.WEBCOMPONENTS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
-			cs.new Element(423, IRepository.WEBCOMPONENTS, PROPERTY_BEANXML.getPropertyName(), IRepository.STRING);
-			cs.new Element(424, IRepository.WEBCOMPONENTS, PROPERTY_BEANCLASSNAME.getPropertyName(), IRepository.STRING);
-			cs.new Element(425, IRepository.WEBCOMPONENTS, PROPERTY_USESUI.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(426, IRepository.WEBCOMPONENTS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
-			cs.new Element(427, IRepository.WEBCOMPONENTS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
-			cs.new Element(428, IRepository.WEBCOMPONENTS, PROPERTY_PRINTABLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(429, IRepository.WEBCOMPONENTS, PROPERTY_FORMINDEX.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(430, IRepository.WEBCOMPONENTS, PROPERTY_GROUPID.getPropertyName(), IRepository.STRING);
-			cs.new Element(431, IRepository.WEBCOMPONENTS, PROPERTY_LOCKED.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(432, IRepository.WEBCOMPONENTS, PROPERTY_ANCHORS.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(433, IRepository.WEBCOMPONENTS, PROPERTY_ONACTIONMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(434, IRepository.WEBCOMPONENTS, PROPERTY_PARAMETERS.getPropertyName(), IRepository.STRING);
-			cs.new Element(435, IRepository.WEBCOMPONENTS, PROPERTY_TABSEQ.getPropertyName(), IRepository.INTEGER);
-			cs.new Element(436, IRepository.WEBCOMPONENTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(437, IRepository.WEBCOMPONENTS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(438, IRepository.WEBCOMPONENTS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
-			cs.new Element(439, IRepository.WEBCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(440, IRepository.WEBCOMPONENTS, PROPERTY_TYPENAME.getPropertyName(), IRepository.STRING);
-			cs.new Element(441, IRepository.WEBCOMPONENTS, PROPERTY_JSON.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(423, IRepository.WEBCOMPONENTS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
+			cs.new Element(424, IRepository.WEBCOMPONENTS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
+			cs.new Element(425, IRepository.WEBCOMPONENTS, PROPERTY_ANCHORS.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(426, IRepository.WEBCOMPONENTS, PROPERTY_TABSEQ.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(427, IRepository.WEBCOMPONENTS, PROPERTY_VISIBLE.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(428, IRepository.WEBCOMPONENTS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(429, IRepository.WEBCOMPONENTS, PROPERTY_TYPENAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(430, IRepository.WEBCOMPONENTS, PROPERTY_JSON.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(431, IRepository.WEBCOMPONENTS, PROPERTY_FORMINDEX.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(432, IRepository.WEBCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
 		}
 		//##add property adds here
 		return cs;
