@@ -98,6 +98,12 @@ public class FormLayoutStructureGenerator
 				writer.print(" svy-layoutname='");
 				writer.print(spec.getName());
 				writer.print("'");
+				if (spec.getDesignStyleClass() != null)
+				{
+					writer.print(" svy-designclass='");
+					writer.print(spec.getDesignStyleClass());
+					writer.print("'");
+				}
 			}
 
 		}

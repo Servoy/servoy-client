@@ -1,0 +1,28 @@
+.container {
+	height: 100%;
+	width: 100%;
+}
+
+.row {
+	min-height: 20px;
+}
+
+.customDiv {
+	min-height: 20px;
+}
+
+/*column*/
+.row div {
+	min-height: 20px;
+}
+
+.rowDesign {
+	border: 3px solid #F5F5F5;
+	padding: 5px;
+	margin: 10px 0px 10px 0px;
+}
+
+.rowDesign div {
+	border: 2px solid #DDDDDD;
+	padding: 5px;
+}
