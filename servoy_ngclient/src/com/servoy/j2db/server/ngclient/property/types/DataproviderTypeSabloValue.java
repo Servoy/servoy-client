@@ -27,8 +27,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IPropertyConverter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
@@ -312,9 +312,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 		if (!findMode && typeOfDP != null)
 		{
-			if (typeOfDP.getType() instanceof IConvertedPropertyType< ? >)
+			if (typeOfDP.getType() instanceof IPropertyConverter< ? >)
 			{
-				value = ((IConvertedPropertyType)typeOfDP.getType()).fromJSON(newJSONValue, value,
+				value = ((IPropertyConverter)typeOfDP.getType()).fromJSON(newJSONValue, value,
 					new DataConverterContext(typeOfDP, dataConverterContext.getWebObject()));
 			}
 			else value = newJSONValue;
