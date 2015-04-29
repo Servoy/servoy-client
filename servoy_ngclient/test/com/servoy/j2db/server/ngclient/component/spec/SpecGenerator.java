@@ -490,12 +490,12 @@ public class SpecGenerator
 		addReadOnlyModelEntries.add("textarea");
 		addReadOnlyModelEntries.add("textfield");
 		addReadOnlyModelEntries.add("typeahead");
-//		addReadOnlyModelEntries.add("checkgroup");
+		addReadOnlyModelEntries.add("checkgroup");
 //		addReadOnlyModelEntries.add("label");
-//		addReadOnlyModelEntries.add("radiogroup");
+		addReadOnlyModelEntries.add("radiogroup");
 //		addReadOnlyModelEntries.add("tabpanel");
 //		addReadOnlyModelEntries.add("htmlview");
-//		addReadOnlyModelEntries.add("imagemedia");
+		addReadOnlyModelEntries.add("imagemedia");
 //		addReadOnlyModelEntries.add("splitpane");
 //		addReadOnlyModelEntries.add("portal");
 //		addReadOnlyModelEntries.add("rectangle");
@@ -562,6 +562,7 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		checkGroupTypeMapping.put("findmode", findModeEditable);
+		checkGroupTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("checkgroup", checkGroupTypeMapping);
 
 		HashMap<String, String> comboTypeMapping = new HashMap<String, String>();
@@ -583,6 +584,7 @@ public class SpecGenerator
 		HashMap<String, String> imageMediaMapping = new HashMap<String, String>();
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
+		imageMediaMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("imagemedia", imageMediaMapping);
 
 		HashMap<String, String> labelMapping = new HashMap<String, String>();
@@ -624,6 +626,7 @@ public class SpecGenerator
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		radioGroupTypeMapping.put("findmode", findModeEditable);
+		radioGroupTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("radiogroup", radioGroupTypeMapping);
 
 		HashMap<String, String> spinnerMapping = new HashMap<String, String>();
