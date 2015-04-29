@@ -1,5 +1,5 @@
 angular.module('bootstrapcomponentsProgressbar',['servoy'])
-.directive('bootstrapcomponentsProgressbar',['$animate', function($animate) {  
+.directive('bootstrapcomponentsProgressbar',[function() {  
     return {
       restrict: 'E',
       scope: {
