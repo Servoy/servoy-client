@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.websocket.IWebsocketSession;
@@ -49,12 +50,21 @@ public class WebServiceFunction extends WebBaseFunction
 	@Override
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		// No unwrapping here so that javascript objects can also be sent to client
+		if (args != null && args.length > 0)
+		{
+			PropertyDescription parameterTypes = WebComponent.getParameterTypes(definition);
+			for (int i = 0; i < args.length; i++)
+			{
+				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getProperty(Integer.toString(i)),
+					(BaseWebObject)session.getClientService(serviceName));
+			}
+		}
 		try
 		{
 			PropertyDescription retPD = definition != null ? definition.getReturnType() : null;
-			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(session.getClientService(serviceName).executeServiceCall(definition.getName(), args),
-				retPD, (BaseWebObject)session.getClientService(serviceName), thisObj);
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
+				session.getClientService(serviceName).executeServiceCall(definition.getName(), args), retPD,
+				(BaseWebObject)session.getClientService(serviceName), thisObj);
 		}
 		catch (IOException e)
 		{

@@ -19,6 +19,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Undefined;
+import org.sablo.BaseWebObject;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.StringPropertyType;
@@ -26,12 +29,13 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 
 /**
  * @author lvostinar
  *
  */
-public class ServoyStringPropertyType extends StringPropertyType implements IConvertedPropertyType<String>
+public class ServoyStringPropertyType extends StringPropertyType implements IConvertedPropertyType<String>, IRhinoToSabloComponent<String>
 {
 
 	public static final ServoyStringPropertyType INSTANCE = new ServoyStringPropertyType();
@@ -54,6 +58,20 @@ public class ServoyStringPropertyType extends StringPropertyType implements ICon
 		}
 		writer.value(value);
 		return writer;
+	}
+
+	@Override
+	public String toSabloComponentValue(Object rhinoValue, String previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		if (rhinoValue == Undefined.instance)
+		{
+			return null;
+		}
+		if (rhinoValue != null)
+		{
+			return rhinoValue.toString();
+		}
+		return null;
 	}
 
 }
