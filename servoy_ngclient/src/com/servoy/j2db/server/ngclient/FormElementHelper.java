@@ -196,7 +196,6 @@ public class FormElementHelper
 					portal.put("sortable", form.getOnSortCmdMethodID() != -1);
 				}
 
-				portal.put("anchors", IAnchorConstants.ALL);
 				JSONObject location = new JSONObject();
 				location.put("x", 0);
 				location.put("y", isInDesigner ? startPos : 0);
@@ -227,6 +226,7 @@ public class FormElementHelper
 				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
 
 				Map<String, Object> portalFormElementProperties = new HashMap<>(portalFormElement.getRawPropertyValues());
+				portalFormElementProperties.put("anchors", IAnchorConstants.ALL);
 				portalFormElementProperties.put("offsetY", startPos);
 				portalFormElementProperties.put("partHeight", bodyPart.getHeight());
 				// now put real child component form element values in "childElements"
