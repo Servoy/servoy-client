@@ -163,7 +163,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 						for (String beanJSONKey : JSONObject.getNames(beanJSON))
 						{
 							Object object = beanJSON.get(beanJSONKey);
-							if (object != null)
+							if (object != null && spec.getProperty(beanJSONKey) != null)
 							{
 								IPropertyType< ? > propertyType = spec.getProperty(beanJSONKey).getType();
 								String simpleTypeName = propertyType.getName().replaceFirst(spec.getName() + ".", ""); //$NON-NLS-1$//$NON-NLS-2$

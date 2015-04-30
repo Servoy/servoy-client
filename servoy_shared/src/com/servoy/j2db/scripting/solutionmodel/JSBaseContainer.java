@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.solutionmodel.ISMDefaults;
 import com.servoy.j2db.util.Debug;
 
@@ -1274,7 +1275,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * }
 	 *
 	 * @param returnInheritedElements boolean true to also return the elements from parent form
-	 * @return the list of all JSbuttons on this forms
+	 * @return the list of all JSButtons on this forms
 	 *
 	 */
 	@JSFunction
@@ -1307,7 +1308,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * 		application.output(buttons[b].text + " has no name ");
 	 * }
 	 *
-	 * @return the list of all JSbuttons on this forms
+	 * @return the list of all JSButtons on this forms
 	 *
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
@@ -1430,7 +1431,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * }
 	 *
 	 * @param returnInheritedElements boolean true to also return the elements from parent form
-	 * @return the list of all JSbuttons on this forms
+	 * @return the list of all JSBeans on this forms
 	 *
 	 */
 	@JSFunction
@@ -1457,7 +1458,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * 		application.output(beans[b].name);
 	 * }
 	 *
-	 * @return the list of all JSbuttons on this forms
+	 * @return the list of all JSBeans on this forms
 	 *
 	 */
 	@JSFunction
@@ -1467,7 +1468,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	}
 
 	/**
-	 * Returns a JSComponent that has the given name; if found it will be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel.
+	 * Returns a JSComponent that has the given name; if found it will be a JSField, JSLabel, JSButton, JSPortal, JSBean, JSWebComponent or JSTabPanel.
 	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
@@ -1476,7 +1477,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *
 	 * @param name the specified name of the component
 	 *
-	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel)
+	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean, JSWebComponent or JSTabPanel)
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
@@ -1494,11 +1495,13 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		if (comp != null) return comp;
 		comp = getBean(name);
 		if (comp != null) return comp;
+		comp = getWebComponent(name);
+		if (comp != null) return comp;
 		return null;
 	}
 
 	/**
-	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel) that has the given name. It is the same as calling "if(!removeLabel(name) &amp;&amp; !removeButton(name) ....)".
+	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel, JSWebComponent) that has the given name. It is the same as calling "if(!removeLabel(name) &amp;&amp; !removeButton(name) ....)".
 	 * Returns true if removal was successful, false otherwise.
 	 *
 	 * @sample
@@ -1542,11 +1545,12 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		if (removePortal(name)) return true;
 		if (removeTabPanel(name)) return true;
 		if (removeBean(name)) return true;
+		if (removeWebComponent(name)) return true;
 		return false;
 	}
 
 	/**
-	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean or JSTabPanel.
+	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean, JSWebComponent or JSTabPanel.
 	 *
 	 * @sample
 	 * var form = solutionModel.getForm("myForm");
@@ -1567,11 +1571,12 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		lst.addAll(Arrays.asList(getPortals(returnInheritedElements)));
 		lst.addAll(Arrays.asList(getBeans(returnInheritedElements)));
 		lst.addAll(Arrays.asList(getTabPanels(returnInheritedElements)));
+		lst.addAll(Arrays.asList(getWebComponents(returnInheritedElements)));
 		return lst.toArray(new JSComponent[lst.size()]);
 	}
 
 	/**
-	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean or JSTabPanel.
+	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean, JSWebComponents or JSTabPanel.
 	 *
 	 * @sample
 	 * var form = solutionModel.getForm("myForm");
@@ -1719,4 +1724,155 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		return getLabels(false);
 	}
 
+	/**
+	 * Creates a new JSWebComponent (spec based component) object on the form.
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var bean = form.newWebComponent('bean','mypackage-testcomponent',200,200,300,300);
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param name the specified name of the JSWebComponent object
+	 * @param type the webcomponent name as it appears in the spec
+	 * @param x the horizontal "x" position of the JSWebComponent object in pixels
+	 * @param y the vertical "y" position of the JSWebComponent object in pixels
+	 * @param width the width of the JSWebComponent object in pixels
+	 * @param height the height of the JSWebComponent object in pixels
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent newWebComponent(String name, String type, int x, int y, int width, int height)
+	{
+		checkModification();
+		try
+		{
+			WebComponent webComponent = getContainer().createWebComponent(name, type);
+			webComponent.setSize(new Dimension(width, height));
+			webComponent.setLocation(new Point(x, y));
+			return new JSWebComponent((IJSParent)this, webComponent, application, true);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Returns a JSWebComponent that has the given name.
+	 *
+	 * @sample
+	 * var btn = myForm.getWebComponent("mycomponent");
+	 * application.output(mybean.typeName);
+	 *
+	 * @param name the specified name of the web component
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent getWebComponent(String name)
+	{
+		if (name == null) return null;
+
+		try
+		{
+			Iterator<WebComponent> webComponents = application.getFlattenedSolution().getFlattenedForm(getContainer()).getWebComponents();
+			while (webComponents.hasNext())
+			{
+				WebComponent webComponent = webComponents.next();
+				if (name.equals(webComponent.getName()))
+				{
+					return new JSWebComponent((IJSParent)this, webComponent, application, false);
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.log(ex);
+		}
+		return null;
+	}
+
+	/**
+	 * Removes a JSWebComponent that has the specified name. Returns true if removal was successful, false otherwise.
+	 *
+	 * @sample
+	 * var form = solutionModel.getForm('myform');
+	 * form.removeWebComponent('mybean')
+	 *
+	 * @param name the specified name of the JSWebComponent to be removed
+	 *
+	 * @return true if the JSWebComponent has been removed; false otherwise
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public boolean removeWebComponent(String name)
+	{
+		if (name == null) return false;
+		checkModification();
+		Iterator<WebComponent> webComponents = getContainer().getWebComponents();
+		while (webComponents.hasNext())
+		{
+			WebComponent webComponent = webComponents.next();
+			if (name.equals(webComponent.getName()))
+			{
+				getContainer().removeChild(webComponent);
+				return true;
+
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns all JSWebComponents of this form.
+	 *
+	 * @sample
+	  * var webComponents = myForm.getWebComponents(false);
+	 * for (var i in webComponents)
+	 * {
+	 * 	if (webComponents[i].name != null)
+	 * 		application.output(webComponents[i].name);
+	 * }
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
+	 * @return the list of all JSWebComponents on this forms
+	 *
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent[] getWebComponents(boolean returnInheritedElements)
+	{
+		List<JSWebComponent> webComponents = new ArrayList<JSWebComponent>();
+		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		Iterator<WebComponent> iterator = form2use.getWebComponents();
+		while (iterator.hasNext())
+		{
+			webComponents.add(new JSWebComponent((IJSParent)this, iterator.next(), application, false));
+		}
+		return webComponents.toArray(new JSWebComponent[webComponents.size()]);
+	}
+
+	/**
+	 * Returns all JSWebComponents of this form.
+	 *
+	 * @sample
+	 * var webComponents = myForm.getWebComponents();
+	 * for (var i in webComponents)
+	 * {
+	 * 	if (webComponents[i].name != null)
+	 * 		application.output(webComponents[i].name);
+	 * }
+	 *
+	 * @return the list of all JSWebComponent on this forms
+	 *
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent[] getWebComponents()
+	{
+		return getWebComponents(false);
+	}
 }

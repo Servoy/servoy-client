@@ -19,6 +19,7 @@ import java.awt.Font;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.FontPropertyType;
@@ -29,11 +30,15 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author acostescu
  */
-public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>
+public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>,
+	IRhinoDesignConverter
 {
 
 	public final static NGFontPropertyType NG_INSTANCE = new NGFontPropertyType();
@@ -50,6 +55,35 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
+	}
+
+	@Override
+	public Object toDesignValue(Object value, PropertyDescription pd)
+	{
+		if (value instanceof String)
+		{
+			Font font = PersistHelper.createFont(value.toString());
+			JSONStringer writer = new JSONStringer();
+			try
+			{
+				writer.object();
+				toJSON(writer, pd.getName(), font, new DataConversion(), null);
+				writer.endObject();
+				return new JSONObject(writer.toString()).get(pd.getName());
+			}
+			catch (JSONException e)
+			{
+				Debug.error(e);
+			}
+		}
+		return value;
+	}
+
+	@Override
+	public Object toRhinoValue(Object value, PropertyDescription pd)
+	{
+		Font font = fromJSON(value, null, null);
+		return PersistHelper.createFontString(font);
 	}
 
 

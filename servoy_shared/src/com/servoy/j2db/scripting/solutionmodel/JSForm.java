@@ -145,7 +145,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * @param name the specified name of the variable
 	 *
 	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
-	 * 
+	 *
 	 * @return a JSVariable object
 	 */
 	@JSFunction
@@ -156,24 +156,24 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new form JSVariable - based on the name of the variable object , the  type  and it's default value , uses the SolutionModel JSVariable constants.
-	 * 
+	 *
 	 * This method does not require the form to be destroyed and recreated. Use this method if you want to change the form's model without destroying the runtime form</b>
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT , "'This is a default value (with triple quotes)!'");
 	 * //or variable = form.newVariable('myVar', JSVariable.TEXT)
 	 * //variable.defaultValue = "'This is a default value (with triple quotes)!'" // setting the default value after the variable is created requires form recreation
-	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"   
+	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 *
 	 * @param name the specified name of the variable
 	 *
 	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
-	 * 
+	 *
 	 * @param defaultValue the default value as a javascript expression string
-	 * 
+	 *
 	 * @return a JSVariable object
 	 */
 	@JSFunction
@@ -196,7 +196,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Removes a form JSVariable - based on the name of the variable object.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
 	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
@@ -209,7 +209,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * forms['newForm1'].controller.recreateUI();
 	 *
 	 * @param name the specified name of the variable
-	 * 
+	 *
 	 * @return true if removed, false otherwise (ex: no var with that name)
 	 */
 	@JSFunction
@@ -239,13 +239,13 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Gets an existing form variable for the given name.
 	 *
-	 * @sample 
+	 * @sample
 	 * 	var frm = solutionModel.getForm("myForm");
 	 * 	var fvariable = frm.getVariable("myVarName");
 	 * 	application.output(fvariable.name + " has the default value of " + fvariable.defaultValue);
-	 * 
+	 *
 	 * @param name the specified name of the variable
-	 * 
+	 *
 	 * @return a JSVariable object
 	 */
 	@JSFunction
@@ -261,16 +261,16 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * An array consisting of all form variables for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var variables = frm.getVariables();
 	 * for (var i in variables)
 	 * 	application.output(variables[i].name);
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
 	 * @return an array of all variables on this form
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSVariable[] getVariables(boolean returnInheritedElements)
@@ -287,15 +287,15 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * An array consisting of all form variables for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var variables = frm.getVariables();
 	 * for (var i in variables)
 	 * 	application.output(variables[i].name);
-	 * 
+	 *
 	 * @return an array of all variables on this form
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSVariable[] getVariables()
@@ -305,7 +305,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @param name the specified name of the variable
-	 * 
+	 *
 	 * @deprecated replaced by getVariable(String)
 	 */
 	@Deprecated
@@ -315,8 +315,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 *  
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
+	 *
 	 * @deprecated replaced by getVariables(boolean)
 	 */
 	@Deprecated
@@ -335,16 +335,16 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * Creates a new form JSMethod - based on the specified code. 
+	 * Creates a new form JSMethod - based on the specified code.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var method = form.newMethod('function aMethod(event){application.output("Hello world!");}');
 	 * var button = myListViewForm.newButton('Show message!',50,50,100,30,method);
 	 * forms['newForm1'].controller.show();
 	 *
 	 * @param code the specified code for the new method
-	 * 
+	 *
 	 * @return a new JSMethod object for this form
 	 */
 	@JSFunction
@@ -367,9 +367,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * Removes a  form JSMethod - based on the specified code. 
+	 * Removes a  form JSMethod - based on the specified code.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
 	 * var hello = form.newMethod('function aMethod(event){application.output("Hello world!");}');
 	 * var removeMethod = form.newMethod('function removeMethod(event){ \
@@ -381,7 +381,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * forms['newForm1'].controller.show();
 	 *
 	 * @param name the specified name of the method
-	 * 
+	 *
 	 * @return true if method was removed successfully , false otherwise
 	 */
 	@JSFunction
@@ -416,9 +416,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * var frm = solutionModel.getForm("myForm");
 	 * var method = frm.getMethod("myMethod");
 	 * application.output(method.code);
-	 * 
+	 *
 	 * @param name the specified name of the method
-	 * 
+	 *
 	 * @return a JSMethod object (or null if the method with the specified name does not exist)
 	 */
 	@JSFunction
@@ -434,7 +434,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @param name the specified name of the method
-	 * 
+	 *
 	 * @deprecated replaced by getMethod(String)
 	 */
 	@Deprecated
@@ -445,15 +445,15 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Returns all existing form methods for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var methods = frm.getMethods();
 	 * for (var m in methods)
 	 * 	application.output(methods[m].getName());
-	 * 
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 * @return all form methods for the form 
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
+	 * @return all form methods for the form
 	 */
 	@JSFunction
 	public JSMethod[] getMethods(boolean returnInheritedElements)
@@ -470,14 +470,14 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Returns all existing form methods for this form.
-	 * 
+	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
 	 * var methods = frm.getMethods();
 	 * for (var m in methods)
 	 * 	application.output(methods[m].getName());
-	 * 
-	 * @return all form methods for the form 
+	 *
+	 * @return all form methods for the form
 	 */
 	@JSFunction
 	public JSMethod[] getMethods()
@@ -486,8 +486,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
-	 * 
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form
+	 *
 	 * @deprecated replaced by getMethods(boolean)
 	 */
 	@Deprecated
@@ -610,7 +610,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * Creates a new part on the form. The type of the new part (use one of the JSPart constants)
 	 * and its height must be specified.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('myForm', 'db:/example_data/my_table', null, false, 1200, 800);
 	 * var header = form.newPart(JSPart.HEADER, 100);
 	 * header.background = 'yellow';
@@ -620,9 +620,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * footer.background = 'orange';
 	 *
 	 * @param type The type of the new part.
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created form part.
 	 */
 	@JSFunction
@@ -634,12 +634,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new Title Header part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var titleHeader = form.newTitleHeaderPart(40);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Title Header form part.
 	 */
 	@JSFunction
@@ -650,12 +650,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new Header part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var header = form.newHeaderPart(80);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Header form part.
 	 */
 	@JSFunction
@@ -734,12 +734,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new Leading Grand Summary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var leadingGrandSummary = form.newLeadingGrandSummaryPart(120);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Leading Grand Summary form part.
 	 */
 	@JSFunction
@@ -750,12 +750,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new Leading Subsummary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var leadingSubsummary = form.newLeadingSubSummaryPart(160);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Leading Subsummary form part.
 	 */
 	@JSFunction
@@ -767,12 +767,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new Trailing Subsummary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var trailingSubsummary = form.newTrailingSubSummaryPart(360);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Trailing Subsummary form part.
 	 */
 	@JSFunction
@@ -783,12 +783,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new Trailing Grand Summary part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var trailingGrandSummary = form.newTrailingGrandSummaryPart(400);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Trailing Grand Summary form part.
 	 */
 	@JSFunction
@@ -800,11 +800,11 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Creates a new Footer part on the form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var footer = form.newFooterPart(440);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSFooter instance corresponding to the newly created Footer form part.
 	 */
 	@JSFunction
@@ -833,12 +833,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Creates a new Title Footer part on the form.
-	 * 
+	 *
 	 * @sample
 	 * var titleFooter = form.newTitleFooterPart(500);
-	 * 
+	 *
 	 * @param height The height of the new part
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the newly created Title Footer form part.
 	 */
 	@JSFunction
@@ -850,13 +850,13 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Gets all the parts from the form (optionally also from the parent form), ordered by there height (lowerbound) property, from top == 0 to bottom.
 	 *
-	 * @sample 
+	 * @sample
 	 * var allParts = form.getParts()
 	 * for (var i=0; i<allParts.length; i++) {
 	 *	if (allParts[i].getPartType() == JSPart.BODY)
 	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
 	 * }
-	 * 
+	 *
 	 * @param returnInheritedElements boolean true to also return the parts from parent form
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
@@ -877,7 +877,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * Gets all the parts from the form (not including the parts of the parent form), ordered by there height (lowerbound) property, from top == 0 to bottom.
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMPart#getPartYOffset()
-	 * 
+	 *
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
 	@JSFunction
@@ -888,9 +888,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 
 	/**
-	 * Gets a part of the form from the given type (see JSPart constants). 
+	 * Gets a part of the form from the given type (see JSPart constants).
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getPart(JSPart.HEADER).background = 'red';
 	 * form.getPart(JSPart.LEADING_SUBSUMMARY, 160).background = 'red';
 	 *
@@ -905,10 +905,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * Gets a part of the form from the given type (see JSPart constants). 
+	 * Gets a part of the form from the given type (see JSPart constants).
 	 * Use the height if you want to get a specific LEADING_SUBSUMMARY or TRAILING_SUBSUMMARY.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getPart(JSPart.HEADER).background = 'red';
 	 * form.getPart(JSPart.LEADING_SUBSUMMARY, 160).background = 'red';
 	 *
@@ -916,7 +916,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 *
 	 * @param height The height of the part to retrieve. Use this parameter when retrieving one of multiple
 	 * 	                      Leading/Trailing Subsummary parts.
-	 * 
+	 *
 	 * @return A JSPart instance representing the retrieved form part.
 	 */
 	@JSFunction
@@ -926,8 +926,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * Returns the Y offset of a given part (see JSPart) of the form. This will include 
-	 * all the super forms parts if this form extends a form. 
+	 * Returns the Y offset of a given part (see JSPart) of the form. This will include
+	 * all the super forms parts if this form extends a form.
 	 *
 	 * @sample
 	 * // get the subform
@@ -948,8 +948,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * Returns the Y offset of a given part (see JSPart) of the form. This will include 
-	 * all the super forms parts if this form extends a form. Use the height parameter for 
+	 * Returns the Y offset of a given part (see JSPart) of the form. This will include
+	 * all the super forms parts if this form extends a form. Use the height parameter for
 	 * targetting one of multiple subsummary parts.
 	 *
 	 * @sample
@@ -964,7 +964,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 *
 	 * @param height The height of the part whose Y offset will be returned. This is used when
 	 *                        one of multiple Leading/Trailing Sumsummary parts is retrieved.
-	 *                        
+	 *
 	 * @return A number holding the Y offset of the specified form part.
 	 */
 	@JSFunction
@@ -985,14 +985,14 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * Removes a JSPart of the given type. 
+	 * Removes a JSPart of the given type.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.removePart(JSPart.HEADER);
 	 * form.removePart(JSPart.LEADING_SUBSUMMARY, 160);
 	 *
 	 * @param type The type of the part that should be removed.
-	 *                        
+	 *
 	 * @return True if the part is successfully removed, false otherwise.
 	 */
 	@JSFunction
@@ -1004,15 +1004,15 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Removes a JSPart of the given type. The height parameter is for removing one of multiple subsummary parts.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.removePart(JSPart.HEADER);
 	 * form.removePart(JSPart.LEADING_SUBSUMMARY, 160);
 	 *
 	 * @param type The type of the part that should be removed.
 	 *
-	 * @param height The height of the part that should be removed. This parameter is for 
+	 * @param height The height of the part that should be removed. This parameter is for
 	 * 					removing one of multiple Leading/Trailing Subsummary parts.
-	 *                        
+	 *
 	 * @return True if the part is successfully removed, false otherwise.
 	 */
 	@JSFunction
@@ -1035,9 +1035,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Retrieves the Body part of the form.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getBodyPart().background = 'blue';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Body part of the form.
 	 */
 	@JSFunction
@@ -1048,10 +1048,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Retrieves the Title Header part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getTitleHeaderPart().background = 'red';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Title Header part of the form.
 	 */
 	@JSFunction
@@ -1062,10 +1062,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Retrieves the Header part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getHeaderPart().background = 'orange';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Header part of the form.
 	 */
 	@JSFunction
@@ -1076,10 +1076,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Retrieves the Leading Grand Summary part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getLeadingGrandSummaryPart().background = 'yellow';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Leading Grand Summary part of the form.
 	 */
 	@JSFunction
@@ -1100,9 +1100,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Gets an array of the Leading Subsummary parts of the form, ordered by their height from top == 0 to bottom.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getLeadingSubSummaryParts()[0].background = 'green';
-	 * 
+	 *
 	 * @return An array of JSPart instances corresponding to the Leading Subsummary parts of the form.
 	 */
 	@JSFunction
@@ -1123,9 +1123,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Gets an array of the Trailing Subsummary parts of the form, ordered by their height from top == 0 to bottom.
 	 *
-	 * @sample 
+	 * @sample
 	 * form.getTrailingSubSummaryParts()[0].background = 'green';
-	 * 
+	 *
 	 * @return An array of JSPart instances corresponding to the Trailing Subsummary parts of the form.
 	 */
 	@JSFunction
@@ -1136,10 +1136,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Retrieves the Trailing Grand Summary part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getTrailingGrandSummaryPart().background = 'yellow';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Trailing Grand Summary part of the form.
 	 */
 	@JSFunction
@@ -1150,10 +1150,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Retrieves the Footer part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getFooterPart().background = 'magenta';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Footer part of the form.
 	 */
 	@JSFunction
@@ -1164,10 +1164,10 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Retrieves the Title Footer part of the form.
-	 * 
+	 *
 	 * @sample
 	 * form.getTitleFooterPart().background = 'gray';
-	 * 
+	 *
 	 * @return A JSPart instance corresponding to the Title Footer part of the form.
 	 */
 	@JSFunction
@@ -1312,11 +1312,11 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getDefaultPageFormat()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
 	 * application.output(form.defaultPageFormat);
-	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS) 
+	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS)
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -1334,13 +1334,13 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 	/**
-	 * A JSForm instance representing the super form of this form, if this form has a super form. 
-	 * 
+	 * A JSForm instance representing the super form of this form, if this form has a super form.
+	 *
 	 * @sample
 	 * var subForm = solutionModel.newForm('childForm',myDatasource,null,true,800,600);
 	 * var superForm = solutionModel.newForm('childForm',myDatasource,null,true,800,600);
 	 * subForm.extendsForm = superForm;
-	 * 
+	 *
 	 */
 	@JSGetter
 	public JSForm getExtendsForm()
@@ -1394,11 +1394,11 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getInitialSort()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * form.initialSort = "column1 desc, column2 asc, column3 asc";
-	 * 
+	 *
 	 */
 	@JSGetter
 	public String getInitialSort()
@@ -1415,12 +1415,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getName()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * var formName = form.name;
 	 * application.output(formName);
-	 * 
+	 *
 	 */
 	@JSReadonlyProperty
 	public String getName()
@@ -1430,27 +1430,27 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getNavigatorID()
-	 * 
+	 *
 	 * @description-mc
-	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value NONE (no navigator) or IGNORE (reuse current form navigator). 
-	 * 
+	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value NONE (no navigator) or IGNORE (reuse current form navigator).
+	 *
 	 * @sample-mc
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource);
 	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set.
 	 * // here we assign an other new form as the navigator.
 	 * var aNavigator = solutionModel.newForm('navForm', myDatasource);
 	 * aForm.navigator = aNavigator;
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set, or SM_DEFAULTS.DEFAULT to have the default servoy navigator.
 	 * // here we assign an other new form as the navigator.
 	 * var aNavigator = solutionModel.newForm('navForm', myDatasource, null, false, 800, 600);
 	 * // set the navigators navigator to NONE
-	 * aNavigator.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form. 
+	 * aNavigator.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form.
 	 * myListViewForm.navigator = aNavigator;
 	 * application.output(myListViewForm.navigator.name);
-	 * 
+	 *
 	 */
 	@JSGetter
 	public Object getNavigator()
@@ -1503,12 +1503,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getPaperPrintScale()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * if (form.paperPrintScale < 100)
 	 * 	form.paperPrintScale = 100;
-	 * 
+	 *
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -1527,12 +1527,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getRowBGColorCalculation()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * //assign the global method as a string. Or use a calculation name as the string.
 	 * form.rowBGColorCalculation = "scopes.globals.calculationDataProvider";
-	 * 
+	 *
 	 * @deprecated onRender event replaces rowBGColorCalculation functionality
 	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getOnRender()
 	 */
@@ -1546,9 +1546,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getScrollbars()
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,1000,600);
-	 * form.scrollbars = SM_SCROLLBAR.VERTICAL_SCROLLBAR_NEVER; 
+	 * form.scrollbars = SM_SCROLLBAR.VERTICAL_SCROLLBAR_NEVER;
 	 * forms['newForm1'].controller.show();
 	 */
 	@JSGetter
@@ -1566,8 +1566,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getServerName()
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * form.serverName = 'anotherServerName';
 	 * var theServerName = form.serverName;
@@ -1588,7 +1588,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getShowInMenu()
-	 * 
+	 *
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var anotherForm= solutionModel.newForm('newForm2', myDatasource, null, true, 800, 600);
@@ -1597,7 +1597,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * anotherForm.navigator = null;
 	 * aForm.navigator = anotherForm;
 	 * application.output(aForm.navigator.name);
-	 * 
+	 *
 	 */
 	@JSGetter
 	public boolean getShowInMenu()
@@ -1616,13 +1616,13 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getStyleClass()
-	 * 
+	 *
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * if (aForm.styleClass == null)
 	 * 	aForm.styleClass = someStyleClass;
 	 * else
-	 * 	application.output("The Cascading Style Sheet (CSS) class name applied to this form is " + aForm.styleClass); 
+	 * 	application.output("The Cascading Style Sheet (CSS) class name applied to this form is " + aForm.styleClass);
 	 */
 	@JSGetter
 	public String getStyleClass()
@@ -1645,8 +1645,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * if (aForm.styleName == null)
 	 * 	aForm.styleName = someServoyStyleName;
 	 * else
-	 * 	application.output("The name of the Servoy style that is being used on the form is " + aForm.styleName); 
-	 * 
+	 * 	application.output("The name of the Servoy style that is being used on the form is " + aForm.styleName);
+	 *
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -1665,7 +1665,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTableName()
-	 * 
+	 *
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * aForm.tableName = 'anotherTableOfMine'
@@ -1691,11 +1691,11 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getDataSource()
-	 * 
+	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/a_server/a_table', 'aStyleName', false, 800, 600)
 	 * myForm.dataSource = 'db:/anotherServerName/anotherTableName'
-	 * 
+	 *
 	 */
 	@JSGetter
 	public String getDataSource()
@@ -1727,7 +1727,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTitleText()
-	 * 
+	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/a_server/a_table', 'aStyleName', false, 800, 600)
 	 * forms['newForm'].controller.show();
@@ -1738,7 +1738,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * }
 	 * else
 	 * 	application.output("My text text is already cool");
-	 * 
+	 *
 	 */
 	@JSGetter
 	public String getTitleText()
@@ -1756,7 +1756,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTransparent()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,1000,800);
 	 * if (form.transparent == false)
@@ -1766,7 +1766,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * 	form.styleName = 'myStyle';
 	 * }
 	 * var field = form.newField('columnTextDataProvider',JSField.TEXT_FIELD,100,100,100,50);
-	 * forms['myForm'].controller.show(); 
+	 * forms['myForm'].controller.show();
 	 */
 	@JSGetter
 	public boolean getTransparent()
@@ -1788,9 +1788,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * If two or more non-visible forms with non-default and different selectionMode values share the same foundset, one of them (always the same from a set of forms) decides.
 	 * If two or more visible forms with non-default and different selectionMode values share the same foundset, one of them (always the same from a set of forms) decides what the
 	 * foundset's selectionMode should be.
-	 * 
+	 *
 	 * Can be one of SELECTION_MODE_DEFAULT, SELECTION_MODE_SINGLE or SELECTION_MODE_MULTI.
-	 * 
+	 *
 	 * @since 6.1
 	 * @sample
 	 * var myForm = solutionModel.getForm('my_form_name');
@@ -1824,13 +1824,13 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * Property that tells the form to use a named foundset instead of the default foundset.
 	 * When JSForm.SEPARATE_FOUNDSET is specified the form will always create a copy of assigned foundset and therefore become separated from other foundsets.
 	 * When JSForm.EMPTY_FOUNDSET, the form will have an initially empty foundset.
-	 * 
+	 *
 	 * The namedFoundset can be based on a global relation; in this case namedFoundset is the relation's name.
 	 * You can also set the namedFoundset to a JSRelation object directly.
 	 * It will tell this form to initially load a global relation based foundset.
 	 * The global relation's foreign datasource must match the form's datasource.
 	 * Do not use relations named "empty" or "separate" to avoid confusions.
-	 * 
+	 *
 	 * @sample
 	 * // form with separate foundset
 	 * var frmSeparate = solutionModel.newForm('products_separate', 'db:/example_data/products', null, true, 640, 480);
@@ -1852,7 +1852,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	 * // form with an initial foundset based on a global relation
 	 * var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
 	 * frmGlobalRel.namedFoundSet = "g2_to_category_name";
-	 *  
+	 *
 	 * // form with an initial foundset based on a global relation
 	 * var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
 	 * frmGlobalRel.namedFoundSet = solutionModel.getRelation("g1_to_categories");
@@ -1935,7 +1935,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
 	 *
-	 * @sample 
+	 * @sample
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * myForm.view = JSForm.RECORD_VIEW;
 	 * forms['newForm1'].controller.show();
@@ -1973,7 +1973,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
-	 * 
+	 *
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * forms['newForm1'].controller.show();
@@ -2585,7 +2585,12 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IJSParent< ? > parent)
 	{
-		int methodid = ((Integer)persist.getProperty(methodProperty.getPropertyName())).intValue();
+		return getEventHandler(application, persist, ((Integer)persist.getProperty(methodProperty.getPropertyName())).intValue(), parent,
+			methodProperty.getPropertyName());
+	}
+
+	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, int methodid, IJSParent< ? > parent, String propertyName)
+	{
 		if (methodid > 0)
 		{
 			IJSScriptParent< ? > scriptParent = null;
@@ -2652,7 +2657,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 						scriptParent = getJSFormParent(parent);
 					}
 				}
-				List<Object> arguments = persist.getInstanceMethodArguments(methodProperty.getPropertyName());
+				List<Object> arguments = persist.getInstanceMethodArguments(propertyName);
 				if (arguments == null || arguments.size() == 0)
 				{
 					return new JSMethod(scriptParent, scriptMethod, application, false);
@@ -2663,7 +2668,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 				}
 			}
 		}
-		else if (methodid == 0 && BaseComponent.isCommandProperty(methodProperty.getPropertyName()))
+		else if (methodid == 0 && BaseComponent.isCommandProperty(propertyName))
 		{
 			return (JSMethod)ISMDefaults.COMMAND_DEFAULT;
 		}
@@ -2706,7 +2711,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDeleteRecordCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
@@ -2723,7 +2728,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onDrag = form.newMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
 	 * form.onDragEnd = form.newMethod('function onDragEnd(event) { application.output("onDragEnd intercepted from " + event.getSource()); }');
@@ -2746,7 +2751,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragEndMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -2764,7 +2769,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragOverMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -2783,7 +2788,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDropMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -2802,7 +2807,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementFocusGainedMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onElementFocusGained = form.newMethod('function onElementFocusGained(event) { application.output("onElementFocusGained intercepted from " + event.getSource()); }');
 	 * form.onElementFocusLost = form.newMethod('function onElementFocusLost(event) { application.output("onElementFocusLost intercepted from " + event.getSource()); }');
@@ -2821,7 +2826,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementFocusLostMethodID()
-	 * 
+	 *
 	 * @sampleas getOnElementFocusGained()
 	 */
 	@JSGetter
@@ -2838,7 +2843,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDuplicateRecordCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
@@ -2855,7 +2860,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnFindCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onFindCmd = form.newMethod('function onFindCmd(event) { application.output("onFindCmd intercepted on " + event.getFormName()); }');
 	 * form.onSearchCmd = form.newMethod('function onSearchCmd(event) { application.output("onSearchCmd intercepted on " + event.getFormName()); }');
@@ -2892,7 +2897,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnInvertRecordsCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
@@ -2909,7 +2914,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnLoadMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onLoad = form.newMethod('function onLoad(event) { application.output("onLoad intercepted on " + event.getFormName()); }');
 	 * form.onUnLoad = form.newMethod('function onUnLoad(event) { application.output("onUnLoad intercepted on " + event.getFormName()); }');
@@ -2928,7 +2933,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnNewRecordCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onNewRecordCmd = form.newMethod('function onNewRecordCmd(event) { application.output("onNewRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onDuplicateRecordCmd = form.newMethod('function onDuplicateRecordCmd(event) { application.output("onDuplicateRecordCmd intercepted on " + event.getFormName()); }');
@@ -2949,7 +2954,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnNextRecordCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnPreviousRecordCmd()
 	 */
 	@JSGetter
@@ -2966,7 +2971,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnOmitRecordCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onOmitRecordCmd = form.newMethod('function onOmitRecordCmd(event) { application.output("onOmitRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onShowOmittedRecordsCmd = form.newMethod('function onShowOmittedRecordsCmd(event) { application.output("onShowOmittedRecordsCmd intercepted on " + event.getFormName()); }');
@@ -2986,7 +2991,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnPreviousRecordCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onPreviousRecordCmd = form.newMethod('function onPreviousRecordCmd(event) { application.output("onPreviousRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onNextRecordCmd = form.newMethod('function onNextRecordCmd(event) { application.output("onNextRecordCmd intercepted on " + event.getFormName()); }');
@@ -3005,7 +3010,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnPrintPreviewCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onPrintPreviewCmd = form.newMethod('function onPrintPreviewCmd(event) { application.output("onPrintPreviewCmd intercepted on " + event.getFormName()); }');
 	 */
@@ -3025,7 +3030,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordEditStartMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onRecordEditStart = form.newMethod('function onRecordEditStart(event) { application.output("onRecordEditStart intercepted on " + event.getFormName()); }');
 	 * form.onRecordEditStop = form.newMethod('function onRecordEditStop(record, event) { application.output("onRecordEditStop intercepted on " + event.getFormName() + ". record is: " + record); }');
@@ -3045,7 +3050,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordEditStopMethodID()
-	 * 
+	 *
 	 * @sampleas getOnRecordEditStart()
 	 */
 	@JSGetter
@@ -3062,7 +3067,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordSelectionMethodID()
-	 * 
+	 *
 	 * @sampleas getOnRecordEditStart()
 	 */
 	@JSGetter
@@ -3079,7 +3084,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnSearchCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
@@ -3096,7 +3101,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowAllRecordsCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
@@ -3113,7 +3118,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
 	 * form.onHide = form.newMethod('function onHide(event) { application.output("onHide blocked on " + event.getFormName()); return false; }');
@@ -3132,7 +3137,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowOmittedRecordsCmdMethodID()
-	 * 
+	 *
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
@@ -3149,7 +3154,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnSortCmdMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onSortCmd = form.newMethod('function onSortCmd(dataProviderID, asc, event) { application.output("onSortCmd intercepted on " + event.getFormName() + ". data provider: " + dataProviderID + ". asc: " + asc); }');
 	 */
@@ -3167,7 +3172,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnUnLoadMethodID()
-	 * 
+	 *
 	 * @sampleas getOnLoad()
 	 */
 	@JSGetter
@@ -3184,7 +3189,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnResizeMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
@@ -3203,7 +3208,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRenderMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
@@ -3223,11 +3228,11 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/**
 	 * Get or set the encapsulation level for the form.
-	 * 
+	 *
 	 * Encapsulation is one of constants JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION,
 	 * JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION or JSForm.HIDE_ELEMENTS_ENCAPSULATION
 	 *
-	 * @sample 
+	 * @sample
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
 	 */
@@ -3246,9 +3251,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/** Get a design-time property of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
-	 * var prop = frm.getDesignTimeProperty('myprop')	
+	 * var prop = frm.getDesignTimeProperty('myprop')
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key)
@@ -3258,9 +3263,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/** Set a design-time property of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
-	 * frm.putDesignTimeProperty('myprop', 'lemon')	
+	 * frm.putDesignTimeProperty('myprop', 'lemon')
 	 */
 	@JSFunction
 	public Object putDesignTimeProperty(String key, Object value)
@@ -3271,9 +3276,9 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/** Get the design-time properties of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
-	 * var propNames = frm.getDesignTimePropertyNames()	
+	 * var propNames = frm.getDesignTimePropertyNames()
 	 */
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
@@ -3289,7 +3294,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 
 	/** Clear a design-time property of a form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.removeDesignTimeProperty('myprop')
 	 */
@@ -3302,7 +3307,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	/**
 	 * Returns the UUID of this form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form_UUID = myForm.getUUID();
 	 * application.output(form_UUID.toString());
 	 */

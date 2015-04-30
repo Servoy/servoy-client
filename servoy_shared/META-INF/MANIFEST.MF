@@ -266,4 +266,5 @@ Import-Package: javax.servlet,
  org.sablo,
  org.sablo.specification,
  org.sablo.specification.property,
+ org.sablo.specification.property.types,
  org.w3c.dom

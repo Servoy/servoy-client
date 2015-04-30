@@ -33,6 +33,7 @@ import javax.swing.border.TitledBorder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
@@ -52,6 +53,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -63,7 +66,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 public class BorderPropertyType extends DefaultPropertyType<Border> implements IConvertedPropertyType<Border>,
 	IDesignToFormElement<JSONObject, Border, Border>, IFormElementToTemplateJSON<Border, Border>, IRhinoToSabloComponent<Border>,
-	ISabloComponentToRhino<Border>
+	ISabloComponentToRhino<Border>, IRhinoDesignConverter
 {
 	private static final String TYPE = "type";
 	private static final String BORDER_RADIUS = "borderRadius";
@@ -447,4 +450,32 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 		return webComponentValue; // TODO any conversion needed here?
 	}
 
+	@Override
+	public Object toDesignValue(Object value, PropertyDescription pd)
+	{
+		if (value instanceof String)
+		{
+			Border border = ComponentFactoryHelper.createBorder((String)value);
+			JSONStringer writer = new JSONStringer();
+			try
+			{
+				writer.object();
+				toJSON(writer, pd.getName(), border, new DataConversion(), null);
+				writer.endObject();
+				return new JSONObject(writer.toString()).get(pd.getName());
+			}
+			catch (JSONException e)
+			{
+				Debug.error(e);
+			}
+		}
+		return value;
+	}
+
+	@Override
+	public Object toRhinoValue(Object value, PropertyDescription pd)
+	{
+		Border border = fromJSON(value, null, null);
+		return ComponentFactoryHelper.createBorderString(border);
+	}
 }

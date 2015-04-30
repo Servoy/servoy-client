@@ -290,6 +290,11 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		return obj;
 	}
 
+	public Iterator<WebComponent> getWebComponents()
+	{
+		return getObjects(IRepository.WEBCOMPONENTS);
+	}
+
 	/*
 	 * _____________________________________________________________ Methods for TabPanel handling
 	 */
