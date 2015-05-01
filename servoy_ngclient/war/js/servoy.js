@@ -408,8 +408,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 				if(newVal.type == "TitledBorder"){
 					element.wrap('<fieldset style="padding:5px;margin:0px;border:1px solid silver;width:100%;height:100%"></fieldset>')
-					element.parent().prepend("<legend align='"+newVal.titleJustiffication+"' style='border-bottom:0px; margin:0px;width:auto;color:"+
-							newVal.color+";font:"+newVal.font+"'>"+newVal.title+"</legend>")
+					var x = element.parent().prepend("<legend align='"+newVal.titleJustiffication+"' style='border-bottom:0px; margin:0px;width:auto;color:"+
+							newVal.color+"'>"+newVal.title+"</legend>")
+					x.children("legend").css(newVal.font);
 				}else if(newVal.borderStyle){ 
 					element.css('border','')
 					element.css(newVal.borderStyle)
