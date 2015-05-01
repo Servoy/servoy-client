@@ -20,6 +20,19 @@ angular.module('servoydefaultLabel',['servoy'])
     	  
           $scope.containerstyle = {overflow:'hidden',position:'absolute'}
           $scope.contentstyle = {width:'100%',overflow:'hidden',position:'absolute',whiteSpace:'nowrap'}
+          $scope.$watch("model.enabled", function(newValue,oldValue) {
+        	  console.log("enabled: " + newValue )
+        	  if (!newValue) {
+        		  $scope.containerstyle.filter =  "alpha(opacity=50)"
+        		  $scope.containerstyle['-moz-opacity'] = ".50";
+        		  $scope.containerstyle.opacity = ".50";
+        	  }
+        	  else {
+        		  delete $scope.containerstyle.filter;
+        		  delete $scope.containerstyle['-moz-opacity'];
+        		  delete $scope.containerstyle.opacity;
+        	  }
+          });
           $scope.getClass = function() {
         	  var classes = "";
         	  if($scope.model.styleClass) {
