@@ -21,7 +21,6 @@ angular.module('servoydefaultLabel',['servoy'])
           $scope.containerstyle = {overflow:'hidden',position:'absolute'}
           $scope.contentstyle = {width:'100%',overflow:'hidden',position:'absolute',whiteSpace:'nowrap'}
           $scope.$watch("model.enabled", function(newValue,oldValue) {
-        	  console.log("enabled: " + newValue )
         	  if (!newValue) {
         		  $scope.containerstyle.filter =  "alpha(opacity=50)"
         		  $scope.containerstyle['-moz-opacity'] = ".50";
