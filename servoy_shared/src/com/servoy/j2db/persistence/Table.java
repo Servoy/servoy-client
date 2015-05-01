@@ -35,7 +35,7 @@ import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * A database table
- * 
+ *
  * @author jblok
  */
 public class Table implements ITable, Serializable, ISupportUpdateableName
@@ -80,7 +80,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
  */
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param theSQLName as returned by the db driver (can be camelcasing)
 	 * @param qualifiedName can be null if same as plainSQLName
 	 */
@@ -148,7 +148,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
  * _____________________________________________________________ The methods below belong to this class
  */
 
-	private transient String name = null;//temp var 
+	private transient String name = null;//temp var
 
 	/**
 	 * Get the identifiying name of this table
@@ -199,7 +199,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 
 	/**
 	 * NOTE: use {@link IServerInternal#isTableMarkedAsHiddenInDeveloper(String)} if you do not want to load (init) table columns from DB by getting the Table object.<br><br>
-	 * 
+	 *
 	 * Only used in developer. Some tables should be hidden from use if specified.<BR>
 	 * Solutions might want to deprecate certain tables or just not use the whole data model.
 	 */
@@ -586,6 +586,19 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	public String[] getColumnNames()
 	{
 		return columns.keySet().toArray(new String[columns.keySet().size()]);
+	}
+
+	@Override
+	public String[] getDataProviderIDs()
+	{
+		String[] dataProviderIDs = new String[columns.size()];
+		int i = 0;
+		for (Column column : columns.values())
+		{
+			dataProviderIDs[i++] = column.getDataProviderID();
+		}
+
+		return dataProviderIDs;
 	}
 
 	public Iterator<String> getRowIdentColumnNames()

@@ -1802,7 +1802,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 		public String[] getColumnNames()
 		{
-			String[] columnNames = foundSet.getTable().getColumnNames();
+			String[] columnNames = foundSet.getTable().getDataProviderIDs();
 			if (pkNames != null)
 			{
 				return columnNames;
@@ -1837,7 +1837,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			{
 				return null;
 			}
-			String[] columnNames = foundSet.getTable().getColumnNames();
+			String[] columnNames = foundSet.getTable().getDataProviderIDs();
 
 			int offset = pkNames == null ? 1 : 0;
 			// hide servoy internal pk column when pknames is null
@@ -1893,7 +1893,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			IRecordInternal record = foundSet.getRecord(index);
 			if (record.startEditing())
 			{
-				String[] columnNames = foundSet.getTable().getColumnNames();
+				String[] columnNames = foundSet.getTable().getDataProviderIDs();
 
 				int offset = pkNames == null ? 1 : 0;
 				// hide servoy internal pk column when pknames is null

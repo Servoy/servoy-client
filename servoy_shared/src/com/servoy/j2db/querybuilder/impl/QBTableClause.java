@@ -100,7 +100,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		if (builderColumns == null)
 		{
 			builderColumns = new QBColumns(getRoot().getScriptableParent());
-			for (String columnName : getTable().getColumnNames())
+			for (String columnName : getTable().getDataProviderIDs())
 			{
 				builderColumns.put(columnName, getRoot().getScriptableParent(), getColumn(columnName));
 			}

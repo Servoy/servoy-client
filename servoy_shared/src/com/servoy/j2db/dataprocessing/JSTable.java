@@ -58,7 +58,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var tableNameForDisplay = jsTable.getSQLName()
-	 * 
+	 *
 	 * @return String table name.
 	 */
 	public String js_getSQLName()
@@ -75,8 +75,8 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var quotedTableName = jsTable.getQuotedSQLName()
 	 * plugins.rawSQL.executeSQL('udm',  quotedTableName,  'select * from ' + quotedTableName + ' where is_active = ?', [1])
-	 * 
-	 * @return String table name, quoted if needed. 
+	 *
+	 * @return String table name, quoted if needed.
 	 */
 	public String js_getQuotedSQLName()
 	{
@@ -97,8 +97,8 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var serverName = jsTable.getServerName()
-	 * 
-	 * @return String server name. 
+	 *
+	 * @return String server name.
 	 */
 	public String js_getServerName()
 	{
@@ -111,8 +111,8 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var dataSource = jsTable.getDataSource()
-	 * 
-	 * @return String datasource uri. 
+	 *
+	 * @return String datasource uri.
 	 */
 	public String js_getDataSource()
 	{
@@ -125,12 +125,12 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var columnNames = jsTable.getColumnNames()
-	 * 
-	 * @return String array of column names. 
+	 *
+	 * @return String array of column names.
 	 */
 	public String[] js_getColumnNames()
 	{
-		return table.getColumnNames();
+		return table.getDataProviderIDs();
 	}
 
 	/**
@@ -139,8 +139,8 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var identifierColumnNames = jsTable.getRowIdentifierColumnNames()
-	 * 
-	 * @return String array of row identifier column names. 
+	 *
+	 * @return String array of row identifier column names.
 	 */
 	public String[] js_getRowIdentifierColumnNames()
 	{
@@ -158,9 +158,9 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var jsColumn = jsTable.getColumn('campaign_name')
-	 * 
+	 *
 	 * @param name The name of the column to return the value from.
-	 * 
+	 *
 	 * @return JSColumn column.
 	 */
 	public JSColumn js_getColumn(String name)
@@ -175,11 +175,11 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 
 	/**
 	 * Returns whether table was flagged as metadata table.
-	 * 
+	 *
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
 	 * var isMetaDataTable = jsTable.isMetadataTable()
-	 * 
+	 *
 	 * @return boolean is metadata
 	 */
 	@JSFunction
@@ -195,7 +195,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 		sb.append("JSTable[name:"); //$NON-NLS-1$
 		sb.append(table.getName());
 		sb.append(",columns:"); //$NON-NLS-1$
-		String[] columnNames = table.getColumnNames();
+		String[] columnNames = table.getDataProviderIDs();
 		for (String columnName : columnNames)
 		{
 			sb.append(columnName);

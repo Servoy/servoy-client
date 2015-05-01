@@ -94,7 +94,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	{
 		try
 		{
-			return application.getFoundSetManager().getTable(datasource).getColumnNames();
+			return application.getFoundSetManager().getTable(datasource).getDataProviderIDs();
 		}
 		catch (RepositoryException e)
 		{
