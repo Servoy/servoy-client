@@ -102,14 +102,18 @@ public class EventExecutor
 					JSEvent event = new JSEvent();
 					event.setType(getEventType(eventType));
 					event.setFormName(formController.getName());
-					event.setElementName(component.getName());
+					// the names used in scripting are the actual persist names
+					// not the processed names (web friendly)
+					String componentName = component instanceof WebFormComponent ? ((WebFormComponent)component).getFormElement().getRawName()
+						: component.getName();
+					event.setElementName(componentName);
 					FormScope formScope = formController.getFormScope();
 					if (formScope != null)
 					{
 						ElementScope elementsScope = (ElementScope)formScope.get("elements", null);
 						if (elementsScope != null)
 						{
-							Object scriptableElement = elementsScope.get(component.getName(), null);
+							Object scriptableElement = elementsScope.get(componentName, null);
 							if (scriptableElement != null && scriptableElement != Scriptable.NOT_FOUND)
 							{
 								event.setSource(scriptableElement);

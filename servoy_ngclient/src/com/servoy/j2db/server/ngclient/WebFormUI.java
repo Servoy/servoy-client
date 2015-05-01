@@ -183,7 +183,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		if (!fe.getName().startsWith("svy_") && !FormElement.ERROR_BEAN.equals(componentSpec.getName()))
 		{
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-			elementsScope.put(fe.getName(), formController.getFormScope(), runtimeComponent);
+			elementsScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
 			elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
 			if (fe.isLegacy() ||
 				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||

@@ -397,6 +397,11 @@ public final class FormElement implements IWebComponentInitializer
 		return getName((String)getPropertyValue(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName()));
 	}
 
+	public String getRawName()
+	{
+		return (String)getPropertyValue(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName());
+	}
+
 	public String getName(String rawValue)
 	{
 		String name = rawValue;

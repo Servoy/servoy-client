@@ -183,7 +183,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -514,7 +514,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		event.setType(JSEvent.EventType.form);
 		event.setFormName(getName());
 		event.setSource(src);
-		event.setElementName(src instanceof WebComponent ? ((WebComponent)src).getName() : null);
+		if (src instanceof WebFormComponent) event.setElementName(((WebFormComponent)src).getFormElement().getRawName());
+		else event.setElementName(src instanceof WebComponent ? ((WebComponent)src).getName() : null);
 		return event;
 	}
 
