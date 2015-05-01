@@ -222,4 +222,16 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
 	}
+
+	@Override
+	public String toString()
+	{
+		String name = getName();
+		if (name == null || name.trim().length() == 0)
+		{
+			return getTypeName();
+		}
+		return name + " [" + getTypeName() + ']'; //$NON-NLS-1$
+	}
+
 }

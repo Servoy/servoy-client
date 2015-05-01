@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -35,6 +35,11 @@ public class TabSeqComparator implements Comparator<ISupportTabSeq>
 		int seq1 = o1.getTabSeq();
 		int seq2 = o2.getTabSeq();
 
+		return compareTabSeq(seq1, o1, seq2, o2);
+	}
+
+	public static int compareTabSeq(int seq1, Object o1, int seq2, Object o2)
+	{
 		if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT && o1 instanceof IPersist && o2 instanceof IPersist)
 		{
 			//delegate to Yx
