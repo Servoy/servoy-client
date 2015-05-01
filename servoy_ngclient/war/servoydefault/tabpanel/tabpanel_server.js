@@ -44,10 +44,10 @@
 //    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = 1 (server side add first tab or tabIndex previously undefined); " + $scope.model.tabIndex);
     		   $scope.model.tabIndex = 1; 
     	   }
-    	   else if ($scope.model.tabIndex >= insertPosition) // here $scope.model.tabIndex should always be defined...
+    	   else if ($scope.model.tabIndex > insertPosition) // here $scope.model.tabIndex should always be defined...
     	   {
     		   $scope.model.tabIndex++;  
-//    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (server side add before current tabIndex)");
+//    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " insert " + insertPosition + " (server side add before current tabIndex)");
     	   }	   
     	   
     	   return true;
