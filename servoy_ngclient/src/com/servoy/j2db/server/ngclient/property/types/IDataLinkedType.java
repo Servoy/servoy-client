@@ -72,10 +72,14 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 
 		public TargetDataLinks concatDataLinks(String[] dataproviderids, boolean linked)
 		{
-			String[] concat = new String[this.dataProviderIDs.length + dataproviderids.length];
-			System.arraycopy(this.dataProviderIDs, 0, concat, 0, this.dataProviderIDs.length);
-			System.arraycopy(dataproviderids, 0, concat, this.dataProviderIDs.length, dataProviderIDs.length);
-			return new TargetDataLinks(concat, this.recordLinked || linked);
+			if (dataproviderids.length > 0)
+			{
+				String[] concat = new String[this.dataProviderIDs.length + dataproviderids.length];
+				System.arraycopy(this.dataProviderIDs, 0, concat, 0, this.dataProviderIDs.length);
+				System.arraycopy(dataproviderids, 0, concat, this.dataProviderIDs.length, dataProviderIDs.length);
+				return new TargetDataLinks(concat, this.recordLinked || linked);
+			}
+			return this;
 		}
 	}
 

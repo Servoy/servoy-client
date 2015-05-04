@@ -224,8 +224,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (!displaysTags || !(v instanceof String)) return v;
 
 		String val = (String)v;
-		Object result = v;
-		if (val.contains("%%"))
+		String result = val;
+		if (val.contains("%%") || val.startsWith("i18n:"))
 		{
 			final Set<String> dataProviders = new HashSet<>();
 			final boolean recordDP[] = new boolean[1];
@@ -249,10 +249,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				}
 			});
 
+			if (result.startsWith("i18n:")) result = dataAdapterList.getApplication().getI18NMessage(result.substring(5));
+
 			if (tagsDataProviders == null || tagsDataProviders.size() != dataProviders.size() || !tagsDataProviders.containsAll(dataProviders))
 			{
 				dataAdapterList.removeDataLinkedProperty(this);
 				dataAdapterList.addDataLinkedProperty(this, dataLinks.concatDataLinks(dataProviders.toArray(new String[dataProviders.size()]), recordDP[0]));
+				tagsDataProviders = dataProviders;
 			}
 		}
 		else if (tagsDataProviders != null)
