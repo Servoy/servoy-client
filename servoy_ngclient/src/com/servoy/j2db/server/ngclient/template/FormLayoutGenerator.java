@@ -44,9 +44,10 @@ import com.servoy.j2db.util.Utils;
 public class FormLayoutGenerator
 {
 
-	public static void generateRecordViewForm(PrintWriter writer, Form form, IServoyDataConverterContext context, boolean design, boolean highlight)
+	public static void generateRecordViewForm(PrintWriter writer, Form form, IServoyDataConverterContext context, boolean responsiveMode, boolean design,
+		boolean highlight)
 	{
-		generateFormStartTag(writer, form, design);
+		generateFormStartTag(writer, form, responsiveMode, design);
 		Iterator<Part> it = form.getParts();
 
 		if (design)
@@ -70,7 +71,7 @@ public class FormLayoutGenerator
 			Part part = it.next();
 			if (!Part.rendersOnlyInPrint(part.getPartType()))
 			{
-				if (!design)
+				if (!design && !responsiveMode)
 				{
 					writer.print("<div ng-style=\"");
 					writer.print(PartWrapper.getName(part));
@@ -81,19 +82,19 @@ public class FormLayoutGenerator
 				{
 					FormElement fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
 
-					generateFormElementWrapper(writer, fe, design, form);
+					if (!responsiveMode) generateFormElementWrapper(writer, fe, design, form);
 					generateFormElement(writer, fe, false, highlight);
-					generateEndDiv(writer);
+					if (!responsiveMode) generateEndDiv(writer);
 				}
 
-				if (!design) generateEndDiv(writer);
+				if (!design && !responsiveMode) generateEndDiv(writer);
 			}
 		}
 
 		generateEndDiv(writer);
 	}
 
-	public static void generateFormStartTag(PrintWriter writer, Form form, boolean design)
+	public static void generateFormStartTag(PrintWriter writer, Form form, boolean responsiveMode, boolean design)
 	{
 		writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", form.getName()));
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
@@ -101,7 +102,7 @@ public class FormLayoutGenerator
 			writer.print(String.format("data-svy-name=\"%1$s\" ", form.getName()));
 		}
 
-		if (!form.isResponsiveLayout())
+		if (!form.isResponsiveLayout() && !responsiveMode)
 		{
 			writer.print("svy-formstyle=\"formStyle\" ");
 		}

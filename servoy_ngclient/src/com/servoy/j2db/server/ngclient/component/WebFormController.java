@@ -183,7 +183,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -537,6 +537,15 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	public void setParentFormController(IWebFormController parentFormController)
 	{
 		this.parentFormController = new WeakReference<IWebFormController>(parentFormController);
+	}
+
+	public IWebFormController getParentFormController()
+	{
+		if (parentFormController != null)
+		{
+			return parentFormController.get();
+		}
+		return null;
 	}
 
 	@Override

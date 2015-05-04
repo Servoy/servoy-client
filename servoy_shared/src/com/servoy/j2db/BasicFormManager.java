@@ -58,7 +58,7 @@ public abstract class BasicFormManager implements IBasicFormManager
 
 		if (f != null && form != f)
 		{
-			// replace all occurrences to the previous form to this new form (newFormInstances) 
+			// replace all occurrences to the previous form to this new form (newFormInstances)
 			Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
 			while (iterator.hasNext())
 			{
@@ -221,7 +221,7 @@ public abstract class BasicFormManager implements IBasicFormManager
 	 * @param formName
 	 * @return
 	 */
-	protected abstract IFormController getCachedFormController(String formName);
+	public abstract IFormController getCachedFormController(String formName);
 
 	protected abstract void setFormReadOnly(String formName, boolean b);
 

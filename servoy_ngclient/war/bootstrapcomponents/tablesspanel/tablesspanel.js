@@ -17,6 +17,11 @@ angular.module('bootstrapcomponentsTablesspanel',['servoy']).directive('bootstra
     		  return "";
     	  }
     	  
+    	  if ($scope.model.containedForm)
+		  {
+    		  $scope.svyServoyapi.formWillShow($scope.model.containedForm,null);
+		  }
+    	  
       },
       templateUrl: 'bootstrapcomponents/tablesspanel/tablesspanel.html'
     };

@@ -63,7 +63,12 @@ ${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApp
 				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex);
 			},
 			getFormUrl: function(formUrl) {
-				return $windowService.getFormUrl(formUrl);
+				var url = $windowService.getFormUrl(formUrl);
+				if (url && $scope.formname)
+				{
+					url = url+"&parentForm="+$scope.formname
+				}
+				return url;
 			},
 			startEdit: function(propertyName) {
 				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
