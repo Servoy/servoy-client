@@ -18,15 +18,20 @@
 package com.servoy.j2db.server.ngclient.scripting;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.debug.Debugger;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -38,6 +43,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -48,16 +54,13 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebServiceScriptable implements Scriptable
 {
-	/**
-	 * Compiles the server side script, enabled debugging if possible.
-	 *
-	 * @param serverScript
-	 */
-	public static Scriptable compileServerScript(URL serverScript, Scriptable model)
+	private static final ConcurrentMap<URI, Pair<Script, Long>> scripts = new ConcurrentHashMap<>();
+
+	private static Script getScript(Context context, URL serverScript) throws URISyntaxException, IOException
 	{
-		Scriptable apiObject = null;
-		Context context = Context.enter();
-		try
+		Pair<Script, Long> pair = scripts.get(serverScript.toURI());
+		long lastModified = serverScript.openConnection().getLastModified();
+		if (pair == null || pair.getRight().longValue() < lastModified)
 		{
 			String name = "";
 			URI uri = serverScript.toURI();
@@ -69,17 +72,50 @@ public class WebServiceScriptable implements Scriptable
 					name = file.getAbsolutePath();
 				}
 			}
-			if ("".endsWith(name))
+			Debugger debugger = null;
+			int lvl = context.getOptimizationLevel();
+			Script script;
+			try
 			{
-				context.setGeneratingDebug(false);
-				if (context.getDebugger() != null)
+				if ("".endsWith(name))
 				{
-					context.setOptimizationLevel(9);
-					context.setDebugger(null, null);
+					context.setGeneratingDebug(false);
+					debugger = context.getDebugger();
+					if (debugger != null)
+					{
+
+						context.setOptimizationLevel(9);
+						context.setDebugger(null, null);
+					}
+				}
+				context.setGeneratingSource(false);
+				script = context.compileString(Utils.getURLContent(serverScript), name, 1, null);
+			}
+			finally
+			{
+				if (debugger != null)
+				{
+					context.setDebugger(debugger, null);
+					context.setOptimizationLevel(lvl);
 				}
 			}
-			context.setGeneratingSource(false);
-			Script script = context.compileString(Utils.getURLContent(serverScript), name, 1, null);
+			pair = new Pair<Script, Long>(script, Long.valueOf(lastModified));
+			scripts.put(uri, pair);
+		}
+		return pair.getLeft();
+	}
+
+	/**
+	 * Compiles the server side script, enabled debugging if possible.
+	 *
+	 * @param serverScript
+	 */
+	public static Scriptable compileServerScript(URL serverScript, Scriptable model)
+	{
+		Scriptable apiObject = null;
+		Context context = Context.enter();
+		try
+		{
 			Scriptable topLevel = ScriptableObject.getTopLevelScope(model);
 			if (topLevel == null)
 			{
@@ -94,7 +130,7 @@ public class WebServiceScriptable implements Scriptable
 			scopeObject.put("api", scopeObject, apiObject);
 			scopeObject.put("model", scopeObject, model);
 			execScope.put("$scope", execScope, scopeObject);
-			script.exec(context, execScope);
+			getScript(context, serverScript).exec(context, execScope);
 			apiObject.setPrototype(model);
 		}
 		catch (Exception ex)
