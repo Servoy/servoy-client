@@ -20,7 +20,7 @@ angular.module('servoydefaultListbox',['servoy'])
 				$element.html($templateCache.get(isMultiSelect ? "servoydefault/listbox/listbox_multiple.html" : "servoydefault/listbox/listbox.html"));
 		        $compile($element.contents())($scope);
 		        
-				$scope.style = {width:'100%',height:'100%',overflow:'hidden'}
+				$scope.style = {width:'100%',height:'100%'}
 				$scope.findMode = false;
 				$scope.$watch('model.dataProviderID', function() {
 					if(!$scope.model.dataProviderID)
