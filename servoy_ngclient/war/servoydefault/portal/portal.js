@@ -384,11 +384,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var retValForSelectedStored = false;
 					var retValForSelectedCell;
 					var callOnOneSelectedCellOnly = true;
-					if (apiFunctionName == 'setFindMode')
-					{
-						callOnOneSelectedCellOnly = false;
-					}
-					else if (elements[elementIndex].foundsetConfig && elements[elementIndex].foundsetConfig.apiCallTypes) {
+					if (elements[elementIndex].foundsetConfig && elements[elementIndex].foundsetConfig.apiCallTypes) {
 						callOnOneSelectedCellOnly = (elements[elementIndex].foundsetConfig.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
 					}
 
@@ -412,49 +408,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 			}
 			
-			// function setElementFindMode(element,findMode, editable)
-			// {
-			// 	if (element.api.setFindMode)
-			// 	{
-			// 		if (!findMode && element.model.svy_wasEditable == undefined) return;
-			// 		var isEditable;
-			// 		if (findMode)
-			// 		{
-			// 			element.model.svy_wasEditable = element.model.editable;
-			// 			isEditable = editable;
-			// 		}
-			// 		else
-			// 		{
-			// 			isEditable = element.model.svy_wasEditable;
-			// 			delete element.model.svy_wasEditable;
-			// 		}
-			// 		element.api.setFindMode(findMode, isEditable);
-			// 	}
-			// 	else
-			// 	{
-			// 		if (!findMode && element.model.svy_readOnlyBeforeFindMode == undefined) return;
-			// 		if (findMode)
-			// 		{
-			// 			element.model.svy_readOnlyBeforeFindMode = element.model.readOnly;
-			// 			element.model.readOnly = !editable;
-			// 		}
-			// 		else
-			// 		{
-			// 			element.model.readOnly = element.model.svy_readOnlyBeforeFindMode;
-			// 			delete element.model.svy_readOnlyBeforeFindMode;
-			// 		}
-			// 	}
-
-			// }
-
-			// function setElementsFindMode(findMode, editable)
-			// {
-			// 	for (var i =0; i < $scope.model.childElements.length; i++)
-			// 	{
-			// 		setElementFindMode($scope.model.childElements[i], findMode, editable);
-			// 	}
-			// }
-			
 			// cells provide API calls; one API call (from server) should execute on all cells of that element's column.
 			// so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
 			// it will execute on all cells
@@ -473,10 +426,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					cellProxies.cellApi = {}; // new cell API object
 					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return cellProxies.cellApi; }, function(newCellAPI) {
 						updateColumnAPIFromCell(columnApi, newCellAPI, elementIndex);
-						if ($scope.model.svy_findMode!=undefined)
-						{
-							setElementFindMode($scope.model.childElements[elementIndex], $scope.model.svy_findMode, $scope.model.svy_editable);
-						}
 					}));
 					
 					// if the elements array changed, and due to the fact that ui-grid reuses components, re-apply old cellAPIs if available
@@ -868,14 +817,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 				return cellProxies.cellHandlers;
 			}
-			
 
-			// // special method that servoy calls when this component goes into find mode.
-			// $scope.api.setFindMode = function(findMode, editable) {				
-			// 	$scope.model.svy_findMode = findMode;
-			// 	$scope.model.svy_editable = editable;
-			// 	setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
-			// };
 		},
 		templateUrl: 'servoydefault/portal/portal.html',
 		replace: true
