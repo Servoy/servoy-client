@@ -40,6 +40,7 @@ import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWra
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -127,6 +128,11 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		else if (value instanceof String && ((String)value).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
 		{
 			media = flattenedSolution.getMedia(((String)value).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
+		}
+		else
+		{
+			UUID uuid = Utils.getAsUUID(value, false);
+			if (uuid != null) media = (Media)flattenedSolution.searchPersist(uuid);
 		}
 		if (media != null)
 		{
