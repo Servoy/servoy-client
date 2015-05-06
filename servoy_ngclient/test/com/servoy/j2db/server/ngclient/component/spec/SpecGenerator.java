@@ -699,7 +699,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "{\"type\" :\"mediaoptions\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");
 		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"droppable\":true}");
-		repoTypeMappingExceptions.put("tabIndex", "int");
+		repoTypeMappingExceptions.put("tabIndex", "object");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{\"type\" :\"insets\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR.getPropertyName(), "{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(), "{\"type\" :\"scrollbars\", \"tags\": { \"scope\" :\"design\" }}");
