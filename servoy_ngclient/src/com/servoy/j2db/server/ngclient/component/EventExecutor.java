@@ -113,7 +113,7 @@ public class EventExecutor
 						ElementScope elementsScope = (ElementScope)formScope.get("elements", null);
 						if (elementsScope != null)
 						{
-							Object scriptableElement = elementsScope.get(componentName, null);
+							Object scriptableElement = componentName != null ? elementsScope.get(componentName, null) : null;
 							if (scriptableElement != null && scriptableElement != Scriptable.NOT_FOUND)
 							{
 								event.setSource(scriptableElement);

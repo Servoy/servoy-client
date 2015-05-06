@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.sablo.eventthread.IEventDispatcher;
@@ -43,8 +44,10 @@ import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.QueryData;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IRemoteRepository;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.ITeamRepository;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -59,6 +62,11 @@ import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
+import com.servoy.j2db.server.shared.IPerfomanceRegistry;
+import com.servoy.j2db.server.shared.IUserManager;
+import com.servoy.j2db.server.shared.PerformanceData;
+import com.servoy.j2db.server.shared.PerformanceTiming;
+import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -529,8 +537,115 @@ public class TestNGClient extends NGClient
 			@Override
 			public IApplicationServerAccess getApplicationServerAccess(String clientId) throws RemoteException
 			{
-				// TODO Auto-generated method stub
-				return null;
+				return new IApplicationServerAccess()
+				{
+
+					@Override
+					public void logout(String clientId) throws RemoteException, RepositoryException
+					{
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public IUserManager getUserManager(String clientId) throws RemoteException
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+					@Override
+					public ITeamRepository getTeamRepository() throws RemoteException
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+					@Override
+					public IRemoteRepository getRepository() throws RemoteException
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+					@Override
+					public String[] getLicenseNames() throws RemoteException
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+					@Override
+					public IPerfomanceRegistry getFunctionPerfomanceRegistry() throws RemoteException
+					{
+						return new IPerfomanceRegistry()
+						{
+
+							@Override
+							public String[] getPerformanceTimingContexts()
+							{
+								// TODO Auto-generated method stub
+								return null;
+							}
+
+							@Override
+							public PerformanceTimingAggregate[] getPerformanceTiming(String string)
+							{
+								// TODO Auto-generated method stub
+								return null;
+							}
+
+							@Override
+							public PerformanceData getPerformanceData(String context)
+							{
+								// TODO Auto-generated method stub
+								return null;
+							}
+
+							@Override
+							public Map<String, PerformanceTiming[]> getActiveTimings()
+							{
+								// TODO Auto-generated method stub
+								return null;
+							}
+
+							@Override
+							public void clearPerformanceData(String context)
+							{
+								// TODO Auto-generated method stub
+
+							}
+
+							@Override
+							public void addPerformanceTiming(String context, String sql, long time_ms)
+							{
+								// TODO Auto-generated method stub
+
+							}
+						};
+					}
+
+					@Override
+					public IDataServer getDataServer() throws RemoteException
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+					@Override
+					public int getClientCountForInfo(String info) throws RemoteException
+					{
+						// TODO Auto-generated method stub
+						return 0;
+					}
+
+					@Override
+					public int getActiveClientCount(int solution_id) throws RemoteException
+					{
+						// TODO Auto-generated method stub
+						return 0;
+					}
+				};
 			}
 
 			@Override

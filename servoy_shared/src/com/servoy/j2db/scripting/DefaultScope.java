@@ -112,7 +112,7 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	 */
 	public boolean has(String name, Scriptable start)
 	{
-		if (name.equals("length")) return true; //$NON-NLS-1$
+		if (name != null && name.equals("length")) return true; //$NON-NLS-1$
 		return allVars.containsKey(name);
 	}
 
