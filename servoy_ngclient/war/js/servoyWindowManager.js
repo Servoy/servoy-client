@@ -142,10 +142,10 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			$sabloApplication.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
 		}, 500);
 	});
-
-	$window.addEventListener('beforeunload', function() {
+	
+	$window.addEventListener('unload', function(event) {
 		$sabloApplication.disconnect();
-	});
+	});	
 	
 	function getFormUrl(formName) {
 		var realFormUrl = formTemplateUrls[formName];
