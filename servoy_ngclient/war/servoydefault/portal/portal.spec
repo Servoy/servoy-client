@@ -59,6 +59,15 @@
 			            		}             
 							 ]
 	        },
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
+	        },
 	        "getMaxRecordIndex": {
 	            "returns": "int"
 	        },
@@ -73,6 +82,9 @@
 	        },
 	        "getSortColumns": {
 	            "returns": "string"
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        },
 	        "newRecord": {
 				"parameters":[

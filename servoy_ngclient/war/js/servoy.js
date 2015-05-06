@@ -646,10 +646,28 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					elem.focus();
 				} 
 			}
-		}
+		},
+		getWidth: function (elem){
+			return function(){
+				return $(elem.parentNode).width();
+			}
+		},
+		getHeight: function (elem){
+			return function(){
+				return $(elem.parentNode).height();
+			}
+		},
+		getX: function (elem){
+			return function(){
+				return $(elem.parentNode).offset().left;
+			}
+		},
+		getY: function (elem){
+			return function(){
+				return $(elem.parentNode).offset().top;
+			}
+		}		
 	}
-
-
 })
 .filter('htmlFilter', ['$sce', function($sce){
 	return function(input) {

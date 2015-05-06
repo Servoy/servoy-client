@@ -116,7 +116,11 @@ angular.module('servoydefaultTextarea',['servoy']).directive('servoydefaultTexta
 			 * @example %%prefix%%%%elementName%%.selectAll();
 			 */
 			$scope.api.selectAll = $apifunctions.selectAll($element[0]);
-
+			
+			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
+			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
+			$scope.api.getLocationX = $apifunctions.getX($element[0]);
+			$scope.api.getLocationY = $apifunctions.getY($element[0]);
 		},
 		templateUrl: 'servoydefault/textarea/textarea.html',
 		replace: true

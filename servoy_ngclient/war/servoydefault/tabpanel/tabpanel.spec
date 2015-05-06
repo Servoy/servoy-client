@@ -19,7 +19,7 @@
 	        "selectedTabColor" : "color", 
 	        "size" : {"type" :"dimension",  "default" : {"width":300, "height":300}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 
-	        "tabIndex" : "object", 
+	        "tabIndex" : "int", 
 	        "tabOrientation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"default" :0}, {"TOP":1}, {"HIDE":-1}]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "tabs" : {"type":"tab[]", "droppable":true}, 
@@ -81,6 +81,15 @@
 			            		"optional":true
 			            		}             
 							 ]
+	        },
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
 	        },
 	        "getMaxTabIndex": {
 	            "returns": "int"
@@ -150,6 +159,9 @@
 								"type":"int"
 			                	}             
 							 ]
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        },
 	        "isTabEnabled": {
 	            "returns": "boolean",

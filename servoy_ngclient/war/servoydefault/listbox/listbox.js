@@ -6,7 +6,7 @@ angular.module('servoydefaultListbox',['servoy'])
 	$http.get("servoydefault/listbox/listbox_multiple.html").then(function(result){
 		$templateCache.put("servoydefault/listbox/listbox_multiple.html", result.data);
     });	
-}]).directive('servoydefaultListbox', ['$parse','$templateCache','$compile',function($parse,$templateCache,$compile) {  
+}]).directive('servoydefaultListbox', ['$parse','$templateCache','$compile','$apifunctions',function($parse,$templateCache,$compile,$apifunctions) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -153,6 +153,10 @@ angular.module('servoydefaultListbox',['servoy'])
 		        	  return value;
 		          }
 		          
+		    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+		    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+		    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+		    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);
 		},
 		replace: true
 	};

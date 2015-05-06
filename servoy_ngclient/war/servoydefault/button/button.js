@@ -1,4 +1,4 @@
-angular.module('servoydefaultButton',['servoy']).directive('servoydefaultButton', function(formatFilterFilter) {  
+angular.module('servoydefaultButton',['servoy']).directive('servoydefaultButton', function(formatFilterFilter, $apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -17,6 +17,11 @@ angular.module('servoydefaultButton',['servoy']).directive('servoydefaultButton'
     	  $scope.api.requestFocus = function() { 
     		  $element.find('button')[0].focus();
     	  }
+    	  
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);    	  
       },
       templateUrl: 'servoydefault/button/button.html'
     };

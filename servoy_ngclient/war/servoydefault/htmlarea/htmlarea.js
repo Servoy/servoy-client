@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function() {  
+angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -158,6 +158,11 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 				$scope.editor.focus();
 				delete $scope.mustExecuteOnFocusGainedMethod;
 			}
+			
+			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
+			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
+			$scope.api.getLocationX = $apifunctions.getX($element[0]);
+			$scope.api.getLocationY = $apifunctions.getY($element[0]);			
 		},
 		templateUrl: 'servoydefault/htmlarea/htmlarea.html'
 	};

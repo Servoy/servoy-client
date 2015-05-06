@@ -25,6 +25,18 @@
 	},
 	"api":
 	{
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
+	        },
+	        "getWidth": {
+	            "returns": "int"
+	        }
 	}
 	 
 }

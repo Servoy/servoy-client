@@ -43,6 +43,15 @@
 	},
 	"api":
 	{
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
+	        },
 	        "getScrollX": {
 	            "returns": "int"
 	        },
@@ -51,6 +60,9 @@
 	        },
 	        "getSelectedElements": {
 	            "returns": "object []"
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        },
 	        "requestFocus": {
 				"parameters":[

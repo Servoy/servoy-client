@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlview', function() {  
+angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlview', function($apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -76,6 +76,12 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
     	   }
     	   return null;
        }
+       
+       $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+       $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+       $scope.api.getLocationX = $apifunctions.getX($element[0]);
+       $scope.api.getLocationY = $apifunctions.getY($element[0]);
+       
       },
       templateUrl: 'servoydefault/htmlview/htmlview.html'
  };

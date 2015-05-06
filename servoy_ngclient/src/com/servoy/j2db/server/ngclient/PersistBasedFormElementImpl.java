@@ -50,9 +50,11 @@ import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * Form element that is based on a persist.
@@ -85,9 +87,10 @@ class PersistBasedFormElementImpl
 	{
 		if (persist instanceof IWebComponent)
 		{
-			JSONObject jsonProperties = ((IWebComponent)persist).getJson();
-			if (jsonProperties != null)
+			if (FormTemplateGenerator.isWebcomponentBean(persist))
 			{
+				JSONObject jsonProperties = ((IWebComponent)persist).getJson();
+				if (jsonProperties == null) jsonProperties = new ServoyJSONObject();
 				// convert from persist design-time value (which might be non-json) to the expected value
 				Map<String, Object> jsonMap = processPersistProperties(fs, specProperties, propertyPath);
 

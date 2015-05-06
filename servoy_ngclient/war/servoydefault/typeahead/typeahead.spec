@@ -42,8 +42,20 @@
 	},
 	"api":
 	{
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
+	        },
 	        "getSelectedText": {
 	            "returns": "string"
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        },
 	        "replaceSelectedText": {
 				"parameters":[

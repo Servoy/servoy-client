@@ -1,4 +1,4 @@
-angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function() {  
+angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function($apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -415,7 +415,12 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
           */
           $scope.api.setRightFormMinSize = function(minSize) {
         	  $scope.pane2MinSize = minSize;
-          }           
+          }
+          
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);
       },
       templateUrl: 'servoydefault/splitpane/splitpane.html'
     };

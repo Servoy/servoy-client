@@ -44,6 +44,15 @@
 	        "getAsPlainText": {
 	            "returns": "string"
 	        },
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
+	        },
 	        "getScrollX": {
 	            "returns": "int"
 	        },
@@ -52,6 +61,9 @@
 	        },
 	        "getSelectedText": {
 	            "returns": "string"
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        },
 	        "replaceSelectedText": {
 				"parameters":[

@@ -1,4 +1,4 @@
-angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassword', function() {  
+angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassword', function($apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -31,6 +31,10 @@ angular.module('servoydefaultPassword',['servoy']).directive('servoydefaultPassw
     		  $element[0].childNodes[0].focus()
     	 }
     	 
+    	 $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	 $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	 $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	 $scope.api.getLocationY = $apifunctions.getY($element[0]);
       },
       templateUrl: 'servoydefault/password/password.html'
     };

@@ -777,13 +777,13 @@ public class SpecGenerator
 		serverSideApi.add("getDataProviderID");
 		serverSideApi.add("getDesignTimeProperty");
 		serverSideApi.add("getElementType");
-		serverSideApi.add("getHeight");
+		//serverSideApi.add("getHeight");
 		serverSideApi.add("getLabelForElementNames");
-		serverSideApi.add("getLocationX");
-		serverSideApi.add("getLocationY");
+		//serverSideApi.add("getLocationX");
+		//serverSideApi.add("getLocationY");
 		serverSideApi.add("getName");
 		serverSideApi.add("getValueListName");
-		serverSideApi.add("getWidth");
+		//serverSideApi.add("getWidth");
 		serverSideApi.add("putClientProperty");
 		serverSideApi.add("setLocation");
 		serverSideApi.add("setSize");

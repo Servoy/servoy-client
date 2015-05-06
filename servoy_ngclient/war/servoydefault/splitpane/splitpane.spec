@@ -49,10 +49,19 @@
 	        "getDividerSize": {
 	            "returns": "int"
 	        },
+	        "getHeight": {
+	            "returns": "int"
+	        },
 	        "getLeftForm": {
 	            "returns": "formscope"
 	        },
 	        "getLeftFormMinSize": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
 	            "returns": "int"
 	        },
 	        "getMaxTabIndex": {
@@ -120,6 +129,9 @@
 								"type":"int"
 			                	}             
 							 ]
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        },
 	        "isTabEnabledAt": {
 	            "returns": "boolean",

@@ -1,4 +1,4 @@
-angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultImagemedia', function($window, $document) {  
+angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultImagemedia', function($window, $document, $apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -89,6 +89,11 @@ angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultIma
           $scope.api.getScrollY = function() {
          	 return $element.scrollTop();
           }
+          
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);          
       },
       templateUrl: 'servoydefault/imagemedia/imagemedia.html'
     };

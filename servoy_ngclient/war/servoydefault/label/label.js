@@ -7,12 +7,13 @@ angular.module('servoydefaultLabel',['servoy'])
 		$templateCache.put("template/servoydefault/label/labelfor.html", result.data);
     });	
 }])
-.directive('servoydefaultLabel', ['$parse','$templateCache','$compile',function($parse,$templateCache,$compile) {
+.directive('servoydefaultLabel', ['$parse','$templateCache','$compile','$apifunctions',function($parse,$templateCache,$compile,$apifunctions) {
     return {
       restrict: 'E',
       scope: {
       	model: "=svyModel",
-      	handlers: "=svyHandlers"
+      	handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       link: function($scope, $element, $attrs) {
     	  $element.html($templateCache.get($scope.model.labelFor && ($attrs.headercell == undefined) ? "template/servoydefault/label/labelfor.html" : "template/servoydefault/label/label.html"));
@@ -46,6 +47,11 @@ angular.module('servoydefaultLabel',['servoy'])
 
         	  return classes;
           }
+          
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);          
       }
     };
 }])

@@ -1,4 +1,4 @@
-angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinner',['formatFilterFilter', function(formatFilter) {  
+angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinner',['formatFilterFilter','$apifunctions', function(formatFilter, $apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -109,6 +109,11 @@ angular.module('servoydefaultSpinner',['servoy']).directive('servoydefaultSpinne
 	          	  }
 	          }
           }
+          
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);
       },
       templateUrl: 'servoydefault/spinner/spinner.html'
     };

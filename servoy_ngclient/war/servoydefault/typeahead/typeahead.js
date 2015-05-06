@@ -153,6 +153,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
             storedTooltip = false;
           }
         }
+        
+        $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+        $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+        $scope.api.getLocationX = $apifunctions.getX($element[0]);
+        $scope.api.getLocationY = $apifunctions.getY($element[0]);
       },
       templateUrl: 'servoydefault/typeahead/typeahead.html',
       replace: true

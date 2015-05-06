@@ -1,4 +1,4 @@
-angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultCheckgroup', function($utils) {  
+angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultCheckgroup', function($utils, $apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -158,6 +158,11 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
           {
               return (item.realValue == null || item.realValue =='') && item.displayValue=='';
           }
+          
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);          
       },
       templateUrl: 'servoydefault/checkgroup/checkgroup.html'
     };

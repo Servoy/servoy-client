@@ -146,8 +146,6 @@ public class FormLayoutGenerator
 	{
 		writer.print("<div ng-style=\"layout.");
 		writer.print(fe.getName());
-		writer.print("\" svy-layout-update=\"");
-		writer.print(fe.getName());
 		writer.print("\"");
 		if (design)
 		{

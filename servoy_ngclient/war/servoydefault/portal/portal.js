@@ -1,10 +1,10 @@
 angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
-                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce",
+                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions",
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -818,6 +818,17 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				return cellProxies.cellHandlers;
 			}
 
+			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
+			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
+			$scope.api.getLocationX = $apifunctions.getX($element[0]);
+			$scope.api.getLocationY = $apifunctions.getY($element[0]);
+			
+			// // special method that servoy calls when this component goes into find mode.
+			// $scope.api.setFindMode = function(findMode, editable) {				
+			// 	$scope.model.svy_findMode = findMode;
+			// 	$scope.model.svy_editable = editable;
+			// 	setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
+			// };
 		},
 		templateUrl: 'servoydefault/portal/portal.html',
 		replace: true

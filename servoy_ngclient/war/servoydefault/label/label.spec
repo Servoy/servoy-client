@@ -43,6 +43,15 @@
 	},
 	"api":
 	{
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
+	        },
 	        "getParameterValue": {
 	            "returns": "string",
 				"parameters":[
@@ -66,6 +75,9 @@
 			            		"optional":true
 			            		}             
 							 ]
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        }
 	}
 	 

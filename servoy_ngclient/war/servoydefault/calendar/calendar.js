@@ -1,4 +1,4 @@
-angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalendar', function($log) {  
+angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalendar', function($log, $apifunctions) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -154,6 +154,11 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 					input[0].focus();
 				}
 			}
+			
+	    	 $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+	    	 $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+	    	 $scope.api.getLocationX = $apifunctions.getX($element[0]);
+	    	 $scope.api.getLocationY = $apifunctions.getY($element[0]);
 		},
 		templateUrl: 'servoydefault/calendar/calendar.html'
 	};

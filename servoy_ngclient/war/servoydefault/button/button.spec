@@ -42,6 +42,15 @@
 	},
 	"api":
 	{
+	        "getHeight": {
+	            "returns": "int"
+	        },
+	        "getLocationX": {
+	            "returns": "int"
+	        },
+	        "getLocationY": {
+	            "returns": "int"
+	        },
 	        "getThumbnailJPGImage": {
 	            "returns": "byte []",
 				"parameters":[
@@ -56,6 +65,9 @@
 			            		"optional":true
 			            		}             
 							 ]
+	        },
+	        "getWidth": {
+	            "returns": "int"
 	        },
 	        "requestFocus": {
 				"parameters":[

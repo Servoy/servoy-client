@@ -1,4 +1,4 @@
-angular.module('servoydefaultRadio',['servoy']).directive('servoydefaultRadio', function() {  
+angular.module('servoydefaultRadio',['servoy']).directive('servoydefaultRadio', function($apifunctions) {  
     return {
       restrict: 'E',
       scope: {
@@ -35,6 +35,11 @@ angular.module('servoydefaultRadio',['servoy']).directive('servoydefaultRadio', 
         		  input[0].focus();
         	  }
           }
+          
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);
       },
       templateUrl: 'servoydefault/radio/radio.html'
     };

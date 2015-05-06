@@ -1,10 +1,11 @@
 angular.module('servoydefaultRectangle',['servoy'])
-.directive('servoydefaultRectangle', function() {
+.directive('servoydefaultRectangle', function($apifunctions) {
     return {
       restrict: 'E',
       scope: {
       	model: "=svyModel",
-      	handlers: "=svyHandlers"
+      	handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       link: function($scope, $element, $attrs) {
           $scope.$watch('model.borderType', function(){
@@ -38,6 +39,11 @@ angular.module('servoydefaultRectangle',['servoy'])
         		  $scope.model.borderType.borderStyle.borderRadius = $scope.model.size.width / 2 + "px";
         	  }  
           }
+          
+    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
+    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
+    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);
       },
       templateUrl: 'servoydefault/rectangle/rectangle.html'
     };
