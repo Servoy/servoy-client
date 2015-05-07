@@ -378,19 +378,19 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 
 			$scope.api.getHeight = function() {
-				return $scope.model.size.height;
+				return $scope.model.anchors ? $apifunctions.getHeight($element[0])() : $scope.model.size.height;
 			}
 
 			$scope.api.getLocationX = function() {
-				return $scope.model.location.x;
+				return $scope.model.anchors ? $apifunctions.getX($element[0])() : $scope.model.location.x;
 			}
 
 			$scope.api.getLocationY = function() {
-				return $scope.model.location.y;
+				return $scope.model.anchors ? $apifunctions.getY($element[0])() : $scope.model.location.y;
 			}
 
 			$scope.api.getWidth = function() {
-				return $scope.model.size.width;
+				return $scope.model.anchors ? $apifunctions.getWidth($element[0])() : $scope.model.size.width;
 			}
 
 			$scope.api.setLocation = function(x, y) {
@@ -410,11 +410,6 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			$scope.api.getName = function() {
 				return $scope.model.name;
 			}
-			
-			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
-			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
-			$scope.api.getLocationX = $apifunctions.getX($element[0]);
-			$scope.api.getLocationY = $apifunctions.getY($element[0]);
 		},
 		template: "<div style='height:100%;width:100%;position:absolute;' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()'></div></div>"
 	};

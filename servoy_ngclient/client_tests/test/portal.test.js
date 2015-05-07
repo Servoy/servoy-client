@@ -110,7 +110,7 @@ describe("Test portal suite", function() {
 			}
 		};
 
-		var template = '<servoydefault-portal svy-model="model"></servoydefault-portal>';
+		var template = '<servoydefault-portal svy-model="model" svy-api="api" ></servoydefault-portal>';
 		element = $compile(template)(scope);
 
 		converted = sabloConverters.convertFromServerToClient(serverValue, {
@@ -119,7 +119,8 @@ describe("Test portal suite", function() {
 		}, scope.model, scope, null);
 
 		scope.model = converted;
-
+		scope.api = {}
+		
 		scope.$apply();
 		// $httpBackend.flush();
 		portalScope = scope.$$childTail;
@@ -195,7 +196,7 @@ describe("Test portal suite", function() {
 	it("should have column definitions for multiline portal", function() {
 
 		scope.model.multiLine = true;
-		var newtemplate = '<servoydefault-portal svy-model="model"></servoydefault-portal>';
+		var newtemplate = '<servoydefault-portal svy-model="model" svy-api="api"></servoydefault-portal>';
 		$compile(newtemplate)(scope); //need to compile it again so that angular calls link and creates a multiline portal
 		scope.$apply();
 		portalScope = scope.$$childTail;
