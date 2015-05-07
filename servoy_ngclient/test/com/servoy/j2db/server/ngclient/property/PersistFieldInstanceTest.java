@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
@@ -85,11 +87,14 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
 		ValueList valuelist = solution.createNewValueList(validator, "test");
 		valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
+		valuelist = solution.createNewValueList(validator, "test_items");
+		valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
+		valuelist.setAddEmptyValue(IValueListConstants.EMPTY_VALUE_NEVER);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -248,5 +253,15 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
 		Assert.assertEquals("{\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\"}", json);
+	}
+
+	@Test
+	public void testSetValuelistItems()
+	{
+		client.setValueListItems("test_items", new String[] { "aaa" }, new String[] { "bbb" }, false);
+		ValueList vl = client.getFlattenedSolution().getValueList("test_items");
+		IValueList valuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(client, vl, true, Types.OTHER, null, null);
+		Assert.assertEquals(valuelist.getElementAt(0), "aaa");
+		Assert.assertEquals(valuelist.getRealElementAt(0), "bbb");
 	}
 }

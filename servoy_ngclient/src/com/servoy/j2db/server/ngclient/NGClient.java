@@ -39,6 +39,7 @@ import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IUserClient;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -114,9 +115,10 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
+	@Override
 	protected SolutionMetaData selectSolutionToLoad() throws RepositoryException
 	{
-		// don't return here the current solution, that should only be loaded really through 
+		// don't return here the current solution, that should only be loaded really through
 		// a request == websocket endpoint
 		return null;
 	}
@@ -886,8 +888,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		ValueList vl = getFlattenedSolution().getValueList(name);
 		if (vl != null && vl.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 		{
-			CustomValueList valueList = new CustomValueList(this, vl, vl.getCustomValues(), (vl.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS),
-				Types.OTHER, null);
 			int guessedType = Types.OTHER;
 			if (autoconvert && realValues != null)
 			{
@@ -897,13 +897,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				guessedType = guessValuelistType(displayValues);
 			}
-			valueList.setValueType(guessedType);
-			valueList.fillWithArrayValues(displayValues, realValues);
-			IBasicFormManager fm = getFormManager();
-			List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
-			for (IFormController form : cachedFormControllers)
+			IValueList valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(this, vl, true, Types.OTHER, null, null);
+			if (valueList instanceof CustomValueList)
 			{
-				((WebFormController)form).getFormUI().refreshValueList(valueList);
+				((CustomValueList)valueList).setValueType(guessedType);
+				((CustomValueList)valueList).fillWithArrayValues(displayValues, realValues);
+				IBasicFormManager fm = getFormManager();
+				List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
+				for (IFormController form : cachedFormControllers)
+				{
+					((WebFormController)form).getFormUI().refreshValueList(valueList);
+				}
 			}
 		}
 	}

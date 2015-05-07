@@ -38,12 +38,9 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.DBValueList;
-import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -179,45 +176,32 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		if (val != null)
 		{
-			switch (val.getValueListType())
+			String format = null;
+			if (dataproviderID != null)
 			{
-				case IValueListConstants.GLOBAL_METHOD_VALUES :
-					valueList = new GlobalMethodValueList(application, val);
-					break;
-				case IValueListConstants.CUSTOM_VALUES :
-					String format = null;
-					if (dataproviderID != null)
+				Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
+				for (PropertyDescription formatPd : properties)
+				{
+					// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
+					try
 					{
-						Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
-						for (PropertyDescription formatPd : properties)
+						if (formatPd.getConfig() instanceof JSONArray && ((JSONArray)formatPd.getConfig()).length() > 0 &&
+							(config.getFor().equals(((JSONArray)formatPd.getConfig()).get(0)) || pd.getName().equals(((JSONArray)formatPd.getConfig()).get(0))))
 						{
-							// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
-							try
-							{
-								if (formatPd.getConfig() instanceof JSONArray &&
-									((JSONArray)formatPd.getConfig()).length() > 0 &&
-									(config.getFor().equals(((JSONArray)formatPd.getConfig()).get(0)) || pd.getName().equals(
-										((JSONArray)formatPd.getConfig()).get(0))))
-								{
-									format = (String)formElement.getPropertyValue(formatPd.getName());
-									break;
-								}
-							}
-							catch (JSONException ex)
-							{
-								Debug.error(ex);
-							}
+							format = (String)formElement.getPropertyValue(formatPd.getName());
+							break;
 						}
 					}
-					ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
-						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
-					valueList = new CustomValueList(application, val, val.getCustomValues(),
-						(val.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS), fieldFormat.dpType, fieldFormat.parsedFormat);
-					break;
-				default :
-					valueList = val.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ? new RelatedValueList(application, val) : new DBValueList(
-						application, val);
+					catch (JSONException ex)
+					{
+						Debug.error(ex);
+					}
+				}
 			}
+			ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
+				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
+			valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true, fieldFormat.dpType, fieldFormat.parsedFormat,
+				dataproviderID);
 		}
 		else
 		{
@@ -249,7 +233,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -286,7 +270,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -298,7 +282,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */
