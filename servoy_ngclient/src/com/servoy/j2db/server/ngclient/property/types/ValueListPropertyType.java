@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -190,11 +191,21 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 						Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
 						for (PropertyDescription formatPd : properties)
 						{
-							// compare the config objects for Format and Valuelist properties these are both the "for" dataprovider id property
-							if (config.getFor().equals(formatPd.getConfig()))
+							// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
+							try
 							{
-								format = (String)formElement.getPropertyValue(formatPd.getName());
-								break;
+								if (formatPd.getConfig() instanceof JSONArray &&
+									((JSONArray)formatPd.getConfig()).length() > 0 &&
+									(config.getFor().equals(((JSONArray)formatPd.getConfig()).get(0)) || pd.getName().equals(
+										((JSONArray)formatPd.getConfig()).get(0))))
+								{
+									format = (String)formElement.getPropertyValue(formatPd.getName());
+									break;
+								}
+							}
+							catch (JSONException ex)
+							{
+								Debug.error(ex);
 							}
 						}
 					}
