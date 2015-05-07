@@ -27,7 +27,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			});
 
 			$scope.$watch('model.format', function(){
-				setDateFormat($scope.model.format);
+				setDateFormat($scope.model.format, 'display');
 			});
 
 			function inputChanged(e) {
@@ -60,9 +60,9 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			var dateFormat = 'YYYY-MM-DD';
 
 			// helper function
-			function setDateFormat(format){
-				if(format && format.display){
-					dateFormat = moment().toMomentFormatString(format.display);
+			function setDateFormat(format, which){
+				if(format && format[which]){
+					dateFormat = moment().toMomentFormatString(format[which]);
 				}
 				var x = child.data('DateTimePicker');
 				if (angular.isDefined(x)) { // can be undefined in find mode
@@ -135,7 +135,15 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 						storedTooltip = false;
 					}
 			}
+
+			$scope.focusGained = function(event) {
+				setDateFormat($scope.model.format, 'edit');
+			}
 			
+			$scope.focusLost = function(event) {
+				setDateFormat($scope.model.format, 'display');
+			}
+
 			/**
 			 * Set the focus to this calendar.
 			 * @example %%prefix%%%%elementName%%.requestFocus();

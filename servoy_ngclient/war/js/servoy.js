@@ -1,14 +1,5 @@
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','ui.bootstrap'])
-.directive('ngBlur', ['$parse', function($parse) {
-	return function(scope, element, attr) {
-		var fn = $parse(attr['ngBlur']);
-		element.bind('blur', function(event) {
-			scope.$apply(function() {
-				fn(scope, {$event:event});
-			});
-		});
-	}
-}]).value("$anchorConstants", {
+.value("$anchorConstants", {
 	NORTH : 1,
 	EAST : 2,
 	SOUTH : 4,

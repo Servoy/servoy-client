@@ -16,6 +16,8 @@
 	   ng-class='(model.styleClass ? model.styleClass : "")  + " svy-calendar form-control input-sm svy-padding-xs svy-line-height-normal"'
 	   ng-style='style'
 	   svy-font='model.fontType'
+	   ng-focus='focusGained($event)'
+	   ng-blur='focusLost($event)'
 	   ng-disabled="model.enabled == false"
 	   ng-readonly="model.editable == false"
        svy-horizontalalignment='model.horizontalAlignment'
