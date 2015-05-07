@@ -16,7 +16,7 @@
 	        "findmode" : { "type":"findmode", "scope" : "private", "for" : {"editable":true}}, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
-	        "format" : {"for":"dataProviderID" , "type" :"format"}, 
+	        "format" : {"for":["dataProviderID"] , "type" :"format"}, 
 	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
 	        "location" : "point", 
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 

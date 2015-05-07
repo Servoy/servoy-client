@@ -14,7 +14,7 @@
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onActionMethodID","onDoubleClickMethodID","onRightClickMethodID"] }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
-	        "format" : {"for":"dataProviderID" , "type" :"format"}, 
+	        "format" : {"for":["valuelistID","dataProviderID"] , "type" :"format"}, 
 	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
 	        "imageMediaID" : "media", 
 	        "labelFor" : "bean", 

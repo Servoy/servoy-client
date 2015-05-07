@@ -522,6 +522,7 @@ public class SpecGenerator
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"LEFT\":2}, {\"CENTER\":0},{\"RIGHT\":4}], \"default\" : 0}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":80, \"height\":20}}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
@@ -548,6 +549,7 @@ public class SpecGenerator
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{\"type\":\"boolean\", \"default\":true}");
 		calendarTypeMapping.put("findmode", findModeEditable);
 		calendarTypeMapping.put("readOnly", readOnlyEnabled);
+		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		componentRepoTypeMappingExceptions.put("calendar", calendarTypeMapping);
 
 		HashMap<String, String> checkTypeMapping = new HashMap<String, String>();
@@ -585,6 +587,7 @@ public class SpecGenerator
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		imageMediaMapping.put("readOnly", readOnlyEditable);
+		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		componentRepoTypeMappingExceptions.put("imagemedia", imageMediaMapping);
 
 		HashMap<String, String> labelMapping = new HashMap<String, String>();
@@ -660,6 +663,7 @@ public class SpecGenerator
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		textareaTypeMapping.put("findmode", findModeEditable);
 		textareaTypeMapping.put("readOnly", readOnlyEditable);
+		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		componentRepoTypeMappingExceptions.put("textarea", textareaTypeMapping);
 
 		HashMap<String, String> textfieldTypeMapping = new HashMap<String, String>();
@@ -682,7 +686,7 @@ public class SpecGenerator
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ \"type\":\"dataprovider\", \"tags\": { \"scope\" :\"design\" }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":\"dataProviderID\" , \"type\" :\"format\"}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"valuelistID\",\"dataProviderID\"] , \"type\" :\"format\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
@@ -759,8 +763,8 @@ public class SpecGenerator
 				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
 		perComponentInternalProperties.put("splitpane",  Arrays.asList("tabIndex"));
 		perComponentInternalProperties.put("calendar",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
-		perComponentInternalProperties.put("htmlarea",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName())));
-		perComponentInternalProperties.put("imagemedia",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName())));
+		perComponentInternalProperties.put("htmlarea",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
+		perComponentInternalProperties.put("imagemedia",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
 		perComponentInternalProperties.put("password", Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
 		perComponentInternalProperties.put("textarea",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName())));
 		perComponentInternalProperties.put("check",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));

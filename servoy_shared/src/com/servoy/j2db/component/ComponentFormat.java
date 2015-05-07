@@ -44,9 +44,9 @@ import com.servoy.j2db.util.FormatParser.ParsedFormat;
 /**
  * Holder for format to be applied to component.
  * Default column format and converters are applied.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  *
  */
@@ -142,7 +142,7 @@ public class ComponentFormat
 		return ComponentFormat.getComponentFormat(formatProperty, dpType, application);
 	}
 
-	private static ComponentFormat getComponentFormat(String formatProperty, int dpType, IServiceProvider application)
+	public static ComponentFormat getComponentFormat(String formatProperty, int dpType, IServiceProvider application)
 	{
 		if ("converter".equals(formatProperty)) //$NON-NLS-1$
 		{

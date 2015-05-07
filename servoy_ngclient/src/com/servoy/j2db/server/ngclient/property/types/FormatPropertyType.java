@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -36,7 +37,13 @@ import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -48,6 +55,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
+import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * TODO is format really mapped on a special object (like ParsedFormat)
@@ -84,7 +93,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		{
 			try
 			{
-				return json.getString("for");
+				return json.getJSONArray("for");
 			}
 			catch (JSONException e)
 			{
@@ -204,8 +213,96 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 
 		if (formElementValue instanceof String || formElementValue == null)
 		{
-			// get dataproviderId
-			String dataproviderId = (String)formElement.getPropertyValue((String)pd.getConfig());
+			String dataproviderId = null;
+			if (pd.getConfig() instanceof JSONArray)
+			{
+				JSONArray arr = (JSONArray)pd.getConfig();
+				try
+				{
+					for (int i = 0; i < arr.length(); i++)
+					{
+						PropertyDescription forProperty = formElement.getWebComponentSpec().getProperty(arr.getString(i));
+						if (forProperty != null)
+						{
+							if (forProperty.getType() instanceof DataproviderPropertyType)
+							{
+								dataproviderId = (String)formElement.getPropertyValue(arr.getString(i));
+								break;
+							}
+							else if (forProperty.getType() instanceof ValueListPropertyType)
+							{
+								Object id = formElement.getPropertyValue(arr.getString(i));
+								int valuelistID = Utils.getAsInteger(id);
+								INGApplication application = dataAdapterList.getApplication();
+								ValueList val = null;
+								if (valuelistID > 0)
+								{
+									val = application.getFlattenedSolution().getValueList(valuelistID);
+								}
+								else
+								{
+									UUID uuid = Utils.getAsUUID(id, false);
+									if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+								}
+								if (val != null)
+								{
+									int dpType = IColumnTypes.TEXT;
+									IDataProvider dataProvider = null;
+									ITable table;
+									try
+									{
+										if (val.getRelationName() != null)
+										{
+											Relation[] relations = application.getFlattenedSolution().getRelationSequence(val.getRelationName());
+											table = relations[relations.length - 1].getForeignTable();
+										}
+										else
+										{
+											table = val.getTable();
+										}
+
+										if (table != null)
+										{
+											String dp = null;
+											int showDataProviders = val.getShowDataProviders();
+											if (showDataProviders == 1)
+											{
+												dp = val.getDataProviderID1();
+											}
+											else if (showDataProviders == 2)
+											{
+												dp = val.getDataProviderID2();
+											}
+											else if (showDataProviders == 4)
+											{
+												dp = val.getDataProviderID3();
+											}
+
+											if (dp != null)
+											{
+												dataProvider = application.getFlattenedSolution().getDataProviderForTable((Table)table, dp);
+											}
+											if (dataProvider != null)
+											{
+												dpType = dataProvider.getDataProviderType();
+											}
+										}
+									}
+									catch (Exception ex)
+									{
+										Debug.error(ex);
+									}
+									return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+								}
+							}
+						}
+					}
+				}
+				catch (JSONException e)
+				{
+					Debug.error(e);
+				}
+			}
 			ComponentFormat format = ComponentFormat.getComponentFormat(
 				(String)formElementValue,
 				dataproviderId,
