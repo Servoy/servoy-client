@@ -244,6 +244,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						{
 							formStyle[key] = borderStyle[key];
 						}	
+					}
+					if (formProperties.transparent)
+					{
+						formStyle['background-color'] = 'transparent';
 					}	
 					state.style = formStyle;
 
