@@ -113,7 +113,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testFormatType() throws JSONException
 	{
-		String property = "{name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myformat:{for:'mydataprovider' , type:'format'}}}";
+		String property = "{name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myformat:{for:['mydataprovider'] , type:'format'}}}";
 
 		WebComponentSpecification spec = WebComponentSpecification.parseSpec(property, "sample", null);
 		Assert.assertEquals(2, spec.getProperties().size());
@@ -122,7 +122,7 @@ public class WebComponentSpecTest
 		Assert.assertTrue(pd.getType() == TypesRegistry.getType("format"));
 		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
-		Assert.assertEquals("mydataprovider", pd.getConfig());
+		Assert.assertEquals("mydataprovider", ((JSONArray)pd.getConfig()).get(0));
 	}
 
 	@Test
