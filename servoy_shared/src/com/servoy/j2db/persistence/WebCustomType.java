@@ -43,7 +43,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	 * @param element_id
 	 * @param uuid
 	 */
-	public WebCustomType(IWebComponent parentElement, String jsonKey, String typeName, int index, boolean isArray, boolean isNew)
+	public WebCustomType(IWebComponent parentElement, String jsonKey, String typeName, int index, boolean isNew)
 	{
 		//we just tell the GhostBean that it has a parent, we do not tell the parent that it contains a GhostBean
 		super(IRepository.WEBCUSTOMTYPES, parentElement.getParent(), 0, UUID.randomUUID());
@@ -55,7 +55,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 		try
 		{
 			JSONObject entireModel = parentElement.getJson() != null ? parentElement.getJson() : new ServoyJSONObject();
-			if (entireModel.has(jsonKey))
+			if (!isNew && entireModel.has(jsonKey))
 			{
 				Object v = entireModel.get(jsonKey);
 				if (v instanceof JSONArray)

@@ -172,7 +172,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 									boolean arrayReturnType = spec.isArrayReturnType(beanJSONKey);
 									if (!arrayReturnType)
 									{
-										WebCustomType webObject = new WebCustomType(this, beanJSONKey, simpleTypeName, -1, arrayReturnType, false);
+										WebCustomType webObject = new WebCustomType(this, beanJSONKey, simpleTypeName, -1, false);
 										webObject.setTypeName(simpleTypeName);
 										customTypeProperties.put(beanJSONKey, webObject);
 									}
@@ -181,7 +181,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 										ArrayList<WebCustomType> webObjects = new ArrayList<WebCustomType>();
 										for (int i = 0; i < ((JSONArray)object).length(); i++)
 										{
-											WebCustomType webObject = new WebCustomType(this, beanJSONKey, simpleTypeName, i, arrayReturnType, false);
+											WebCustomType webObject = new WebCustomType(this, beanJSONKey, simpleTypeName, i, false);
 											webObject.setTypeName(simpleTypeName);
 											webObjects.add(webObject);
 										}
