@@ -589,7 +589,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 									Debug.error(ex);
 									application.handleException(application.getI18NMessage("servoy.formPanel.error.formData"), ex); //$NON-NLS-1$
 								}
-								retval = fp.executeFunction(methodname, arguments, true, null, true, null, true, false, true);
+								retval = fp.executeFunction(methodname, arguments, stopUIEditing, null, true, null, true, false, true);
 							}
 							else
 							{
@@ -665,7 +665,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getStyleSheet(java.lang.String)
 	 */
 	public IStyleSheet getStyleSheet(String name)
@@ -682,7 +682,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getRuntimeWindow(java.lang.String)
 	 */
 	public IRuntimeWindow getRuntimeWindow(String name)
@@ -692,7 +692,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.IClientPluginAccess#getCurrentRuntimeWindow()
 	 */
 	public IRuntimeWindow getCurrentRuntimeWindow()
@@ -707,7 +707,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.IClientPluginAccess#setValueListItems(java.lang.String, java.lang.Object[], java.lang.Object[])
 	 */
 	public void setValueListItems(String name, Object[] displayValues, Object[] realValues)
@@ -717,7 +717,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.plugins.IClientPluginAccess#setValueListItems(java.lang.String, java.lang.Object[])
 	 */
 	public void setValueListItems(String name, Object[] displayValues)
