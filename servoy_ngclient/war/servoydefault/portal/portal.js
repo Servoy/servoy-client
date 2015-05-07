@@ -21,7 +21,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			//                                  .cellApi          - is the actual cell element API cache
 			//                                  .cellHandlers     - is the actual cell element handlers cache
 			//                                  .cellServoyApi 	  - is the actual cell element Servoy Api cache
+			// cellAPICaches[renderedRowIndex][elementIndex]       - is the actual cell element API cache
 			var rowProxyObjects = {};
+			var cellAPICaches = {};
 
 			$scope.pageSize = 25;
 
@@ -50,7 +52,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 			}
 
-			var oldCellAPIs;
 			$scope.$watchCollection('model.childElements', function(newVal, oldVal) {
 				elements = $scope.model.childElements;
 				if (newVal != oldVal) {
@@ -58,27 +59,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
 					for (var someKey in rowProxyObjects)
 						disposeOfRowProxies(rowProxyObjects[someKey]);
-					
-					// add back apis cause incomming are probably fresh uninitialized ones {}
-					// and ui-grid tends to reuse existing components which have no reason to re-populate their api object...
-					var oldIndexToNewIndex = {};
-					for (var newIdx in newVal) {
-						var newElemName = newVal[newIdx].name;
-						for (var oldIdx in oldVal) {
-							if (newElemName === oldVal[oldIdx].name) {
-								oldIndexToNewIndex[oldIdx] = newIdx;
-								break;
-							}
-						}
-					}
-					oldCellAPIs = {};
-					for (var rowId in rowProxyObjects) {
-						var rowProxies = rowProxyObjects[rowId];
-						oldCellAPIs[rowId] = {};
-						for (var columnIdx in rowProxies) {
-							if (rowProxies[columnIdx].cellApi && angular.isDefined(oldIndexToNewIndex[columnIdx])) oldCellAPIs[rowId][oldIndexToNewIndex[columnIdx]] = rowProxies[columnIdx].cellApi;
-						}
-					}
 					
 					rowProxyObjects = {};
 				}
@@ -136,7 +116,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
 						+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
 						+ ')" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
-						+ ')" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
+						+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
 						+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
 					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
 					cellTemplate += '/>';
@@ -230,6 +210,32 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				if (!rowProxies[elementIndex]) rowProxies[elementIndex] = {};
 				return rowProxies[elementIndex];
 			}
+			
+			function removeRowAPICacheWatches(rowAPICache) {
+				for (var unw in rowAPICache.unwatchFuncs) unw();
+			}
+			
+			// api objects are kept linked to the real dom element (so linked to render index), so the the api can work with the correct "$element"
+			// after the component contributed it (so try not to give the api object contributed by a web component to a different web component...)
+			// hopefully ui-grid always uses the same directive/webcomponent at the same 'rowRenderIndex'
+			function getOrCreateRowAPICache(ngGridRow, renderedRowIndex, rowElementHelper) {
+				var rowAPICache = cellAPICaches[renderedRowIndex];
+				if (!rowAPICache || (rowAPICache.rowElement !== rowElementHelper.getRowElement())) {
+					// a new or different rowElement is being rendered at this renderRowIndex; cache value must change 
+					cellAPICaches[renderedRowIndex] = rowAPICache = [];
+					rowAPICache.unwatchFuncs = [];
+					rowAPICache.rowElement = rowElementHelper.getRowElement();
+					
+					var rl = rowAPICache.rowElement.on('$destroy', function () {
+						removeRowAPICacheWatches(rowAPICache);
+						if (cellAPICaches[renderedRowIndex] && cellAPICaches[renderedRowIndex].rowElement == rowAPICache.rowElement) delete cellAPICaches[renderedRowIndex];
+						rl();
+					});
+				}
+				rowAPICache.rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
+				return rowAPICache;
+			}
+			
 			var rowCache = {};
 			function rowIdToViewportRelativeRowIndex(rowId) {
 				var result = rowCache[rowId];
@@ -390,11 +396,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 					// so if callOnOneSelectedCellOnly is true, then it will be called only once for one of the selected rows;
 					// otherwise it will be called on the entire column, and the return value will be of a selected row if possible
-					for (var rowId in rowProxyObjects) {
-						var cellProxies = rowProxyObjects[rowId][elementIndex];
-						if (cellProxies && cellProxies.cellApi && cellProxies.cellApi[apiFunctionName]) {
+					for (var renderRowIndex in cellAPICaches) {
+						var cellAPI = cellAPICaches[renderRowIndex][elementIndex];
+						if (cellAPI && cellAPI[apiFunctionName]) {
+							var rowId = cellAPICaches[renderRowIndex].rowId;
 							var rowIsSelected = isRowIndexSelected(rowIdToAbsoluteRowIndex(rowId));
-							if (rowIsSelected || (!callOnOneSelectedCellOnly)) retVal = cellProxies.cellApi[apiFunctionName].apply(cellProxies.cellApi[apiFunctionName], arguments);
+							if (rowIsSelected || (!callOnOneSelectedCellOnly)) retVal = cellAPI[apiFunctionName].apply(cellAPI, arguments);
 
 							// give back return value from a selected row cell if possible
 							if (!retValForSelectedStored && rowIsSelected) {
@@ -408,43 +415,21 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 			}
 			
-			// cells provide API calls; one API call (from server) should execute on all cells of that element's column.
+			// cells provide API calls; one API call (from server) should execute on all cells of that element's column or only on selected based on type.
 			// so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
-			// it will execute on all cells
-			$scope.cellApiWrapper = function(ngGridRow, elementIndex) {
-				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
-				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
-					return {}
-				}
+			// it will execute on all cells or only on selected
+			$scope.cellApiWrapper = function(ngGridRow, elementIndex, renderedRowIndex, rowElementHelper) {
+				var rowAPICache = getOrCreateRowAPICache(ngGridRow, renderedRowIndex, rowElementHelper);
+				var cellAPICache = rowAPICache[elementIndex];
 				
-				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
-				
-				if (!cellProxies.cellApi) {
-
-					if (!angular.isDefined(cellProxies.unwatchFuncs)) cellProxies.unwatchFuncs = [];
+				if (!cellAPICache) {
 					var columnApi = elements[elementIndex].api;
-					cellProxies.cellApi = {}; // new cell API object
-					cellProxies.unwatchFuncs.push($scope.$watchCollection(function() { return cellProxies.cellApi; }, function(newCellAPI) {
+					rowAPICache[elementIndex] = cellAPICache = {}; // new cell API object
+					rowAPICache.unwatchFuncs.push($scope.$watchCollection(function() { return cellAPICache; }, function(newCellAPI) {
 						updateColumnAPIFromCell(columnApi, newCellAPI, elementIndex);
 					}));
-					
-					// if the elements array changed, and due to the fact that ui-grid reuses components, re-apply old cellAPIs if available
-					// this is rarely the case, but it can happen
-					oldCellApi = $sabloUtils.getInDepthProperty(oldCellAPIs, rowId, elementIndex);
-					if (angular.isDefined(oldCellApi)) {
-						cellProxies.cellApi = oldCellApi;
-						updateColumnAPIFromCell(columnApi, cellProxies.cellApi, elementIndex);
-
-						delete oldCellAPIs[rowId][elementIndex];
-						var l = 0;
-						for (var tmp in oldCellAPIs[rowId]) { l++; break; }
-						if (l === 0) delete oldCellAPIs[rowId];;
-						l = 0;
-						for (var tmp in oldCellAPIs) { l++; break; }
-						if (l === 0) oldCellAPIs = undefined;
-					}
 				}
-				return cellProxies.cellApi;
+				return cellAPICache;
 			}
 
 			function updateColumnAPIFromCell(columnApi, cellAPI, elementIndex) {
@@ -837,11 +822,23 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 .run(['$templateCache', function($templateCache) {
 	
   $templateCache.put('svy-ui-grid/ui-grid-row',
-		  "<div sablo-tabseq=\"rowRenderIndex + 1\" sablo-tabseq-config=\"{container: true}\"><div ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div></div>"
+		  "<div row-element-helper sablo-tabseq=\"rowRenderIndex + 1\" sablo-tabseq-config=\"{container: true}\"><div ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div></div>"
   );
 
   $templateCache.put('ui-grid/uiGridHeaderCell',
 		  "<div ng-class=\"{ 'sortable': sortable }\"><!-- <div class=\"ui-grid-vertical-bar\">&nbsp;</div> --><div class=\"ui-grid-cell-contents\" col-index=\"renderIndex\"><span ng-if=\"!!col.colDef.displayNameHTML\"><span ng-bind-html=\"col.colDef.displayNameHTML CUSTOM_FILTERS\"></span></span><span ng-if=\"!col.colDef.displayNameHTML\"><span>{{ col.displayName CUSTOM_FILTERS }}</span></span> <span ui-grid-visible=\"col.sort.direction\" ng-class=\"{ 'ui-grid-icon-up-dir': col.sort.direction == asc, 'ui-grid-icon-down-dir': col.sort.direction == desc, 'ui-grid-icon-blank': !col.sort.direction }\">&nbsp;</span></div><div class=\"ui-grid-column-menu-button\" ng-if=\"grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false\" ng-click=\"toggleMenu($event)\" ng-class=\"{'ui-grid-column-menu-button-last-col': isLastCol}\"><i class=\"ui-grid-icon-angle-down\">&nbsp;</i></div><div ng-if=\"filterable\" class=\"ui-grid-filter-container\" ng-repeat=\"colFilter in col.filters\"><div ng-if=\"colFilter.type !== 'select'\"><input type=\"text\" class=\"ui-grid-filter-input\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\"><div class=\"ui-grid-filter-button\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div><div ng-if=\"colFilter.type === 'select'\"><select class=\"ui-grid-filter-select\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\" ng-options=\"option.value as option.label for option in colFilter.selectOptions\"></select><div class=\"ui-grid-filter-button-select\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div></div></div>"
   );
 
+}])
+.directive('rowElementHelper', [function() {  
+	return {
+		restrict: 'A',
+	    link: function($scope, $element, attrs, ctrl, transclude) {
+			$scope.rowElementHelper = {
+					getRowElement : function() {
+						return $element;
+					}
+			}
+		}
+	}
 }]);
