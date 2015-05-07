@@ -1,5 +1,5 @@
 angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
-.directive('servoydefaultCombobox', ['$timeout', function ($timeout, $apifunctions) {
+.directive('servoydefaultCombobox', ['$timeout', '$apifunctions', function ($timeout, $apifunctions) {
 	return {
 		restrict: 'E',
 		scope: {
