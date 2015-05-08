@@ -212,7 +212,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 			
 			function removeRowAPICacheWatches(rowAPICache) {
-				for (var unw in rowAPICache.unwatchFuncs) unw();
+				for (var unw in rowAPICache.unwatchFuncs) rowAPICache.unwatchFuncs[unw]();
 			}
 			
 			// api objects are kept linked to the real dom element (so linked to render index), so the the api can work with the correct "$element"
@@ -226,10 +226,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					rowAPICache.unwatchFuncs = [];
 					rowAPICache.rowElement = rowElementHelper.getRowElement();
 					
-					var rl = rowAPICache.rowElement.on('$destroy', function () {
+					rowAPICache.rowElement.on('$destroy', function () {
 						removeRowAPICacheWatches(rowAPICache);
 						if (cellAPICaches[renderedRowIndex] && cellAPICaches[renderedRowIndex].rowElement == rowAPICache.rowElement) delete cellAPICaches[renderedRowIndex];
-						rl();
+						// is .off needed for $destroy?
 					});
 				}
 				rowAPICache.rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
@@ -759,8 +759,6 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						for (var oldRowId in rowProxyObjects) {
 							if (!newRowIDs[oldRowId]) {
 								disposeOfRowProxies(rowProxyObjects[oldRowId]);
-								var oldCellApi = $sabloUtils.getInDepthProperty(oldCellAPIs, oldRowId);
-								if (angular.isDefined(oldCellApi)) delete oldCellAPIs[oldRowId];
 								delete rowProxyObjects[oldRowId];
 							}
 						}
