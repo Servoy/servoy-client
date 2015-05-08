@@ -68,12 +68,12 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getBackground()
-	 * 
+	 *
 	 * @sample
 	 * // This property can be used on all types of components.
 	 * // Here it is illustrated only for labels and fields.
 	 * var greenLabel = form.newLabel('Green',10,10,100,50);
-	 * greenLabel.background = 'green'; // Use generic names for colors.	
+	 * greenLabel.background = 'green'; // Use generic names for colors.
 	 * var redField = form.newField('parent_table_text',JSField.TEXT_FIELD,10,110,100,30);
 	 * redField.background = '#FF0000'; // Use RGB codes for colors.
 	 */
@@ -91,7 +91,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getBorderType()
-	 * 
+	 *
 	 * @sample
 	 * //HINT: To know exactly the notation of this property set it in the designer and then read it once out through the solution model.
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -111,7 +111,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getFontType()
-	 * 
+	 *
 	 * @sample
 	 * var label = form.newLabel('Text here', 10, 50, 100, 20);
 	 * label.fontType = solutionModel.createFont('Times New Roman',1,14);
@@ -130,8 +130,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getForeground()
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * // This property can be used on all types of components.
 	 * // Here it is illustrated only for labels and fields.
 	 * var labelWithBlueText = form.newLabel('Blue text', 10, 10, 100, 30);
@@ -153,7 +153,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintSliding()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var slidingLabel = form.newLabel('Some long text here', 10, 10, 5, 5);
@@ -175,7 +175,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseComponent#getStyleClass()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -197,7 +197,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getTransparent()
-	 * 
+	 *
 	 * @sample
 	 * // Load an image from disk an create a Media object based on it.
 	 * var imageBytes = plugins.file.readFile('d:/ball.jpg');
@@ -225,12 +225,12 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getAnchors()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var strechAllDirectionsLabel = form.newLabel('Strech all directions', 10, 10, 380, 280);
 	 * strechAllDirectionsLabel.background = 'red';
-	 * strechAllDirectionsLabel.anchors = SM_ANCHOR.ALL;	
+	 * strechAllDirectionsLabel.anchors = SM_ANCHOR.ALL;
 	 * var strechVerticallyLabel = form.newLabel('Strech vertically', 10, 10, 190, 280);
 	 * strechVerticallyLabel.background = 'green';
 	 * strechVerticallyLabel.anchors = SM_ANCHOR.WEST | SM_ANCHOR.NORTH | SM_ANCHOR.SOUTH;
@@ -239,7 +239,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * strechHorizontallyLabel.anchors = SM_ANCHOR.NORTH | SM_ANCHOR.WEST | SM_ANCHOR.EAST;
 	 * var stickToTopLeftCornerLabel = form.newLabel('Stick to top-left corner', 10, 10, 200, 100);
 	 * stickToTopLeftCornerLabel.background = 'orange';
-	 * stickToTopLeftCornerLabel.anchors = SM_ANCHOR.NORTH | SM_ANCHOR.WEST; // This is equivalent to SM_ANCHOR.DEFAULT 
+	 * stickToTopLeftCornerLabel.anchors = SM_ANCHOR.NORTH | SM_ANCHOR.WEST; // This is equivalent to SM_ANCHOR.DEFAULT
 	 * var stickToBottomRightCornerLabel = form.newLabel('Stick to bottom-right corner', 190, 190, 200, 100);
 	 * stickToBottomRightCornerLabel.background = 'pink';
 	 * stickToBottomRightCornerLabel.anchors = SM_ANCHOR.SOUTH | SM_ANCHOR.EAST;
@@ -271,7 +271,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 *
 	 * @sample
 	 * var labelBelow = form.newLabel('Green', 10, 10, 100, 50);
-	 * labelBelow.background = 'green';	
+	 * labelBelow.background = 'green';
 	 * labelBelow.formIndex = 10;
 	 * var fieldAbove = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 30);
 	 * fieldAbove.background = '#FF0000';
@@ -306,7 +306,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.solutionmodel.ISMPortal#setY(int)
-	 * 
+	 *
 	 * @sampleas getX()
 	 */
 	@JSGetter
@@ -323,7 +323,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getName()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
 	 * var label = form.newLabel('Label', 10, 10, 150, 150);
@@ -346,7 +346,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintable()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var printedField = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -370,7 +370,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getEnabled()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -390,7 +390,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getVisible()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -410,7 +410,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * The width in pixels of the component.
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * application.output('original width: ' + field.width);
@@ -434,7 +434,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/**
 	 * The height in pixels of the component.
-	 * 
+	 *
 	 * @sampleas getWidth()
 	 */
 	@JSGetter
@@ -456,12 +456,12 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * be disabled/enabled or made invisible/visible.
 	 * The group id should be a javascript compatible identifier to allow access of the group in scripting.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var label = form.newLabel('Green', 10, 10, 100, 20);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * label.groupID = 'someGroup';
-	 * field.groupID = 'someGroup';	
+	 * field.groupID = 'someGroup';
 	 * forms['someForm'].elements.someGroup.enabled = false;
 	 */
 	@JSGetter
@@ -479,10 +479,10 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/** Get a design-time property of an element.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
-	 * var prop = fld.getDesignTimeProperty('myprop')	
+	 * var prop = fld.getDesignTimeProperty('myprop')
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key)
@@ -492,10 +492,10 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/** Set a design-time property of an element.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
-	 * fld.putDesignTimeProperty('myprop', 'strawberry')	
+	 * fld.putDesignTimeProperty('myprop', 'strawberry')
 	 */
 	@JSFunction
 	public Object putDesignTimeProperty(String key, Object value)
@@ -505,7 +505,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/** Clear a design-time property of an element.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
 	 * fld.removeDesignTimeProperty('myprop')
@@ -518,10 +518,10 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 
 	/** Get the design-time properties of an element.
 	 *
-	 * @sample 
+	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
-	 * var propNames = fld.getDesignTimePropertyNames()	
+	 * var propNames = fld.getDesignTimePropertyNames()
 	 */
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
@@ -547,5 +547,20 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 		Dimension dim = comp.getSize();
 		return getClass().getSimpleName() + "[name:" + comp.getName() + ",form:" + ((ISupportName)comp.getParent()).getName() + ",x:" + loc.x + ",y:" + loc.y +
 			",width:" + dim.width + ",height:" + dim.height + ']';
+	}
+
+	/**
+	 *
+	 * @return form name
+	 */
+	@JSFunction
+	public String getFormName()
+	{
+		IJSParent< ? > parent = getJSParent();
+		while (!(parent instanceof JSForm))
+		{
+			parent = parent.getJSParent();
+		}
+		return ((JSForm)parent).getName();
 	}
 }

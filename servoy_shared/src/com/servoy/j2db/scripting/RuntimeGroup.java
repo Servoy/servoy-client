@@ -27,9 +27,9 @@ import com.servoy.j2db.ui.runtime.IRuntimeGroup;
 
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 5.0
  */
 public class RuntimeGroup implements IRuntimeGroup
@@ -41,7 +41,7 @@ public class RuntimeGroup implements IRuntimeGroup
 	private final List<IRuntimeComponent> scriptBaseObjects = new ArrayList<IRuntimeComponent>();
 
 	/**
-	 * @param name 
+	 * @param name
 	 * @param parent
 	 */
 	public RuntimeGroup(String name)
@@ -206,7 +206,7 @@ public class RuntimeGroup implements IRuntimeGroup
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesignTimeProperty#getDesignTimeProperty(java.lang.String)
 	 */
 	public Object getDesignTimeProperty(String key)
@@ -324,7 +324,7 @@ public class RuntimeGroup implements IRuntimeGroup
 
 	/*
 	 * Move contained objects relative to location change.
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.runtime.IRuntimeComponent#setLocation(int, int)
 	 */
 	public void setLocation(int x, int y)
@@ -355,7 +355,7 @@ public class RuntimeGroup implements IRuntimeGroup
 
 	/*
 	 * Resize contained objects relative to size change.
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.runtime.IRuntimeComponent#setSize(int, int)
 	 */
 	public void setSize(int width, int height)
@@ -396,5 +396,24 @@ public class RuntimeGroup implements IRuntimeGroup
 			}
 		}
 		return bounds == null ? NO_BOUNDS : bounds;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ui.runtime.HasRuntimeFormName#getFormName()
+	 */
+	@Override
+	public String getFormName()
+	{
+		for (IRuntimeComponent obj : scriptBaseObjects)
+		{
+			String formName = obj.getFormName();
+			if (formName != null)
+			{
+				return formName;
+			}
+		}
+		return ""; //$NON-NLS-1$
 	}
 }

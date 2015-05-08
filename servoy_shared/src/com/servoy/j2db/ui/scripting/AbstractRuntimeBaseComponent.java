@@ -49,7 +49,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable component for {@link BaseComponent}.
- * 
+ *
  * @author lvostinar
  * @since 6.0
  */
@@ -408,7 +408,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesignTimeProperty#getDesignTimeProperty(java.lang.String)
 	 */
 	public Object getDesignTimeProperty(String key)
@@ -426,8 +426,8 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		{
 			return "ScriptObject (component not yet set): " + getClass(); //$NON-NLS-1$
 		}
-		return getElementType() + "[name:" + getName() + ",x:" + getLocationX() + ",y:" + getLocationY() + ",width:" + getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-			",height:" + getHeight() + (valueString == null ? "" : (',' + valueString)) + ']'; //$NON-NLS-1$ //$NON-NLS-2$ 
+		return getElementType() + "[name:" + getName() + ",x:" + getLocationX() + ",y:" + getLocationY() + ",width:" + getWidth() + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			",height:" + getHeight() + (valueString == null ? "" : (',' + valueString)) + ']'; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -478,5 +478,10 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 			return;
 		}
 		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+	}
+
+	public String getFormName()
+	{
+		return application.getFormManager().getCurrentForm().getName();
 	}
 }
