@@ -3280,6 +3280,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (validationEnabled != b)
 		{
 			// find mode / edit mode switch
+			if (isScrollMode()) resetScrollParams();
 			getStylePropertyChanges().setChanged();
 		}
 		validationEnabled = b;
@@ -5414,7 +5415,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
 			}
-
+			if (selectedIndex == null && table.size() == 0)
+			{
+				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
+				return;
+			}
 			if (table.size() > 0 &&
 				(((ListItem<IRecordInternal>)table.get(0)).getIndex() == 0 && ((ListItem<IRecordInternal>)table.get(table.size() - 1)).getIndex() == table.size() - 1)) // check if have all the row components loaded
 			{
