@@ -24,18 +24,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
 
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -73,20 +74,17 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			for (WebComponentApiDefinition def : webComponentSpec.getApiFunctions().values())
 			{
-				if (isApiFunctionEnabled(def.getName()))
+				Function func = null;
+				if (apiObject != null)
 				{
-					Function func = null;
-					if (apiObject != null)
+					Object serverSideFunction = apiObject.get(def.getName(), apiObject);
+					if (serverSideFunction instanceof Function)
 					{
-						Object serverSideFunction = apiObject.get(def.getName(), apiObject);
-						if (serverSideFunction instanceof Function)
-						{
-							func = (Function)serverSideFunction;
-						}
+						func = (Function)serverSideFunction;
 					}
-					if (func != null) apiFunctions.put(def.getName(), func);
-					else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 				}
+				if (func != null) apiFunctions.put(def.getName(), func);
+				else apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (String propName : specs.keySet())
@@ -99,21 +97,6 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 				}
 			}
 		}
-	}
-
-	protected boolean isApiFunctionEnabled(String functionName)
-	{
-		FormElement fe = component.getFormElement();
-		if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors)
-		{
-			int anchor = ((ISupportAnchors)fe.getPersistIfAvailable()).getAnchors();
-			if ((anchor == 0 || (fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
-				(("getLocationX").equals(functionName) || ("getLocationY").equals(functionName) || ("getWidth").equals(functionName) || ("getHeight").equals(functionName)))
-			{
-				return false;
-			}
-		}
-		return true;
 	}
 
 	@Override
@@ -162,6 +145,24 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
 		}
+		if ("getFormName".equals(name))
+		{
+			return new Callable()
+			{
+
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					Container parent = component.getParent();
+					while (!(parent instanceof IWebFormUI))
+					{
+						parent = parent.getParent();
+					}
+					return ((IWebFormUI)parent).getController().getName();
+				}
+			};
+		}
+
 		return Scriptable.NOT_FOUND;
 	}
 
@@ -190,6 +191,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
 			return (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName));
+		}
+		if ("getFormName".equals(name)) //$NON-NLS-1$
+		{
+			return true;
 		}
 		return false;
 	}
@@ -307,4 +312,5 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	{
 		return component;
 	}
+
 }
