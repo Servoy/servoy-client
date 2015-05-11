@@ -85,6 +85,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		return TYPE_NAME;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
@@ -93,7 +94,22 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		{
 			try
 			{
-				return json.getJSONArray("for");
+				Object object = json.get("for");
+				if (object instanceof JSONArray)
+				{
+					JSONArray arr = (JSONArray)object;
+					String[] retValue = new String[arr.length()];
+					for (int i = 0; i < arr.length(); i++)
+					{
+						retValue[i] = arr.getString(i);
+					}
+					return retValue;
+				}
+				else if (object instanceof String)
+				{
+					return new String[] { (String)object };
+				}
+				return null;
 			}
 			catch (JSONException e)
 			{
@@ -214,93 +230,85 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		if (formElementValue instanceof String || formElementValue == null)
 		{
 			String dataproviderId = null;
-			if (pd.getConfig() instanceof JSONArray)
+			if (pd.getConfig() instanceof String[])
 			{
-				JSONArray arr = (JSONArray)pd.getConfig();
-				try
+				for (String element : (String[])pd.getConfig())
 				{
-					for (int i = 0; i < arr.length(); i++)
+					PropertyDescription forProperty = formElement.getWebComponentSpec().getProperty(element);
+					if (forProperty != null)
 					{
-						PropertyDescription forProperty = formElement.getWebComponentSpec().getProperty(arr.getString(i));
-						if (forProperty != null)
+						if (forProperty.getType() instanceof DataproviderPropertyType)
 						{
-							if (forProperty.getType() instanceof DataproviderPropertyType)
+							dataproviderId = (String)formElement.getPropertyValue(element);
+							break;
+						}
+						else if (forProperty.getType() instanceof ValueListPropertyType)
+						{
+							Object id = formElement.getPropertyValue(element);
+							int valuelistID = Utils.getAsInteger(id);
+							INGApplication application = dataAdapterList.getApplication();
+							ValueList val = null;
+							if (valuelistID > 0)
 							{
-								dataproviderId = (String)formElement.getPropertyValue(arr.getString(i));
-								break;
+								val = application.getFlattenedSolution().getValueList(valuelistID);
 							}
-							else if (forProperty.getType() instanceof ValueListPropertyType)
+							else
 							{
-								Object id = formElement.getPropertyValue(arr.getString(i));
-								int valuelistID = Utils.getAsInteger(id);
-								INGApplication application = dataAdapterList.getApplication();
-								ValueList val = null;
-								if (valuelistID > 0)
+								UUID uuid = Utils.getAsUUID(id, false);
+								if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
+							}
+							if (val != null)
+							{
+								int dpType = IColumnTypes.TEXT;
+								IDataProvider dataProvider = null;
+								ITable table;
+								try
 								{
-									val = application.getFlattenedSolution().getValueList(valuelistID);
-								}
-								else
-								{
-									UUID uuid = Utils.getAsUUID(id, false);
-									if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
-								}
-								if (val != null)
-								{
-									int dpType = IColumnTypes.TEXT;
-									IDataProvider dataProvider = null;
-									ITable table;
-									try
+									if (val.getRelationName() != null)
 									{
-										if (val.getRelationName() != null)
+										Relation[] relations = application.getFlattenedSolution().getRelationSequence(val.getRelationName());
+										table = relations[relations.length - 1].getForeignTable();
+									}
+									else
+									{
+										table = val.getTable();
+									}
+
+									if (table != null)
+									{
+										String dp = null;
+										int showDataProviders = val.getShowDataProviders();
+										if (showDataProviders == 1)
 										{
-											Relation[] relations = application.getFlattenedSolution().getRelationSequence(val.getRelationName());
-											table = relations[relations.length - 1].getForeignTable();
+											dp = val.getDataProviderID1();
 										}
-										else
+										else if (showDataProviders == 2)
 										{
-											table = val.getTable();
+											dp = val.getDataProviderID2();
+										}
+										else if (showDataProviders == 4)
+										{
+											dp = val.getDataProviderID3();
 										}
 
-										if (table != null)
+										if (dp != null)
 										{
-											String dp = null;
-											int showDataProviders = val.getShowDataProviders();
-											if (showDataProviders == 1)
-											{
-												dp = val.getDataProviderID1();
-											}
-											else if (showDataProviders == 2)
-											{
-												dp = val.getDataProviderID2();
-											}
-											else if (showDataProviders == 4)
-											{
-												dp = val.getDataProviderID3();
-											}
-
-											if (dp != null)
-											{
-												dataProvider = application.getFlattenedSolution().getDataProviderForTable((Table)table, dp);
-											}
-											if (dataProvider != null)
-											{
-												dpType = dataProvider.getDataProviderType();
-											}
+											dataProvider = application.getFlattenedSolution().getDataProviderForTable((Table)table, dp);
+										}
+										if (dataProvider != null)
+										{
+											dpType = dataProvider.getDataProviderType();
 										}
 									}
-									catch (Exception ex)
-									{
-										Debug.error(ex);
-									}
-									return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 								}
+								catch (Exception ex)
+								{
+									Debug.error(ex);
+								}
+								return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 							}
 						}
 					}
-				}
-				catch (JSONException e)
-				{
-					Debug.error(e);
 				}
 			}
 			ComponentFormat format = ComponentFormat.getComponentFormat(
