@@ -453,8 +453,8 @@ public class SpecGenerator
 		repoTypeMapping.put(IRepositoryConstants.SERVERS, "object"); // use SERVERS to generate \"object type\"
 
 
-		String findModeEditable = "{ \"type\":\"findmode\", \"scope\" : \"private\", \"for\" : {\"editable\":true}}";
-		String findModeEnabled = "{ \"type\":\"findmode\", \"scope\" : \"private\", \"for\" : { \"enabled\":true}}";
+		String findModeEditable = "{ \"type\":\"findmode\", \"tags\":{\"scope\":\"private\"}, \"for\" : {\"editable\":true}}";
+		String findModeEnabled = "{ \"type\":\"findmode\", \"tags\":{\"scope\":\"private\"}, \"for\" : { \"enabled\":true}}";
 
 		addFindmodeModelEntries.add("portal");
 		addFindmodeModelEntries.add("calendar");

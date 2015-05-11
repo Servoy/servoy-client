@@ -15,7 +15,7 @@
 	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundset": "relatedFoundset"} }, 
 	        "columnHeaders" : { "type" : "tagstring[]", "tags" : {"scope": "private"} }, 
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onDragEndMethodID","onDragMethodID","onDragOverMethodID","onDropMethodID"] }, 
-	        "findmode" : { "type":"findmode", "scope" : "private", "for" : { "enabled":true}}, 
+	        "findmode" : { "type":"findmode", "tags":{"scope":"private"}, "for" : { "enabled":true}}, 
 	        "foreground" : "color", 
 	        "headerHeight" : {"type" :"int",  "default" : 32}, 
 	        "initialSort" : "string", 
