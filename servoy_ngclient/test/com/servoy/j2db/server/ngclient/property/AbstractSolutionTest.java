@@ -19,10 +19,14 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.websocket.CloseReason;
 import javax.websocket.EncodeException;
@@ -71,6 +78,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 
 /**
@@ -118,23 +126,163 @@ public abstract class AbstractSolutionTest
 		super();
 	}
 
+	private static class ZipPackageReader implements WebComponentPackage.IPackageReader
+	{
+		private final ZipFile file;
+		private final String pathPrefix;
+
+		public ZipPackageReader(ZipFile file, String pathPrefix)
+		{
+			this.file = file;
+			this.pathPrefix = pathPrefix;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getName()
+		 */
+		@Override
+		public String getName()
+		{
+			String[] split = file.getEntry(pathPrefix).getName().split("/");
+			return split[split.length - 1].replace("/", "");
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageName()
+		 */
+		@Override
+		public String getPackageName()
+		{
+			try
+			{
+				String packageDisplayname = WebComponentPackage.getPackageName(getManifest());
+				if (packageDisplayname != null) return packageDisplayname;
+			}
+			catch (IOException e)
+			{
+				Debug.log(e);
+			}
+
+			// fall back to symbolic name
+			return getName();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageDisplayname()
+		 */
+		@Override
+		public String getPackageDisplayname()
+		{
+			try
+			{
+				String packageDisplayname = WebComponentPackage.getPackageDisplayname(getManifest());
+				if (packageDisplayname != null) return packageDisplayname;
+			}
+			catch (IOException e)
+			{
+				Debug.log(e);
+			}
+
+			// fall back to symbolic name
+			return getPackageName();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getManifest()
+		 */
+		@Override
+		public Manifest getManifest() throws IOException
+		{
+			ZipEntry m = file.getEntry(pathPrefix + "META-INF/MANIFEST.MF");
+			try (InputStream is = file.getInputStream(m))
+			{
+				return new Manifest(is);
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#readTextFile(java.lang.String, java.nio.charset.Charset)
+		 */
+		@Override
+		public String readTextFile(String path, Charset charset) throws IOException
+		{
+			ZipEntry m = file.getEntry(pathPrefix + path);
+			try (InputStream is = file.getInputStream(m))
+			{
+				return Utils.getTXTFileContent(is, charset);
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
+		 */
+		@Override
+		public URL getUrlForPath(String path) throws MalformedURLException
+		{
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
+		 */
+		@Override
+		public URL getPackageURL()
+		{
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
+		 */
+		@Override
+		public void reportError(String specpath, Exception e)
+		{
+			System.err.println(e.getMessage());
+		}
+
+	}
+
 	@Before
 	public void buildSolution() throws Exception
 	{
 		Types.getTypesInstance().registerTypes();
 
-		File[] locations = new File[1];
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		System.err.println(f.getAbsolutePath());
-		locations[0] = new File(f.getAbsoluteFile() + "/../war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 
-		System.err.println(locations[0].getAbsolutePath() + "::" + locations[0].exists());
-
+		IPackageReader[] servicesReaders = null;
+		IPackageReader[] componentsReaders = null;
 		InMemPackageReader inMemPackageReader = getTestComponents();
+		if (f.isFile() && f.getName().startsWith("servoy_ngclient_") && f.getName().endsWith(".jar"))
+		{
+			ZipFile zipFile = new ZipFile(f);
+			componentsReaders = inMemPackageReader != null ? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoydefault/"), inMemPackageReader }
+				: new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoydefault/") };
+			servicesReaders = new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoyservices/") };
+		}
+		else
+		{
+			componentsReaders = getReaders(new File[] { new File(f.getAbsoluteFile() + "/../war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+			servicesReaders = getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null);
+		}
 
-		WebComponentSpecProvider.init(getReaders(locations, inMemPackageReader));
-
-		WebServiceSpecProvider.init(getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null));
+		WebComponentSpecProvider.init(componentsReaders);
+		WebServiceSpecProvider.init(servicesReaders);
 
 		final TestRepository tr = new TestRepository();
 		try
