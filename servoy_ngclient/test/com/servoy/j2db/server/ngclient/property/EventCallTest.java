@@ -86,6 +86,7 @@ public class EventCallTest extends AbstractSolutionTest
 	public void callButtonWithNoName()
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		// fake incoming request for button click
 		endpoint.incoming(
 			"{\"service\":\"formService\",\"methodname\":\"executeEvent\",\"args\":{\"formname\":\"test\",\"beanname\":\"svy_3\",\"event\":\"onActionMethodID\",\"args\":[{\"type\":\"event\",\"eventName\":\"onActionMethodID\",\"modifiers\":0,\"timestamp\":1430912492641,\"x\":362,\"y\":207}],\"changes\":{}},\"cmsgid\":2}",
@@ -101,6 +102,7 @@ public class EventCallTest extends AbstractSolutionTest
 	public void callButtonWithUUIDName()
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		Collection<WebComponent> components = form.getFormUI().getComponents();
 		String beanName = null;
 		for (WebComponent webComponent : components)

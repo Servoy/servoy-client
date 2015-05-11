@@ -91,7 +91,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
 	 */
 	@Override
@@ -108,7 +108,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -228,7 +228,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetReadByDataproviders() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-
+		Assert.assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 
 		JSONObject object = new JSONObject(full);
@@ -277,6 +277,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetWithDynamicDataproviders() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mydynamiccustombean");
@@ -316,6 +317,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetRelated() throws JSONException// change selected index in main foundset and related foundset should change
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mydynamiccustombean").getRawPropertyValue(
 			"myfoundset");
@@ -353,6 +355,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetViewportChangeData() throws JSONException, ServoyException// change rows in/near viewport
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(1, 1);
@@ -371,6 +374,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetViewportAddRemove() throws JSONException, ServoyException// add / remove rows in viewport, near viewport
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
@@ -429,6 +433,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetChangeMonitorChangeFlags() throws ServoyException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
@@ -447,6 +452,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetViewportBounds() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(0, 2);
