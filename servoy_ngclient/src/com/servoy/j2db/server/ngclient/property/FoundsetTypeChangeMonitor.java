@@ -261,7 +261,7 @@ public class FoundsetTypeChangeMonitor
 				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 				{
 					vpdcm.queueOperation(relativeFirstRow, relativeLastRow, viewPort.getStartIndex() + oldViewPortSize - numberOfDeletes, viewPortEndIdx,
-						propertyValue.foundset, RowData.DELETE);
+						propertyValue.getFoundset(), RowData.DELETE);
 				}
 				viewPortRecordChangesUpdated = true;
 			}
@@ -296,7 +296,7 @@ public class FoundsetTypeChangeMonitor
 				// add records that were inserted in viewPort
 				for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 				{
-					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.foundset,
+					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), viewPort.getSize(), firstRow, lastViewPortInsert, propertyValue.getFoundset(),
 						RowData.INSERT); // for insert operations client needs to know the new viewport size so that it knows if it should delete records at the end or not; that is done by putting the 'size' in relativeLastRow
 				}
 				viewPortRecordChangesUpdated = true;
@@ -330,7 +330,7 @@ public class FoundsetTypeChangeMonitor
 					for (ViewportDataChangeMonitor vpdcm : viewPortDataChangeMonitors)
 					{
 						vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(), firstViewPortIndex,
-							lastViewPortIndex, propertyValue.foundset, RowData.CHANGE);
+							lastViewPortIndex, propertyValue.getFoundset(), RowData.CHANGE);
 					}
 					viewPortRecordChangesUpdated = true;
 				}

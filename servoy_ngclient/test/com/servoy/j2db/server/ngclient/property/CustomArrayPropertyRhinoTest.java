@@ -59,7 +59,7 @@ public class CustomArrayPropertyRhinoTest
 	@Before
 	public void setUp() throws Exception
 	{
-		Types.registerTypes();
+		Types.getTypesInstance().registerTypes();
 
 		InputStream is = getClass().getResourceAsStream("PropertyTests.manifest");
 		byte[] bytes = new byte[is.available()];

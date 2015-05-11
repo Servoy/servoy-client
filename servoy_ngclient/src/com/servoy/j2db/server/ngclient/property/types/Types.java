@@ -34,7 +34,19 @@ import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
  */
 public class Types
 {
-	public static void registerTypes()
+	private static Types typesInstance = new Types();
+
+	public static Types getTypesInstance()
+	{
+		return typesInstance;
+	}
+
+	public static void setTypesInstance(Types typesInstance)
+	{
+		Types.typesInstance = typesInstance;
+	}
+
+	public void registerTypes()
 	{
 		TypesRegistry.addType(BorderPropertyType.INSTANCE);
 		TypesRegistry.addType(DatasetPropertyType.INSTANCE);

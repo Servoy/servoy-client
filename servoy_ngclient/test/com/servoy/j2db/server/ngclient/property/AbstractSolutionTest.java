@@ -121,7 +121,7 @@ public abstract class AbstractSolutionTest
 	@Before
 	public void buildSolution() throws Exception
 	{
-		Types.registerTypes();
+		Types.getTypesInstance().registerTypes();
 
 		File[] locations = new File[1];
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());

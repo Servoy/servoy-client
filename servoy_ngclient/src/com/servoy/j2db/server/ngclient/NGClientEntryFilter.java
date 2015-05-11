@@ -101,7 +101,7 @@ public class NGClientEntryFilter extends WebEntry
 			{
 				Utils.closeInputStream(is);
 			}
-			Types.registerTypes();
+			Types.getTypesInstance().registerTypes();
 
 			super.init(fc);
 		}

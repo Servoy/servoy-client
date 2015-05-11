@@ -48,7 +48,7 @@ public class WebComponentSpecTest
 	@Before
 	public void setup()
 	{
-		Types.registerTypes();
+		Types.getTypesInstance().registerTypes();
 	}
 
 	@Test

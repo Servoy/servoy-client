@@ -90,7 +90,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	// END keys and values used in JSON
 
 	protected FoundsetTypeViewport viewPort;
-	protected IFoundSetInternal foundset;
+	private IFoundSetInternal foundset;
 	protected final Object designJSONValue;
 	protected BaseWebObject webObject; // (the component)
 	protected Map<String, String> dataproviders = new HashMap<>();
@@ -168,7 +168,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 		// foundsetSelector as defined in component design XML.
 		foundsetSelector = spec.optString(FOUNDSET_SELECTOR);
-		updateFoundset(null);
+		updateFoundset((IRecordInternal)null);
 
 		JSONObject dataProvidersJSON = spec.optJSONObject("dataproviders");
 		if (dataProvidersJSON != null)
@@ -224,15 +224,19 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			try
 			{
 				// if we want to use this type on services as well we need extra code here to get the application
-				newFoundset = (IFoundSetInternal)((WebComponent)webObject).findParent(IWebFormUI.class).getDataConverterContext().getApplication().getFoundSetManager().getFoundSet(
-					foundsetSelector);
+				newFoundset = (IFoundSetInternal)getFormUI().getDataConverterContext().getApplication().getFoundSetManager().getFoundSet(foundsetSelector);
 			}
 			catch (ServoyException e)
 			{
 				if (record != null && !(record instanceof PrototypeState)) Debug.error(e);
 			}
 		}
+		updateFoundset(newFoundset);
 
+	}
+
+	protected void updateFoundset(IFoundSetInternal newFoundset)
+	{
 		if (newFoundset != foundset)
 		{
 			int oldServerSize = (foundset != null ? foundset.getSize() : 0);
@@ -275,10 +279,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		destinationJSON.object();
-		destinationJSON.key(SERVER_SIZE).value(foundset != null && NGUtils.shouldShowData(dataConverterContext) ? foundset.getSize() : 0);
+		destinationJSON.key(SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
-		destinationJSON.key(MULTI_SELECT).value(foundset != null ? foundset.isMultiSelect() : false); // TODO listener and granular changes for this as well?
+		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false); // TODO listener and granular changes for this as well?
 
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
@@ -304,13 +308,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 //	         	{ _svyRowId: 'someRowIdHASH2', nameColumn: "Yogy" },
 //				(...)
 //	    ]
-		if (foundset != null && NGUtils.shouldShowData(dataConverterContext))
+		if (getFoundset() != null)
 		{
 			DataConversion clientConversionInfo = new DataConversion();
 
 			destinationJSON.key(ROWS);
 			clientConversionInfo.pushNode(ROWS);
-			rowDataProvider.writeRowData(viewPort.getStartIndex(), viewPort.getStartIndex() + viewPort.getSize() - 1, foundset, destinationJSON,
+			rowDataProvider.writeRowData(viewPort.getStartIndex(), viewPort.getStartIndex() + viewPort.getSize() - 1, getFoundset(), destinationJSON,
 				clientConversionInfo);
 			clientConversionInfo.popNode();
 
@@ -330,9 +334,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	protected void addSelectedIndexes(JSONWriter destinationJSON) throws JSONException
 	{
 		destinationJSON.array();
-		if (foundset != null)
+		if (getFoundset() != null)
 		{
-			for (int idx : foundset.getSelectedIndexes())
+			for (int idx : getFoundset().getSelectedIndexes())
 			{
 				destinationJSON.value(idx);
 			}
@@ -358,7 +362,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			if (changeMonitor.shouldSendFoundsetSize())
 			{
 				destinationJSON.object();
-				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(foundset != null ? foundset.getSize() : 0);
+				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendSelectedIndexes())
@@ -453,7 +457,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	public void browserUpdatesReceived(Object jsonValue)
 	{
-		if (foundset == null) return;
+		if (getFoundset() == null) return;
 		try
 		{
 			if (jsonValue instanceof JSONArray)
@@ -629,7 +633,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		return dataAdapterList;
 	}
 
-	private IWebFormUI getFormUI()
+	protected IWebFormUI getFormUI()
 	{
 		return ((WebComponent)webObject).findParent(IWebFormUI.class);
 	}

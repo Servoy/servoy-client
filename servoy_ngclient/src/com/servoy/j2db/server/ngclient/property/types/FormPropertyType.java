@@ -33,10 +33,8 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.FormElementContext;
-import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -50,7 +48,7 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 	public static final String TYPE_NAME = "form";
 
-	private FormPropertyType()
+	protected FormPropertyType()
 	{
 	}
 
@@ -96,11 +94,7 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 		{
 			writer.key(key);
 		}
-		if (!NGUtils.shouldShowData(dataConverterContext))
-		{
-			writer.value(null);
-		}
-		else if (sabloValue instanceof String)
+		if (sabloValue instanceof String)
 		{
 			// form name
 			writer.value(sabloValue);
@@ -170,15 +164,7 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 		if (form != null)
 		{
 			writer.key(key);
-			if (formElementContext.getContext().getApplication() instanceof DesignNGClient &&
-				!((DesignNGClient)formElementContext.getContext().getApplication()).getShowData())
-			{
-				writer.value(null);
-			}
-			else
-			{
-				writer.value(form.getName());
-			}
+			writer.value(form.getName());
 		}
 		return writer;
 	}

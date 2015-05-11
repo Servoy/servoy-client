@@ -172,7 +172,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			{
 				case "foundset" :
 				{
-					return webComponentValue.foundset;
+					return webComponentValue.getFoundset();
 				}
 				case "dataproviders" :
 				{
@@ -214,7 +214,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			{
 				case "foundset" :
 				{
-					if (value instanceof IFoundSetInternal) webComponentValue.foundset = (IFoundSetInternal)value;
+					if (value instanceof IFoundSetInternal) webComponentValue.updateFoundset((IFoundSetInternal)value);
 					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
 				}
 				case "dataproviders" :

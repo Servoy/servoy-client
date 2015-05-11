@@ -37,7 +37,6 @@ import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
-import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ScopesUtils;
 
 /**
@@ -54,7 +53,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
 	public static final String TYPE_NAME = "dataprovider"; //$NON-NLS-1$
 
-	private DataproviderPropertyType()
+	protected DataproviderPropertyType()
 	{
 	}
 
@@ -130,7 +129,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public JSONWriter toJSON(JSONWriter writer, String key, DataproviderTypeSabloValue sabloValue, DataConversion clientConversion,
 		IDataConverterContext dataConverterContext) throws JSONException
 	{
-		if (sabloValue != null && NGUtils.shouldShowData(dataConverterContext))
+		if (sabloValue != null)
 		{
 			sabloValue.toJSON(writer, key, clientConversion, dataConverterContext);
 		}

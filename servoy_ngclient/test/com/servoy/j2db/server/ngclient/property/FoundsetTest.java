@@ -379,7 +379,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		foundSet.newRecord(1, false);
 		Assert.assertEquals(1, viewPort.size);
 		Assert.assertEquals(1, viewPort.startIndex);
-		Assert.assertEquals(3, rawPropertyValue.foundset.getSize());
+		Assert.assertEquals(3, rawPropertyValue.getFoundset().getSize());
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.addViewPort(jsonWriter);
@@ -389,7 +389,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		foundSet.deleteRecord(1);
 
 
-		Assert.assertEquals(2, rawPropertyValue.foundset.getSize());
+		Assert.assertEquals(2, rawPropertyValue.getFoundset().getSize());
 
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
@@ -409,7 +409,7 @@ public class FoundsetTest extends AbstractSolutionTest
 			stringWriter.toString());
 
 		foundSet.newRecord(3, false);
-		Assert.assertEquals(4, rawPropertyValue.foundset.getSize());
+		Assert.assertEquals(4, rawPropertyValue.getFoundset().getSize());
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 
@@ -422,7 +422,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		//delete records added in this test
 		foundSet.deleteRecord(0);
 		foundSet.deleteRecord(2);//last record is now at index 2
-		Assert.assertEquals(2, rawPropertyValue.foundset.getSize());
+		Assert.assertEquals(2, rawPropertyValue.getFoundset().getSize());
 	}
 
 	@Test
