@@ -125,7 +125,10 @@ public abstract class AbstractSolutionTest
 
 		File[] locations = new File[1];
 		final File f = new File(PersistFieldInstanceTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		System.err.println(f.getAbsolutePath());
 		locations[0] = new File(f.getAbsoluteFile() + "/../war/servoydefault/"); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+
+		System.err.println(locations[0].getAbsolutePath() + "::" + locations[0].exists());
 
 		InMemPackageReader inMemPackageReader = getTestComponents();
 
