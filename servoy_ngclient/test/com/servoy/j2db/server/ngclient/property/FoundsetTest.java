@@ -91,7 +91,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
 	 */
 	@Override
@@ -108,7 +108,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -368,6 +368,38 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.getFoundset().getRecord(1).setValue("test2", "not test2 any more");
 		rawPropertyValue.getFoundset().getRecord(1).stopEditing();
 		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
+	}
+
+	@Test
+	public void foundsetViewportAllRecordChangedAndDeleted() throws JSONException, ServoyException// change rows in/near viewport
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		viewPort.setBounds(0, form.getFormModel().getSize());
+
+		StringWriter stringWriter = new StringWriter();
+		JSONWriter jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), null);
+
+		Assert.assertEquals(
+			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			stringWriter.toString());
+
+		form.getFormModel().fireFoundSetChanged();
+
+		form.getFormModel().deleteRecord(0);
+
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), null);
+
+		Assert.assertEquals(
+			"{\"serverSize\":1,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_0\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			stringWriter.toString());
+
+
 	}
 
 	@Test
