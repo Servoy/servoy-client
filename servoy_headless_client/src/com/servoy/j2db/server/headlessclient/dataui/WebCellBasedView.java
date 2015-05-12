@@ -303,7 +303,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -847,7 +847,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					add(l);
 			}
 
-			ListItem<IRecordInternal> listItem = index < size() ? (ListItem<IRecordInternal>)get(index) : null;
+			ListItem<IRecordInternal> listItem = (ListItem<IRecordInternal>)get(String.valueOf(index));
 			if (listItem == null)
 			{
 				// Create item for index
@@ -4526,7 +4526,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@Override
@@ -5259,7 +5259,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -5476,13 +5476,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				table.setStartIndex(viewStartIndex);
 				table.setViewSize(newRowsCount);
 				isGettingRows = true;
-				//get all rows until the selection
-				getRows(table, 0, viewStartIndex + newRowsCount);
-
+				table.removeAll();
 				//get the actual 3*pageSize rows
 				newRows = getRows(table, viewStartIndex, newRowsCount);
 				rowsBuffer = renderRows(getResponse(), newRows);
 				isGettingRows = false;
+				selectedIndex = new Integer(selectedIndex.intValue() - viewStartIndex);
 			}
 
 			if (rowsBuffer != null)
