@@ -48,20 +48,24 @@ public class Activator implements BundleActivator
 		Activator.context = ctx;
 		if (ApplicationServerRegistry.getServiceRegistry() != null)
 		{
-			final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
-			if (service != null)
+			WebsocketSessionManager.setWebsocketSessionFactory(WebsocketSessionFactory.CLIENT_ENDPOINT, new IWebsocketSessionFactory()
 			{
-				WebsocketSessionManager.setWebsocketSessionFactory(WebsocketSessionFactory.CLIENT_ENDPOINT, new IWebsocketSessionFactory()
+				@Override
+				public IWebsocketSession createSession(String uuid) throws Exception
 				{
-					@Override
-					public IWebsocketSession createSession(String uuid) throws Exception
+					NGClientWebsocketSession wsSession = new NGClientWebsocketSession(uuid);
+					final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
+					if (service != null)
 					{
-						NGClientWebsocketSession wsSession = new NGClientWebsocketSession(uuid);
 						wsSession.setClient((NGClient)service.createDebugNGClient(wsSession));
-						return wsSession;
 					}
-				});
-			}
+					else
+					{
+						wsSession.setClient(new NGClient(wsSession));
+					}
+					return wsSession;
+				}
+			});
 		}
 	}
 
