@@ -52,6 +52,7 @@ public class MethodTemplate implements IMethodTemplate
 
 	private static final String TAG_DESCRIPTION = "description";
 	private static final String TAG_ARGUMENTS = "arguments";
+	private static final String TAG_RETURN_TYPE = "return";
 	private static final String TAG_CODE = "code";
 
 	private static final MethodTemplate DEFAULT_TEMPLATE = new MethodTemplate(null, null, null, null, true);

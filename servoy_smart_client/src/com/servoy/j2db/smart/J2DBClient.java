@@ -20,6 +20,7 @@ package com.servoy.j2db.smart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -143,6 +144,7 @@ import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMessagesCallback;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.IProvideFormName;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.LAFManager;
@@ -238,6 +240,7 @@ import com.servoy.j2db.smart.dataui.DataTextArea;
 import com.servoy.j2db.smart.dataui.SwingItemFactory;
 import com.servoy.j2db.smart.plugins.ClientPluginManager;
 import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
+import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.BrowserLauncher;
@@ -273,7 +276,8 @@ import com.servoy.j2db.util.toolbar.ToolbarPanel;
  *
  * @author jblok
  */
-public class J2DBClient extends ClientState implements ISmartClientApplication, IGlobalEditListener, IInfoListener, IReconnectListener, IMessagesCallback
+public class J2DBClient extends ClientState implements ISmartClientApplication, IGlobalEditListener, IInfoListener, IReconnectListener, IMessagesCallback,
+	IProvideFormName
 {
 	protected JFrame frame;
 	protected JRootPane rootPane; // root pane from applet or frame(above)
@@ -421,7 +425,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IApplication#getOSName()
 	 */
 	public String getClientOSName()
@@ -4447,5 +4451,25 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	public boolean isFormElementsEditableInFindMode()
 	{
 		return isFormElementsEditableInFindMode;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IProvideFormName#getFormNameFor(java.lang.Object)
+	 */
+	@Override
+	public String getFormNameFor(Object component)
+	{
+		if (component instanceof Component)
+		{
+			Container parent = ((Component)component).getParent();
+			while (!(parent instanceof IFormUI))
+			{
+				parent = parent.getParent();
+			}
+			return ((IFormUI)parent).getController().getName();
+		}
+		return "";
 	}
 }

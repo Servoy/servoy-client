@@ -30,6 +30,7 @@ import javax.swing.JComponent;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IProvideFormName;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -408,7 +409,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesignTimeProperty#getDesignTimeProperty(java.lang.String)
 	 */
 	public Object getDesignTimeProperty(String key)
@@ -480,8 +481,14 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 
+	@SuppressWarnings("cast")
 	public String getFormName()
 	{
-		return application.getFormManager().getCurrentForm().getName();
+
+		if (application instanceof IProvideFormName)
+		{
+			return ((IProvideFormName)application).getFormNameFor(component);
+		}
+		return null;
 	}
 }

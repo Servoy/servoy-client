@@ -44,6 +44,8 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.swing.SwingUtilities;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WicketFilter;
 import org.mozilla.javascript.Scriptable;
@@ -1228,7 +1230,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
@@ -1238,12 +1240,32 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
 	public void sessionWillPassivate(HttpSessionEvent arg0)
 	{
 		shutDown(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IProvideFormName#getFormNameFor(java.lang.Object)
+	 */
+	@Override
+	public String getFormNameFor(Object component)
+	{
+		if (component instanceof Component)
+		{
+			MarkupContainer parent = ((Component)component).getParent();
+			while (!(parent instanceof WebForm))
+			{
+				parent = parent.getParent();
+			}
+			return ((WebForm)parent).getController().getName();
+		}
+		return ""; //$NON-NLS-1$
 	}
 }

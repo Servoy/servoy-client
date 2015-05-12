@@ -40,7 +40,7 @@ public interface ISmartClientApplication extends IApplication
 	/**
 	 * Register a URLStreamHandler for a protocol.
 	 * For developer support for this URLStreamHandler your class has to implement {@link IDeveloperURLStreamHandler}
-	 * 
+	 *
 	 * @param protocolName
 	 * @param handler
 	 */
@@ -48,21 +48,21 @@ public interface ISmartClientApplication extends IApplication
 
 	/**
 	 * Get the import menu, used by plugins to add import menu items (actions).
-	 * 
+	 *
 	 * @return JMenu
 	 */
 	public JMenu getImportMenu();
 
 	/**
 	 * Get the export menu, used by plugins to add export menu items (actions).
-	 * 
+	 *
 	 * @return JMenu
 	 */
 	public JMenu getExportMenu();
 
 	/**
 	 * Get the main application frame.
-	 * 
+	 *
 	 * @return JFrame
 	 */
 	public JFrame getMainApplicationFrame();
@@ -70,7 +70,7 @@ public interface ISmartClientApplication extends IApplication
 	/**
 	 * Add a window to the cache (makes dialogs and windows faster popup if called second time). <br>
 	 * <b>Note:</b> the cache will be cleared on solution close and .dispose() will be called on all
-	 * 
+	 *
 	 * @param name
 	 * @param the dialog or window
 	 */
@@ -78,7 +78,7 @@ public interface ISmartClientApplication extends IApplication
 
 	/**
 	 * Get a cached window.
-	 * 
+	 *
 	 * @param name
 	 * @return Window the window requested or null if not found
 	 */
@@ -86,14 +86,14 @@ public interface ISmartClientApplication extends IApplication
 
 	/**
 	 * Get the toolbar panel (used to control toolbars).
-	 * 
+	 *
 	 * @return IToolbarPanel
 	 */
 	public IToolbarPanel getToolbarPanel();
 
 	/**
 	 * Report an error when in a dialog.
-	 * 
+	 *
 	 * @param parentComponent
 	 * @param msg
 	 * @param detail
@@ -102,7 +102,7 @@ public interface ISmartClientApplication extends IApplication
 
 	/**
 	 * Report an info when in a dialog.
-	 * 
+	 *
 	 * @param parentComponent
 	 * @param msg
 	 * @param detail

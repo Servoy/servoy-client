@@ -25,7 +25,7 @@ import com.servoy.j2db.server.shared.ISessionBean;
  * @author rgansevles
  *
  */
-public interface ISessionClient extends ISessionBean, IApplication
+public interface ISessionClient extends ISessionBean, IApplication, IProvideFormName
 {
 
 	void setOutputChannel(InfoChannel channel);
