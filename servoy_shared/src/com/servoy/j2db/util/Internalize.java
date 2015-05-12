@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.util.TreeSet;
@@ -23,14 +23,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Class to make serializable objects smaller, by reusing same immutable objects, also will help reduce memory in many client (=server) environment.
- * 
+ *
  * @author jblok
  */
 public final class Internalize
 {
 	private static final Internalize instance = new Internalize();
 
-	static volatile int maxsize = 50000;
+	private static volatile int maxsize = 50000;
 	private final ConcurrentHashMap<Object, ObjectHolder> internedMap = new ConcurrentHashMap<Object, ObjectHolder>(5000);
 	private final AtomicBoolean makingroom = new AtomicBoolean(false);
 
@@ -72,7 +72,7 @@ public final class Internalize
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void clear()
 	{
@@ -86,7 +86,7 @@ public final class Internalize
 		ObjectHolder retValue = internedMap.get(obj);
 		if (retValue == null)
 		{
-			if (internedMap.size() >= maxsize)
+			if (internedMap.size() >= getMaxsize())
 			{
 				// clear less used.
 				makeRoom();
@@ -109,7 +109,7 @@ public final class Internalize
 				TreeSet<ObjectHolder> set = new TreeSet<ObjectHolder>(internedMap.values());
 				int counter = 0;
 				// clean 1/5 of max objects.
-				int toRemove = maxsize / 5;
+				int toRemove = getMaxsize() / 5;
 				for (ObjectHolder objectHolder : set)
 				{
 					internedMap.remove(objectHolder.object);
@@ -121,6 +121,14 @@ public final class Internalize
 				makingroom.set(false);
 			}
 		}
+	}
+
+	/**
+	 * @return the maxsize
+	 */
+	public static int getMaxsize()
+	{
+		return maxsize;
 	}
 
 	private final static class ObjectHolder implements Comparable<ObjectHolder>

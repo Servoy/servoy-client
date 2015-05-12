@@ -60,7 +60,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * Constructor I
 	 */
-	protected GraphicalComponent(ISupportChilds parent, int element_id, UUID uuid)
+	public GraphicalComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.GRAPHICALCOMPONENTS, parent, element_id, uuid);
 	}
