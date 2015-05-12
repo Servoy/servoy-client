@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -183,18 +182,11 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				for (PropertyDescription formatPd : properties)
 				{
 					// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
-					try
+					if (formatPd.getConfig() instanceof String[] && ((String[])formatPd.getConfig()).length > 0 &&
+						(config.getFor().equals(((String[])formatPd.getConfig())[0]) || pd.getName().equals(((String[])formatPd.getConfig())[0])))
 					{
-						if (formatPd.getConfig() instanceof JSONArray && ((JSONArray)formatPd.getConfig()).length() > 0 &&
-							(config.getFor().equals(((JSONArray)formatPd.getConfig()).get(0)) || pd.getName().equals(((JSONArray)formatPd.getConfig()).get(0))))
-						{
-							format = (String)formElement.getPropertyValue(formatPd.getName());
-							break;
-						}
-					}
-					catch (JSONException ex)
-					{
-						Debug.error(ex);
+						format = (String)formElement.getPropertyValue(formatPd.getName());
+						break;
 					}
 				}
 			}
@@ -233,7 +225,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -270,7 +262,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -282,7 +274,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */
