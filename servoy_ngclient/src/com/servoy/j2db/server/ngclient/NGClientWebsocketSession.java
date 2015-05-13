@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.sablo.eventthread.IEventDispatcher;
@@ -310,5 +311,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
 		if (htmlView != null) internalError.put("viewUrl", htmlView);
 		CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError", new Object[] { internalError });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.websocket.IWebsocketSession#getLocale()
+	 */
+	@Override
+	public Locale getLocale()
+	{
+		return client.getLocale();
 	}
 }
