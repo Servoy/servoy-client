@@ -88,6 +88,7 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.smart.dataui.DataRendererFactory;
 import com.servoy.j2db.smart.dataui.SwingItemFactory;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -1249,13 +1250,8 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		shutDown(true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IProvideFormName#getFormNameFor(java.lang.Object)
-	 */
 	@Override
-	public String getFormNameFor(Object component)
+	public String getFormNameFor(IComponent component)
 	{
 		if (component instanceof Component)
 		{

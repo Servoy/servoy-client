@@ -35,7 +35,7 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
  * Client interface with smart-client specific features.
  * @author rgansevles
  */
-public interface ISmartClientApplication extends IApplication
+public interface ISmartClientApplication extends IApplication, IProvideFormName
 {
 	/**
 	 * Register a URLStreamHandler for a protocol.

@@ -17,11 +17,13 @@
 
 package com.servoy.j2db;
 
+import com.servoy.j2db.ui.IComponent;
+
 /**
  * @author rlazar
  *
  */
 public interface IProvideFormName
 {
-	public String getFormNameFor(Object component);
+	public String getFormNameFor(IComponent component);
 }

@@ -240,6 +240,7 @@ import com.servoy.j2db.smart.dataui.DataTextArea;
 import com.servoy.j2db.smart.dataui.SwingItemFactory;
 import com.servoy.j2db.smart.plugins.ClientPluginManager;
 import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
@@ -425,7 +426,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IApplication#getOSName()
 	 */
 	public String getClientOSName()
@@ -4453,13 +4454,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return isFormElementsEditableInFindMode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IProvideFormName#getFormNameFor(java.lang.Object)
-	 */
 	@Override
-	public String getFormNameFor(Object component)
+	public String getFormNameFor(IComponent component)
 	{
 		if (component instanceof Component)
 		{
