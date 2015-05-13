@@ -11,7 +11,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			var child = $element.children();
 			var ngModel = child.controller("ngModel");
 
-			$scope.style = {width:'100%',height: $scope.model.size.height,overflow:'hidden',paddingTop:'0',paddingBottom:'0'}
+			$scope.style = {width:'100%',height: $scope.model.size.height,overflow:'hidden',paddingTop:'0',paddingBottom:'0',position: 'static'}
 
 			child.datetimepicker({
 				useCurrent:false,
