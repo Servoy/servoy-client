@@ -44,10 +44,10 @@ import com.servoy.j2db.util.Utils;
 public class FormLayoutGenerator
 {
 
-	public static void generateRecordViewForm(PrintWriter writer, Form form, IServoyDataConverterContext context, boolean responsiveMode, boolean design,
-		boolean highlight)
+	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean responsiveMode,
+		boolean design, boolean highlight)
 	{
-		generateFormStartTag(writer, form, responsiveMode, design);
+		generateFormStartTag(writer, form, realFormName, responsiveMode, design);
 		Iterator<Part> it = form.getParts();
 
 		if (design)
@@ -94,12 +94,12 @@ public class FormLayoutGenerator
 		generateEndDiv(writer);
 	}
 
-	public static void generateFormStartTag(PrintWriter writer, Form form, boolean responsiveMode, boolean design)
+	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
 	{
-		writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", form.getName()));
+		writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
-			writer.print(String.format("data-svy-name=\"%1$s\" ", form.getName()));
+			writer.print(String.format("data-svy-name=\"%1$s\" ", realFormName));
 		}
 
 		if (!form.isResponsiveLayout() && !responsiveMode)

@@ -392,11 +392,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			switchForm(controller);
 		}
 
-		Form form = getApplication().getFlattenedSolution().getForm(formName);
 		String titleArg = getTitle();
-		titleArg = titleArg == null ? form.getName() : titleArg;
+		titleArg = titleArg == null ? formName : titleArg;
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("show",
-			new Object[] { getName(), form.getName(), titleArg });
+			new Object[] { getName(), formName, titleArg });
 
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{

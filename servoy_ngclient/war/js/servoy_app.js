@@ -688,7 +688,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	$servoyInternal.connect();
 	$scope.solutionSettings = $solutionSettings;
 	$scope.getMainFormUrl = function() {
-		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";
+		return $solutionSettings.mainForm.name?$windowService.getFormUrl($solutionSettings.mainForm.name):"";
 	}
 	$scope.getNavigatorFormUrl = function() {
 		var templateURLOrFormName = $solutionSettings.navigatorForm.templateURL; // can be directly default nav. url or if not the name of the navigator form

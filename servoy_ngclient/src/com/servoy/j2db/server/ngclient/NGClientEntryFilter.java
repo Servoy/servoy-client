@@ -213,9 +213,9 @@ public class NGClientEntryFilter extends WebEntry
 									if (html && form.isResponsiveLayout())
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormLayoutStructureGenerator.generateLayout(form,
-											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), w,
-											Utils.getAsBoolean(request.getParameter("design")), Utils.getAsBoolean(request.getParameter("highlight")));
+										FormLayoutStructureGenerator.generateLayout(form, formName, wsSession != null ? new ServoyDataConverterContext(
+											wsSession.getClient()) : new ServoyDataConverterContext(fs), w, Utils.getAsBoolean(request.getParameter("design")),
+											Utils.getAsBoolean(request.getParameter("highlight")));
 									}
 									else if (uri.endsWith(".html"))
 									{
@@ -247,10 +247,9 @@ public class NGClientEntryFilter extends WebEntry
 												parentForm = ((WebFormController)parentForm).getParentFormController();
 											}
 										}
-										FormLayoutGenerator.generateRecordViewForm(w, form,
-											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
-											insideResponsiveLayout, Utils.getAsBoolean(request.getParameter("design")),
-											Utils.getAsBoolean(request.getParameter("highlight")));
+										FormLayoutGenerator.generateRecordViewForm(w, form, formName, wsSession != null ? new ServoyDataConverterContext(
+											wsSession.getClient()) : new ServoyDataConverterContext(fs), insideResponsiveLayout,
+											Utils.getAsBoolean(request.getParameter("design")), Utils.getAsBoolean(request.getParameter("highlight")));
 									}
 									else if (uri.endsWith(".js"))
 									{

@@ -44,11 +44,11 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class FormLayoutStructureGenerator
 {
-	public static void generateLayout(Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design, boolean highlight)
+	public static void generateLayout(Form form, String realFormName, ServoyDataConverterContext context, PrintWriter writer, boolean design, boolean highlight)
 	{
 		try
 		{
-			FormLayoutGenerator.generateFormStartTag(writer, form, false, design);
+			FormLayoutGenerator.generateFormStartTag(writer, form, realFormName, false, design);
 			Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			while (components.hasNext())
 			{
