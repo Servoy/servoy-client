@@ -36,7 +36,7 @@ public final class DesignNGClientWebsocketSession extends NGClientWebsocketSessi
 	public static final String EDITOR_CONTENT_SERVICE = "$editorContentService";
 
 	private static final WebComponentSpecification EDITOR_CONTENT_SERVICE_SPECIFICATION = new WebComponentSpecification(EDITOR_CONTENT_SERVICE, "",
-		EDITOR_CONTENT_SERVICE, null, null, "", null);
+		EDITOR_CONTENT_SERVICE, null, null, null, "", null);
 
 	/**
 	 * @param uuid
