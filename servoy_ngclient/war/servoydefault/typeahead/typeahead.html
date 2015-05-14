@@ -15,15 +15,13 @@
 	   svy-font='model.fontType'
 	   ng-disabled="model.enabled == false"
 	   ng-readonly="model.editable == false"  
-       ng-model="model.dataProviderID" 
+       ng-model="value" 
        svy-tooltip='model.toolTipText'
        svy-format="findMode ? '' : model.format"
        typeahead-min-length="-1"
        typeahead-append-to-body="true"
-       typeahead="value.realValue as value.displayValue  | formatFilter:model.format.display:model.format.type
+       typeahead="value.displayValue  | formatFilter:model.format.display:model.format.type
        			  for value in model.valuelistID.filterList($viewValue)"
-       typeahead-on-select="onSelect($item, $model, $label)"			  
-       typeahead-input-formatter="formatLabel($model)"
        ng-blur="doSvyApply()" id="{{::model.svyMarkupId}}"
        ng-focus="startEdit()"
         svy-horizontalalignment='model.horizontalAlignment'/>
