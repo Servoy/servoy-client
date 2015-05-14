@@ -211,8 +211,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public void updateForm(Form form, String name)
 	{
-		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
-		updateController(form, name, formUrl, false);
+		String url = getEndpoint().getFormUrl(name);
+		if (url != null)
+		{
+			// if form was not sent to client, do not send now; this is just recreateUI
+			String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
+			updateController(form, name, formUrl, false);
+		}
 	}
 
 	public void destroyForm(String name)
