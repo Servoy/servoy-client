@@ -21,7 +21,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 
 /**
  * Results section in Servoy Query Objects.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -82,6 +82,44 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	 * </pre>
 	 */
 	IQueryBuilderResult addValue(Object value, String alias) throws RepositoryException;
+
+	/**
+	 * Add a custom subquery to the query result.
+	 * <pre>
+	 *  // make sure the subquery returns exactly 1 value.
+	 *  // select (select max from othertab where val = 'test') from tab
+	 * query.result().addSubSelect("select max from othertab where val = ?", new Object[] { "test" }));
+	 * </pre>
+	 */
+	IQueryBuilderResult addSubSelect(String customQuery, Object[] args) throws RepositoryException;
+
+	/**
+	 * Add a custom subquery with alias to the query result.
+	 * <pre>
+	 *  // make sure the subquery returns exactly 1 value.
+	 *  // select (select max from othertab where val = 'test') as mx from tab
+	 * query.result().addSubSelect("select max from othertab where val = ?", new Object[] { "test" }, "mx"));
+	 * </pre>
+	 */
+	IQueryBuilderResult addSubSelect(String customQuery, Object[] args, String alias) throws RepositoryException;
+
+	/**
+	 * Add a subquery with alias to the query result.
+	 * <pre>
+	 *  // make sure the subquery returns exactly 1 value.
+	 * query.result().addSubSelect(query2, "subval"));
+	 * </pre>
+	 */
+	public IQueryBuilderResult addSubSelect(IQueryBuilder query, String alias) throws RepositoryException;
+
+	/**
+	 * Add a subquery to the query result.
+	 * <pre>
+	 *  // make sure the subquery returns exactly 1 value.
+	 * query.result().addSubSelect(query2));
+	 * </pre>
+	 */
+	public IQueryBuilderResult addSubSelect(IQueryBuilder query) throws RepositoryException;
 
 	/**
 	 * Set the distinct flag for the query.

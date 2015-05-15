@@ -3904,10 +3904,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Create a QueryBuilder object for a datasource.
 	 * @sample
 	 *
-	 * var q = datasources.db.example_data.book_nodes.createSelect();
+	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
+	 * var q = databaseManager.createSelect('db:/example_data/book_nodes');
 	 * q.result.addPk()
 	 * q.where.add(q.columns.label_text.not.isin(null))
-	 * databaseManager.getFoundSet('db:/example_data/book_nodes').loadRecords(q)
+	 * datasources.db.example_data.book_nodes.getFoundSet().loadRecords(q)
 	 *
 	 * @param dataSource The data source to build a query for.
 	 *
@@ -3923,10 +3924,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * The alias can be used inside custom queries to bind to the outer table.
 	 * @sample
 	 *
-	 * var q = datasources.db.example_data.book_nodes.createSelect('b');
+	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
+	 * var q = databaseManager.createSelect('db:/example_data/book_nodes', 'b');
 	 * q.result.addPk()
 	 * q.where.add(q.columns.label_text.isin('select comment_text from book_text t where t.note_text = ? and t.node_id = b.node_id', ['test']))
-	 * databaseManager.getFoundSet('db:/example_data/book_nodes').loadRecords(q)
+	 * datasources.db.example_data.book_nodes.getFoundSet().loadRecords(q)
 	 *
 	 * @param dataSource The data source to build a query for.
 	 * @param tableAlias The alias for the main table.

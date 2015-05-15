@@ -30,9 +30,9 @@ import com.servoy.base.query.BaseAbstractBaseQuery;
  * <li> select/update
  * <li> list of cleanups, for dropping temp tables
  * </ul>
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class QuerySet implements Serializable
 {
@@ -108,7 +108,7 @@ public class QuerySet implements Serializable
 	/**
 	 * Join the queries from another set with this one.
 	 * The set parameter's update will be added as a prepare statement.
-	 * 
+	 *
 	 * @param set
 	 */
 	public void addQuerySet(QuerySet set)
@@ -117,7 +117,10 @@ public class QuerySet implements Serializable
 		{
 			return;
 		}
-		setSelect(set.getSelect());
+		if (set.getSelect() != null)
+		{
+			setSelect(set.getSelect());
+		}
 
 		QueryString[] newPrepares = set.getPrepares();
 		if (newPrepares != null)
@@ -145,7 +148,7 @@ public class QuerySet implements Serializable
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void clearSelect()
 	{

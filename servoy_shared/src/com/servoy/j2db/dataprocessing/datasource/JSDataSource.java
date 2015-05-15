@@ -146,12 +146,13 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	/**
-	 *  Create a query builder for a data source. RAGTEST doc
+	 *  Create a query builder for a data source with given table alias.
+	 *  The alias can be used inside custom queries to bind to the outer table.
 	 *
 	 *  @sample
-	 *  var q = datasources.db.example_data.book_nodes.createSelect()
+	 *  var q = datasources.db.example_data.book_nodes.createSelect('b')
 	 *  q.result.addPk()
-	 *  q.where.add(q.columns.label_text.not.isin(null))
+	 *  q.where.add(q.columns.label_text.isin('select comment_text from book_text t where t.note_text = ? and t.node_id = b.node_id', ['test']))
 	 *  datasources.db.example_data.book_nodes.getFoundSet().loadRecords(q)
 	 *
 	 *  @return query builder

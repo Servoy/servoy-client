@@ -25,10 +25,13 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
+import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryFunction;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -110,7 +113,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param column column to add to result
 	 */
-	public QBResult js_add(QBColumn column) throws RepositoryException
+	public QBResult js_add(QBColumn column)
 	{
 		return add(column);
 	}
@@ -123,7 +126,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @param column column to add to result
 	 * @param alias column alias
 	 */
-	public QBResult js_add(QBColumn column, String alias) throws RepositoryException
+	public QBResult js_add(QBColumn column, String alias)
 	{
 		return add(column, alias);
 	}
@@ -135,7 +138,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param aggregate the aggregate to add to result
 	 */
-	public QBResult js_add(QBAggregate aggregate) throws RepositoryException
+	public QBResult js_add(QBAggregate aggregate)
 	{
 		return add(aggregate);
 	}
@@ -148,7 +151,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @param aggregate the aggregate to add to result
 	 * @param alias aggregate alias
 	 */
-	public QBResult js_add(QBAggregate aggregate, String alias) throws RepositoryException
+	public QBResult js_add(QBAggregate aggregate, String alias)
 	{
 		return add(aggregate, alias);
 	}
@@ -160,7 +163,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param func the function to add to the result
 	 */
-	public QBResult js_add(QBFunction func) throws RepositoryException
+	public QBResult js_add(QBFunction func)
 	{
 		return add(func);
 	}
@@ -173,17 +176,17 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @param func the function to add to the result
 	 * @param alias function alias
 	 */
-	public QBResult js_add(QBFunction func, String alias) throws RepositoryException
+	public QBResult js_add(QBFunction func, String alias)
 	{
 		return add(func, alias);
 	}
 
-	public QBResult add(IQueryBuilderColumn column) throws RepositoryException
+	public QBResult add(IQueryBuilderColumn column)
 	{
 		return add(column, null);
 	}
 
-	public QBResult add(IQueryBuilderColumn column, String alias) throws RepositoryException
+	public QBResult add(IQueryBuilderColumn column, String alias)
 	{
 		IQuerySelectValue querySelectValue = ((QBColumn)column).getQuerySelectValue();
 		getParent().getQuery().addColumn(alias == null ? querySelectValue : querySelectValue.asAlias(alias));
@@ -230,7 +233,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @param value value add to result
 	 */
 	@JSFunction
-	public QBResult addValue(Object value) throws RepositoryException
+	public QBResult addValue(Object value)
 	{
 		return addValue(value, null);
 	}
@@ -244,13 +247,89 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @param alias value alias
 	 */
 	@JSFunction
-	public QBResult addValue(Object value, String alias) throws RepositoryException
+	public QBResult addValue(Object value, String alias)
 	{
 		getParent().getQuery().addColumn(new QueryColumnValue(value, alias, value instanceof Integer));
 		return this;
 	}
 
-	public void js_setDistinct(boolean distinct) throws RepositoryException
+	/**
+	 * Add a custom subquery to the query result.
+	 * @sample
+	 * // make sure the subquery returns exactly 1 value.
+	 * // select (select max from othertab where val = 'test') from tab
+	 * query.result.addSubSelect("select max from othertab where val = ?", ["test"]);
+	 *
+	 * @param customQuery query to add to result
+	 * @param args arguments to the query
+	 */
+	@JSFunction
+	public QBResult addSubSelect(String customQuery, Object[] args)
+	{
+		return doAddSubSelect(new QueryCustomSelect(customQuery, args), null);
+	}
+
+	/**
+	 * Add a custom subquery with alias to the query result.
+	 * @sample
+	 * // make sure the subquery returns exactly 1 value.
+	 * // select (select max from othertab where val = 'test') as mx from tab
+	 * query.result.addSubSelect("select max from othertab where val = ?", ["test"], "mx");
+	 *
+	 * @param customQuery query to add to result
+	 * @param args arguments to the query
+	 * @param alias result alias
+	 */
+	@JSFunction
+	public QBResult addSubSelect(String customQuery, Object[] args, String alias)
+	{
+		return doAddSubSelect(new QueryCustomSelect(customQuery, args), alias);
+	}
+
+	public QBResult addSubSelect(IQueryBuilder query, String alias) throws RepositoryException
+	{
+		return doAddSubSelect(query.build(), alias);
+	}
+
+	public QBResult addSubSelect(IQueryBuilder query) throws RepositoryException
+	{
+		return doAddSubSelect(query.build(), null);
+	}
+
+	/**
+	 * Add a query with alias to the query result.
+	 * @sample
+	 * // make sure the query returns exactly 1 value.
+	 * query.result.addSubSelect(subquery, "mx");
+	 *
+	 * @param query query to add to result
+	 * @param alias result alias
+	 */
+	public QBResult js_addSubSelect(QBSelect query, String alias) throws RepositoryException
+	{
+		return addSubSelect(query, alias);
+	}
+
+	/**
+	 * Add a query to the query result.
+	 * @sample
+	 * // make sure the query returns exactly 1 value.
+	 * query.result.addSubSelect(subquery);
+	 *
+	 * @param query query to add to result
+	 */
+	public QBResult js_addSubSelect(QBSelect query) throws RepositoryException
+	{
+		return addSubSelect(query);
+	}
+
+	protected QBResult doAddSubSelect(ISQLSelect select, String alias)
+	{
+		getParent().getQuery().addColumn(new QueryColumnValue(select, alias, false));
+		return this;
+	}
+
+	public void js_setDistinct(boolean distinct)
 	{
 		setDistinct(distinct);
 	}
@@ -260,17 +339,17 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @sample
 	 * query.result.distinct = true
 	 */
-	public boolean js_isDistinct() throws RepositoryException
+	public boolean js_isDistinct()
 	{
 		return isDistinct();
 	}
 
-	public boolean isDistinct() throws RepositoryException
+	public boolean isDistinct()
 	{
 		return getParent().getQuery().isDistinct();
 	}
 
-	public QBResult setDistinct(boolean distinct) throws RepositoryException
+	public QBResult setDistinct(boolean distinct)
 	{
 		getParent().getQuery().setDistinct(distinct);
 		return this;
