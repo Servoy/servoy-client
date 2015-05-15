@@ -87,6 +87,8 @@ public class WebFormUI extends Container implements IWebFormUI
 
 	private PropertyChangeListener parentReadOnlyListener;
 
+	protected List<FormElement> cachedElements = new ArrayList<FormElement>();
+
 	public WebFormUI(IWebFormController formController)
 	{
 		super(formController.getName(), FORM_SPEC);
@@ -111,6 +113,7 @@ public class WebFormUI extends Container implements IWebFormUI
 	public void init()
 	{
 		components.clear();
+		cachedElements.clear();
 		IDataAdapterList previousDataAdapterList = dataAdapterList;
 		dataAdapterList = new DataAdapterList(formController);
 
@@ -827,11 +830,15 @@ public class WebFormUI extends Container implements IWebFormUI
 		}
 	}
 
-	protected List<FormElement> getFormElements()
+	public List<FormElement> getFormElements()
 	{
-		return FormElementHelper.INSTANCE.getFormElements(
-			new ArrayList<IPersist>(formController.getForm().getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR)).iterator(),
-			getDataConverterContext());
+		if (cachedElements.size() == 0)
+		{
+			cachedElements = FormElementHelper.INSTANCE.getFormElements(
+				new ArrayList<IPersist>(formController.getForm().getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR)).iterator(),
+				getDataConverterContext());
+		}
+		return cachedElements;
 	}
 
 	@Override

@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.template;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +27,17 @@ import org.jsoup.helper.StringUtil;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.j2db.BasicFormManager;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -65,6 +70,22 @@ public class FormLayoutGenerator
 			}
 		}
 
+		Map<IPersist, FormElement> cachedElementsMap = new HashMap<IPersist, FormElement>();
+		if (context != null && context.getApplication() != null)
+		{
+			IFormController controller = ((BasicFormManager)context.getApplication().getFormManager()).getCachedFormController(realFormName);
+			if (controller != null && controller.getFormUI() instanceof WebFormUI)
+			{
+				List<FormElement> cachedFormElements = ((WebFormUI)controller.getFormUI()).getFormElements();
+				for (FormElement fe : cachedFormElements)
+				{
+					if (fe.getPersistIfAvailable() != null)
+					{
+						cachedElementsMap.put(fe.getPersistIfAvailable(), fe);
+					}
+				}
+			}
+		}
 		it = form.getParts();
 		while (it.hasNext())
 		{
@@ -80,7 +101,15 @@ public class FormLayoutGenerator
 
 				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context, design))
 				{
-					FormElement fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
+					FormElement fe = null;
+					if (cachedElementsMap.containsKey(bc))
+					{
+						fe = cachedElementsMap.get(bc);
+					}
+					if (fe == null)
+					{
+						fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
+					}
 
 					if (!responsiveMode) generateFormElementWrapper(writer, fe, design, form);
 					generateFormElement(writer, fe, false, highlight);

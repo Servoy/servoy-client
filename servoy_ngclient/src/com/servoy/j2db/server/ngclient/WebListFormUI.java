@@ -52,25 +52,29 @@ public class WebListFormUI extends WebFormUI
 	}
 
 	@Override
-	protected List<FormElement> getFormElements()
+	public List<FormElement> getFormElements()
 	{
-		Form form = getController().getForm();
-		List<IFormElement> elements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		Iterator<IFormElement> it = elements.iterator();
-		Part body = FormElementHelper.INSTANCE.getBodyPart(form);
-		int bodyStartY = form.getPartStartYPos(body.getID());
-		int bodyEndY = body.getHeight();
-		while (it.hasNext())
+		if (cachedElements.size() == 0)
 		{
-			IFormElement element = it.next();
-			if (bodyStartY <= element.getLocation().y && bodyEndY > element.getLocation().y)
+			Form form = getController().getForm();
+			List<IFormElement> elements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+			Iterator<IFormElement> it = elements.iterator();
+			Part body = FormElementHelper.INSTANCE.getBodyPart(form);
+			int bodyStartY = form.getPartStartYPos(body.getID());
+			int bodyEndY = body.getHeight();
+			while (it.hasNext())
 			{
-				// remove body elements
-				it.remove();
+				IFormElement element = it.next();
+				if (bodyStartY <= element.getLocation().y && bodyEndY > element.getLocation().y)
+				{
+					// remove body elements
+					it.remove();
+				}
 			}
+			elements.add(getPortal());
+			cachedElements = FormElementHelper.INSTANCE.getFormElements(new ArrayList<IPersist>(elements).iterator(), getDataConverterContext());
 		}
-		elements.add(getPortal());
-		return FormElementHelper.INSTANCE.getFormElements(new ArrayList<IPersist>(elements).iterator(), getDataConverterContext());
+		return cachedElements;
 	}
 
 	protected BodyPortal getPortal()

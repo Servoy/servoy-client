@@ -17,8 +17,12 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.util.List;
+
 import org.sablo.specification.WebComponentSpecProvider;
 
+import com.servoy.j2db.BasicFormManager;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
@@ -26,9 +30,12 @@ import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
+import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateModel;
@@ -46,15 +53,17 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 	private final boolean useControllerProvider;
 	private Form flattenedForm;
 	private final boolean design;
+	private final INGApplication application;
 
 	/**
 	 * @param fs
 	 */
-	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
+	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design, INGApplication application)
 	{
 		this.context = context;
 		this.useControllerProvider = useControllerProvider;
 		this.design = design;
+		this.application = application;
 	}
 
 	@Override
@@ -81,7 +90,24 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		}
 		else if (obj instanceof IFormElement)
 		{
-			wrapped = new FormElementContext(FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context, null), context);
+			FormElement fe = null;
+			if (application != null)
+			{
+				IFormController controller = ((BasicFormManager)application.getFormManager()).getCachedFormController(flattenedForm.getName());
+				if (controller != null && controller.getFormUI() instanceof WebFormUI)
+				{
+					List<FormElement> cachedFormElements = ((WebFormUI)controller.getFormUI()).getFormElements();
+					for (FormElement cachedFE : cachedFormElements)
+					{
+						if (Utils.equalObjects(cachedFE.getPersistIfAvailable(), obj))
+						{
+							fe = cachedFE;
+							break;
+						}
+					}
+				}
+			}
+			wrapped = new FormElementContext(fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context, null), context);
 		}
 		else
 		{
