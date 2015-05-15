@@ -15,7 +15,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				applyBeanData(now, beanLayout, changes, parentSize, changeNotifier, undefined, undefined, componentScope);
 			}
 		}
-		return changes
+		return changes;
 	};
 
 	var sendChanges = function(now, prev, formname, beanname) {

@@ -1,10 +1,10 @@
 angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
-                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions",
+                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q",
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -215,6 +215,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				for (var unw in rowAPICache.unwatchFuncs) rowAPICache.unwatchFuncs[unw]();
 			}
 			
+			var changinOrUnstableAPIPromise;
+			var unstableAPIStabilizedListener;
+			
 			// api objects are kept linked to the real dom element (so linked to render index), so the the api can work with the correct "$element"
 			// after the component contributed it (so try not to give the api object contributed by a web component to a different web component...)
 			// hopefully ui-grid always uses the same directive/webcomponent at the same 'rowRenderIndex'
@@ -232,6 +235,18 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						// is .off needed for $destroy?
 					});
 				}
+				
+				// API calls that need scroll need to know when the API <-> rowId relation is stable enough because of a bug in ngGrid that doesn't keep for example focus
+				// on the correct row when scrolling; unfortunately the scrolled promises returned by ui-grid api are not that useful as they trigger too early, before data - row
+				// mapping stabilizes
+				if (rowAPICache.rowId !== ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY]) {
+					if (changinOrUnstableAPIPromise) $timeout.cancel(changinOrUnstableAPIPromise);
+					changinOrUnstableAPIPromise = $timeout(function() {
+						changinOrUnstableAPIPromise = undefined;
+						if (unstableAPIStabilizedListener) unstableAPIStabilizedListener();
+					}, 1000); // is 1000 ms too much or too little? didn't find a way to avoid this as after scroll ui-grid still decides sometimes to scroll a bit more
+				}
+				
 				rowAPICache.rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 				return rowAPICache;
 			}
@@ -255,6 +270,14 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 			function viewPortToAbsolute(rowIndex) {
 				return rowIndex >= 0 ? rowIndex + $scope.foundset.viewPort.startIndex : -1;
+			}
+
+			function absoluteToViewPort(absoluteRowIndex) {
+				return absoluteRowIndex - $scope.foundset.viewPort.startIndex;
+			}
+
+			function absoluteRowIndexToRowId(absoluteRowIndex) {
+				return $scope.foundset.viewPort.rows[absoluteToViewPort(absoluteRowIndex)][$foundsetTypeConstants.ROW_ID_COL_KEY];
 			}
 
 			function isRowIndexSelected(rowIndex) {
@@ -382,36 +405,113 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				return cellModel;
 			}
 
+			var deferredAPICallExecution;
 			function linkAPIToAllCellsInColumn(apiFunctionName, elementIndex) {
 				// returns a column level API function that will call that API func. on all cell elements of that column
 				return function()
 				{
 					var retVal;
-					var retValForSelectedStored = false;
-					var retValForSelectedCell;
-					var callOnOneSelectedCellOnly = true;
+					var callOnFirstSelectedCellOnly = true;
 					if (elements[elementIndex].foundsetConfig && elements[elementIndex].foundsetConfig.apiCallTypes) {
-						callOnOneSelectedCellOnly = (elements[elementIndex].foundsetConfig.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
+						callOnFirstSelectedCellOnly = (elements[elementIndex].foundsetConfig.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
 					}
 
-					// so if callOnOneSelectedCellOnly is true, then it will be called only once for one of the selected rows;
+					// so if callOnFirstSelectedCellOnly is true, then it will be called only once for the first of the selected rows;
 					// otherwise it will be called on the entire column, and the return value will be of a selected row if possible
-					for (var renderRowIndex in cellAPICaches) {
-						var cellAPI = cellAPICaches[renderRowIndex][elementIndex];
-						if (cellAPI && cellAPI[apiFunctionName]) {
-							var rowId = cellAPICaches[renderRowIndex].rowId;
-							var rowIsSelected = isRowIndexSelected(rowIdToAbsoluteRowIndex(rowId));
-							if (rowIsSelected || (!callOnOneSelectedCellOnly)) retVal = cellAPI[apiFunctionName].apply(cellAPI, arguments);
+					if (callOnFirstSelectedCellOnly) {
+						if ($scope.foundset.selectedRowIndexes.length > 0) {
+							var rowIdxOfFirstSelected = $scope.foundset.selectedRowIndexes[0];
+							
+							function callAPIAfterScroll(rowIdToCall) {
+								// the grid reports that it scrolled very fast - so it did actually scroll, but no content is created/visible yet
+								// so we see if the content is actually loaded or if not we must wait for those to render so that the correct scrolled rows are in the rendered array
+								
+								function getCellAPIToUse() {
+									for (var renderRowIndex in cellAPICaches) {
+										var cellAPI = cellAPICaches[renderRowIndex][elementIndex];
+										if (cellAPI && cellAPI[apiFunctionName]) {
+											var rowId = cellAPICaches[renderRowIndex].rowId;
+											if (rowIdToCall === rowId) return cellAPI[apiFunctionName];
+										}
+									}
+								}
+								
+								var cellAPIToUse = getCellAPIToUse();
+								var retVal;
+								if (cellAPIToUse && !changinOrUnstableAPIPromise) retVal = cellAPIToUse.apply(cellAPI, arguments);
+								else {
+									// cannot find it yet - it probably didn't actually load scrolled contents yet; it just scrolled; delay a bit more
+									if ($log.debugEnabled) $log.debug("API method call - waiting for scrolled contents to load. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+									var deferred = $q.defer();
+									var removeListener = $scope.gridApi.core.on.scrollEnd($scope, function () {
+										removeListener();
+										// some additional timeouts as ui-grid keeps jumping around for a while with that scroll for some reason sometimes
+										function executeWhenAPIRowMappingStable() {
+											if (!changinOrUnstableAPIPromise) {
+												cellAPIToUse = getCellAPIToUse();
 
-							// give back return value from a selected row cell if possible
-							if (!retValForSelectedStored && rowIsSelected) {
-								retValForSelectedCell = retVal;
-								retValForSelectedStored = true;
-								if (callOnOneSelectedCellOnly) break; // it should only get called once on first selected row
+												if (cellAPIToUse) deferred.resolve(cellAPIToUse.apply(cellAPI, arguments));
+												else deferred.reject("Cannot find API object for first selected index (" + renderRowIndex + ") row after scroll. Failing. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+											} else {
+												unstableAPIStabilizedListener = executeWhenAPIRowMappingStable;
+											}
+										}
+										executeWhenAPIRowMappingStable();
+									});
+
+									retVal = deferred.promise;
+								}
+								return retVal;
+							}
+							
+							if (isInViewPort(rowIdxOfFirstSelected)) {
+								retVal = $scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(rowIdxOfFirstSelected)]), null /* must be null here, can't be undefined */).then(function () {
+									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
+									if (rowIdxOfFirstSelected !== newFirstSelected)
+										return $q.reject("First selected index changed for some reason (" + rowIdxOfFirstSelected + " -> " + newFirstSelected + ") while scrolling for loader row API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+									return callAPIAfterScroll(absoluteRowIndexToRowId(rowIdxOfFirstSelected));
+								});
+							} else {
+								// updateGridSelectionFromFoundset will scroll to it anyway, so wait for that to happen
+								// and then call API
+								deferredAPICallExecution = $q.defer();
+								retVal = deferredAPICallExecution.promise.then(function() {
+									// success
+									deferredAPICallExecution = undefined;
+									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
+									if (rowIdxOfFirstSelected !== newFirstSelected)
+										return $q.reject("First selected index changed for some reason (" + rowIdxOfFirstSelected + " -> " + newFirstSelected + ") while scrolling for non-loaded API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+									return callAPIAfterScroll(absoluteRowIndexToRowId(rowIdxOfFirstSelected));
+								}, function(reason) {
+									// error; but will probably never happen as we currently don't call deferredAPICallExecution.reject(...)
+									deferredAPICallExecution = undefined;
+									$log.error("API method call (deferred until scroll to selection) failed. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+									return $q.reject(reason);
+								});
+							}
+						} else if ($scope.foundset.serverSize == 0) {
+							if ($log.debugEnabled) $log.debug("API method called when there was no record selected (foundset size is 0). Api call: '" + apiFunctionName + "' on column " + elementIndex);
+						} else $log.error("API method called when there was no record selected although foundset size is: " + $scope.foundset.serverSize + ". Api call: '" + apiFunctionName + "' on column " + elementIndex); 
+					} else {
+						var retValForSelectedStored = false;
+						var retValForSelectedCell;
+						for (var renderRowIndex in cellAPICaches) {
+							var cellAPI = cellAPICaches[renderRowIndex][elementIndex];
+							if (cellAPI && cellAPI[apiFunctionName]) {
+								var rowId = cellAPICaches[renderRowIndex].rowId;
+								var rowIsSelected = isRowIndexSelected(rowIdToAbsoluteRowIndex(rowId));
+								retVal = cellAPI[apiFunctionName].apply(cellAPI, arguments);
+	
+								// give back return value from a selected row cell if possible
+								if (!retValForSelectedStored && rowIsSelected) {
+									retValForSelectedCell = retVal;
+									retValForSelectedStored = true;
+								}
 							}
 						}
+						if (retValForSelectedStored) retVal = retValForSelectedCell;
 					}
-					return retValForSelectedStored ? retValForSelectedCell : retVal;
+					return retVal;
 				}
 			}
 			
@@ -502,8 +602,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							var scrolledToSelection = !scrollToSelection;
 							var oldSelection = $scope.gridApi.selection.getSelectedRows();
 							// if first item in the old selection is the same as the first in the new selection,
-							// then ignore scrolling
-							if(oldSelection.length > 0 && rows[$scope.foundset.selectedRowIndexes[0]] &&
+							// then ignore scrolling; if an API call is waiting for scrolling then we still must scroll...
+							if(!deferredAPICallExecution && oldSelection.length > 0 && rows[$scope.foundset.selectedRowIndexes[0]] &&
 									(oldSelection[0]._svyRowId == rows[$scope.foundset.selectedRowIndexes[0]]._svyRowId)) {
 								scrolledToSelection = true;
 							}
@@ -514,16 +614,36 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									$scope.gridApi.selection.selectRow(rows[rowIdx]);
 									if(!scrolledToSelection) {
 										scrolledToSelection = true;
-										$timeout(function() { $scope.gridApi.cellNav.scrollTo(rows[rowIdx]); }, 0);
+										$timeout(function() {
+											$scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow(rows[rowIdx]), null /* must be null here, can't be undefined */).then(function() {
+												if (deferredAPICallExecution) deferredAPICallExecution.resolve();
+												deferredAPICallExecution = undefined;
+											});
+										}, 0);
 									}
 								} else if(!scrolledToSelection) {
 									var nrRecordsToLoad = 0;
 									if(rowIdx < $scope.foundset.viewPort.startIndex) {
 										nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex;
 									} else {
-										nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.size + 1;
+										nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex - $scope.foundset.viewPort.size + 1;
 									}
-									$scope.foundset.loadExtraRecordsAsync(nrRecordsToLoad);
+									
+									var tmp;
+									if (deferredAPICallExecution) {
+										tmp = $sabloUtils.getCurrentEventLevelForServer();
+										$sabloUtils.setCurrentEventLevelForServer($sabloUtils.EVENT_LEVEL_SYNC_API_CALL); // to allow it to load records despite the blocking server-side API call on the event thread
+									}
+									try
+									{
+										$scope.foundset.loadExtraRecordsAsync(nrRecordsToLoad);
+									}
+									finally
+									{
+										if (deferredAPICallExecution) {
+											$sabloUtils.setCurrentEventLevelForServer(tmp);
+										}
+									}
 									break;
 								}
 							}
@@ -536,7 +656,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				});
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			};
-			$scope.$watchCollection('foundset.selectedRowIndexes', function() { updateGridSelectionFromFoundset(true) });
+			$scope.$watchCollection('foundset.selectedRowIndexes', function() {
+				updateGridSelectionFromFoundset(true)
+			});
 			
 			$scope.gridOptions = {
 					data: 'foundset.viewPort.rows',
@@ -575,7 +697,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			else if ( $scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
 					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.NEVER;
 			
-			$scope.gridOptions.onRegisterApi = function( gridApi ) {
+			$scope.gridOptions.onRegisterApi = function(gridApi) {
 				$scope.gridApi = gridApi;
 				$scope.gridApi.grid.registerDataChangeCallback(function() {
 					updateGridSelectionFromFoundset(true);
@@ -583,6 +705,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
 					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
 				});
+
 				gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){
 					var extraSize = Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size);
 					if (extraSize !== 0)
