@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import org.sablo.specification.WebComponentSpecProvider;
+
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
@@ -26,6 +28,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.util.Debug;
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateModel;
@@ -90,7 +93,15 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 	@Override
 	public boolean isComponentSpecValid(IFormElement formElement)
 	{
-		FormElement fe = FormElementHelper.INSTANCE.getFormElement(formElement, context, null);
-		return fe.getWebComponentSpec(false) != null;
+		String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
+		try
+		{
+			return WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType) != null;
+		}
+		catch (Exception re)
+		{
+			Debug.error(re);
+		}
+		return false;
 	}
 }
