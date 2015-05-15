@@ -29,7 +29,17 @@
     	   }
     	   if (!tabText) {
     		   if (nameArg) tabText = nameArg;
-    		   else tabText = form;
+    		   else {
+    			   if (typeof form == 'string')
+    			   {
+    				   tabText = form;
+    			   }
+    			   else if (form)
+    			   {
+    				   tabText = form._formname_;
+    			   }   
+    			  
+    		   }
     	   }
     	   $scope.model.tabs[insertPosition] = {
     			   name: nameArg,
