@@ -529,7 +529,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		recordBasedPropertiesChanged = false;
 
 		writeWholeViewportToJSON(writer);
-		viewPortChangeMonitor.clearChanges();
+		if (viewPortChangeMonitor != null) viewPortChangeMonitor.clearChanges();
 
 		writer.endObject();
 

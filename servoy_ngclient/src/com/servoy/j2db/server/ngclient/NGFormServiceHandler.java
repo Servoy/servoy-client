@@ -193,10 +193,10 @@ public class NGFormServiceHandler extends FormServiceHandler
 	}
 
 	@Override
-	public int getMethodEventThreadLevel(String methodName, JSONObject arguments)
+	public int getMethodEventThreadLevel(String methodName, JSONObject arguments, int dontCareLevel)
 	{
 		if ("formLoaded".equals(methodName)) return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
-		return super.getMethodEventThreadLevel(methodName, arguments);
+		return super.getMethodEventThreadLevel(methodName, arguments, dontCareLevel);
 	}
 
 }
