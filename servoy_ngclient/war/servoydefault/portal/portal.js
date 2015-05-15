@@ -483,7 +483,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 										return $q.reject("First selected index changed for some reason (" + rowIdxOfFirstSelected + " -> " + newFirstSelected + ") while scrolling for non-loaded API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									return callAPIAfterScroll(absoluteRowIndexToRowId(rowIdxOfFirstSelected));
 								}, function(reason) {
-									// error; but will probably never happen as we currently don't call deferredAPICallExecution.reject(...)
+									// error
 									deferredAPICallExecution = undefined;
 									$log.error("API method call (deferred until scroll to selection) failed. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									return $q.reject(reason);
@@ -594,64 +594,72 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 			var updateGridSelectionFromFoundset = function(scrollToSelection) {
 				$scope.$evalAsync(function () {
-					if ($scope.foundset)
-					{
-						var rows = $scope.foundset.viewPort.rows;
-						updatingGridSelection = true; 
-						if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
-							var scrolledToSelection = !scrollToSelection;
-							var oldSelection = $scope.gridApi.selection.getSelectedRows();
-							// if first item in the old selection is the same as the first in the new selection,
-							// then ignore scrolling; if an API call is waiting for scrolling then we still must scroll...
-							if(!deferredAPICallExecution && oldSelection.length > 0 && rows[$scope.foundset.selectedRowIndexes[0]] &&
-									(oldSelection[0]._svyRowId == rows[$scope.foundset.selectedRowIndexes[0]]._svyRowId)) {
-								scrolledToSelection = true;
-							}
-							
-							for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
-								var rowIdx = $scope.foundset.selectedRowIndexes[idx];
-								if (isInViewPort(rowIdx)) {
-									$scope.gridApi.selection.selectRow(rows[rowIdx]);
-									if(!scrolledToSelection) {
-										scrolledToSelection = true;
-										$timeout(function() {
-											$scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow(rows[rowIdx]), null /* must be null here, can't be undefined */).then(function() {
-												if (deferredAPICallExecution) deferredAPICallExecution.resolve();
-												deferredAPICallExecution = undefined;
-											});
-										}, 0);
-									}
-								} else if(!scrolledToSelection) {
-									var nrRecordsToLoad = 0;
-									if(rowIdx < $scope.foundset.viewPort.startIndex) {
-										nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex;
-									} else {
-										nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex - $scope.foundset.viewPort.size + 1;
-									}
-									
-									var tmp;
-									if (deferredAPICallExecution) {
-										tmp = $sabloUtils.getCurrentEventLevelForServer();
-										$sabloUtils.setCurrentEventLevelForServer($sabloUtils.EVENT_LEVEL_SYNC_API_CALL); // to allow it to load records despite the blocking server-side API call on the event thread
-									}
-									try
-									{
-										$scope.foundset.loadExtraRecordsAsync(nrRecordsToLoad);
-									}
-									finally
-									{
-										if (deferredAPICallExecution) {
-											$sabloUtils.setCurrentEventLevelForServer(tmp);
-										}
-									}
-									break;
+					try {
+						if ($scope.foundset)
+						{
+							var rows = $scope.foundset.viewPort.rows;
+							updatingGridSelection = true; 
+							if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
+								var scrolledToSelection = !scrollToSelection;
+								var oldSelection = $scope.gridApi.selection.getSelectedRows();
+								// if first item in the old selection is the same as the first in the new selection,
+								// then ignore scrolling; if an API call is waiting for scrolling then we still must scroll...
+								if(!deferredAPICallExecution && oldSelection.length > 0 && rows[$scope.foundset.selectedRowIndexes[0]] &&
+										(oldSelection[0]._svyRowId == rows[$scope.foundset.selectedRowIndexes[0]]._svyRowId)) {
+									scrolledToSelection = true;
 								}
+
+								for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
+									var rowIdx = $scope.foundset.selectedRowIndexes[idx];
+									if (isInViewPort(rowIdx)) {
+										$scope.gridApi.selection.selectRow(rows[rowIdx]);
+										if(!scrolledToSelection) {
+											scrolledToSelection = true;
+											$timeout(function() {
+												$scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow(rows[rowIdx]), null /* must be null here, can't be undefined */).then(function() {
+													if (deferredAPICallExecution) deferredAPICallExecution.resolve();
+													deferredAPICallExecution = undefined;
+												});
+											}, 0);
+										}
+									} else if(!scrolledToSelection) {
+										var nrRecordsToLoad = 0;
+										if(rowIdx < $scope.foundset.viewPort.startIndex) {
+											nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex;
+										} else {
+											nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex - $scope.foundset.viewPort.size + 1;
+										}
+
+										var tmp;
+										if (deferredAPICallExecution) {
+											$scope.$evalAsync(function() { // allow one more digest cycle so that changes with lower prio are sent before
+												tmp = $sabloUtils.getCurrentEventLevelForServer();
+												$sabloUtils.setCurrentEventLevelForServer($sabloUtils.EVENT_LEVEL_SYNC_API_CALL); // to allow it to load records despite the blocking server-side API call on the event thread
+												try
+												{
+													$scope.foundset.loadExtraRecordsAsync(nrRecordsToLoad);
+												}
+												finally
+												{
+													$sabloUtils.setCurrentEventLevelForServer(tmp);
+												}
+											});
+										} else {
+											$scope.foundset.loadExtraRecordsAsync(nrRecordsToLoad);
+										}
+										break;
+									}
+								}
+							} else if (rows.length > 0) {
+								$scope.gridApi.selection.selectRow(rows[0]);
+								$scope.gridApi.cellNav.scrollTo($scope, rows[0], null);
 							}
-						} else if (rows.length > 0) {
-							$scope.gridApi.selection.selectRow(rows[0]);
-							$scope.gridApi.cellNav.scrollTo($scope, rows[0], null);
+							updatingGridSelection = false;
 						}
-						updatingGridSelection = false;
+					} catch (e) {
+						if (deferredAPICallExecution) deferredAPICallExecution.reject(e);
+						deferredAPICallExecution = undefined;
+						throw e;
 					}
 				});
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
