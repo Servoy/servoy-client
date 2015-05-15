@@ -200,6 +200,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (v == Scriptable.NOT_FOUND) v = null;
 
 		v = replaceTagsIfNeeded(v);
+		if (v instanceof UUID) v = v.toString();
 		boolean changed = ((v != value) && (v == null || !v.equals(value)));
 
 		value = v;

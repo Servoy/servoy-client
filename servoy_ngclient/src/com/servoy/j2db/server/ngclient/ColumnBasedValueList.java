@@ -124,7 +124,7 @@ public class ColumnBasedValueList implements IValueList
 	{
 		try
 		{
-			String filter = parentState.getValue(dataProviderID) != null ? (String)parentState.getValue(dataProviderID) : null;
+			String filter = parentState.getValue(dataProviderID) != null ? parentState.getValue(dataProviderID).toString() : null;
 			dlm.fill(parentState, dataProviderID, filter, fillFirstTime);
 			fillFirstTime = false;
 		}
