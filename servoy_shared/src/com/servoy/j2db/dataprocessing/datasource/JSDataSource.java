@@ -145,6 +145,24 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		return (QBSelect)application.getFoundSetManager().getQueryFactory().createSelect(datasource);
 	}
 
+	/**
+	 *  Create a query builder for a data source. RAGTEST doc
+	 *
+	 *  @sample
+	 *  var q = datasources.db.example_data.book_nodes.createSelect()
+	 *  q.result.addPk()
+	 *  q.where.add(q.columns.label_text.not.isin(null))
+	 *  datasources.db.example_data.book_nodes.getFoundSet().loadRecords(q)
+	 *
+	 *  @return query builder
+	 *
+	 */
+	@JSFunction
+	public QBSelect createSelect(String tableAlias) throws RepositoryException
+	{
+		return (QBSelect)application.getFoundSetManager().getQueryFactory().createSelect(datasource, tableAlias);
+	}
+
 	@Override
 	public void destroy()
 	{

@@ -3919,6 +3919,26 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Create a QueryBuilder object for a datasource with given table alias.
+	 * The alias can be used inside custom queries to bind to the outer table.
+	 * @sample
+	 *
+	 * var q = datasources.db.example_data.book_nodes.createSelect('b');
+	 * q.result.addPk()
+	 * q.where.add(q.columns.label_text.isin('select comment_text from book_text t where t.note_text = ? and t.node_id = b.node_id', ['test']))
+	 * databaseManager.getFoundSet('db:/example_data/book_nodes').loadRecords(q)
+	 *
+	 * @param dataSource The data source to build a query for.
+	 * @param tableAlias The alias for the main table.
+	 *
+	 * @return query builder
+	 */
+	public QBSelect js_createSelect(String dataSource, String tableAlias) throws ServoyException
+	{
+		return (QBSelect)application.getFoundSetManager().getQueryFactory().createSelect(dataSource, tableAlias);
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

@@ -40,7 +40,7 @@ import com.servoy.j2db.util.ServoyException;
 public abstract class QBTableClause extends QBPart implements IQueryBuilderTableClause
 {
 	private final String dataSource;
-	private final String tableAlias;
+	protected String tableAlias;
 
 	private QBJoins joins;
 
@@ -81,6 +81,13 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	@JSFunction
 	public String getTableAlias()
 	{
+		if (tableAlias == null)
+		{
+			// use the alias as was set on the table.
+			// Freeze the value so that when the table is (de)serialized this value does not change
+			tableAlias = getQueryTable().getAliasFrozen();
+		}
+
 		return tableAlias;
 	}
 

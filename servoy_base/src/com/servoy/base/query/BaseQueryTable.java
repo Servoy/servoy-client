@@ -20,7 +20,7 @@ package com.servoy.base.query;
 
 /**
  * Query table for mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -161,6 +161,15 @@ public class BaseQueryTable implements IBaseQueryElement
 	public String getAlias()
 	{
 		return alias;
+	}
+
+	/**
+	 * Get the alias, when the alias was generated, keep this alias so after (de)serialization (when sent to the appserver) this alias is still the same.
+	 */
+	public String getAliasFrozen()
+	{
+		generatedAlias = false;
+		return getAlias();
 	}
 
 	public boolean isAliasGenerated()

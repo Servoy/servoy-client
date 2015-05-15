@@ -26,6 +26,7 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
@@ -157,6 +158,18 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 		return in(query);
 	}
 
+	/**
+	 * Compare column with custom query result.
+	 * @param customQuery custom query
+	 * @param args query arguments
+	 * @sample
+	 * query.where.add(query.columns.ccy.isin("select ccycode from currencies c where c.category = " + query.getTableAlias() + ".currency_category and c.flag = ?", ['T']))
+	 */
+	public QBCondition js_isin(String customQuery, Object[] args)
+	{
+		return in(customQuery, args);
+	}
+
 	public QBCondition in(IQueryBuilderPart query)
 	{
 		return createCompareCondition(IBaseSQLCondition.IN_OPERATOR, query);
@@ -177,6 +190,13 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	{
 		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
 			new Object[][] { values == null ? new Object[0] : convertDate(values) }, true));
+	}
+
+	@Override
+	public QBCondition in(String customQuery, Object[] args)
+	{
+		return createCondition(new SetCondition(IBaseSQLCondition.IN_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, new QueryCustomSelect(
+			customQuery, args), true));
 	}
 
 	/**

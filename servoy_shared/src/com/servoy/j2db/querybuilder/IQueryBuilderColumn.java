@@ -92,6 +92,14 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	IQueryBuilderCondition in(Object[] values);
 
 	/**
+	 * Compare column with custom query result.
+	 * <pre>
+	 * query.where().add(query.getColumn("value").in("select code from mytab where flag = ?", ["T"]));
+	 * </pre>
+	 */
+	IQueryBuilderCondition in(String customQuery, Object[] args);
+
+	/**
 	 * Compare column with null.
 	 * @see #eq
 	 */
