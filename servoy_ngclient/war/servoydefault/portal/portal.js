@@ -652,7 +652,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								}
 							} else if (rows.length > 0) {
 								$scope.gridApi.selection.selectRow(rows[0]);
-								$scope.gridApi.cellNav.scrollTo($scope, rows[0], null);
+								$scope.gridApi.grid.scrollTo($scope, rows[0], null);
 							}
 							updatingGridSelection = false;
 						}
