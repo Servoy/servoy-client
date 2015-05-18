@@ -233,7 +233,7 @@ public class MethodTemplate implements IMethodTemplate
 		}
 		if (signature != null && signature.getType() != null)
 		{
-			sb.append(" *\n * @returns {").append(signature.getType()).append('}'); //$NON-NLS-1$
+			sb.append(" *\n * @return {").append(signature.getType()).append('}'); //$NON-NLS-1$
 			if (signature.getDescription() != null)
 			{
 				sb.append(' ').append(signature.getDescription());
@@ -336,10 +336,16 @@ public class MethodTemplate implements IMethodTemplate
 	 * @param methodKey
 	 * @param formalArguments
 	 */
-	public static MethodTemplate getFormMethodOverrideTemplate(Class< ? > methodClass, String methodKey, MethodArgument[] formalArguments)
+	public static MethodTemplate getFormMethodOverrideTemplate(Class< ? > methodClass, String methodKey, MethodArgument[] formalArguments,
+		MethodArgument returnType)
 	{
 		MethodTemplate template = getTemplate(methodClass, methodKey);
-		return new MethodTemplate(template.description, template.signature, Utils.arrayMerge(template.args, formalArguments), null, true)
+		MethodArgument signature = template.signature;
+		if (signature == null)
+		{
+			signature = returnType;
+		}
+		return new MethodTemplate(template.description, signature, Utils.arrayMerge(template.args, formalArguments), null, true)
 		{
 			@Override
 			public String getMethodDeclaration(CharSequence name, CharSequence methodCode, int tagToOutput, String userTemplate,
