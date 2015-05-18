@@ -63,6 +63,10 @@ public class ScriptNameValidator implements IValidateName
 		{
 			throw new RepositoryException("there is a SQL keyword with name " + nameToCheck); //$NON-NLS-1$
 		}
+		if (nameToCheck.contains(" ")) //$NON-NLS-1$
+		{
+			throw new RepositoryException("there is a space in the name '" + nameToCheck + "' this is not allowed"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 		if (solutionRoot != null && solutionRoot.getSolution().getSolutionType() == SolutionMetaData.MOBILE &&
 			Ident.checkIfReservedBrowserWindowObjectWord(nameToCheck))
@@ -147,7 +151,7 @@ public class ScriptNameValidator implements IValidateName
 		}
 		if (nameToCheck == null)
 		{
-			Debug.error("Name to check is null for element id " + skip_element_id); //$NON-NLS-1$ 
+			Debug.error("Name to check is null for element id " + skip_element_id); //$NON-NLS-1$
 			return null;
 		}
 		if (searchContext == null)
@@ -196,7 +200,7 @@ public class ScriptNameValidator implements IValidateName
 			}
 		}
 
-		// Test the global levels. (form names and relations)null 
+		// Test the global levels. (form names and relations)null
 		else if ((searchContext.getType() == IRepository.SCRIPTVARIABLES || searchContext.getType() == IRepository.METHODS) &&
 			!(searchContext.getObject() instanceof Form))
 		{
@@ -235,16 +239,16 @@ public class ScriptNameValidator implements IValidateName
 			if (obj != null) return obj;
 
 			// It's a form method
-			// First test form scripts 
+			// First test form scripts
 			obj = testFormScripts((Form)searchContext.getObject(), nameToCheck, skip_element_id);
 			if (obj != null) return obj;
 
 			// It's a form vars
-			// First test formvars 
+			// First test formvars
 			obj = testFormVars((Form)searchContext.getObject(), nameToCheck, skip_element_id);
 			if (obj != null) return obj;
 
-			// Test table dataproviders	
+			// Test table dataproviders
 			obj = testTableProviders(((Form)searchContext.getObject()).getTable(), nameToCheck, skip_element_id, false, false);
 			if (obj != null) return obj;
 		}
@@ -318,7 +322,7 @@ public class ScriptNameValidator implements IValidateName
 
 	/**
 	 * Method testTableProviders.
-	 * 
+	 *
 	 * @param table
 	 * @param next
 	 * @param id
