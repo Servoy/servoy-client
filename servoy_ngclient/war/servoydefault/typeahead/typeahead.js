@@ -87,9 +87,17 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 								break;
 							}
 						}
-						if (!hasMatchingDisplayValue && hasRealValues) {
-							$scope.model.dataProviderID = null;
-						}
+						if (!hasMatchingDisplayValue)
+						{
+							if (hasRealValues) 
+							{
+								$scope.model.dataProviderID = null;
+							}
+							else
+							{
+								$scope.model.dataProviderID = $scope.value;
+							}	
+						}	
 					}
 					else
 					{
