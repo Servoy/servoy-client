@@ -114,7 +114,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 					break;
 				}
 			}
-			if (hasRealValues) return null;
+			if (hasRealValues || valuelist.length == 0) return null;
 		}
 		return input;
 	};
