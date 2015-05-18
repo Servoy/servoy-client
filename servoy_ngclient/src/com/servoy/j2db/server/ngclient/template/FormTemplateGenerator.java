@@ -134,7 +134,14 @@ public class FormTemplateGenerator
 					case Field.COMBOBOX :
 						return "servoydefault-combobox";
 					case Field.TEXT_FIELD :
-						return "servoydefault-textfield";
+						if (((Field)persist).getValuelistID() > 0)
+						{
+							return "servoydefault-typeahead";
+						}
+						else
+						{
+							return "servoydefault-textfield";
+						}
 					case Field.RADIOS :
 						return isSingleValueComponent(persist) ? "servoydefault-radio" : "servoydefault-radiogroup";
 					case Field.CHECKS :
