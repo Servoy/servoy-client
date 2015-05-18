@@ -106,6 +106,15 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 					return valuelist[i].displayValue;
 				}
 			}
+			var hasRealValues = false;
+			for (var i = 0; i < valuelist.length; i++) {
+				var item = valuelist[i];
+				if (item.realValue != item.displayValue) {
+					hasRealValues = true;
+					break;
+				}
+			}
+			if (hasRealValues) return null;
 		}
 		return input;
 	};

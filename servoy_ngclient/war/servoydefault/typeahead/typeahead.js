@@ -62,7 +62,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 					}
 					if(!found)
 					{
-						$scope.value = $scope.model.dataProviderID;
+						$scope.value = null;
 					}	
 				}	 
 			}
