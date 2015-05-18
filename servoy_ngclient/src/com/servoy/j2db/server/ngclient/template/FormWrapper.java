@@ -85,16 +85,12 @@ public class FormWrapper
 		return design;
 	}
 
-	public String getControllerName()
-	{
-		return realName == null ? form.getName() : realName.replace('-', '_');
-	}
 
 	public String getFormCls()
 	{
 		return form.getStyleClass();
 	}
-
+	
 	public String getName()
 	{
 		return realName == null ? form.getName() : realName;

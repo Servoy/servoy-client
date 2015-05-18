@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${controllerName}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$sabloUtils,$log) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$sabloUtils,$log) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
