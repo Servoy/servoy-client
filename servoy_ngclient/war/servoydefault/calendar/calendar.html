@@ -3,7 +3,7 @@
 	svy-margin='model.margin'
 	svy-tooltip="model.toolTipText"
     ng-model="model.dataProviderID"
-    style="position:relative">
+    ng-style="(!model.readOnly && model.enabled && !model.findmode) ? { 'position':'relative'} : {'display':'inline', 'position':'relative'}">
 	<input type="text" 
 	   svy-background='model.transparent ? "transparent" : model.background'
 	   svy-foreground='model.foreground'
@@ -22,5 +22,5 @@
 	   ng-readonly="model.editable == false"
        svy-horizontalalignment='model.horizontalAlignment'
        id="{{::model.svyMarkupId}}"/>
-	<span class="input-group-addon" style="padding:0;" ng-show="model.editable && model.enabled && !model.findmode"><span class="glyphicon glyphicon-calendar"></span></span>
+	<span class="input-group-addon" style="padding:0;" ng-show="!model.readOnly && model.enabled && !model.findmode"><span class="glyphicon glyphicon-calendar"></span></span>
 </div>
