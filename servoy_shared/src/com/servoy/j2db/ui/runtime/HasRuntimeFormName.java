@@ -20,13 +20,17 @@ package com.servoy.j2db.ui.runtime;
 import org.mozilla.javascript.annotations.JSFunction;
 
 /**
+ * Runtime property interface for client property.
+ *
  * @author rlazar
  *
+ * @since 6.1
  */
 public interface HasRuntimeFormName
 {
 	/**
 	 * Returns the name of the form. (may be empty string as well)
+	 *
 	 *
 	 * @sample
 	 * var name = %%prefix%%%%elementName%%.getFormName();
