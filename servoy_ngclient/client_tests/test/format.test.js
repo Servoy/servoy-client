@@ -9,6 +9,7 @@ describe('servoy $formatUtils', function() {
   describe("format numbers", function() {
 	    it("should corecly format numbers", function() {
 	    	inject(function($formatterUtils){
+	    	numeral.language("en")
 	    	var formatFun = $formatterUtils.format;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(formatFun(10.49,'0.000','NUMBER')).toEqual("10.490")
@@ -27,6 +28,7 @@ describe('servoy $formatUtils', function() {
 	    });
 	    it("should corecly UNformat  numbers", function() {
 	    	inject(function($formatterUtils){
+	    	numeral.language("en")
 	    	var unFormatFun = $formatterUtils.unformat;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(unFormatFun("10.49",'0.000','NUMBER')).toEqual(10.49)
@@ -45,6 +47,7 @@ describe('servoy $formatUtils', function() {
   describe("format dates", function() {
 	    it("should corecly format dates", function() {
 	    	inject(function($formatterUtils){
+	    	numeral.language("en")
 	    	var formatFun = $formatterUtils.format;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(formatFun(new Date(2014,10,1,23,23,14,500),'dd-MM-yyyy HH:mma s  G S','DATETIME')).toEqual("01-11-2014 23:23PM 14  AD 500")
