@@ -1114,6 +1114,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
+	 * @templatecode
+	 * return true
 	 */
 	public int getOnRecordEditStartMethodID()
 	{
