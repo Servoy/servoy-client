@@ -31,6 +31,7 @@ import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
@@ -83,7 +84,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 					}
 					else
 					{
-						JSONArray jsonArray = new JSONArray();
+						ServoyJSONArray jsonArray = new ServoyJSONArray();
 						for (WebCustomType wo1 : (WebCustomType[])wo.getValue())
 						{
 							jsonArray.put(wo1.getJson());

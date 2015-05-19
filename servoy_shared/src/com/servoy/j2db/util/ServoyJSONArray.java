@@ -13,16 +13,18 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONTokener;
 
-public class ServoyJSONArray extends JSONArray
+public class ServoyJSONArray extends JSONArray implements Serializable
 {
 	public ServoyJSONArray()
 	{
@@ -63,5 +65,13 @@ public class ServoyJSONArray extends JSONArray
 		}
 	}
 
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException
+	{
+		out.writeObject(ServoyJSONObject.toSerializable(this));
+	}
 
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		ServoyJSONObject.fromSerializable(this, in.readObject());
+	}
 }

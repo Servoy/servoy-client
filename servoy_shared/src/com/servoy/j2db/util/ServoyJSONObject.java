@@ -16,10 +16,13 @@
  */
 package com.servoy.j2db.util;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SimpleTimeZone;
@@ -29,7 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 
-public class ServoyJSONObject extends JSONObject
+public class ServoyJSONObject extends JSONObject implements Serializable
 {
 	protected boolean noQuotes = true;
 	protected boolean newLines = true;
@@ -111,7 +114,7 @@ public class ServoyJSONObject extends JSONObject
 
 	/**
 	 * Replace newlines with \n when found within quoted strings.
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 */
@@ -154,7 +157,7 @@ public class ServoyJSONObject extends JSONObject
 
 	/**
 	 * Replace \n with newlines when found within quoted strings.
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 */
@@ -324,11 +327,11 @@ public class ServoyJSONObject extends JSONObject
 		}
 		else if (value instanceof Collection)
 		{
-			appendtoString(sb, new JSONArray((Collection)value), noQuotes, newLines, false);
+			appendtoString(sb, new ServoyJSONArray((Collection)value), noQuotes, newLines, false);
 		}
 		else if (value.getClass().isArray())
 		{
-			appendtoString(sb, new JSONArray(value), noQuotes, newLines, false);
+			appendtoString(sb, new ServoyJSONArray(value), noQuotes, newLines, false);
 		}
 		else if (value instanceof JSONArray)
 		{
@@ -380,7 +383,7 @@ public class ServoyJSONObject extends JSONObject
 
 	/**
 	 * Convert a json object to a java object
-	 * 
+	 *
 	 * @param o
 	 * @return
 	 */
@@ -401,4 +404,98 @@ public class ServoyJSONObject extends JSONObject
 		return o;
 	}
 
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException
+	{
+		out.writeBoolean(noQuotes);
+		out.writeBoolean(newLines);
+		out.writeBoolean(noBrackets);
+		out.writeObject(toSerializable(this));
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		noQuotes = in.readBoolean();
+		newLines = in.readBoolean();
+		noBrackets = in.readBoolean();
+		fromSerializable(this, in.readObject());
+	}
+
+	static Object toSerializable(Object o)
+	{
+		if (o instanceof JSONObject)
+		{
+			JSONObject obj = (JSONObject)o;
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			for (String key : JSONObject.getNames(obj))
+			{
+				try
+				{
+					map.put(key, toSerializable(obj.get(key)));
+				}
+				catch (JSONException e)
+				{
+					Debug.trace(e);
+				}
+			}
+			return map;
+		}
+		if (o instanceof JSONArray)
+		{
+			JSONArray arr = (JSONArray)o;
+			Object[] array = new Object[arr.length()];
+			for (int i = 0; i < arr.length(); i++)
+			{
+				try
+				{
+					array[i] = toSerializable(arr.get(i));
+				}
+				catch (JSONException e)
+				{
+					Debug.trace(e);
+				}
+			}
+			return array;
+		}
+		return o;
+	}
+
+	static Object fromSerializable(Object parent, Object o)
+	{
+		if (o instanceof Map< ? , ? >)
+		{
+			JSONObject obj = parent != null ? (JSONObject)parent : new ServoyJSONObject();
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> map = (HashMap<String, Object>)o;
+			for (String key : map.keySet())
+			{
+				try
+				{
+					obj.put(key, fromSerializable(null, map.get(key)));
+				}
+				catch (JSONException e)
+				{
+					Debug.error(e);
+				}
+			}
+			return obj;
+		}
+		if (o instanceof Object[])
+		{
+			JSONArray arr = parent != null ? (JSONArray)parent : new ServoyJSONArray();
+			Object[] array = (Object[])o;
+			for (int i = 0; i < array.length; i++)
+			{
+				try
+				{
+					arr.put(i, fromSerializable(null, array[i]));
+				}
+				catch (JSONException e)
+				{
+					Debug.error(e);
+				}
+			}
+			return arr;
+		}
+		return o;
+	}
 }
