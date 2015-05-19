@@ -43,6 +43,45 @@ describe('servoy $formatUtils', function() {
 	    	})
 	    });
 	});
+  
+  describe("format numbers in NL", function() {
+	    it("should corecly format numbers", function() {
+	    	inject(function($formatterUtils){
+	    	numeral.language("nl")
+	    	var formatFun = $formatterUtils.format;
+	    	var MILLSIGN =  '\u2030';  //�
+	        expect(formatFun(10.49,'0.000','NUMBER')).toEqual("10,490")
+	        expect(formatFun(10,'-0000.000','NUMBER')).toEqual("-10,000")
+	        expect(formatFun(10.49,'#.###','NUMBER')).toEqual("10,49")
+	        expect(formatFun(10.49,'+#.###','NUMBER')).toEqual("+10,49")
+	        expect(formatFun(1000,'#,###.00','NUMBER')).toEqual("1.000,00")
+	        expect(formatFun(1000,'#,###.##','NUMBER')).toEqual("1.000")
+	        expect(formatFun(10.49,'+0','NUMBER')).toEqual("+10")
+	        expect(formatFun(10.49,'+%00.00','NUMBER')).toEqual("+%1049,00")
+	        expect(formatFun(10.49, MILLSIGN+'+00.00','NUMBER')).toEqual(MILLSIGN+"+10490,00")
+	        expect(formatFun(10.49, '+'+MILLSIGN+'00.00','NUMBER')).toEqual('+'+MILLSIGN+"10490,00")
+	        expect(formatFun(10.49, '00.00E00','NUMBER')).toEqual('1.0490e+1'); // TODO shouldn't this also be in dutch notation??
+
+	    	})
+	    });
+	    it("should corecly UNformat  numbers", function() {
+	    	inject(function($formatterUtils){
+	    	numeral.language("nl")
+	    	var unFormatFun = $formatterUtils.unformat;
+	    	var MILLSIGN =  '\u2030';  //�
+	        expect(unFormatFun("10,49",'0.000','NUMBER')).toEqual(10.49)
+	        expect(unFormatFun("+%1049,00",'+%00.00','NUMBER')).toEqual(10.49)
+	        expect(unFormatFun("-10,000",'-0000.000','NUMBER')).toEqual(10)
+	        expect(unFormatFun("-10,000",'###.###','NUMBER')).toEqual(-10)
+	        expect(unFormatFun("1.000",'#,###.00','NUMBER')).toEqual(1000)
+	        expect(unFormatFun("1.000,00",'#,###.00','NUMBER')).toEqual(1000)
+	        expect(unFormatFun("1.000,00",'#,###.##','NUMBER')).toEqual(1000)
+	        expect(unFormatFun(MILLSIGN+"+10490,00",MILLSIGN+'+00.00','NUMBER')).toEqual(10.49)
+	        expect(unFormatFun('1.0490e+1','00.00E00','NUMBER')).toEqual(10.49); // TODO shouldn't this also be in dutch notation??
+	    	})
+	    });
+	});
+
 
   describe("format dates", function() {
 	    it("should corecly format dates", function() {
