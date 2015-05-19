@@ -116,7 +116,7 @@ var Window = null;
 
     Window.prototype.show = function () {
         this.$el.css('visibility', 'visible');
-        this.$el.fadeIn();
+        this.$el.fadeIn(0);
     };
     
     Window.prototype.setSize = function(size){
@@ -167,13 +167,13 @@ var Window = null;
         } else if (this.options.window_manager && this.options.window_manager.windows.length > 0) {
             this.options.window_manager.setNextFocused();
         }
-        this.$el.fadeOut(function() {
+        //this.$el.fadeOut(function() {
             _this.$el.remove();
-        });
+       // });
         if (this.$windowTab) {
-            this.$windowTab.fadeOut(400, function() {
+           // this.$windowTab.fadeOut(400, function() {
                 _this.$windowTab.remove();
-            });
+            //});
         }
 
     };

@@ -272,6 +272,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					instance.location =  storage.get(sol+name+'.storedBounds.location')					
 				}
 				$servoyWindowManager.open({
+					animation: false,
 					templateUrl: "templates/dialog.html",
 					controller: "DialogInstanceCtrl",
 					windowClass: "tester",
