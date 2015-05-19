@@ -32,6 +32,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -176,6 +177,26 @@ public class FormLayoutGenerator
 		writer.print("<div ng-style=\"layout.");
 		writer.print(fe.getName());
 		writer.print("\"");
+		if (!form.isResponsiveLayout() && fe.getPersistIfAvailable() instanceof BaseComponent)
+		{
+			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
+			int anchors = bc.getAnchors();
+			String style = "";
+			if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))
+			{
+				style += "min-width:" + bc.getSize().width + "px;";
+			}
+			if (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0))
+			{
+				style += "min-height:" + bc.getSize().height + "px";
+			}
+			if (!style.isEmpty())
+			{
+				writer.print(" style='");
+				writer.print(style);
+				writer.print("'");
+			}
+		}
 		if (design)
 		{
 			writer.print(" svy-id='");
