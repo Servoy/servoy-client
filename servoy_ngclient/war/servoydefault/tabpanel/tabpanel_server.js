@@ -1,18 +1,3 @@
-       $scope.getSelectedTab = function() {
-    	   return $scope.model.selectedTab;
-       }
-       
-	   $scope.getTabIndex = function(tab) {
-    	   if(tab) {
-	    	   for(var i=0;i<$scope.model.tabs.length;i++) {
-	    		   if ($scope.model.tabs[i].containsFormId == tab.containsFormId) {
-	    			   return i + 1;
-	    		   }
-	    	   }
-    	   }
-    	   return -1;
-       }
-	   
 	   $scope.getTabAt = function(index) {
     	   if(index > 0 && index <= $scope.model.tabs.length) {
     		   return $scope.model.tabs[index - 1];
@@ -69,8 +54,18 @@
         		   $scope.model.tabs[i] = $scope.model.tabs[i + 1];
         	   }
         	   $scope.model.tabs.length = $scope.model.tabs.length - 1;
-        	   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
-//    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (server side removeTabAt)");
+        	   if ($scope.model.tabIndex >= index)
+        	   {
+        		   if ($scope.model.tabIndex === index)
+        		   {
+        			   $scope.model.tabIndex = 1;
+        		   }  
+        		   else
+        		   {
+        			   $scope.model.tabIndex--;
+        		   }   
+        	   }   
+    		   //java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (server side removeTabAt)");
         	   return true;
     	   }
     	   return false;
@@ -79,7 +74,7 @@
        $scope.api.removeAllTabs = function() {
     	   if($scope.model.tabs.length > 0) {
     		   $scope.model.tabs.length = 0;
-    		   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
+    		   $scope.model.tabIndex = 1;
 //    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (removeAllTabs)");
     		   return true;
     	   }
@@ -91,7 +86,7 @@
        }
        
        $scope.api.getSelectedTabFormName = function() {
-    	   var selectedTab = $scope.getSelectedTab(); 
+    	   var selectedTab = $scope.getTabAt($scope.model.tabIndex); 
     	   return selectedTab ? selectedTab.containsFormId : null;
        }
                 
