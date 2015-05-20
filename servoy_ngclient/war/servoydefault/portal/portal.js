@@ -875,6 +875,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					});
 
 					$scope.$watch('foundset.serverSize', function(newVal, oldVal) {
+						if (requestViewPortSize === 0) requestViewPortSize = -1
 						testNumberOfRows();
 					});
 
