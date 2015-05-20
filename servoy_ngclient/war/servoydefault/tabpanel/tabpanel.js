@@ -107,7 +107,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				if (tab.containsFormId) $scope.svyServoyapi.formWillShow(tab.containsFormId, tab.relationName);
 				if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
 				{
-					$scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event !=null event : $.Event("change"));
+					$scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event !=null?event : $.Event("change"));
 				}   			
 				if ($log.debugEnabled) $log.debug("svy * selectedTab = '" + tab.containsFormId + "' -- " + new Date().getTime());
 				$scope.model.selectedTab = tab;
