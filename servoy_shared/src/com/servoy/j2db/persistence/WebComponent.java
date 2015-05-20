@@ -73,7 +73,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	{
 		if (isCustomTypePropertiesLoaded && getCustomTypeProperties().size() > 0)
 		{
-			JSONObject entireModel = getJson() != null ? getJson() : new ServoyJSONObject();
+			ServoyJSONObject entireModel = getJson() != null ? getJson() : new ServoyJSONObject();
 			try
 			{
 				for (Map.Entry<String, Object> wo : getCustomTypeProperties().entrySet())
@@ -214,12 +214,12 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME);
 	}
 
-	public void setJson(JSONObject arg)
+	public void setJson(ServoyJSONObject arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
 	}
 
-	public JSONObject getJson()
+	public ServoyJSONObject getJson()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
 	}

@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.Debug;
@@ -323,7 +322,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#getJson()
 	 */
 	@Override
-	public JSONObject getJson()
+	public ServoyJSONObject getJson()
 	{
 		try
 		{
@@ -342,12 +341,12 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#setJson(org.json.JSONObject)
 	 */
 	@Override
-	public void setJson(JSONObject o)
+	public void setJson(ServoyJSONObject o)
 	{
 		String beanXML = null;
-		if (o.length() > 0 && o instanceof ServoyJSONObject)
+		if (o.length() > 0)
 		{
-			beanXML = ((ServoyJSONObject)o).toString(false);
+			beanXML = o.toString(false);
 		}
 		setBeanXML(beanXML);
 	}
@@ -361,8 +360,8 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 	public String getTypeName()
 	{
 		return getBeanClassName();
-	}	
-	
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

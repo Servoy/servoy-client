@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.persistence;
 
-import org.json.JSONObject;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author gboros
@@ -33,8 +33,8 @@ public interface IWebObject extends IPersist
 
 	public String getTypeName();
 
-	public void setJson(JSONObject arg);
+	public void setJson(ServoyJSONObject arg);
 
-	public JSONObject getJson();
+	public ServoyJSONObject getJson();
 
 }

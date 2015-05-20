@@ -58,14 +58,16 @@ public class WebCustomType extends AbstractBase implements IWebObject
 			if (!isNew && entireModel.has(jsonKey))
 			{
 				Object v = entireModel.get(jsonKey);
+				JSONObject obj = null;
 				if (v instanceof JSONArray)
 				{
-					setJson(((JSONArray)v).getJSONObject(index));
+					obj = ((JSONArray)v).getJSONObject(index);
 				}
 				else
 				{
-					setJson(entireModel.getJSONObject(jsonKey));
+					obj = entireModel.getJSONObject(jsonKey);
 				}
+				setJson(obj instanceof ServoyJSONObject ? (ServoyJSONObject)obj : new ServoyJSONObject(obj.toString(), false));
 			}
 			else
 			{
@@ -93,12 +95,12 @@ public class WebCustomType extends AbstractBase implements IWebObject
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME);
 	}
 
-	public void setJson(JSONObject arg)
+	public void setJson(ServoyJSONObject arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
 	}
 
-	public JSONObject getJson()
+	public ServoyJSONObject getJson()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
 	}
