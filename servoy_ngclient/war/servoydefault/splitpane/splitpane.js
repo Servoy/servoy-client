@@ -38,7 +38,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
     		  $scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);
     	  }
     	  $scope.onChange = function() {
-    		  if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,event);
+    		  if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,$.Event("change"));
     	  }
     	  
           $scope.getForm = function(tab) {
@@ -326,6 +326,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 	 	            pane1.css('width', pos + 'px');
 	 	            pane2.css('left', pos + 'px');
 	 			 }
+	 			$scope.onChange();
         	 }
           }
           
