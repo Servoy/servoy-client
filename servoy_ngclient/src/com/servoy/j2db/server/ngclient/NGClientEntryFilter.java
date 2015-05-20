@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,6 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sablo.WebEntry;
+import org.sablo.specification.WebComponentPackageSpecification;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -267,8 +269,21 @@ public class NGClientEntryFilter extends WebEntry
 								//prepare for possible index.html lookup
 								Map<String, String> variableSubstitution = new HashMap<String, String>();
 								variableSubstitution.put("orientation", String.valueOf(fs.getSolution().getTextOrientation()));
-								super.doFilter(servletRequest, servletResponse, filterChain, Arrays.asList("css/servoy.css"), getFormScriptReferences(fs),
-									variableSubstitution);
+								ArrayList<String> css = new ArrayList<String>();
+								css.add("css/servoy.css");
+								ArrayList<String> formScripts = new ArrayList<String>(getFormScriptReferences(fs));
+								for (WebComponentPackageSpecification<WebLayoutSpecification> entry : WebComponentSpecProvider.getInstance().getLayoutSpecifications().values())
+								{
+									if (entry.getCssClientLibrary() != null)
+									{
+										css.addAll(entry.getCssClientLibrary());
+									}
+									if (entry.getJsClientLibrary() != null)
+									{
+										formScripts.addAll(entry.getJsClientLibrary());
+									}
+								}
+								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, variableSubstitution);
 								return;
 							}
 						}
