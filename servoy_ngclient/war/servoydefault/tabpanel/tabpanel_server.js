@@ -74,7 +74,7 @@
        $scope.api.removeAllTabs = function() {
     	   if($scope.model.tabs.length > 0) {
     		   $scope.model.tabs.length = 0;
-    		   $scope.model.tabIndex = 1;
+    		   $scope.model.tabIndex = -1;
 //    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (removeAllTabs)");
     		   return true;
     	   }
