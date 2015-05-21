@@ -243,6 +243,7 @@ public class MediaResourcesServlet extends HttpServlet
 			if (solutionMetaData == null)
 			{
 				Debug.error("Solution '" + rootSolutionName + "' was not found when sending media data for '" + mediaName + "'.");
+				return false;
 			}
 			fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
 			{
@@ -584,7 +585,7 @@ public class MediaResourcesServlet extends HttpServlet
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException
