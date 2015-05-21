@@ -54,7 +54,7 @@ angular.module('window',['servoy'])
 				args = contextFilter;
 				contextFilter = null;
 			}
-			shortcut.add(this.translateSwingShortcut(shortcutcombination),this.getCallbackFunction(callback, contextFilter,args),{'propagate':true,'disable_in_input':false});
+			shortcut.add(this.translateSwingShortcut(shortcutcombination),this.getCallbackFunction(callback, contextFilter,args),{'propagate':false,'disable_in_input':false});
 			if (!scope.model.shortcuts) scope.model.shortcuts = [];
 			scope.model.shortcuts.push({'shortcut': shortcutcombination,'callback':callback,'contextFilter':contextFilter,'arguments':args});
 			return true;
