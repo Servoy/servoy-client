@@ -177,15 +177,23 @@ public class NGClientEntryFilter extends WebEntry
 						{
 							closeFS = true;
 							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-							fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
-								solutionName, IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
+							SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
+								solutionName, IRepository.SOLUTIONS);
+							if (solutionMetaData == null)
 							{
-								@Override
-								public IRepository getRepository()
+								Debug.error("Solution '" + solutionName + "' was not found.");
+							}
+							else
+							{
+								fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
 								{
-									return ApplicationServerRegistry.get().getLocalRepository();
-								}
-							});
+									@Override
+									public IRepository getRepository()
+									{
+										return ApplicationServerRegistry.get().getLocalRepository();
+									}
+								});
+							}
 						}
 						catch (Exception e)
 						{

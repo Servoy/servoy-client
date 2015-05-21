@@ -238,8 +238,14 @@ public class MediaResourcesServlet extends HttpServlet
 		try
 		{
 			IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-			fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(rootSolutionName,
-				IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
+			SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(rootSolutionName,
+				IRepository.SOLUTIONS);
+			if (solutionMetaData == null)
+			{
+				Debug.error("Solution '" + rootSolutionName + "' was not found when sending media data for '" + mediaName + "'.");
+				return false;
+			}
+			fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
 			{
 				@Override
 				public IRepository getRepository()
@@ -579,7 +585,7 @@ public class MediaResourcesServlet extends HttpServlet
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException
