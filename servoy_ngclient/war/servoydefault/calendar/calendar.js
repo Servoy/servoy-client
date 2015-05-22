@@ -16,7 +16,8 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			child.datetimepicker({
 				useCurrent:false,
 				useStrict:true,
-				showClear: true
+				showClear: true,
+				ignoreReadonly: true
 			});
 
 			$scope.$watch('model.size.height', function(){ 
@@ -103,7 +104,8 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 					child.datetimepicker({
 						useCurrent:false,
 						useStrict:true,
-						showClear: true
+						showClear: true,
+						ignoreReadonly: true
 					});
 					var x = child.data('DateTimePicker');
 					x.format(dateFormat);
