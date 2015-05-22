@@ -3797,8 +3797,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				QueryDelete delete_sql = new QueryDelete(sqlSelect.getTable());
 				delete_sql.setCondition(sqlSelect.getWhereClone());
 
-				IDataSet deletePKs = null;
-				boolean allFoundsetRecordsLoaded = (pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows());
+				IDataSet deletePKs;
+				boolean allFoundsetRecordsLoaded = currentPKs != null && pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows();
 				if (allFoundsetRecordsLoaded)
 				{
 					// clone because this will be used in a separate thread by performUpdates while it will be altered in this one (deletes all records at the end of the method)
@@ -5889,7 +5889,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
