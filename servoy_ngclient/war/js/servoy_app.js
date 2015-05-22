@@ -691,11 +691,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return $solutionSettings.mainForm.name?$windowService.getFormUrl($solutionSettings.mainForm.name):"";
 	}
 	$scope.getNavigatorFormUrl = function() {
-		var templateURLOrFormName = $solutionSettings.navigatorForm.templateURL; // can be directly default nav. url or if not the name of the navigator form
+		var templateURLOrFormName = $solutionSettings.navigatorForm.name; // can be directly default nav. url or if not the name of the navigator form
 		if (templateURLOrFormName && templateURLOrFormName.lastIndexOf("default_navigator_container.html") == -1) {
-			return $windowService.getFormUrl($solutionSettings.navigatorForm.templateURL);
+			return $windowService.getFormUrl($solutionSettings.navigatorForm.name);
 		}
-		return $solutionSettings.navigatorForm.templateURL;
+		return $solutionSettings.navigatorForm.name;
 	}
 
 	$scope.getSessionProblemView = function(){

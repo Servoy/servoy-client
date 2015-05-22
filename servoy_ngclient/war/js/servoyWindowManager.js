@@ -315,9 +315,9 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		switchForm: function(name,form,navigatorForm) {
 			// if first show of this form in browser window then request initial data (dataproviders and such)
 			$formService.formWillShow(form.name, false); // false because form was already made visible server-side
-			if (navigatorForm && navigatorForm.templateURL && navigatorForm.templateURL.lastIndexOf("default_navigator_container.html") == -1) {
+			if (navigatorForm && navigatorForm.name && navigatorForm.name.lastIndexOf("default_navigator_container.html") == -1) {
 				// if first show of this form in browser window then request initial data (dataproviders and such)
-				$formService.formWillShow(navigatorForm.templateURL, false); // false because form was already made visible server-side
+				$formService.formWillShow(navigatorForm.name, false); // false because form was already made visible server-side
 			}
 
 			if(instances[name] && instances[name].type != WindowType.WINDOW) {

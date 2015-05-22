@@ -153,7 +153,7 @@
 	</script>
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
 		<div ng-if='!getSessionProblemView()' id="mainForm" sablo-tabseq='1' sablo-tabseq-config="{container: true}">
-			<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
+			<div ng-if="solutionSettings.navigatorForm.name" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
 				ng-include="getNavigatorFormUrl()"></div>
 			<div ng-include="getMainFormUrl()" ng-style="getFormStyle(solutionSettings.ltrOrientation)"></div>
 			<div hiddendiv="true" ng-include="updatingFormUrl" style="position:absolute;visibility:hidden;"></div>

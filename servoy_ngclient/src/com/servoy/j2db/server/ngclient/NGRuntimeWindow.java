@@ -421,7 +421,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		currentForm.getFormUI().setParentWindowName(getName());
 		getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 		Map<String, Object> mainForm = new HashMap<String, Object>();
-		mainForm.put("templateURL", currentForm.getForm().getName());
 		Map<String, Integer> size = new HashMap<>();
 		size.put("width", currentForm.getForm().getSize().width);
 		size.put("height", currentForm.getForm().getSize().height);
@@ -438,7 +437,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	/**
 	 * Get the navigator properties based on the navigatorID of the form.
 	 * @param formController
-	 * @return a map which contains navigator properties such as templateURL, size.
+	 * @return a map which contains navigator properties such as name, size.
 	 */
 	private Map<String, Object> getNavigatorProperties(IWebFormController formController)
 	{
@@ -454,7 +453,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				break;
 			case Form.NAVIGATOR_DEFAULT :
 			{
-				navigatorForm.put("templateURL", "servoydefault/navigator/default_navigator_container.html");
+				navigatorForm.put("name", "servoydefault/navigator/default_navigator_container.html");
 				Map<String, Integer> navSize = new HashMap<>();
 				navSize.put("width", 70);
 				navigatorForm.put("size", navSize);
@@ -478,7 +477,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				if (navForm != null)
 				{
 					getApplication().getFormManager().getForm(navForm.getName()).getFormUI().setParentWindowName(getName());
-					navigatorForm.put("templateURL", navForm.getName());
+					navigatorForm.put("name", navForm.getName());
 					Map<String, Integer> navSize = new HashMap<>();
 					navSize.put("width", navForm.getSize().width);
 					navSize.put("height", navForm.getSize().height);
