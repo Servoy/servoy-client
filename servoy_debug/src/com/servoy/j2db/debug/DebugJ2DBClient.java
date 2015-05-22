@@ -121,7 +121,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 {
@@ -517,7 +517,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public boolean isEventDispatchThread()
 	{
-		return super.isEventDispatchThread() || Thread.currentThread() instanceof ServoyDebugger;
+		return super.isEventDispatchThread() || Thread.currentThread() instanceof ServoyDebugger ||
+			(!Utils.isAppleMacOS() && Thread.currentThread().getName().equals("JavaFX Application Thread"));
 	}
 
 	/**
@@ -579,7 +580,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void show(final Form form)
 	{
