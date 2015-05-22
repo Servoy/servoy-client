@@ -52,7 +52,7 @@ public class Types
 		TypesRegistry.addType(DatasetPropertyType.INSTANCE);
 		TypesRegistry.addType(RelationPropertyType.INSTANCE);
 		TypesRegistry.addType(MediaPropertyType.INSTANCE);
-		TypesRegistry.addType(BeanPropertyType.INSTANCE);
+		TypesRegistry.addType(LabelForPropertyType.INSTANCE);
 		TypesRegistry.addType(FormPropertyType.INSTANCE);
 		TypesRegistry.addType(RuntimeComponentPropertyType.INSTANCE);
 		TypesRegistry.addType(FormatPropertyType.INSTANCE);

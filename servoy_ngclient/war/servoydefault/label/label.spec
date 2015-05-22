@@ -17,7 +17,7 @@
 	        "format" : {"for":["valuelistID","dataProviderID"] , "type" :"format"}, 
 	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
 	        "imageMediaID" : "media", 
-	        "labelFor" : "bean", 
+	        "labelFor" : "labelfor", 
 	        "location" : "point", 
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 
 	        "mediaOptions" : {"type" :"mediaoptions", "tags": { "scope" :"design" }}, 

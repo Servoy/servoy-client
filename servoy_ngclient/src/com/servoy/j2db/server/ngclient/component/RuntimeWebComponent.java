@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,10 +30,12 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.Container;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.VisiblePropertyType;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.ISupportAnchors;
@@ -41,10 +44,12 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.LabelForPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -232,9 +237,42 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (specProperties != null && specProperties.contains(name))
 		{
 			Object previousVal = component.getProperty(name);
-			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, webComponentSpec.getProperties().get(name), component);
+			PropertyDescription pd = webComponentSpec.getProperties().get(name);
+			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, pd, component);
 
 			if (val != previousVal) component.setProperty(name, val);
+
+			if (pd != null && pd.getType() instanceof VisiblePropertyType)
+			{
+				// search all labelfor elements
+				for (WebComponent siblingComponent : component.getParent().getComponents())
+				{
+					Collection<PropertyDescription> labelFors = siblingComponent.getSpecification().getProperties(LabelForPropertyType.INSTANCE);
+					if (labelFors != null)
+					{
+						for (PropertyDescription labelForProperty : labelFors)
+						{
+							if (Utils.equalObjects(component.getName(), siblingComponent.getProperty(labelForProperty.getName())))
+							{
+								// sibling component is labelfor, so set value to all its visible properties
+								Collection<PropertyDescription> visibleProperties = siblingComponent.getSpecification().getProperties(
+									VisiblePropertyType.INSTANCE);
+								if (visibleProperties != null)
+								{
+									for (PropertyDescription visibleProperty : visibleProperties)
+									{
+										previousVal = siblingComponent.getProperty(visibleProperty.getName());
+										val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, visibleProperty, siblingComponent);
+
+										if (val != previousVal) siblingComponent.setProperty(name, val);
+									}
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 		else if (prototypeScope != null)
 		{

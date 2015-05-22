@@ -701,7 +701,7 @@ public class SpecGenerator
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"default\" :0}, {\"TOP\":1}, {\"HIDE\":-1}]}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), "{\"type\" :\"tabseq\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "{\"type\" :\"mediaoptions\", \"tags\": { \"scope\" :\"design\" }}");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "labelfor");
 		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"droppable\":true}");
 		repoTypeMappingExceptions.put("tabIndex", "object");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{\"type\" :\"insets\", \"tags\": { \"scope\" :\"design\" }}");
