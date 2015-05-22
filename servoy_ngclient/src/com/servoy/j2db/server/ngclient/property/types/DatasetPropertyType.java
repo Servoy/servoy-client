@@ -15,20 +15,24 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Currently this type is only used when set from scripting - for setValueListItems api call, but in the future
@@ -69,22 +73,90 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 			return writer.value(null);
 		}
 
-		List<List<Object>> array = new ArrayList<>(value.getRowCount());
-		if (value.getColumnCount() >= 1)
+		writer.array();
+
+		if (value.getColumnCount() > 0)
 		{
+			DatasetConfig datasetConfig = (DatasetConfig)dataConverterContext.getPropertyDescription().getConfig();
+			String[] columnNames = value.getColumnNames();
+
+			if (datasetConfig.isIncludeColumnNames() && columnNames != null)
+			{
+				writer.array();
+
+				for (String columnName : columnNames)
+				{
+					writer.value(columnName);
+				}
+
+				writer.endArray();
+			}
+
 			for (int i = 0; i < value.getRowCount(); i++)
 			{
+				writer.array();
+
 				Object[] row = value.getRow(i);
-				array.add(Arrays.asList(row));
+				PropertyDescription pd;
+				for (int j = 0; j < row.length; j++)
+				{
+					pd = datasetConfig.getColumnType(columnNames[j]);
+					if (pd != null)
+					{
+						Object v;
+						if (pd.getType() instanceof IWrapperType< ? , ? >)
+						{
+							v = ((IWrapperType<Object, ? >)pd.getType()).wrap(row[j], null, dataConverterContext);
+						}
+						else
+						{
+							v = row[j];
+						}
+						FullValueToJSONConverter.INSTANCE.toJSONValue(writer, null, v, pd, clientConversion, null);
+					}
+					else
+					{
+						writer.value(row[j]);
+					}
+				}
+
+				writer.endArray();
 			}
 		}
 
-		return JSONUtils.toBrowserJSONFullValue(writer, key, array, null, clientConversion, null);
+		writer.endArray();
+
+		return writer;
 	}
 
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
-		return config;
+		boolean includeColumnNames = false;
+		HashMap<String, PropertyDescription> columnTypes = new HashMap<String, PropertyDescription>();
+
+		if (config != null)
+		{
+			includeColumnNames = config.optBoolean("includeColumnNames");
+			JSONObject columnTypesObj = config.optJSONObject("columnTypes");
+			if (columnTypesObj != null)
+			{
+				String[] names = JSONObject.getNames(columnTypesObj);
+				for (String propertyName : names)
+				{
+					try
+					{
+						IPropertyType< ? > pt = TypesRegistry.getType(columnTypesObj.get(propertyName).toString());
+						if (pt != null) columnTypes.put(propertyName, new PropertyDescription(propertyName, pt));
+					}
+					catch (JSONException ex)
+					{
+						Debug.error(ex);
+					}
+				}
+			}
+		}
+
+		return new DatasetConfig(includeColumnNames, columnTypes);
 	}
 }
