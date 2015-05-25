@@ -550,8 +550,13 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	/**
+	 * Returns the name of the form. (may be empty string as well)
 	 *
-	 * @return form name
+	 *
+	 * @sample
+	 * var name = %%prefix%%%%elementName%%.getFormName();
+	 *
+	 * @return The name of the form.
 	 */
 	@JSFunction
 	public String getFormName()
