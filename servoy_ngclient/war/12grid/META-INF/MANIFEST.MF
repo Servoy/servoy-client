@@ -2,6 +2,9 @@ Manifest-Version: 1.0
 Ant-Version: Apache Ant 1.8.4
 Created-By: 1.7.0_05-b06 (Oracle Corporation)
 CSS-DesignLibs: 12grid/lib/12grid.css
+CSS-ClientLibs: 12grid/lib/12grid.css
+JS-DesignLibs: 12grid/lib/2screens.js
+JS-ClientLibs: 12grid/lib/2screens.js
 Responsive-Layout: True
 Bundle-Name: Bootstrap 12-Grid
 Bundle-SymbolicName: 12grid
@@ -20,4 +23,23 @@ Web-Layout: True
 
 Name: 3columns.spec
 Web-Composite: True
+
+Name: responsive_form.spec
+Web-Composite: True
+
+Name: 3fields.spec
+Web-Composite: True
+
+Name: labelfield.spec
+Web-Composite: True
+
+Name: responsivetable.spec
+Web-Composite: True
+
+Name: collapsible.spec
+Web-Composite: True
+
+Name: 2screens.spec
+Web-Composite: True
+
 

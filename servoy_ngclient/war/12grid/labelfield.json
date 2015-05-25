@@ -1,0 +1,21 @@
+{
+	"layoutName": "labelfield",
+	"class": "row",
+	"children": [{
+		"layoutName": "column",
+		"model": {
+			"class": "col-md-4",
+			"children": [{
+				"componentName": "bootstrapcomponents-label"
+			}]
+		}
+	}, {
+		"layoutName": "column",
+		"model": {
+			"class": "col-md-8",
+			"children": [{
+				"componentName": "bootstrapcomponents-textbox"
+			}]
+		}
+	}]
+}
