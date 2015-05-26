@@ -156,22 +156,23 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	@Override
 	public void refreshForI18NChange(boolean recreateForms)
 	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void refreshPersists(Collection<IPersist> changes)
-	{
 		if (isShutDown()) return;
 
-		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		refreshI18NMessages();
+		if (recreateForms)
+		{
+			List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
+			refreshForms(cachedFormControllers);
+		}
+	}
 
-		if (scopesAndFormsToReload[1].size() > 0)
+	private void refreshForms(Collection<IFormController> forms)
+	{
+		if (forms != null && forms.size() > 0)
 		{
 			FormElementHelper.INSTANCE.reload();
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(); // should we also use these?
-			for (IFormController controller : scopesAndFormsToReload[1])
+			for (IFormController controller : forms)
 			{
 				boolean isVisible = controller.isFormVisible();
 				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables);
@@ -189,6 +190,16 @@ public class DebugNGClient extends NGClient implements IDebugClient
 				reportError("error sending changes to the client", e);
 			}
 		}
+	}
+
+	@Override
+	public void refreshPersists(Collection<IPersist> changes)
+	{
+		if (isShutDown()) return;
+
+		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+
+		refreshForms(scopesAndFormsToReload[1]);
 
 		for (IFormController controller : scopesAndFormsToReload[0])
 		{
