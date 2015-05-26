@@ -407,17 +407,25 @@
                     widget.removeClass('pull-right');
                 }
 
-                var rect = element[0].getBoundingClientRect();
-                var left = rect.left + rect.width - (widget.width() + 5);
-                if (left < 0) left = 0;
+                // find the first parent element that has a relative css positioning
+                if (parent.css('position') !== 'relative') {
+                    parent = parent.parents().filter(function () {
+                        return $(this).css('position') === 'relative';
+                    }).first();
+                }
+
+                if (parent.length === 0) {
+                    throw new Error('datetimepicker component should be placed within a relative positioned container');
+                }
+
                 widget.css({
-                    top: vertical === 'top' ? rect.top - widget.height() -15 : rect.top + element.outerHeight(),
-                    bottom: 'auto',
-                    left: left,
-                    right: 'auto'
+                    top: vertical === 'top' ? 'auto' : position.top + element.outerHeight(),
+                    bottom: vertical === 'top' ? position.top + element.outerHeight() : 'auto',
+                    left: horizontal === 'left' ? parent.css('padding-left') : 'auto',
+                    right: horizontal === 'left' ? 'auto' : parent.width() - element.outerWidth()
                 });
             },
-            
+
             notifyEvent = function (e) {
                 if (e.type === 'dp.change' && ((e.date && e.date.isSame(e.oldDate)) || (!e.date && !e.oldDate))) {
                     return;
