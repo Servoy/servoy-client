@@ -46,6 +46,7 @@ import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -110,6 +111,12 @@ public final class FormElement implements IWebComponentInitializer
 
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
+
+		if (persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()))
+		{
+			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
+				(this.form != null ? "' on the form '" + this.form.getName() : "") + "'. It might not work properly due to some persist model change.");
+		}
 	}
 
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
