@@ -27,7 +27,7 @@ angular.module('bootstrapcomponentsCalendar',['servoy']).directive('bootstrapcom
 			// when model change, update our view, set the date in the datepicker
 			ngModel.$render = function() {
 				try {
-					$element.off("change.dp",inputChanged);
+					$element.off("dp.change",inputChanged);
 					var x = child.data('DateTimePicker');
 					if (x) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 					else {
@@ -35,7 +35,7 @@ angular.module('bootstrapcomponentsCalendar',['servoy']).directive('bootstrapcom
 						child.children("input").val(ngModel.$viewValue);
 					}
 				} finally {
-					$element.on("change.dp",inputChanged);
+					$element.on("dp.change",inputChanged);
 				}
 			};
 
@@ -50,18 +50,18 @@ angular.module('bootstrapcomponentsCalendar',['servoy']).directive('bootstrapcom
 				if (angular.isDefined(x)) { // can be undefined in find mode
 					x.format(dateFormat);
 					try {
-						$element.off("change.dp",inputChanged);
+						$element.off("dp.change",inputChanged);
 						x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
 					}
 					finally {
-						$element.on("change.dp",inputChanged);
+						$element.on("dp.change",inputChanged);
 					}
 				}
 			}
 
-			$element.on("change.dp",inputChanged);
+			$element.on("dp.change",inputChanged);
 
-			$element.on("error.dp",function(){
+			$element.on("dp.error",function(){
 				ngModel.$setValidity("", false);
 				$scope.$digest();
 			});
