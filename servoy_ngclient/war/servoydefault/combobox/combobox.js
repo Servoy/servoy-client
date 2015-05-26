@@ -9,11 +9,8 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			svyServoyapi: "="
 		},
 		controller: function ($scope) {
-			var minHeight = $scope.model.size.height + 'px';
 			$scope.style = {
-					'min-height': minHeight,
 					height: '100%',
-					'min-width': $scope.model.size.width + 'px',
 					width: '100%',
 					overflow: 'hidden'
 			};
@@ -28,6 +25,11 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				}
 			});
 
+			scope.$watch("model.size", function (newVal) {
+				$scope.style['min-height'] = $scope.model.size.height + 'px';
+				$scope.style['min-width'] = $scope.model.size.width + 'px';
+			});
+			
 			/**
 	    	* Request the focus to this combobox.
 	    	* @example %%prefix%%%%elementName%%.requestFocus();
