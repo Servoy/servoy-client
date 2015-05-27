@@ -130,8 +130,14 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 	{
 		if (selectAllLater && getSelectOnEnter() && enclosedComponent instanceof JTextComponent)
 		{
-			selectAllLater = false;
-			((JTextComponent)enclosedComponent).selectAll();
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					selectAllLater = false;
+					((JTextComponent)enclosedComponent).selectAll();
+				}
+			});
 		}
 	}
 
