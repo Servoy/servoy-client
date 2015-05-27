@@ -65,7 +65,7 @@ public abstract class ViewportRowDataProvider
 			int end = Math.min(size - 1, endIndex);
 			if (startIndex <= end)
 			{
-				if (end < startIndex)
+				if (end < endIndex)
 				{
 					Debug.error("Illegal state: view ports end index " + endIndex + " is bigger then the size " + size, new RuntimeException());
 				}
