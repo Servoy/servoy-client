@@ -5,8 +5,8 @@
 	"icon": "servoydefault/slider/SLIDER16.png",
 	"definition": "servoydefault/slider/slider.js", 
 	"libraries": [{"name":"jquery-ui.custom", "version":"1.9.2", "url":"servoydefault/slider/css/jquery-ui-1.9.2.custom.css", "mimetype":"text/css"},
-				  {"name":"jquery-ui.slider", "version":"1.10.4", "url":"servoydefault/slider/js/jquery-ui.slider.min.js", "mimetype":"text/javascript"}, 
-	 			  {"name":"jquery-ui.slider", "version":"1.10.4", "url":"servoydefault/slider/css/jquery-ui.slider.min.css", "mimetype":"text/css"},
+				  {"name":"jquery-ui.min.js", "version":"1.11.4", "url":"servoydefault/slider/js/jquery-ui.min.js", "mimetype":"text/javascript"}, 
+	 			  {"name":"jquery-ui.min.css", "version":"1.11.4", "url":"servoydefault/slider/css/jquery-ui.min.css", "mimetype":"text/css"},
 				  {"name":"ui-slider", "version":"1", "url":"servoydefault/slider/ui-slider/slider.js", "mimetype":"text/javascript"}],	
 	
 	"model":
