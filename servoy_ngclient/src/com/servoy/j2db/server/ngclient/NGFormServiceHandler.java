@@ -130,13 +130,16 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				boolean isVisible = args.getBoolean("visible");
-				WebFormComponent containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
-
-				if (isVisible && containerComponent != null)
+				WebFormComponent containerComponent = null;
+				if (parentForm != null)
 				{
-					containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
-				}
+					containerComponent = parentForm.getFormUI().getWebComponent(args.getString("bean"));
 
+					if (isVisible && containerComponent != null)
+					{
+						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
+					}
+				}
 				boolean ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
 				if (ok && parentForm != null)
 				{
