@@ -112,11 +112,14 @@ public final class FormElement implements IWebComponentInitializer
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
 
-		if (persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()))
+		if (persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()) &&
+			!WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()).getFoundTypes().isEmpty())
 		{
 			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
-				(this.form != null ? "' on the form '" + this.form.getName() : "") + "'. It might not work properly due to some persist model change.");
+				(this.form != null ? "' on the form '" + this.form.getName() : "") +
+				"'. Components which define types might not work properly due to some persist model change.");
 		}
+
 	}
 
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
