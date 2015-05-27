@@ -23,6 +23,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.util.Debug;
 
 /**
  * This class is responsible for writing data in a foundset property's viewport.
@@ -64,6 +65,10 @@ public abstract class ViewportRowDataProvider
 			int end = Math.min(size - 1, endIndex);
 			if (startIndex <= end)
 			{
+				if (end < startIndex)
+				{
+					Debug.error("Illegal state: view ports end index " + endIndex + " is bigger then the size " + size, new RuntimeException());
+				}
 				for (int i = startIndex; i <= endIndex; i++)
 				{
 					clientConversionInfo.pushNode(String.valueOf(i - startIndex));
