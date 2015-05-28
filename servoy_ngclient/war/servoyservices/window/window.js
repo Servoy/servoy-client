@@ -1,5 +1,5 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services,$compile,$formService,$windowService) {
+.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication) {
 	var scope = $services.getServiceScope('window');
 	return {
 		/**
@@ -158,6 +158,14 @@ angular.module('window',['servoy'])
 			scope.getFormUrl = function(){
 				return $windowService.getFormUrl(form);
 			};
+			scope.loadSize = function(){
+				$sabloApplication.getFormState(form).then(function(formState){
+					var css = {};
+					css["min-width"] = formState.properties.size.width+"px";
+					css["min-height"] = formState.properties.size.height+"px";
+					$('#formpopup').css(css);
+		    	})
+			};
 			var body = $('body');
 			var style = 'position:absolute;z-index:999;';
 			if (width && width > 0)
@@ -178,7 +186,7 @@ angular.module('window',['servoy'])
 			}
 			style+= 'left:'+left+'px;';
 			style+= 'top:'+top+'px;';
-			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()"></div>')(scope);
+			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()" onload="loadSize()"></div>')(scope);
 			body.on('click',this.cancelFormPopup);
 			body.append(popup);
 		},
