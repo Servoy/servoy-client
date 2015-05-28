@@ -174,7 +174,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			// see type of dataprovider; this is done only once - first time we get a new record
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
-				servoyDataConverterContext.getForm().getForm(), record.getParentFoundSet().getTable(), getDataProviderConfig().hasParseHtml());
+				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
+				getDataProviderConfig().hasParseHtml());
 		}
 
 		String dpID = dataProviderID;
