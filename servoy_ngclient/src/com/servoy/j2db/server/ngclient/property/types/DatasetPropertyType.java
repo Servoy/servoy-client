@@ -67,9 +67,9 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 	public JSONWriter toJSON(JSONWriter writer, String key, IDataSet value, DataConversion clientConversion, IDataConverterContext dataConverterContext)
 		throws JSONException
 	{
+		JSONUtils.addKeyIfPresent(writer, key);
 		if (value == null)
 		{
-			JSONUtils.addKeyIfPresent(writer, key);
 			return writer.value(null);
 		}
 
