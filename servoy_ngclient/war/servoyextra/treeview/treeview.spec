@@ -17,7 +17,7 @@
 			"parameters":[
 							{                                                                 
 							"name":"jsDataSet",
-							"type": {"type" :"dataset", "includeColumnNames": true, columnTypes:{ "icon" : "media" }}
+							"type": {"type" :"dataset", "includeColumnNames": true, "columnTypes":{ "icon" : "media" }}
 		                	}             
 						 ]
         },
