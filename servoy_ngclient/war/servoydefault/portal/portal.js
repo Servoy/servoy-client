@@ -160,6 +160,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 
 			if($scope.model.multiLine) {
+				if (rowWidth < $element.width())
+				{
+					// needed for anchoring
+					rowWidth = '100%';
+				}	
 				$scope.columnDefinitions.push({
 					width: rowWidth,
 					cellTemplate: rowTemplate,
