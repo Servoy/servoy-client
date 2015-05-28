@@ -125,7 +125,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -380,7 +380,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	protected void doInvokeLater(Runnable r)
 	{
-		wsSession.getEventDispatcher().addEvent(r);
+		wsSession.getEventDispatcher().postEvent(r);
 	}
 
 	@Override

@@ -142,6 +142,12 @@ public class TestNGClient extends NGClient
 					{
 					}
 
+					@Override
+					public void postEvent(Runnable event)
+					{
+						event.run();
+					}
+
 				};
 			}
 		});
