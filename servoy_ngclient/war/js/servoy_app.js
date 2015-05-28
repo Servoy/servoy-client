@@ -559,11 +559,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			},function(){
 				//out
-				if(imgStyle){
-					element.css(imgStyle)
-				}else{
-					element.css(clearStyle)
-				}        		
+				if(rollOverImgStyle){
+					if(imgStyle){
+						element.css(imgStyle)
+					}else{
+						element.css(clearStyle)
+					} 
+				}
 			})
 		}
 	}
