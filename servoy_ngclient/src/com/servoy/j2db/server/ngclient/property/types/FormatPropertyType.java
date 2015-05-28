@@ -299,13 +299,13 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 										{
 											dpType = dataProvider.getDataProviderType();
 										}
+										return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 									}
 								}
 								catch (Exception ex)
 								{
 									Debug.error(ex);
 								}
-								return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 							}
 						}
 					}
