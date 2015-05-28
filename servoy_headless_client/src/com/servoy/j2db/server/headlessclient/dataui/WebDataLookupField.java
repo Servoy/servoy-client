@@ -372,11 +372,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			protected Iterator<Object> getChoices(String input)
 			{
-				input = filterInput(input);
+				String filteredInput = filterInput(input);
 				if (changeListener != null) dlm.getValueList().removeListDataListener(changeListener);
 				try
 				{
-					dlm.fill(parentState, getDataProviderID(), input, false);
+					dlm.fill(parentState, getDataProviderID(), filteredInput, false);
 					return dlm.iterator();
 				}
 				catch (Exception ex)
@@ -396,13 +396,32 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			private String filterInput(String input)
 			{
 				String displayFormat = WebDataLookupField.this.parsedFormat.getDisplayFormat();
-				if (displayFormat != null && displayFormat.length() > 0)
+				if (displayFormat != null && displayFormat.length() > 0 && input.length() == displayFormat.length())
 				{
-					int index = input.indexOf(' ');
+					int index = firstBlankSpacePosition(input, displayFormat);
 					if (index == -1) return input;
 					return input.substring(0, index);
 				}
 				return input;
+			}
+
+			/**
+			 * Computes the index of the first space char found in the input and is not ' ' nor '*' in the format
+			 * Example:
+			 * input  '12 - 3  -  '
+			 * format '## - ## - #'
+			 * returns 6
+			 * @param input
+			 * @param displayFormat
+			 * @return The index of the first space char found in the input and is not ' ' nor '*' in the format
+			 */
+			private int firstBlankSpacePosition(String input, String displayFormat)
+			{
+				for (int i = 0; i < input.length(); i++)
+				{
+					if ((input.charAt(i) == ' ') && (displayFormat.charAt(i) != ' ') && (displayFormat.charAt(i) != '*')) return i;
+				}
+				return 0;
 			}
 
 			/**
