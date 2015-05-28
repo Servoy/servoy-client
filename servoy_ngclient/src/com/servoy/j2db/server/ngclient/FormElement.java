@@ -113,6 +113,7 @@ public final class FormElement implements IWebComponentInitializer
 		if (addNameToPath) propertyPath.backOneLevel();
 
 		if (persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()) &&
+			WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()) != null &&
 			!WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()).getFoundTypes().isEmpty())
 		{
 			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
