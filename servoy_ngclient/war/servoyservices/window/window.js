@@ -186,7 +186,7 @@ angular.module('window',['servoy'])
 			}
 			style+= 'left:'+left+'px;';
 			style+= 'top:'+top+'px;';
-			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()" onload="loadSize()"></div>')(scope);
+			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()" onload="loadSize()" onclick="event.stopPropagation()"></div>')(scope);
 			body.on('click',this.cancelFormPopup);
 			body.append(popup);
 		},
