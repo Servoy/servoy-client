@@ -40,6 +40,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 {
 	public static final String WINDOW_SERVICE = "$windowService";
 
+	private String lastCurrentWindow = null;
 
 	/**
 	 * @param application
@@ -52,7 +53,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, java.util.Map)
 	 */
 	@Override
@@ -119,7 +120,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getMainApplicationWindow()
 	 */
 	@Override
@@ -131,7 +132,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getWindow(java.lang.String)
 	 */
 	@Override
@@ -140,22 +141,38 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 		return windowName == null ? (NGRuntimeWindow)getMainApplicationWindow() : (NGRuntimeWindow)super.getWindow(windowName);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.RuntimeWindowManager#getCurrentWindow()
-	 */
 	@Override
 	public NGRuntimeWindow getCurrentWindow()
 	{
-		return (NGRuntimeWindow)super.getCurrentWindow();
+		// This will return a the last used if no  current window is set
+		// so that code that is run through a scheduler or databroadcast will have a current container in scripting
+		// getCurrentWindowName will return null so that the system can still know the difference. (NGEvent that resets the current window)
+		NGRuntimeWindow currentWindow = (NGRuntimeWindow)super.getCurrentWindow();
+		return currentWindow != null ? currentWindow : getWindow(lastCurrentWindow);
+	}
+
+	@Override
+	public String getCurrentWindowName()
+	{
+		// this will return null if there is no current active window set.
+		// getCurrentWindow above does behave a bit different it will always return the last used window
+		// if there is no current window set, this way Scheduler jobs or other runnables that can run (on data broadcast)
+		// will just use the last used window as the current one
+		return super.getCurrentWindowName();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.servoy.j2db.RuntimeWindowManager#createWindowInternal(java.lang.String, int, com.servoy.j2db.scripting.RuntimeWindow)
+	 * @see com.servoy.j2db.RuntimeWindowManager#setCurrentWindowName(java.lang.String)
 	 */
+	@Override
+	public void setCurrentWindowName(String currentWindowName)
+	{
+		if (currentWindowName != null) lastCurrentWindow = currentWindowName;
+		super.setCurrentWindowName(currentWindowName);
+	}
+
 	@Override
 	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
