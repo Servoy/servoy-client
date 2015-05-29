@@ -638,6 +638,9 @@ public final class FormElement implements IWebComponentInitializer
 		Object partHeight = getPropertyValue("partHeight");
 		if (partHeight != null) properties.put("partHeight", partHeight);
 
+		Object formview = getPropertyValue("formview");
+		if (formview != null) properties.put("formview", formview);
+
 		// get types for conversion
 		PropertyDescription propertyTypes = AggregatedPropertyType.newAggregatedProperty();
 		for (Entry<String, Object> p : properties.entrySet())

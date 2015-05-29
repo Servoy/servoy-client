@@ -229,6 +229,7 @@ public class FormElementHelper
 				portalFormElementProperties.put("anchors", IAnchorConstants.ALL);
 				portalFormElementProperties.put("offsetY", startPos);
 				portalFormElementProperties.put("partHeight", bodyPart.getHeight());
+				portalFormElementProperties.put("formview", true);
 				// now put real child component form element values in "childElements"
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
