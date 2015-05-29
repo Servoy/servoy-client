@@ -133,6 +133,15 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
 	var sol = $solutionSettings.solutionName+'.'
+
+	// track main app window size change
+	var mwResizeTimeoutID;
+	$window.addEventListener('resize',function() { 
+		if(mwResizeTimeoutID) $timeout.cancel(mwResizeTimeoutID);
+		mwResizeTimeoutID = $timeout( function() {
+			$sabloApplication.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);
+		}, 500);
+	});
 	
 	$window.addEventListener('unload', function(event) {
 		$sabloApplication.disconnect();
@@ -213,9 +222,6 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 							}
 							if(this.storeBounds) storage.add(sol+name+'.storedBounds.location',location)
 						},
-						getLocation:function(){
-							return win.location;
-						},
 						setSize:function(size){
 							this.size = size;
 							if(win.bsWindowInstance){
@@ -223,16 +229,15 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 							}				    	 
 							if(this.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
 						},
-						getSize(){
-							return win.size;
-						},
 						onResize:function($event,size){
 							win.size = size;				    	
 							if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
+							$sabloApplication.callService("$windowService", "resize", {name:win.name,size:win.size},true);
 						},
 						onMove:function($event,location){
 							win.location = {x:location.left,y:location.top};
 							if(win.storeBounds) storage.add(sol+name+'.storedBounds.location',win.location)
+							$sabloApplication.callService("$windowService", "move", {name:win.name,location:win.location},true);
 						},
 						toFront:function(){
 							$servoyWindowManager.BSWindowManager.setFocused(this.bsWindowInstance)
@@ -353,26 +358,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			if(instances[name]){
 				instances[name].setLocation(location);				
 			}
-		},
-		getLocation:function(name){
-			if(instances[name]){
-				return instances[name].getLocation();				
-			}
-			return null;
-		},
+		},		
 		setSize:function(name,size){
 			if(instances[name]){
 				instances[name].setSize(size);				
-			}
-		},
-		getSize:function(name){
-			if(instances[name] && instances[name].bsWindowInstance){
-				return instances[name].getSize();				
-			}
-			else {
-				return {width:$window.innerWidth,height:$window.innerHeight}
-			}
-		},
+			},
 		setUndecorated:function(name,undecorated){
 			if(instances[name]){
 				instances[name].undecorated = undecorated;				
