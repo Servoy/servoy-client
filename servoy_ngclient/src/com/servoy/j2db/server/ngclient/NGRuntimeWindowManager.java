@@ -92,28 +92,6 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 				}
 				break;
 			}
-			case "resize" :
-			{
-				String windowName = args.has("name") ? args.optString("name") : null;
-				JSONObject size = args.optJSONObject("size");
-				if (size != null)
-				{
-					NGRuntimeWindow window = windowName == null ? (NGRuntimeWindow)getMainApplicationWindow() : getWindow(windowName);
-					window.updateSize(size.optInt("width"), size.optInt("height"));
-				}
-				break;
-			}
-			case "move" :
-			{
-				String windowName = args.optString("name");
-				JSONObject location = args.optJSONObject("location");
-				if (windowName != null && location != null)
-				{
-					NGRuntimeWindow window = getWindow(windowName);
-					window.updateLocation(location.optInt("x"), location.optInt("y"));
-				}
-				break;
-			}
 		}
 		return null;
 	}

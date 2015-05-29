@@ -17,11 +17,15 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
+import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 
 import com.servoy.j2db.IBasicFormManager.History;
@@ -45,10 +49,6 @@ import com.servoy.j2db.util.Utils;
 public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContainer
 {
 	private final History history;
-	private int x = -1;
-	private int y = -1;
-	private int width = -1;
-	private int height = -1;
 	private boolean visible;
 	private String formName;
 	private Integer navigatorID = null;
@@ -136,69 +136,87 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	public void setLocation(int x, int y)
 	{
-		if (this.x != x || this.y != y)
-		{
-			this.x = x;
-			this.y = y;
-			Map<String, Integer> location = new HashMap<>();
-			location.put("x", x);
-			location.put("y", y);
-			getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setLocation",
-				new Object[] { this.getName(), location });
-		}
+		Map<String, Integer> location = new HashMap<>();
+		location.put("x", x);
+		location.put("y", y);
+		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setLocation",
+			new Object[] { this.getName(), location });
 	}
 
-	public void updateLocation(int x, int y)
-	{
-		this.x = x;
-		this.y = y;
-	}
 
 	@Override
 	public int getX()
 	{
-		return x;
+		Point clientLocation = getClientLocation();
+		return clientLocation != null ? clientLocation.x : -1;
 	}
 
 	@Override
 	public int getY()
 	{
-		return y;
+		Point clientLocation = getClientLocation();
+		return clientLocation != null ? clientLocation.y : -1;
+	}
+
+	private Point getClientLocation()
+	{
+		try
+		{
+			Object retValue = getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getLocation",
+				new Object[] { this.getName() });
+			if (retValue instanceof JSONObject)
+			{
+				return new Point(((JSONObject)retValue).optInt("x", -1), ((JSONObject)retValue).optInt("y", -1));
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		return null;
 	}
 
 	@Override
 	public void setSize(int width, int height)
 	{
-		if (this.width != width || this.width != width)
-		{
-			this.width = width;
-			this.height = height;
-			Map<String, Integer> size = new HashMap<>();
-			size.put("width", width);
-			size.put("height", height);
-			getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setSize",
-				new Object[] { this.getName(), size });
-		}
-	}
-
-	public void updateSize(int width, int height)
-	{
-		this.width = width;
-		this.height = height;
+		Map<String, Integer> size = new HashMap<>();
+		size.put("width", width);
+		size.put("height", height);
+		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("setSize",
+			new Object[] { this.getName(), size });
 	}
 
 	@Override
 	public int getWidth()
 	{
-		return width;
+		Dimension clientSize = getClientSize();
+		return clientSize != null ? clientSize.width : -1;
 	}
 
 	@Override
 	public int getHeight()
 	{
-		return height;
+		Dimension clientSize = getClientSize();
+		return clientSize != null ? clientSize.height : -1;
 	}
 
+	private Dimension getClientSize()
+	{
+		try
+		{
+			Object retValue = getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getSize",
+				new Object[] { this.getName() });
+			if (retValue instanceof JSONObject)
+			{
+				return new Dimension(((JSONObject)retValue).optInt("width", -1), ((JSONObject)retValue).optInt("height", -1));
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		return null;
+	}
 
 	@Override
 	public void setInitialBounds(int x, int y, int width, int height)

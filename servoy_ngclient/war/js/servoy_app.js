@@ -210,11 +210,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				webStorage.session.add("windowid",msg.windowid);
 			}
 		});
-
-		wsSession.onopen(function(evt) {
-			// update the main app window with the right size
-			wsSession.callService("$windowService", "resize", {size:{width:$window.innerWidth,height:$window.innerHeight}},true);  
-		});
 	}
 
 	return {
@@ -575,20 +570,21 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		restrict: 'A', // only activate on element attribute
 		controller: function($scope, $element, $attrs) {
 			var compModel;
-			if($attrs['svyLayoutUpdate'].length == 0) {
+			var isForm = $attrs['svyLayoutUpdate'].length == 0; 
+			if(isForm) {
 				compModel = $scope.formProperties;
 			} else {
 				//compModel = $scope.model[$attrs['svyLayoutUpdate']];
 			}
 			if (!compModel) return; // not found, maybe a missing bean
 
-			if(($attrs['svyLayoutUpdate'].length == 0) || compModel.anchors) {
+			if(isForm || compModel.anchors) {
 				var resizeTimeoutID = null;
 				$window.addEventListener('resize',function() { 
 					if(resizeTimeoutID) $timeout.cancel(resizeTimeoutID);
 					resizeTimeoutID = $timeout( function() {
 						// TODO: visibility must be based on properties of type visible, not on property name
-						if(compModel.visible) {
+						if(isForm || compModel.visible) {
 							if(compModel.location) {
 								compModel.location.x = $element.offset().left;
 								compModel.location.y = $element.offset().top;
