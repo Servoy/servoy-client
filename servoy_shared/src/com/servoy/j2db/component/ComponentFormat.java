@@ -187,22 +187,34 @@ public class ComponentFormat
 		if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IFormatScriptComponent)
 		{
 			ComponentFormat cf = ((IFormatScriptComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat();
-			if (cf != null && cf.parsedFormat.getUIConverterName() != null)
+			return applyUIConverterToObject(value, dataProviderID, foundsetManager, cf);
+		}
+		return value;
+	}
+
+	/**
+	 * @param value
+	 * @param dataProviderID
+	 * @param foundsetManager
+	 * @param cf
+	 */
+	public static Object applyUIConverterToObject(Object value, String dataProviderID, IFoundSetManagerInternal foundsetManager, ComponentFormat cf)
+	{
+		if (cf != null && cf.parsedFormat.getUIConverterName() != null)
+		{
+			IUIConverter conv = foundsetManager.getUIConverterManager().getConverter(cf.parsedFormat.getUIConverterName());
+			if (conv == null)
 			{
-				IUIConverter conv = foundsetManager.getUIConverterManager().getConverter(cf.parsedFormat.getUIConverterName());
-				if (conv == null)
-				{
-					throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { cf.parsedFormat.getUIConverterName() })); //$NON-NLS-1$
-				}
-				try
-				{
-					return conv.convertToObject(cf.parsedFormat.getUIConverterProperties(), cf.dpType, value);
-				}
-				catch (Exception e)
-				{
-					throw new IllegalArgumentException(Messages.getString(
-						"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), value }), e); //$NON-NLS-1$
-				}
+				throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { cf.parsedFormat.getUIConverterName() })); //$NON-NLS-1$
+			}
+			try
+			{
+				return conv.convertToObject(cf.parsedFormat.getUIConverterProperties(), cf.dpType, value);
+			}
+			catch (Exception e)
+			{
+				throw new IllegalArgumentException(Messages.getString(
+					"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), value }), e); //$NON-NLS-1$
 			}
 		}
 		return value;
@@ -213,22 +225,34 @@ public class ComponentFormat
 		if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IFormatScriptComponent)
 		{
 			ComponentFormat cf = ((IFormatScriptComponent)((IScriptableProvider)component).getScriptObject()).getComponentFormat();
-			if (cf != null && cf.parsedFormat.getUIConverterName() != null)
+			return applyUIConverterFromObject(obj, dataProviderID, foundsetManager, cf);
+		}
+		return obj;
+	}
+
+	/**
+	 * @param obj
+	 * @param dataProviderID
+	 * @param foundsetManager
+	 * @param cf
+	 */
+	public static Object applyUIConverterFromObject(Object obj, String dataProviderID, IFoundSetManagerInternal foundsetManager, ComponentFormat cf)
+	{
+		if (cf != null && cf.parsedFormat.getUIConverterName() != null)
+		{
+			IUIConverter conv = foundsetManager.getUIConverterManager().getConverter(cf.parsedFormat.getUIConverterName());
+			if (conv == null)
 			{
-				IUIConverter conv = foundsetManager.getUIConverterManager().getConverter(cf.parsedFormat.getUIConverterName());
-				if (conv == null)
-				{
-					throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { cf.parsedFormat.getUIConverterName() })); //$NON-NLS-1$
-				}
-				try
-				{
-					return conv.convertFromObject(cf.parsedFormat.getUIConverterProperties(), cf.dpType, obj);
-				}
-				catch (Exception e)
-				{
-					throw new IllegalArgumentException(Messages.getString(
-						"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), obj }), e); //$NON-NLS-1$
-				}
+				throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { cf.parsedFormat.getUIConverterName() })); //$NON-NLS-1$
+			}
+			try
+			{
+				return conv.convertFromObject(cf.parsedFormat.getUIConverterProperties(), cf.dpType, obj);
+			}
+			catch (Exception e)
+			{
+				throw new IllegalArgumentException(Messages.getString(
+					"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(cf.dpType), obj }), e); //$NON-NLS-1$
 			}
 		}
 		return obj;

@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +31,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
@@ -37,6 +40,7 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
@@ -44,6 +48,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
@@ -67,11 +72,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	protected final String dataProviderID;
 	protected final DataAdapterList dataAdapterList;
 	protected final IServoyDataConverterContext servoyDataConverterContext;
+	private final FormElement formElement;
 
 	protected Object value;
 	protected Object jsonValue;
 	protected IChangeListener changeMonitor;
 	protected PropertyDescription typeOfDP;
+	protected ComponentFormat fieldFormat;
 	protected boolean findMode = false;
 	protected final PropertyDescription dpPD;
 	private TargetDataLinks dataLinks;
@@ -92,6 +99,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		this.dataAdapterList = dataAdapterList;
 		this.servoyDataConverterContext = component.getDataConverterContext();
 		this.dpPD = dpPD;
+		this.formElement = component.getFormElement();
 	}
 
 	protected DataproviderConfig getDataProviderConfig()
@@ -105,10 +113,15 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	}
 
 	/**
-	 * Returns the actual value that this dataProvider has.
+	 * Returns the actual value (that is already full converted by an ui converter) that this dataProvider has.
 	 */
 	public Object getValue()
 	{
+		if (!findMode && fieldFormat != null)
+		{
+			return ComponentFormat.applyUIConverterFromObject(value, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(),
+				fieldFormat);
+		}
 		return value;
 	}
 
@@ -170,12 +183,34 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	@Override
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
+		// TODO can type or fieldFormat change, for example in scripting the format is reset (but type shouldn't really change)
 		if (typeOfDP == null)
 		{
-			// see type of dataprovider; this is done only once - first time we get a new record
-			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
-				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
-				getDataProviderConfig().hasParseHtml());
+			Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
+			for (PropertyDescription formatPd : properties)
+			{
+				// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
+				Object formatConfig = formatPd.getConfig();
+				if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
+				{
+					INGApplication application = servoyDataConverterContext.getApplication();
+					String format = (String)formElement.getPropertyValue(formatPd.getName());
+					fieldFormat = ComponentFormat.getComponentFormat(format, dataProviderID,
+						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
+					break;
+				}
+			}
+			if (fieldFormat != null)
+			{
+				typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml());
+			}
+			else
+			{
+				// see type of dataprovider; this is done only once - first time we get a new record
+				typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
+					servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
+					getDataProviderConfig().hasParseHtml());
+			}
 		}
 
 		String dpID = dataProviderID;
@@ -199,6 +234,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dpID);
 		if (v == Scriptable.NOT_FOUND) v = null;
+
+		if (fieldFormat != null && !findMode)
+		{
+			v = ComponentFormat.applyUIConverterToObject(v, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(), fieldFormat);
+		}
 
 		v = replaceTagsIfNeeded(v);
 		if (v instanceof UUID) v = v.toString();
