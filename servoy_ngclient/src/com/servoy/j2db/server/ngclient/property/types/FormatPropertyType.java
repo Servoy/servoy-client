@@ -39,7 +39,6 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
-import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Table;
@@ -211,16 +210,16 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(formElementValue, pd, formElement, dataAdapterList);
+		return getSabloValue(formElementValue, pd, formElement, dataAdapterList.getApplication());
 	}
 
 	@Override
 	public Object toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(null, pd, formElement, dataAdapterList);
+		return getSabloValue(null, pd, formElement, dataAdapterList.getApplication());
 	}
 
-	private Object getSabloValue(Object formElementValue, PropertyDescription pd, FormElement formElement, DataAdapterList dataAdapterList)
+	private Object getSabloValue(Object formElementValue, PropertyDescription pd, FormElement formElement, INGApplication application)
 	{
 		if (formElementValue == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || formElementValue == DESIGN_DEFAULT)
 		{
@@ -246,7 +245,6 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 						{
 							Object id = formElement.getPropertyValue(element);
 							int valuelistID = Utils.getAsInteger(id);
-							INGApplication application = dataAdapterList.getApplication();
 							ValueList val = null;
 							if (valuelistID > 0)
 							{
@@ -311,11 +309,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 					}
 				}
 			}
-			ComponentFormat format = ComponentFormat.getComponentFormat(
-				(String)formElementValue,
-				dataproviderId,
-				dataAdapterList.getApplication().getFlattenedSolution().getDataproviderLookup(dataAdapterList.getApplication().getFoundSetManager(),
-					dataAdapterList.getForm().getForm()), dataAdapterList.getApplication());
+			ComponentFormat format = ComponentFormat.getComponentFormat((String)formElementValue, dataproviderId,
+				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
 			return format;
 		}
 		return formElementValue;
@@ -340,15 +335,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	@Override
 	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		if (rhinoValue != null)
-		{
-			WebFormComponent wfc = (WebFormComponent)componentOrService;
-			INGApplication application = wfc.getDataConverterContext().getApplication();
-			IDataProviderLookup dataproviderLookup = wfc.getDataConverterContext().getSolution().getDataproviderLookup(application.getFoundSetManager(),
-				wfc.getFormElement().getForm());
-			String dataproviderId = (String)wfc.getFormElement().getPropertyValue((String)pd.getConfig());
-			return ComponentFormat.getComponentFormat(rhinoValue.toString(), dataproviderId, dataproviderLookup, application);
-		}
-		return null;
+		WebFormComponent wfc = (WebFormComponent)componentOrService;
+		return getSabloValue(rhinoValue, pd, wfc.getFormElement(), wfc.getDataConverterContext().getApplication());
 	}
 }
