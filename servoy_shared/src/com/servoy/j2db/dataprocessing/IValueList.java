@@ -23,9 +23,9 @@ import com.servoy.j2db.persistence.ValueList;
 
 /**
  * Runtime Valuelist interface that extends {@link ListModel} for attaching a {@link ValueList} to a UI Element.
- * 
+ *
  * @author jcompagner, jblok
- * 
+ *
  * @see CustomValueList
  * @see DBValueList
  * @see RelatedValueList
@@ -75,4 +75,5 @@ public interface IValueList extends ListModel
 
 	public ValueList getValueList();
 
+	public boolean isRecordLinked();
 }

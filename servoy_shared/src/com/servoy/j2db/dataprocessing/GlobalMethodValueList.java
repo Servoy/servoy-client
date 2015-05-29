@@ -227,7 +227,7 @@ public class GlobalMethodValueList extends CustomValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.CustomValueList#deregister()
 	 */
 	@Override
@@ -236,5 +236,16 @@ public class GlobalMethodValueList extends CustomValueList
 		super.deregister();
 		realValues = new SafeArrayList<Object>();
 		removeAllElements();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.CustomValueList#isRecordLinked()
+	 */
+	@Override
+	public boolean isRecordLinked()
+	{
+		return true;
 	}
 }

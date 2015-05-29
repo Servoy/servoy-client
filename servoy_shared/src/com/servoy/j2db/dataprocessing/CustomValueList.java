@@ -38,13 +38,13 @@ import com.servoy.j2db.util.model.OptimizedDefaultListModel;
 
 /**
  * user defined fixed valuelist.
- * 
+ *
  * The {@link #indexOf(Object)} and {@link #realValueIndexOf(Object)} can return values between -2 and greater negative values
  * if this valuelist has a fallback valuelist.
- * 
+ *
  * Then {@link #getElementAt(int)} and {@link #getRealElementAt(int)} do support those value to get the value from the fallback valuelist.
- * 
- * 
+ *
+ *
  * @author jblok
  */
 public class CustomValueList extends OptimizedDefaultListModel implements IValueList
@@ -502,7 +502,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	/**
 	 * Gets the real element of this custom valuelist,
 	 * a negative value (excluding -1) will be the fallback valuelist realvalue.
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#getRealElementAt(int)
 	 */
 	//real value, getElementAt is display value
@@ -527,7 +527,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	/**
 	 * If a this valuelist has a fallback valuelist and the value is not found in this list
 	 * then the fallback valuelist will be queried and if found a value between -2 and greater negative value.
-	 * 
+	 *
 	 * @see javax.swing.DefaultListModel#indexOf(java.lang.Object)
 	 */
 	@Override
@@ -768,5 +768,16 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	public ValueList getValueList()
 	{
 		return valueList;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IValueList#isRecordLinked()
+	 */
+	@Override
+	public boolean isRecordLinked()
+	{
+		return false;
 	}
 }

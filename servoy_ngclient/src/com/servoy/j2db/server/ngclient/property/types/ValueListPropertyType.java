@@ -214,18 +214,22 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 
-		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID) : null;
+		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd) : null;
 	}
 
 	@Override
 	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
-		return TargetDataLinks.LINKED_TO_ALL; // if you change this you should call this method in ValueListTypeSabloValue.attach as well when registering as listener to DAL
+		if (formElementValue instanceof IValueList)
+		{
+			return (((IValueList)formElementValue).isRecordLinked()) ? TargetDataLinks.LINKED_TO_ALL : TargetDataLinks.NOT_LINKED_TO_DATA;
+		}
+		return null;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -255,14 +259,14 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			ValueListConfig config = (ValueListConfig)pd.getConfig();
 			String dataproviderID = (componentOrService.getProperty(config.getFor()) != null
 				? ((DataproviderTypeSabloValue)componentOrService.getProperty(config.getFor())).getDataProviderID() : null);
-			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID) : previousComponentValue;
+			return newVl != null ? new ValueListTypeSabloValue(newVl, value.dataAdapterList, config, dataproviderID, pd) : previousComponentValue;
 		}
 		return null;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -274,7 +278,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */

@@ -50,7 +50,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.ListModel#getSize()
 	 */
 	@Override
@@ -61,7 +61,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.ListModel#getElementAt(int)
 	 */
 	@Override
@@ -72,7 +72,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.ListModel#addListDataListener(javax.swing.event.ListDataListener)
 	 */
 	@Override
@@ -83,7 +83,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.ListModel#removeListDataListener(javax.swing.event.ListDataListener)
 	 */
 	@Override
@@ -94,7 +94,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#getRealElementAt(int)
 	 */
 	@Override
@@ -105,7 +105,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#getRelationName()
 	 */
 	@Override
@@ -116,7 +116,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#fill(com.servoy.j2db.dataprocessing.IRecordInternal)
 	 */
 	@Override
@@ -141,7 +141,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#realValueIndexOf(java.lang.Object)
 	 */
 	@Override
@@ -152,7 +152,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#indexOf(java.lang.Object)
 	 */
 	@Override
@@ -170,7 +170,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#deregister()
 	 */
 	@Override
@@ -180,7 +180,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#getAllowEmptySelection()
 	 */
 	@Override
@@ -191,7 +191,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#getName()
 	 */
 	@Override
@@ -202,7 +202,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#hasRealValues()
 	 */
 	@Override
@@ -213,7 +213,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#setFallbackValueList(com.servoy.j2db.dataprocessing.IValueList)
 	 */
 	@Override
@@ -223,7 +223,7 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#getFallbackValueList()
 	 */
 	@Override
@@ -234,12 +234,24 @@ public class ColumnBasedValueList implements IValueList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IValueList#getValueList()
 	 */
 	@Override
 	public ValueList getValueList()
 	{
 		return null;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IValueList#isRecordLinked()
+	 */
+	@Override
+	public boolean isRecordLinked()
+	{
+		return false;
 	}
 }

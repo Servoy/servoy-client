@@ -46,7 +46,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Table based valuelist
- * 
+ *
  * @author jblok
  */
 public class DBValueList extends CustomValueList implements ITableChangeListener
@@ -227,7 +227,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				fs.addFilterParam("valueList.nameColumn", NAME_COLUMN, "=", valueList.getName()); //$NON-NLS-1$
 			}
 
-			fs.browseAll(false);//we do nothing with related foundsets so don't touch these 
+			fs.browseAll(false);//we do nothing with related foundsets so don't touch these
 
 			// browse all could trigger also a fill
 			if (isLoaded) return;
@@ -493,5 +493,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			showDataproviders.add(prefix + valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID3());
 		}
 		return showDataproviders;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.CustomValueList#isRecordLinked()
+	 */
+	@Override
+	public boolean isRecordLinked()
+	{
+		return false;
 	}
 }

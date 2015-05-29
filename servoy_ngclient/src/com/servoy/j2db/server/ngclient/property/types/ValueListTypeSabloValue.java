@@ -30,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -40,6 +41,8 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.server.ngclient.ColumnBasedValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -63,13 +66,15 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	protected final String dataproviderID;
 	protected final ValueListConfig config;
 	private IRecordInternal previousRecord;
+	private final PropertyDescription vlPD;
 
-	ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID)
+	ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID, PropertyDescription vlPD)
 	{
 		this.valueList = valueList;
 		this.dataAdapterList = dataAdapterList;
 		this.config = config;
 		this.dataproviderID = dataproviderID;
+		this.vlPD = vlPD;
 	}
 
 	public IValueList getValueList()
@@ -130,13 +135,20 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	}
 
 	@Override
-	public void attachToBaseObject(IChangeListener changeMonitor, BaseWebObject component)
+	public void attachToBaseObject(IChangeListener monitor, BaseWebObject component)
 	{
-		this.changeMonitor = changeMonitor;
+		this.changeMonitor = monitor;
 		valueList.addListDataListener(this);
 
-		// register record changed listener
-		dataAdapterList.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
+		FormElement formElement = ((WebFormComponent)component).getFormElement();
+		// register data link and find mode listeners as needed
+		TargetDataLinks dataLinks = (TargetDataLinks)formElement.getPreprocessedPropertyInfo(IDataLinkedType.class, vlPD);
+		if (dataLinks == null)
+		{
+			// they weren't cached in form element; get them again
+			dataLinks = ((ValueListPropertyType)vlPD.getType()).getDataLinks(valueList, vlPD, formElement.getFlattendSolution(), formElement);
+		}
+		dataAdapterList.addDataLinkedProperty(this, dataLinks);
 	}
 
 	@Override

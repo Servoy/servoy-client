@@ -50,7 +50,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Valuelist for lookup of values
- * 
+ *
  * @author jcompagner, jblok
  */
 public class LookupValueList implements IValueList
@@ -531,7 +531,7 @@ public class LookupValueList implements IValueList
 				}
 				catch (RepositoryException e)
 				{
-					Debug.error("Error deregistering table", e); //$NON-NLS-1$ 
+					Debug.error("Error deregistering table", e); //$NON-NLS-1$
 				}
 			}
 			tableListener = null;
@@ -610,5 +610,17 @@ public class LookupValueList implements IValueList
 	public IValueList getRealValueList()
 	{
 		return ComponentFactory.getRealValueList(application, valueList, true, 0, null, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IValueList#isRecordLinked()
+	 */
+	@Override
+	public boolean isRecordLinked()
+	{
+		return valueList.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES ||
+			valueList.getDatabaseValuesType() == IValueListConstants.GLOBAL_METHOD_VALUES;
 	}
 }

@@ -44,7 +44,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Valuelist based on values from a relation (related foundset)
- * 
+ *
  * @author jblok
  */
 public class RelatedValueList extends DBValueList implements IFoundSetEventListener
@@ -223,7 +223,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 	/**
 	 * Fill from foundset in case of one-level relation or multiple servers
-	 * 
+	 *
 	 * @throws ServoyException
 	 */
 	@SuppressWarnings("nls")
@@ -346,7 +346,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 	/**
 	 * Fill using query in case of multi-level relation
-	 * 
+	 *
 	 * @param relations
 	 * @throws ServoyException
 	 * @throws RemoteException
@@ -440,7 +440,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		TablePlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(select.getTable(), relations[0].getName());
 		if (!select.setPlaceholderValue(placeHolderKey, relationWhereArgs))
 		{
-			Debug.error(new RuntimeException("Could not set relation placeholder " + placeHolderKey + " in query " + select)); //$NON-NLS-1$//$NON-NLS-2$ 
+			Debug.error(new RuntimeException("Could not set relation placeholder " + placeHolderKey + " in query " + select)); //$NON-NLS-1$//$NON-NLS-2$
 			return null;
 		}
 
@@ -479,5 +479,16 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		select.setDistinct(false); // not allowed in all situations
 
 		return new Pair<QuerySelect, BaseQueryTable>(select, lastTable);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.DBValueList#isRecordLinked()
+	 */
+	@Override
+	public boolean isRecordLinked()
+	{
+		return true;
 	}
 }
