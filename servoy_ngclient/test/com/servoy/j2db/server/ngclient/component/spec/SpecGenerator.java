@@ -94,7 +94,7 @@ public class SpecGenerator
 			"Calendar_C16.png",
 			IRepository.FIELDS,
 			IRuntimeCalendar.class,
-			new String[] { "{\"name\":\"moment\", \"version\":\"2.6.0\", \"url\": \"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js\", \"mimetype\":\"text/javascript\"}","{\"name\":\"moment-jdateformatparser\", \"version\":\"0.1.1\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/moment-jdateformatparser.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"4.0.0b\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"4.0.0b\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css\", \"mimetype\":\"text/css\"}","{\"name\":\"bootstrap-datetimepicker-servoy-extension\", \"version\":\"1.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker-servoy-extension.css\", \"mimetype\":\"text/css\"}" }));
+			new String[] { "{\"name\":\"moment\", \"version\":\"2.6.0\", \"url\": \"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js\", \"mimetype\":\"text/javascript\"}","{\"name\":\"moment-jdateformatparser\", \"version\":\"0.1.1\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/moment-jdateformatparser.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"4.7.14\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bootstrap-datetimepicker\", \"version\":\"4.7.14\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css\", \"mimetype\":\"text/css\"}","{\"name\":\"bootstrap-datetimepicker-servoy-extension\", \"version\":\"1.0\", \"url\":\"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker-servoy-extension.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check Group",  null, IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel(
 			"combobox",
@@ -164,7 +164,7 @@ public class SpecGenerator
 			com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
 			new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
-			new String[0]));
+			new String[] { "{\"name\":\"svy-listbox\", \"version\":\"1\", \"url\":\"servoydefault/listbox/listbox.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,
 			com.servoy.j2db.ui.runtime.IRuntimeRectangle.class, new String[0]));
 
