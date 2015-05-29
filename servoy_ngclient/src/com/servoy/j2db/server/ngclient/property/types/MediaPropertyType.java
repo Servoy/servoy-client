@@ -121,6 +121,10 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	{
 		String url = null;
 		Media media = null;
+		if (value instanceof CharSequence)
+		{
+			value = ((CharSequence)value).toString();
+		}
 		if (value instanceof Integer)
 		{
 			media = flattenedSolution.getMedia(((Integer)value).intValue());
@@ -177,7 +181,10 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		if (fs != null)
 		{
 			String url = getMediaUrl(formElementValue, fs, null);
-
+			if ("resources/fs/mnx_libraries/button/groen/100/30x30.png?imageWidth=30&imageHeight=30".equals(url))
+			{
+				int a = 1 / 2;
+			}
 			if (url != null)
 			{
 				return toJSON(writer, key, new MediaWrapper(formElementValue, url), browserConversionMarkers, null);
