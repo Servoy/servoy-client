@@ -28,6 +28,9 @@ import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.MediaURLStreamHandler;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType.MediaWrapper;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 
 /**
@@ -75,7 +78,13 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 			}
 			else if (sabloValue instanceof String)
 			{
-				if (Boolean.TRUE.equals(dataConverterContext.getPropertyDescription().getConfig()))
+				if (((String)sabloValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+				{
+					String url = MediaPropertyType.INSTANCE.getMediaUrl(sabloValue,
+						((WebFormComponent)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution(), null);
+					MediaPropertyType.INSTANCE.toJSON(writer, key, new MediaWrapper(sabloValue, url), clientConversion, dataConverterContext);
+				}
+				else if (Boolean.TRUE.equals(dataConverterContext.getPropertyDescription().getConfig()))
 				{
 					HTMLStringPropertyType.INSTANCE.toJSON(writer, null, (String)sabloValue, clientConversion, new DataConverterContext(
 						NGUtils.TEXT_PARSEHTML_DATAPROVIDER_CACHED_PD, dataConverterContext.getWebObject()));

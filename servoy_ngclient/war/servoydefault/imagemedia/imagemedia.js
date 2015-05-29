@@ -11,11 +11,20 @@ angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultIma
     	  $scope.imageURL = '';
     	  
           $scope.$watch('model.dataProviderID', function(){
-        	  $scope.imageURL = ($scope.model.dataProviderID && $scope.model.dataProviderID.url) ? ($scope.model.dataProviderID.contentType && ($scope.model.dataProviderID.contentType.indexOf("image") == 0) ? $scope.model.dataProviderID.url : "servoydefault/imagemedia/res/images/notemptymedia.gif") : "servoydefault/imagemedia/res/images/empty.gif";
+        	  if ($scope.model.dataProviderID && !$scope.model.dataProviderID.url)
+        	  {
+        		  // plain media url
+        		  $scope.imageURL = $scope.model.dataProviderID;
+        	  }
+        	  else
+        	  {
+        		  $scope.imageURL = ($scope.model.dataProviderID && $scope.model.dataProviderID.url) ? ($scope.model.dataProviderID.contentType && ($scope.model.dataProviderID.contentType.indexOf("image") == 0) ? $scope.model.dataProviderID.url : "servoydefault/imagemedia/res/images/notemptymedia.gif") : "servoydefault/imagemedia/res/images/empty.gif";
+        	  }	  
+        	 
            })
     	  
     	  $scope.download = function() {
-        	  if($scope.model.dataProviderID && $scope.model.dataProviderID.url) {
+        	  if($scope.model.dataProviderID) {
 	    		  var x = 0, y = 0;
 	    		  if ($document.all) {
 	    			  x = $window.screenTop + 100;
@@ -27,7 +36,7 @@ angular.module('servoydefaultImagemedia',['servoy']).directive('servoydefaultIma
 	    			  y = $window.screenX + 100;
 	    			  x = $window.screenY + 100;
 	    		  }
-	    		  $window.open($scope.model.dataProviderID.url,'download','top=' + x + ',left=' + y + ',screenX=' + x + ',screenY=' + y + ',location=no,toolbar=no,menubar=no,width=310,height=140,resizable=yes');
+	    		  $window.open($scope.model.dataProviderID.url ? $scope.model.dataProviderID.url : $scope.model.dataProviderID,'download','top=' + x + ',left=' + y + ',screenX=' + x + ',screenY=' + y + ',location=no,toolbar=no,menubar=no,width=310,height=140,resizable=yes');
         	  }
     	  }
     	  
