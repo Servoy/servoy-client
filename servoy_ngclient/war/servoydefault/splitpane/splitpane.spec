@@ -49,6 +49,9 @@
 	        "getDividerSize": {
 	            "returns": "int"
 	        },
+	        "getFormName": {
+	            "returns": "string"
+	        },
 	        "getHeight": {
 	            "returns": "int"
 	        },

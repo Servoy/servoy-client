@@ -38,6 +38,9 @@
 	        "getAsPlainText": {
 	            "returns": "string"
 	        },
+	        "getFormName": {
+	            "returns": "string"
+	        },
 	        "getHeight": {
 	            "returns": "int"
 	        },

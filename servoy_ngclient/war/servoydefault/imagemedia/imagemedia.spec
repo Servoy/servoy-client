@@ -39,6 +39,9 @@
 	},
 	"api":
 	{
+	        "getFormName": {
+	            "returns": "string"
+	        },
 	        "getHeight": {
 	            "returns": "int"
 	        },
