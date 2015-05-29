@@ -397,7 +397,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				      	//TODO set error state 
 				      	//ngModelController.$error ..
 			    	}
-			    	if (svyFormat.type == "TEXT") {
+			    	if (data && svyFormat.type == "TEXT") {
 			    		if (svyFormat.uppercase) data = data.toUpperCase();
 			    		else if(svyFormat.lowercase) data = data.toLowerCase();
 					}
