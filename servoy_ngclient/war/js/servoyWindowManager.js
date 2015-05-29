@@ -362,7 +362,8 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		setSize:function(name,size){
 			if(instances[name]){
 				instances[name].setSize(size);				
-			},
+			}
+		},
 		setUndecorated:function(name,undecorated){
 			if(instances[name]){
 				instances[name].undecorated = undecorated;				
