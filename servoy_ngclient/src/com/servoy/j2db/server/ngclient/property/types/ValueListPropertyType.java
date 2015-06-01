@@ -191,7 +191,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				}
 			}
 			ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
-				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
+				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
 			valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true, fieldFormat.dpType, fieldFormat.parsedFormat,
 				dataproviderID);
 		}
@@ -229,7 +229,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -266,7 +266,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -278,7 +278,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */

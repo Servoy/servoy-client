@@ -195,9 +195,15 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				{
 					INGApplication application = servoyDataConverterContext.getApplication();
 					String format = (String)formElement.getPropertyValue(formatPd.getName());
-					fieldFormat = ComponentFormat.getComponentFormat(format, dataProviderID,
-						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
-					break;
+					if (format != null)
+					{
+						fieldFormat = ComponentFormat.getComponentFormat(
+							format,
+							dataProviderID,
+							application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
+								servoyDataConverterContext.getForm().getForm()), application);
+						break;
+					}
 				}
 			}
 			if (fieldFormat != null)
