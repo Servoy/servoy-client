@@ -374,7 +374,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			    			// this will be a change that will be recorded by the dom element itself
 			    			if (callChangeOnBlur) {
 			    				element.off("blur", callChangeOnBlur);
-			    				callChangeInOnBlur = null;
+			    				callChangeOnBlur = null;
 			    			}
 			    		}
 					}
