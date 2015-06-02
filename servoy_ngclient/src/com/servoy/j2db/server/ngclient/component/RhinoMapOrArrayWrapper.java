@@ -190,7 +190,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 			else
 			{
 				// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
-				getPrototype().put(name, start, value);
+				getPrototype().put(name, getPrototype(), value);
 			}
 		}
 		else if ("length".equals(name))
@@ -212,7 +212,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		else
 		{
 			// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
-			getPrototype().put(name, start, value);
+			getPrototype().put(name, getPrototype(), value);
 		}
 	}
 
@@ -234,7 +234,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		else
 		{
 			// so that JS can use usual put/set even for non-defined things in PropertyDescription by forwarding to prototype
-			getPrototype().put(index, start, value);
+			getPrototype().put(index, getPrototype(), value);
 		}
 	}
 
