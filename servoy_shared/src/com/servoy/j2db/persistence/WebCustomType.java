@@ -31,7 +31,6 @@ import com.servoy.j2db.util.UUID;
  */
 public class WebCustomType extends AbstractBase implements IWebObject
 {
-	private final IWebComponent parentElement;
 	private final String jsonKey;
 	private final String typeName;
 	private final int index;
@@ -46,8 +45,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	public WebCustomType(IWebComponent parentElement, String jsonKey, String typeName, int index, boolean isNew)
 	{
 		//we just tell the GhostBean that it has a parent, we do not tell the parent that it contains a GhostBean
-		super(IRepository.WEBCUSTOMTYPES, parentElement.getParent(), 0, UUID.randomUUID());
-		this.parentElement = parentElement;
+		super(IRepository.WEBCUSTOMTYPES, parentElement, 0, UUID.randomUUID());
 		this.jsonKey = jsonKey;
 		this.typeName = typeName;
 		this.index = index;
@@ -107,7 +105,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 
 	public IWebComponent getParentComponent()
 	{
-		return parentElement;
+		return (IWebComponent)super.getParent();
 	}
 
 	/**
@@ -116,7 +114,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	public String getUUIDString()
 	{
 		String addIndex = "";
-		if (index >= 0) addIndex = "[" + index + "]";
+		if (index >= 0) addIndex = "." + index;
 		return parent.getUUID() + "_" + jsonKey + addIndex + "_" + typeName;
 	}
 
@@ -155,5 +153,13 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
+	}
+
+	/**
+	 * @return the jsonKey
+	 */
+	String getJsonKey()
+	{
+		return jsonKey;
 	}
 }

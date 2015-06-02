@@ -224,6 +224,49 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
 	}
 
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.AbstractBase#internalRemoveChild(com.servoy.j2db.persistence.IPersist)
+	 */
+	@Override
+	protected void internalRemoveChild(IPersist obj)
+	{
+		if (obj instanceof WebCustomType)
+		{
+			WebCustomType customType = (WebCustomType)obj;
+			Object children = getCustomTypeProperties().get(customType.getJsonKey());
+			if (children != null)
+			{
+				List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
+				t.remove(customType);
+				getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.AbstractBase#internalAddChild(com.servoy.j2db.persistence.IPersist)
+	 */
+	@Override
+	public void internalAddChild(IPersist obj)
+	{
+		if (obj instanceof WebCustomType)
+		{
+			WebCustomType customType = (WebCustomType)obj;
+			Object children = getCustomTypeProperties().get(customType.getJsonKey());
+			if (children != null)
+			{
+				List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
+				t.add(customType);
+				getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
+			}
+		}
+	}
+
 	@Override
 	public String toString()
 	{
