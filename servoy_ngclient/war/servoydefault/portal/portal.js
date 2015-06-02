@@ -728,7 +728,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					else
 					{
 						// nothing to load, mark data as loaded
-						$scope.gridApi.infiniteScroll.dataLoaded();
+						$scope.gridApi.infiniteScroll.dataLoaded(true,false);
 					}	
 				});
 			    gridApi.infiniteScroll.on.needLoadMoreDataTop($scope,function(){
