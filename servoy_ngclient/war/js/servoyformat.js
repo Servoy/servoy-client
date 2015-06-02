@@ -268,7 +268,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		  }
 		  return ret;
 	 };
-}).directive("svyFormat", ["$formatterUtils","$parse",function ($formatterUtils,$parse){
+}).directive("svyFormat", ["$formatterUtils","$parse","$utils",function ($formatterUtils,$parse, $utils){
 	return {
 		  require: 'ngModel',
 		  priority: 1,
@@ -334,6 +334,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		    ngModelController.$formatters.push(modelToView);
 		    
 		    var callChangeOnBlur = null;
+		    var enterKeyCheck = function(e) {
+				if (callChangeOnBlur && $utils.testEnterKey(e)) {
+					callChangeOnBlur();
+				}
+			}
 		    
 		    function viewToModel(viewValue) {
 		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
@@ -362,8 +367,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 				    		if (!callChangeOnBlur) {
 				    			callChangeOnBlur = function() {
 				    				element.change();
+				    				element.off("blur", callChangeOnBlur);
+				    				element.off("keypress", enterKeyCheck);
 				    			}
 				    			element.on("blur", callChangeOnBlur);
+				    			element.on("keydown",enterKeyCheck);
 				    		}
 				    		ngModelController.$viewValue = data;
 				    		ngModelController.$render();
@@ -374,7 +382,8 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			    			// this will be a change that will be recorded by the dom element itself
 			    			if (callChangeOnBlur) {
 			    				element.off("blur", callChangeOnBlur);
-			    				callChangeOnBlur = null;
+			    				element.off("keypress", enterKeyCheck);
+								callChangeOnBlur = null;
 			    			}
 			    		}
 					}
