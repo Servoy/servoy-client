@@ -81,6 +81,9 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		{
 			designerCallback.addScriptObjects(this, engine.getSolutionScope());
 		}
+
+		addConsoleObject(engine, this);
+
 		return engine;
 	}
 

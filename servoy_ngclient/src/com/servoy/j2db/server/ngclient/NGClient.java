@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
@@ -29,6 +31,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
@@ -48,11 +51,14 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.ngclient.design.ConsoleObject;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -149,7 +155,21 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			scope.put(serviceSpecification.getName(), scope, new WebServiceScriptable(this, serviceSpecification, scriptEngine.getSolutionScope()));
 		}
 		scope.setLocked(true);
+
+		addConsoleObject(scriptEngine, this);
+
 		return scriptEngine;
+	}
+
+	/**
+	 * @param scriptEngine
+	 * @param clientState
+	 */
+	protected void addConsoleObject(IExecutingEnviroment scriptEngine, ClientState clientState)
+	{
+		Scriptable toplevelScope = ((ScriptEngine)scriptEngine).getToplevelScope();
+		toplevelScope.put("console", toplevelScope, new NativeJavaObject(toplevelScope, new ConsoleObject(clientState), new InstanceJavaMembers(
+			toplevelScope, ConsoleObject.class)));
 	}
 
 	@Override
