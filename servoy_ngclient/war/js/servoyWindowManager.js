@@ -229,7 +229,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 							}				    	 
 							if(this.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
 						},
-						getSize(){
+						getSize: function(){
 							return win.size;
 						},
 						onResize:function($event,size){
