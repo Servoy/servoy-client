@@ -380,6 +380,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean recreateUI()
 	{
+		application.reportJSInfo("form " + getName() + " is recreated"); // todo should be removed later, added for frameworks
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		form = application.getFlattenedSolution().getFlattenedForm(f);
 		getFormUI().init();
