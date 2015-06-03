@@ -50,10 +50,10 @@ import com.servoy.j2db.util.Utils;
 public class FormLayoutGenerator
 {
 
-	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean responsiveMode,
-		boolean design, boolean highlight)
+	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design,
+		boolean highlight)
 	{
-		generateFormStartTag(writer, form, realFormName, responsiveMode, design);
+		generateFormStartTag(writer, form, realFormName, false, design);
 		Iterator<Part> it = form.getParts();
 
 		if (design)
@@ -93,7 +93,7 @@ public class FormLayoutGenerator
 			Part part = it.next();
 			if (!Part.rendersOnlyInPrint(part.getPartType()))
 			{
-				if (!design && !responsiveMode)
+				if (!design)
 				{
 					writer.print("<div ng-style=\"");
 					writer.print(PartWrapper.getName(part));
@@ -112,12 +112,12 @@ public class FormLayoutGenerator
 						fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
 					}
 
-					if (!responsiveMode) generateFormElementWrapper(writer, fe, design, form);
+					generateFormElementWrapper(writer, fe, design, form);
 					generateFormElement(writer, fe, false, highlight);
-					if (!responsiveMode) generateEndDiv(writer);
+					generateEndDiv(writer);
 				}
 
-				if (!design && !responsiveMode) generateEndDiv(writer);
+				if (!design) generateEndDiv(writer);
 			}
 		}
 

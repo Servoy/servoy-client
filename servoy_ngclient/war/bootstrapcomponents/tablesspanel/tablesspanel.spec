@@ -8,7 +8,8 @@
 	"model":
 	{
 			"containedForm": { "type" :"form","tags": { "scope" :"design" }},
-			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }}
+			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
+			"height" : {"type":"int", "default":"500"}
 	},
 	"handlers":
 	{

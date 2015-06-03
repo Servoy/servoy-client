@@ -10,7 +10,7 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
       controller: function($scope, $element, $attrs) {
     	  
     	  $scope.getForm = function(tab) {
-    		  if (tab && tab.active && tab.containedForm) {
+    		  if (tab && tab.active && tab.containedForm) { 
     			  return $scope.svyServoyapi.getFormUrl(tab.containedForm);
     		  }
     		  return "";
@@ -27,7 +27,11 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
     	  {
     		  $scope.model.tabs[0].active = true;
     		  $scope.svyServoyapi.formWillShow($scope.model.tabs[0].containedForm, $scope.model.tabs[0].relationName); 
-    	  }	  
+    	  }
+    	  
+    	  $scope.getContainerHeight = function() {
+    		  return {minHeight:$scope.model.height+"px"};
+    	  }
     	  
       },
       templateUrl: 'bootstrapcomponents/tabpanel/tabpanel.html'

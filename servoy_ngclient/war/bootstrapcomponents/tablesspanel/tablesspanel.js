@@ -22,6 +22,9 @@ angular.module('bootstrapcomponentsTablesspanel',['servoy']).directive('bootstra
     		  $scope.svyServoyapi.formWillShow($scope.model.containedForm,null);
 		  }
     	  
+    	  $scope.getContainerStyle = function() {
+    		  return {position:"relative", minHeight:$scope.model.height+"px"};
+    	  }
       },
       templateUrl: 'bootstrapcomponents/tablesspanel/tablesspanel.html'
     };

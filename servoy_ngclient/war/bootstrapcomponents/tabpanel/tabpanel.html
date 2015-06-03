@@ -3,11 +3,11 @@
   	 <span>Select contained form</span>
   </label>
 </div>
-<tabset  ng-class='model.styleClass'>
+<tabset  ng-class='model.styleClass' style="position: relative;">
     <tab ng-repeat="tab in model.tabs" active="tab.active" select="select(tab)" >
       <tab-heading>
         <span  ng-bind='tab.text'></span>
       </tab-heading>
-      <div ng-include="getForm(tab)" ng-class='model.containerStyleClass'></div>
+      <div ng-include="getForm(tab)" ng-class='model.containerStyleClass' ng-style='getContainerHeight()'></div>
     </tab>
 </tabset>

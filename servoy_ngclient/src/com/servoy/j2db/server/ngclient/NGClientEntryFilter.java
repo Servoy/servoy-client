@@ -29,14 +29,11 @@ import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
-import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
@@ -230,36 +227,9 @@ public class NGClientEntryFilter extends WebEntry
 									else if (uri.endsWith(".html"))
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
-										boolean insideResponsiveLayout = false;
-										if (wsSession != null)
-										{
-											IWebFormController parentForm = null;
-											String parent = request.getParameter("parentForm");
-											if (parent != null)
-											{
-												parentForm = (IWebFormController)((BasicFormManager)wsSession.getClient().getFormManager()).getCachedFormController(parent);
-											}
-											else
-											{
-												IFormController fc = ((BasicFormManager)wsSession.getClient().getFormManager()).getCachedFormController(formName);
-												if (fc instanceof WebFormController)
-												{
-													parentForm = ((WebFormController)fc).getParentFormController();
-												}
-											}
-											while (parentForm != null)
-											{
-												if (parentForm.getForm().isResponsiveLayout())
-												{
-													insideResponsiveLayout = true;
-													break;
-												}
-												parentForm = ((WebFormController)parentForm).getParentFormController();
-											}
-										}
 										FormLayoutGenerator.generateRecordViewForm(w, form, formName, wsSession != null ? new ServoyDataConverterContext(
-											wsSession.getClient()) : new ServoyDataConverterContext(fs), insideResponsiveLayout,
-											Utils.getAsBoolean(request.getParameter("design")), Utils.getAsBoolean(request.getParameter("highlight")));
+											wsSession.getClient()) : new ServoyDataConverterContext(fs), Utils.getAsBoolean(request.getParameter("design")),
+											Utils.getAsBoolean(request.getParameter("highlight")));
 									}
 									else if (uri.endsWith(".js"))
 									{

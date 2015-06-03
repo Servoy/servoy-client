@@ -9,7 +9,8 @@
 	{
 			"containerStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 			"tabs" : {"type":"tab[]", "droppable":true},
-			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }}
+			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
+			"height" : {"type":"int", "default":"500"}
 	},
 	"handlers":
 	{
