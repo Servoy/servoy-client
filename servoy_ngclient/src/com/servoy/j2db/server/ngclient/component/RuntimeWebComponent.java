@@ -38,6 +38,7 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
@@ -116,7 +117,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors)
 		{
 			int anchor = ((ISupportAnchors)fe.getPersistIfAvailable()).getAnchors();
-			if ((anchor == 0 || (fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
+			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST) || (fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
 				(("getLocationX").equals(functionName) || ("getLocationY").equals(functionName) || ("getWidth").equals(functionName) || ("getHeight").equals(functionName)))
 			{
 				return false;

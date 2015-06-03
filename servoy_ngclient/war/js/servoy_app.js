@@ -36,8 +36,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 	var applyBeanLayout = function(beanModel, beanLayout, beanData, containerSize) {
 
+		var isAnchoredTopLeft = !beanData.anchors || (beanData.anchors == ($anchorConstants.NORTH + $anchorConstants.WEST));   
 		//beanData.anchors means anchors changed or must be initialized
-		if (beanData.anchors && containerSize && $solutionSettings.enableAnchoring) {
+		if (!isAnchoredTopLeft && containerSize && $solutionSettings.enableAnchoring) {
 			var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
 			var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
 			var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
@@ -120,7 +121,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 
 		//we set the following properties iff the bean doesn't have anchors
-		if (!beanModel.anchors || !$solutionSettings.enableAnchoring)
+		if (isAnchoredTopLeft || !$solutionSettings.enableAnchoring)
 		{
 			if (beanModel.location)
 			{
