@@ -33,7 +33,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 {
 	private final String jsonKey;
 	private final String typeName;
-	private final int index;
+	private int index;
 
 	/**
 	 * @param newBean
@@ -161,5 +161,13 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	String getJsonKey()
 	{
 		return jsonKey;
+	}
+
+	/**
+	 * @param i the new index
+	 */
+	public void setIndex(int i)
+	{
+		index = i;
 	}
 }

@@ -227,7 +227,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.persistence.AbstractBase#internalRemoveChild(com.servoy.j2db.persistence.IPersist)
 	 */
 	@Override
@@ -239,16 +239,28 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			Object children = getCustomTypeProperties().get(customType.getJsonKey());
 			if (children != null)
 			{
-				List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
-				t.remove(customType);
-				getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
+				if (children instanceof WebCustomType[])
+				{
+					List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
+					t.remove(customType);
+					for (int i = customType.getIndex(); i < t.size(); i++)
+					{
+						WebCustomType ct = t.get(i);
+						ct.setIndex(i);
+					}
+					getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
+				}
+				else
+				{
+					getCustomTypeProperties().remove(customType.getJsonKey());
+				}
 			}
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.AbstractBase#internalAddChild(com.servoy.j2db.persistence.IPersist)
 	 */
 	@Override
@@ -257,12 +269,31 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		if (obj instanceof WebCustomType)
 		{
 			WebCustomType customType = (WebCustomType)obj;
-			Object children = getCustomTypeProperties().get(customType.getJsonKey());
-			if (children != null)
+			String typeName = getTypeName();
+			WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
+				? WebComponentSpecProvider.getInstance().getWebComponentSpecification(typeName) : null;
+
+			if (spec.isArrayReturnType(customType.getJsonKey()))
 			{
-				List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
-				t.add(customType);
-				getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
+				Object children = getCustomTypeProperties().get(customType.getJsonKey());
+				if (children != null)
+				{
+					if (children instanceof WebCustomType[])
+					{
+						List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
+						t.add(customType.getIndex(), customType);
+						for (int i = customType.getIndex() + 1; i < t.size(); i++)
+						{
+							WebCustomType ct = t.get(i);
+							ct.setIndex(i);
+						}
+						getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
+					}
+				}
+			}
+			else
+			{
+				getCustomTypeProperties().put(customType.getJsonKey(), customType);
 			}
 		}
 	}
