@@ -38,8 +38,6 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
 
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
@@ -65,12 +63,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	private final Map<String, Function> apiFunctions;
 	private final WebComponentSpecification webComponentSpec;
 	private Scriptable parentScope;
-	private final IServiceProvider serviceProvider;
 
-	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec, IApplication serviceProvider)
+	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
 	{
 		this.component = component;
-		this.serviceProvider = serviceProvider;
 		setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
 		this.specProperties = new HashSet<String>();
 		this.apiFunctions = new HashMap<String, Function>();
@@ -80,7 +76,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		Scriptable apiObject = null;
 		if (serverScript != null)
 		{
-			apiObject = WebServiceScriptable.compileServerScript(serverScript, this, serviceProvider);
+			apiObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
 		}
 		if (webComponentSpec != null)
 		{

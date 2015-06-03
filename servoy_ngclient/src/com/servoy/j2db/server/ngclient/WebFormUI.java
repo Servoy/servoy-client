@@ -185,7 +185,7 @@ public class WebFormUI extends Container implements IWebFormUI
 		int counter = counterStart;
 		if (!fe.getName().startsWith("svy_") && !FormElement.ERROR_BEAN.equals(componentSpec.getName()))
 		{
-			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec, getApplication());
+			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
 			elementsScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
 			elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
 			if (fe.isLegacy() ||
