@@ -87,8 +87,9 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 					ngModel.$setValidity("", true);
 					$scope.svyServoyapi.apply('dataProviderID');
 					return;
-				}	
-				ngModel.$setValidity("", false);
+				}else if (!moment(child.children("input").val()).isValid){
+					ngModel.$setValidity("", false);
+				}
 				$scope.$digest();
 			}
 			$element.on("dp.error", onError);
