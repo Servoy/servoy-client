@@ -43,7 +43,7 @@ public class NGTabSeqPropertyType extends TabSeqPropertyType implements IDesignD
 	public Integer toFormElementValue(Integer designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return FormElementHelper.INSTANCE.getControlledTabSeqReplacementFor(designValue, formElement.getForm(), formElement.getPersistIfAvailable(),
+		return FormElementHelper.INSTANCE.getControlledTabSeqReplacementFor(designValue, pd, formElement.getForm(), formElement.getPersistIfAvailable(),
 			flattenedSolution);
 	}
 

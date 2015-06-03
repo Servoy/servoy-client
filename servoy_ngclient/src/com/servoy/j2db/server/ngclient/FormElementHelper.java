@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.CustomJSONArrayType;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -45,14 +47,19 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
+import com.servoy.j2db.persistence.IWebComponent;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -69,7 +76,7 @@ public class FormElementHelper
 	// todo identity key? SolutionModel persist shouldn't be cached at all?
 	private final ConcurrentMap<String, FlattenedSolution> globalFlattendSolutions = new ConcurrentHashMap<>();
 	private final ConcurrentMap<IPersist, FormElement> persistWrappers = new ConcurrentHashMap<>();
-	private final ConcurrentMap<Form, Map<ISupportTabSeq, Integer>> formTabSequences = new ConcurrentHashMap<>();
+	private final ConcurrentMap<Form, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
@@ -436,35 +443,144 @@ public class FormElementHelper
 	 * When those become persist based as well this will never be null.
 	 * @return the requested controlled tabSeq (should make tabSeq be identical to the one shown in developer).
 	 */
-	public Integer getControlledTabSeqReplacementFor(Integer designValue, Form flattenedForm, IPersist persistIfAvailable, FlattenedSolution flattenedSolution) // TODO more args will be needed here such as the tabSeq property name or description
+	public Integer getControlledTabSeqReplacementFor(Integer designValue, PropertyDescription pd, Form flattenedForm, IPersist persistIfAvailable,
+		FlattenedSolution flattenedSolution) // TODO more args will be needed here such as the tabSeq property name or description
 	{
 		if (persistIfAvailable == null) return designValue; // TODO this can be removed when we know we'll always have a persist here; currently don't handle this in any way as it's not supported
 
 		boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
-		Map<ISupportTabSeq, Integer> cachedTabSeq;
+		Map<TabSeqProperty, Integer> cachedTabSeq;
 		if (formWasModifiedViaSolutionModel) cachedTabSeq = null;
 		else cachedTabSeq = formTabSequences.get(flattenedForm);
 
 		if (cachedTabSeq == null)
 		{
-			cachedTabSeq = new HashMap<ISupportTabSeq, Integer>();
-
-			Iterator<ISupportTabSeq> sequence = flattenedForm.getTabSeqElementsByTabOrder();
-			int i = 1;
-			while (sequence.hasNext())
+			cachedTabSeq = new HashMap<TabSeqProperty, Integer>();
+			SortedList<TabSeqProperty> selected = new SortedList<TabSeqProperty>(new Comparator<TabSeqProperty>()
 			{
-				ISupportTabSeq el = sequence.next();
-				if (el.getTabSeq() < 0) cachedTabSeq.put(el, Integer.valueOf(-2)); // skip from tab seq.
-				else cachedTabSeq.put(el, Integer.valueOf(i++));
+				public int compare(TabSeqProperty o1, TabSeqProperty o2)
+				{
+					return TabSeqComparator.compareTabSeq(o1.getSeqValue(), o1.element, o2.getSeqValue(), o2.element);
+				}
+			});
+			Iterator<IPersist> iterator = flattenedForm.getAllObjects();
+			while (iterator.hasNext())
+			{
+				IPersist persist = iterator.next();
+				if (FormTemplateGenerator.isWebcomponentBean(persist))
+				{
+					String componentType = FormTemplateGenerator.getComponentTypeName((IWebComponent)persist);
+					WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
+					if (specification != null)
+					{
+						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
+						if (properties != null && properties.size() > 0)
+						{
+							JSONObject json = ((IWebComponent)persist).getJson();
+							for (PropertyDescription tabSeqProperty : properties)
+							{
+								int tabseq = json != null ? json.optInt(tabSeqProperty.getName()) : 0;
+								if (tabseq >= 0)
+								{
+									selected.add(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()));
+								}
+								else
+								{
+									cachedTabSeq.put(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()), Integer.valueOf(-2));
+								}
+							}
+						}
+					}
+				}
+				else if (persist instanceof ISupportTabSeq)
+				{
+					if (((ISupportTabSeq)persist).getTabSeq() >= 0)
+					{
+						selected.add(new TabSeqProperty((IFormElement)persist, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+					}
+					else
+					{
+						cachedTabSeq.put(new TabSeqProperty((IFormElement)persist, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()),
+							Integer.valueOf(-2));
+					}
+				}
+
+			}
+
+			int i = 1;
+			for (TabSeqProperty tabSeq : selected)
+			{
+				cachedTabSeq.put(tabSeq, Integer.valueOf(i++));
 			}
 
 			if (!formWasModifiedViaSolutionModel) formTabSequences.putIfAbsent(flattenedForm, cachedTabSeq);
 		}
 
-		Integer controlledTabSeq = cachedTabSeq.get(flattenedForm.getChild(persistIfAvailable.getUUID()));
+		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty((IFormElement)persistIfAvailable, pd.getName()));
 		if (controlledTabSeq == null) controlledTabSeq = Integer.valueOf(-2); // if not in tabSeq, use "skip" value
 
 		return controlledTabSeq;
 	}
 
+	public static class TabSeqProperty
+	{
+		public IFormElement element;
+		public String propertyName;
+
+		public TabSeqProperty(IFormElement element, String propertyName)
+		{
+			this.element = element;
+			this.propertyName = propertyName;
+		}
+
+		public int getSeqValue()
+		{
+			if (propertyName != null && element instanceof IWebComponent)
+			{
+				String componentType = FormTemplateGenerator.getComponentTypeName(element);
+				WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
+				if (specification != null)
+				{
+					PropertyDescription property = specification.getProperty(propertyName);
+					if (property != null)
+					{
+						JSONObject json = ((IWebComponent)element).getJson();
+						if (json != null)
+						{
+							return json.optInt(propertyName);
+						}
+						return 0;
+					}
+				}
+			}
+			else if (element instanceof ISupportTabSeq)
+			{
+				return ((ISupportTabSeq)element).getTabSeq();
+			}
+			return -1;
+		}
+
+		@Override
+		public String toString()
+		{
+			return element.toString() + (propertyName != null ? " [" + propertyName + "]" : "");
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (!(obj instanceof TabSeqProperty)) return false;
+			return Utils.equalObjects(element, ((TabSeqProperty)obj).element) && Utils.equalObjects(propertyName, ((TabSeqProperty)obj).propertyName);
+		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
+			result = prime * result + ((element == null) ? 0 : element.hashCode());
+			return result;
+		}
+	}
 }
