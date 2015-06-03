@@ -20,43 +20,41 @@ package com.servoy.j2db.server.ngclient.design;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.j2db.ClientState;
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.IApplication;
 
 /**
  * @author gganea@servoy.com
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "console", scriptingName = "console")
 public class ConsoleObject
 {
-	private final ClientState clientState;
+	private final IApplication app;
 
 	/**
-	 * @param client
+	 * @param app
 	 */
-	public ConsoleObject(ClientState client)
+	public ConsoleObject(IApplication app)
 	{
-		this.clientState = client;
+		this.app = app;
 	}
 
 	@JSFunction
 	public void log(Object value)
 	{
-		clientState.reportJSInfo(value.toString());
+		app.reportJSInfo(value.toString());
 	}
 
 	@JSFunction
 	public void warn(Object value)
 	{
-		clientState.reportJSWarning(value.toString());
+		app.reportJSWarning(value.toString());
 	}
 
 	@JSFunction
 	public void error(Object value)
 	{
 		EvaluatorException e = new EvaluatorException(value.toString());
-		clientState.reportJSWarning(e.getMessage());
-		clientState.reportJSWarning(e.getScriptStackTrace());
+		app.reportJSWarning(e.getMessage());
+		app.reportJSWarning(e.getScriptStackTrace());
 	}
 }

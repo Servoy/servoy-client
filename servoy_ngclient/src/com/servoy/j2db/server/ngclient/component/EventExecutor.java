@@ -122,7 +122,8 @@ public class EventExecutor
 							{
 								// quickly create a scriptable wrappar around the component so that the source can be set to a value that we expect.
 								FormElement fe = ((WebFormComponent)component).getFormElement();
-								RuntimeWebComponent runtimeComponent = new RuntimeWebComponent((WebFormComponent)component, component.getSpecification());
+								RuntimeWebComponent runtimeComponent = new RuntimeWebComponent((WebFormComponent)component, component.getSpecification(),
+									formController.getApplication());
 								if (fe.isLegacy() ||
 									((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
 										fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(

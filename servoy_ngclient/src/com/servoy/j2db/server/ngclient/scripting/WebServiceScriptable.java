@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -38,8 +39,11 @@ import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IPropertyType;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.design.ConsoleObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -109,8 +113,9 @@ public class WebServiceScriptable implements Scriptable
 	 * Compiles the server side script, enabled debugging if possible.
 	 *
 	 * @param serverScript
+	 * @param app
 	 */
-	public static Scriptable compileServerScript(URL serverScript, Scriptable model)
+	public static Scriptable compileServerScript(URL serverScript, Scriptable model, IApplication app)
 	{
 		Scriptable apiObject = null;
 		Context context = Context.enter();
@@ -132,6 +137,9 @@ public class WebServiceScriptable implements Scriptable
 			execScope.put("$scope", execScope, scopeObject);
 			getScript(context, serverScript).exec(context, execScope);
 			apiObject.setPrototype(model);
+
+			execScope.put("console", execScope, new NativeJavaObject(execScope, new ConsoleObject(app), new InstanceJavaMembers(execScope,
+				ConsoleObject.class)));
 		}
 		catch (Exception ex)
 		{
@@ -163,7 +171,7 @@ public class WebServiceScriptable implements Scriptable
 		URL serverScript = serviceSpecification.getServerScript();
 		if (serverScript != null)
 		{
-			apiObject = compileServerScript(serverScript, this);
+			apiObject = compileServerScript(serverScript, this, application);
 		}
 	}
 
