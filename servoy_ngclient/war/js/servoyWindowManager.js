@@ -229,6 +229,9 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 							}				    	 
 							if(this.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
 						},
+						getSize(){
+							return win.size;
+						},
 						onResize:function($event,size){
 							win.size = size;				    	
 							if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
@@ -362,6 +365,14 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		setSize:function(name,size){
 			if(instances[name]){
 				instances[name].setSize(size);				
+			}
+		},
+		getSize:function(name){
+			if(instances[name] && instances[name].bsWindowInstance){
+				return instances[name].getSize();				
+			}
+			else {
+				return {width:$window.innerWidth,height:$window.innerHeight}
 			}
 		},
 		setUndecorated:function(name,undecorated){

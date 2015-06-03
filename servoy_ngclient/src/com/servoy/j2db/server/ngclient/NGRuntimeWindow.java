@@ -17,11 +17,13 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
+import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 
 import com.servoy.j2db.IBasicFormManager.History;
@@ -190,13 +192,36 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	public int getWidth()
 	{
+		updateSizeIfNeeded();
 		return width;
 	}
 
 	@Override
 	public int getHeight()
 	{
+		updateSizeIfNeeded();
 		return height;
+	}
+
+	private void updateSizeIfNeeded()
+	{
+		if (width == -1 || height == -1)
+		{
+			try
+			{
+				Object result = getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("getSize",
+					new Object[] { this.getName() });
+
+				if (result instanceof JSONObject)
+				{
+					updateSize(((JSONObject)result).optInt("width", -1), ((JSONObject)result).optInt("height", -1));
+				}
+			}
+			catch (IOException ex)
+			{
+				Debug.error(ex);
+			}
+		}
 	}
 
 
