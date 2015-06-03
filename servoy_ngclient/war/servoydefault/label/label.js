@@ -34,12 +34,9 @@ angular.module('servoydefaultLabel',['servoy'])
         	  }
           });
           $scope.getClass = function() {
-        	  var classes = "";
+        	  var classes = "svy-label";
         	  if($scope.model.styleClass) {
-        		  classes += $scope.model.styleClass;
-        	  }
-        	  else {
-        		  classes += "svy-label";
+        		  classes += " " + $scope.model.styleClass;
         	  }
         	  if($scope.model.showFocus && ($scope.handlers.onActionMethodID || $scope.handlers.onDoubleClickMethodID || $scope.handlers.onRightClickMethodID)) {
         		  classes += " svy-label-with-focus"
