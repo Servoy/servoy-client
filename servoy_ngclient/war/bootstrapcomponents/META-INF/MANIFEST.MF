@@ -43,3 +43,6 @@ Web-Component: True
 
 Name: progressbar/progressbar.spec
 Web-Component: True
+
+Name: table/table.spec
+Web-Component: True

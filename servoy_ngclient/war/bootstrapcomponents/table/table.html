@@ -1,0 +1,15 @@
+<div class="table-responsive">
+<table ng-class="model.styleClass">
+  <tr>
+    <th ng-repeat="column in model.columns"><div>{{column.headerText}}</div></th>
+  </tr>
+  <tr ng-repeat="row in model.foundset.viewPort.rows">
+    <td ng-repeat="column in model.columns"><div ng-class="column.styleClass">{{column.dataprovider[model.foundset.viewPort.rows.indexOf(row)]}}</div></td>
+  </tr>
+</table>
+</div>
+<div ng-class='model.styleClass' ng-show='!model.columns || model.columns.length == 0'>
+  <label>
+  	 <span>Drop table columns from pallette</span>
+  </label>
+</div>
