@@ -35,6 +35,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -47,7 +48,6 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
-import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -210,17 +210,19 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(formElementValue, pd, formElement, dataAdapterList.getApplication());
+		return getSabloValue(formElementValue, pd, component);
 	}
 
 	@Override
 	public Object toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(null, pd, formElement, dataAdapterList.getApplication());
+		return getSabloValue(null, pd, component);
 	}
 
-	private Object getSabloValue(Object formElementValue, PropertyDescription pd, FormElement formElement, INGApplication application)
+	private Object getSabloValue(Object formElementValue, PropertyDescription pd, WebFormComponent component)
 	{
+		FormElement formElement = component.getFormElement();
+		IApplication application = component.getDataConverterContext().getApplication();
 		if (formElementValue == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || formElementValue == DESIGN_DEFAULT)
 		{
 			formElementValue = null;
@@ -309,8 +311,11 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 					}
 				}
 			}
-			ComponentFormat format = ComponentFormat.getComponentFormat((String)formElementValue, dataproviderId,
-				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElement.getForm()), application);
+			ComponentFormat format = ComponentFormat.getComponentFormat(
+				(String)formElementValue,
+				dataproviderId,
+				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
+					component.getDataConverterContext().getForm().getForm()), application);
 			return format;
 		}
 		return formElementValue;
@@ -335,7 +340,6 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	@Override
 	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		WebFormComponent wfc = (WebFormComponent)componentOrService;
-		return getSabloValue(rhinoValue, pd, wfc.getFormElement(), wfc.getDataConverterContext().getApplication());
+		return getSabloValue(rhinoValue, pd, (WebFormComponent)componentOrService);
 	}
 }
