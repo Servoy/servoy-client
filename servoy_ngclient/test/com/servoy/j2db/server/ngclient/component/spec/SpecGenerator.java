@@ -164,7 +164,7 @@ public class SpecGenerator
 			com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
 			new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
 		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
-			new String[] { "{\"name\":\"svy-listbox\", \"version\":\"1\", \"url\":\"servoydefault/listbox/listbox.css\", \"mimetype\":\"text/css\"}" }));
+			new String[0]));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,
 			com.servoy.j2db.ui.runtime.IRuntimeRectangle.class, new String[0]));
 

@@ -4,7 +4,7 @@
 	"version": 1,
 	"icon": "servoydefault/listbox/listbox.png",
 	"definition": "servoydefault/listbox/listbox.js",
-	"libraries": [{"name":"svy-listbox", "version":"1", "url":"servoydefault/listbox/listbox.css", "mimetype":"text/css"}],
+	"libraries": [],
 	"model":
 	{
 	        "background" : "color", 
