@@ -13,6 +13,18 @@ angular.module('bootstrapcomponentsTable',['servoy']).directive('bootstrapcompon
       templateUrl: 'bootstrapcomponents/table/table.html'
     };
   })
-  
+  .filter('showDisplayValue', function () { // filter that takes the realValue as an input and returns the displayValue
+	return function (input, valuelist) {
+		if (valuelist) {
+			for (i = 0; i < valuelist.length; i++) {
+				if (input === valuelist[i].realValue) {
+					return valuelist[i].displayValue;
+				}
+			}
+		}
+		return input;
+	};
+});
+
   
   

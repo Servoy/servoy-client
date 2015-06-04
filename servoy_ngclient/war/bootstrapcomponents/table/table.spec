@@ -19,7 +19,7 @@
 			"format" : {"for":["valuelist","dataProvider"] , "type" :"format"}, 
 			"headerText": {"type" :"string", "default" : "header"},
 			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
-			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataProvider"} 
+			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataprovider"} 
 		}
 	}
 	 
