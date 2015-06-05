@@ -31,6 +31,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
@@ -109,7 +110,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public DataproviderTypeSabloValue toSabloComponentValue(String formElementValue, PropertyDescription pd, FormElement formElement,
+	public DataproviderTypeSabloValue toSabloComponentValue(String formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		return formElementValue != null ? new DataproviderTypeSabloValue(formElementValue, dataAdapterList, component, pd) : null;

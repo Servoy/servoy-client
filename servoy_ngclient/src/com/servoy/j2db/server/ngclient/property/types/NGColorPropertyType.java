@@ -26,8 +26,8 @@ import org.sablo.specification.property.types.ColorPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -45,7 +45,7 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 	public final static NGColorPropertyType NG_INSTANCE = new NGColorPropertyType();
 
 	@Override
-	public Color toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
+	public Color toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
 		return fromJSON(designValue, null, null);

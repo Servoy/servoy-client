@@ -33,8 +33,8 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -137,8 +137,8 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	 * com.servoy.j2db.server.ngclient.DataAdapterList)
 	 */
 	@Override
-	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
-		DataAdapterList dataAdapterList)
+	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
+		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		return new FindModeSabloValue((FindModeConfig)pd.getConfig(), dataAdapterList);
 	}
@@ -152,7 +152,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	 * com.servoy.j2db.server.ngclient.DataAdapterList)
 	 */
 	@Override
-	public FindModeSabloValue toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component,
+	public FindModeSabloValue toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
 		return new FindModeSabloValue((FindModeConfig)pd.getConfig(), dataAdapterList);

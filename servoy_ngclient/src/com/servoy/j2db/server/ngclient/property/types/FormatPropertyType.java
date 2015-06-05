@@ -26,9 +26,11 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
+import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -45,9 +47,9 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
@@ -207,21 +209,20 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
+	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(formElementValue, pd, component);
+		return getSabloValue(formElementValue, formElement, pd, component);
 	}
 
 	@Override
-	public Object toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList)
+	public Object toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return getSabloValue(null, pd, component);
+		return getSabloValue(null, formElement, pd, component);
 	}
 
-	private Object getSabloValue(Object formElementValue, PropertyDescription pd, WebFormComponent component)
+	private Object getSabloValue(Object formElementValue, INGFormElement formElement, PropertyDescription pd, WebFormComponent component)
 	{
-		FormElement formElement = component.getFormElement();
 		IApplication application = component.getDataConverterContext().getApplication();
 		if (formElementValue == NGConversions.IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || formElementValue == DESIGN_DEFAULT)
 		{
@@ -235,15 +236,20 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 			{
 				for (String element : (String[])pd.getConfig())
 				{
-					PropertyDescription forProperty = formElement.getWebComponentSpec().getProperty(element);
+					PropertyDescription forProperty = formElement.getProperty(element);
 					if (forProperty != null)
 					{
-						if (forProperty.getType() instanceof DataproviderPropertyType)
+						IPropertyType< ? > type = forProperty.getType();
+						if (type instanceof IYieldingType< ? , ? >)
+						{
+							type = ((IYieldingType)type).getPossibleYieldType();
+						}
+						if (type instanceof DataproviderPropertyType)
 						{
 							dataproviderId = (String)formElement.getPropertyValue(element);
 							break;
 						}
-						else if (forProperty.getType() instanceof ValueListPropertyType)
+						else if (type instanceof ValueListPropertyType)
 						{
 							Object id = formElement.getPropertyValue(element);
 							int valuelistID = Utils.getAsInteger(id);
@@ -340,6 +346,6 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	@Override
 	public Object toSabloComponentValue(Object rhinoValue, Object previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		return getSabloValue(rhinoValue, pd, (WebFormComponent)componentOrService);
+		return getSabloValue(rhinoValue, ((WebFormComponent)componentOrService).getFormElement(), pd, (WebFormComponent)componentOrService);
 	}
 }

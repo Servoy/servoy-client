@@ -28,7 +28,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
-import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -49,6 +48,7 @@ import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
@@ -152,8 +152,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public ValueListTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
-		DataAdapterList dataAdapterList)
+	public ValueListTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, INGFormElement formElement,
+		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		ValueList val = null;
 		IValueList valueList = null;
@@ -178,7 +178,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			String format = null;
 			if (dataproviderID != null)
 			{
-				Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
+				Collection<PropertyDescription> properties = formElement.getProperties(FormatPropertyType.INSTANCE);
 				for (PropertyDescription formatPd : properties)
 				{
 					// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
@@ -229,7 +229,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -266,7 +266,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -278,7 +278,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */

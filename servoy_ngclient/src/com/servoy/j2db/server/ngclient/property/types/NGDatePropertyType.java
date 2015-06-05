@@ -24,8 +24,8 @@ import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
@@ -39,7 +39,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	public final static NGDatePropertyType NG_INSTANCE = new NGDatePropertyType();
 
 	@Override
-	public Date toFormElementValue(Long designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
+	public Date toFormElementValue(Long designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
 		return fromJSON(designValue, null, null);

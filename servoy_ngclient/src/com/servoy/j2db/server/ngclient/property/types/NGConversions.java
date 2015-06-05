@@ -32,9 +32,9 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
@@ -84,7 +84,7 @@ public class NGConversions
 		 * @param formElement the form element this property value will be set on.
 		 * @return the corresponding FormElement value based on bean spec.
 		 */
-		F toFormElementValue(D designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement, PropertyPath propertyPath);
+		F toFormElementValue(D designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement, PropertyPath propertyPath);
 
 	}
 
@@ -108,7 +108,7 @@ public class NGConversions
 		 * @param formElement the form element this DEFAULT property value will be set on.
 		 * @return the corresponding FormElement value based on bean spec.
 		 */
-		F toDefaultFormElementValue(PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement, PropertyPath propertyPath);
+		F toDefaultFormElementValue(PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement, PropertyPath propertyPath);
 
 	}
 
@@ -150,7 +150,8 @@ public class NGConversions
 		 * @param component the component to which the returned value will be assigned as a property
 		 * @return the converted value, ready to be put in the web component property
 		 */
-		T toSabloComponentValue(F formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList);
+		T toSabloComponentValue(F formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+			DataAdapterList dataAdapterList);
 
 	}
 
@@ -164,7 +165,7 @@ public class NGConversions
 		 * @param component the component to which the returned value will be assigned as a property
 		 * @return the converted value, ready to be put in the web component property
 		 */
-		T toSabloComponentDefaultValue(PropertyDescription pd, FormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList);
+		T toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component, DataAdapterList dataAdapterList);
 
 	}
 
@@ -223,7 +224,7 @@ public class NGConversions
 	/**
 	 * Conversion 1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
-	public Object convertDesignToFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
+	public Object convertDesignToFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
 		IPropertyType< ? > type = pd.getType();
@@ -353,8 +354,8 @@ public class NGConversions
 	/**
 	 * Conversion 3 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */
-	public Object convertFormElementToSabloComponentValue(Object formElementValue, PropertyDescription pd, FormElement formElement, WebFormComponent component,
-		DataAdapterList dal)
+	public Object convertFormElementToSabloComponentValue(Object formElementValue, PropertyDescription pd, INGFormElement formElement,
+		WebFormComponent component, DataAdapterList dal)
 	{
 		Object retval;
 		IPropertyType< ? > type = pd.getType();

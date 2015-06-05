@@ -37,6 +37,7 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
@@ -71,7 +72,7 @@ import com.servoy.j2db.util.Debug;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public final class FormElement implements IWebComponentInitializer
+public final class FormElement implements IWebComponentInitializer, INGFormElement
 {
 	public static final String ERROR_BEAN = "servoydefault-errorbean";
 	public static final String SVY_NAME_PREFIX = "svy_";
@@ -474,6 +475,26 @@ public final class FormElement implements IWebComponentInitializer
 	{
 		Object value = propertyValues.get(propertyName);
 		return value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER ? null : value;
+	}
+
+	@Override
+	public Collection<PropertyDescription> getProperties(IPropertyType< ? > type)
+	{
+		if (getWebComponentSpec() != null)
+		{
+			return getWebComponentSpec().getProperties(type);
+		}
+		return null;
+	}
+
+	@Override
+	public PropertyDescription getProperty(String name)
+	{
+		if (getWebComponentSpec() != null)
+		{
+			return getWebComponentSpec().getProperty(name);
+		}
+		return null;
 	}
 
 	/**

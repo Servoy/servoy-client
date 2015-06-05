@@ -21,8 +21,8 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.TabSeqPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignDefaultToFormElement;
 
 /**
@@ -40,7 +40,7 @@ public class NGTabSeqPropertyType extends TabSeqPropertyType implements IDesignD
 	public final static NGTabSeqPropertyType NG_INSTANCE = new NGTabSeqPropertyType();
 
 	@Override
-	public Integer toFormElementValue(Integer designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement,
+	public Integer toFormElementValue(Integer designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
 		return FormElementHelper.INSTANCE.getControlledTabSeqReplacementFor(designValue, pd, formElement.getForm(), formElement.getPersistIfAvailable(),
@@ -48,7 +48,7 @@ public class NGTabSeqPropertyType extends TabSeqPropertyType implements IDesignD
 	}
 
 	@Override
-	public Integer toDefaultFormElementValue(PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement, PropertyPath propertyPath)
+	public Integer toDefaultFormElementValue(PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement, PropertyPath propertyPath)
 	{
 		return toFormElementValue(Integer.valueOf(0), pd, flattenedSolution, formElement, propertyPath);
 	}

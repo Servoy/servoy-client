@@ -36,7 +36,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeChangeMonitor.RowData;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -75,10 +75,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 
 		protected final YF formElementValue;
-		protected final FormElement formElement;
+		protected final INGFormElement formElement;
 		protected final PropertyDescription wrappedPropertyDescription;
 
-		public InitializingState(PropertyDescription wrappedPropertyDescription, YF formElementValue, FormElement formElement)
+		public InitializingState(PropertyDescription wrappedPropertyDescription, YF formElementValue, INGFormElement formElement)
 		{
 			this.wrappedPropertyDescription = wrappedPropertyDescription;
 			this.formElementValue = formElementValue;
@@ -98,7 +98,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	}
 
 	public FoundsetLinkedTypeSabloValue(String forFoundsetPropertyName, YF formElementValue, PropertyDescription wrappedPropertyDescription,
-		FormElement formElement, WebFormComponent component)
+		INGFormElement formElement, WebFormComponent component)
 	{
 		initializingState = new InitializingState(wrappedPropertyDescription, formElementValue, formElement);
 		this.component = component;
