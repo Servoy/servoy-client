@@ -37,8 +37,11 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -306,6 +309,14 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 											dpType = dataProvider.getDataProviderType();
 										}
 										return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+									}
+									else if (val.getValueListType() == IValueListConstants.CUSTOM_VALUES)
+									{
+										IValueList realValuelist = new CustomValueList(application, val, val.getCustomValues(), false, IColumnTypes.TEXT, null);
+										if (realValuelist.hasRealValues())
+										{
+											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+										}
 									}
 								}
 								catch (Exception ex)

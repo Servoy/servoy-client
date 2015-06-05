@@ -4,7 +4,7 @@
     <th ng-repeat="column in model.columns"><div ng-bind='column.headerText'></div></th>
   </tr>
   <tr ng-repeat="row in model.foundset.viewPort.rows">
-    <td ng-repeat="column in model.columns"><div ng-class="column.styleClass" ng-bind='column.dataprovider[model.foundset.viewPort.rows.indexOf(row)]| showDisplayValue:column.valuelist | formatFilter:column.format.display:column.format.type'></div></td>
+    <td ng-repeat="column in model.columns"><div ng-class="column.styleClass" ng-bind='column.dataprovider[model.foundset.viewPort.rows.indexOf(row)]| getDisplayValue:column.valuelist | formatFilter:column.format.display:column.format.type'></div></td>
   </tr>
 </table>
 </div>
