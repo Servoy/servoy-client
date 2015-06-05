@@ -728,7 +728,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					else
 					{
 						// nothing to load, mark data as loaded
-						$scope.gridApi.infiniteScroll.dataLoaded(true,false);
+						$scope.gridApi.infiniteScroll.dataLoaded(false,false);
 					}	
 				});
 			    gridApi.infiniteScroll.on.needLoadMoreDataTop($scope,function(){
@@ -902,7 +902,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 						// allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
 						updateGridSelectionFromFoundset(true);
-						$scope.gridApi.infiniteScroll.dataLoaded();
+						var scrollUp = $scope.foundset.viewPort.startIndex > 0;
+						var scrollDown = ($scope.foundset.viewPort.startIndex + $scope.foundset.viewPort.size <  $scope.foundset.serverSize);
+						$scope.gridApi.infiniteScroll.dataLoaded(scrollUp,scrollDown);
 					});
 				},0)
 			};
