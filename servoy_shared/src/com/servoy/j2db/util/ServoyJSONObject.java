@@ -429,15 +429,19 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 		{
 			JSONObject obj = (JSONObject)o;
 			HashMap<String, Object> map = new HashMap<String, Object>();
-			for (String key : JSONObject.getNames(obj))
+			String[] names = JSONObject.getNames(obj);
+			if (names != null)
 			{
-				try
+				for (String key : names)
 				{
-					map.put(key, toSerializable(obj.get(key)));
-				}
-				catch (JSONException e)
-				{
-					Debug.trace(e);
+					try
+					{
+						map.put(key, toSerializable(obj.get(key)));
+					}
+					catch (JSONException e)
+					{
+						Debug.trace(e);
+					}
 				}
 			}
 			return map;
