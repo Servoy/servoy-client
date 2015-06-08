@@ -48,7 +48,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract base class used by all IPersist classes If a sub class implements ISupportChild\IPersistConeble more methods are already provided
- * 
+ *
  * @author jblok
  */
 @SuppressWarnings("nls")
@@ -113,7 +113,7 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(propertyName);
 		if (bufferPropertiesMap != null)
 		{
-			bufferPropertiesMap.remove(propertyName); // the setProperty above might set (wrongly) default value in bufferPropertiesMap as well during import 
+			bufferPropertiesMap.remove(propertyName); // the setProperty above might set (wrongly) default value in bufferPropertiesMap as well during import
 		}
 	}
 
@@ -681,7 +681,7 @@ public abstract class AbstractBase implements IPersist
 
 	/**
 	 * Make a clone of the current obj (also makes new repository entry)
-	 * 
+	 *
 	 * @return a clone from this object
 	 */
 	public IPersist cloneObj(ISupportChilds newParent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames,
@@ -810,9 +810,9 @@ public abstract class AbstractBase implements IPersist
 
 	/**
 	 * Set the customProperties
-	 * 
+	 *
 	 * <b>Note: this call is only for (de)serialisation, use putCustomProperty to set specific custom properties </b>
-	 * 
+	 *
 	 * @param arg the customProperties
 	 * @throws JSONException
 	 */
@@ -824,9 +824,9 @@ public abstract class AbstractBase implements IPersist
 
 	/**
 	 * Get the customProperties
-	 * 
+	 *
 	 * <b>Note: this call is only for (de)serialisation, use getCustomProperty to get specific custom properties </b>
-	 * 
+	 *
 	 * @return the customProperties
 	 */
 	public String getCustomProperties()
@@ -872,20 +872,27 @@ public abstract class AbstractBase implements IPersist
 		{
 			jsonCustomProperties = new JSONWrapperMap(customProperties);
 		}
-		Map<String, Object> map = jsonCustomProperties;
-		for (int i = 0; i < path.length; i++)
+		try
 		{
-			if (map == null || !map.containsKey(path[i]))
+			Map<String, Object> map = jsonCustomProperties;
+			for (int i = 0; i < path.length; i++)
 			{
-				return null;
+				if (map == null || !map.containsKey(path[i]))
+				{
+					return null;
+				}
+				Object node = ServoyJSONObject.toJava(map.get(path[i]));
+				if (i == path.length - 1)
+				{
+					// leaf node
+					return node;
+				}
+				map = (Map<String, Object>)node;
 			}
-			Object node = ServoyJSONObject.toJava(map.get(path[i]));
-			if (i == path.length - 1)
-			{
-				// leaf node
-				return node;
-			}
-			map = (Map<String, Object>)node;
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
 		}
 		return null;
 	}
@@ -1023,7 +1030,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return getCustomProperty(new String[] { "design", key }); //$NON-NLS-1$ //$NON-NLS-2$
+			return getCustomProperty(new String[] { "design", key }); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1032,7 +1039,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return putCustomProperty(new String[] { "design", key }, value); //$NON-NLS-1$ //$NON-NLS-2$
+			return putCustomProperty(new String[] { "design", key }, value); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1056,7 +1063,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return getCustomProperty(new String[] { "mobile", key }); //$NON-NLS-1$ //$NON-NLS-2$
+			return getCustomProperty(new String[] { "mobile", key }); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1065,7 +1072,7 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (key != null)
 		{
-			return putCustomProperty(new String[] { "mobile", key }, value); //$NON-NLS-1$ //$NON-NLS-2$
+			return putCustomProperty(new String[] { "mobile", key }, value); //$NON-NLS-1$
 		}
 		return null;
 	}

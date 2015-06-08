@@ -147,9 +147,12 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 						break;
 				}
 			}
-			escape = !escape && (c == '\\');
-			// strip out carriage returns.
-			if (c != '\r') sb.append(c);
+			if (c != '\r')
+			{
+				escape = !escape && (c == '\\');
+				// strip out carriage returns.
+				sb.append(c);
+			}
 		}
 
 		return sb.toString();
