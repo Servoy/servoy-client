@@ -567,9 +567,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		link: function (scope, element, attrs) {
 			if (scope.$eval(attrs.svySelectonenter))
 			{
-				element.bind('focus', function() {
+				element.on('focus', function() {
 					$timeout(function() {
-						element[0].select(); 
+						if (element.is(":focus"))
+							element[0].select(); 
 					},0);
 				});
 			}
