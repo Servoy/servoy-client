@@ -154,7 +154,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 			if (typeName != null && spec != null)
 			{
-				if (getJson() != null)
+				if (getJson() != null && JSONObject.getNames(getJson()) != null)
 				{
 					JSONObject beanJSON = getJson();
 					Map<String, IPropertyType< ? >> foundTypes = spec.getFoundTypes();
@@ -253,6 +253,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 				else
 				{
 					getCustomTypeProperties().remove(customType.getJsonKey());
+					if (getCustomTypeProperties().isEmpty()) setJson(new ServoyJSONObject());
 				}
 			}
 		}
