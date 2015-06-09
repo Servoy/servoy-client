@@ -154,7 +154,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			return null;
 		},
-		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction,timeout) {
+		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction,timeout,returnFalse) {
 			var fn = this.getEventHandler($parse,scope,svyEventHandler)
 			if (fn)
 			{
@@ -165,6 +165,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						$timeout(function(){
 							fn(scope, {$event:event});
 						},timeout);
+						if (returnFalse) return false;
 						return true;
 					}
 				}); 
@@ -370,7 +371,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			$utils.attachEventHandler($parse,element,scope,attrs.svyRightclick,'contextmenu');
+			$utils.attachEventHandler($parse,element,scope,attrs.svyRightclick,'contextmenu',null,null,true);
 		}
 	};
 }).directive('svyFocusgained',  function ($parse,$utils) {
