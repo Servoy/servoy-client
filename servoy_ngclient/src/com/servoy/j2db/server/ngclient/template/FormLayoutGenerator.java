@@ -65,7 +65,15 @@ public class FormLayoutGenerator
 				{
 					writer.print("<div ng-style=\"");
 					writer.print(PartWrapper.getName(part));
-					writer.println("Style\">");
+					writer.print("Style\"");
+					String partClass = "svy-" + PartWrapper.getName(part);
+					if (part.getStyleClass() != null)
+					{
+						partClass += " " + part.getStyleClass();
+					}
+					writer.print(" class=\"");
+					writer.print(partClass);
+					writer.println("\">");
 					generateEndDiv(writer);
 				}
 			}
@@ -97,7 +105,15 @@ public class FormLayoutGenerator
 				{
 					writer.print("<div ng-style=\"");
 					writer.print(PartWrapper.getName(part));
-					writer.println("Style\">");
+					writer.print("Style\"");
+					String partClass = "svy-" + PartWrapper.getName(part);
+					if (part.getStyleClass() != null)
+					{
+						partClass += " " + part.getStyleClass();
+					}
+					writer.print(" class=\"");
+					writer.print(partClass);
+					writer.println("\">");
 				}
 
 				for (BaseComponent bc : PartWrapper.getBaseComponents(part, form, context, design))
@@ -146,12 +162,14 @@ public class FormLayoutGenerator
 		{
 			writer.print(" svy-scrollbars='formProperties.scrollbars'");
 		}
+		String formClass = "svy-form";
 		if (form.getStyleClass() != null)
 		{
-			writer.print(" class=\"");
-			writer.print(form.getStyleClass());
-			writer.print("\"");
+			formClass += " " + form.getStyleClass();
 		}
+		writer.print(" class=\"");
+		writer.print(formClass);
+		writer.print("\"");
 		writer.println(">");
 	}
 
