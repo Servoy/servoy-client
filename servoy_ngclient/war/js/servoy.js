@@ -89,6 +89,22 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		return setterFunc;
 	};
 
+	function findAttribute(element, parent, attributeName) {
+		var correctScope = parent;
+		var attrValue = element.attr(attributeName);
+		if (! attrValue) {
+			var parentEl = element.parents("[" + attributeName + "]").first(); 
+			if (parentEl) {
+				attrValue = parentEl.attr(attributeName);
+				while (parentEl && !parentEl.scope()) parentEl = parentEl.parent();
+				if (parentEl) correctScope = parentEl.scope();
+			}
+		}
+		if (attrValue) {
+			return correctScope.$eval(attrValue);
+		}
+	};
+	
 	return{
 
 		/** this function can be used in filters .It accepts a string jsonpath the property to test for null. 
@@ -111,6 +127,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				element.css(newVal)
 			})
 		},
+		
 		getScrollbarsStyleObj:function (scrollbars){
 			var style = {}; 
 			if ((scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
@@ -154,7 +171,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			return null;
 		},
-		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction,timeout,returnFalse) {
+		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction,timeout,returnFalse, doSvyApply, dataproviderString) {
 			var fn = this.getEventHandler($parse,scope,svyEventHandler)
 			if (fn)
 			{
@@ -163,6 +180,22 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						if (!timeout) timeout = 0;
 						// always use timeout because this event could be triggered by a angular call (requestFocus) thats already in a digest cycle.
 						$timeout(function(){
+							//svyApply before calling the handler
+							if(doSvyApply)
+							{
+								var index = dataproviderString.indexOf('.');
+								if (index > 0) {
+									var modelString = dataproviderString.substring(0,index);
+									var modelFunction = $parse(modelString);
+									var beanModel = modelFunction(scope);
+									var propertyname = dataproviderString.substring(index+1);
+									var svyServoyApi = findAttribute(element, scope.$parent, "svy-servoyApi");
+									if (svyServoyApi && svyServoyApi.apply) {
+										svyServoyApi.apply(propertyname);
+									}
+								}
+							}
+							
 							fn(scope, {$event:event});
 						},timeout);
 						if (returnFalse) return false;
@@ -199,6 +232,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			        }, useObjectEquality)
 			        ];
 		}
+		,
+		// search for svy-servoyApi attribute on element, within parents (svy-autoapply could be used on a child DOM element of the web component)
+		findAttribute: function (element, parent, attributeName) {
+			return findAttribute(element, parent, attributeName);
+		}
 	}
 }).directive('ngOnChange', function($parse){
 	return function(scope, elm, attrs){       
@@ -208,7 +246,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				onChangeFunction(scope, { $cmd: event });
 			})});
 	};
-}).directive('svyAutoapply', function($sabloApplication, $parse, $log) {
+}).directive('svyAutoapply', function($sabloApplication, $parse, $log, $utils) {
 	return {
 		restrict: 'A', // only activate on element attribute
 		require: '?ngModel', // get a hold of NgModelController
@@ -260,29 +298,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					return formname;
 				}
 
-				// search for svy-servoyApi attribute on element, within parents (svy-autoapply could be used on a child DOM element of the web component)
-				function findAttribute(attributeName) {
-					var correctScope = parent;
-					var attrValue = element.attr(attributeName);
-					if (! attrValue) {
-						var parentEl = element.parents("[" + attributeName + "]").first(); 
-						if (parentEl) {
-							attrValue = parentEl.attr(attributeName);
-							while (parentEl && !parentEl.scope()) parentEl = parentEl.parent();
-							if (parentEl) correctScope = parentEl.scope();
-						}
-					}
-					if (attrValue) {
-						return correctScope.$eval(attrValue);
-					}
-				}
-
 				var formName = null;
 				// Listen for change events to enable binding
 				element.bind('change', function() {
 					// model has not been updated yet
 					setTimeout(function() { 
-						var svyServoyApi = findAttribute("svy-servoyApi");
+						var svyServoyApi = $utils.findAttribute(element, parent, "svy-servoyApi");
 						// use svy apply rather then pushChange because svy apply might get intercepted by components such as portals
 						// that have nested child web components
 						if (svyServoyApi && svyServoyApi.apply) {
@@ -291,13 +312,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							// this shouldn't happen (svy-apply not being set on a web-component...)
 							$log.error("cannot apply new value");
 						}
-					}, 0);
+					}, 0, parent, element);
 				});
 
 				// Listen for start edit
 				element.bind('focus', function() {
 					setTimeout(function() {
-						var svyServoyApi = findAttribute("svy-servoyApi");
+						var svyServoyApi = $utils.findAttribute(element, parent, "svy-servoyApi");
 						if (svyServoyApi && svyServoyApi.startEdit) {
 							svyServoyApi.startEdit(propertyname);
 						} else {
@@ -305,7 +326,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							if (!formName) formName = searchForFormName(); 
 							$sabloApplication.callService("formService", "startEdit", {formname:formName,beanname:beanname,property:propertyname},true)
 						}
-					}, 0);
+					}, 0, parent, element);
 				});
 
 			}
@@ -318,7 +339,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			$utils.attachEventHandler($parse,element,scope,attrs.svyEnter,'keydown', $utils.testEnterKey, 100);
+			$utils.attachEventHandler($parse,element,scope,attrs.svyEnter,'keydown', $utils.testEnterKey, 100, false, true, attrs.ngModel);
 		}
 	};
 }).directive('svyChange',  function ($parse,$utils) {
