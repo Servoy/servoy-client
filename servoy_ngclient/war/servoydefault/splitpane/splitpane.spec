@@ -4,6 +4,7 @@
 	"version": 1,
 	"icon": "servoydefault/splitpane/split.gif",
 	"definition": "servoydefault/splitpane/splitpane.js",
+	"serverscript": "servoydefault/splitpane/splitpane_server.js",
 	"libraries": [{"name":"bg-splitter", "version":"1", "url":"servoydefault/splitpane/bg-splitter/js/splitter.js", "mimetype":"text/javascript"},{"name":"bg-splitter", "version":"1", "url":"servoydefault/splitpane/bg-splitter/css/style.css", "mimetype":"text/css"}],
 	"model":
 	{
@@ -42,6 +43,12 @@
 	        },
 	        "getContinuousLayout": {
 	            "returns": "boolean"
+	        },
+	        "getBrowserDividerLocation": {
+	            "returns": "double"
+	        },
+	        "getBrowserDividerSize": {
+	            "returns": "int"
 	        },
 	        "getDividerLocation": {
 	            "returns": "double"

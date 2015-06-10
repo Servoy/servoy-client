@@ -164,7 +164,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			{
 				// call getter
 				Function propertyGetter = apiFunctions.get("get" + uName);
-				return propertyGetter.call(null, null, null, null);
+				return propertyGetter.call(Context.getCurrentContext(), start, start, new Object[] { });
 			}
 		}
 
@@ -287,7 +287,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					{
 						// call setter
 						Function propertySetter = apiFunctions.get("set" + uName);
-						propertySetter.call(null, null, null, new Object[] { value });
+						propertySetter.call(Context.getCurrentContext(), start, start, new Object[] { value });
 						return;
 					}
 				}
