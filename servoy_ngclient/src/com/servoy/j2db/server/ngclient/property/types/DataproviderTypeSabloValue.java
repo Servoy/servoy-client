@@ -159,6 +159,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			if (dtPropVal == null) dtPropVal = Boolean.FALSE;
 		}
 		displaysTags = dtpn != null && ((Boolean)dtPropVal).booleanValue() == true || (dtpn == null && config.shouldDisplayTags());
+
+		dataProviderOrRecordChanged(dataAdapterList.getRecord(), null, false, false, false);
 	}
 
 	@Override
