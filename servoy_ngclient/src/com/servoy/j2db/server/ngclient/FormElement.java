@@ -67,6 +67,7 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -596,6 +597,16 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		{
 			Object eventValue = getPropertyValue(eventName);
 			if (eventValue != null && !(eventValue instanceof Integer && (((Integer)eventValue).intValue() == -1 || ((Integer)eventValue).intValue() == 0)))
+			{
+				handlers.add(eventName);
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
+				(getForm().getOnElementFocusGainedMethodID() > 0))
+			{
+				handlers.add(eventName);
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
+				(getForm().getOnElementFocusLostMethodID() > 0))
 			{
 				handlers.add(eventName);
 			}

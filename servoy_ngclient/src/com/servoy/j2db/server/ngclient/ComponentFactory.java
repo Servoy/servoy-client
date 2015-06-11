@@ -25,6 +25,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -113,6 +114,14 @@ public class ComponentFactory
 				else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
 				{
 					webComponent.add(eventName, ((Number)eventValue).intValue());
+				}
+				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) && (fe.getForm().getOnElementFocusGainedMethodID() > 0))
+				{
+					webComponent.add(eventName, fe.getForm().getOnElementFocusGainedMethodID());
+				}
+				else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) && (fe.getForm().getOnElementFocusLostMethodID() > 0))
+				{
+					webComponent.add(eventName, fe.getForm().getOnElementFocusLostMethodID());
 				}
 			}
 			// just created, it should have no changes.

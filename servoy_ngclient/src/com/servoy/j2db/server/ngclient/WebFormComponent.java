@@ -17,6 +17,8 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Servoy extension to work with webcomponents on a form
@@ -123,7 +125,7 @@ public class WebFormComponent extends Container implements IContextProvider
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.BaseWebObject#getEventHandler(java.lang.String)
 	 */
 	@Override
@@ -238,7 +240,16 @@ public class WebFormComponent extends Container implements IContextProvider
 				if (!((access & IRepository.ACCESSIBLE) != 0)) throw new RuntimeException("Security error. Component '" + getProperty("name") +
 					"' is not accessible.");
 			}
-
+			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
+				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)
+			{
+				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementFocusGainedMethodID(), args);
+			}
+			else if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
+				(formElement.getForm().getOnElementFocusLostMethodID() > 0) && formElement.getForm().getOnElementFocusLostMethodID() != functionID)
+			{
+				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementFocusLostMethodID(), args);
+			}
 			return dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
 		}
 	}
