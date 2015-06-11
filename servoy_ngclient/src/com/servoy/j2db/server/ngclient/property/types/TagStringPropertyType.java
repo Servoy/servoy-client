@@ -40,6 +40,7 @@ import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -47,6 +48,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Text;
 
@@ -146,12 +148,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			sabloValue = needsToKeepDAL ? new BasicTagStringTypeSabloValue(null, dal) : null;
 		}
-		else if (newDesignValue.startsWith("i18n:"))
-		{
-			// no data links required
-			sabloValue = new BasicTagStringTypeSabloValue(application.getI18NMessage(newDesignValue.toString().substring(5)), dal);
-		}
-		else if (tagParsingAllowed && wouldLikeToParseTags && newDesignValue.contains("%%")) // tagParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to show random server-side data
+		else if (tagParsingAllowed && wouldLikeToParseTags && (newDesignValue.startsWith("i18n:") || newDesignValue.contains("%%"))) // tagParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to show random server-side data
 		{
 			// TODO currently htmlParsingAllowed will be true here as well (the method is never called with true/false); but if that is needed in the future, we need to let TagStringTypeSabloValue of htmlParsingAllowed == false as well)
 			// data links are required; register them to DAL; normally DAL can't be null here
@@ -283,6 +280,45 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 
 		if (((TagStringConfig)pd.getConfig()).useParsedValueInRhino()) return webComponentValue.getTagReplacedValue();
 		else return webComponentValue.getDesignValue();
+	}
+
+	public static Pair<String, TargetDataLinks> processTags(String val, final DataAdapterList dal, IServoyDataConverterContext dataConverterContext)
+	{
+		String result = val;
+		TargetDataLinks links = null;
+		if (HtmlUtils.startsWithHtml(val))
+		{
+			result = HTMLTagsConverter.convert(val, dataConverterContext, false);
+		}
+
+		if (val.contains("%%") || val.startsWith("i18n:"))
+		{
+			final Set<String> dataProviders = new HashSet<>();
+			final boolean recordDP[] = new boolean[1];
+
+			result = Text.processTags(val, new ITagResolver()
+			{
+				@Override
+				public String getStringValue(String name)
+				{
+					String dp = name;
+					if (dp.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
+					{
+						dp = ScriptVariable.SCOPES_DOT_PREFIX + dp;
+					}
+
+					dataProviders.add(dp);
+					// TODO Can't it be something special like record count or current record which are special cases and could still not depend on record...?
+					recordDP[0] = recordDP[0] || (!ScopesUtils.isVariableScope(dp) && dal.getForm().getForm().getScriptVariable(dp) == null);
+
+					return dal.getStringValue(dp);
+				}
+			});
+
+			if (result.startsWith("i18n:")) result = dal.getApplication().getI18NMessage(result.substring(5));
+			links = new TargetDataLinks(dataProviders.toArray(new String[dataProviders.size()]), recordDP[0]);
+		}
+		return new Pair<String, TargetDataLinks>(result, links);
 	}
 
 }

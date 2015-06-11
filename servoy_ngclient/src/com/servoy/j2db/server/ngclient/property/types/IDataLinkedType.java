@@ -70,16 +70,15 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 			this.recordLinked = recordLinked;
 		}
 
-		public TargetDataLinks concatDataLinks(String[] dataproviderids, boolean linked)
+		public TargetDataLinks concatDataLinks(TargetDataLinks links)
 		{
-			if (dataproviderids.length > 0)
-			{
-				String[] concat = new String[this.dataProviderIDs.length + dataproviderids.length];
-				System.arraycopy(this.dataProviderIDs, 0, concat, 0, this.dataProviderIDs.length);
-				System.arraycopy(dataproviderids, 0, concat, this.dataProviderIDs.length, dataProviderIDs.length);
-				return new TargetDataLinks(concat, this.recordLinked || linked);
-			}
-			return this;
+			if (links.dataProviderIDs == null || links.dataProviderIDs.length == 0 && dataProviderIDs.length > 0) return this;
+			if (dataProviderIDs == null || dataProviderIDs.length == 0 && links.dataProviderIDs.length > 0) return links;
+
+			String[] concat = new String[this.dataProviderIDs.length + links.dataProviderIDs.length];
+			System.arraycopy(this.dataProviderIDs, 0, concat, 0, this.dataProviderIDs.length);
+			System.arraycopy(links.dataProviderIDs, 0, concat, this.dataProviderIDs.length, dataProviderIDs.length);
+			return new TargetDataLinks(concat, this.recordLinked || links.recordLinked);
 		}
 	}
 

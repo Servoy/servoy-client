@@ -17,6 +17,10 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
@@ -24,11 +28,10 @@ import org.sablo.specification.PropertyDescription;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.server.ngclient.HTMLTagsConverter;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
-import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
 
 /**
@@ -44,6 +47,7 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	protected IChangeListener changeMonitor;
 	protected IServoyDataConverterContext dataConverterContext;
 	protected final TargetDataLinks dataLinks;
+	private Set<String> tagsDataLinks;
 
 	public TagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext,
 		PropertyDescription pd, FormElement formElement, boolean initialFormElementBasedValue)
@@ -98,9 +102,26 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		String oldTagReplacedValue = tagReplacedValue;
 		tagReplacedValue = Text.processTags(getDesignValue(), getDataAdapterList()); // shouldn't this be done after HTMLTagsConverter.convert?
 
-		if (HtmlUtils.startsWithHtml(tagReplacedValue))
+		DataAdapterList dataAdapterList = getDataAdapterList();
+		if (tagReplacedValue.contains("%%") || tagReplacedValue.startsWith("i18n:"))
 		{
-			tagReplacedValue = HTMLTagsConverter.convert(tagReplacedValue, dataConverterContext, false);
+			Pair<String, TargetDataLinks> replaced = TagStringPropertyType.processTags(tagReplacedValue, dataAdapterList, dataConverterContext);
+			tagReplacedValue = replaced.getLeft();
+
+			if (tagsDataLinks == null || tagsDataLinks.size() != replaced.getRight().dataProviderIDs.length ||
+				!tagsDataLinks.containsAll(new HashSet<String>(Arrays.asList(replaced.getRight().dataProviderIDs))))
+			{
+				dataAdapterList.removeDataLinkedProperty(this);
+				dataAdapterList.addDataLinkedProperty(this, dataLinks.concatDataLinks(replaced.getRight()));
+				tagsDataLinks = new HashSet<String>(Arrays.asList(replaced.getRight().dataProviderIDs));
+			}
+		}
+		else if (tagsDataLinks != null)
+		{
+			//remove links if the dataprovider value doesn't contain tags anymore
+			dataAdapterList.removeDataLinkedProperty(this);
+			dataAdapterList.addDataLinkedProperty(this, dataLinks);
+			tagsDataLinks = null;
 		}
 
 		// changed or not
