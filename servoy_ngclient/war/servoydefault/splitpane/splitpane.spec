@@ -41,14 +41,14 @@
 			                	}             
 							 ]
 	        },
-	        "getContinuousLayout": {
-	            "returns": "boolean"
-	        },
 	        "getBrowserDividerLocation": {
 	            "returns": "double"
 	        },
 	        "getBrowserDividerSize": {
 	            "returns": "int"
+	        },
+	        "getContinuousLayout": {
+	            "returns": "boolean"
 	        },
 	        "getDividerLocation": {
 	            "returns": "double"

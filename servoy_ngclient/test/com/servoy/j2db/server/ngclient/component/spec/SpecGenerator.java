@@ -128,9 +128,11 @@ public class SpecGenerator
 			IRepository.TABPANELS,
 			com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
 			new String[] { "{\"name\":\"bg-splitter\", \"version\":\"1\", \"url\":\"servoydefault/splitpane/bg-splitter/js/splitter.js\", \"mimetype\":\"text/javascript\"}", "{\"name\":\"bg-splitter\", \"version\":\"1\", \"url\":\"servoydefault/splitpane/bg-splitter/css/style.css\", \"mimetype\":\"text/css\"}" },
-			null,
+			"servoydefault/splitpane/splitpane_server.js",
 			// @formatter:off
 			new ApiMethod[] {
+				getApiMethod("getBrowserDividerLocation", "double", null, null, null),
+				getApiMethod("getBrowserDividerSize", "int", null, null, null),
 				getApiMethod("getDividerLocation", "double", null, null, null),
 				getApiMethod("setDividerLocation", "void", Arrays.asList(new String[] { "location" }), Arrays.asList(new String[] { "double" }), Arrays.asList(new String[] { "false" })),
 				getApiMethod("getDividerSize", "int", null, null, null),

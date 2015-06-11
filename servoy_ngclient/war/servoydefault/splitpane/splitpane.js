@@ -43,6 +43,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
     	  
     	  //called when the divider location is changed from server side scripting
     	  $scope.$watch('model.divLocation', function(newValue, oldValue){
+    		  if (newValue && newValue  !== oldValue) {
 	  			 var dividerEl = angular.element($element[0].querySelector(".split-handler"));
 	 			 var pane1 = angular.element($element[0].querySelector(".split-pane1"));
 	 			 var pane2 = angular.element($element[0].querySelector(".split-pane2"));
@@ -65,18 +66,19 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 	 	            pane2.css('left', pos + 'px');
 	 			 }
 	 			 if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,$.Event("change"));
+    		  }
     	  });
     	  
     	  if ($scope.model.tabs && $scope.model.tabs[0] && $scope.model.tabs[0].containsFormId) {
     		  $scope.svyServoyapi.formWillShow($scope.model.tabs[0].containsFormId, $scope.model.tabs[0].relationName,0);
-    	  }
+    	  };
     	  if ($scope.model.tabs && $scope.model.tabs[1] && $scope.model.tabs[1].containsFormId) {
     		  $scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId, $scope.model.tabs[1].relationName,1);
-    	  }
+    	  };
     	  //called by bg-splitter when the user changes the divider location with the mouse
     	  $scope.onChange = function() {
-    		  $scope.model.divLocation =  $scope.api.getBrowserDividerLocation();
-    		  if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,$.Event("change"));
+    		  $scope.model.divLocation = $scope.api.getBrowserDividerLocation();;
+    		  $scope.$digest(); // not in angular so we need a digest that will trigger the watch that will then trigger the handler
     	  }
     	  
           $scope.getForm = function(tab) {
