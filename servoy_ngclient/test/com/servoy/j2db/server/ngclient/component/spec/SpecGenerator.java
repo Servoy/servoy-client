@@ -131,8 +131,6 @@ public class SpecGenerator
 			"servoydefault/splitpane/splitpane_server.js",
 			// @formatter:off
 			new ApiMethod[] {
-				getApiMethod("getBrowserDividerLocation", "double", null, null, null),
-				getApiMethod("getBrowserDividerSize", "int", null, null, null),
 				getApiMethod("getDividerLocation", "double", null, null, null),
 				getApiMethod("setDividerLocation", "void", Arrays.asList(new String[] { "location" }), Arrays.asList(new String[] { "double" }), Arrays.asList(new String[] { "false" })),
 				getApiMethod("getDividerSize", "int", null, null, null),
@@ -385,6 +383,12 @@ public class SpecGenerator
 			{
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "multiselectListbox", IRepository.BOOLEAN, Boolean.FALSE));
+			}
+
+			if ("splitpane".equals(componentSpec.getName()))
+			{
+				ContentSpec cs = new ContentSpec();
+				model.add(cs.new Element(-1, IRepository.FIELDS, "divLocation", IRepository.INTEGER, Integer.valueOf(-1)));
 			}
 			if ("portal".equals(componentSpec.getName()))
 			{
@@ -646,6 +650,7 @@ public class SpecGenerator
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
+		splitpaneMapping.put("divLocation", "{ \"type\": \"int\", \"default\": -1 }");
 		splitpaneMapping.put("readOnly", "{ \"type\": \"protected\", \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);

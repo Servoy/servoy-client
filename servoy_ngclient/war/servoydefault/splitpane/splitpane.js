@@ -14,19 +14,28 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
     	  
     	  $scope.resizeWeight = 0;
     	  
+    	  function initDivLocation(newValue) {
+   			 if ($scope.model.divLocation === -1) {
+   				$scope.model.divLocation = newValue / 2;
+   			 }
+     	  }
+    	  
     	  $scope.$watch("model.size.height", function(newValue, oldValue) {
     		 if($scope.model.tabOrientation == -3) {
+    			 initDivLocation(newValue);
     			 var delta = newValue - oldValue;
     			 if(delta != 0) {
-    				 $scope.api.setDividerLocation(($scope.api.getBrowserDividerLocation() - delta) + Math.round(delta * $scope.resizeWeight));
+    				 $scope.api.setDividerLocation((getBrowserDividerLocation() - delta) + Math.round(delta * $scope.resizeWeight));
     			 }
     		 } 
     	  });
+    	  
     	  $scope.$watch("model.size.width", function(newValue, oldValue) {
      		 if($scope.model.tabOrientation == -2) {
+     			 initDivLocation(newValue);
      			 var delta = newValue - oldValue;
      			 if(delta != 0) {
-     				$scope.api.setDividerLocation(($scope.api.getBrowserDividerLocation() - delta) + Math.round(delta * $scope.resizeWeight)); 
+     				$scope.api.setDividerLocation((getBrowserDividerLocation() - delta) + Math.round(delta * $scope.resizeWeight)); 
      			 }     				 
      		 }
      	  });
@@ -77,7 +86,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
     	  };
     	  //called by bg-splitter when the user changes the divider location with the mouse
     	  $scope.onChange = function() {
-    		  $scope.model.divLocation = $scope.api.getBrowserDividerLocation();;
+    		  $scope.model.divLocation = getBrowserDividerLocation();;
     		  $scope.$digest(); // not in angular so we need a digest that will trigger the watch that will then trigger the handler
     	  }
     	  
@@ -86,23 +95,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
         	  return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
           }
           
-          
-          // called by the server side function  getDividerSize
-          $scope.api.getBrowserDividerSize = function() {
- 			 var dividerEl = angular.element($element[0].querySelector(".split-handler"));
- 			 var dividerSize;
-			 if($scope.model.tabOrientation == -3) {
-				 dividerSize = dividerEl.css('height'); 
-			 }
-			 else {
-				 dividerSize = dividerEl.css('width'); 
-			 }
-			 
-			 return dividerSize ? dividerSize.substring(0, dividerSize.length - 2) : 0;
-          }
-          
-          // called by the server side function  getDividerLocation
-          $scope.api.getBrowserDividerLocation = function() {
+         function getBrowserDividerLocation() {
   			 var dividerEl = angular.element($element[0].querySelector(".split-handler"));
  			 var dividerLocation;
 			 if($scope.model.tabOrientation == -3) {
@@ -115,66 +108,12 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			 return dividerLocation ? dividerLocation.substring(0, dividerLocation.length - 2) : 0;
           }
           
-			/**
-			 * Set a relationless or related form as left panel.
-			 * @example %%prefix%%%%elementName%%.setLeftForm(forms.orders);
-			 * @param form the specified form or form name you wish to add as left panel
-			 * @return {Boolean} value indicating if tab was successfully added
-			 */
-			$scope.api.setLeftForm = function(form, relation) {
-				$scope.model.tabs[0] = {
-					name : null,
-					containsFormId : form,
-					text : null,
-					relationName : relation,
-					active : false,
-					disabled : false,
-					foreground : null
-				};
-				$scope.svyServoyapi.formWillShow($scope.model.tabs[0].containsFormId,
-						$scope.model.tabs[0].relationName, 0);
-				return true;
-			}
-			
-			/**
-			 * Set a relationless or related form as right panel.
-			 * @example %%prefix%%%%elementName%%.setRightForm(forms.orders);
-			 * @param form the specified form or form name you wish to add as right panel
-			 * @return {Boolean} value indicating if tab was successfully added
-			 */
-			$scope.api.setRightForm = function(form, relation) {
-				$scope.model.tabs[1] = {
-					name : null,
-					containsFormId : form,
-					text : null,
-					relationName : relation,
-					active : false,
-					disabled : false,
-					foreground : null
-				};
-				$scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId,
-						$scope.model.tabs[1].relationName, 1);
-				return true;
-			}
-			
-			/**
-			 * Returns the left form of the split pane.
-			 * @example var leftForm = %%prefix%%%%elementName%%.getLeftForm();
-			 * @return {FormScope} left form of the split pane
-			 */
-			$scope.api.getLeftForm = function() {
-				return $scope.model.tabs[0].containsFormId;
-			}
-			
-			/**
-			 * Returns the right form of the split pane.
-			 * @example var rightForm = %%prefix%%%%elementName%%.getRightForm();
-			 * @return {FormScope} right form of the split pane
-			 */
-			$scope.api.getRightForm = function() {
-				return $scope.model.tabs[1].containsFormId;
-			}
-			
+          $scope.$watch("$scope.model.tabs[0]", function(newValue, oldValue) {
+        	  $scope.svyServoyapi.formWillShow($scope.model.tabs[0].containsFormId,$scope.model.tabs[0].relationName, 0);
+          });
+          $scope.$watch("$scope.model.tabs[1]", function(newValue, oldValue) {
+        	  $scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId,$scope.model.tabs[1].relationName, 0);
+          });
           
     	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
     	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);

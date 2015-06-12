@@ -233,7 +233,7 @@
 			 * @return the size in pixels
 			 */
 			$scope.api.getDividerSize = function() {
-				return $scope.api.getBrowserDividerSize();
+				return $scope.model.divSize;
 			}
 			
 			/**
@@ -251,7 +251,7 @@
 			 * @return the size in pixels
 			 */
 			$scope.api.getDividerLocation = function() {
-				return $scope.api.getBrowserDividerLocation();
+				return $scope.model.divLocation;
 			}
 			
 			/**
@@ -263,3 +263,64 @@
 					$scope.model.divLocation = location;
 				}
 			}
+			
+			/**
+			 * Set a relationless or related form as left panel.
+			 * @example %%prefix%%%%elementName%%.setLeftForm(forms.orders);
+			 * @param form the specified form or form name you wish to add as left panel
+			 * @return {Boolean} value indicating if tab was successfully added
+			 */
+			$scope.api.setLeftForm = function(form, relation) {
+				$scope.model.tabs[0] = {
+					name : null,
+					containsFormId : form,
+					text : null,
+					relationName : relation,
+					active : false,
+					disabled : false,
+					foreground : null
+				};
+//				$scope.svyServoyapi.formWillShow($scope.model.tabs[0].containsFormId,
+//						$scope.model.tabs[0].relationName, 0);
+				return true;
+			}
+			
+			/**
+			 * Set a relationless or related form as right panel.
+			 * @example %%prefix%%%%elementName%%.setRightForm(forms.orders);
+			 * @param form the specified form or form name you wish to add as right panel
+			 * @return {Boolean} value indicating if tab was successfully added
+			 */
+			$scope.api.setRightForm = function(form, relation) {
+				$scope.model.tabs[1] = {
+					name : null,
+					containsFormId : form,
+					text : null,
+					relationName : relation,
+					active : false,
+					disabled : false,
+					foreground : null
+				};
+//				$scope.svyServoyapi.formWillShow($scope.model.tabs[1].containsFormId,
+//						$scope.model.tabs[1].relationName, 1);
+				return true;
+			}
+			
+			/**
+			 * Returns the left form of the split pane.
+			 * @example var leftForm = %%prefix%%%%elementName%%.getLeftForm();
+			 * @return {FormScope} left form of the split pane
+			 */
+			$scope.api.getLeftForm = function() {
+				return $scope.model.tabs[0].containsFormId;
+			}
+			
+			/**
+			 * Returns the right form of the split pane.
+			 * @example var rightForm = %%prefix%%%%elementName%%.getRightForm();
+			 * @return {FormScope} right form of the split pane
+			 */
+			$scope.api.getRightForm = function() {
+				return $scope.model.tabs[1].containsFormId;
+			}
+			
