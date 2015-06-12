@@ -148,6 +148,10 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		{
 			sabloValue = needsToKeepDAL ? new BasicTagStringTypeSabloValue(null, dal) : null;
 		}
+		else if (!wouldLikeToParseTags && newDesignValue.startsWith("i18n:"))
+		{
+			sabloValue = new BasicTagStringTypeSabloValue(application.getI18NMessage(newDesignValue.toString().substring(5)), dal);
+		}
 		else if (tagParsingAllowed && wouldLikeToParseTags && (newDesignValue.startsWith("i18n:") || newDesignValue.contains("%%"))) // tagParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to show random server-side data
 		{
 			String designValue = newDesignValue.startsWith("i18n:") ? application.getI18NMessage(newDesignValue.toString().substring(5)) : newDesignValue;
@@ -168,6 +172,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 			// no data links required
 			sabloValue = new BasicTagStringTypeSabloValue(staticValue, dal);
 		}
+
 		return sabloValue;
 	}
 
