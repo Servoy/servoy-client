@@ -11,7 +11,6 @@
 			 * Not applicable for the splitpane.
 			 */
 			$scope.api.removeTabAt = function(index) {
-				console.log("add tab in splitpane serverside");
 				return false;
 			}
 			
