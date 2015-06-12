@@ -150,9 +150,10 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		}
 		else if (tagParsingAllowed && wouldLikeToParseTags && (newDesignValue.startsWith("i18n:") || newDesignValue.contains("%%"))) // tagParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to show random server-side data
 		{
+			String designValue = newDesignValue.startsWith("i18n:") ? application.getI18NMessage(newDesignValue.toString().substring(5)) : newDesignValue;
 			// TODO currently htmlParsingAllowed will be true here as well (the method is never called with true/false); but if that is needed in the future, we need to let TagStringTypeSabloValue of htmlParsingAllowed == false as well)
 			// data links are required; register them to DAL; normally DAL can't be null here
-			sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription, component.getFormElement(),
+			sabloValue = new TagStringTypeSabloValue(designValue, dal, component.getDataConverterContext(), propertyDescription, component.getFormElement(),
 				basedOnFormElementValue);
 		}
 		else

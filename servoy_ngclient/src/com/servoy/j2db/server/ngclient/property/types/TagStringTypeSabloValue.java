@@ -32,7 +32,6 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.Text;
 
 /**
  * Runtime value stored in WebFormComponents for properties of type {@link TagStringPropertyType} that do need to replace tags (%%x%%).
@@ -100,8 +99,7 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	protected boolean updateTagReplacedValue()
 	{
 		String oldTagReplacedValue = tagReplacedValue;
-		tagReplacedValue = Text.processTags(getDesignValue(), getDataAdapterList()); // shouldn't this be done after HTMLTagsConverter.convert?
-
+		tagReplacedValue = getDesignValue();
 		DataAdapterList dataAdapterList = getDataAdapterList();
 		if (tagReplacedValue.contains("%%") || tagReplacedValue.startsWith("i18n:"))
 		{
@@ -118,7 +116,7 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		}
 		else if (tagsDataLinks != null)
 		{
-			//remove links if the dataprovider value doesn't contain tags anymore
+			//remove links if the value doesn't contain tags anymore
 			dataAdapterList.removeDataLinkedProperty(this);
 			dataAdapterList.addDataLinkedProperty(this, dataLinks);
 			tagsDataLinks = null;
