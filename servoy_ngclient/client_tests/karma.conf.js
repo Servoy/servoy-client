@@ -26,6 +26,7 @@ module.exports = function(config){
     ],
     exclude : [
 	  '../war/servoydefault/tabpanel/tabpanel_server.js',
+	  '../war/servoydefault/splitpane/splitpane_server.js',
 	  '../war/servoydefault/portal/portal_server.js',
 	  '../war/js/**/*.min.js',
 	  '../war/js/**/angular1.3.4.js'
