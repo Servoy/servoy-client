@@ -25,6 +25,7 @@
 		<script src="js/servoytooltip.js"></script>
 		<script src="js/fileupload.js"></script>
 		<script src="js/servoy-components.js"></script>
+		<script src="sablo/lib/reconnecting-websocket.js"></script>
 		<script src="sablo/js/websocket.js"></script>
 		<script src="sablo/js/sablo_app.js"></script>
 		<script src="js/servoy_app.js"></script>
@@ -152,6 +153,9 @@
 		});
 	</script>
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
+	
+	    <div sablo-reconnecting-feedback>Disconnected from server, Reconnecting....</div>
+	
 		<div ng-if='!getSessionProblemView()' id="mainForm" sablo-tabseq='1' sablo-tabseq-config="{container: true}">
 			<div ng-if="solutionSettings.navigatorForm.name" ng-style="getNavigatorStyle(solutionSettings.ltrOrientation)"
 				ng-include="getNavigatorFormUrl()"></div>
