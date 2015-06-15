@@ -39,6 +39,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -56,7 +57,8 @@ import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -272,18 +274,39 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (!displaysTags || !(v instanceof String)) return v;
 
 		String val = (String)v;
+		String result = val;
 		if (val.contains("%%") || val.startsWith("i18n:"))
 		{
-			Pair<String, TargetDataLinks> replaced = TagStringPropertyType.processTags(val, dataAdapterList, servoyDataConverterContext);
+			final Set<String> dataProviders = new HashSet<>();
+			final boolean recordDP[] = new boolean[1];
 
-			if (tagsDataProviders == null || tagsDataProviders.size() != replaced.getRight().dataProviderIDs.length ||
-				!tagsDataProviders.containsAll(new HashSet<String>(Arrays.asList(replaced.getRight().dataProviderIDs))))
+			result = Text.processTags(val, new ITagResolver()
+			{
+				@Override
+				public String getStringValue(String name)
+				{
+					String dp = name;
+					if (dp.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
+					{
+						dp = ScriptVariable.SCOPES_DOT_PREFIX + dp;
+					}
+
+					dataProviders.add(dp);
+					// TODO Can't it be something special like record count or current record which are special cases and could still not depend on record...?
+					recordDP[0] = recordDP[0] || (!ScopesUtils.isVariableScope(dp) && dataAdapterList.getForm().getForm().getScriptVariable(dp) == null);
+
+					return dataAdapterList.getStringValue(dp);
+				}
+			});
+
+			if (result.startsWith("i18n:")) result = dataAdapterList.getApplication().getI18NMessage(result.substring(5));
+
+			if (tagsDataProviders == null || tagsDataProviders.size() != dataProviders.size() || !tagsDataProviders.containsAll(dataProviders))
 			{
 				dataAdapterList.removeDataLinkedProperty(this);
-				dataAdapterList.addDataLinkedProperty(this, dataLinks.concatDataLinks(replaced.getRight()));
-				tagsDataProviders = new HashSet<String>(Arrays.asList(replaced.getRight().dataProviderIDs));
+				dataAdapterList.addDataLinkedProperty(this, dataLinks.concatDataLinks(dataProviders.toArray(new String[dataProviders.size()]), recordDP[0]));
+				tagsDataProviders = dataProviders;
 			}
-			val = replaced.getLeft();
 		}
 		else if (tagsDataProviders != null)
 		{
@@ -293,7 +316,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			tagsDataProviders = null;
 		}
 
-		return val;
+		return result;
 	}
 
 	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IDataConverterContext dataConverterContext) throws JSONException
