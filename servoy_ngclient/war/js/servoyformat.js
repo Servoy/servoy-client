@@ -1,4 +1,4 @@
-angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){     // to remove
+angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $locale){     // to remove
 	// add replace all to String 
 	String.prototype.replaceAll = function (find, replace) {
 	    var str = this;
@@ -177,13 +177,12 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			ret = ret.replaceAll('D',getDayInYear(data))
 		}
 		ret= $filter('date')(data,ret);
-		var weekday = ["Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday","Saturday"];
 		if(ret.indexOf('E')!=-1){
 			var last = ret.lastIndexOf('E');
 			var first = ret.indexOf('E') ;
 			var nrChars = last - first + 1;
-			if (nrChars >= 1 && nrChars <= 3) ret = ret.substring(0,first-1) + ' ' + (weekday[data.getDay()]).substring(0, 3) + ret.substring(last + 1,ret.length); 
-			if (nrChars >= 4 && nrChars <= 6) ret = ret.substring(0,first-1) + ' ' + weekday[data.getDay()] + ret.substring(last + 1,ret.length); 
+			if (nrChars >= 1 && nrChars <= 3) ret = ret.substring(0,first-1) + ' ' + ($locale.DATETIME_FORMATS.DAY[data.getDay()]).substring(0, 3) + ret.substring(last + 1,ret.length); 
+			if (nrChars >= 4 && nrChars <= 6) ret = ret.substring(0,first-1) + ' ' + $locale.DATETIME_FORMATS.DAY[data.getDay()] + ret.substring(last + 1,ret.length); 
 		}		
 		if(ret.indexOf('G')!= -1){
 			// 	Era designator
