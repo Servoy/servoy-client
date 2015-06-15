@@ -161,8 +161,8 @@ angular.module('window',['servoy'])
 			scope.loadSize = function(){
 				$sabloApplication.getFormState(form).then(function(formState){
 					var css = {};
-					css["min-width"] = formState.properties.size.width+"px";
-					css["min-height"] = formState.properties.size.height+"px";
+					css["min-width"] = formState.properties.designSize.width+"px";
+					css["min-height"] = formState.properties.designSize.height+"px";
 					$('#formpopup').css(css);
 		    	})
 			};
@@ -203,10 +203,13 @@ angular.module('window',['servoy'])
 			{
 				$formService.hideForm(scope.model.popupform.form);
 			}
-			var popup = $("#formpopup");
+			var popup = angular.element("#formpopup");
 			if (popup)
 			{
-				popup.remove();
+				$sabloApplication.getFormState(scope.model.popupform.form).then(function(formState){
+					formState.getScope().$destroy();
+					popup.remove();
+		    	});
 			}
 			scope.model.popupform = null;
 		},
