@@ -227,7 +227,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.AbstractBase#internalRemoveChild(com.servoy.j2db.persistence.IPersist)
 	 */
 	@Override
@@ -253,7 +253,11 @@ public class WebComponent extends BaseComponent implements IWebComponent
 				else
 				{
 					getCustomTypeProperties().remove(customType.getJsonKey());
-					if (getCustomTypeProperties().isEmpty()) setJson(new ServoyJSONObject());
+					//need to remove it from beanJSON because WebComponent.isChanged() calls WebComponent.getAllCustomProperties() which calls
+					//getCustomTypeProperties() which adds the customType back from the beanJson
+					ServoyJSONObject json = getJson();
+					json.remove(customType.getJsonKey());
+					setJson(json);
 				}
 			}
 		}
@@ -261,7 +265,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.persistence.AbstractBase#internalAddChild(com.servoy.j2db.persistence.IPersist)
 	 */
 	@Override
