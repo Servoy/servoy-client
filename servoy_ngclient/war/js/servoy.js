@@ -181,7 +181,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						// always use timeout because this event could be triggered by a angular call (requestFocus) thats already in a digest cycle.
 						$timeout(function(){
 							//svyApply before calling the handler
-							if(doSvyApply)
+							if(doSvyApply && dataproviderString)
 							{
 								var index = dataproviderString.indexOf('.');
 								if (index > 0) {
@@ -195,7 +195,6 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 									}
 								}
 							}
-							
 							fn(scope, {$event:event});
 						},timeout);
 						if (returnFalse) return false;
