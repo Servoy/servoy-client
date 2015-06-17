@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Wrapper;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -42,6 +43,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -183,7 +185,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -579,5 +581,30 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	public Map<String, Object> getNavigatorProperties()
 	{
 		return navigatorProperties;
+	}
+
+	public RuntimeWebComponent[] getWebComponentElements()
+	{
+		Object elementScope = formScope == null ? null : formScope.get("elements");
+		if (elementScope instanceof DefaultScope)
+		{
+			Object[] values = ((DefaultScope)elementScope).getValues();
+			List<RuntimeWebComponent> elements = new ArrayList<RuntimeWebComponent>(values.length);
+			for (Object value : values)
+			{
+				if (value instanceof Wrapper)
+				{
+					value = ((Wrapper)value).unwrap();
+				}
+				if (value instanceof RuntimeWebComponent)
+				{
+					elements.add((RuntimeWebComponent)value);
+				}
+			}
+
+			return elements.toArray(new RuntimeWebComponent[elements.size()]);
+		}
+
+		return new RuntimeWebComponent[0];
 	}
 }

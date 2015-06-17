@@ -11,10 +11,15 @@ import java.util.WeakHashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.property.DataConverterContext;
+import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.base.util.ITagResolver;
@@ -28,6 +33,7 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -96,25 +102,71 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args);
 		if (appendingArgs != null && decryptedScript.endsWith("()"))
 		{
-			decryptedScript = decryptedScript.substring(0, decryptedScript.length() - 1);
+			ArrayList<Object> javaArguments = new ArrayList<Object>();
+			Object argObj = null;
+			DataConverterContext dataConverterContext = new DataConverterContext(null, (WebFormUI)formController.getFormUI());
 			for (int i = 0; i < appendingArgs.length(); i++)
 			{
 				try
 				{
-					decryptedScript += appendingArgs.get(i);
+					argObj = appendingArgs.get(i);
+					if (argObj instanceof JSONObject)
+					{
+						String typeHint = ((JSONObject)argObj).optString("svyType"); //$NON-NLS-1$
+						if (typeHint != null)
+						{
+							IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
+							if (propertyType instanceof IPropertyConverter< ? >)
+							{
+								javaArguments.add(((IPropertyConverter< ? >)propertyType).fromJSON(argObj, null, dataConverterContext));
+								continue;
+							}
+						}
+					}
 				}
 				catch (JSONException e)
 				{
 					Debug.error(e);
 				}
-				if (i < appendingArgs.length() - 1)
+				javaArguments.add(argObj);
+			}
+
+			String functionName = decryptedScript.substring(0, decryptedScript.length() - 2);
+			int startIdx = functionName.lastIndexOf('.');
+			String noPrefixFunctionName = functionName.substring(startIdx > -1 ? startIdx + 1 : 0, functionName.length());
+
+			Scriptable scope = null;
+			Function f = null;
+
+			FormScope formScope = formController.getFormScope();
+
+			f = formScope.getFunctionByName(noPrefixFunctionName);
+			if (f != null && f != Scriptable.NOT_FOUND)
+			{
+				scope = formScope;
+			}
+
+			if (scope == null)
+			{
+				ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(functionName);
+				if (scriptMethod != null)
 				{
-					decryptedScript += ",";
+					scope = formController.getApplication().getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
 				}
-				else
+				if (scope != null)
 				{
-					decryptedScript += ")";
+					f = ((GlobalScope)scope).getFunctionByName(noPrefixFunctionName);
 				}
+			}
+
+			try
+			{
+				return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, javaArguments.toArray(), false, false);
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+				return null;
 			}
 		}
 		return decryptedScript != null ? formController.eval(decryptedScript) : null;

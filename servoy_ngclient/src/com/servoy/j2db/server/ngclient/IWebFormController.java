@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 
 /**
  * @author jcompagner
@@ -35,7 +36,7 @@ public interface IWebFormController extends IFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IForm#getFoundSet()
 	 */
 	@Override
@@ -56,4 +57,6 @@ public interface IWebFormController extends IFormController
 	void setNavigatorProperties(Map<String, Object> navigatorProperties);
 
 	Map<String, Object> getNavigatorProperties();
+
+	public RuntimeWebComponent[] getWebComponentElements();
 }

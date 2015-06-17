@@ -54,7 +54,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 @SuppressWarnings("nls")
-public class WebFormUI extends Container implements IWebFormUI
+public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 {
 	/**
 	 *

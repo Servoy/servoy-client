@@ -54,7 +54,7 @@ angular.module('window',['servoy'])
 				args = contextFilter;
 				contextFilter = null;
 			}
-			shortcut.add(this.translateSwingShortcut(shortcutcombination),this.getCallbackFunction(callback, contextFilter,args),{'propagate':false,'disable_in_input':false});
+			shortcut.add(this.translateSwingShortcut(shortcutcombination),this.getCallbackFunction(callback, contextFilter,args,shortcutcombination),{'propagate':false,'disable_in_input':false});
 			if (!scope.model.shortcuts) scope.model.shortcuts = [];
 			scope.model.shortcuts.push({'shortcut': shortcutcombination,'callback':callback,'contextFilter':contextFilter,'arguments':args});
 			return true;
@@ -116,27 +116,50 @@ angular.module('window',['servoy'])
 			}
 			return translatedShortcut;
 		},
-		getCallbackFunction: function(callback,contextFilter,args)
+		getCallbackFunction: function(callback,contextFilter,args,shortcutcombination)
 		{
 			return function(e){
-				if (contextFilter)
-				{
-					var element;
-					if(e.target) element=e.target;
-					else if(e.srcElement) element=e.srcElement;
-					var parent = element;
-					while (parent)
-					{
-						var form = parent.getAttribute("ng-controller");
-						if (form)
-						{
-							if (form != contextFilter && form != 'MainController') return;
+				
+				var targetEl;
+				if(e.target) targetEl=e.target;
+				else if(e.srcElement) targetEl=e.srcElement;
+				
+				var form;
+				var parent = targetEl;
+				var targetElNameChain = new Array();
+				while (parent) {
+					form = parent.getAttribute("ng-controller");
+					if (form) {
+						if (contextFilter && form != contextFilter && form != 'MainController') return;
+						break;				
+					}
+					if(parent.getAttribute("name")) targetElNameChain.push(parent.getAttribute("name"));
+					parent = parent.parentNode;
+				}
+				
+
+				var jsEvent = {svyType: 'jsevent', eventType: shortcutcombination};
+				if(form != 'MainController') {
+					jsEvent.formName = form;
+					var formScope = angular.element(parent).scope();
+					for (var i = 0; i < targetElNameChain.length; i++) {
+						if(formScope.model[targetElNameChain[i]]) {
+							jsEvent.elementName = targetElNameChain[i];
 							break;
 						}
-						parent = parent.parentNode;
 					}
 				}
-				$window.executeInlineScript(callback.formname,callback.script,args);
+				
+				var argsWithEvent = [jsEvent];// append args
+				if(args != null) {
+					if(args.length) {
+						argsWithEvent = argsWithEvent.concat(args);
+					}
+					else {
+						argsWithEvent.push(args);
+					}
+				}
+				$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
 			};
 		},
 		
@@ -291,7 +314,7 @@ angular.module('window',['servoy'])
 			// handle just refresh page case, need to reinstall all shortcuts again
 			for (var i=0;i<newvalue.shortcuts.length;i++)
 			{
-				shortcut.add(window.translateSwingShortcut(newvalue.shortcuts[i].shortcut),window.getCallbackFunction(newvalue.shortcuts[i].callback,newvalue.shortcuts[i].contextFilter,newvalue.shortcuts[i].arguments),{'propagate':true,'disable_in_input':false});
+				shortcut.add(window.translateSwingShortcut(newvalue.shortcuts[i].shortcut),window.getCallbackFunction(newvalue.shortcuts[i].callback,newvalue.shortcuts[i].contextFilter,newvalue.shortcuts[i].arguments,newvalue.shortcuts[i].shortcut),{'propagate':true,'disable_in_input':false});
 			}
 		}
 		if (newvalue && newvalue.popupform && !oldvalue.popupform)

@@ -103,5 +103,7 @@ public class Types
 				return new NGCustomJSONObjectType(typeName, null);
 			}
 		});
+
+		TypesRegistry.addType(JSEventType.INSTANCE);
 	}
 }

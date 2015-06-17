@@ -156,8 +156,12 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 
 	protected SabloWT wrap(SabloT value)
 	{
-		IWrapperType<SabloT, SabloWT> wt = (IWrapperType<SabloT, SabloWT>)elementTypeDefinition.getType();
-		return wt.wrap(value, null /* we never store the wrapped value here... */, new DataConverterContext(elementTypeDefinition, componentOrService));
+		if (elementTypeDefinition.getType() instanceof IWrapperType)
+		{
+			IWrapperType<SabloT, SabloWT> wt = (IWrapperType<SabloT, SabloWT>)elementTypeDefinition.getType();
+			return wt.wrap(value, null /* we never store the wrapped value here... */, new DataConverterContext(elementTypeDefinition, componentOrService));
+		}
+		else return (SabloWT)value;
 	}
 
 	/**
