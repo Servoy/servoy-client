@@ -631,7 +631,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						// in updatingFormUrl must be cleared as this form will show or is already showing elsewhere
 						$rootScope.updatingFormUrl = '';
 						delete $rootScope.updatingFormName;
-					} else $log.error("svy * Unexpected: a form is being loaded twice at the same time(" + formName + ")");
+					} 
+					else 
+						$log.error("svy * Unexpected: a form is being loaded twice at the same time(" + formName + ")");
 
 					if (inHiddenDiv) {
 						tElem.empty(); // don't allow loading stuff further in this directive - so effectively blocks the form from loading in $rootScope.updatingFormUrl

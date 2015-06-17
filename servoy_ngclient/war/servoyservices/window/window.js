@@ -206,10 +206,13 @@ angular.module('window',['servoy'])
 			var popup = angular.element("#formpopup");
 			if (popup)
 			{
-				$sabloApplication.getFormState(scope.model.popupform.form).then(function(formState){
-					formState.getScope().$destroy();
-					popup.remove();
-		    	});
+				if (scope.model.popupform){
+					var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(scope.model.popupform.form);
+					if (formState) {
+						formState.getScope().$destroy();
+					}
+				}
+				popup.remove();
 			}
 			scope.model.popupform = null;
 		},
@@ -291,7 +294,7 @@ angular.module('window',['servoy'])
 				shortcut.add(window.translateSwingShortcut(newvalue.shortcuts[i].shortcut),window.getCallbackFunction(newvalue.shortcuts[i].callback,newvalue.shortcuts[i].contextFilter,newvalue.shortcuts[i].arguments),{'propagate':true,'disable_in_input':false});
 			}
 		}
-		if (newvalue && newvalue.popupform)
+		if (newvalue && newvalue.popupform && !oldvalue.popupform)
 		{
 			window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height);
 		}
