@@ -176,14 +176,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			// day in year 
 			ret = ret.replaceAll('D',getDayInYear(data))
 		}
-		ret= $filter('date')(data,ret);
-		if(ret.indexOf('E')!=-1){
-			var last = ret.lastIndexOf('E');
-			var first = ret.indexOf('E') ;
-			var nrChars = last - first + 1;
-			if (nrChars >= 1 && nrChars <= 3) ret = ret.substring(0,first-1) + ' ' + ($locale.DATETIME_FORMATS.DAY[data.getDay()]).substring(0, 3) + ret.substring(last + 1,ret.length); 
-			if (nrChars >= 4 && nrChars <= 6) ret = ret.substring(0,first-1) + ' ' + $locale.DATETIME_FORMATS.DAY[data.getDay()] + ret.substring(last + 1,ret.length); 
-		}		
+		
 		if(ret.indexOf('G')!= -1){
 			// 	Era designator
 			var AD_BC_border= new Date('1/1/1').setFullYear(0);
@@ -221,8 +214,16 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			}
 			ret = ret.replaceAll('K+',hours)
 		}
+		ret= $filter('date')(data,ret);
+		if(ret.indexOf('E')!=-1){
+			var last = ret.lastIndexOf('E');
+			var first = ret.indexOf('E') ;
+			var nrChars = last - first + 1;
+			if (nrChars >= 1 && nrChars <= 3) ret = ret.substring(0,first-1) + ' ' + ($locale.DATETIME_FORMATS.DAY[data.getDay()]).substring(0, 3) + ret.substring(last + 1,ret.length); 
+			if (nrChars >= 4 && nrChars <= 6) ret = ret.substring(0,first-1) + ' ' + ($locale.DATETIME_FORMATS.DAY[data.getDay()]) + ret.substring(last + 1,ret.length); 
+		}		
 
-		return ret
+		return ret.trim()
 	}
 
 	return{
