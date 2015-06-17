@@ -177,9 +177,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			{
 				element.on(domEvent, function(event) {
 					if (!filterFunction || filterFunction(event)) {
-						if (!timeout) timeout = 0;
-						// always use timeout because this event could be triggered by a angular call (requestFocus) thats already in a digest cycle.
-						$timeout(function(){
+						
+						function executeHandler(){
 							//svyApply before calling the handler
 							if(doSvyApply && dataproviderString)
 							{
@@ -196,7 +195,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								}
 							}
 							fn(scope, {$event:event});
-						},timeout);
+						};
+						// always use timeout or evalAsync because this event could be triggered by a angular call (requestFocus) thats already in a digest cycle.
+						if (!timeout) 
+							scope.$evalAsync(executeHandler);
+						else
+							$timeout(executeHandler,timeout);
+						
 						if (returnFalse) return false;
 						return true;
 					}
@@ -405,7 +410,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur', null, 100);
+			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur');
 		}
 	};
 }).directive('svyBorder',  function () {
