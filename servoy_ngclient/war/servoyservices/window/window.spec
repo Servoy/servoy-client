@@ -135,7 +135,7 @@
 		  	"foregroundColor": "string",
 		  	"selected": "boolean",
 		  	"accelarator": "string",
-		  	"args": "object[]",
+		  	"methodArguments": "object[]",
 		  	"cssClass": "string",
 		  	"items": "menuitem[]"
 		}

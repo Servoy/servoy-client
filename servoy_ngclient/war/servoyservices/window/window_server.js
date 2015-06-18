@@ -56,14 +56,14 @@ var MenuItem = {
 	
 	setMethodArguments: function(args)
 	{
-		this.args = args;
+		this.methodArguments = args;
 	},
 	
 	getMethodArguments: function()
 	{
-		if (this.args == undefined)
+		if (this.methodArguments == undefined)
 			return null;
-		return this.args;
+		return this.methodArguments;
 	},
 	
 	setSelected: function(selected)

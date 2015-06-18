@@ -271,7 +271,7 @@ angular.module('window',['servoy'])
 					var mi = new YAHOO.widget.MenuItem(text);
 					if (items[j].callback) {
 						mi.cfg.setProperty('onclick', {fn:function(index) {return function(){
-							$window.executeInlineScript(items[index].callback.formname,items[index].callback.script,items[index].args)
+							$window.executeInlineScript(items[index].callback.formname,items[index].callback.script,items[index].methodArguments)
 							}}(j)
 						});
 					}
