@@ -120,7 +120,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.AbstractBase#equals(java.lang.Object)
 	 */
 	@Override
@@ -135,7 +135,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IWebObject#setName(java.lang.String)
 	 */
 	@Override
@@ -146,7 +146,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IWebObject#getName()
 	 */
 	@Override
@@ -158,7 +158,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	/**
 	 * @return the jsonKey
 	 */
-	String getJsonKey()
+	public String getJsonKey()
 	{
 		return jsonKey;
 	}
