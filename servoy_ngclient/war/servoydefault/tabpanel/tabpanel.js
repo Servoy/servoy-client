@@ -76,7 +76,10 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						break;
 					}
 				}
-				return $scope.model.selectedTab?$scope.svyServoyapi.getFormUrl($scope.model.selectedTab.containsFormId):"";
+				if ($scope.model.selectedTab && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])
+					return $scope.svyServoyapi.getFormUrl($scope.model.selectedTab.containsFormId);
+				else
+					return "";
 			}
 
 			$scope.getSelectedTab = function() {
