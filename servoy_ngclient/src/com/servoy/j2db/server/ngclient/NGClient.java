@@ -125,7 +125,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -768,8 +768,15 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
-			new Object[] { url, target, target_options, timeout });
+		try
+		{
+			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("showUrl",
+				new Object[] { url, target, target_options, timeout });
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
 		return true;
 	}
 
