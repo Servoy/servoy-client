@@ -859,6 +859,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(430, IRepository.WEBCOMPONENTS, PROPERTY_JSON.getPropertyName(), IRepository.JSON, null);
 			cs.new Element(431, IRepository.WEBCOMPONENTS, PROPERTY_FORMINDEX.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(432, IRepository.WEBCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(433, IRepository.WEBCOMPONENTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
 		}
 		//##add property adds here
 		return cs;
