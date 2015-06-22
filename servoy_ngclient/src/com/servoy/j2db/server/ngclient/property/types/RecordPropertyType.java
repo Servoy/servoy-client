@@ -17,17 +17,12 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -40,11 +35,10 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  * @author lvostinar
  *
  */
-public class RecordPropertyType extends DefaultPropertyType<Record> implements IClassPropertyType<Record>, IFormElementToTemplateJSON<Record, Record>
+public class RecordPropertyType extends ReferencePropertyType<Record> implements IClassPropertyType<Record>, IFormElementToTemplateJSON<Record, Record>
 {
 	public static final RecordPropertyType INSTANCE = new RecordPropertyType();
 	public static final String TYPE_NAME = "record"; //$NON-NLS-1$
-	private final List<WeakReference<Record>> allRecords = new ArrayList<WeakReference<Record>>();
 
 	protected RecordPropertyType()
 	{
@@ -62,20 +56,7 @@ public class RecordPropertyType extends DefaultPropertyType<Record> implements I
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonRecord = (JSONObject)newJSONValue;
-			int recordHashCode = jsonRecord.optInt("recordhash");
-			if (recordHashCode > 0)
-			{
-				for (int i = 0; i <= allRecords.size(); i++)
-				{
-					WeakReference<Record> wr = allRecords.get(i);
-					Record record = wr.get();
-					if (record != null && record.hashCode() == recordHashCode)
-					{
-						return record;
-					}
-				}
-			}
-
+			return getReference(jsonRecord.optInt("recordhash"));
 		}
 		return null;
 	}
@@ -86,14 +67,9 @@ public class RecordPropertyType extends DefaultPropertyType<Record> implements I
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
-		writer.key("recordhash").value(sabloValue.hashCode());
+		writer.key("recordhash").value(addReference(sabloValue));
 		writer.key("svyType").value(getName());
 		writer.endObject();
-		WeakReference<Record> wf = new WeakReference<Record>(sabloValue);
-		if (!allRecords.contains(wf))
-		{
-			allRecords.add(wf);
-		}
 		return writer;
 	}
 
