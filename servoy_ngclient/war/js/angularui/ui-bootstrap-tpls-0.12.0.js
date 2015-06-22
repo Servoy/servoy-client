@@ -3628,6 +3628,12 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         }
       });
 
+      var ignoreNextFocusGain= false;
+      element.bind('focus',  function(ev) { 
+    	  if (!ignoreNextFocusGain) getMatchesAsync("");
+    	  else ignoreNextFocusGain = false;
+      });
+      
       var getMatchesAsync = function(inputValue) {
 
         var locals = {$viewValue: inputValue};
@@ -3637,7 +3643,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           //it might happen that several async queries were in progress if a user were typing fast
           //but we are interested only in responses that correspond to the current view value
           var onCurrentRequest = (inputValue === modelCtrl.$viewValue);
-          if (onCurrentRequest && hasFocus) {
+          if ((onCurrentRequest && hasFocus) || ("" === inputValue)) {
             if (matches.length > 0) {
 
               scope.activeIdx = focusFirst ? 0 : -1;
@@ -3770,7 +3776,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
         //return focus to the input element if a match was selected via a mouse click event
         // use timeout to avoid $rootScope:inprog error
-        $timeout(function() { element[0].focus(); }, 0, false);
+        $timeout(function() {  ignoreNextFocusGain = true; element[0].focus();}, 0, false);
       };
 
       //bind keyboard events: arrows up(38) / down(40), enter(13) and tab(9), esc(27)

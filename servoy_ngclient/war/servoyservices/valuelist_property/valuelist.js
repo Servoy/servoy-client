@@ -20,15 +20,13 @@ angular.module('valuelist_property', ['webSocketModule'])
 					{
 						value:  function(filterString) {
 							var retVal = serverJSONValue;
+								
+							var deferred = $q.defer();
+							internalState.deferredFilter = deferred;
+							retVal = deferred.promise;
 
-							if (filterString) {
-								var deferred = $q.defer();
-								internalState.deferredFilter = deferred;
-								retVal = deferred.promise;
-
-								internalState.filterStringReq = filterString;
-								if (internalState.changeNotifier) internalState.changeNotifier();
-							}
+							internalState.filterStringReq = filterString;
+							if (internalState.changeNotifier) internalState.changeNotifier();
 
 							return retVal;
 						},
