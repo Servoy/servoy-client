@@ -33,6 +33,8 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
@@ -278,6 +280,51 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
+	private String[] getGlobalDPFromRelatedDP(String[] dataproviders)
+	{
+		ArrayList<String> returnDP = new ArrayList<>();
+		for (String dp : dataproviders)
+		{
+			if (dp != null && !ScopesUtils.isVariableScope(dp))
+			{
+				int idx = dp.lastIndexOf('.');
+				if (idx != -1) //handle related fields
+				{
+					Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(dp.substring(0, idx));
+					if (relations != null)
+					{
+						for (Relation relation : relations)
+						{
+							if (relation.isValid() && relation.isGlobal())
+							{
+								try
+								{
+									IDataProvider[] dps = relation.getPrimaryDataProviders(getApplication().getFlattenedSolution());
+									for (IDataProvider idp : dps)
+									{
+										String rdp = idp.getDataProviderID();
+										if (ScopesUtils.isVariableScope(rdp))
+										{
+											returnDP.add(rdp);
+										}
+									}
+								}
+								catch (RepositoryException ex)
+								{
+									Debug.error(ex);
+								}
+							}
+						}
+						continue;
+					}
+				}
+			}
+			returnDP.add(dp);
+		}
+
+		return returnDP.toArray(new String[returnDP.size()]);
+	}
+
 	public void addDataLinkedProperty(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
 	{
 		if (targetDataLinks == TargetDataLinks.NOT_LINKED_TO_DATA || targetDataLinks == null) return;
@@ -286,6 +333,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (dataproviders == null)
 		{
 			dataproviders = new String[] { null };
+		}
+		else
+		{
+			dataproviders = getGlobalDPFromRelatedDP(dataproviders);
 		}
 		for (String dpID : dataproviders)
 		{
