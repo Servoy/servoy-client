@@ -141,6 +141,10 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						if ($log.debugEnabled) $log.debug("svy * Will hide previously selected form (tab): " + $scope.model.selectedTab.containsFormId);
 						promise.then(function(ok) {
 							if ($log.debugEnabled) $log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);
+							
+							//form to hide was destroyed, delete it from waitingForServerVisibility and show the new one
+							if (ok=="destroyed") ok = true;
+							
 							delete $scope.waitingForServerVisibility[formInWait];
 							if (ok) {
 								setFormVisible(tab,selectEvent);

@@ -128,6 +128,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				{
 					controller = getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 				}
+				if (controller == null) return "destroyed";
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				boolean isVisible = args.getBoolean("visible");
 				WebFormComponent containerComponent = null;
