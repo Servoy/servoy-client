@@ -29,15 +29,14 @@ import javax.swing.event.ListDataListener;
 
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.EditRecordList;
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Selection model that will always keep at least one row selected 
- * 
+ * Selection model that will always keep at least one row selected
+ *
  * @author gboros
  */
 public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel implements ListDataListener
@@ -75,7 +74,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	}
 
 	/**
-	 * 	used to allow setting the selection to -1 when size >0  for printing 
+	 * 	used to allow setting the selection to -1 when size >0  for printing
 	 */
 	public void hideSelectionForPrinting()
 	{
@@ -91,7 +90,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			if (fco.isFormVisible())
 			{
 				EditRecordList editRecordList = fco.getApplication().getFoundSetManager().getEditRecordList();
-				IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)fco.getFoundSet());
+				IRecord[] editedRecords = editRecordList.getEditedRecords(fco.getFoundSet());
 				if (editedRecords.length > 0)
 				{
 					int stopEditing = editRecordList.stopEditing(false, Arrays.asList(editedRecords));
@@ -125,6 +124,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 //			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();
+				int selectionWasChangedTo = -1;
 				if (selectedRow >= index0 && selectedRow <= index1 && foundset.getSize() > 0)
 				{
 
@@ -139,9 +139,17 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 					}
 					// i have to call the setSelectionInterval else our methods will test if the record is there, but it can be that a selection is set
 					// that will just fall out of the foundset size (== foundset size) but the super.removeIndexInterval will adjust this.
-					if (selection != selectedRow) super.setSelectionInterval(selection, selection);
+					if (selection != selectedRow)
+					{
+						super.setSelectionInterval(selection, selection); // this call can trigger onRecordSelect handler
+						int realSelection = getSelectedRow(); // which can change the selected record
+						if (realSelection != selection) selectionWasChangedTo = realSelection; //so we save it so we can restore it after super.removeIndexInterval
+					}
+
 				}
 				super.removeIndexInterval(index0, index1);
+				if (selectionWasChangedTo > -1) super.setSelectionInterval(selectionWasChangedTo, selectionWasChangedTo); // see case https://support.servoy.com/browse/SVY-8347
+
 			}
 //			else
 //			{
@@ -228,7 +236,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.DefaultListSelectionModel#fireValueChanged(int, int, boolean)
 	 */
 	@Override
@@ -306,7 +314,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.DefaultListSelectionModel#setSelectionInterval(int, int)
 	 */
 	@Override
@@ -325,7 +333,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.DefaultListSelectionModel#setAnchorSelectionIndex(int)
 	 */
 	@Override
