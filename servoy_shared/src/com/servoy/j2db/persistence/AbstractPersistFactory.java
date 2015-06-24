@@ -469,4 +469,9 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 		return updatedElementIds;
 	}
 
+	public void clearUUIDMap()
+	{
+		uuid_element_id_map.clear();
+	}
+
 }
