@@ -23,6 +23,7 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -206,7 +207,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				{
 					IWebFormController formController = getApplication().getFormManager().getForm(newVisibleForm.getLeft());
 					addRelatedForm(formController, newVisibleForm.getRight(), true);
-					formController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight()) : null);
+					formController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight(),
+						((BasicFormController)formController).getDefaultSortColumns()) : null);
 				}
 				else
 				{
@@ -464,7 +466,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			for (IWebFormController form : relatedForms.keySet())
 			{
-				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form)) : null);
+				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form), ((BasicFormController)form).getDefaultSortColumns()) : null);
 			}
 		}
 		finally
