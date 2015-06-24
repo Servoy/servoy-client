@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +30,6 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -40,8 +40,10 @@ import org.sablo.specification.property.types.VisiblePropertyType;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.ISupportAnchors;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IInstanceOf;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -50,6 +52,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -151,10 +154,20 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 		}
-		Function func = apiFunctions.get(name);
+		final Function func = apiFunctions.get(name);
 		if (func != null)
 		{
-			return func;
+			final List<Pair<String, String>> oldVisibleForms = getVisibleForms();
+			return new Callable()
+			{
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					Object retValue = func.call(cx, scope, thisObj, args);
+					updateVisibleContainers(oldVisibleForms);
+					return retValue;
+				}
+			};
 		}
 		// check if we have a setter/getter for this property
 		if (name != null && name.length() > 0)
@@ -176,16 +189,15 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		{
 			return new Callable()
 			{
-
 				@Override
 				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 				{
-					Container parent = component.getParent();
-					while (!(parent instanceof IWebFormUI))
+					IWebFormUI parent = component.findParent(IWebFormUI.class);
+					if (parent != null)
 					{
-						parent = parent.getParent();
+						return parent.getController().getName();
 					}
-					return ((IWebFormUI)parent).getController().getName();
+					return null;
 				}
 			};
 		}
@@ -235,6 +247,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
+		List<Pair<String, String>> oldVisibleForms = getVisibleForms();
 		if (specProperties != null && specProperties.contains(name))
 		{
 			Object previousVal = component.getProperty(name);
@@ -288,12 +301,84 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 						// call setter
 						Function propertySetter = apiFunctions.get("set" + uName);
 						propertySetter.call(Context.getCurrentContext(), start, start, new Object[] { value });
-						return;
+					}
+					else
+					{
+						prototypeScope.put(name, start, value);
 					}
 				}
-				prototypeScope.put(name, start, value);
 			}
 		}
+		updateVisibleContainers(oldVisibleForms);
+	}
+
+	private List<Pair<String, String>> getVisibleForms()
+	{
+		List<Pair<String, String>> visibleContainedForms = new ArrayList<Pair<String, String>>();
+		// legacy for now, should we do it more general, from the spec
+		if (component.getFormElement() != null && component.getFormElement().getPersistIfAvailable() instanceof TabPanel)
+		{
+			Object tabIndex = component.getProperty("tabIndex");
+			Object tabs = component.getProperty("tabs");
+			if (tabs instanceof List && ((List)tabs).size() > 0)
+			{
+				List tabsList = (List)tabs;
+				TabPanel tabpanel = (TabPanel)component.getFormElement().getPersistIfAvailable();
+				if (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
+				{
+					for (int i = 0; i < tabsList.size(); i++)
+					{
+						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+						String relationName = (String)tab.get("relationName");
+						Object form = tab.get("containsFormId");
+						if (relationName != null && form instanceof String)
+						{
+							visibleContainedForms.add(new Pair<String, String>((String)form, relationName));
+						}
+					}
+				}
+				else
+				{
+					Map<String, Object> visibleTab = null;
+					if (tabIndex instanceof Number && tabsList.size() > 0 && ((Number)tabIndex).intValue() <= tabsList.size())
+					{
+						int index = ((Number)tabIndex).intValue() - 1;
+						if (index < 0)
+						{
+							index = 0;
+						}
+						visibleTab = (Map<String, Object>)(tabsList.get(index));
+					}
+					else if (tabIndex instanceof String)
+					{
+						for (int i = 0; i < tabsList.size(); i++)
+						{
+							Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+							if (Utils.equalObjects(tabIndex, tab.get("name")))
+							{
+								visibleTab = tab;
+								break;
+							}
+						}
+					}
+					if (visibleTab != null)
+					{
+						String relationName = (String)visibleTab.get("relationName");
+						Object form = visibleTab.get("containsFormId");
+						if (relationName != null && form instanceof String)
+						{
+							visibleContainedForms.add(new Pair<String, String>((String)form, relationName));
+						}
+					}
+				}
+			}
+		}
+		return visibleContainedForms;
+	}
+
+	private void updateVisibleContainers(List<Pair<String, String>> oldForms)
+	{
+		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedForms(oldForms, getVisibleForms());
 	}
 
 	@Override

@@ -51,6 +51,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.Utils;
 
 
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
@@ -67,6 +68,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final IWebFormController formController;
 	private final EventExecutor executor;
 	private final WeakHashMap<IWebFormController, String> relatedForms = new WeakHashMap<>();
+	private final Map<String, String> uninitializedRelatedForms = new HashMap<String, String>();
+	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
 	private IRecordInternal record;
 //	private boolean findMode;
@@ -193,6 +196,50 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
+	public void updateRelatedForms(List<Pair<String, String>> oldForms, List<Pair<String, String>> newForms)
+	{
+		if (newForms != null)
+		{
+			for (Pair<String, String> newVisibleForm : newForms)
+			{
+				if (!oldForms.contains(newVisibleForm))
+				{
+					IWebFormController formController = getApplication().getFormManager().getForm(newVisibleForm.getLeft());
+					addRelatedForm(formController, newVisibleForm.getRight(), true);
+					formController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight()) : null);
+				}
+				else
+				{
+					oldForms.remove(newVisibleForm);
+				}
+			}
+		}
+		if (oldForms != null)
+		{
+			for (Pair<String, String> oldForm : oldForms)
+			{
+				if (Utils.equalObjects(uninitializedRelatedForms.get(oldForm.getLeft()), oldForm.getRight()))
+				{
+					uninitializedRelatedForms.remove(oldForm.getLeft());
+				}
+				for (IWebFormController relatedController : relatedForms.keySet())
+				{
+					if (Utils.equalObjects(relatedController.getName(), oldForm.getLeft()) &&
+						Utils.equalObjects(oldForm.getRight(), relatedForms.get(relatedController)))
+					{
+						relatedForms.remove(relatedController);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	public void addUninitializedRelatedForm(String formName, String relationName)
+	{
+		uninitializedRelatedForms.put(formName, relationName);
+	}
+
 	public void addRelatedForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController)
 	{
 		if (shouldUpdateParentFormController)
@@ -248,8 +295,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		return relatedForms;
 	}
-
-	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
 	public void addParentRelatedForm(IWebFormController form)
 	{
@@ -408,13 +453,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				pushChangedValues(null, fireChangeEvent);
 				this.record.addModificationListener(this);
 			}
-
+			if (uninitializedRelatedForms.size() > 0)
+			{
+				//a record is set, we must initialize related forms, legacy behavior from sc/wc
+				for (String formName : uninitializedRelatedForms.keySet())
+				{
+					addRelatedForm(getApplication().getFormManager().getForm(formName), uninitializedRelatedForms.get(formName), true);
+				}
+				uninitializedRelatedForms.clear();
+			}
 			for (IWebFormController form : relatedForms.keySet())
 			{
-				if (form.isFormVisible())
-				{
-					form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form)) : null);
-				}
+				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form)) : null);
 			}
 		}
 		finally
@@ -695,5 +745,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		dataProviderToLinkedComponentProperty.clear();
 		allComponentPropertiesLinkedToData.clear();
 		findModeAwareProperties.clear();
+		parentRelatedForms.clear();
+		relatedForms.clear();
+		uninitializedRelatedForms.clear();
 	}
 }
