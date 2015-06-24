@@ -212,5 +212,9 @@ div.svy-label-with-focus:focus{
 }
 .modal-backdrop
 {
-	height: 100%
+	height: 100%;
+}
+.svyPortalGridStyle .form-control[readonly]
+{
+	cursor : default;
 }
