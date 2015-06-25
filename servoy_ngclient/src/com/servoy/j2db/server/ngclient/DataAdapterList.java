@@ -617,7 +617,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), dataProviderID, v);
 			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChange();
-			if (onDataChange != null && webComponent.hasEvent(onDataChange))
+			if (onDataChange != null && !Utils.equalObjects(oldValue, v) && webComponent.hasEvent(onDataChange))
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange);
 				Object returnValue = null;
