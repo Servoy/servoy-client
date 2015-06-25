@@ -62,7 +62,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
 	 */
 	@Override
@@ -122,7 +122,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.ISmartPropertyValue#detach()
 	 */
 	@Override
@@ -162,5 +162,21 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	public boolean getOldOppositeOfValue()
 	{
 		return savedOppositeOfValue;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof ReadonlySabloValue)
+		{
+			return ((ReadonlySabloValue)obj).readOnly == readOnly;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return readOnly ? 1231 : 1237;
 	}
 }
