@@ -389,7 +389,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			    			// this will be a change that will be recorded by the dom element itself
 			    			if (callChangeOnBlur) {
 			    				element.off("blur", callChangeOnBlur);
-			    				element.off("keypress", enterKeyCheck);
+			    				element.off("keydown", enterKeyCheck);
 								callChangeOnBlur = null;
 			    			}
 			    		}
