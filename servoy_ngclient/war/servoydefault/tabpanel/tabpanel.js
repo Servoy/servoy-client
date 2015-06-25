@@ -40,7 +40,8 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 					}
 				
 				if ($scope.model.tabs){
-					delete $scope.model.selectedTab;
+					var selectedTabNotFound = true;
+					
 					for(i=0; i<$scope.model.tabs.length; i++) {
 						
 						if (i === realTabIndex)
@@ -50,8 +51,15 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						}
 						else 
 							$scope.model.tabs[i].active = false;
+						
+						if ($scope.model.tabs[i] === $scope.model.selectedTab)
+							selectedTabNotFound = false;
+						
 						$scope.model.tabs[i].disabled = false;
 					}
+					
+					if (selectedTabNotFound)
+						delete $scope.model.selectedTab;
 				}
 			}
 
