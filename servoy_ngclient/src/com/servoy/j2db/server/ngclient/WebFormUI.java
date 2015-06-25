@@ -434,6 +434,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				}
 			};
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
+			setReadOnly((Boolean)parentContainer.getProperty(READONLY));
 			parentEnabledListener = new PropertyChangeListener()
 			{
 				@Override
