@@ -5,6 +5,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 }).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication) {
 
 	var deferredProperties = {};
+	
+	var latestApplyCall = {};
 
 	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier, componentScope) {
 
@@ -304,7 +306,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				} else {
 					changes[property] = $sabloUtils.convertClientObject(formState.model[beanname][property]);
 				}
-				$sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
+				if (latestApplyCall.formname === formname && latestApplyCall.beanname === beanname && latestApplyCall.property === property && angular.equals(changes,latestApplyCall.changes)) {
+					return;
+				}
+				latestApplyCall.formname = formname;
+				latestApplyCall.beanname = beanname;
+				latestApplyCall.property = property;
+				latestApplyCall.changes = changes;
+				$sabloApplication.callService('formService', 'svyPush', latestApplyCall, true)
 			});
 		}
 	}
