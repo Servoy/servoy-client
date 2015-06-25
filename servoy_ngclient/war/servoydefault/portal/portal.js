@@ -1,10 +1,10 @@
 angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
-                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q",
+                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication",
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -820,8 +820,16 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					}
 					$scope.gridApi.grid.refreshCanvas(true);
 				}
-				
+
 				$timeout(function(){
+					
+					// this is only needed because of the $timeout, it can happen that the form
+					// is already destroyed, so, we do an extra check here to avoid further exceptions
+					if($scope.$parent.formname != undefined && !$sabloApplication.hasFormState($scope.$parent.formname)) {
+						// form is already destroyed
+						return;
+					}					
+					
 					layoutColumnsAndGrid();
 					
 					// watch for resize and re-layout when needed - but at most once every 200 ms
