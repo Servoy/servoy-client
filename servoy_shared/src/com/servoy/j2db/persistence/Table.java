@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.servoy.j2db.dataprocessing.SortColumn;
@@ -451,8 +452,18 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	}
 
 	/**
-	 * @param oldDataProviderID
+	 * Called when the dataProviderID of a column might have changed - the special double-keyed map we use should get updated.
+	 * For example after an import into the repository, an already initialized table might use new aliases for columns. Or after changing the active solution in developer.
 	 */
+	public void updateDataproviderIDsIfNeeded()
+	{
+		for (Entry<String, Column> entry : columns.entrySet())
+		{
+			// just in case column info dataprovider ID changed
+			columns.put(entry.getKey(), entry.getValue());
+		}
+	}
+
 	public void columnDataProviderIDChanged(String oldDataProviderID)
 	{
 		columns.updateAlias(oldDataProviderID);
@@ -656,4 +667,5 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		}
 		return "<unknown>"; //$NON-NLS-1$
 	}
+
 }

@@ -27,7 +27,7 @@ import java.util.Set;
 
 /**
  * Map with alias for some of the key values.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -65,6 +65,9 @@ public class AliasKeyMap<K, A, V> extends AbstractMap<K, V> implements Serializa
 	@Override
 	public V put(K key, V value)
 	{
+		V old = map.put(key, value);
+		if (old != null) removeAlias(key); // old alias must go away; even if the put value is the same, it's alias might have changed
+
 		A alias = getAlias(value);
 		if (alias != null && !alias.equals(key))
 		{
@@ -74,7 +77,7 @@ public class AliasKeyMap<K, A, V> extends AbstractMap<K, V> implements Serializa
 			}
 			aliases.put(alias, key);
 		}
-		return map.put(key, value);
+		return old;
 	}
 
 	@Override
