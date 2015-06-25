@@ -39,16 +39,20 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						}
 					}
 				
-				if ($scope.model.tabs)
+				if ($scope.model.tabs){
+					delete $scope.model.selectedTab;
 					for(i=0; i<$scope.model.tabs.length; i++) {
+						
 						if (i === realTabIndex)
 						{	
 							$scope.model.tabs[i].active = true;
+							 
 						}
 						else 
 							$scope.model.tabs[i].active = false;
 						$scope.model.tabs[i].disabled = false;
 					}
+				}
 			}
 
 			$scope.$watch("model.tabIndex", function(newValue) {

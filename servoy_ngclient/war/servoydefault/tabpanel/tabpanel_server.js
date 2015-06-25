@@ -50,6 +50,10 @@
        
        $scope.api.removeTabAt = function(index) {
     	   if(index > 0 && index <= $scope.model.tabs.length) {
+    		   
+    		   if ($scope.model.tabs[index] === $scope.model.selectedTab)
+    			   delete $scope.model.selectedTab;
+    		   
         	   for(var i = index - 1; i < $scope.model.tabs.length - 1; i++) {
         		   $scope.model.tabs[i] = $scope.model.tabs[i + 1];
         	   }
@@ -75,6 +79,7 @@
     	   if($scope.model.tabs.length > 0) {
     		   $scope.model.tabs.length = 0;
     		   $scope.model.tabIndex = -1;
+    		   delete $scope.model.selectedTab;
 //    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = " + $scope.model.tabIndex + " (removeAllTabs)");
     		   return true;
     	   }

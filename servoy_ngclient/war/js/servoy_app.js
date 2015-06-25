@@ -1,5 +1,5 @@
 var controllerProvider;
-angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce']).config(function($controllerProvider,$logProvider) {
+angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce', 'ngSanitize']).config(function($controllerProvider,$logProvider) {
 	controllerProvider = $controllerProvider;
 	$logProvider.debugEnabled(false);
 }).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication) {

@@ -149,7 +149,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	
 	function getFormUrl(formName) {
 		var realFormUrl = formTemplateUrls[formName];
-		if (realFormUrl == null) {
+		if (realFormUrl == null || realFormUrl == undefined) {
 			formTemplateUrls[formName] = "";
 			$sabloApplication.callService("$windowService", "touchForm", {name:formName},true);
 		}
