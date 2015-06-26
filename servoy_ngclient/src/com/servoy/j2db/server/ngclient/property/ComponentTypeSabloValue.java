@@ -61,6 +61,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementT
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONArrayType;
 import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONObjectType;
+import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
@@ -132,6 +134,29 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					if (evt.getNewValue() != null) createComponentIfNeededAndPossible();
 				}
 			});
+		}
+		Collection<PropertyDescription> readOnlyPropertiesParent = this.parentComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
+		if (readOnlyPropertiesParent.size() > 0)
+		{
+			PropertyDescription propertyDescParent = readOnlyPropertiesParent.iterator().next();
+			Collection<PropertyDescription> readOnlyPropertiesChild = childComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
+			if (readOnlyPropertiesChild.size() > 0)
+			{
+				final PropertyDescription propertyDescChild = readOnlyPropertiesChild.iterator().next();
+				this.parentComponent.addPropertyChangeListener(propertyDescParent.getName(), new PropertyChangeListener()
+				{
+					@Override
+					public void propertyChange(PropertyChangeEvent evt)
+					{
+						if (evt.getNewValue() != null)
+						{
+							ReadonlySabloValue value = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(((ReadonlySabloValue)evt.getNewValue()).getValue(),
+								(ReadonlySabloValue)childComponent.getProperty(propertyDescChild.getName()), propertyDescChild, childComponent);
+							childComponent.setProperty(propertyDescChild.getName(), value);
+						}
+					}
+				});
+			}
 		}
 	}
 

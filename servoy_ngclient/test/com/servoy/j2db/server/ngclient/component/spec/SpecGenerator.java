@@ -504,7 +504,7 @@ public class SpecGenerator
 //		addReadOnlyModelEntries.add("htmlview");
 		addReadOnlyModelEntries.add("imagemedia");
 //		addReadOnlyModelEntries.add("splitpane");
-//		addReadOnlyModelEntries.add("portal");
+		addReadOnlyModelEntries.add("portal");
 //		addReadOnlyModelEntries.add("rectangle");
 
 
@@ -547,6 +547,7 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName()+"\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName()+ "\"] }");
 		portalTypeMapping.put("findmode", findModeEnabled);
+		portalTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 
 		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();

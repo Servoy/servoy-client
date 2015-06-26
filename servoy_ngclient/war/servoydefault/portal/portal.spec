@@ -22,6 +22,7 @@
 	        "intercellSpacing" : "dimension", 
 	        "location" : "point", 
 	        "multiLine" : "boolean", 
+	        "readOnly" : { "type" : "readOnly", "oppositeOf" : "enabled"}, 
 	        "relatedFoundset" : "foundset", 
 	        "reorderable" : "boolean", 
 	        "resizable" : "boolean", 
