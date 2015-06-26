@@ -71,16 +71,15 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
 		}
-		if(servoyFormat.indexOf("-") > -1) data *=-1;	
 		
 		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
 		partchedFrmt = partchedFrmt.replaceAll('#','0');
 
 		var ret = numeral(data).format(partchedFrmt);
-		
 		if(centIndex>-1) ret = ret.insert(centIndex,'%')
 		if(milIndex>-1) ret = ret.insert(milIndex,MILLSIGN)
+		
 		return ret;
 
 	}
@@ -230,7 +229,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		
 		format : function (data,servoyFormat,type){
 			if((!servoyFormat) || (!type) || (!data) ) return data;
-			if((type == "NUMBER") || (type == "INTEGER")){
+			if((type == "NUMBER") || (type == "INTEGER") || !isNaN(parseFloat(data))){
 				 return formatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
 				return formatText(data,servoyFormat);
@@ -242,7 +241,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		
 		unformat : function(data ,servoyFormat,type){
 			if((!servoyFormat)||(!type) || (!data) ) return data;
-			if((type == "NUMBER") || (type == "INTEGER")){
+			if((type == "NUMBER") || (type == "INTEGER") || !isNaN(parseFloat(data))){
 				return unformatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
 				return data;
@@ -389,7 +388,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			    			// this will be a change that will be recorded by the dom element itself
 			    			if (callChangeOnBlur) {
 			    				element.off("blur", callChangeOnBlur);
-			    				element.off("keydown", enterKeyCheck);
+			    				element.off("keypress", enterKeyCheck);
 								callChangeOnBlur = null;
 			    			}
 			    		}
