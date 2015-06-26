@@ -197,18 +197,37 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-	public void updateRelatedForms(List<Pair<String, String>> oldForms, List<Pair<String, String>> newForms)
+	public void updateRelatedVisibleForms(List<Pair<String, String>> oldForms, List<Pair<String, String>> newForms)
 	{
+		if (oldForms != null)
+		{
+			for (Pair<String, String> oldForm : oldForms)
+			{
+				if (!newForms.contains(oldForm))
+				{
+					IWebFormController formController = getApplication().getFormManager().getForm(oldForm.getLeft());
+					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+					formController.notifyVisible(false, invokeLaterRunnables);
+					Utils.invokeLater(getApplication(), invokeLaterRunnables);
+				}
+			}
+		}
 		if (newForms != null)
 		{
 			for (Pair<String, String> newVisibleForm : newForms)
 			{
 				if (!oldForms.contains(newVisibleForm))
 				{
-					IWebFormController formController = getApplication().getFormManager().getForm(newVisibleForm.getLeft());
-					addRelatedForm(formController, newVisibleForm.getRight(), true);
-					formController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight(),
-						((BasicFormController)formController).getDefaultSortColumns()) : null);
+					IWebFormController newFormController = getApplication().getFormManager().getForm(newVisibleForm.getLeft());
+					addRelatedForm(newFormController, newVisibleForm.getRight(), true);
+					if (newVisibleForm.getRight() != null)
+					{
+						newFormController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight(),
+							((BasicFormController)newFormController).getDefaultSortColumns()) : null);
+					}
+					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+					newFormController.notifyVisible(formController.isFormVisible(), invokeLaterRunnables);
+					Utils.invokeLater(getApplication(), invokeLaterRunnables);
 				}
 				else
 				{
@@ -253,26 +272,31 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			form.getFormUI().getDataAdapterList().addParentRelatedForm(getForm());
 		}
 
-		for (Entry<IWebFormController, String> relatedFormEntry : relatedForms.entrySet())
+		if (relation != null)
 		{
-			IWebFormController relatedForm = relatedFormEntry.getKey();
-			String relatedFormRelation = relatedFormEntry.getValue();
-			if (relatedFormRelation.startsWith(relation) && relatedFormRelation.length() > relation.length())
+			for (Entry<IWebFormController, String> relatedFormEntry : relatedForms.entrySet())
 			{
-				if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
+				IWebFormController relatedForm = relatedFormEntry.getKey();
+				String relatedFormRelation = relatedFormEntry.getValue();
+				if (relatedFormRelation != null)
 				{
-					form.getFormUI().getDataAdapterList().addRelatedForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
-				}
-			}
-			else if (relation.startsWith(relatedFormRelation) && relation.length() > relatedFormRelation.length())
-			{
-				if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
-				{
-					relatedForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation.substring(relatedFormRelation.length() + 1), false);
+					if (relatedFormRelation.startsWith(relation) && relatedFormRelation.length() > relation.length())
+					{
+						if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
+						{
+							form.getFormUI().getDataAdapterList().addRelatedForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
+						}
+					}
+					else if (relation.startsWith(relatedFormRelation) && relation.length() > relatedFormRelation.length())
+					{
+						if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
+						{
+							relatedForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation.substring(relatedFormRelation.length() + 1), false);
+						}
+					}
 				}
 			}
 		}
-
 		relatedForms.put(form, relation);
 	}
 
@@ -466,7 +490,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			for (IWebFormController form : relatedForms.keySet())
 			{
-				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form), ((BasicFormController)form).getDefaultSortColumns()) : null);
+				if (relatedForms.get(form) != null)
+				{
+					form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form), ((BasicFormController)form).getDefaultSortColumns())
+						: null);
+				}
 			}
 		}
 		finally
@@ -723,6 +751,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		for (IFindModeAwarePropertyValue x : findModeAwareProperties)
 		{
 			x.findModeChanged(findMode);
+		}
+	}
+
+	@Override
+	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables)
+	{
+		for (IWebFormController relatedController : relatedForms.keySet())
+		{
+			relatedController.notifyVisible(b, invokeLaterRunnables);
 		}
 	}
 

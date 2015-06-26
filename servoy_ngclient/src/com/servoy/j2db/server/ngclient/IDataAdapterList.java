@@ -71,4 +71,6 @@ public interface IDataAdapterList extends ITagResolver
 	IRecordInternal getRecord();
 
 	void destroy();
+
+	void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables);
 }

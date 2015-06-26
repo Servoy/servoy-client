@@ -185,7 +185,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -555,11 +555,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
 	{
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
-		if (parentFormController != null && !visible && notifyVisibleSuccess)
-		{
-			IWebFormController parentFC = parentFormController.get();
-			if (parentFC != null) parentFC.getFormUI().getDataAdapterList().removeRelatedForm(this, true);
-		}
 		if (notifyVisibleSuccess)
 		{
 			// TODO should notifyVisibleSuccess be altered by this call? See WebFormUI/WebFormComponent notifyVisible calls.

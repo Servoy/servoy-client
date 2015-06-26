@@ -148,7 +148,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				if (it.hasNext())
 				{
 					Tab tab = (Tab)it.next();
-					if (tab.getRelationName() != null && tab.getContainsFormID() > 0)
+					if (tab.getContainsFormID() > 0)
 					{
 						Form form = getApplication().getFlattenedSolution().getForm(tab.getContainsFormID());
 						if (form != null)
@@ -160,7 +160,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				if (it.hasNext() && (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL))
 				{
 					Tab tab = (Tab)it.next();
-					if (tab.getRelationName() != null && tab.getContainsFormID() > 0)
+					if (tab.getContainsFormID() > 0)
 					{
 						Form form = getApplication().getFlattenedSolution().getForm(tab.getContainsFormID());
 						if (form != null)
@@ -503,6 +503,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			retValue = retValue && ((WebFormComponent)component).notifyVisible(visible, invokeLaterRunnables);
 		}
 		if (retValue) setVisible(visible);
+		dataAdapterList.notifyVisible(visible, invokeLaterRunnables);
 		return retValue;
 	}
 

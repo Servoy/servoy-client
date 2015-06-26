@@ -331,9 +331,9 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
 						String relationName = (String)tab.get("relationName");
 						Object form = tab.get("containsFormId");
-						if (relationName != null && form instanceof String)
+						if (form != null)
 						{
-							visibleContainedForms.add(new Pair<String, String>((String)form, relationName));
+							visibleContainedForms.add(new Pair<String, String>(form.toString(), relationName));
 						}
 					}
 				}
@@ -365,9 +365,9 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					{
 						String relationName = (String)visibleTab.get("relationName");
 						Object form = visibleTab.get("containsFormId");
-						if (relationName != null && form instanceof String)
+						if (form != null)
 						{
-							visibleContainedForms.add(new Pair<String, String>((String)form, relationName));
+							visibleContainedForms.add(new Pair<String, String>(form.toString(), relationName));
 						}
 					}
 				}
@@ -378,7 +378,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 	private void updateVisibleContainers(List<Pair<String, String>> oldForms)
 	{
-		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedForms(oldForms, getVisibleForms());
+		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedVisibleForms(oldForms, getVisibleForms());
 	}
 
 	@Override
