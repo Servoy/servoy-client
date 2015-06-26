@@ -256,7 +256,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		QBJoin join;
 		if (alias == null)
 		{
-			name = new UUID().toString();
+			name = UUID.randomUUID().toString();
 			join = null;
 		}
 		else
