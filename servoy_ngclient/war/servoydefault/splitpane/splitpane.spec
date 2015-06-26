@@ -41,6 +41,7 @@
 								"type":"object []"
 			                	}             
 							 ]
+	
 	        },
 	        "getContinuousLayout": {
 	            "returns": "boolean"
@@ -80,6 +81,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getResizeWeight": {
 	            "returns": "double"
@@ -98,6 +100,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabFormNameAt": {
 	            "returns": "string",
@@ -107,6 +110,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabNameAt": {
 	            "returns": "string",
@@ -116,6 +120,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabRelationNameAt": {
 	            "returns": "string",
@@ -125,6 +130,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabTextAt": {
 	            "returns": "string",
@@ -134,6 +140,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getWidth": {
 	            "returns": "int"
@@ -146,6 +153,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "removeAllTabs": {
 	            "returns": "boolean"
@@ -158,6 +166,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "setContinuousLayout": {
 				"parameters":[
@@ -166,6 +175,7 @@
 								"type":"boolean"
 			                	}             
 							 ]
+	
 	        },
 	        "setDividerLocation": {
 				"parameters":[
@@ -174,6 +184,7 @@
 								"type":"double"
 			                	}             
 							 ]
+	
 	        },
 	        "setDividerSize": {
 				"parameters":[
@@ -182,6 +193,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "setLeftForm": {
 	            "returns": "boolean",
@@ -196,6 +208,7 @@
 			            		"optional":true
 			            		}             
 							 ]
+	
 	        },
 	        "setLeftFormMinSize": {
 				"parameters":[
@@ -204,6 +217,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "setMnemonicAt": {
 				"parameters":[
@@ -216,6 +230,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        },
 	        "setResizeWeight": {
 				"parameters":[
@@ -224,6 +239,7 @@
 								"type":"double"
 			                	}             
 							 ]
+	
 	        },
 	        "setRightForm": {
 	            "returns": "boolean",
@@ -238,6 +254,7 @@
 			            		"optional":true
 			            		}             
 							 ]
+	
 	        },
 	        "setRightFormMinSize": {
 				"parameters":[
@@ -246,6 +263,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabEnabledAt": {
 				"parameters":[
@@ -258,6 +276,7 @@
 								"type":"boolean"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabFGColorAt": {
 				"parameters":[
@@ -270,6 +289,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabTextAt": {
 				"parameters":[
@@ -282,6 +302,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        }
 	},
 "types": {

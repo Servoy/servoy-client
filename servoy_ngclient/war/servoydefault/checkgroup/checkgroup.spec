@@ -71,7 +71,10 @@
 								"type":"boolean",
 			            		"optional":true
 			            		}             
-							 ]
+							 ],
+				"delayUntilFormLoad": true,
+			"globalExclusive": true
+
 	        },
 	        "setScroll": {
 				"parameters":[
@@ -84,6 +87,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        }
 	}
 	 

@@ -264,7 +264,10 @@ public class SpecGenerator
 						String functionName = function.getAttributes().getNamedItem("name").getTextContent();
 						if (overriddenClientSideApi.containsKey(functionName))
 						{
-							specModel.getApis().add(overriddenClientSideApi.get(functionName)); // could be extended to check if it already exists, or to handle overloading
+							if (!specModel.getApis().contains(overriddenClientSideApi.get(functionName)))
+							{
+								specModel.getApis().add(overriddenClientSideApi.get(functionName)); // could be extended to check if it already exists, or to handle overloading
+							}
 						}
 						else
 						{
@@ -445,6 +448,8 @@ public class SpecGenerator
 	private static final Map<String, List<String>> metaDataForApi = new HashMap<String, List<String>>();
 	static
 	{
+		overriddenClientSideApi.put("requestFocus", new ApiMethod("requestFocus", "void", Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}),  Arrays.asList(new String[]{"boolean"}), Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}), Arrays.asList(new String[]{"\"delayUntilFormLoad\": true","\"globalExclusive\": true"})));
+
 		// general type mappings
 		repoTypeMapping.put(IRepository.BOOLEAN, "boolean");
 		repoTypeMapping.put(IRepository.STRING, "string");

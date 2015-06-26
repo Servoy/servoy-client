@@ -63,6 +63,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        },
 	        "getThumbnailJPGImage": {
 	            "returns": "byte []",
@@ -78,6 +79,7 @@
 			            		"optional":true
 			            		}             
 							 ]
+	
 	        },
 	        "getWidth": {
 	            "returns": "int"

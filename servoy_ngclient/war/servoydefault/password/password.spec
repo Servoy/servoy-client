@@ -62,7 +62,10 @@
 								"type":"boolean",
 			            		"optional":true
 			            		}             
-							 ]
+							 ],
+				"delayUntilFormLoad": true,
+			"globalExclusive": true
+
 	        }
 	}
 	 

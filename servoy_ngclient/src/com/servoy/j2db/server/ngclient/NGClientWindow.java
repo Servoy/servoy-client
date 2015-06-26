@@ -96,8 +96,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		Map<String, Object> call = new HashMap<>();
 		if (callContributions != null) call.putAll(callContributions);
 
-		IWebFormController form = websocketSession.getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
-		touchForm(form.getForm(), form.getName(), false);
+		if (!isDelayedApiCall(receiver, apiFunction))
+		{
+			IWebFormController form = websocketSession.getClient().getFormManager().getForm(receiver.findParent(IWebFormUI.class).getName());
+			touchForm(form.getForm(), form.getName(), false);
+		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
@@ -246,4 +249,18 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 	}
 
+	@Override
+	protected boolean formLoaded(WebComponent component)
+	{
+		String formName = ((WebFormComponent)component).findParent(IWebFormUI.class).getController().getName();
+		String formUrl = getEndpoint().getFormUrl(formName);
+		if (formUrl != null)
+		{
+			synchronized (formUrl)
+			{
+				return getEndpoint().isFormCreated(formName);
+			}
+		}
+		return false;
+	}
 }

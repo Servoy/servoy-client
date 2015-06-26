@@ -48,9 +48,10 @@
 			            		}<#else>
 			                	}</#if><#if param_has_next>,
 </#if>             </#list>
-<#t>							 ]<#if api.hints??>,<#lt>
-			</#if></#if><#if api.hints??><#list api.hints as hint>            ${hint}<#if hint_has_next>,
-			            </#if></#list></#if><#lt>
+<#t>							 ]<#if api.hints??>,</#if>
+
+	</#if><#if api.hints??><#list api.hints as hint>			${hint}<#if hint_has_next>,</#if>
+			            </#list></#if>
 
 	        }<#if api_has_next>,</#if>
 	    </#list>

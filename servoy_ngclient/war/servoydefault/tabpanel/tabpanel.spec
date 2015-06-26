@@ -81,6 +81,7 @@
 			            		"optional":true
 			            		}             
 							 ]
+	
 	        },
 	        "getFormName": {
 	            "returns": "string"
@@ -105,6 +106,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getSelectedTabFormName": {
 	            "returns": "string"
@@ -117,6 +119,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabFGColorAt": {
 	            "returns": "string",
@@ -126,6 +129,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabFormNameAt": {
 	            "returns": "string",
@@ -135,6 +139,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabNameAt": {
 	            "returns": "string",
@@ -144,6 +149,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabRelationNameAt": {
 	            "returns": "string",
@@ -153,6 +159,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getTabTextAt": {
 	            "returns": "string",
@@ -162,6 +169,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "getWidth": {
 	            "returns": "int"
@@ -174,6 +182,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "isTabEnabledAt": {
 	            "returns": "boolean",
@@ -183,6 +192,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "removeAllTabs": {
 	            "returns": "boolean"
@@ -195,6 +205,7 @@
 								"type":"int"
 			                	}             
 							 ]
+	
 	        },
 	        "setMnemonicAt": {
 				"parameters":[
@@ -207,6 +218,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabBGColorAt": {
 				"parameters":[
@@ -219,6 +231,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabEnabled": {
 				"parameters":[
@@ -231,6 +244,7 @@
 								"type":"boolean"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabEnabledAt": {
 				"parameters":[
@@ -243,6 +257,7 @@
 								"type":"boolean"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabFGColorAt": {
 				"parameters":[
@@ -255,6 +270,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        },
 	        "setTabTextAt": {
 				"parameters":[
@@ -267,6 +283,7 @@
 								"type":"string"
 			                	}             
 							 ]
+	
 	        }
 	},
 "types": {

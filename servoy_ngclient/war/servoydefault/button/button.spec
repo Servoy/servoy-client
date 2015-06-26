@@ -68,6 +68,7 @@
 			            		"optional":true
 			            		}             
 							 ]
+	
 	        },
 	        "getWidth": {
 	            "returns": "int"
@@ -79,7 +80,10 @@
 								"type":"boolean",
 			            		"optional":true
 			            		}             
-							 ]
+							 ],
+				"delayUntilFormLoad": true,
+			"globalExclusive": true
+
 	        }
 	}
 	 

@@ -35,7 +35,6 @@ public class WebFormComponent extends Container implements IContextProvider
 	protected IDataAdapterList dataAdapterList;
 
 	protected PropertyChangeSupport propertyChangeSupport;
-	protected IWebFormUI parentForm;
 	protected ComponentContext componentContext;
 	private IDirtyPropertyListener dirtyPropertyListener;
 
