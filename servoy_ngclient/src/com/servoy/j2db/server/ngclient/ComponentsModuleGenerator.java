@@ -29,6 +29,8 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 
+import com.servoy.j2db.server.ngclient.template.ClientModifiablePropertiesGenerator;
+
 /**
  * @author jcompagner
  *
@@ -38,11 +40,7 @@ import org.sablo.specification.WebServiceSpecProvider;
 @WebServlet("/js/servoy-components.js")
 public class ComponentsModuleGenerator extends HttpServlet
 {
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
@@ -51,6 +49,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 
 		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
 		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
+		generateModule(sb, ClientModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST);
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		resp.setContentLength(sb.length());
@@ -66,31 +65,36 @@ public class ComponentsModuleGenerator extends HttpServlet
 		for (WebComponentSpecification webComponentSpec : webComponentDescriptions)
 		{
 			String name = webComponentSpec.getName();
-			StringBuilder nameSb = new StringBuilder();
-			boolean upperNext = false;
-			for (int i = 0; i < name.length(); i++)
+			generateModule(sb, name);
+		}
+	}
+
+	protected void generateModule(StringBuilder sb, String name)
+	{
+		StringBuilder nameSb = new StringBuilder();
+		boolean upperNext = false;
+		for (int i = 0; i < name.length(); i++)
+		{
+			if (name.charAt(i) == '-')
 			{
-				if (name.charAt(i) == '-')
+				upperNext = true;
+			}
+			else
+			{
+				if (upperNext)
 				{
-					upperNext = true;
+					upperNext = false;
+					nameSb.append(Character.toUpperCase(name.charAt(i)));
 				}
 				else
 				{
-					if (upperNext)
-					{
-						upperNext = false;
-						nameSb.append(Character.toUpperCase(name.charAt(i)));
-					}
-					else
-					{
-						nameSb.append(name.charAt(i));
-					}
+					nameSb.append(name.charAt(i));
 				}
 			}
-			sb.append('\'');
-			sb.append(nameSb);
-			sb.append('\'');
-			sb.append(',');
 		}
+		sb.append('\'');
+		sb.append(nameSb);
+		sb.append('\'');
+		sb.append(',');
 	}
 }

@@ -15,14 +15,20 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$sabloUtils,$log) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
-	<#list baseComponents as bc>
-		'${bc.name}': ${bc.propertiesString}<#if bc_has_next>,</#if>
-	</#list>
-	}
+			<#list baseComponents as bc>
+				'${bc.name}': ${bc.propertiesString}<#if bc_has_next>,</#if>
+			</#list>
+			}
+
+	var beanTypes = {
+			<#list baseComponents as bc>
+				'${bc.name}': '${bc.typeName}'<#if bc_has_next>,</#if>
+			</#list>
+			}
 
 	var formProperties = ${propertiesString}
 
@@ -102,14 +108,14 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		formState.removeWatches(beanNames);
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
-		 		watches[beanName] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", beanName), wrapper(beanName), true);
+		 		watches[beanName] =	$propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes[beanName], $scope.model[beanName], wrapper(beanName));
 			}
 		}
 		else {
 		<#list parts as part>
 			<#if (part.baseComponents)??>
 				<#list part.baseComponents as bc>
-					watches['${bc.name}'] = $scope.$watch($sabloUtils.generateWatchFunctionFor($scope, "model", "${bc.name}"), wrapper('${bc.name}'), true);
+					watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes.${bc.name}, $scope.model.${bc.name}, wrapper('${bc.name}'));
 				</#list>
 			</#if>
 		</#list>
@@ -121,13 +127,12 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
-			 	if (watches[beanName]) watches[beanName]();
+				if (watches[beanName]) for (unW in watches[beanName]) watches[beanName][unW]();
 			}
-		}
-		else {
-			 for (var beanName in watches) {
-			 	watches[beanName]();
-			 }
+		} else {
+			for (var beanName in watches) {
+				for (unW in watches[beanName]) watches[beanName][unW]();
+			}
 		}
 		return true;
 	}

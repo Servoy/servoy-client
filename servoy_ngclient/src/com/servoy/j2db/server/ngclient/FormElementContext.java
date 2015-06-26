@@ -46,6 +46,11 @@ public class FormElementContext
 		return formElement.propertiesAsTemplateJSON(null, this).toString();
 	}
 
+	public String getTypeName()
+	{
+		return formElement.getTypeName();
+	}
+
 	public String getName()
 	{
 		return formElement.getName();

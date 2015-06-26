@@ -25,6 +25,7 @@ import org.sablo.WebEntry;
 import org.sablo.specification.WebComponentPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -35,6 +36,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.property.types.Types;
+import com.servoy.j2db.server.ngclient.template.ClientModifiablePropertiesGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -48,7 +50,7 @@ import com.servoy.j2db.util.Utils;
  * Filter and entrypoint for webapp
  * @author jcompagner
  */
-@WebFilter(urlPatterns = { "/solutions/*" })
+@WebFilter(urlPatterns = { "/solutions/*", "/spec/*" })
 @SuppressWarnings("nls")
 public class NGClientEntryFilter extends WebEntry
 {
@@ -153,6 +155,23 @@ public class NGClientEntryFilter extends WebEntry
 			String uri = request.getRequestURI();
 			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
+				if (("/spec/" + ClientModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST + ".js").equals(uri))
+				{
+					long lastSpecLoadTime = Math.max(WebComponentSpecProvider.getLastLoadTimestamp(), WebServiceSpecProvider.getLastLoadTimestamp());
+					if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse), lastSpecLoadTime)) return;
+
+					HTTPUtils.setNoCacheHeaders((HttpServletResponse)servletResponse);
+
+					PrintWriter w = servletResponse.getWriter();
+					ClientModifiablePropertiesGenerator watchesJSONGenerator = new ClientModifiablePropertiesGenerator(w);
+					watchesJSONGenerator.appendAll(WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications(), "components");
+					watchesJSONGenerator.appendAll(WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications(), "services");
+					watchesJSONGenerator.done();
+					w.flush();
+
+					return;
+				}
+
 				String solutionName = getSolutionNameFromURI(uri);
 				if (solutionName != null)
 				{
@@ -261,6 +280,7 @@ public class NGClientEntryFilter extends WebEntry
 										formScripts.addAll(entry.getJsClientLibrary());
 									}
 								}
+								formScripts.add("spec/" + ClientModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST + ".js"); // lists properties that need to be watched for client to server changes for each component/service type
 								super.doFilter(servletRequest, servletResponse, filterChain, css, formScripts, variableSubstitution);
 								return;
 							}

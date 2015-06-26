@@ -4,7 +4,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
 	CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -44,18 +44,19 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		};
 	};
 
-	function watchModel(beanModel, childChangedNotifier, componentScope) {
-		return componentScope.$watch($sabloUtils.generateWatchFunctionFor(beanModel), function(newvalue, oldvalue) {
-			if (oldvalue === newvalue) return;
+	function watchModel(componentTypeName, beanModel, childChangedNotifier, componentScope) {
+		// $propertyWatchesRegistry knows exactly which properties are to be watched based on component type
+		return $propertyWatchesRegistry.watchDumbPropertiesForComponent(componentScope, componentTypeName, beanModel, function(newvalue, oldvalue) {
 			childChangedNotifier(oldvalue);
-		}, true);
+		});
 	};
 
 	function removeAllWatches(value) {
 		if (value != null && angular.isDefined(value)) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
 			if (iS.modelUnwatch) {
-				iS.modelUnwatch();
+				for (var unW in iS.modelUnwatch)
+					iS.modelUnwatch[unW]();
 				iS.modelUnwatch = null;
 			}
 			if (value[MODEL_VIEWPORT]) $viewportModule.removeDataWatchesFromRows(value[MODEL_VIEWPORT].length, iS);
@@ -66,7 +67,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		if (angular.isDefined(value) && value !== null) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
 			if (value[MODEL_VIEWPORT]) $viewportModule.addDataWatchesToRows(value[MODEL_VIEWPORT], iS, componentScope, false);
-			if (componentScope) iS.modelUnwatch = watchModel(value.model, childChangedNotifier, componentScope);
+			if (componentScope) iS.modelUnwatch = watchModel(value.componentDirectiveName, value.model, childChangedNotifier, componentScope);
 		}
 	};
 
