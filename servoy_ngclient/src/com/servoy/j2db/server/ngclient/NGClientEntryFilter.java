@@ -155,7 +155,7 @@ public class NGClientEntryFilter extends WebEntry
 			String uri = request.getRequestURI();
 			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
 			{
-				if (("/spec/" + ClientModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST + ".js").equals(uri))
+				if (uri.endsWith("spec/" + ClientModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST + ".js"))
 				{
 					long lastSpecLoadTime = Math.max(WebComponentSpecProvider.getLastLoadTimestamp(), WebServiceSpecProvider.getLastLoadTimestamp());
 					if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse), lastSpecLoadTime)) return;
