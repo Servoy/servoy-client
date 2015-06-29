@@ -72,17 +72,70 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
 		}
 		
-		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
+//		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
 		partchedFrmt = partchedFrmt.replaceAll('#','0');
-
+		var currency_symbols = [
+		'\u00A4', // US Dollar
+		'\u20AC', // Euro
+		'\u20A1', // Costa Rican Colón
+		'\u00A3', // British Pound Sterling
+		'\u20AA', // Israeli New Sheqel
+		'\u20B9', // Indian Rupee
+		'\u00A5', // Japanese Yen
+		'\u20A9', // South Korean Won
+		'\u20A6', // Nigerian Naira
+		'\u20B1', // Philippine Peso
+		'\u007A', // Polish Zloty
+		'\u20B2', // Paraguayan Guarani
+		'\u0E3F', //Thai Baht
+		'\u20B4', // Ukrainian Hryvnia
+		'\u20AB', // Vietnamese Dong
+		];
+		var currency = "";
+		for(var i=0; i<currency_symbols.length; i++)
+			if(partchedFrmt.includes(currency_symbols[i])){
+				 currency = currency_symbols[i];
+		}
+		
+		if(currency != "" && partchedFrmt.endsWith(currency))
+		partchedFrmt = (partchedFrmt.substring(0, partchedFrmt.indexOf(currency))).trim();
 		var ret = numeral(data).format(partchedFrmt);
+		if(currency != ""){ 
+			if(servoyFormat.startsWith(currency))	ret = currency + ' ' + ret;
+			else ret +=  ' ' + currency;
+		}
+		
 		if(centIndex>-1) ret = ret.insert(centIndex,'%')
 		if(milIndex>-1) ret = ret.insert(milIndex,MILLSIGN)
 		
 		return ret;
 
 	}
+	// internal function
+	function unformatNumbers(data , format){// todo throw error when not coresponding to format (reimplement with state machine)
+		//treat scientiffic numbers
+		if(data.toLowerCase().indexOf('e')>-1){
+			return new Number(data).valueOf()
+		}
+		
+		var multFactor =1;
+		if(format.indexOf('-')>-1){
+			if(data.indexOf('-')!= data.lastIndexOf('-')){ // double minus case
+				multFactor = 1;
+			}else{
+				multFactor =-1;				
+			}
+		}
+		var MILLSIGN =  '\u2030'
+		if(format.indexOf(MILLSIGN)>-1){
+			multFactor *= 0.001
+		}
+		var ret =  numeral().unformat(data)
+		ret *=multFactor;
+		return ret
+	}
+	
 	// internal function
 	function unformatNumbers(data , format){// todo throw error when not coresponding to format (reimplement with state machine)
 		//treat scientiffic numbers
