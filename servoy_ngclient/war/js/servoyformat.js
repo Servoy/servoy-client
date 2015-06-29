@@ -374,7 +374,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 				    			callChangeOnBlur = function() {
 				    				element.change();
 				    				element.off("blur", callChangeOnBlur);
-				    				element.off("keypress", enterKeyCheck);
+				    				element.off("keydown", enterKeyCheck);
 				    			}
 				    			element.on("blur", callChangeOnBlur);
 				    			element.on("keydown",enterKeyCheck);
