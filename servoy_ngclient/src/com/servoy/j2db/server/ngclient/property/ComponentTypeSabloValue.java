@@ -109,7 +109,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
 	 */
 	@Override
@@ -136,7 +136,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			});
 		}
 		Collection<PropertyDescription> readOnlyPropertiesParent = this.parentComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
-		if (readOnlyPropertiesParent.size() > 0)
+		if (childComponent != null && readOnlyPropertiesParent.size() > 0)
 		{
 			PropertyDescription propertyDescParent = readOnlyPropertiesParent.iterator().next();
 			Collection<PropertyDescription> readOnlyPropertiesChild = childComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
