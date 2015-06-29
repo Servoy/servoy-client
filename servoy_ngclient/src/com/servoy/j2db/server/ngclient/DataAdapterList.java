@@ -1,6 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -759,6 +760,32 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		for (IWebFormController relatedController : relatedForms.keySet())
 		{
+			if (b)
+			{
+				WebFormComponent parentContainer = null;
+				Collection<WebComponent> components = formController.getFormUI().getComponents();
+				for (WebComponent component : components)
+				{
+					// legacy behavior
+					Object tabs = component.getProperty("tabs");
+					if (tabs instanceof List && ((List)tabs).size() > 0)
+					{
+						List tabsList = (List)tabs;
+						for (int i = 0; i < tabsList.size(); i++)
+						{
+							Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+							String relationName = (String)tab.get("relationName");
+							Object form = tab.get("containsFormId");
+							if (Utils.equalObjects(form, relatedController.getName()) && Utils.equalObjects(relationName, relatedForms.get(relatedController)))
+							{
+								parentContainer = (WebFormComponent)component;
+								break;
+							}
+						}
+					}
+				}
+				relatedController.getFormUI().setParentContainer(parentContainer);
+			}
 			relatedController.notifyVisible(b, invokeLaterRunnables);
 		}
 	}
