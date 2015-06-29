@@ -1,4 +1,4 @@
-angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $locale){     // to remove
+angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $locale,$utils){     // to remove
 	// add replace all to String 
 	String.prototype.replaceAll = function (find, replace) {
 	    var str = this;
@@ -253,109 +253,26 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 				return moment(data,servoyFormat).toDate();
 			}
 			return data;
-		}
-	}
-}).filter('formatFilter', function($formatterUtils){  /* this filter is used for display only*/
-	  return function(input,servoyFormat,type) {
-		  var ret = input;
-		  try{
-			  // TODO apply servoy default formatting from properties file here
-			  if(input instanceof Date && !servoyFormat) {
-				  servoyFormat = 'MM/dd/yyyy hh:mm aa';
-				  type = 'DATETIME';
-			  }
-			  
-			  if (((typeof input === 'string') || (input instanceof String)) && type !== "TEXT") return input;
-
-			  ret = $formatterUtils.format(input,servoyFormat,type);
-		  }catch(e){
-			  console.log(e);
-			  //TODO decide what to do when string doesn't correspod to format
-		  }
-		  return ret;
-	 };
-}).directive("svyFormat", ["$formatterUtils","$parse","$utils",function ($formatterUtils,$parse, $utils){
-	return {
-		  require: 'ngModel',
-		  priority: 1,
-		  link: function($scope, element, attrs, ngModelController) {
-			 var useMask = false;
-			 $scope.$watch(attrs['svyFormat'], function(newVal, oldVal){
-				 if (newVal !== oldVal) {
-					 var formatters = ngModelController.$formatters; 
-					 var idx = formatters.length;
-				     var viewValue = ngModelController.$modelValue;
-				     while (idx--) {
-				        viewValue = formatters[idx](viewValue);
-				     }
-		             ngModelController.$viewValue = viewValue;
-		             ngModelController.$render();
-				 }
-			 })
-			 
-			 element.on('focus',function(){
-				 var svyFormat = $scope.$eval(attrs['svyFormat'])
-				 if(svyFormat && !$scope.model.findmode){
-					 if(svyFormat.edit && svyFormat.isMask) {
-							 var settings = {};
-							 settings.placeholder = svyFormat.placeHolder ? svyFormat.placeHolder : " ";
-							 if (svyFormat.allowedCharacters)
-								 settings.allowedCharacters = svyFormat.allowedCharacters;
-							 
-							 element.mask(svyFormat.edit,settings);
-					 }else if(svyFormat.edit){
-						 $scope.$evalAsync(function(){
-							 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
-							 ngModelController.$render();
-						 })
-					 }		
-				 }				 			  
-			 })
-			 element.on('blur',function(){
-				 var svyFormat = $scope.$eval(attrs['svyFormat'])
-				 if(svyFormat && !$scope.model.findmode){
-					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
-					 $scope.$evalAsync(function(){
-						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
-						 ngModelController.$render();
-					 })	
-				 }				 
-			 })
-
-			 element.on('keypress',function(e){
-				 var svyFormat = $scope.$eval(attrs['svyFormat'])
-				 if(svyFormat && !$scope.model.findmode && !attrs['typeahead']){
-					 if(svyFormat.type == "INTEGER"){
-						 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
-					 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
-						 return numbersonly(e, true, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
-					 }
-				 }
-				 return true;
-			 })
-			 
-			 //convert data from view format to model format
-		    ngModelController.$parsers.push(viewToModel);
-		    //convert data from model format to view format
-		    ngModelController.$formatters.push(modelToView);
-		    
-		    var callChangeOnBlur = null;
+		},
+		createFormatState: function(element, $scope, ngModelController, checkNumbers, newValue) {
+			var svyFormat = newValue;
+			
+			var callChangeOnBlur = null;
 		    var enterKeyCheck = function(e) {
 				if (callChangeOnBlur && $utils.testEnterKey(e)) {
 					callChangeOnBlur();
 				}
 			}
-		    
-		    function viewToModel(viewValue) {
-		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
+			var formatUtils = this;
+			function viewToModel(viewValue) {
 		    	var data = viewValue
-		    	if(svyFormat && !$scope.model.findmode){
+		    	if(!$scope.model.findmode){
 			    	var format = null;
 			    	var type = svyFormat ? svyFormat.type: null;
 			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
 			    	if(element.is(":focus"))format = svyFormat.edit	
 			    	try{
-			      	  var data =  $formatterUtils.unformat(viewValue,format,type);
+			      	  var data =  formatUtils.unformat(viewValue,format,type);
 			    	}catch(e){
 			    		console.log(e)
 				      	//TODO set error state 
@@ -398,7 +315,6 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		    }
 		    
 		    function modelToView(modelValue) {
-		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
 		    	var data = modelValue;
 		    	if(svyFormat && !$scope.model.findmode){
 			    	var format = null;
@@ -406,7 +322,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
 			    	if(element.is(":focus"))format = svyFormat.edit
 			    	try {
-			    		data = $formatterUtils.format(modelValue,format,type);
+			    		data = formatUtils.format(modelValue,format,type);
 			    	}catch(e){
 			    		console.log(e)
 				      	//TODO set error state 
@@ -473,6 +389,131 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 				}
 				return false;
 			}
+			function keypress(e){
+				 if(!$scope.model.findmode && checkNumbers){
+					 if(svyFormat.type == "INTEGER"){
+						 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+					 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
+						 return numbersonly(e, true, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+					 }
+				 }
+				 return true;
+			 }
+			 function focus(){
+				 if(!$scope.model.findmode){
+					 if(svyFormat.edit && svyFormat.isMask) {
+							 var settings = {};
+							 settings.placeholder = svyFormat.placeHolder ? svyFormat.placeHolder : " ";
+							 if (svyFormat.allowedCharacters)
+								 settings.allowedCharacters = svyFormat.allowedCharacters;
+							 
+							 element.mask(svyFormat.edit,settings);
+					 }else if(svyFormat.edit){
+						 $scope.$evalAsync(function(){
+							 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
+							 ngModelController.$render();
+						 })
+					 }		
+				 }				 			  
+			 }
+			 function blur(){
+				 if(!$scope.model.findmode){
+					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
+					 $scope.$evalAsync(function(){
+						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
+						 ngModelController.$render();
+					 })	
+				 }				 
+			 }
+				
+			function register() {
+				 element.on('focus',focus)
+				 element.on('blur',blur)
+	
+				 element.on('keypress',keypress)
+				 
+				 //convert data from view format to model format
+			    ngModelController.$parsers.push(viewToModel);
+			    //convert data from model format to view format
+			    ngModelController.$formatters.push(modelToView);
+			}
+			
+			function unregister() {
+				 element.off('focus',focus)
+				 element.off('blur',blur)
+	
+				 element.off('keypress',keypress)
+				 
+				 var i = ngModelController.$parsers.indexOf(viewToModel);
+			     if(i != -1) {
+					ngModelController.$parsers.splice(i, 1);
+				 }
+				 i = ngModelController.$formatters.indexOf(modelToView);
+			     if(i != -1) {
+					ngModelController.$formatters.splice(i, 1);
+				 }
+			}
+			
+			function applyValue() {
+				var formatters = ngModelController.$formatters; 
+				var idx = formatters.length;
+				var viewValue = ngModelController.$modelValue;
+				while (idx--) {
+					viewValue = formatters[idx](viewValue);
+				}
+				ngModelController.$viewValue = viewValue;
+				ngModelController.$render();
+			}
+			if (svyFormat) {
+				register();
+				applyValue();
+			}
+		  	
+		  	return function(newValue) {
+		  		if (newValue && !svyFormat) {
+		  			register();
+		  		}
+		  		else if (!newValue && svyFormat) {
+		  			unregister();
+		  		}
+				svyFormat = newValue;
+				applyValue();
+				
+		  	}
+		}
+	}
+}).filter('formatFilter', function($formatterUtils){  /* this filter is used for display only*/
+	  return function(input,servoyFormat,type) {
+		  var ret = input;
+		  try{
+			  // TODO apply servoy default formatting from properties file here
+			  if(input instanceof Date && !servoyFormat) {
+				  servoyFormat = 'MM/dd/yyyy hh:mm aa';
+				  type = 'DATETIME';
+			  }
+			  
+			  if (((typeof input === 'string') || (input instanceof String)) && type !== "TEXT") return input;
+
+			  ret = $formatterUtils.format(input,servoyFormat,type);
+		  }catch(e){
+			  console.log(e);
+			  //TODO decide what to do when string doesn't correspod to format
+		  }
+		  return ret;
+	 };
+}).directive("svyFormat", ["$formatterUtils","$parse","$utils",function ($formatterUtils,$parse){
+	return {
+		  require: 'ngModel',
+		  priority: 1,
+		  link: function($scope, element, attrs, ngModelController) {
+		  	  var formatState = null;
+			  $scope.$watch(attrs['svyFormat'], function(newVal, oldVal){
+				 if (newVal) {
+				     if (formatState) 
+				     	formatState(newVal);
+				     else formatState = $formatterUtils.createFormatState(element, $scope, ngModelController,!attrs['typeahead'],newVal);
+				 }
+			 })
 		  }
 		}	
 }]);

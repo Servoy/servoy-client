@@ -1,4 +1,4 @@
-angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultTextfield', function($apifunctions) {  
+angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultTextfield', function($apifunctions,$svyProperties,$formatterUtils,$sabloConstants) {  
 	return {
 		restrict: 'E',
 		require: 'ngModel',
@@ -8,15 +8,71 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 			handlers: "=svyHandlers"
 		},
 		link:function($scope, $element, $attrs, ngModel) {
-			$scope.findMode = false;
-			$scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-
 			$scope.onClick = function(event){
 				if ($scope.model.editable == false && $scope.handlers.onActionMethodID)
 				{
 					$scope.handlers.onActionMethodID(event);
 				}	
 			}
+			var tooltipState = null;
+			var formatState = null;
+			var className = null;
+			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
+				switch(property) {
+					case "borderType":
+						$svyProperties.setBorder($element,value);
+						break;
+					case "background":
+					case "transparent":
+						$svyProperties.setCssProperty($element,"backgroundColor",$scope.model.transparent?"transparent":$scope.model.background);
+						break;
+					case "foreground":
+						$svyProperties.setCssProperty($element,"color",value);
+						break;
+					case "format":
+						if (formatState)
+							formatState(value);
+						else formatState = $formatterUtils.createFormatState($element, $scope, ngModel,true,value);
+						break;
+					case "horizontalAlignment":
+						$svyProperties.setHorizontalAlignment($element,value);
+						break;
+					case "enabled":
+						if (value) $element.removeAttr("disabled");
+						else $element.attr("disabled","disabled");
+						break;
+					case "editable":
+						if (value) $element.removeAttr("readonly");
+						else $element.attr("readonly","readonly");
+						break;
+					case "placeholderText":
+						if(value) $element.attr("placeholder",value)
+						else $element.removeAttr("placeholder");
+						break;
+					case "margin":
+						if (value) $element.css(value);
+						break;
+					case "selectOnEnter":
+						if (value) $svyProperties.addSelectOnEnter($element);
+						break;
+					case "styleClass":
+						if (className) $element.removeClass(className);
+						className = value;
+						if(className) $element.addClass(className);
+						break;
+					case "toolTipText":
+						if (tooltipState)
+							tooltipState(value);
+						else tooltipState = $svyProperties.createTooltipState($element,value);
+					    break;
+				}
+			}});
+			// data can already be here, if so call the modelChange function so that it is initialized correctly.
+			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
+			for (key in $scope.model) {
+				modelChangFunction(key,$scope.model[key]);
+			}
+			
 			
 			var storedTooltip = false;
 			// fill in the api defined in the spec file

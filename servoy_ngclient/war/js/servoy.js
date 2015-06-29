@@ -12,7 +12,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils",function($rootScope,$scrollbarConstants,$timeout) {
+}).factory("$utils",function($rootScope,$scrollbarConstants,$timeout,$svyProperties) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -117,14 +117,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		},
 		autoApplyStyle: function(scope,element,modelToWatch,cssPropertyName){
 			scope.$watch(modelToWatch,function(newVal,oldVal){
-				if(!newVal) {element.css(cssPropertyName,''); return;}
-				if(typeof newVal != 'object'){ //for cases with direct values instead of json string background and foreground
-					var obj ={}
-					obj[cssPropertyName] = newVal;
-					newVal = obj;
-				} 
-				element.css(cssPropertyName,'')
-				element.css(newVal)
+				$svyProperties.setCssProperty(element,cssPropertyName,newVal);
 			})
 		},
 		
@@ -240,6 +233,105 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		// search for svy-servoyApi attribute on element, within parents (svy-autoapply could be used on a child DOM element of the web component)
 		findAttribute: function (element, parent, attributeName) {
 			return findAttribute(element, parent, attributeName);
+		}
+	}
+}).factory("$svyProperties",function($svyTooltipUtils,$timeout) {
+	return {
+		setBorder: function(element,newVal) {
+			if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
+
+			if (element.parent().is("fieldset")){ 
+				$(element.parent()).replaceWith($(element));//unwrap fieldset
+			}
+			if(newVal.type == "TitledBorder"){
+				element.wrap('<fieldset style="padding:5px;margin:0px;border:1px solid silver;width:100%;height:100%"></fieldset>')
+				var x = element.parent().prepend("<legend align='"+newVal.titleJustiffication+"' style='border-bottom:0px; margin:0px;width:auto;color:"+
+						newVal.color+"'>"+newVal.title+"</legend>")
+				if (newVal.font) x.children("legend").css(newVal.font);
+			}else if(newVal.borderStyle){ 
+				element.css('border','')
+				element.css(newVal.borderStyle)
+			}
+		},
+		setCssProperty: function(element, cssPropertyName,newVal) {
+			if(!newVal) {element.css(cssPropertyName,''); return;}
+			if(typeof newVal != 'object'){ //for cases with direct values instead of json string background and foreground
+				var obj ={}
+				obj[cssPropertyName] = newVal;
+				newVal = obj;
+			} 
+			element.css(cssPropertyName,'')
+			element.css(newVal)
+		},
+		setHorizontalAlignment: function(element,halign) {
+			if (halign != -1)
+			{
+				var style ={}
+				if (halign == 0)
+				{
+					style['text-align'] = 'center';
+				}
+				else if (halign == 4)
+				{
+					style['text-align'] = 'right';
+				}
+				else
+				{
+					style['text-align'] = 'left';
+				}
+				element.css(style);
+			}
+		},
+		setVerticalAlignment: function(element,valign) {
+			var style ={}
+			if (valign == 1)
+			{
+				style['top'] = 0;
+			}
+			else if (valign == 3)
+			{
+				style['bottom'] = 0;
+			}
+			else
+			{
+				style['top'] = '50%';
+				style['transform'] = 'translateY(-50%)';
+			}
+			element.css(style);
+		},
+		addSelectOnEnter: function(element) {
+			element.on('focus', function() {
+				$timeout(function() {
+					if (element.is(":focus"))
+						element[0].select(); 
+				},0);
+			});
+		},
+		createTooltipState: function(element,value) {
+			var tooltip =  value;
+			function mouseover(event) {
+	        	$svyTooltipUtils.showTooltip(event, tooltip, 750, 5000);
+	        }
+			function mouseout(event) {
+	        	$svyTooltipUtils.hideTooltip();
+	        }
+			function register() {
+				element.on('mouseover', mouseover);
+		        element.on('mouseout', mouseout)
+			}
+			if (tooltip) {
+		        register();
+			}
+			return function(newValue) {
+				if (newValue && !tooltip) {
+					register();
+				}
+				else if (!newValue && tooltip) {
+					element.off('mouseover', mouseover);
+			        element.off('mouseout', mouseout)
+				}
+				tooltip = newValue;
+			}
 		}
 	}
 }).directive('ngOnChange', function($parse){
@@ -413,25 +505,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur');
 		}
 	};
-}).directive('svyBorder',  function () {
+}).directive('svyBorder',  function ($svyProperties) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			scope.$watch(attrs.svyBorder,function(newVal){
-				if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
-
-				if (element.parent().is("fieldset")){ 
-					$(element.parent()).replaceWith($(element));//unwrap fieldset
-				}
-				if(newVal.type == "TitledBorder"){
-					element.wrap('<fieldset style="padding:5px;margin:0px;border:1px solid silver;width:100%;height:100%"></fieldset>')
-					var x = element.parent().prepend("<legend align='"+newVal.titleJustiffication+"' style='border-bottom:0px; margin:0px;width:auto;color:"+
-							newVal.color+"'>"+newVal.title+"</legend>")
-					if (newVal.font) x.children("legend").css(newVal.font);
-				}else if(newVal.borderStyle){ 
-					element.css('border','')
-					element.css(newVal.borderStyle)
-				}
+				$svyProperties.setBorder(element,newVal);
 			}, true)
 
 		}
@@ -535,70 +614,35 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyHorizontalalignment',  function ($utils,$parse) {
+.directive('svyHorizontalalignment',  function ($utils,$parse,$svyProperties) {
 	// DESIGN TIME ONLY
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {  
 			var halign= $parse(attrs.svyHorizontalalignment)(scope);
-			if (halign != -1)
-			{
-				var style ={}
-				if (halign == 0)
-				{
-					style['text-align'] = 'center';
-				}
-				else if (halign == 4)
-				{
-					style['text-align'] = 'right';
-				}
-				else
-				{
-					style['text-align'] = 'left';
-				}
-				element.css(style);
-			}
+			$svyProperties.setHorizontalAlignment(element,halign);
 		}
 	}
 })
-.directive('svyVerticalalignment',  function ($utils,$parse) {
+.directive('svyVerticalalignment',  function ($utils,$parse,$svyProperties) {
 	// DESIGN TIME ONLY
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) { 
 			// see http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/
 			// do we need preserve-3d ?
-			var halign= $parse(attrs.svyVerticalalignment)(scope);
-			var style ={}
-			if (halign == 1)
-			{
-				style['top'] = 0;
-			}
-			else if (halign == 3)
-			{
-				style['bottom'] = 0;
-			}
-			else
-			{
-				style['top'] = '50%';
-				style['transform'] = 'translateY(-50%)';
-			}
-			element.css(style);
+			var valign= $parse(attrs.svyVerticalalignment)(scope);
+			$svyProperties.setVerticalAlignment(element,valign);
 		}
 	}
 })
-.directive('svySelectonenter',  function ($timeout) {
+.directive('svySelectonenter',  function ($timeout,$svyProperties) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			if (scope.$eval(attrs.svySelectonenter))
 			{
-				element.on('focus', function() {
-					$timeout(function() {
-						if (element.is(":focus"))
-							element[0].select(); 
-					},0);
-				});
+				$svyProperties.addSelectOnEnter(element);
 			}
 		}
 	};

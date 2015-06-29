@@ -1,10 +1,10 @@
 angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
-                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication",
+                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants",
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication,$sabloConstants) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -403,6 +403,18 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							// 2 way data link between element record based properties from modelViewport and the merged cell model
 							cellProxies.unwatchFuncs = cellProxies.unwatchFuncs.concat($utils.bindTwoWayObjectProperty(cellData, propertyName, elements, [elementIndex, "modelViewport", function() { return rowIdToViewportRelativeRowIndex(rowId); }, propertyName], false, $scope));
 						}
+					}
+					// attach the model change notifier from the parent column model so that all calls are relayed to the cell.
+					if (!element.model[$sabloConstants.modelChangeNotifier]) {
+						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, {value:function(property,value) {
+							for(var key in rowProxyObjects) {
+								var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel
+								// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same) 
+								if (mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
+									mergedCellModel[$sabloConstants.modelChangeNotifier](property,value);
+								else return;
+							}
+						}});
 					}
 
 					cellProxies.mergedCellModel = cellModel = cellData;
