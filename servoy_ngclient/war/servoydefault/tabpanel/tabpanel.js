@@ -154,6 +154,12 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						promise.then(function(ok) {
 							if ($log.debugEnabled) $log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);
 							delete $scope.waitingForServerVisibility[formInWait];
+							if (!tab.active)
+							{
+								// visibility changed again, just ignore this
+								if ($log.debugEnabled) $log.debug("svy * Tab '" + tab.containsFormId + "': no longer active, ignore making it visible");
+								return;
+							}
 							if (ok) {
 								setFormVisible(tab,selectEvent);
 							}
