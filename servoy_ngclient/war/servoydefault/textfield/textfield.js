@@ -29,6 +29,9 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 					case "foreground":
 						$svyProperties.setCssProperty($element,"color",value);
 						break;
+					case "fontType":
+						$svyProperties.setCssProperty($element,"font",value);
+						break;
 					case "format":
 						if (formatState)
 							formatState(value);
@@ -67,6 +70,10 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 					    break;
 				}
 			}});
+			var destroyListenerUnreg = $scope.$on("$destroy", function() {
+				destroyListenerUnreg();
+				delete $scope.model[$sabloConstants.modelChangeNotifier];
+			});
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
 			for (key in $scope.model) {
