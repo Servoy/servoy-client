@@ -1,10 +1,10 @@
 angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
-                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants",
+                                   'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication,$sabloConstants) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication,$sabloConstants,$applicationService) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -113,7 +113,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var columnTitle = getColumnTitle(el.componentIndex ? el.componentIndex : idx, idx);
 
 					var cellTemplate
-					if($scope.model.svyReadonlyMode && el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead") {
+					if($applicationService.getUIProperty("ngClientOptimizedReadonlyMode") && el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead") {
 						cellTemplate = '<span class="svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"></span>';
 					}
 					else {

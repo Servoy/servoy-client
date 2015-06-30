@@ -125,7 +125,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -655,6 +655,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean putClientProperty(Object name, Object val)
 	{
+		if (IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE.equals(name))
+		{
+			try
+			{
+				getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("setUIProperty", new Object[] { name, val });
+			}
+			catch (IOException e)
+			{
+				Debug.error("Error getting setting property '" + name + "' value: " + val, e);
+			}
+		}
 		if (uiProperties == null)
 		{
 			uiProperties = new HashMap<Object, Object>();
