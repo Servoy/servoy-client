@@ -137,7 +137,7 @@ public class FormLayoutGenerator
 			}
 		}
 
-		generateEndDiv(writer);
+		generateFormEndTag(writer);
 	}
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
