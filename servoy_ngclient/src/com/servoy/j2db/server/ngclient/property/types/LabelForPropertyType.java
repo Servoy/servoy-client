@@ -61,7 +61,8 @@ public class LabelForPropertyType extends DefaultPropertyType<String> implements
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (formElementValue != null && formElementContext.getFormElement() != null)
 		{
-			writer.value(ComponentFactory.getMarkupId(formElementContext.getFormElement().getName(), formElementValue));
+			// TODO getForm().getName() only returns the form where the label form properties element is on, not the actual form (like a sub form or a form instance what is used to create the markupid for the actual component)
+			writer.value(ComponentFactory.getMarkupId(formElementContext.getFormElement().getForm().getName(), formElementValue));
 			return writer;
 		}
 		writer.value(formElementValue);
