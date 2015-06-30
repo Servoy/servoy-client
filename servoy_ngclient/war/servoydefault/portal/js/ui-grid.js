@@ -13435,7 +13435,7 @@ module.filter('px', function() {
 
 
 
-              uiGridCtrl.focus();
+//              uiGridCtrl.focus();
 
 
 
