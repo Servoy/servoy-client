@@ -671,9 +671,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					}
 					if ($log.debugEnabled) $log.debug("svy * svyFormload will resolve = " + formName);
 
-					$timeout(function() {$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)});
+					$timeout(function() {
+						$sabloApplication.resolveFormState(formName);
+						$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)
+						});
 
-					$sabloApplication.resolveFormState(formName);
 					$sabloApplication.getFormState(formName).then(function(resolvedFormState) {
 						$timeout(function() {
 							var formWidth = element.prop('offsetWidth');
