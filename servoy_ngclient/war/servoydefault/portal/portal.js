@@ -112,14 +112,20 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					
 					var columnTitle = getColumnTitle(el.componentIndex ? el.componentIndex : idx, idx);
 
-					var portal_svy_name = $element[0].getAttribute('data-svy-name');
-					var cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
-						+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
-						+ ')" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
-						+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
-						+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
-					if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
-					cellTemplate += '/>';
+					var cellTemplate
+					if($scope.model.svyReadonlyMode && el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead") {
+						cellTemplate = '<span class="svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"></span>';
+					}
+					else {
+						var portal_svy_name = $element[0].getAttribute('data-svy-name');
+						cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
+							+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
+							+ ')" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
+							+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
+							+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
+						if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
+						cellTemplate += '/>';
+					}
 					if($scope.model.multiLine) { 
 						if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
 							$scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
@@ -996,6 +1002,55 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						return $element;
 					}
 			}
+		}
+	}
+}]).directive('cellHelper', ["$parse","$formatterUtils","$svyProperties",function($parse,$formatterUtils,$svyProperties) {  
+	return {
+		scope: {
+			model: "=cellHelper",
+		},
+		restrict: 'A',
+	    link: function($scope, $element, attrs, ctrl, transclude) {
+	    	$scope.$watch("model.dataProviderID",function(){
+	    		if ($scope.model.dataProviderID){
+	    			var svyFormat = $scope.model.format;
+	    			var data = $scope.model.dataProviderID;
+	    			
+	    			if ($scope.model.valuelistID) {
+	    				var valueList = $scope.model.valuelistID;
+						for (var i=0;i<valueList.length;i++)
+						{  
+							if(valueList[i].realValue == data)
+							{
+								data = valueList[i].displayValue;
+								break;
+							}
+						}
+	    			}
+	    			
+	    			if(svyFormat){
+				    	var type = svyFormat ? svyFormat.type: null;
+				    	var format = svyFormat.display? svyFormat.display : svyFormat.edit 
+				    	try {
+				    		data = $formatterUtils.format(data,format,type);
+				    	}catch(e){
+				    		console.log(e)
+				    	}
+				    	if (data && svyFormat.type == "TEXT") {
+				    		if (svyFormat.uppercase) data = data.toUpperCase();
+				    		else if(svyFormat.lowercase) data = data.toLowerCase();
+						}
+			    	}
+	    			$element.text(data);	    		
+	    		}
+	    	})
+	    	if ($scope.model.styleClass) {
+	    		 $element.addClass($scope.model.styleClass);
+	    	}
+	    	if ($scope.model.background || $scope.model.transparent)
+	    	{
+	    		$svyProperties.setCssProperty($element,"backgroundColor",$scope.model.transparent?"transparent":$scope.model.background);
+	    	}
 		}
 	}
 }]);

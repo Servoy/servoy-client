@@ -21,11 +21,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sablo.WebComponent;
+
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.util.Utils;
 
 /**
  * List view form UI
@@ -49,6 +53,16 @@ public class WebListFormUI extends WebFormUI
 	{
 		listViewPortal = null;
 		super.init();
+		if (Utils.getAsBoolean(getController().getApplication().getClientProperty(IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE)))
+		{
+			for (WebComponent comp : getComponents())
+			{
+				if (comp.getSpecification().getName().equals("servoydefault-portal"))
+				{
+					comp.setProperty("svyReadonlyMode", Boolean.TRUE);
+				}
+			}
+		}
 	}
 
 	@Override

@@ -105,6 +105,12 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * When Boolean.TRUE, you can use arrow up and down keys to change selection in tableview
 	 */
 	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = "webClientTableViewUseKeyNavigation"; //$NON-NLS-1$
+
+	/**
+	 * When Boolean.TRUE, the tableview will be seen as fully readonly and will generate for the ngclient an optimized version.
+	 */
+	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = "ngClientOptimizedReadonlyMode"; //$NON-NLS-1$
+
 	/**
 	 * When Boolean.TRUE, component will accept javascript links in the input
 	 */

@@ -213,6 +213,19 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	/**
 	 * Property that can be set using application.putClientProperty().
 	 *
+	 * If set to true, the tableview will be seens as fully readonly and NGClient will generate an optimized version (textfields are replaced)
+	 *
+	 * The value can be true/false
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE, true)
+	 */
+	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE;
+
+	/**
+	 * Property that can be set using application.putClientProperty().
+	 *
 	 * If set to true, you can change selection in webclient tableview using up/down keys
 	 * If set to false, you cannot change selection via keyboard arrows
 	 *
