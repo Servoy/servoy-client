@@ -32,7 +32,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	
 	
 	// internal function
-	function formatNumbers(data , servoyFormat, currency){
+	function formatNumbers(data , servoyFormat){
 		if(!servoyFormat ) return data
 		var partchedFrmt=  servoyFormat;   // patched format for numeraljs format
 		
@@ -76,6 +76,8 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
 		partchedFrmt = partchedFrmt.replaceAll('#','0');
 		
+		// test for currency, this should be improved inside numeral so it can handle literals inside the format.
+		var currency = getCurrency(servoyFormat);
 		if(currency != "" && partchedFrmt.endsWith(currency))
 		partchedFrmt = (partchedFrmt.substring(0, partchedFrmt.indexOf(currency))).trim();
 		var ret = numeral(data).format(partchedFrmt);
@@ -284,10 +286,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	return{
 		
 		format : function (data,servoyFormat,type){
-			var currency = getCurrency(servoyFormat);
 			if((!servoyFormat) || (!type) || (!data) ) return data;
-			if((type == "NUMBER") || (type == "INTEGER") || servoyFormat.includes('\u00A4') || currency != ""){
-				 return formatNumbers(data,servoyFormat, currency);
+			if((type == "NUMBER") || (type == "INTEGER")){
+				 return formatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
 				return formatText(data,servoyFormat);
 			}else if(type == "DATETIME"){
