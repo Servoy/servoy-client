@@ -32,7 +32,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	
 	
 	// internal function
-	function formatNumbers(data , servoyFormat){
+	function formatNumbers(data , servoyFormat, currency){
 		if(!servoyFormat ) return data
 		var partchedFrmt=  servoyFormat;   // patched format for numeraljs format
 		
@@ -72,31 +72,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
 		}
 		
-//		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
+		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
 		partchedFrmt = partchedFrmt.replaceAll('#','0');
-		var currency_symbols = [
-		'\u00A4', // US Dollar
-		'\u20AC', // Euro
-		'\u20A1', // Costa Rican Colón
-		'\u00A3', // British Pound Sterling
-		'\u20AA', // Israeli New Sheqel
-		'\u20B9', // Indian Rupee
-		'\u00A5', // Japanese Yen
-		'\u20A9', // South Korean Won
-		'\u20A6', // Nigerian Naira
-		'\u20B1', // Philippine Peso
-		'\u007A', // Polish Zloty
-		'\u20B2', // Paraguayan Guarani
-		'\u0E3F', //Thai Baht
-		'\u20B4', // Ukrainian Hryvnia
-		'\u20AB', // Vietnamese Dong
-		];
-		var currency = "";
-		for(var i=0; i<currency_symbols.length; i++)
-			if(partchedFrmt.includes(currency_symbols[i])){
-				 currency = currency_symbols[i];
-		}
 		
 		if(currency != "" && partchedFrmt.endsWith(currency))
 		partchedFrmt = (partchedFrmt.substring(0, partchedFrmt.indexOf(currency))).trim();
@@ -277,13 +255,39 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 
 		return ret.trim()
 	}
+	
+	function getCurrency(servoyFormat){
+		var currency_symbols = [
+		                		'\u20AC', // Euro
+		                		'\u20A1', // Costa Rican Colón
+		                		'\u00A3', // British Pound Sterling
+		                		'\u20AA', // Israeli New Sheqel
+		                		'\u20B9', // Indian Rupee
+		                		'\u00A5', // Japanese Yen
+		                		'\u20A9', // South Korean Won
+		                		'\u20A6', // Nigerian Naira
+		                		'\u20B1', // Philippine Peso
+		                		'\u007A', // Polish Zloty
+		                		'\u20B2', // Paraguayan Guarani
+		                		'\u0E3F', //Thai Baht
+		                		'\u20B4', // Ukrainian Hryvnia
+		                		'\u20AB', // Vietnamese Dong
+		                		];
+		var currency = "";
+		for(var i=0; i<currency_symbols.length; i++)
+			if(servoyFormat.includes(currency_symbols[i])){
+				currency = currency_symbols[i];
+		}
+		return currency;
+	}
 
 	return{
 		
 		format : function (data,servoyFormat,type){
+			var currency = getCurrency(servoyFormat);
 			if((!servoyFormat) || (!type) || (!data) ) return data;
-			if((type == "NUMBER") || (type == "INTEGER") || !isNaN(parseFloat(data))){
-				 return formatNumbers(data,servoyFormat);
+			if((type == "NUMBER") || (type == "INTEGER") || servoyFormat.includes('\u00A4') || currency != ""){
+				 return formatNumbers(data,servoyFormat, currency);
 			}else if(type == "TEXT"){
 				return formatText(data,servoyFormat);
 			}else if(type == "DATETIME"){
@@ -294,7 +298,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		
 		unformat : function(data ,servoyFormat,type){
 			if((!servoyFormat)||(!type) || (!data) ) return data;
-			if((type == "NUMBER") || (type == "INTEGER") || !isNaN(parseFloat(data))){
+			if((type == "NUMBER") || (type == "INTEGER") || servoyFormat.includes('\u00A4')){
 				return unformatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
 				return data;
