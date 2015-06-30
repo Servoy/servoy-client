@@ -3629,7 +3629,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       });
 
       var ignoreNextFocusGain= false;
-      element.bind('focus',  function(ev) { 
+      element.bind('focus',  function(ev) {
+    	  if (element.is('[readonly]')) { ignoreNextFocusGain = false;return;}
     	  if (!ignoreNextFocusGain) getMatchesAsync("");
     	  else ignoreNextFocusGain = false;
       });
