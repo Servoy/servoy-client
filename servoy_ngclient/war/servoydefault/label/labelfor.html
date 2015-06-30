@@ -1,24 +1,9 @@
-<label for='{{ model.labelFor }}'
-	 svy-border='model.borderType' 
-	 svy-background='model.transparent ? "transparent" : model.background'
-	 svy-foreground='model.foreground'
-	 ng-class='(model.styleClass ? model.styleClass : "")  + " svy-label"'
-	 ng-style="containerstyle"
-     svy-margin='model.margin' 
-     svy-font='model.fontType'
-     svy-tooltip="model.toolTipText"
-     svy-rollovercursor='model.rolloverCursor'
-     svy-click='handlers.onActionMethodID($event)'
- 	 svy-dblclick='handlers.onDoubleClickMethodID($event)'
- 	 svy-rightclick='handlers.onRightClickMethodID($event)'
- 	 svy-textrotation='model.textRotation'
- 	 svy-mnemonic='model.mnemonic'
- 	 style='width:100%;height:100%'
- 	 id="{{::model.svyMarkupId}}">
-<div  ng-style="contentstyle" 
-	   svy-horizontalalignment='model.horizontalAlignment'
-	   svy-verticalalignment='model.verticalAlignment'>
- 	   		<span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size, rollOverImg:model.rolloverImageMediaID, visible: model.visible}'/>
- 	   		<span ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'/>
-</div>
+<label for='{{::model.labelFor}}' style='width:100%;height:100%;overflow:hidden;position:absolute' id="{{::model.svyMarkupId}}" class='svy-label'
+	   svy-click='handlers.onActionMethodID($event)'
+	   svy-dblclick='handlers.onDoubleClickMethodID($event)'
+	   svy-rightclick='handlers.onRightClickMethodID($event)'>
+	<div  style="width:100%;overflow:hidden;position:absolute;whiteSpace:nowrap">
+	  <span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size, rollOverImg:model.rolloverImageMediaID, visible: model.visible}'/>
+	  <span ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'/>
+	</div>
 </label>

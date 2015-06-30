@@ -299,6 +299,29 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			}
 			element.css(style);
 		},
+		setRotation: function(element,scope,rotation) {
+			if (rotation && rotation != 0)
+			{
+				var r = 'rotate(' + rotation + 'deg)';
+				var style ={}
+				style['-moz-transform'] = r;
+				style['-webkit-transform'] = r;
+				style['-o-transform'] = r;
+				style['-ms-transform'] = r;
+				style['transform'] = r;
+				style['position'] = 'absolute';
+				if (rotation == 90 || rotation == 270)
+				{
+					style['width'] = scope.model.size.height+'px';
+					style['height'] = scope.model.size.width+'px';
+					style['left'] =  (scope.model.size.width -scope.model.size.height)/2 +'px';
+					style['top'] = (scope.model.size.height -scope.model.size.width)/2 +'px';
+				}
+				//setTimeout(function(){ // temporary fix until case with ImageMediaID will be fixed (will probably not use bagckgroun-image)
+				element.css(style);  
+				//},30)
+			}
+		},
 		addSelectOnEnter: function(element) {
 			element.on('focus', function() {
 				$timeout(function() {
@@ -584,33 +607,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	}
 })
 
-.directive('svyTextrotation',  function ($utils,$parse) {
+.directive('svyTextrotation',  function ($utils,$parse,$svyProperties) {
 	// DESIGN TIME ONLY
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {  
 			var rotation= $parse(attrs.svyTextrotation)(scope);
-			if (rotation && rotation != 0)
-			{
-				var r = 'rotate(' + rotation + 'deg)';
-				var style ={}
-				style['-moz-transform'] = r;
-				style['-webkit-transform'] = r;
-				style['-o-transform'] = r;
-				style['-ms-transform'] = r;
-				style['transform'] = r;
-				style['position'] = 'absolute';
-				if (rotation == 90 || rotation == 270)
-				{
-					style['width'] = scope.model.size.height+'px';
-					style['height'] = scope.model.size.width+'px';
-					style['left'] =  (scope.model.size.width -scope.model.size.height)/2 +'px';
-					style['top'] = (scope.model.size.height -scope.model.size.width)/2 +'px';
-				}
-				//setTimeout(function(){ // temporary fix until case with ImageMediaID will be fixed (will probably not use bagckgroun-image)
-				element.css(style);  
-				//},30)
-			}
+			$svyProperties.setRotation(element,scope,rotation);
 		}
 	}
 })
