@@ -3,7 +3,9 @@ describe("Test component_custom_property suite", function() {
 	beforeEach(module('servoy'));
 	beforeEach(module('foundset_viewport_module'));
 	beforeEach(module('component_custom_property'));
-
+	beforeEach(module('sabloApp'));
+	
+	
 	var sabloConverters;
 	var foundsetTypeConstants;
 	var $scope;
@@ -11,7 +13,7 @@ describe("Test component_custom_property suite", function() {
 	var converted;
 	var componentModelGetter;
 
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_){
+	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, $propertyWatchesRegistry){
 		// The injector unwraps the underscores (_) from around the parameter
 		//names when matching
 		sabloConverters = _$sabloConverters_;
@@ -19,6 +21,7 @@ describe("Test component_custom_property suite", function() {
 		$scope = _$rootScope_.$new();
 		$compile = _$compile_;
 		serverValue = {
+				componentDirectiveName:'component',
 				handlers:{
 					onActionMethodID:"anyIDisGood"
 				},
@@ -44,6 +47,7 @@ describe("Test component_custom_property suite", function() {
 
 		var template = '<div></div>';
 		$compile(template)($scope);
+		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"component" : { "text" : true }});
 		converted = sabloConverters.convertFromServerToClient(serverValue,'component', $scope.model, $scope, componentModelGetter);
 		$scope.$digest();
 	}));
@@ -360,7 +364,8 @@ describe("Test component_custom_property suite", function() {
 		$scope.$digest();
 		var result = sabloConverters.convertFromClientToServer(converted,'component', undefined);
 		expect(result.length).toEqual(1);
-		expect(result[0]).toEqual({propertyChanges:{text:'button'}});
+		
+		expect(result[0]).toEqual({ propertyChanges: Object({ 0: undefined, 1: undefined, 2: undefined, 3: undefined, 4: undefined, 5: undefined, 6: undefined, length: undefined, text: 'button', location: Object({ x: 1, y: 2 }) }) });
 		expect(converted.__internalState.isChanged()).toBe(false);
 	});
 });

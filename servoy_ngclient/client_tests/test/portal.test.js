@@ -25,8 +25,7 @@ describe("Test portal suite", function() {
 	var portalScope;
 	var element;
 	var serverValue;
-
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, $timeout, $httpBackend) {
+	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, $timeout, $httpBackend , $propertyWatchesRegistry) {
 		// The injector unwraps the underscores (_) from around the parameter
 		//names when matching
 		sabloConverters = _$sabloConverters_;
@@ -112,7 +111,8 @@ describe("Test portal suite", function() {
 
 		var template = '<servoydefault-portal svy-model="model" svy-api="api" ></servoydefault-portal>';
 		element = $compile(template)(scope);
-
+		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"servoydefault-button" : { "dataProviderID" : true,  "relatedFoundset":true}});
+		
 		converted = sabloConverters.convertFromServerToClient(serverValue, {
 			'relatedFoundset': 'foundset',
 			'childElements': 'JSON_arr'
