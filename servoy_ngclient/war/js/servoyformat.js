@@ -277,7 +277,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		                		];
 		var currency = "";
 		for(var i=0; i<currency_symbols.length; i++)
-			if(servoyFormat.includes(currency_symbols[i])){
+			if(servoyFormat.indexOf(currency_symbols[i]) > 0){
 				currency = currency_symbols[i];
 		}
 		return currency;
@@ -299,7 +299,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		
 		unformat : function(data ,servoyFormat,type){
 			if((!servoyFormat)||(!type) || (!data) ) return data;
-			if((type == "NUMBER") || (type == "INTEGER") || servoyFormat.includes('\u00A4')){
+			if((type == "NUMBER") || (type == "INTEGER")){
 				return unformatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
 				return data;
