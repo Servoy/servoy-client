@@ -54,7 +54,12 @@ angular.module('window',['servoy'])
 				args = contextFilter;
 				contextFilter = null;
 			}
-			shortcut.add(this.translateSwingShortcut(shortcutcombination),this.getCallbackFunction(callback, contextFilter,args,shortcutcombination),{'propagate':false,'disable_in_input':false});
+			this.removeShortcut(shortcutcombination,contextFilter);
+			var translatedShortcut = this.translateSwingShortcut(shortcutcombination);
+			if (!shortcut.all_shortcuts[translatedShortcut])
+			{
+				shortcut.add(translatedShortcut,this.getCallbackFunction(shortcutcombination),{'propagate':false,'disable_in_input':false});
+			}
 			if (!scope.model.shortcuts) scope.model.shortcuts = [];
 			scope.model.shortcuts.push({'shortcut': shortcutcombination,'callback':callback,'contextFilter':contextFilter,'arguments':args});
 			return true;
@@ -67,13 +72,12 @@ angular.module('window',['servoy'])
 		 *
 		 * @param shortcutcombination 
 		 */
-		removeShortcut: function(shortcutcombination) {
-			shortcut.remove(this.translateSwingShortcut(shortcutcombination));
+		removeShortcut: function(shortcutcombination,contextFilter) {
 			if (scope.model.shortcuts)
 			{
 				for (var i=0;i<scope.model.shortcuts.length;i++)
 				{
-					if (scope.model.shortcuts[i].shortcut == shortcutcombination)
+					if (scope.model.shortcuts[i].shortcut == shortcutcombination && scope.model.shortcuts[i].contextFilter == contextFilter)
 					{
 						scope.model.shortcuts.splice(i,1);
 						break;
@@ -82,7 +86,7 @@ angular.module('window',['servoy'])
 			}
 			return true;
 		},
-		
+				
 		translateSwingShortcut: function(shortcutcombination)
 		{
 			var shortcutParts = shortcutcombination.split(" ");
@@ -116,7 +120,7 @@ angular.module('window',['servoy'])
 			}
 			return translatedShortcut;
 		},
-		getCallbackFunction: function(callback,contextFilter,args,shortcutcombination)
+		getCallbackFunction: function(shortcutcombination)
 		{
 			return function(e){
 				
@@ -124,42 +128,55 @@ angular.module('window',['servoy'])
 				if(e.target) targetEl=e.target;
 				else if(e.srcElement) targetEl=e.srcElement;
 				
-				var form;
-				var parent = targetEl;
-				var targetElNameChain = new Array();
-				while (parent) {
-					form = parent.getAttribute("ng-controller");
-					if (form) {
-						if (contextFilter && form != contextFilter && form != 'MainController') return;
-						break;				
-					}
-					if(parent.getAttribute("name")) targetElNameChain.push(parent.getAttribute("name"));
-					parent = parent.parentNode;
-				}
-				
-
-				var jsEvent = {svyType: 'jsevent', eventType: shortcutcombination};
-				if(form != 'MainController') {
-					jsEvent.formName = form;
-					var formScope = angular.element(parent).scope();
-					for (var i = 0; i < targetElNameChain.length; i++) {
-						if(formScope.model[targetElNameChain[i]]) {
-							jsEvent.elementName = targetElNameChain[i];
-							break;
+				for (var j = 0;j< scope.model.shortcuts.length;j++)
+				{
+					if (scope.model.shortcuts[j].shortcut == shortcutcombination )
+					{
+						var callback = scope.model.shortcuts[j].callback;
+						var contextFilter = scope.model.shortcuts[j].contextFilter;
+						var args = scope.model.shortcuts[j].arguments;
+						
+						var form;
+						var parent = targetEl;
+						var targetElNameChain = new Array();
+						var contextMatch = false;
+						while (parent) {
+							form = parent.getAttribute("ng-controller");
+							if (form) {
+								if (contextFilter && form != contextFilter && form != 'MainController') break;
+								contextMatch = true;
+								break;
+							}
+							if(parent.getAttribute("name")) targetElNameChain.push(parent.getAttribute("name"));
+							parent = parent.parentNode;
 						}
-					}
-				}
-				
-				var argsWithEvent = [jsEvent];// append args
-				if(args != null) {
-					if(args.length) {
-						argsWithEvent = argsWithEvent.concat(args);
-					}
-					else {
-						argsWithEvent.push(args);
-					}
-				}
-				$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
+						
+						if (!contextMatch) continue;
+						
+						var jsEvent = {svyType: 'jsevent', eventType: shortcutcombination};
+						if(form != 'MainController') {
+							jsEvent.formName = form;
+							var formScope = angular.element(parent).scope();
+							for (var i = 0; i < targetElNameChain.length; i++) {
+								if(formScope.model[targetElNameChain[i]]) {
+									jsEvent.elementName = targetElNameChain[i];
+									break;
+								}
+							}
+						}
+						
+						var argsWithEvent = [jsEvent];// append args
+						if(args != null) {
+							if(args.length) {
+								argsWithEvent = argsWithEvent.concat(args);
+							}
+							else {
+								argsWithEvent.push(args);
+							}
+						}
+						$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
+					}	
+				}	
 			};
 		},
 		
@@ -315,10 +332,13 @@ angular.module('window',['servoy'])
 	scope.$watch('model', function(newvalue,oldvalue) {
 		if (newvalue && newvalue.shortcuts && newvalue.shortcuts.length > 0 && Object.keys(shortcut.all_shortcuts).length == 0)
 		{
-			// handle just refresh page case, need to reinstall all shortcuts again
 			for (var i=0;i<newvalue.shortcuts.length;i++)
 			{
-				shortcut.add(window.translateSwingShortcut(newvalue.shortcuts[i].shortcut),window.getCallbackFunction(newvalue.shortcuts[i].callback,newvalue.shortcuts[i].contextFilter,newvalue.shortcuts[i].arguments,newvalue.shortcuts[i].shortcut),{'propagate':true,'disable_in_input':false});
+				var translatedShortcut = window.translateSwingShortcut(newvalue.shortcuts[i].shortcut);
+				if (!shortcut.all_shortcuts[translatedShortcut])
+				{
+					shortcut.add(translatedShortcut,window.getCallbackFunction(newvalue.shortcuts[i].shortcut),{'propagate':true,'disable_in_input':false});
+				}	
 			}
 		}
 		if (newvalue && newvalue.popupform && !oldvalue.popupform)
