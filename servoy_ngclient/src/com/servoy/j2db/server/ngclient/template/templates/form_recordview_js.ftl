@@ -93,9 +93,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 
 	var wrapper = function(beanName) {
-		return function(newvalue,oldvalue) {
+		return function(newvalue,oldvalue,property) {
 				if(oldvalue === newvalue) return;
-				$servoyInternal.sendChanges(newvalue,oldvalue, "${name}", beanName);
+				$servoyInternal.sendChanges(newvalue,oldvalue, "${name}", beanName,property);
 		}
 	}
 

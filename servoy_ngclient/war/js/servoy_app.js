@@ -8,9 +8,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 	var latestApplyCall = {};
 
-	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier, componentScope) {
+	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier, componentScope,property) {
 
-		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifier, componentScope)
+		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifier, componentScope,property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
@@ -20,10 +20,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		return changes;
 	};
 
-	var sendChanges = function(now, prev, formname, beanname) {
+	var sendChanges = function(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var changes = getComponentChanges(now, prev, $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname),
-					formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifier(formname, beanname), formState.getScope());
+					formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifier(formname, beanname,property), formState.getScope(),property);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes}, true)
 			}

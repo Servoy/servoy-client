@@ -365,7 +365,7 @@ describe("Test component_custom_property suite", function() {
 		var result = sabloConverters.convertFromClientToServer(converted,'component', undefined);
 		expect(result.length).toEqual(1);
 		
-		expect(result[0]).toEqual({ propertyChanges: Object({ 0: undefined, 1: undefined, 2: undefined, 3: undefined, 4: undefined, 5: undefined, 6: undefined, length: undefined, text: 'button', location: Object({ x: 1, y: 2 }) }) });
+		expect(result[0]).toEqual({propertyChanges:{text:'button'}});
 		expect(converted.__internalState.isChanged()).toBe(false);
 	});
 });
