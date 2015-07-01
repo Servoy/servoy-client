@@ -226,6 +226,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						newFormController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight(),
 							((BasicFormController)newFormController).getDefaultSortColumns()) : null);
 					}
+					updateParentContainer(newFormController, newVisibleForm.getRight(), formController.isFormVisible());
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 					newFormController.notifyVisible(formController.isFormVisible(), invokeLaterRunnables);
 					Utils.invokeLater(getApplication(), invokeLaterRunnables);
@@ -760,33 +761,38 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		for (IWebFormController relatedController : relatedForms.keySet())
 		{
-			if (b)
+			updateParentContainer(relatedController, relatedForms.get(relatedController), b);
+			relatedController.notifyVisible(b, invokeLaterRunnables);
+		}
+	}
+
+	private void updateParentContainer(IWebFormController relatedController, String relationName, boolean visible)
+	{
+		if (visible)
+		{
+			WebFormComponent parentContainer = null;
+			Collection<WebComponent> components = formController.getFormUI().getComponents();
+			for (WebComponent component : components)
 			{
-				WebFormComponent parentContainer = null;
-				Collection<WebComponent> components = formController.getFormUI().getComponents();
-				for (WebComponent component : components)
+				// legacy behavior
+				Object tabs = component.getProperty("tabs");
+				if (tabs instanceof List && ((List)tabs).size() > 0)
 				{
-					// legacy behavior
-					Object tabs = component.getProperty("tabs");
-					if (tabs instanceof List && ((List)tabs).size() > 0)
+					List tabsList = (List)tabs;
+					for (int i = 0; i < tabsList.size(); i++)
 					{
-						List tabsList = (List)tabs;
-						for (int i = 0; i < tabsList.size(); i++)
+						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+						String relation = (String)tab.get("relationName");
+						Object form = tab.get("containsFormId");
+						if (Utils.equalObjects(form, relatedController.getName()) && Utils.equalObjects(relation, relationName))
 						{
-							Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
-							String relationName = (String)tab.get("relationName");
-							Object form = tab.get("containsFormId");
-							if (Utils.equalObjects(form, relatedController.getName()) && Utils.equalObjects(relationName, relatedForms.get(relatedController)))
-							{
-								parentContainer = (WebFormComponent)component;
-								break;
-							}
+							parentContainer = (WebFormComponent)component;
+							break;
 						}
 					}
 				}
-				relatedController.getFormUI().setParentContainer(parentContainer);
 			}
-			relatedController.notifyVisible(b, invokeLaterRunnables);
+			relatedController.getFormUI().setParentContainer(parentContainer);
 		}
 	}
 
