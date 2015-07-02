@@ -382,7 +382,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean recreateUI()
 	{
-		application.reportJSInfo("form " + getName() + " is recreated"); // todo should be removed later, added for frameworks
+		tabSequence = null;
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		form = application.getFlattenedSolution().getFlattenedForm(f);
 		getFormUI().init();
@@ -460,7 +460,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			Map<Integer, String> map = new TreeMap<Integer, String>();
 			boolean defaultTabSequence = true;
-			for (WebComponent component : formUI.getComponents())
+			for (WebComponent component : formUI.getScriptableComponents())
 			{
 				WebComponentSpecification spec = component.getSpecification();
 				Collection<PropertyDescription> properties = spec.getProperties(NGTabSeqPropertyType.NG_INSTANCE);

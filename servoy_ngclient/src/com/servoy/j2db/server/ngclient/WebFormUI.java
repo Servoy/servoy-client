@@ -271,6 +271,20 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		return (WebFormComponent)super.getComponent(compname);
 	}
 
+	public Collection<WebComponent> getScriptableComponents()
+	{
+		List<WebComponent> components = new ArrayList<WebComponent>();
+		Object[] names = getElementsScope().getIds();
+		if (names != null)
+		{
+			for (Object componentName : names)
+			{
+				components.add(((RuntimeWebComponent)getElementsScope().get((String)componentName, null)).getComponent());
+			}
+		}
+		return components;
+	}
+
 	@Override
 	public boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter converter) throws JSONException
 	{
