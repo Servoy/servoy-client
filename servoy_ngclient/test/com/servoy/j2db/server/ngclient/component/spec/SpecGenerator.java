@@ -38,6 +38,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -49,7 +50,6 @@ import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.server.ngclient.template.ClientModifiablePropertiesGenerator;
 import com.servoy.j2db.ui.IScriptScriptLabelMethods;
 import com.servoy.j2db.ui.runtime.IRuntimeCalendar;
 import com.servoy.j2db.ui.runtime.IRuntimeCheck;
@@ -436,16 +436,20 @@ public class SpecGenerator
 		}
 	}
 
+	private static final String SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS = "\"" + ModifiablePropertiesGenerator.TWO_WAY + "\": \"" +
+		ModifiablePropertiesGenerator.SHALLOW_WATCH + "\"";
+	private static final String SHALLOW_WATCH_TWO_WAY_WITH_TAGS = ", \"tags\": {" + SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS + " }";
+
 	//@formatter:off
-	private static final IntHashMap<String> repoTypeMapping = new IntHashMap<String>();
-	private static final Map<String, Map<String, String>> componentRepoTypeMappingExceptions = new HashMap<String, Map<String, String>>();
-	private static final Map<String, String> repoTypeMappingExceptions = new HashMap<String, String>();
+	private static final IntHashMap<String> repoTypeMapping = new IntHashMap<>();
+	private static final Map<String, Map<String, String>> componentRepoTypeMappingExceptions = new HashMap<>();
+	private static final Map<String, String> repoTypeMappingExceptions = new HashMap<>();
 	private static final List<String> internalProperties = new ArrayList<>();
 	private static final Map<String, List<String>> perComponentExceptions = new HashMap<>();
 	private static final Map<String, List<String>> perComponentInternalProperties = new HashMap<>();
 	private static final List<String> serverSideApi = new ArrayList<>();
 	private static final Map<String, ApiMethod> overriddenClientSideApi = new HashMap<>();
-	private static final Map<String, List<String>> metaDataForApi = new HashMap<String, List<String>>();
+	private static final Map<String, List<String>> metaDataForApi = new HashMap<>();
 	static
 	{
 		overriddenClientSideApi.put("requestFocus", new ApiMethod("requestFocus", "void", Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}),  Arrays.asList(new String[]{"boolean"}), Arrays.asList(new String[]{"mustExecuteOnFocusGainedMethod"}), Arrays.asList(new String[]{"\"delayUntilFormLoad\": true","\"globalExclusive\": true"})));
@@ -513,11 +517,8 @@ public class SpecGenerator
 //		addReadOnlyModelEntries.add("rectangle");
 
 
-		final String SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS = "\"" + ClientModifiablePropertiesGenerator.TWO_WAY + "\": \"" + ClientModifiablePropertiesGenerator.SHALLOW_WATCH + "\"";
-		final String SHALLOW_WATCH_TWO_WAY_WITH_TAGS = ", \"tags\": {" + SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS + " }";
-
 		// component specific repository element mapping
-		HashMap<String, String> htmlViewRepoTypeMapping = new HashMap<String, String>();
+		Map<String, String> htmlViewRepoTypeMapping = new HashMap<>();
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ \"type\": \"dataprovider\"" + /*SHALLOW_WATCH_TWO_WAY_WITH_TAGS actually this component doesn't change data clientside*/"" + ", \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"parsehtml\":true, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" } , \"values\" :[]}");
@@ -526,7 +527,7 @@ public class SpecGenerator
 
 
 
-		HashMap<String, String> buttonTypeMapping = new HashMap<String, String>();
+		Map<String, String> buttonTypeMapping = new HashMap<>();
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"btn\",\"btn-default\",\"btn-lg\",\"btn-sm\",\"btn-xs\"]}");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
@@ -541,7 +542,7 @@ public class SpecGenerator
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" , \"tags\": { \"directEdit\" : \"true\" } }");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
 
-		HashMap<String, String> portalTypeMapping = new HashMap<String, String>();
+		Map<String, String> portalTypeMapping = new HashMap<>();
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":200, \"height\":200}}");
 		portalTypeMapping.put("relatedFoundset", "foundset");
 		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
@@ -555,7 +556,7 @@ public class SpecGenerator
 		portalTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 
-		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();
+		Map<String, String> calendarTypeMapping = new HashMap<>();
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\", \"svy-line-height-normal\"]}");
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
@@ -565,14 +566,14 @@ public class SpecGenerator
 		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		componentRepoTypeMappingExceptions.put("calendar", calendarTypeMapping);
 
-		HashMap<String, String> checkTypeMapping = new HashMap<String, String>();
+		Map<String, String> checkTypeMapping = new HashMap<>();
 		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"checkbox\"]}");
 		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		checkTypeMapping.put("findmode", findModeEditable);
 		checkTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("check", checkTypeMapping);
 
-		HashMap<String, String> checkGroupTypeMapping = new HashMap<String, String>();
+		Map<String, String> checkGroupTypeMapping = new HashMap<>();
 		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
@@ -580,7 +581,7 @@ public class SpecGenerator
 		checkGroupTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("checkgroup", checkGroupTypeMapping);
 
-		HashMap<String, String> comboTypeMapping = new HashMap<String, String>();
+		Map<String, String> comboTypeMapping = new HashMap<>();
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\", \"select2-container-svy-xs\"]}");
 		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
@@ -589,21 +590,21 @@ public class SpecGenerator
 		comboTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("combobox", comboTypeMapping);
 
-		HashMap<String, String> htmlAreaMapping = new HashMap<String, String>();
+		Map<String, String> htmlAreaMapping = new HashMap<>();
 		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":370, \"height\":250}}");
 		htmlAreaMapping.put("findmode", findModeEditable);
 		htmlAreaMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("htmlarea", htmlAreaMapping);
 
-		HashMap<String, String> imageMediaMapping = new HashMap<String, String>();
+		Map<String, String> imageMediaMapping = new HashMap<>();
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		imageMediaMapping.put("readOnly", readOnlyEditable);
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		componentRepoTypeMappingExceptions.put("imagemedia", imageMediaMapping);
 
-		HashMap<String, String> labelMapping = new HashMap<String, String>();
+		Map<String, String> labelMapping = new HashMap<>();
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
 			"{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[{\"TOP\":1}, {\"CENTER\":0} ,{\"BOTTOM\":3}], \"default\" : 0}");
@@ -614,7 +615,7 @@ public class SpecGenerator
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" , \"tags\": { \"directEdit\" : \"true\" } }");
 		componentRepoTypeMappingExceptions.put("label", labelMapping);
 
-		HashMap<String, String> listboxTypeMapping = new HashMap<String, String>();
+		Map<String, String> listboxTypeMapping = new HashMap<>();
 		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
@@ -622,7 +623,7 @@ public class SpecGenerator
 		listboxTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("listbox", listboxTypeMapping);
 
-		HashMap<String, String> passwordMapping = new HashMap<String, String>();
+		Map<String, String> passwordMapping = new HashMap<>();
 		passwordMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		passwordMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
@@ -630,14 +631,14 @@ public class SpecGenerator
 		passwordMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("password", passwordMapping);
 
-		HashMap<String, String> radioTypeMapping = new HashMap<String, String>();
+		Map<String, String> radioTypeMapping = new HashMap<>();
 		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"radio\"]}");
 		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		radioTypeMapping.put("findmode", findModeEditable);
 		radioTypeMapping.put("readOnly", readOnlyEnabled);
 		componentRepoTypeMappingExceptions.put("radio", radioTypeMapping);
 
-		HashMap<String, String> radioGroupTypeMapping = new HashMap<String, String>();
+		Map<String, String> radioGroupTypeMapping = new HashMap<>();
 		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
@@ -645,14 +646,14 @@ public class SpecGenerator
 		radioGroupTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("radiogroup", radioGroupTypeMapping);
 
-		HashMap<String, String> spinnerMapping = new HashMap<String, String>();
+		Map<String, String> spinnerMapping = new HashMap<>();
 		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
 		spinnerMapping.put("findmode", findModeEditable);
 		spinnerMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("spinner", spinnerMapping);
 
-		HashMap<String, String> splitpaneMapping = new HashMap<String, String>();
+		Map<String, String> splitpaneMapping = new HashMap<>();
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
@@ -662,7 +663,7 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
 
-		HashMap<String, String> tabpanelMapping = new HashMap<String, String>();
+		Map<String, String> tabpanelMapping = new HashMap<>();
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[]}");
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
 		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
@@ -671,7 +672,7 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("tabpanel", tabpanelMapping);
 
-		HashMap<String, String> textareaTypeMapping = new HashMap<String, String>();
+		Map<String, String> textareaTypeMapping = new HashMap<>();
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
@@ -680,7 +681,7 @@ public class SpecGenerator
 		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
 		componentRepoTypeMappingExceptions.put("textarea", textareaTypeMapping);
 
-		HashMap<String, String> textfieldTypeMapping = new HashMap<String, String>();
+		Map<String, String> textfieldTypeMapping = new HashMap<>();
 		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
@@ -688,7 +689,7 @@ public class SpecGenerator
 		textfieldTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("textfield", textfieldTypeMapping);
 
-		HashMap<String, String> typeaheadTypeMapping = new HashMap<String, String>();
+		Map<String, String> typeaheadTypeMapping = new HashMap<>();
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" }, \"values\" :[\"form-control\", \"input-sm\", \"svy-padding-xs\"]}");
 		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":20}}");
@@ -849,7 +850,7 @@ public class SpecGenerator
 		return ret == null ? element.getName() : ret;
 	}
 
-	private static Map<String, String> docTypeMappingExceptions = new HashMap<String, String>();
+	private static Map<String, String> docTypeMappingExceptions = new HashMap<>();
 	static
 	{
 		docTypeMappingExceptions.put("[B", "byte");

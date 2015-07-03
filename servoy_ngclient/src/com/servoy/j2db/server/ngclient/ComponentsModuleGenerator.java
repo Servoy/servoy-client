@@ -25,11 +25,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
-
-import com.servoy.j2db.server.ngclient.template.ClientModifiablePropertiesGenerator;
 
 /**
  * @author jcompagner
@@ -49,7 +48,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 
 		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
 		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
-		generateModule(sb, ClientModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST);
+		generateModule(sb, ModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST);
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		resp.setContentLength(sb.length());
