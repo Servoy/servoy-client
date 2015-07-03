@@ -185,17 +185,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					for (var beanname in newFormData) {
 						// copy over the changes, skip for form properties (beanname empty)
 						if (beanname != '') {
-							if (formModel[beanname]!= undefined && (newFormData[beanname].size != undefined ||  newFormData[beanname].location != undefined)) {	
+							var beanData = newFormData[beanname];
+							var beanModel = formModel[beanname];
+							if (beanModel != undefined && (beanData.size != undefined ||  beanData.location != undefined)) {	
 								//size or location were changed at runtime, we need to update components with anchors
-								newFormData[beanname].anchors = formModel[beanname].anchors;
+								beanData.anchors = beanModel.anchors;
 							}
-
-							applyBeanLayout(formModel[beanname], layout[beanname], newFormData[beanname], formState.properties.designSize)
+							if (latestApplyCall && latestApplyCall.formname == formname && latestApplyCall.beanname == beanname && beanData[latestApplyCall.property] != undefined)
+								latestApplyCall = {};
+							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize)
 
 							for (var defProperty in deferredProperties) {
-								for(var key in newFormData[beanname]) {
+								for(var key in beanData) {
 									if (defProperty == (formname + "_" + beanname + "_" + key)) {
-										deferredProperties[defProperty].resolve(newFormData[beanname][key]);
+										deferredProperties[defProperty].resolve(beanData[key]);
 										delete deferredProperties[defProperty];
 									}
 								}
