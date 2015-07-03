@@ -2,91 +2,7 @@ angular.module('window',['servoy'])
 .factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication) {
 	var scope = $services.getServiceScope('window');
 	return {
-		/**
-		 * Create a shortcut.
-		 *
-		 * @example
-		 * // this plugin uses the java keystroke parser
-		 * // see http://java.sun.com/j2se/1.5.0/docs/api/javax/swing/KeyStroke.html#getKeyStroke(java.lang.String)
-		 * // global handler
-		 * plugins.window.createShortcut('control shift I', scopes.globals.handleOrdersShortcut);
-		 * // global handler with a form context filter
-		 * plugins.window.createShortcut('control shift I', scopes.globals.handleOrdersShortcut, 'frm_contacts');
-		 * // form method called when shortcut is used
-		 * plugins.window.createShortcut('control RIGHT', forms.frm_contacts.handleMyShortcut);
-		 * // form method called when shortcut is used and arguments are passed to the method
-		 * plugins.window.createShortcut('control RIGHT', forms.frm_contacts.handleMyShortcut, new Array(argument1, argument2));
-		 * // Passing the method argument as a string prevents unnecessary form loading
-		 * //plugins.window.createShortcut('control RIGHT', 'frm_contacts.handleMyShortcut', new Array(argument1, argument2));
-		 * // Passing the method as a name and the contextFilter set so that this shortcut only trigger on the form 'frm_contacts'.
-		 * plugins.window.createShortcut('control RIGHT', 'frm_contacts.handleMyShortcut', 'frm_contacts', new Array(argument1, argument2));
-		 * // Num Lock and Substract shortcuts 
-		 * plugins.window.createShortcut("NUMPAD8", handleMyShortcut);
-		 * plugins.window.createShortcut("SUBTRACT", handleMyShortcut);
-		 * // remove global shortcut and form-level shortcut
-		 * plugins.window.removeShortcut('menu 1');
-		 * plugins.window.removeShortcut('control RIGHT', 'frm_contacts');
-		 * // shortcut handlers are called with an JSEvent argument
-		 * ///* 
-		 * // * Handle keyboard shortcut.
-		 * // * 
-		 * // * @param {JSEvent} event the event that triggered the action
-		 * // *&#47;
-		 * //function handleShortcut(event)
-		 * //{
-		 * //  application.output(event.getType()) // returns 'menu 1'
-		 * //  application.output(event.getFormName()) // returns 'frm_contacts'
-		 * //  application.output(event.getElementName()) // returns 'contact_name_field' or null when no element is selected
-		 * //}
-		 * // NOTES: 
-		 * // 1) shortcuts will not override existing operating system or browser shortcuts,
-		 * // choose your shortcuts carefully to make sure they work in all clients.
-		 * // 2) always use lower-case letters for modifiers (shift, control, etc.), otherwise createShortcut will fail.
-		 *
-		 * @param shortcut 
-		 * @param callback scopes.scopename.methodname or formname.methodname String to target the method to execute
-		 * @param contextFilter	only triggers the shortcut when on this form
-		 * @param args
-		 */
-		createShortcut: function(shortcutcombination,callback,contextFilter,args) {
-			if (contextFilter instanceof Array)
-			{
-				args = contextFilter;
-				contextFilter = null;
-			}
-			this.removeShortcut(shortcutcombination,contextFilter);
-			var translatedShortcut = this.translateSwingShortcut(shortcutcombination);
-			if (!shortcut.all_shortcuts[translatedShortcut])
-			{
-				shortcut.add(translatedShortcut,this.getCallbackFunction(shortcutcombination),{'propagate':false,'disable_in_input':false});
-			}
-			if (!scope.model.shortcuts) scope.model.shortcuts = [];
-			scope.model.shortcuts.push({'shortcut': shortcutcombination,'callback':callback,'contextFilter':contextFilter,'arguments':args});
-			return true;
-		},
-		/**
-		 * Remove a shortcut.
-		 * // remove global shortcut and form-level shortcut
-		 * plugins.window.removeShortcut('menu 1');
-		 * plugins.window.removeShortcut('control RIGHT', 'frm_contacts');
-		 *
-		 * @param shortcutcombination 
-		 */
-		removeShortcut: function(shortcutcombination,contextFilter) {
-			if (scope.model.shortcuts)
-			{
-				for (var i=0;i<scope.model.shortcuts.length;i++)
-				{
-					if (scope.model.shortcuts[i].shortcut == shortcutcombination && scope.model.shortcuts[i].contextFilter == contextFilter)
-					{
-						scope.model.shortcuts.splice(i,1);
-						break;
-					}
-				}
-			}
-			return true;
-		},
-				
+
 		translateSwingShortcut: function(shortcutcombination)
 		{
 			var shortcutParts = shortcutcombination.split(" ");
@@ -330,7 +246,7 @@ angular.module('window',['servoy'])
 {
 	var scope = $services.getServiceScope('window');
 	scope.$watch('model', function(newvalue,oldvalue) {
-		if (newvalue && newvalue.shortcuts && newvalue.shortcuts.length > 0 && Object.keys(shortcut.all_shortcuts).length == 0)
+		if (newvalue && newvalue.shortcuts && newvalue.shortcuts.length > 0)
 		{
 			for (var i=0;i<newvalue.shortcuts.length;i++)
 			{

@@ -285,3 +285,36 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 	$scope.model.popupform.width = width;
 	$scope.model.popupform.height = height;
 }
+
+$scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments)
+{
+	if (contextFilter == undefined)
+	{
+		contextFilter = null;
+	}
+	if (arguments == undefined)
+	{
+		arguments = null;
+	}
+	if (!$scope.model.shortcuts) $scope.model.shortcuts = [];
+	$scope.api.removeShortcut(shortcut,contextFilter)
+	$scope.model.shortcuts.push({'shortcut': shortcut,'callback':callback,'contextFilter':contextFilter,'arguments':arguments});
+	return true;
+}
+
+$scope.api.removeShortcut = function(shortcut,contextFilter)
+{
+	if (contextFilter == undefined)
+	{
+		contextFilter = null;
+	}
+	for (var i = 0;i< $scope.model.shortcuts.length;i++)
+	{
+		if ($scope.model.shortcuts[i].shortcut == shortcut && $scope.model.shortcuts[i].contextFilter === contextFilter )
+		{
+			$scope.model.shortcuts.splice(i,1);
+			break;
+		}	
+	}
+	return true;
+}
