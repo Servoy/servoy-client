@@ -125,7 +125,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -1071,6 +1071,19 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				credentials.clear();
 				getClientInfo().clearUserInfo();
 			}
+		}
+	}
+
+	@Override
+	public void updateUI(int time)
+	{
+		try
+		{
+			CurrentWindow.get().sendChanges();
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
 		}
 	}
 }
