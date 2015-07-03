@@ -10,7 +10,8 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "divLocation" : { "type": "int", "default": -1 }, 
+	        "divLocation" : { "type": "int", "default": -1 ,"tags": { "twoWay": "shallow" }},
+	        "divSize" : { "type": "int", "default": -1 ,"tags": { "twoWay": "shallow" }},  
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onChangeMethodID","onTabChangeMethodID"] }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
