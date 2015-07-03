@@ -7,32 +7,36 @@ module.exports = function(config){
     },
     files : [
        {pattern: 'fileResources/**/*', watched: true, included: false, served: true},
+       
+       // libraries for testing and angular
        'lib/jquery.js',
-       'lib/angular_1.4.0b5.js',
-       'lib/angular-mocks_1.4.0b5.js',
-       '../war/js/numeral.js',
-       /*'../../../sablo/sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
-       '../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
        'lib/phantomjs.polyfill.js',
+       '../war/js/angular_1.*.js',
+       'lib/angular-mocks*.js',
+       
+       // sablo and ngclient scripts
+       '../../../sablo/sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
+       '../../sablo/META-INF/resources/sablo/js/*.js',  /* use this when running from SVN-git bridge */
+       '../war/js/numeral.js',
        '../war/js/**/*.js',
+       
+       // components
        '../war/servoydefault/*/*.js',
-       '../war/servoydefault/portal/js/ui-grid.js',
-       './test/**/*.js',
-       '../war/servoydefault/*/*.html',
+       '../war/servoydefault/*/*/*.js',
        '../war/servoyservices/component_custom_property/*.js',
        '../war/servoyservices/custom_json_array_property/*.js',
        '../war/servoyservices/foundset_custom_property/*.js',
-       '../war/servoyservices/foundset_viewport_module/*.js'
+       '../war/servoyservices/foundset_viewport_module/*.js',
+
+       // templates
+       '../war/servoydefault/**/*.html',
+
+       // tests
+       'test/**/*.js'
     ],
     exclude : [
-	  '../war/servoydefault/tabpanel/tabpanel_server.js',
-	  '../war/servoydefault/splitpane/splitpane_server.js',
-	  '../war/servoydefault/portal/portal_server.js',
-	  '../war/js/**/*.min.js',
-	  '../war/js/**/angular1.3.4.js'
-      /*'app/lib/angular/angular-loader.js',
-      'app/lib/angular/*.min.js',
-      'app/lib/angular/angular-scenario.js'*/
+	  '../war/servoydefault/**/*_server.js',
+	  '../war/js/**/*.min.js'
     ],
     ngHtml2JsPreprocessor: {
         // setting this option will create only a single module that contains templates
