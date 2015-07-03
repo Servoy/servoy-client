@@ -109,7 +109,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
 	 */
 	@Override
@@ -485,6 +485,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON,
 				clientConversionInfo);
 			clientConversionInfo.popNode();
+
+			viewPortChangeMonitor.clearChanges();
 
 			// conversion info for websocket traffic (for example Date objects will turn into long)
 			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);

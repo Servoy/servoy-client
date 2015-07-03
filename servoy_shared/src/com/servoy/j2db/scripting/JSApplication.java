@@ -2920,11 +2920,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Warning: this gives the UI time to paint, but this also means that it will give the ui time to respond to all other events,
 	 * so if a user keeps clicking on other stuff this will also be handled right away inside this call.
 	 *
+	 * NOTE:In NGClient, this method will send to browser all outstanding changes. If called too often (with many changes), can cause performance issues.
 	 * @sample
 	 * application.updateUI(500);
 	 * //continue doing things
 	 */
-	@ServoyClientSupport(ng = false, mc = false, sc = true, wc = false)
+	@ServoyClientSupport(ng = true, mc = false, sc = true, wc = false)
 	public void js_updateUI()
 	{
 		js_updateUI(100);
@@ -2937,7 +2938,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param milliseconds How long the update should take in milliseconds
 	 */
-	@ServoyClientSupport(ng = false, mc = false, sc = true, wc = false)
+	@ServoyClientSupport(ng = true, mc = false, sc = true, wc = false)
 	public void js_updateUI(int milliseconds)
 	{
 		application.updateUI(milliseconds < 100 ? 100 : milliseconds);
