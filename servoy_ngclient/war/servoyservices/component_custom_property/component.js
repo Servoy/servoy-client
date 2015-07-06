@@ -4,7 +4,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
 	CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry/*, $anchoringUtils*/) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -53,7 +53,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		// $propertyWatchesRegistry knows exactly which properties are to be watched based on component type
 		return $propertyWatchesRegistry.watchDumbPropertiesForComponent(componentScope, componentTypeName, beanModel, function(newvalue, oldvalue, property) {
 			childChangedNotifierGenerator(oldvalue,newvalue)(property);
-		}/*, $anchoringUtils.getBoundsPropertiesToWatch(beanModel)*/);
+		});
 	};
 
 	function removeAllWatches(value) {

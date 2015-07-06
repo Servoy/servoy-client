@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry/*,$anchoringUtils*/) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -108,14 +108,14 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		formState.removeWatches(beanNames);
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
-		 		watches[beanName] =	$propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes[beanName], $scope.model[beanName], wrapper(beanName)/*, $anchoringUtils.getBoundsPropertiesToWatch($scope.model[beanName])*/);
+		 		watches[beanName] =	$propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes[beanName], $scope.model[beanName], wrapper(beanName));
 			}
 		}
 		else {
 		<#list parts as part>
 			<#if (part.baseComponents)??>
 				<#list part.baseComponents as bc>
-					watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes.${bc.name}, $scope.model.${bc.name}, wrapper('${bc.name}')/*, $anchoringUtils.getBoundsPropertiesToWatch($scope.model.${bc.name})*/);
+					watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes.${bc.name}, $scope.model.${bc.name}, wrapper('${bc.name}'));
 				</#list>
 			</#if>
 		</#list>
