@@ -358,48 +358,55 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			});
 		}
 	};
-}).directive('svyImagemediaid',  function ($parse,$timeout) {
+}).directive('svyImagemediaid',  function ($parse,$timeout,$solutionSettings,$anchorConstants,$window) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {     
 
 			var rollOverImgStyle = null; 
 			var imgStyle = null;
+			var media = null;
 			var clearStyle ={ width:'0px',
 					height:'0px',
 					backgroundImage:''}
 
+
+			var setImageStyle = function(newVal){
+				// the value from model may be incorrect so take value from ui
+				var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+				var image = null;
+				var mediaOptions = scope.$eval('model.mediaOptions');
+				if(newVal.rollOverImg){ 
+					rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, componentSize);
+				}else {
+					rollOverImgStyle = null
+				}
+				if(newVal.img){
+					imgStyle =parseImageOptions( newVal.img, mediaOptions, componentSize)
+					element.css(imgStyle)
+				}else {
+					imgStyle = null;
+				} 	
+			}
+			
+			if (scope.model.anchors && $solutionSettings.enableAnchoring) {
+				if (((scope.model.anchors & $anchorConstants.NORTH != 0) && (scope.model.anchors & $anchorConstants.SOUTH != 0)) || ((scope.model.anchors & $anchorConstants.EAST != 0) && (scope.model.anchors & $anchorConstants.WEST != 0)))
+				{
+					// anchored image, add resize listener
+					var resizeTimeoutID = null;
+					$window.addEventListener('resize',function() { 
+						if (media && media.visible)
+						{
+							 setImageStyle(media);
+						}	
+					});
+				}
+			}
 			scope.$watch(attrs.svyImagemediaid,function(newVal) {
-				// TODO: visibility must be based on properties of type visible, not on property name
+				media = newVal;
 				if (newVal.visible)
 				{
-					// the value from model may be incorrect so take value from ui
-					var setImageStyle = function(){
-						var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
-						var image = null;
-						var mediaOptions = scope.$eval('model.mediaOptions');
-						if(newVal.rollOverImg){ 
-							rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, componentSize);
-						}else {
-							rollOverImgStyle = null
-						}
-						if(newVal.img){
-							imgStyle =parseImageOptions( newVal.img, mediaOptions, componentSize)
-							element.css(imgStyle)
-						}else {
-							imgStyle = null;
-						} 	
-					}
-					angular.element(element[0]).ready(setImageStyle);
-//					if (element[0].parentNode.parentNode.offsetWidth >0 && element[0].parentNode.parentNode.offsetHeight >0)
-//					{
-//					//dom is ready
-//					setImageStyle();
-//					}
-//					else
-//					{
-//					$timeout(setImageStyle,200);
-//					}
+					angular.element(element[0]).ready(function() { setImageStyle(newVal) });
 				}
 			}, true)
 
