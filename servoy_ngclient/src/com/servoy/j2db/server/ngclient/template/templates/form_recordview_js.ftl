@@ -158,6 +158,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				$sabloApplication.unResolveFormState("${name}");
 			}
 			delete $scope.hiddenDivFormDiscarded;
+			delete formState.resolving;
 			formState = null;
 		}
 		else console.log("no formstate for ${name}" + formState + " " + $scope.$id);

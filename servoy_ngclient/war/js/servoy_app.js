@@ -634,7 +634,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			while (someAncestor && someAncestor !== window.document) someAncestor = someAncestor.parentNode;
 			if (someAncestor === window.document) {
 				var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
-
 				if (formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
 					if ($log.debugEnabled) $log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
 							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
@@ -644,8 +643,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						$rootScope.updatingFormUrl = '';
 						delete $rootScope.updatingFormName;
 					} 
-					else 
+					else {
+						// make sure the resolving state is deleted then so it corrects itself.
+						delete formState.resolving;
 						$log.error("svy * Unexpected: a form is being loaded twice at the same time(" + formName + ")");
+					}
 
 					if (inHiddenDiv) {
 						tElem.empty(); // don't allow loading stuff further in this directive - so effectively blocks the form from loading in $rootScope.updatingFormUrl
@@ -653,7 +655,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						// so the form is already (being) loaded in non-hidden div; hidden div can relax; it shouldn't load form twice
 					} else {
 						// else it is already loaded in hidden div but now it wants to load in non-hidden div; so this has priority; allow it
-						formState.getScope().hiddenDivFormDiscarded = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
+						if (formState.getScope) formState.getScope().hiddenDivFormDiscarded = true; // skip altering form state on hidden form scope destroy (as destroy might happen after the other place loads the form); new load will soon resolve the form again if it hasn't already at that time
 						if ($sabloApplication.hasResolvedFormState(formName)) $sabloApplication.unResolveFormState(formName);
 						else formState.blockPostLinkInHidden = true;
 					}
@@ -675,12 +677,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					if ($log.debugEnabled) $log.debug("svy * svyFormload will resolve = " + formName);
 
 					$timeout(function() {
-						$sabloApplication.resolveFormState(formName);
-						$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)
-						});
-
-					$sabloApplication.getFormState(formName).then(function(resolvedFormState) {
-						$timeout(function() {
+						var resolvedFormState = $sabloApplication.resolveFormState(formName);
+						if (resolvedFormState) {
+							$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)
 							var formWidth = element.prop('offsetWidth');
 							var formHeight = element.prop('offsetHeight');
 							if (formWidth === 0 && formHeight === 0)
@@ -690,8 +689,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							}	
 							resolvedFormState.properties.size.width = formWidth; // formState.properties == formState.getScope().formProperties here
 							resolvedFormState.properties.size.height = formHeight;
-						}, 0);
-						delete resolvedFormState.resolving;
+						}
 					});
 				}
 			}
