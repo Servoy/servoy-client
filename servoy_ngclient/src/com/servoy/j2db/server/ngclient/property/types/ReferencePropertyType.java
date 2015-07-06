@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,22 +31,24 @@ import org.sablo.specification.property.types.DefaultPropertyType;
  */
 public abstract class ReferencePropertyType<T> extends DefaultPropertyType<T>
 {
+	private final ReferenceQueue<T> refQueue = new ReferenceQueue<>();
 	private final List<WeakReference<T>> allRefs = new ArrayList<WeakReference<T>>();
 
 	protected int addReference(T ref)
 	{
+		cleanReferences();
 		if (ref == null) return 0;
 		int hashCode = ref.hashCode();
-		WeakReference<T> wf = new WeakReference<T>(ref);
-		if (!allRefs.contains(wf))
+		if (getReference(hashCode) == null)
 		{
-			allRefs.add(wf);
+			allRefs.add(new WeakReference<T>(ref, refQueue));
 		}
 		return hashCode;
 	}
 
 	protected T getReference(int hashCode)
 	{
+		cleanReferences();
 		if (hashCode > 0)
 		{
 			for (int i = 0; i < allRefs.size(); i++)
@@ -58,5 +62,14 @@ public abstract class ReferencePropertyType<T> extends DefaultPropertyType<T>
 			}
 		}
 		return null;
+	}
+
+	private void cleanReferences()
+	{
+		Reference< ? > ref;
+		while ((ref = refQueue.poll()) != null)
+		{
+			allRefs.remove(ref);
+		}
 	}
 }
