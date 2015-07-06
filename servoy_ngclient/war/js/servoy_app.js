@@ -8,9 +8,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 	var latestApplyCall = {};
 
-	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifierGenerator, componentScope,property) {
+	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifierGenerator, componentScope, property) {
 
-		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifierGenerator, componentScope,property)
+		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifierGenerator, componentScope, property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {

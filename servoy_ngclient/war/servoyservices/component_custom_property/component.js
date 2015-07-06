@@ -19,31 +19,29 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 	var NO_OP = "n";
 
-	function getChildPropertyChanges(componentState, oldBeanModel, componentScope,newvalue,property) {
+	function getChildPropertyChanges(componentState, oldPropertyValue, componentScope, newPropertyValue, propertyName) {
 		var internalState = componentState[$sabloConverters.INTERNAL_IMPL];
 		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 		var childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(componentState, componentScope); 
 		
-		var newBeanModel = newvalue;
-		if (!property){
-			newBeanModel = componentState[MODEL_KEY];
-			if (angular.isUndefined(oldBeanModel)) oldBeanModel = newBeanModel; // for child components who's custom prop. changed
-		}
-		
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
 
-		return $servoyInternal.getComponentChanges(newBeanModel, oldBeanModel, beanConversionInfo,
-				internalState.beanLayout, containerSize, childChangedNotifierGenerator, componentScope,property);
+		return $servoyInternal.getComponentChanges(newPropertyValue, oldPropertyValue, beanConversionInfo,
+				internalState.beanLayout, containerSize, childChangedNotifierGenerator, componentScope, propertyName);
 	};
 
 	function getBeanPropertyChangeNotifierGenerator(propertyValue, componentScope) {
-		return function(propertyName) {
+		return function beanPropertyChangeNotifierGenerator(propertyName) {
 			if (!propertyValue) return undefined;
 
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-			return function (oldBeanModel,newvalue) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
-				internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel, componentScope,newvalue,propertyName) });
+			return function beanPropertyChangeNotifier(oldValue, newValue, dumb) { // oldValue, newValue and dumb are only set when called from bean model in-depth/shallow watch; not set for smart properties
+				if (dumb !== true) {
+					// so smart property - no watch involved (it notifies itself as changed)
+					oldValue = newValue = propertyValue[MODEL_KEY][propertyName];
+				} 
+				internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldValue, componentScope, newValue, propertyName) });
 				if (internalState.changeNotifier) internalState.changeNotifier();
 			};
 		};
@@ -51,8 +49,8 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 	function watchModel(componentTypeName, beanModel, childChangedNotifierGenerator, componentScope) {
 		// $propertyWatchesRegistry knows exactly which properties are to be watched based on component type
-		return $propertyWatchesRegistry.watchDumbPropertiesForComponent(componentScope, componentTypeName, beanModel, function(newvalue, oldvalue, property) {
-			childChangedNotifierGenerator(oldvalue,newvalue)(property);
+		return $propertyWatchesRegistry.watchDumbPropertiesForComponent(componentScope, componentTypeName, beanModel, function(newValue, oldValue, property) {
+			childChangedNotifierGenerator(property)(oldValue, newValue, true);
 		});
 	};
 
