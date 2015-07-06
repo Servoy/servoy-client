@@ -4,7 +4,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	CALL_ON_ONE_SELECTED_RECORD_IF_TEMPLATE : 0,
 	CALL_ON_ALL_RECORDS_IF_TEMPLATE : 1
 })
-.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry) {
+.run(function ($sabloConverters, $sabloUtils, $viewportModule, $servoyInternal, $log, $foundsetTypeConstants, $sabloUtils, $propertyWatchesRegistry/*, $anchoringUtils*/) {
 	var PROPERTY_UPDATES_KEY = "propertyUpdates";
 
 	var MODEL_KEY = "model";
@@ -22,7 +22,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	function getChildPropertyChanges(componentState, oldBeanModel, componentScope,newvalue,property) {
 		var internalState = componentState[$sabloConverters.INTERNAL_IMPL];
 		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
-		var childChangedNotifier = getBeanPropertyChangeNotifier(componentState, componentScope); 
+		var childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(componentState, componentScope); 
 		
 		var newBeanModel = newvalue;
 		if (!property){
@@ -34,24 +34,26 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		var containerSize = {width: 0, height: 0};
 
 		return $servoyInternal.getComponentChanges(newBeanModel, oldBeanModel, beanConversionInfo,
-				internalState.beanLayout, containerSize, childChangedNotifier, componentScope,property);
+				internalState.beanLayout, containerSize, childChangedNotifierGenerator, componentScope,property);
 	};
 
-	function getBeanPropertyChangeNotifier(propertyValue, componentScope) {
-		if (!propertyValue) return undefined;
+	function getBeanPropertyChangeNotifierGenerator(propertyValue, componentScope) {
+		return function(propertyName) {
+			if (!propertyValue) return undefined;
 
-		var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
-		return function (oldBeanModel,newvalue,property) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
-			internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel, componentScope,newvalue,property) });
-			if (internalState.changeNotifier) internalState.changeNotifier();
+			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
+			return function (oldBeanModel,newvalue) { // oldBeanModel is only set when called from bean model in-depth watch; not set for nested comp. custom properties
+				internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldBeanModel, componentScope,newvalue,propertyName) });
+				if (internalState.changeNotifier) internalState.changeNotifier();
+			};
 		};
 	};
 
-	function watchModel(componentTypeName, beanModel, childChangedNotifier, componentScope) {
+	function watchModel(componentTypeName, beanModel, childChangedNotifierGenerator, componentScope) {
 		// $propertyWatchesRegistry knows exactly which properties are to be watched based on component type
 		return $propertyWatchesRegistry.watchDumbPropertiesForComponent(componentScope, componentTypeName, beanModel, function(newvalue, oldvalue, property) {
-			childChangedNotifier(oldvalue,newvalue,property);
-		});
+			childChangedNotifierGenerator(oldvalue,newvalue)(property);
+		}/*, $anchoringUtils.getBoundsPropertiesToWatch(beanModel)*/);
 	};
 
 	function removeAllWatches(value) {
@@ -66,11 +68,11 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		}
 	};
 
-	function addBackWatches(value, componentScope, childChangedNotifier) {
+	function addBackWatches(value, componentScope, childChangedNotifierGenerator) {
 		if (angular.isDefined(value) && value !== null) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
 			if (value[MODEL_VIEWPORT]) $viewportModule.addDataWatchesToRows(value[MODEL_VIEWPORT], iS, componentScope, false);
-			if (componentScope) iS.modelUnwatch = watchModel(value.componentDirectiveName, value.model, childChangedNotifier, componentScope);
+			if (componentScope) iS.modelUnwatch = watchModel(value.componentDirectiveName, value.model, childChangedNotifierGenerator, componentScope);
 		}
 	};
 
@@ -81,10 +83,10 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 			// remove watches to avoid an unwanted detection of received changes
 			removeAllWatches(currentClientValue);
 
-			var childChangedNotifier; 
+			var childChangedNotifierGenerator; 
 			if (serverJSONValue && serverJSONValue[PROPERTY_UPDATES_KEY]) {
 				// granular updates received
-				childChangedNotifier = getBeanPropertyChangeNotifier(currentClientValue, componentScope); 
+				childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(currentClientValue, componentScope); 
 
 				var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 				var beanUpdate = serverJSONValue[PROPERTY_UPDATES_KEY];
@@ -104,7 +106,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					var modelUpdateConversionInfo = modelBeanUpdate[CONVERSIONS] ? $sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS)
 							: $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 
-					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifier,
+					$servoyInternal.applyBeanData(beanModel, beanLayout, modelBeanUpdate, containerSize, childChangedNotifierGenerator,
 							modelUpdateConversionInfo, modelBeanUpdate[CONVERSIONS], componentScope);
 					done = true;
 				}
@@ -138,7 +140,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				if (newValue) {
 
 					$sabloConverters.prepareInternalState(newValue);
-					childChangedNotifier = getBeanPropertyChangeNotifier(newValue, componentScope);
+					childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(newValue, componentScope);
 
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
@@ -184,7 +186,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							$sabloUtils.getOrCreateInDepthProperty(internalState, CONVERSIONS) : 
 								$sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
 
-							$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifier,
+							$servoyInternal.applyBeanData(beanModel, internalState.beanLayout, beanModel, containerSize, childChangedNotifierGenerator,
 									currentConversionInfo, beanModel[CONVERSIONS], componentScope);
 							delete beanModel.conversions; // delete the conversion info from component accessible model; it will be kept separately only
 
@@ -262,14 +264,14 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 			}
 
 			// restore/add model watch
-			addBackWatches(newValue, componentScope, childChangedNotifier);
+			addBackWatches(newValue, componentScope, childChangedNotifierGenerator);
 
 			return newValue;
 		},
 
 		updateAngularScope: function(clientValue, componentScope) {
 			removeAllWatches(clientValue);
-			if (componentScope) addBackWatches(clientValue, componentScope,	getBeanPropertyChangeNotifier(clientValue, componentScope));
+			if (componentScope) addBackWatches(clientValue, componentScope,	getBeanPropertyChangeNotifierGenerator(clientValue, componentScope));
 
 			if (clientValue) {
 				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];

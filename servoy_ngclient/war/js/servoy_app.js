@@ -8,13 +8,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 	var latestApplyCall = {};
 
-	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifier, componentScope,property) {
+	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifierGenerator, componentScope,property) {
 
-		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifier, componentScope,property)
+		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifierGenerator, componentScope,property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
-				applyBeanData(now, beanLayout, changes, parentSize, changeNotifier, undefined, undefined, componentScope);
+				applyBeanData(now, beanLayout, changes, parentSize, changeNotifierGenerator, undefined, undefined, componentScope);
 			}
 		}
 		return changes;
@@ -23,16 +23,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	var sendChanges = function(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var changes = getComponentChanges(now, prev, $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname),
-					formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifier(formname, beanname,property), formState.getScope(),property);
+					formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifierGenerator(formname, beanname), formState.getScope(),property);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes}, true)
 			}
 		})
 	};
 
-	var applyBeanData = function(beanModel, beanLayout, beanData, containerSize, changeNotifier, beanConversionInfo, newConversionInfo, componentScope) {
+	var applyBeanData = function(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope) {
 
-		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifier, beanConversionInfo, newConversionInfo, componentScope)
+		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope)
 		applyBeanLayout(beanModel, beanLayout, beanData, containerSize)
 	}
 
@@ -271,7 +271,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						var newBeanConversionInfo = beanDatas[beanName].conversions;
 						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
 
-						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, $sabloApplication.getChangeNotifier(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
+						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope)
 					}
 				} else {
 					// already initialized in the past; just make sure 'smart' properties use the correct (new) scope
@@ -831,8 +831,47 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		}
 	}
-}])
-.factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils) {
+//}]).factory("$anchoringUtils", [ function() {
+//	var NORTH = 1;
+//	var EAST = 2;
+//	var SOUTH = 4;
+//	var WEST = 8;
+//	var DEFAULT = NORTH + WEST;
+//	var ALL = NORTH + WEST + EAST + SOUTH;
+//	
+//	function shouldWatchSizeForAnchors(anchors) {
+//		if (!anchors) return false;
+//		return ((anchors & NORTH) && (anchors & SOUTH)) || ((anchors & EAST) && (anchors & WEST));
+//	}
+//	
+//	function shouldWatchLocationForAnchors(anchors) {
+//		if (!anchors) return true; // TODO change this to false for default if watch is not needed in that case (top-left)
+//		return !(anchors & WEST) || !(anchors & NORTH);
+//	}
+//	
+//	return {
+//		NORTH: NORTH,
+//		EAST: EAST,
+//		SOUTH: SOUTH,
+//		WEST: WEST,
+//		DEFAULT: DEFAULT,
+//		ALL: ALL,
+//		
+//		// depending on how a component is anchored we know if it can dynamically update it's location, in which case it needs to be watched/sent to server (for rhino access)
+//		shouldWatchLocationForAnchors: shouldWatchLocationForAnchors,
+//
+//		// depending on how a component is anchored we know if it can dynamically update it's size, in which case it needs to be watched/sent to server (for rhino access)
+//		shouldWatchSizeForAnchors: shouldWatchSizeForAnchors,
+//		
+//		getBoundsPropertiesToWatch: function getBoundsPropertiesToWatch(componentModel) {
+//			var ret = {};
+//			if (shouldWatchLocationForAnchors(componentModel.anchors)) ret['location'] = true; // deep watch
+//			if (shouldWatchSizeForAnchors(componentModel.anchors)) ret['size'] = true; // deep watch
+//			return ret;
+//		}
+//		
+//	};
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',

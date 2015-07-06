@@ -105,7 +105,7 @@ public class SpecGenerator
 			IRepository.FIELDS,
 			IRuntimeCombobox.class,
 			new String[] { "{\"name\":\"ui-select\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.js\", \"mimetype\":\"text/javascript\"},{\"name\":\"ui-select\", \"version\":\"0.8.0\", \"url\":\"servoydefault/combobox/lib/select.css\", \"mimetype\":\"text/css\"}"
-			// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
+				// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 			}));
 		specTemplateList.add(new SpecTemplateModel("label", "Label",  "text.gif", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group",  null, IRepository.FIELDS, IRuntimeRadios.class, new String[0]));
@@ -393,6 +393,7 @@ public class SpecGenerator
 			{
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "divLocation", IRepository.INTEGER, Integer.valueOf(-1)));
+				model.add(cs.new Element(-1, IRepository.FIELDS, "divSize", IRepository.INTEGER, Integer.valueOf(-1)));
 			}
 			if ("portal".equals(componentSpec.getName()))
 			{
@@ -436,9 +437,12 @@ public class SpecGenerator
 		}
 	}
 
-	private static final String SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS = "\"" + ModifiablePropertiesGenerator.TWO_WAY + "\": \"" +
+	private static final String SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS = " \"" + ModifiablePropertiesGenerator.TWO_WAY + "\": \"" +
 		ModifiablePropertiesGenerator.SHALLOW_WATCH + "\"";
 	private static final String SHALLOW_WATCH_TWO_WAY_WITH_TAGS = ", \"tags\": {" + SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS + " }";
+	private static final String DEEP_WATCH_TWO_WAY_WITHOUT_TAGS = " \"" + ModifiablePropertiesGenerator.TWO_WAY + "\": \"" +
+		ModifiablePropertiesGenerator.DEEP_WATCH + "\"";
+	private static final String DEEP_WATCH_TWO_WAY_WITH_TAGS = ", \"tags\": {" + DEEP_WATCH_TWO_WAY_WITHOUT_TAGS + " }";
 
 	//@formatter:off
 	private static final IntHashMap<String> repoTypeMapping = new IntHashMap<>();
@@ -515,7 +519,6 @@ public class SpecGenerator
 //		addReadOnlyModelEntries.add("splitpane");
 		addReadOnlyModelEntries.add("portal");
 //		addReadOnlyModelEntries.add("rectangle");
-
 
 		// component specific repository element mapping
 		Map<String, String> htmlViewRepoTypeMapping = new HashMap<>();
@@ -658,7 +661,8 @@ public class SpecGenerator
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
-		splitpaneMapping.put("divLocation", "{ \"type\": \"int\", \"default\": -1 }");
+		splitpaneMapping.put("divLocation", "{ \"type\": \"int\"" + SHALLOW_WATCH_TWO_WAY_WITH_TAGS + ", \"default\": -1 }");
+		splitpaneMapping.put("divSize", "{ \"type\": \"int\", \"default\": -1 }");
 		splitpaneMapping.put("readOnly", "{ \"type\": \"protected\", \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
@@ -700,7 +704,7 @@ public class SpecGenerator
 
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\":\"dataprovider\", \"tags\": { \"scope\": \"design\", " + SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS + " }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
+			"{ \"type\":\"dataprovider\", \"tags\": { \"scope\": \"design\"" /*+ ", " + SHALLOW_WATCH_TWO_WAY_WITHOUT_TAGS dataproviders changes are sent to server via svy-apply/svy-autoapply as arguments anyway, no need to watch them*/ + " }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"valuelistID\",\"dataProviderID\"] , \"type\" :\"format\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
@@ -718,7 +722,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "{\"type\" :\"mediaoptions\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "labelfor");
 		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"droppable\":true}");
-		repoTypeMappingExceptions.put("tabIndex", "object");
+		repoTypeMappingExceptions.put("tabIndex", "{ \"type\": \"object\"" + SHALLOW_WATCH_TWO_WAY_WITH_TAGS + " }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{\"type\" :\"insets\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR.getPropertyName(), "{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(), "{\"type\" :\"scrollbars\", \"tags\": { \"scope\" :\"design\" }}");
@@ -726,13 +730,13 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID.getPropertyName(), "form");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VISIBLE.getPropertyName(), "\"visible\"");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
+			+ StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()+ "\",\""
+			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true,\"for\": [\"" + StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName()+ "\",\""
-																																													+ StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()+ "\"] }");
+			+ StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()+ "\"] }");
 		repoTypeMappingExceptions.put("readOnly", "{ \"type\": \"protected\", \"for\": \"dataProviderID\" }");
 
 		//internal properties (properties that should not be generated for any component)
@@ -761,7 +765,7 @@ public class SpecGenerator
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
 		perComponentExceptions.put(
 			"label",
-			 Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()),
+			Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName())));
 		perComponentExceptions.put("textfield",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
 		perComponentExceptions.put("typeahead",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
@@ -771,7 +775,7 @@ public class SpecGenerator
 		perComponentInternalProperties.put("portal",  Arrays.asList((StaticContentSpecLoader.PROPERTY_RELATIONNAME.getPropertyName())));
 		perComponentInternalProperties.put(
 			"htmlview",
-			 Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
+			Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()), (StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
 		perComponentInternalProperties.put("splitpane",  Arrays.asList("tabIndex"));
