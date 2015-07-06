@@ -5,10 +5,11 @@
 }
 .dbtreeview ul.fancytree-container {
 	min-height: 100%;
+	border: none;
 }
 
-.dbtreeview .fancytree-container.fancytree-treefocus span.fancytree-focused span.fancytree-title {
-  border-color: #3399ff;
+.dbtreeview ul.fancytree-container.fancytree-treefocus:focus {
+  outline: none;
 }
 
 .dbtreeview span.fancytree-active span.fancytree-title {

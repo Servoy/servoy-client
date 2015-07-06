@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.WeakHashMap;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -107,6 +109,8 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 		return event;
 	}
 
+	private final WeakHashMap<Object, JSEvent> sourceEventMap = new WeakHashMap<Object, JSEvent>();
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -119,6 +123,8 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 	{
 		if (sabloValue != null)
 		{
+			sourceEventMap.put(sabloValue.getSource(), sabloValue);
+
 			JSONUtils.addKeyIfPresent(writer, key);
 			writer.object();
 			writer.key("svyType").value("jsevent");

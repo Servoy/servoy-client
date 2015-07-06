@@ -1,4 +1,4 @@
-angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive('servoyextraDbtreeview', function($window, $foundsetManager) {  
+angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive('servoyextraDbtreeview', function($timeout, $window, $foundsetManager) {  
     return {
       restrict: 'E',
       scope: {
@@ -10,6 +10,18 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
     	$scope.expandedNodes = [];
     	var theTree;
 
+    	var treeReloadTimeout;
+    	function reloadTree() {
+    		if(theTree) {
+    			if(treeReloadTimeout) {
+    				$timeout.cancel(treeReloadTimeout);
+    			}
+    			treeReloadTimeout = $timeout(function() {
+    				theTree.reload($scope.treeJSON);
+    			}, 200);
+    		}
+    	}
+    	
     	function initTree() {
       		theTree = $element.find(".dbtreeview").fancytree(
      	 	{
@@ -99,7 +111,7 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
 									if(item.children.length > 0) {
 										item.folder = "true";
 									}
-									theTree.reload($scope.treeJSON);
+									reloadTree();
 								});
 			}
     	}
@@ -191,7 +203,7 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
 						function(foundset) {			
 							$scope.treeJSON = getChildren(foundset, $scope.model.roots[0].foundsethash, $scope.model.roots[0].foundsetpk, getBinding($scope.model.roots[0].foundsetdatasource), 0);
 							if(theTree) {
-								theTree.reload($scope.treeJSON);
+								reloadTree();
 							}
 							else {
 								initTree();
