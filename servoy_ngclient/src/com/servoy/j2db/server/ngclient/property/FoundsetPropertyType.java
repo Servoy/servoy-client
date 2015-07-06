@@ -88,7 +88,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public FoundsetTypeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dal)
 	{
-		return new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal);
+		return new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal, dal.getApplication());
 	}
 
 	@Override

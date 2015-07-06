@@ -1,4 +1,4 @@
-angular.module('svytreeview',['servoy']).directive('svytreeview', function() {  
+angular.module('servoyextraTreeview',['servoy']).directive('servoyextraTreeview', function() {  
     return {
       restrict: 'E',
       scope: {

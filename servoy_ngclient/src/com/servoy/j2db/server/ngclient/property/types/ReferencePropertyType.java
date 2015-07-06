@@ -47,7 +47,7 @@ public abstract class ReferencePropertyType<T> extends DefaultPropertyType<T>
 	{
 		if (hashCode > 0)
 		{
-			for (int i = 0; i <= allRefs.size(); i++)
+			for (int i = 0; i < allRefs.size(); i++)
 			{
 				WeakReference<T> wr = allRefs.get(i);
 				T ref = wr.get();

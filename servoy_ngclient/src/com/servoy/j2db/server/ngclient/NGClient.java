@@ -37,7 +37,6 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.CustomValueList;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
@@ -493,7 +492,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new FoundSetManager(this, new SwingFoundSetFactory());
+		foundSetManager = new NGFoundSetManager(this, new SwingFoundSetFactory());
 		foundSetManager.init();
 	}
 

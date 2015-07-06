@@ -1,0 +1,39 @@
+.dbtreeview {
+	overflow: auto;
+	width: 100%;
+	height: 100%
+}
+.dbtreeview ul.fancytree-container {
+	min-height: 100%;
+}
+
+.dbtreeview .fancytree-container.fancytree-treefocus span.fancytree-focused span.fancytree-title {
+  border-color: #3399ff;
+}
+
+.dbtreeview span.fancytree-active span.fancytree-title {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.dbtreeview span.fancytree-selected span.fancytree-title {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+/*
+.dbtreeview span.fancytree-node:hover span.fancytree-title {
+  background-color: transparent;
+  border-color: transparent;
+}
+*/
+
+.dbtreeview .fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.dbtreeview .fancytree-container.fancytree-treefocus span.fancytree-selected span.fancytree-title {
+  background-color: transparent;
+  border-color: transparent;
+}

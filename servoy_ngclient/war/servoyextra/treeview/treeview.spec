@@ -1,5 +1,5 @@
 {
-	"name": "svytreeview",
+	"name": "servoyextra-treeview",
 	"displayName": "Treeview",
 	"version": 1,
 	"definition": "servoyextra/treeview/treeview.js",

@@ -9,3 +9,5 @@ Bundle-SymbolicName: servoyextra
 Name: treeview/treeview.spec
 Web-Component: True
 
+Name: dbtreeview/dbtreeview.spec
+Web-Component: True

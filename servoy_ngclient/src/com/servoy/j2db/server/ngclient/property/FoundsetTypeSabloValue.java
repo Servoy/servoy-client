@@ -39,11 +39,13 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -107,7 +109,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	protected final DataAdapterList parentDAL;
 
-	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL)
+	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL, INGApplication application)
 	{
 		this.designJSONValue = designJSONValue;
 		this.propertyName = propertyName;
@@ -140,6 +142,23 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		viewPort = new FoundsetTypeViewport(changeMonitor);
 		// nothing to do here; foundset is not initialized until it's attached to a component
 		elementsToDataproviders = new HashMap<String, String>();
+		// foundsetSelector as defined in component design XML.
+		foundsetSelector = ((JSONObject)designJSONValue).optString(FOUNDSET_SELECTOR);
+		updateDataproviders(((JSONObject)designJSONValue).optJSONObject("dataproviders"));
+	}
+
+	public void updateDataproviders(JSONObject dataProvidersJSON)
+	{
+		if (dataProvidersJSON != null)
+		{
+			Iterator keys = dataProvidersJSON.keys();
+			if (keys.hasNext()) dataproviders.clear();
+			while (keys.hasNext())
+			{
+				String key = (String)keys.next();
+				dataproviders.put(key, dataProvidersJSON.optString(key));
+			}
+		}
 	}
 
 	public FoundsetTypeViewport getViewPort()
@@ -164,27 +183,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 //			foundsetSelector: 'string',
 //			dataProviders: 'dataprovider[]'
 //		}
-		JSONObject spec = (JSONObject)designJSONValue;
-
-		// foundsetSelector as defined in component design XML.
-		foundsetSelector = spec.optString(FOUNDSET_SELECTOR);
 		updateFoundset((IRecordInternal)null);
-
+		JSONObject spec = (JSONObject)designJSONValue;
 		JSONObject dataProvidersJSON = spec.optJSONObject("dataproviders");
 		if (dataProvidersJSON != null)
 		{
-			Map<String, String> dataproviders = new HashMap<>(dataProvidersJSON.length());
-			Iterator keys = dataProvidersJSON.keys();
-			while (keys.hasNext())
-			{
-				String key = (String)keys.next();
-				dataproviders.put(key, dataProvidersJSON.optString(key));
-			}
-			includeDataProviders(dataproviders);
+			changeMonitor.dataProvidersChanged();
 		}
 
 		// register parent record changed listener
-		parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
+		if (parentDAL != null) parentDAL.addDataLinkedProperty(this, TargetDataLinks.LINKED_TO_ALL);
 	}
 
 	/**
@@ -224,7 +232,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			try
 			{
 				// if we want to use this type on services as well we need extra code here to get the application
-				newFoundset = (IFoundSetInternal)getFormUI().getDataConverterContext().getApplication().getFoundSetManager().getFoundSet(foundsetSelector);
+				newFoundset = (IFoundSetInternal)getFoundSetManager().getFoundSet(foundsetSelector);
 			}
 			catch (ServoyException e)
 			{
@@ -235,7 +243,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	}
 
-	protected void updateFoundset(IFoundSetInternal newFoundset)
+	protected IFoundSetManagerInternal getFoundSetManager()
+	{
+		return getFormUI().getDataConverterContext().getApplication().getFoundSetManager();
+	}
+
+	public void updateFoundset(IFoundSetInternal newFoundset)
 	{
 		if (newFoundset != foundset)
 		{
@@ -247,7 +260,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
 			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
-			if (foundset != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
+			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 		}
 	}
 
@@ -633,7 +646,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	{
 		// this method gets called by linked component type property/properties
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
-		if (dataAdapterList == null)
+		if (dataAdapterList == null && webObject != null)
 		{
 			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
 		}
@@ -661,16 +674,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public void removeViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
 	{
 		changeMonitor.removeViewportDataChangeMonitor(viewPortChangeMonitor);
-	}
-
-	/**
-	 * Register a list of dataproviders that is needed client-side.
-	 * @param dataProvidersToSend a list of dataproviders that will be sent to the browser as part of the foundset property's viewport data.
-	 */
-	public void includeDataProviders(Map<String, String> dataProvidersToSend)
-	{
-		dataproviders.putAll(dataProvidersToSend);
-		changeMonitor.dataProvidersChanged();
 	}
 
 	public boolean setEditingRowByPkHash(String pkHashAndIndex)

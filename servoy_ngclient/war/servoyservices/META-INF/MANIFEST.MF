@@ -31,3 +31,6 @@ Web-Service: True
 
 Name: custom_json_object_property/customJSONObject.spec
 Web-Service: True
+
+Name: foundset_manager/foundsetManager.spec
+Web-Service: True
