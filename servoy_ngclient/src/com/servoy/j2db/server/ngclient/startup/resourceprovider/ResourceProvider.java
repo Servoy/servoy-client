@@ -217,9 +217,15 @@ public class ResourceProvider implements Filter
 				chain.doFilter(request, response);
 				return;
 			}
-			if (pathInfo.startsWith("/")) url = bundle.getEntry("/war" + pathInfo);
-			else url = bundle.getEntry("/war/" + pathInfo);
-
+			try
+			{
+				if (pathInfo.startsWith("/")) url = bundle.getEntry("/war" + pathInfo);
+				else url = bundle.getEntry("/war/" + pathInfo);
+			}
+			catch (Exception e)
+			{
+				Debug.log("can't get zip entry '" + pathInfo + "'from bundle: " + bundle, e);
+			}
 			if (url == null)
 			{
 				int index = pathInfo.indexOf('/', 1);
@@ -376,7 +382,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -400,7 +406,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
@@ -411,7 +417,7 @@ public class ResourceProvider implements Filter
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
 		 */
 		@Override
