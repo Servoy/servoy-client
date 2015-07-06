@@ -539,7 +539,14 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 						getListSelectionListener().pause();
 						try
 						{
-							foundset.setSelectedIndexes(newSelectedIndexes);
+							if (newSelectedIndexes.length == 1)
+							{
+								foundset.setSelectedIndex(newSelectedIndexes[0]);
+							}
+							else
+							{
+								foundset.setSelectedIndexes(newSelectedIndexes);
+							}
 						}
 						finally
 						{
