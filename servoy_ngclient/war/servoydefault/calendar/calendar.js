@@ -10,6 +10,7 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 		link: function($scope, $element, $attrs) {
 			var child = $element.children();
 			var ngModel = child.controller("ngModel");
+			var isDataFormatted = true;
 
 			$scope.style = {width:'100%',height: $scope.model.size.height,overflow:'hidden',paddingTop:'0',paddingBottom:'0',position: 'static'}
 
@@ -60,23 +61,73 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 
 			var dateFormat = 'YYYY-MM-DD';
 
+			/**
+			 * detect IE
+			 * returns true if browser is IE or false, if browser is not Internet Explorer
+			 */
+			function detectIE() {
+			    var ua = window.navigator.userAgent;
+
+			    var msie = ua.indexOf('MSIE ');
+			    var trident = ua.indexOf('Trident/');
+			    var edge = ua.indexOf('Edge/');
+			    if (msie > 0 || trident > 0 || edge > 0) {
+			        return true;
+			    }
+			    
+			    // other browser
+			    return false;
+			}
+			
 			// helper function
 			function setDateFormat(format, which){
+				if (!isDataFormatted) return;
+				$element.off("dp.change",inputChanged);
 				if(format && format[which]){
 					dateFormat = moment().toMomentFormatString(format[which]);
 				}
 				var x = child.data('DateTimePicker');
 				if (angular.isDefined(x)) { // can be undefined in find mode
+					var ieVersion = detectIE();
+					var start=0;
+					var end=0;
+					if(ieVersion){
+						console.log("ID: " + $scope.model.svyMarkupId);
+						start = document.getElementById($scope.model.svyMarkupId).selectionStart;
+						end =  document.getElementById($scope.model.svyMarkupId).selectionEnd;
+					}
 					x.format(dateFormat);
+					
 					try {
-						$element.off("dp.change",inputChanged);
 						x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
+						
 					}
 					finally {
 						$element.on("dp.change",inputChanged);
+						var elem =  document.getElementById($scope.model.svyMarkupId);
+						if (elem.createTextRange) {
+							isDataFormatted = true;
+							var selRange = elem.createTextRange();
+							selRange.collapse(true);
+							selRange.moveStart('character', start);
+							selRange.moveEnd('character', end);
+							selRange.select();
+							isDataFormatted = false;
+						} 
+						else if (elem.setSelectionRange) {
+							isDataFormatted = true;
+							elem.setSelectionRange(start, end);
+							isDataFormatted = false;
+						} else if(typeof start != 'undefined'){
+							isDataFormatted = true;
+							elem.selectionStart=start;
+							elem.selectionEnd = end;
+							isDataFormatted = false;
+						}
+						
 					}
 				}
-			}
+			 }
 
 			$element.on("dp.change",inputChanged);
 
@@ -140,7 +191,10 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 			}
 
 			$scope.focusGained = function(event) {
-				setDateFormat($scope.model.format, 'edit');
+				if($scope.model.format.edit) 
+					setDateFormat($scope.model.format, 'edit');
+				else
+					setDateFormat($scope.model.format, 'display');
 			}
 			
 			$scope.focusLost = function(event) {
