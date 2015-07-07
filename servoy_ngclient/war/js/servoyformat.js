@@ -70,6 +70,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			data *= 1000;
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
+		}else if(servoyFormat.indexOf("-") > -1) {
+			data *= -1;
+			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
 		}
 		
 		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
@@ -91,29 +94,6 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		
 		return ret;
 
-	}
-	// internal function
-	function unformatNumbers(data , format){// todo throw error when not coresponding to format (reimplement with state machine)
-		//treat scientiffic numbers
-		if(data.toLowerCase().indexOf('e')>-1){
-			return new Number(data).valueOf()
-		}
-		
-		var multFactor =1;
-		if(format.indexOf('-')>-1){
-			if(data.indexOf('-')!= data.lastIndexOf('-')){ // double minus case
-				multFactor = 1;
-			}else{
-				multFactor =-1;				
-			}
-		}
-		var MILLSIGN =  '\u2030'
-		if(format.indexOf(MILLSIGN)>-1){
-			multFactor *= 0.001
-		}
-		var ret =  numeral().unformat(data)
-		ret *=multFactor;
-		return ret
 	}
 	
 	// internal function
@@ -277,7 +257,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		                		];
 		var currency = "";
 		for(var i=0; i<currency_symbols.length; i++)
-			if(servoyFormat.indexOf(currency_symbols[i]) > 0){
+			if(servoyFormat.indexOf(currency_symbols[i]) >= 0){
 				currency = currency_symbols[i];
 		}
 		return currency;
@@ -286,7 +266,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	return{
 		
 		format : function (data,servoyFormat,type){
-			if((!servoyFormat) || (!type) || (!data) ) return data;
+			if((!servoyFormat) || (!type) || (!data && data!=0) ) return data;
 			if((type == "NUMBER") || (type == "INTEGER")){
 				 return formatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
@@ -298,7 +278,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		},
 		
 		unformat : function(data ,servoyFormat,type){
-			if((!servoyFormat)||(!type) || (!data) ) return data;
+			if((!servoyFormat)||(!type) || (!data && data!=0) ) return data;
 			if((type == "NUMBER") || (type == "INTEGER")){
 				return unformatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
