@@ -336,4 +336,9 @@ public class WebServiceScriptable implements Scriptable
 		return false;
 	}
 
+	public static void cleanScripts()
+	{
+		scripts.clear();
+	}
+
 }

@@ -494,4 +494,10 @@ public class MethodTemplate implements IMethodTemplate
 		}
 		return mtempl;
 	}
+
+	public static void clearTemplates()
+	{
+		CLASS_TEMPLATES.clear();
+		COMMON_TEMPLATES.clear();
+	}
 }

@@ -123,8 +123,8 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-				designer);
+			if (formElement instanceof BodyPortal)
+				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -257,7 +257,8 @@ public class FormElementHelper
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos > loc.y)
 						{
-							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
+								continue;
 							propertyPath.add(children.size());
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
@@ -411,7 +412,7 @@ public class FormElementHelper
 		return rowHeight == 0 ? 20 : rowHeight;
 	}
 
-	public void reload()
+	public void clear()
 	{
 		persistWrappers.clear();
 		formTabSequences.clear();
@@ -420,6 +421,11 @@ public class FormElementHelper
 			fs.close(null);
 		}
 		globalFlattendSolutions.clear();
+	}
+
+	public void reload()
+	{
+		clear();
 		WebComponentSpecProvider.reload();
 		WebServiceSpecProvider.reload();
 	}

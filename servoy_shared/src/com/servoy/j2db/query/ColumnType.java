@@ -76,4 +76,10 @@ public class ColumnType extends BaseColumnType implements Serializable, IWriteRe
 		length = ints[1];
 		scale = ints[2];
 	}
+
+
+	public static void clearInstances()
+	{
+		instances.clear();
+	}
 }
