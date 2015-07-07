@@ -94,6 +94,11 @@ angular.module('servoydefaultLabel',['servoy'])
 				modelChangFunction(key,$scope.model[key]);
 			}
           
+		  if ($scope.model.dataProviderID === undefined && $scope.model.text === undefined && $scope.model.imageMediaID)
+		  {
+			  //image only, set line-height to default
+				$svyProperties.setCssProperty(element,"line-height","100%");
+		  }	  
     	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
     	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
     	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
