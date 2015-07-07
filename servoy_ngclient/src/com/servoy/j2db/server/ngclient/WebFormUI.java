@@ -42,6 +42,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Tab;
@@ -708,13 +709,36 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		Dimension size = (Dimension)properties.get("size");
 		if (size != null) return size.width;
-		return 0;
+		return formController.getForm().getWidth();
 	}
 
 	@Override
 	public int getPartHeight(int partType)
 	{
-		// TODO Auto-generated method stub
+		int totalHeight = 0;
+		int bodyHeight = 0;
+		for (Part part : Utils.iterate(formController.getForm().getParts()))
+		{
+			if (partType != Part.BODY)
+			{
+				if (part.getPartType() == partType)
+				{
+					return part.getHeight() - totalHeight;
+				}
+			}
+			if (part.getPartType() == Part.BODY)
+			{
+				bodyHeight = part.getHeight() - totalHeight;
+			}
+			totalHeight = part.getHeight();
+
+		}
+		if (partType == Part.BODY)
+		{
+			Dimension size = (Dimension)properties.get("size");
+			if (size != null) return size.height - totalHeight + bodyHeight;
+			return bodyHeight;
+		}
 		return 0;
 	}
 

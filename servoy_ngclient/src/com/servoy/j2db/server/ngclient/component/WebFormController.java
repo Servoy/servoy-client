@@ -43,6 +43,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
@@ -58,6 +59,7 @@ import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebListFormUI;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -498,8 +500,16 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public int getPartYOffset(int partType)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		int totalHeight = 0;
+		for (Part part : Utils.iterate(getForm().getParts()))
+		{
+			if (part.getPartType() == partType)
+			{
+				break;
+			}
+			totalHeight = part.getHeight();
+		}
+		return totalHeight;
 	}
 
 	@Override
