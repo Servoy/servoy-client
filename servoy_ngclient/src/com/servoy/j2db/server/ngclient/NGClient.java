@@ -21,10 +21,8 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.IChangeListener;
-import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
-import org.sablo.specification.property.CustomPropertyTypeResolver;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -126,7 +124,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -832,11 +830,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			getWebsocketSession().sendRedirect(null);
 			WebsocketSessionManager.removeSession(getWebsocketSession().getUuid());
 		}
-		WebComponentSpecProvider.disposeInstance();
-		WebServiceSpecProvider.disposeInstance();
-		CustomPropertyTypeResolver.getInstance().clearCache();
-		FormElementHelper.INSTANCE.clear();
-		WebServiceScriptable.cleanScripts();
 	}
 
 	private transient Object[] adsInfo = null;//cache to expensive to get each time

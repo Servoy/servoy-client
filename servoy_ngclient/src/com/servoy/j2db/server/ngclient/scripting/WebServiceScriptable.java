@@ -138,8 +138,8 @@ public class WebServiceScriptable implements Scriptable
 			getScript(context, serverScript).exec(context, execScope);
 			apiObject.setPrototype(model);
 
-			execScope.put("console", execScope, new NativeJavaObject(execScope, new ConsoleObject(app), new InstanceJavaMembers(execScope,
-				ConsoleObject.class)));
+			execScope.put("console", execScope,
+				new NativeJavaObject(execScope, new ConsoleObject(app), new InstanceJavaMembers(execScope, ConsoleObject.class)));
 		}
 		catch (Exception ex)
 		{
@@ -334,11 +334,6 @@ public class WebServiceScriptable implements Scriptable
 	public boolean hasInstance(Scriptable instance)
 	{
 		return false;
-	}
-
-	public static void cleanScripts()
-	{
-		scripts.clear();
 	}
 
 }
