@@ -389,7 +389,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				} 	
 			}
 			
-			if (scope.model.anchors && $solutionSettings.enableAnchoring) {
+			if (scope.model && scope.model.anchors && $solutionSettings.enableAnchoring) {
 				if (((scope.model.anchors & $anchorConstants.NORTH != 0) && (scope.model.anchors & $anchorConstants.SOUTH != 0)) || ((scope.model.anchors & $anchorConstants.EAST != 0) && (scope.model.anchors & $anchorConstants.WEST != 0)))
 				{
 					// anchored image, add resize listener
