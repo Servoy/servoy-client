@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.property;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 
 /**
  * Holds the client used viewport info for this foundset.
@@ -124,6 +125,8 @@ public class FoundsetTypeViewport
 //		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortCompletelyChanged();
 //	}
 
+	private boolean isFoundSetNotificationsDisabled;
+
 	/**
 	 * Corrects bounds without firing any change notifications.
 	 */
@@ -131,8 +134,28 @@ public class FoundsetTypeViewport
 	{
 		if (foundset != null)
 		{
-			size = Math.max(0, Math.min(size, foundset.getSize() - startIndex));
-			startIndex = Math.max(0, Math.min(startIndex, foundset.getSize() - 1));
+			try
+			{
+				isFoundSetNotificationsDisabled = true;
+				IRecordInternal firstRec = foundset.getRecord(startIndex);
+				if (firstRec != null)
+				{
+					IRecordInternal lastRec = foundset.getRecord(startIndex + size - 1);
+					if (lastRec == null)
+					{
+						size = foundset.getSize() - startIndex;
+					}
+				}
+				else
+				{
+					startIndex = 0;
+					size = 0;
+				}
+			}
+			finally
+			{
+				isFoundSetNotificationsDisabled = false;
+			}
 		}
 		else
 		{
@@ -150,6 +173,7 @@ public class FoundsetTypeViewport
 				@Override
 				public void foundSetChanged(FoundSetEvent event)
 				{
+					if (isFoundSetNotificationsDisabled) return;
 					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE) changeMonitor.findModeChanged(foundset.isInFindMode());
 					else if (event.getType() == FoundSetEvent.FOUNDSET_INVALIDATED) changeMonitor.foundsetInvalidated();
 					else if (event.getType() == FoundSetEvent.CONTENTS_CHANGED)
