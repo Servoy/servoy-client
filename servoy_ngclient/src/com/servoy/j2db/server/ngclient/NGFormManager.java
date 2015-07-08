@@ -340,6 +340,10 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	protected void destroySolutionSettings()
 	{
 		loginForm = null;
+		for (IFormController controller : createdFormControllers.values())
+		{
+			controller.destroy();
+		}
 		createdFormControllers.clear();
 		possibleForms.clear();
 
