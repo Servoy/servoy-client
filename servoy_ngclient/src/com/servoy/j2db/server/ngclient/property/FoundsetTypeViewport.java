@@ -140,10 +140,17 @@ public class FoundsetTypeViewport
 				IRecordInternal firstRec = foundset.getRecord(startIndex);
 				if (firstRec != null)
 				{
-					IRecordInternal lastRec = foundset.getRecord(startIndex + size - 1);
-					if (lastRec == null)
+					if (size > 0)
 					{
-						size = foundset.getSize() - startIndex;
+						IRecordInternal lastRec = foundset.getRecord(startIndex + size - 1);
+						if (lastRec == null)
+						{
+							size = foundset.getSize() - startIndex;
+						}
+					}
+					else
+					{
+						size = 0;
 					}
 				}
 				else
