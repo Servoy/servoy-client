@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.UniqueTag;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -160,7 +160,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (func != null)
 		{
 			final List<Pair<String, String>> oldVisibleForms = getVisibleForms();
-			return new Callable()
+			return new BaseFunction()
 			{
 				@Override
 				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
