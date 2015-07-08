@@ -549,7 +549,7 @@ public class SpecGenerator
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":200, \"height\":200}}");
 		portalTypeMapping.put("relatedFoundset", "foundset");
 		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
-		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"} }");
+		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"}, \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put("columnHeaders", "{ \"type\" : \"tagstring[]\", \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName()+ "\",\""

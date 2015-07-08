@@ -21,7 +21,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,6 @@ import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
-import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -212,9 +210,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			name = StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName();
 		}
 
-		if (!isLegacyProperty(name)) return Scriptable.NOT_FOUND;
-
-		if (component.isDesignOnlyProperty(name))
+		if (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name))
 		{
 			// cannot get design only or private properties
 			return Scriptable.NOT_FOUND;
@@ -228,22 +224,6 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		}
 
 		return value;
-	}
-
-	private boolean isLegacyProperty(String name)
-	{
-		boolean validProperty = false; // to avoid new properties for legacy portals for example (relatedFoundset, childElements)...
-		Iterator<Element> it = StaticContentSpecLoader.getContentSpec().getPropertiesForObjectType(
-			component.getFormElement().getPersistIfAvailable().getTypeID());
-		while (it.hasNext())
-		{
-			if (convertName(name).equals(it.next().getName()))
-			{
-				validProperty = true;
-				break;
-			}
-		}
-		return validProperty;
 	}
 
 	@Override

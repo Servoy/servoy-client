@@ -30,6 +30,7 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.UniqueTag;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -152,6 +153,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (specProperties != null && specProperties.contains(name))
 		{
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
+			if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) return Scriptable.NOT_FOUND;
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 		}
 		final Function func = apiFunctions.get(name);
