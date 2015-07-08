@@ -878,7 +878,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 //		}
 //		
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
@@ -951,14 +951,30 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return {userAgent:$window.navigator.userAgent,platform:$window.navigator.platform};
 		},
 		getUtcOffsetsAndLocale:function() {
-			return {locale:this.getLanguage(),utcOffset:(new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)};
+			 var language  = this.getLanguage().split("-")[0];
+			 this.setAngularLocale(language);
+		     return {locale:this.getLanguage(),utcOffset:(new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)};
+		},
+		setAngularLocale : function(language){
+			 var fileref= $window.document.createElement('script');
+		     fileref.setAttribute("type","text/javascript");
+		     fileref.setAttribute("src", "js/angular_i18n/angular-locale_"+language+".js");
+		     fileref.onload = function () {
+		    	 var localInjector = angular.injector(['ngLocale']),
+		         externalLocale = localInjector.get('$locale');
+		    	 angular.forEach(externalLocale, function(value, key) {
+		    			$locale[key] = externalLocale[key];
+		    	 });
+		     }
+		     $window.document.getElementsByTagName("head")[0].appendChild(fileref);
 		},
 		getLanguage:function() {
 			// this returns first one of the languages array if the browser supports this (Chrome and FF) else it falls back to language or userLanguage (IE, and IE seems to return the right one from there) 
 			return navigator.languages? navigator.languages[0] : (navigator.language || navigator.userLanguage);
 		},
 		setLocale:function(language,country) {
-			try{ 
+			try{
+				this.setAngularLocale(language);
 				numeral.language((language + '-' + country).toLowerCase());
 				webStorage.session.add("locale", (language + '-' + country).toLowerCase())
 			} catch(e) {
