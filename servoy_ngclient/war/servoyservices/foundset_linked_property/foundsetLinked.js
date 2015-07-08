@@ -42,7 +42,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	function addBackWatches(value, componentScope) {
 		if (angular.isDefined(value) && value !== null) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
-			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true);
+			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, undefined); // TODO 'undefined' param should actually be the value of twoWay attribute in spec file here
 		}
 	};
 

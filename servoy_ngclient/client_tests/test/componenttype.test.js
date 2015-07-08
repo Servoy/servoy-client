@@ -47,7 +47,7 @@ describe("Test component_custom_property suite", function() {
 
 		var template = '<div></div>';
 		$compile(template)($scope);
-		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"component" : { "text" : true }});
+		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"component" : { "text" : false, "recordDependentText" : true }});
 		converted = sabloConverters.convertFromServerToClient(serverValue,'component', $scope.model, $scope, componentModelGetter);
 		$scope.$digest();
 	}));
@@ -112,10 +112,10 @@ describe("Test component_custom_property suite", function() {
 		var updateValue = {
 				propertyUpdates: {
 					model_vp : [
-					            { dataProviderID1:'book1', dataProviderID2: 1141240331660 },
-					            { dataProviderID1:'book2', dataProviderID2: 1141240331661 },
-					            { dataProviderID1:'book3', dataProviderID2: 1141240331662 },
-					            { dataProviderID1:'book4', dataProviderID2: 1141240331663 }
+					            { dataProviderID1:'book1', dataProviderID2: 1141240331660, recordDependentText: 'aha1' },
+					            { dataProviderID1:'book2', dataProviderID2: 1141240331661, recordDependentText: 'aha2' },
+					            { dataProviderID1:'book3', dataProviderID2: 1141240331662, recordDependentText: 'aha3' },
+					            { dataProviderID1:'book4', dataProviderID2: 1141240331663, recordDependentText: 'aha4' }
 					            ],
 					conversions : {
 						model_vp: {
@@ -127,6 +127,7 @@ describe("Test component_custom_property suite", function() {
 					}
 				}
 		};
+		debugger;
 		var tmp = sabloConverters.convertFromServerToClient(updateValue,'component', converted, $scope, componentModelGetter);
 		expect(tmp).toBe(converted);
 		expect(converted.modelViewport[2].dataProviderID1).toBe('book3');
@@ -137,8 +138,8 @@ describe("Test component_custom_property suite", function() {
 		$scope.$digest();
 		expect(converted.__internalState.isChanged()).toBe(false);
 		
-		converted.modelViewport[0].dataProviderID1 = 'client modified book 1';
-		converted.modelViewport[3].dataProviderID2 = new Date(11412403316761);
+		converted.modelViewport[0].recordDependentText = 'modified aha1'; // watched property
+		converted.modelViewport[3].dataProviderID2 = new Date(11412403316761); // not watched property
 		
 		expect(converted.__internalState.isChanged()).toBe(false);
 		$scope.$digest();
@@ -146,14 +147,8 @@ describe("Test component_custom_property suite", function() {
 		
 		var result = sabloConverters.convertFromClientToServer(converted, 'component', undefined);
 		
-		expect(result.length).toEqual(2);
-		if (result[0].viewportDataChanged.dp == 'dataProviderID1') {
-			var ttt = result[0];
-			result[0] = result[1];
-			result[1] = ttt;
-		}
-		expect(result[0]).toEqual({ viewportDataChanged: { _svyRowId: 231, dp: 'dataProviderID2', value: 11412403316761 } });
-		expect(result[1]).toEqual({ viewportDataChanged: { _svyRowId: 123, dp: 'dataProviderID1', value: 'client modified book 1' } });
+		expect(result.length).toEqual(1);
+		expect(result[0]).toEqual({ viewportDataChanged: { _svyRowId: 123, dp: 'recordDependentText', value: 'modified aha1' } });
 		expect(converted.__internalState.isChanged()).toBe(false);
 
 		// now for incremental changes:
@@ -165,7 +160,7 @@ describe("Test component_custom_property suite", function() {
 		updateValue = {
 				propertyUpdates: {
 					model_vp_ch : [ {
-						rows: [ {dataProviderID1:'book3 Modified', dataProviderID2: 1141240331669} ],
+						rows: [ {dataProviderID1:'book3 Modified', dataProviderID2: 1141240331669, recordDependentText:'modified aha3'} ],
 						startIndex: 2,
 						endIndex: 2,
 						type: CHANGE
@@ -207,23 +202,23 @@ describe("Test component_custom_property suite", function() {
 				propertyUpdates: {
 					
 					model_vp_ch : [ {
-						rows: [ {dataProviderID1:'book2.1 inserted', dataProviderID2: 1141240331670} ],
+						rows: [ {dataProviderID1:'book2.1 inserted', dataProviderID2: 1141240331670, recordDependentText:'aha2.1'} ],
 						startIndex: 2,
 						endIndex: 5, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
-						rows: [ {dataProviderID1:'book5 inserted', dataProviderID2: 1141240331671} ],
+						rows: [ {dataProviderID1:'book5 inserted', dataProviderID2: 1141240331671, recordDependentText:'aha5'} ],
 						startIndex: 4,
 						endIndex: 6, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
-						rows: [ {dataProviderID1:'book0.1 inserted', dataProviderID2: 1141240331672},
-						        {dataProviderID1:'book0.2 inserted', dataProviderID2: 1141240331673} ],
+						rows: [ {dataProviderID1:'book0.1 inserted', dataProviderID2: 1141240331672, recordDependentText:'aha0.1'},
+						        {dataProviderID1:'book0.2 inserted', dataProviderID2: 1141240331673, recordDependentText:'aha0.2'} ],
 						startIndex: 0,
 						endIndex: 8, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
-						rows: [ {dataProviderID1:'book 6 replacing 1 and 2 inserted', dataProviderID2: 1141240331674} ],
+						rows: [ {dataProviderID1:'book 6 replacing 1 and 2 inserted', dataProviderID2: 1141240331674, recordDependentText:'aha6'} ],
 						startIndex: 2,
 						endIndex: 3, // so we delete the initial rows 'book1' and 'book2', and they will get replaced with 1 new row
 						type: DELETE
@@ -253,6 +248,9 @@ describe("Test component_custom_property suite", function() {
 		expect(typeof converted.modelViewport[1].dataProviderID2).toBe('object');
 		expect(converted.modelViewport[1].dataProviderID2.getTime()).toBe(1141240331673);
 
+		expect(converted.modelViewport[1].recordDependentText).toBe('aha0.2');
+		expect(typeof converted.modelViewport[1].recordDependentText).toBe('string');
+
 		expect(converted.modelViewport[2].dataProviderID1).toBe('book2.1 inserted');
 		expect(typeof converted.modelViewport[2].dataProviderID2).toBe('object');
 		expect(converted.modelViewport[2].dataProviderID2.getTime()).toBe(1141240331670);
@@ -261,6 +259,9 @@ describe("Test component_custom_property suite", function() {
 		expect(typeof converted.modelViewport[3].dataProviderID2).toBe('object');
 		expect(converted.modelViewport[3].dataProviderID2.getTime()).toBe(1141240331669);
 		
+		expect(converted.modelViewport[3].recordDependentText).toBe('modified aha3');
+		expect(typeof converted.modelViewport[3].recordDependentText).toBe('string');
+
 		expect(converted.modelViewport[4].dataProviderID1).toBe('book5 inserted');
 		expect(typeof converted.modelViewport[4].dataProviderID2).toBe('object');
 		expect(converted.modelViewport[4].dataProviderID2.getTime()).toBe(1141240331671);
@@ -278,7 +279,7 @@ describe("Test component_custom_property suite", function() {
 		$scope.$digest();
 		expect(converted.__internalState.isChanged()).toBe(false);
 
-		converted.modelViewport[5].dataProviderID1 = 'client modified book 4';
+		converted.modelViewport[5].recordDependentText = 'client modified aha4';
 		converted.modelViewport[2].dataProviderID2 = new Date(11412403316760);
 		
 		expect(converted.__internalState.isChanged()).toBe(false);
@@ -286,16 +287,9 @@ describe("Test component_custom_property suite", function() {
 		expect(converted.__internalState.isChanged()).toBe(true);
 		
 		var result = sabloConverters.convertFromClientToServer(converted, 'component', undefined);
-		expect(result.length).toEqual(2);
+		expect(result.length).toEqual(1);
 
-		if (result[0].viewportDataChanged.dp == 'dataProviderID1') {
-			var ttt = result[0];
-			result[0] = result[1];
-			result[1] = ttt;
-		}
-		
-		expect(result[0]).toEqual({ viewportDataChanged: { _svyRowId: 132, dp: 'dataProviderID2', value: 11412403316760 } });
-		expect(result[1]).toEqual({ viewportDataChanged: { _svyRowId: 222, dp: 'dataProviderID1', value: 'client modified book 4' } });
+		expect(result[0]).toEqual({ viewportDataChanged: { _svyRowId: 222, dp: 'recordDependentText', value: 'client modified aha4' } });
 		expect(converted.__internalState.isChanged()).toBe(false);
 	});
 

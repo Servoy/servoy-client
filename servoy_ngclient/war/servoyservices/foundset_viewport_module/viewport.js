@@ -8,7 +8,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	var INSERT = 1;
 	var DELETE = 2;
 
-	function addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState, componentScope) {
+	function addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState, componentScope, dumbWatchType) {
 		if (componentScope) {
 			function queueChange(newData, oldData) {
 				var r = {};
@@ -47,7 +47,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 				getCellValue()[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(function () {
 					if (getCellValue()[$sabloConverters.INTERNAL_IMPL].isChanged()) queueChange(getCellValue(), getCellValue());
 				});
-			} else {
+			} else if (typeof (dumbWatchType) !== 'undefined') {
 				// deep watch for change-by content / dumb value
 				internalState.unwatchData[idx].push(
 						componentScope.$watch(getCellValue, function (newData, oldData) {
@@ -63,29 +63,31 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 								}
 								if (changed) queueChange(newData, oldData);
 							}
-						}, true)
+						}, dumbWatchType)
 				);
 			}
 		}
 	};
 
-	function addDataWatchesToRow(idx, viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/) {
+	// dumbWatchMarkers when simpleRowValue === true means (undefined - no watch needed, true/false - deep/shallow watch)
+	// dumbWatchMarkers when simpleRowValue === false means (undefined - watch all cause there is no marker information, { col1: true; col2: false } means watch type needed for each column)
+	function addDataWatchesToRow(idx, viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
 		if (!angular.isDefined(internalState.unwatchData)) internalState.unwatchData = {};
 		internalState.unwatchData[idx] = [];
 		if (simpleRowValue) {
-			addDataWatchToCell(null, idx, viewPort, internalState, componentScope);
+			addDataWatchToCell(null, idx, viewPort, internalState, componentScope, dumbWatchMarkers);
 		} else {
 			var columnName;
 			for (columnName in viewPort[idx]) {
-				if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope);
+				if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope, dumbWatchMarkers ? dumbWatchMarkers[columnName] : true);
 			}
 		}
 	};
 
-	function addDataWatchesToRows(viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/) {
+	function addDataWatchesToRows(viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
 		var i;
 		for (i = viewPort.length - 1; i >= 0; i--) {
-			addDataWatchesToRow(i, viewPort, internalState, componentScope, simpleRowValue);
+			addDataWatchesToRow(i, viewPort, internalState, componentScope, simpleRowValue, dumbWatchMarkers);
 		}
 	};
 

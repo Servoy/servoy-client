@@ -32,7 +32,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	function addBackWatches(value, componentScope) {
 		if (angular.isDefined(value) && value !== null) {
 			var internalState = value[$sabloConverters.INTERNAL_IMPL];
-			if (value[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(value[VIEW_PORT][ROWS], internalState, componentScope, false); // shouldn't need component model getter - takes rowids directly from viewport
+			if (value[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(value[VIEW_PORT][ROWS], internalState, componentScope, false, undefined); // shouldn't need component model getter - takes rowids directly from viewport
 			if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return value[SELECTED_ROW_INDEXES]; }, function (newSel, oldSel) {
 				setTimeout(function() {
 					if (newSel !== oldSel) {

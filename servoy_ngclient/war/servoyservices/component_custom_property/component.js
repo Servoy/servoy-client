@@ -69,7 +69,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	function addBackWatches(value, componentScope, childChangedNotifierGenerator) {
 		if (angular.isDefined(value) && value !== null) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
-			if (value[MODEL_VIEWPORT]) $viewportModule.addDataWatchesToRows(value[MODEL_VIEWPORT], iS, componentScope, false);
+			if (value[MODEL_VIEWPORT]) $viewportModule.addDataWatchesToRows(value[MODEL_VIEWPORT], iS, componentScope, false, $propertyWatchesRegistry.getPropertiesToAutoWatchForComponent(value.componentDirectiveName));
 			if (componentScope) iS.modelUnwatch = watchModel(value.componentDirectiveName, value.model, childChangedNotifierGenerator, componentScope);
 		}
 	};
