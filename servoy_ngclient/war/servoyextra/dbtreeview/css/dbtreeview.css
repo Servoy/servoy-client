@@ -13,12 +13,17 @@
 }
 
 .dbtreeview span.fancytree-active span.fancytree-title {
-  background-color: transparent;
+  background-color: #cbe8f6;
   border-color: transparent;
 }
 
 .dbtreeview span.fancytree-selected span.fancytree-title {
   background-color: transparent;
+  border-color: transparent;
+}
+
+.dbtreeview span.fancytree-active.fancytree-selected span.fancytree-title {
+  background-color: #cbe8f6;
   border-color: transparent;
 }
 
@@ -30,11 +35,16 @@
 */
 
 .dbtreeview .fancytree-container.fancytree-treefocus span.fancytree-active span.fancytree-title {
-  background-color: transparent;
+  background-color: #cbe8f6;
   border-color: transparent;
 }
 
 .dbtreeview .fancytree-container.fancytree-treefocus span.fancytree-selected span.fancytree-title {
   background-color: transparent;
+  border-color: transparent;
+}
+
+.dbtreeview .fancytree-container.fancytree-treefocus span.fancytree-active.fancytree-selected span.fancytree-title {
+  background-color: #cbe8f6;
   border-color: transparent;
 }
