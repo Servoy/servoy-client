@@ -92,7 +92,6 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 					var start=0;
 					var end=0;
 					if(ieVersion){
-						console.log("ID: " + $scope.model.svyMarkupId);
 						start = document.getElementById($scope.model.svyMarkupId).selectionStart;
 						end =  document.getElementById($scope.model.svyMarkupId).selectionEnd;
 					}
@@ -103,28 +102,28 @@ angular.module('servoydefaultCalendar',['servoy']).directive('servoydefaultCalen
 						
 					}
 					finally {
-						$element.on("dp.change",inputChanged);
 						var elem =  document.getElementById($scope.model.svyMarkupId);
-						if (elem.createTextRange) {
-							isDataFormatted = true;
-							var selRange = elem.createTextRange();
-							selRange.collapse(true);
-							selRange.moveStart('character', start);
-							selRange.moveEnd('character', end);
-							selRange.select();
-							isDataFormatted = false;
-						} 
-						else if (elem.setSelectionRange) {
-							isDataFormatted = true;
-							elem.setSelectionRange(start, end);
-							isDataFormatted = false;
-						} else if(typeof start != 'undefined'){
-							isDataFormatted = true;
-							elem.selectionStart=start;
-							elem.selectionEnd = end;
-							isDataFormatted = false;
+						if(start > 0){
+							if (elem.setSelectionRange) {
+								isDataFormatted = true;
+								elem.setSelectionRange(start, end);
+								isDataFormatted = false;
+							} else if (elem.createTextRange) {
+								isDataFormatted = true;
+								var selRange = elem.createTextRange();
+								selRange.collapse(true);
+								selRange.moveStart('character', start);
+								selRange.moveEnd('character', end);
+								selRange.select();
+								isDataFormatted = false;
+							} else if(typeof start != 'undefined'){
+								isDataFormatted = true;
+								elem.selectionStart=start;
+								elem.selectionEnd = end;
+								isDataFormatted = false;
+							}
 						}
-						
+						$element.on("dp.change",inputChanged);
 					}
 				}
 			 }
