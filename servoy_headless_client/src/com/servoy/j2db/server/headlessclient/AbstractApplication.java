@@ -85,7 +85,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IApplication#getOSName()
 	 */
 	public String getClientOSName()
@@ -592,15 +592,18 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ClientState#shutDown(boolean)
 	 */
 	@Override
 	public void shutDown(boolean force)
 	{
 		super.shutDown(force);
-		beanManager.flushCachedItems();
-		beanManager = null;
+		if (beanManager != null)
+		{
+			beanManager.flushCachedItems();
+			beanManager = null;
+		}
 	}
 
 }
