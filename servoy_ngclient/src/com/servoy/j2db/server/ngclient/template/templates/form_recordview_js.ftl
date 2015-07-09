@@ -69,12 +69,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				return $formService.hideForm(formname,$scope.formname,beanname,relationname,formIndex);
 			},
 			getFormUrl: function(formUrl) {
-				var url = $windowService.getFormUrl(formUrl);
-				if (url && $scope.formname)
-				{
-					url = url+"&parentForm="+$scope.formname
-				}
-				return url;
+				return $windowService.getFormUrl(formUrl);
 			},
 			startEdit: function(propertyName) {
 				$sabloApplication.callService("formService", "startEdit", {formname:$scope.formname,beanname:beanname,property:propertyName},true)
@@ -166,5 +161,4 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		}
 		else console.log("no formstate for ${name}" + formState + " " + $scope.$id);
 	});
-
 });

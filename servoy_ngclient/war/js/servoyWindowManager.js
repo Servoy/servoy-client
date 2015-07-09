@@ -128,7 +128,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {x:left,y:top}
 	};
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
@@ -408,8 +408,9 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		reload: function() {
 			$window.location.reload(true);
 		},
-		updateController: function(formName,controllerCode, realFormUrl, forceLoad) {
+		updateController: function(formName,controllerCode, realFormUrl, forceLoad, html) {
 			if ($log.debugEnabled) $log.debug("svy * updateController = " + formName + ", realFormUrl = " + realFormUrl);
+			$templateCache.put(realFormUrl,html);
 			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
 			$sabloApplication.clearFormState(formName)
 			eval(controllerCode);
