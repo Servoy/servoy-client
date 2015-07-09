@@ -108,7 +108,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 				{
 					parentScope = parentScope.getParentScope();
 				}
-				if (parentScope instanceof FormScope)
+				if (parentScope instanceof FormScope && ((FormScope)parentScope).getFormController() != null)
 				{
 					String formName = ((FormScope)parentScope).getFormController().getName();
 					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + formName + "." + functionName + "()"));
