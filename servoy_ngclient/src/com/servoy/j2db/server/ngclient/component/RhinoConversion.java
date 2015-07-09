@@ -68,7 +68,7 @@ public class RhinoConversion
 			}
 			return map;
 		}
-		if (propertyValue instanceof FormScope) return ((FormScope)propertyValue).getFormController().getName();
+		if (propertyValue instanceof FormScope && ((FormScope)propertyValue).getFormController() != null) return ((FormScope)propertyValue).getFormController().getName();
 		if (propertyValue instanceof IFormController) return ((IFormController)propertyValue).getName();
 
 		if (propertyValue instanceof JSDataSet)
