@@ -87,7 +87,9 @@
 
 	        },
 	        "selectAll": {
-	
+				"delayUntilFormLoad": true,
+			"globalExclusive": true
+
 	        },
 	        "setScroll": {
 				"parameters":[

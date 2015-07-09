@@ -82,7 +82,9 @@
 
 	        },
 	        "selectAll": {
-	
+				"delayUntilFormLoad": true,
+			"globalExclusive": true
+
 	        }
 	}
 	 
