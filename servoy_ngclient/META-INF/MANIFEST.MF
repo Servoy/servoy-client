@@ -26,7 +26,9 @@ Require-Bundle: servoy_shared,
  slf4j.api;bundle-version="1.6.1",
  org.apache.commons.io;bundle-version="2.4.0",
  org.jsoup;bundle-version="1.7.3",
- org.freemarker.freemarker;bundle-version="2.3.20"
+ org.freemarker.freemarker;bundle-version="2.3.20",
+ wro4j-core;bundle-version="1.7.8",
+ commons-lang3;bundle-version="3.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
