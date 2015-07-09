@@ -179,13 +179,19 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 			default :
 			{
-				String formName = args.optString("formname");
-				if (formName != null) getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
 				return super.executeMethod(methodName, args);
 			}
 		}
 
 		return null;
+	}
+
+	@Override
+	protected Object executeEvent(JSONObject obj) throws Exception
+	{
+		String formName = obj.optString("formname");
+		if (formName != null) getApplication().getFormManager().getFormAndSetCurrentWindow(formName);
+		return super.executeEvent(obj);
 	}
 
 
