@@ -31,9 +31,9 @@ import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Scope that holds the global scopes.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 public class ScopesScope extends DefaultScope
@@ -62,7 +62,7 @@ public class ScopesScope extends DefaultScope
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.DefaultScope#get(java.lang.String, org.mozilla.javascript.Scriptable)
 	 */
 	@Override
@@ -100,11 +100,32 @@ public class ScopesScope extends DefaultScope
 		}
 		else
 		{
-			gs = new GlobalScope(getParentScope(), scopeName, scriptEngine, application);
+			gs = new GlobalScope(getParentScope(), scopeName, scriptEngine, application)
+			{
+				@Override
+				protected void putScriptVariable(String name, ScriptVariable var, boolean overwriteInitialValue)
+				{
+					globalScopeCreateStack.push("var:" + name);
+					try
+					{
+						super.putScriptVariable(name, var, overwriteInitialValue);
+					}
+					finally
+					{
+						globalScopeCreateStack.pop();
+					}
+				}
+			};
 			allVars.put(scopeName, gs);
 			globalScopeCreateStack.push(scopeName);
-			gs.createVars();
-			globalScopeCreateStack.pop();
+			try
+			{
+				gs.createVars();
+			}
+			finally
+			{
+				globalScopeCreateStack.pop();
+			}
 			gs.getModificationSubject().addModificationListener(delegateModificationSubject);
 		}
 		return gs;
@@ -117,7 +138,15 @@ public class ScopesScope extends DefaultScope
 			if (var instanceof GlobalScope)
 			{
 				((GlobalScope)var).createScriptProviders(false);
-				((GlobalScope)var).createVars();
+				globalScopeCreateStack.push(((GlobalScope)var).getScopeName());
+				try
+				{
+					((GlobalScope)var).createVars();
+				}
+				finally
+				{
+					globalScopeCreateStack.pop();
+				}
 			}
 		}
 	}
