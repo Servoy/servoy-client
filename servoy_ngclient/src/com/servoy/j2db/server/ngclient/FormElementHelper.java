@@ -242,6 +242,7 @@ public class FormElementHelper
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
 				List<String> headersText = new ArrayList<>();
+				List<String> headersClasses = new ArrayList<>();
 				propertyPath.add(portalFormElement.getName());
 				propertyPath.add("childElements");
 
@@ -264,6 +265,7 @@ public class FormElementHelper
 							{
 								String elementName = fe.getName();
 								boolean hasLabelFor = false;
+								String headerCellClass = null;
 								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
 								while (graphicalComponents.hasNext())
 								{
@@ -273,6 +275,7 @@ public class FormElementHelper
 									{
 										headersText.add(gc.getText());
 										hasLabelFor = true;
+										headerCellClass = gc.getStyleClass();
 										break;
 									}
 								}
@@ -288,9 +291,10 @@ public class FormElementHelper
 										headersText.add(null);
 									}
 								}
-
+								headersClasses.add(headerCellClass);
 								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
 								feRawProperties.put("componentIndex", Integer.valueOf(children.size()));
+								feRawProperties.put("headerCellClass", headerCellClass);
 								fe.updatePropertyValuesDontUse(feRawProperties);
 							}
 							children.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
@@ -314,6 +318,7 @@ public class FormElementHelper
 				if (listViewPortal.isTableview())
 				{
 					portalFormElementProperties.put("columnHeaders", headersText.toArray());
+					portalFormElementProperties.put("headersClasses", headersClasses.toArray());
 				}
 
 				portalFormElementProperties.put("tabSeq", Integer.valueOf(minBodyPortalTabSeq)); // table view tab seq. is the minimum of it's children tabSeq'es

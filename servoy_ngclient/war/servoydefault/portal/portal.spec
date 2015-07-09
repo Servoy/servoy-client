@@ -18,6 +18,7 @@
 	        "findmode" : { "type":"findmode", "tags":{"scope":"private"}, "for" : { "enabled":true}}, 
 	        "foreground" : "color", 
 	        "headerHeight" : {"type" :"int",  "default" : 32}, 
+	        "headersClasses" : { "type" : "string[]", "tags" : {"scope": "private"} }, 
 	        "initialSort" : "string", 
 	        "intercellSpacing" : "dimension", 
 	        "location" : "point", 

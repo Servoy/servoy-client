@@ -141,7 +141,13 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						}
 						var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0) 
 						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
-						var isSortable = $scope.model.sortable && el.foundsetConfig.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change 
+						var isSortable = $scope.model.sortable && el.foundsetConfig.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change
+						var headerCellClass = null;
+						if ($scope.model.headersClasses)
+						{
+							var headerIndex = el.componentIndex ? el.componentIndex : idx;
+							headerCellClass = $scope.model.headersClasses[headerIndex];
+						}	
 						var newL = $scope.columnDefinitions.push({
 							name:el.name,
 							cellTemplate: cellTemplate,
@@ -155,6 +161,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							enableSorting:isSortable,
 							enableHiding: false,
 							allowCellFocus: false,
+							headerCellClass: headerCellClass,
 							type: "string", // just put a type here, we don't know the type and we dont use the edit feature of ui-grid
 							svyColumnIndex: el.componentIndex ? el.componentIndex : idx
 						});
