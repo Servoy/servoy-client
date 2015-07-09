@@ -29,14 +29,19 @@ import javax.swing.SwingUtilities;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.DebugJ2DBClient.DebugSwingFormMananger;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.Relation;
@@ -45,13 +50,18 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Style;
+import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
+import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Utils;
 
 public class DebugUtils
 {
@@ -99,7 +109,7 @@ public class DebugUtils
 					{
 						detail = e;
 					}
-					msg += "\n > " + detail.toString(); // complete stack? 
+					msg += "\n > " + detail.toString(); // complete stack?
 					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
 					{
 						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
@@ -139,10 +149,10 @@ public class DebugUtils
 		}
 	}
 
-	public static Set<IFormController>[] getScopesAndFormsToReload(ClientState clientState, Collection<IPersist> changes)
+	public static Set<IFormController>[] getScopesAndFormsToReload(final ClientState clientState, Collection<IPersist> changes)
 	{
 		Set<IFormController> scopesToReload = new HashSet<IFormController>();
-		Set<IFormController> formsToReload = new HashSet<IFormController>();
+		final Set<IFormController> formsToReload = new HashSet<IFormController>();
 
 		Set<Form> formsUpdated = new HashSet<Form>();
 		for (IPersist persist : changes)
@@ -235,7 +245,7 @@ public class DebugUtils
 				}
 //				if (clientState instanceof DebugJ2DBClient)
 //				{
-//					((DebugJ2DBClient)clientState).clearUserWindows(); no need for this as window API was refactored and it allows users to clean up dialogs 
+//					((DebugJ2DBClient)clientState).clearUserWindows(); no need for this as window API was refactored and it allows users to clean up dialogs
 //				}
 			}
 			else if (persist instanceof Relation)
@@ -251,7 +261,48 @@ public class DebugUtils
 					{
 						if (primary.equals(formController.getDataSource()))
 						{
-							formsToReload.add(formController);
+							final IFormController finalController = formController;
+							final Relation finalRelation = (Relation)persist;
+							formController.getForm().acceptVisitor(new IPersistVisitor()
+							{
+								@Override
+								public Object visit(IPersist o)
+								{
+									if (o instanceof Tab && Utils.equalObjects(finalRelation.getName(), ((Tab)o).getRelationName()))
+									{
+										formsToReload.add(finalController);
+										return o;
+									}
+									if (o instanceof Field && ((Field)o).getValuelistID() > 0)
+									{
+										ValueList vl = clientState.getFlattenedSolution().getValueList(((Field)o).getValuelistID());
+										if (vl != null && Utils.equalObjects(finalRelation.getName(), vl.getRelationName()))
+										{
+											formsToReload.add(finalController);
+											return o;
+										}
+									}
+									if (o instanceof WebComponent)
+									{
+										WebComponent webComponent = (WebComponent)o;
+										WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
+											? WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName()) : null;
+										if (spec != null)
+										{
+											Collection<PropertyDescription> properties = spec.getProperties(RelationPropertyType.INSTANCE);
+											for (PropertyDescription pd : properties)
+											{
+												if (Utils.equalObjects(webComponent.getJson().opt(pd.getName()), finalRelation.getName()))
+												{
+													formsToReload.add(finalController);
+													return o;
+												}
+											}
+										}
+									}
+									return CONTINUE_TRAVERSAL;
+								}
+							});
 						}
 					}
 				}
@@ -266,7 +317,40 @@ public class DebugUtils
 				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
 				for (IFormController formController : cachedFormControllers)
 				{
-					formsToReload.add(formController);
+					final IFormController finalController = formController;
+					final ValueList finalValuelist = (ValueList)persist;
+					formController.getForm().acceptVisitor(new IPersistVisitor()
+					{
+						@Override
+						public Object visit(IPersist o)
+						{
+							if (o instanceof Field && ((Field)o).getValuelistID() > 0 &&
+								Utils.equalObjects(((Field)o).getValuelistID(), finalValuelist.getID()))
+							{
+								formsToReload.add(finalController);
+								return o;
+							}
+							if (o instanceof WebComponent)
+							{
+								WebComponent webComponent = (WebComponent)o;
+								WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
+									? WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName()) : null;
+								if (spec != null)
+								{
+									Collection<PropertyDescription> properties = spec.getProperties(ValueListPropertyType.INSTANCE);
+									for (PropertyDescription pd : properties)
+									{
+										if (Utils.equalObjects(webComponent.getJson().opt(pd.getName()), finalValuelist.getUUID().toString()))
+										{
+											formsToReload.add(finalController);
+											return o;
+										}
+									}
+								}
+							}
+							return CONTINUE_TRAVERSAL;
+						}
+					});
 				}
 			}
 			else if (persist instanceof Style)
@@ -297,7 +381,7 @@ public class DebugUtils
 	 * //https://bugs.eclipse.org/bugs/show_bug.cgi?id=372951#c7
 	 * apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
 	 * @param run : run must be <b>final</b>
-	 * @throws InvocationTargetException 
+	 * @throws InvocationTargetException
 	 */
 	public static void invokeAndWaitWhileDispatchingOnSWT(final Runnable run) throws InterruptedException, InvocationTargetException
 	{
