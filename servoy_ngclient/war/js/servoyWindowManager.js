@@ -410,7 +410,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad, html) {
 			if ($log.debugEnabled) $log.debug("svy * updateController = " + formName + ", realFormUrl = " + realFormUrl);
-			$templateCache.put(realFormUrl,html);
+			if (formTemplateUrls[formName]) 
+			{
+				$templateCache.remove(formTemplateUrls[formName]);
+			}
+			if (html) $templateCache.put(realFormUrl,html);
 			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
 			$sabloApplication.clearFormState(formName)
 			eval(controllerCode);
