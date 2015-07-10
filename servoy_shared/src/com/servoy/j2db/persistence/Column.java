@@ -734,7 +734,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return getDataProviderID();
 	}
 
-	void setDataProviderID(String dataProviderID)
+	public void setDataProviderID(String dataProviderID)
 	{
 		String oldDataProviderID = getDataProviderID();
 		if (columnInfo != null)
