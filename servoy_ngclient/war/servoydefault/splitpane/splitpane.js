@@ -16,7 +16,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 
 			function initDivLocation(newValue) {
 				if ($scope.model.divLocation === -1) {
-					$scope.model.divLocation = newValue / 2;
+					$scope.model.divLocation = Math.round(newValue / 2);
 				}
 			}
 
@@ -56,7 +56,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					var pane1 = angular.element($element[0].querySelector(".split-pane1"));
 					var pane2 = angular.element($element[0].querySelector(".split-pane2"));
 
-					var pos =  $scope.model.divLocation;;
+					var pos = $scope.model.divLocation;
 					if($scope.model.tabOrientation == -3) { 
 						if(pos < 1) {
 							pos = $scope.model.size.height * pos;
