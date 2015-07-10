@@ -103,20 +103,18 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	@Override
 	public IPropertyType< ? > yieldToOtherIfNeeded(String propertyName, YieldDescriptionArguments parameters)
 	{
-		FoundsetLinkedConfig cfg = (FoundsetLinkedConfig)parameters.config;
+		FoundsetLinkedConfig cfg = (FoundsetLinkedConfig)parameters.getConfig();
 		if (cfg == null || cfg.forFoundset == null)
 		{
 			// the wrapped type can do it's thing then; it's not linked to a foundset so we yield to it's impl.
-			parameters.config = cfg != null ? cfg.wrappedConfig : wrappedType.parseConfig(null);
+			parameters.setConfig(cfg != null ? cfg.wrappedConfig : wrappedType.parseConfig(null));
 			return wrappedType;
 		}
-		else
-		{
-			FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.config);
-			config.setWrappedPropertyDescription(new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.config).wrappedConfig,
-				parameters.defaultValue, parameters.values, parameters.tags, parameters.optional));
-			return this;
-		}
+
+		FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.getConfig());
+		config.setWrappedPropertyDescription(new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig,
+			parameters.defaultValue, parameters.values, parameters.twoWay, parameters.tags, parameters.optional));
+		return this;
 	}
 
 	@Override
