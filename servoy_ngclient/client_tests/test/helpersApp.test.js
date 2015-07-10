@@ -40,7 +40,7 @@ describe('styles helpers', function() {
 		// is is a design time property, model is sent before
 
 		var template = $(' <div><div" svy-imagemediaid="myModel"></div></div>');
-		// this directive requires to be in a compnent with an isolated scope
+		// this directive requires to be in a component with an isolated scope
 		var isolatedScope = $scope.$new(true);
 		isolatedScope.myModel = {img: 'image1.png',
 				componentSize:{width: 16, height: 16},

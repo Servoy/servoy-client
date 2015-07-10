@@ -127,7 +127,6 @@ describe("Test component_custom_property suite", function() {
 					}
 				}
 		};
-		debugger;
 		var tmp = sabloConverters.convertFromServerToClient(updateValue,'component', converted, $scope, componentModelGetter);
 		expect(tmp).toBe(converted);
 		expect(converted.modelViewport[2].dataProviderID1).toBe('book3');

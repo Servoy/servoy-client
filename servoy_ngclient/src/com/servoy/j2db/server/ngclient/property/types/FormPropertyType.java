@@ -147,8 +147,11 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FlattenedSolution fls, FormElementContext formElementContext) throws JSONException
 	{
+		FlattenedSolution fs = fls;
+		if (formElementContext != null && formElementContext.getContext() != null && formElementContext.getContext().getSolution() != null) fs = formElementContext.getContext().getSolution();
+
 		Form form = null;
 		if (formElementValue instanceof Integer)
 		{
@@ -168,5 +171,4 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 		}
 		return writer;
 	}
-
 }

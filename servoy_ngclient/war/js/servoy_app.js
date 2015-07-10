@@ -331,7 +331,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 
 			if (!formname) {
-				throw "formname is undefined";
+				throw new Error("formname is undefined");
 			}
 			$sabloApplication.getFormState(formname).then(function (formState) {
 				// if first show of this form in browser window then request initial data (dataproviders and such)
@@ -341,7 +341,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		hideForm: function(formname,parentForm,beanName,relationname,formIndex) {
 			if (!formname) {
-				throw "formname is undefined";
+				throw new Error("formname is undefined");
 			}
 			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex});
 		},

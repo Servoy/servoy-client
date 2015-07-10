@@ -254,8 +254,9 @@
 			}
 			
 			/**
-			 * Sets divider location in pixels.
-			 * @example %%prefix%%%%elementName%%.dividerLocation = 100;
+			 * Sets divider location. If location is less then 1 then the location will be considered at (location * 100) percent of the split pane from left, otherwise it will represent the pixels from left.
+			 * @example %%prefix%%%%elementName%%.dividerLocation = 0.75;
+			 * %%prefix%%%%elementName%%.dividerLocation = 100;
 			 */
 			$scope.api.setDividerLocation = function(location) {
 				if (location >= 0) {
