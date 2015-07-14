@@ -21,6 +21,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sablo.IContributionFilter;
 import org.sablo.WebEntry;
 import org.sablo.specification.WebComponentPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -58,6 +59,8 @@ public class NGClientEntryFilter extends WebEntry
 	private String[] locations;
 	private String[] services;
 
+	private FilterConfig filterConfig;
+
 	public NGClientEntryFilter()
 	{
 		super(WebsocketSessionFactory.CLIENT_ENDPOINT);
@@ -66,6 +69,7 @@ public class NGClientEntryFilter extends WebEntry
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
+		this.filterConfig = fc;
 		//when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
@@ -330,5 +334,27 @@ public class NGClientEntryFilter extends WebEntry
 			return getClass().getResource("index.html");
 		}
 		return super.getIndexPageResource(request);
+	}
+
+	@Override
+	public ArrayList<String> filterCSSContributions(ArrayList<String> cssContributions)
+	{
+		IContributionFilter wroFilter = (IContributionFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
+		if (wroFilter != null)
+		{
+			return wroFilter.filterCSSContributions(cssContributions);
+		}
+		return cssContributions;
+	}
+
+	@Override
+	public ArrayList<String> filterJSContributions(ArrayList<String> jsContributions)
+	{
+		IContributionFilter wroFilter = (IContributionFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
+		if (wroFilter != null)
+		{
+			return wroFilter.filterJSContributions(jsContributions);
+		}
+		return jsContributions;
 	}
 }
