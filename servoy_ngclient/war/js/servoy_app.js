@@ -371,22 +371,24 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					backgroundImage:''}
 
 
-			var setImageStyle = function(newVal){
-				// the value from model may be incorrect so take value from ui
-				var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
-				var image = null;
-				var mediaOptions = scope.$eval('model.mediaOptions');
-				if(newVal.rollOverImg){ 
-					rollOverImgStyle= parseImageOptions( newVal.rollOverImg, mediaOptions, componentSize);
-				}else {
-					rollOverImgStyle = null
+			var setImageStyle = function(){
+				if (media && media.visible)
+				{
+					// the value from model may be incorrect so take value from ui
+					var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+					var mediaOptions = scope.$eval('model.mediaOptions');
+					if(media.rollOverImg){ 
+						rollOverImgStyle= parseImageOptions( media.rollOverImg, mediaOptions, componentSize);
+					}else {
+						rollOverImgStyle = null
+					}
+					if(media.img){
+						imgStyle =parseImageOptions( media.img, mediaOptions, componentSize)
+						element.css(imgStyle)
+					}else {
+						imgStyle = null;
+					} 
 				}
-				if(newVal.img){
-					imgStyle =parseImageOptions( newVal.img, mediaOptions, componentSize)
-					element.css(imgStyle)
-				}else {
-					imgStyle = null;
-				} 	
 			}
 			
 			if (scope.model && scope.model.anchors && $solutionSettings.enableAnchoring) {
@@ -394,20 +396,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				{
 					// anchored image, add resize listener
 					var resizeTimeoutID = null;
-					$window.addEventListener('resize',function() { 
-						if (media && media.visible)
-						{
-							 setImageStyle(media);
-						}	
-					});
+					$window.addEventListener('resize',setImageStyle);
 				}
 			}
 			scope.$watch(attrs.svyImagemediaid,function(newVal) {
 				media = newVal;
-				if (newVal.visible)
-				{
-					angular.element(element[0]).ready(function() { setImageStyle(newVal) });
-				}
+				angular.element(element[0]).ready(setImageStyle);
 			}, true)
 
 
