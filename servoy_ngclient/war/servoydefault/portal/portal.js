@@ -2,9 +2,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
+                                   '$svyProperties', '$sabloConstants',
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication,$sabloConstants,$applicationService) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -977,6 +978,40 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
+			
+			
+			
+			var className = null;
+			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
+				configurable : true,
+				value : function(property, value) {
+					switch (property) {
+					case "borderType":
+						$svyProperties.setBorder($element, value);
+						break;
+					case "styleClass":
+						if (className)
+							$element.removeClass(className);
+						className = value;
+						if (className)
+							$element.addClass(className);
+						break;
+					case "background":
+					case "transparent":
+						$svyProperties.setCssProperty($element, "backgroundColor", $scope.model.transparent ? "transparent" : $scope.model.background);
+						break;
+					}
+				}
+			});
+			var destroyListenerUnreg = $scope.$on("$destroy", function() {
+				destroyListenerUnreg();
+				delete $scope.model[$sabloConstants.modelChangeNotifier];
+			});
+			// data can already be here, if so call the modelChange function so that it is initialized correctly.
+			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
+			for (key in $scope.model) {
+				modelChangFunction(key, $scope.model[key]);
+			}
 			
 			// // special method that servoy calls when this component goes into find mode.
 			// $scope.api.setFindMode = function(findMode, editable) {				

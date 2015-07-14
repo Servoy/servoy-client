@@ -1,5 +1,5 @@
 angular.module('servoydefaultTypeahead', ['servoy'])
-.directive('servoydefaultTypeahead', ['formatFilterFilter','$apifunctions', function(formatFilter,$apifunctions) {
+.directive('servoydefaultTypeahead', ['formatFilterFilter', '$apifunctions', '$svyProperties', '$formatterUtils', '$sabloConstants', function(formatFilter, $apifunctions, $svyProperties, $formatterUtils, $sabloConstants) {
 	return {
 		restrict: 'E',
 		require: 'ngModel',
@@ -10,12 +10,6 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			api: "=svyApi"
 		},
 		link: function($scope, $element, $attrs, ngModel) {
-
-			$scope.style = {
-					width: '100%',
-					height: '100%',
-					overflow: 'hidden'
-			}
 
 			$scope.onClick = function(event){
 				if ($scope.model.editable == false && $scope.handlers.onActionMethodID)
@@ -172,6 +166,75 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
+			
+			var tooltipState = null;
+			var formatState = null;
+			var className = null;
+			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
+				switch(property) {
+					case "borderType":
+						$svyProperties.setBorder($element,value);
+						break;
+					case "background":
+					case "transparent":
+						$svyProperties.setCssProperty($element,"backgroundColor",$scope.model.transparent?"transparent":$scope.model.background);
+						break;
+					case "foreground":
+						$svyProperties.setCssProperty($element,"color",value);
+						break;
+					case "margin":
+						if (value) $element.css(value);
+						break;
+					case "selectOnEnter":
+						if (value) $svyProperties.addSelectOnEnter($element);
+						break;
+					case "styleClass":
+						if (className) $element.removeClass(className);
+						className = value;
+						if(className) $element.addClass(className);
+						break;
+					case "fontType":
+						$svyProperties.setCssProperty($element,"font",value);
+						break;
+					case "enabled":
+						if (value) $element.removeAttr("disabled");
+						else $element.attr("disabled","disabled");
+						break;
+					case "editable":
+						if (value) $element.removeAttr("readonly");
+						else $element.attr("readonly","readonly");
+						break;
+					case "toolTipText":
+						if (tooltipState)
+							tooltipState(value);
+						else tooltipState = $svyProperties.createTooltipState($element,value);
+					    break;
+					case "format":
+						if (formatState)
+							formatState(value);
+						else formatState = $formatterUtils.createFormatState($element, $scope, ngModel,true,value);
+						break;
+					case "horizontalAlignment":
+						$svyProperties.setHorizontalAlignment($element,value);
+						break;
+					case "placeholderText":
+						if (value)
+							$element.attr("placeholder", value)
+						else
+							$element.removeAttr("placeholder");
+						break;
+				}
+			}});
+			var destroyListenerUnreg = $scope.$on("$destroy", function() {
+				destroyListenerUnreg();
+				delete $scope.model[$sabloConstants.modelChangeNotifier];
+			});
+			// data can already be here, if so call the modelChange function so that it is initialized correctly.
+			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
+			for (key in $scope.model) {
+				modelChangFunction(key,$scope.model[key]);
+			}
+			
 		},
 		templateUrl: 'servoydefault/typeahead/typeahead.html',
 		replace: true

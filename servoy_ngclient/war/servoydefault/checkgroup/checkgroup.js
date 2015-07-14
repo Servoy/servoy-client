@@ -1,4 +1,4 @@
-angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultCheckgroup', function($utils, $apifunctions) {  
+angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultCheckgroup', function($utils, $apifunctions, $svyProperties, $sabloConstants, $scrollbarConstants) {  
     return {
       restrict: 'E',
       scope: {
@@ -10,8 +10,8 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
       },
       link: function($scope, $element, $attrs) {
          $scope.notNullOrEmpty = $utils.notNullOrEmpty  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
-         $scope.style = {width:'100%',height:'100%'}
-         angular.extend($scope.style ,$utils.getScrollbarsStyleObj($scope.model.scrollbars));
+         $element.children().first().css($svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
+//         angular.extend($scope.style,);
 
           var allowNullinc=0;
           
@@ -162,7 +162,80 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
     	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
     	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
     	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
-    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);          
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);    
+    	  
+    	  var element = $element.children().first();
+    	  var tooltipState = null;
+    	  var className = null;
+    	  Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
+				configurable : true,
+				value : function(property, value) {
+					switch (property) {
+					case "fontType":
+						$svyProperties.setCssProperty(element, "font", value);
+						break;
+					case "margin":
+						if (value)
+							element.css(value);
+						break;
+					case "styleClass":
+						if (className)
+							element.removeClass(className);
+						className = value;
+						if (className)
+							element.addClass(className);
+						break;
+					case "borderType":
+						$svyProperties.setBorder(element, value);
+						break;
+					case "background":
+					case "transparent":
+						$svyProperties.setCssProperty(element, "backgroundColor", $scope.model.transparent ? "transparent" : $scope.model.background);
+						break;
+					case "foreground":
+						$svyProperties.setCssProperty(element, "color", value);
+						break;
+					case "horizontalAlignment":
+						$svyProperties.setHorizontalAlignment(element, value);
+						break;
+					case "scrollbars":
+						element.removeClass('horizontaldirection');
+						if ((value & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) == $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) {// vertical scrollbar never
+							element.addClass('horizontaldirection');
+						}
+						$svyProperties.setScrollbars(element, value);
+						break;
+					case "toolTipText":
+						if (tooltipState)
+							tooltipState(value);
+						else
+							tooltipState = $svyProperties.createTooltipState(element, value);
+						break;
+//					case "enabled":
+//						if (value)
+//							element.removeAttr("disabled");
+//						else
+//							element.attr("disabled", "disabled");
+//						break;
+//					case "editable":
+//						if (value)
+//							element.removeAttr("disabled");
+//						else
+//							element.attr("disabled", "disabled");
+//						break;
+					}
+				}
+			});
+			var destroyListenerUnreg = $scope.$on("$destroy", function() {
+				destroyListenerUnreg();
+				delete $scope.model[$sabloConstants.modelChangeNotifier];
+			});
+			// data can already be here, if so call the modelChange function so
+			// that it is initialized correctly.
+			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
+			for (key in $scope.model) {
+				modelChangFunction(key, $scope.model[key]);
+			}
       },
       templateUrl: 'servoydefault/checkgroup/checkgroup.html'
     };

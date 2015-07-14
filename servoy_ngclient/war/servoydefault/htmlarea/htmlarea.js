@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions) {  
+angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -8,7 +8,6 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			svyServoyapi: "="
 		},
 		controller: function($scope, $element, $attrs) {
-			$scope.style = {width:'100%',height:'100%',overflow:'hidden'}     
 			$scope.findMode = false;
 			//evaluated by ui-tinymce directive
 			$scope.tinyConfig ={
@@ -162,7 +161,59 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
 			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
-			$scope.api.getLocationY = $apifunctions.getY($element[0]);			
+			$scope.api.getLocationY = $apifunctions.getY($element[0]);		
+			
+			var element = $element.children().first();
+			var tooltipState = null;
+			var className = null;
+			Object.defineProperty($scope.model, 	$sabloConstants.modelChangeNotifier, {
+				configurable : true,
+				value : function(property, value) {
+					switch (property) {
+					case "borderType":
+						$svyProperties.setBorder(element, value);
+						break;
+					case "background":
+					case "transparent":
+						$svyProperties.setCssProperty(element, "backgroundColor", $scope.model.transparent ? "transparent" : $scope.model.background);
+						break;
+					case "foreground":
+						$svyProperties.setCssProperty(element, "color", value);
+						break;
+					case "toolTipText":
+						if (tooltipState)
+							tooltipState(value);
+						else
+							tooltipState = $svyProperties.createTooltipState(element, value);
+						break;
+					case "fontType":
+						$svyProperties.setCssProperty(element, "font", value);
+						break;
+					case "margin":
+						if (value)
+							element.css(value);
+						break;
+					case "styleClass":
+						if (className)
+							element.removeClass(className);
+						className = value;
+						if (className)
+							element.addClass(className);
+						break;
+					}
+				}
+			});
+			var destroyListenerUnreg = $scope.$on("$destroy", function() {
+				destroyListenerUnreg();
+				delete scope.model[$sabloConstants.modelChangeNotifier];
+			});
+			// data can already be here, if so call the modelChange function so
+			// that it is initialized correctly.
+			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
+			for (key in $scope.model) {
+				modelChangFunction(key, $scope.model[key]);
+			}
+			
 		},
 		templateUrl: 'servoydefault/htmlarea/htmlarea.html'
 	};

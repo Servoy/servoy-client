@@ -1,15 +1,10 @@
-<div svy-tooltip='model.toolTipText'
-	 ng-class='(model.styleClass ? model.styleClass : "")  + " svy-spinner"'
->
+<div class='svy-spinner'>
 	<div class="input-append">
     <input type="text" class="spinner-input form-control input-sm svy-padding-xs" 
     	   ng-model="selection" 
-    	   ng-disabled="model.enabled == false"
     	   readonly
-    	   svy-border='model.borderType'
-    	   svy-background='model.transparent ? "transparent" : model.background'
-    	   svy-foreground='model.foreground'
-		   svy-margin='model.margin' id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq'
+		   id="{{::model.svyMarkupId}}" 
+		   sablo-tabseq='model.tabSeq'
 		   svy-click='handlers.onActionMethodID($event)'
      	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
      	   svy-focuslost='handlers.onFocusLostMethodID($event)'>

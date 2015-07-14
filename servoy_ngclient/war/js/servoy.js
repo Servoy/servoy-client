@@ -12,7 +12,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 	HORIZONTAL_SCROLLBAR_AS_NEEDED : 8,
 	HORIZONTAL_SCROLLBAR_ALWAYS : 16,
 	HORIZONTAL_SCROLLBAR_NEVER : 32
-}).factory("$utils",function($rootScope,$scrollbarConstants,$timeout,$svyProperties) {
+}).factory("$utils",function($rootScope, $timeout, $svyProperties) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -121,36 +121,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			})
 		},
 		
-		getScrollbarsStyleObj:function (scrollbars){
-			var style = {}; 
-			if ((scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
-			{
-				style.overflowX = "hidden";
-			}
-			else if ((scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
-			{
-				style.overflowX = "scroll";
-			}
-			else
-			{
-				style.overflowX = "auto";
-			}
-
-			if ((scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) == $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER)
-			{
-				style.overflowY = "hidden"; 
-			}
-			else if ((scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS) == $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
-			{
-				style.overflowY = "scroll"; //$NON-NLS-1$
-			}
-			else
-			{
-				style.overflowY = "auto"; //$NON-NLS-1$
-			}
-
-			return style;
-		},
+		
 		getEventHandler: function($parse,scope,svyEventHandler)
 		{
 			var functionReferenceString = svyEventHandler;
@@ -235,7 +206,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			return findAttribute(element, parent, attributeName);
 		}
 	}
-}).factory("$svyProperties",function($svyTooltipUtils,$timeout) {
+}).factory("$svyProperties",function($svyTooltipUtils, $timeout, $scrollbarConstants) {
 	return {
 		setBorder: function(element,newVal) {
 			if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
@@ -329,6 +300,39 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						element[0].select(); 
 				},0);
 			});
+		},
+		getScrollbarsStyleObj:function (scrollbars){
+			var style = {}; 
+			if ((scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
+			{
+				style.overflowX = "hidden";
+			}
+			else if ((scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
+			{
+				style.overflowX = "scroll";
+			}
+			else
+			{
+				style.overflowX = "auto";
+			}
+
+			if ((scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER) == $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER)
+			{
+				style.overflowY = "hidden"; 
+			}
+			else if ((scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS) == $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
+			{
+				style.overflowY = "scroll"; //$NON-NLS-1$
+			}
+			else
+			{
+				style.overflowY = "auto"; //$NON-NLS-1$
+			}
+
+			return style;
+		},
+		setScrollbars: function(element, value) {
+			element.css(this.getScrollbarsStyleObj(value));
 		},
 		createTooltipState: function(element,value) {
 			var tooltip =  value;
@@ -573,12 +577,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyScrollbars',  function ($utils,$parse) {
+.directive('svyScrollbars',  function ($svyProperties,$parse) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			var scrollbarsModelObj= $parse(attrs.svyScrollbars)(scope);
-			element.css($utils.getScrollbarsStyleObj(scrollbarsModelObj));
+			element.css($svyProperties.getScrollbarsStyleObj(scrollbarsModelObj));
 		}
 	}
 })

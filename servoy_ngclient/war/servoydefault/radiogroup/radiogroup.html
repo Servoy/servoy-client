@@ -1,17 +1,8 @@
-<div svy-border='model.borderType' ng-style="style" 
-	 svy-background='model.transparent ? "transparent" : model.background'
-	 svy-foreground='model.foreground'
-	 svy-scrollbars='model.scrollbars'
-	 svy-margin='model.margin'
-	 svy-font='model.fontType'
-	 svy-horizontalalignment='model.horizontalAlignment'
-	 ng-class='(model.styleClass ? model.styleClass : "")  + " svy-radiogroup input-sm svy-padding-xs"'
-	 svy-tooltip='model.toolTipText' 
+<div style="width:100%;	height:100%" 
+	 class='svy-radiogroup input-sm svy-padding-xs'
 	 id="{{::model.svyMarkupId}}">
   <label class='svy-check-radio'
-         ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')"  
-         svy-tooltip='model.toolTipText'
-         svy-horizontaldirection='model.scrollbars'>
+         ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')">
          <input type="radio" ng-model="model.dataProviderID"  
            ng-value="item.realValue"  
 	       ng-click="radioClicked($event)"  

@@ -1,22 +1,14 @@
-<label class='svy-check-radio'
+<label class='svy-check-radio svy-radio input-sm svy-padding-xs'
 	 ng-click="radioClicked()" 
-	 ng-class='(model.styleClass ? model.styleClass : "")  + " svy-radio input-sm svy-padding-xs"'
-     ng-style="style" 
-     svy-border="model.borderType" 
-     svy-foreground="model.foreground" 
-     svy-background="model.transparent ? 'transparent' : model.background"
-     svy-horizontalalignment='model.horizontalAlignment' 
-     svy-tooltip='model.toolTipText'>
+     style="width:100%; height:100%">
   <input type="radio"
 	     ng-model="model.dataProviderID"
 	     ng-value="model.valuelistID[0].realValue"
-		 ng-disabled="model.enabled == false || model.editable == false"
-		 svy-margin="model.margin"
 		 id="{{::model.svyMarkupId}}"
 		 sablo-tabseq='model.tabSeq'
 		 svy-click='handlers.onActionMethodID($event)'
      	 svy-focusgained='handlers.onFocusGainedMethodID($event)'
      	 svy-focuslost='handlers.onFocusLostMethodID($event)'
 		/>
-  <span ng-bind="model.text" svy-font="model.fontType"/>
+  <span ng-bind="model.text"/>
 </label>

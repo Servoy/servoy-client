@@ -1,15 +1,7 @@
-<label class='svy-check-radio' 
-	 ng-style="style" 
-	 ng-class='(model.styleClass ? model.styleClass : "")  + " svy-check input-sm svy-padding-xs"'
-     svy-border="model.borderType" 
- 	 svy-background="model.transparent ? 'transparent' : model.background" 
- 	 svy-foreground="model.foreground"
- 	 svy-horizontalalignment='model.horizontalAlignment' 
- 	 svy-tooltip='model.toolTipText'>
+<label class='svy-check-radio svy-check input-sm svy-padding-xs' 
+	 style="width:100%;	height:100%" >
 	<input type="checkbox"
 		    ng-model ="selection"
-		    ng-disabled="model.enabled == false || model.editable == false"
-			svy-margin="model.margin"
 			sablo-tabseq='model.tabSeq'
 			ng-click="checkBoxClicked()"
 			svy-click='handlers.onActionMethodID($event)'
@@ -17,5 +9,5 @@
 	   	    svy-focuslost='handlers.onFocusLostMethodID($event)'
 			id="{{::model.svyMarkupId}}"
 			/>
-	 <span ng-bind="model.text" svy-font="model.fontType"/>
+	 <span ng-bind="model.text" />
 </label>

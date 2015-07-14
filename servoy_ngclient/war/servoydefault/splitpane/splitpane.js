@@ -1,4 +1,4 @@
-angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function($apifunctions) {  
+angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function($apifunctions, $svyProperties, $sabloConstants) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -122,6 +122,39 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
+			
+			var className = null;
+			var element = $element.children().first();
+			
+			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
+				configurable : true,
+				value : function(property, value) {
+					switch (property) {
+					case "borderType":
+						$svyProperties.setBorder(element, value);
+						break;
+					case "fontType":
+						$svyProperties.setCssProperty(element,"font",value);
+						break;
+					case "styleClass":
+						if (className)
+							element.removeClass(className);
+						className = value;
+						if (className)
+							element.addClass(className);
+						break;
+					}
+				}
+			});
+			var destroyListenerUnreg = $scope.$on("$destroy", function() {
+				destroyListenerUnreg();
+				delete $scope.model[$sabloConstants.modelChangeNotifier];
+			});
+			// data can already be here, if so call the modelChange function so that it is initialized correctly.
+			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
+			for (key in $scope.model) {
+				modelChangFunction(key, $scope.model[key]);
+			}
 		},
 		templateUrl: 'servoydefault/splitpane/splitpane.html'
 	};

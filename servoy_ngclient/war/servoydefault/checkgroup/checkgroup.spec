@@ -3,7 +3,7 @@
 	"displayName": "Check Group",
 	"version": 1,
 	"definition": "servoydefault/checkgroup/checkgroup.js",
-	"libraries": [],
+	"libraries": [{"name":"svy-checkgroup", "version":"1", "url":"servoydefault/checkgroup/checkgroup.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 

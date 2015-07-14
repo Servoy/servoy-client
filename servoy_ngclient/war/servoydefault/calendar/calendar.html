@@ -1,26 +1,14 @@
 <div class='input-group date'
-	svy-border='model.borderType'
-	svy-margin='model.margin'
-	svy-tooltip="model.toolTipText"
     ng-model="model.dataProviderID"
     ng-style="(!model.readOnly && model.enabled && !model.findmode) ? { 'position':'relative'} : {'display':'inline', 'position':'relative'}">
 	<input type="text" 
-	   svy-background='model.transparent ? "transparent" : model.background'
-	   svy-foreground='model.foreground'
-	   sablo-tabseq='model.tabSeq'
-	   svy-selectonenter='model.selectOnEnter'
 	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
 	   svy-focuslost='handlers.onFocusLostMethodID($event)'
 	   svy-rightclick='handlers.onRightClickMethodID($event)'
 	   svy-enter='handlers.onActionMethodID($event)'
-	   ng-class='(model.styleClass ? model.styleClass : "")  + " svy-calendar form-control input-sm svy-padding-xs svy-line-height-normal"'
-	   ng-style='style'
-	   svy-font='model.fontType'
+	   class='svy-calendar form-control input-sm svy-padding-xs svy-line-height-normal'
 	   ng-focus='focusGained($event)'
 	   ng-blur='focusLost($event)'
-	   ng-disabled="model.enabled == false"
-	   ng-readonly="model.editable == false"
-       svy-horizontalalignment='model.horizontalAlignment'
        id="{{::model.svyMarkupId}}"/>
 	<span class="input-group-addon" style="padding:0;" ng-show="!model.readOnly && model.enabled && !model.findmode"><span class="glyphicon glyphicon-calendar"></span></span>
 </div>

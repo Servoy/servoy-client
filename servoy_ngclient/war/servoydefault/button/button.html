@@ -1,23 +1,13 @@
-<button svy-border='model.borderType'
-	    svy-background='model.transparent ? "transparent" : model.background'
-	    svy-foreground='model.foreground'
-		svy-margin='model.margin'
+<button class='svy-button btn btn-default btn-xs'
 		sablo-tabseq='model.tabSeq'
-		ng-class='(model.styleClass ? model.styleClass : "")  + " svy-button btn btn-default btn-xs"'
-		ng-style='containerstyle'
-		svy-font='model.fontType'
-		ng-disabled='model.enabled == false' 
-		svy-tooltip='model.toolTipText'
-		svy-rollovercursor='model.rolloverCursor'
+		style='overflow:hidden; position:absolute'
 		svy-click='handlers.onActionMethodID($event)'
   	    svy-dblclick='handlers.onDoubleClickMethodID($event)'
  	    svy-rightclick='handlers.onRightClickMethodID($event)'
-		svy-mnemonic='model.mnemonic'
 		style='width:100%;height:100%'
 		id="{{::model.svyMarkupId}}" 
        >
-<div  ng-style="contentstyle" 
-	   svy-horizontalalignment='model.horizontalAlignment'>
+<div  style="width:100%; overflow:hidden; position:relative; white-space:nowrap">
  	   		<span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size ,rollOverImg:model.rolloverImageMediaID, visible: model.visible}'/>
  	   		<span ng-bind-html='(model.dataProviderID == null || model.dataProviderID.url ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'/>
 </div>       

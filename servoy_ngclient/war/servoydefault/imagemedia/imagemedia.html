@@ -1,8 +1,6 @@
-<div svy-border='model.borderType'
-	 svy-tooltip="model.toolTipText"
-	 sablo-tabseq='model.tabSeq'
+<div sablo-tabseq='model.tabSeq'
 	 style='width:100%; height:100%; overflow: auto; text-align: center;'
-	 ng-class='(model.styleClass ? model.styleClass : "")  + " svy-mediafield"'
+	 class='svy-mediafield'
 	 id="{{::model.svyMarkupId}}">
 	<img ng-show="model.enabled == true && model.editable == true" style="top: 1px;left: 1px;position: absolute;cursor: pointer;background-color: gray;z-index: 1;width: 16px; height: 16px;" border="0" src="servoydefault/imagemedia/res/images/save.gif" alt="Save media" title="Save media" ng-click="download()">
 	<img ng-show="model.enabled == true && model.editable == true" style="top: 1px;position: absolute;cursor: pointer;background-color: gray;z-index: 1;left: 17px;width: 16px; height: 16px;" border="0" src="servoydefault/imagemedia/res/images/open_project.gif" alt="Load media" title="Load media" svy-fileupload="model.dataProviderID">

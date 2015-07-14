@@ -3,7 +3,7 @@
 	"displayName": "Radio group",
 	"version": 1,
 	"definition": "servoydefault/radiogroup/radiogroup.js",
-	"libraries": [],
+	"libraries": [{"name":"svy-radiogroup", "version":"1", "url":"servoydefault/radiogroup/radiogroup.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 

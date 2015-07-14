@@ -1,6 +1,8 @@
-<div svy-border='model.borderType'  
-     svy-font='model.fontType' ng-class='(model.styleClass ? model.styleClass : "")  + " svy-splitpane"' style="width:100%;height:100%"
-     id="{{::model.svyMarkupId}}" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}">
+<div class='svy-splitpane' 
+     style="width:100%;height:100%"
+     id="{{::model.svyMarkupId}}" 
+     sablo-tabseq='model.tabSeq' 
+     sablo-tabseq-config="{container: true, reservedGap: 50}">
 	<bg-splitter orientation="{{ model.tabOrientation == -3 ? 'vertical' : 'horizontal' }}" on-divider-change="onChange()">
 		<bg-pane min-size="pane1MinSize">
 			<div ng-include="getForm(model.tabs[0])" sablo-tabseq='1' sablo-tabseq-config="{container: true}" style="position:absolute;width:100%;height:100%;overflow:auto;"></div>

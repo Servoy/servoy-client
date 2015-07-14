@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlview', function($apifunctions) {  
+angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlview', function($apifunctions, $sabloConstants, $svyProperties) {  
     return {
       restrict: 'E',
       scope: {
@@ -7,8 +7,8 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
       	handlers: "=svyHandlers"
       },
       link: function($scope, $element, $attrs,ngModelController) {
-       $scope.style = {width:'100%',height:'100%',overflow:'auto'}
-       $scope.bgstyle = {left:'0',right:'0',top:'0',height:'100%',position:'relative',display:'block',};
+//       $scope.style = {width:'100%',height:'100%',overflow:'auto'}
+//       $scope.bgstyle = {left:'0',right:'0',top:'0',height:'100%',position:'relative',display:'block',};
        
        /**
      	 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content
@@ -81,6 +81,57 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
        $scope.api.getHeight = $apifunctions.getHeight($element[0]);
        $scope.api.getLocationX = $apifunctions.getX($element[0]);
        $scope.api.getLocationY = $apifunctions.getY($element[0]);
+       
+		var element = $element.children().first();
+		var tooltipState = null;
+		var className = null;
+		Object.defineProperty($scope.model, 	$sabloConstants.modelChangeNotifier, {
+			configurable : true,
+			value : function(property, value) {
+				switch (property) {
+				case "borderType":
+					$svyProperties.setBorder(element, value);
+					break;
+				case "background":
+				case "transparent":
+					$svyProperties.setCssProperty(element, "backgroundColor", $scope.model.transparent ? "transparent" : $scope.model.background);
+					break;
+				case "foreground":
+					$svyProperties.setCssProperty(element, "color", value);
+					break;
+				case "toolTipText":
+					if (tooltipState)
+						tooltipState(value);
+					else
+						tooltipState = $svyProperties.createTooltipState(element, value);
+					break;
+				case "fontType":
+					$svyProperties.setCssProperty(element, "font", value);
+					break;
+				case "margin":
+					if (value)
+						element.css(value);
+					break;
+				case "styleClass":
+					if (className)
+						element.removeClass(className);
+					className = value;
+					if (className)
+						element.addClass(className);
+					break;
+				}
+			}
+		});
+		var destroyListenerUnreg = $scope.$on("$destroy", function() {
+			destroyListenerUnreg();
+			delete scope.model[$sabloConstants.modelChangeNotifier];
+		});
+		// data can already be here, if so call the modelChange function so
+		// that it is initialized correctly.
+		var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
+		for (key in $scope.model) {
+			modelChangFunction(key, $scope.model[key]);
+		}
        
       },
       templateUrl: 'servoydefault/htmlview/htmlview.html'

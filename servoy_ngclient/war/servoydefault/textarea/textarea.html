@@ -1,22 +1,11 @@
-<textarea ng-style="style" 
-       svy-font='model.fontType'
-	   svy-background='model.transparent ? "transparent" : model.background'
-	   svy-foreground='model.foreground'
-	   svy-scrollbars='model.scrollbars'
-       svy-margin='model.margin'
-       sablo-tabseq='model.tabSeq'
-	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
-	   svy-focuslost='handlers.onFocusLostMethodID($event)'
-	   svy-rightclick='handlers.onRightClickMethodID($event)'
-	   ng-class='(model.styleClass ? model.styleClass : "")  + " svy-textarea form-control input-sm svy-padding-xs"'
-	   placeholder="{{model.placeholderText}}" svy-border='model.borderType' 
-       ng-model="model.dataProviderID"
-       ng-disabled="model.enabled == false"
-       ng-readonly="model.editable == false"  
-       svy-tooltip='model.toolTipText'
-       svy-autoapply  
-       svy-format="findMode ? '' : model.format"
-       id="{{::model.svyMarkupId}}"
-       svy-horizontalalignment='model.horizontalAlignment'>
+<textarea  style="width:100%; height:100%; resize:none" 
+	       sablo-tabseq='model.tabSeq'
+		   svy-focusgained='handlers.onFocusGainedMethodID($event)'
+		   svy-focuslost='handlers.onFocusLostMethodID($event)'
+		   svy-rightclick='handlers.onRightClickMethodID($event)'
+		   class='svy-textarea form-control input-sm svy-padding-xs'
+	       ng-model="model.dataProviderID"
+	       svy-autoapply  
+	       id="{{::model.svyMarkupId}}">
 </textarea>
        

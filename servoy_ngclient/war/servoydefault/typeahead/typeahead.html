@@ -1,8 +1,4 @@
-<input svy-border='model.borderType'
-	   svy-background='model.transparent ? "transparent" : model.background'
-	   svy-foreground='model.foreground'
-	   svy-margin='model.margin'
-	   sablo-tabseq='model.tabSeq'
+<input sablo-tabseq='model.tabSeq'
 	   svy-selectonenter='model.selectOnEnter'
 	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
 	   svy-focuslost='handlers.onFocusLostMethodID($event)'
@@ -10,18 +6,12 @@
 	   ng-click="onClick($event)"
 	   svy-rightclick='handlers.onRightClickMethodID($event)'
 	   type="text" 
-	   ng-class='(model.styleClass ? model.styleClass : "")  + " svy-typeahead form-control input-sm svy-padding-xs"'
- 	   ng-style="style"
-	   svy-font='model.fontType'
-	   ng-disabled="model.enabled == false"
-	   ng-readonly="model.editable == false"  
+	   class='svy-typeahead form-control input-sm svy-padding-xs'
+ 	   style="width:100%; height:100%; overflow:hidden"
        ng-model="value" 
-       svy-tooltip='model.toolTipText'
-       svy-format="findMode ? '' : model.format"
        typeahead-min-length="-1"
        typeahead-append-to-body="true"
        typeahead="value.displayValue  | formatFilter:model.format.display:model.format.type
        			  for value in model.valuelistID.filterList($viewValue)"
        ng-blur="doSvyApply()" id="{{::model.svyMarkupId}}"
-       ng-focus="startEdit()"
-        svy-horizontalalignment='model.horizontalAlignment'/>
+       ng-focus="startEdit()"/>
