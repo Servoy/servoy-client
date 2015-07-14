@@ -97,6 +97,7 @@ describe('svyButton component', function() {
 		// update tooltip 
 		$scope.model.myButton.toolTipText = 'UPDATED tooltip text content';
 		$scope.$digest();
+		$scope.model.myButton.$modelChangeNotifier('toolTipText',$scope.model.myButton.toolTipText);
 		buttonComponent[0].firstElementChild.triggermouseover();
 		jasmine.clock().tick(800);
 		expect(tooltip.innerHTML.indexOf("UPDATED tooltip text content")!=-1).toBe(true);             
