@@ -125,8 +125,6 @@ public class FoundsetTypeViewport
 //		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortCompletelyChanged();
 //	}
 
-	private boolean isFoundSetNotificationsDisabled;
-
 	/**
 	 * Corrects bounds without firing any change notifications.
 	 */
@@ -136,7 +134,7 @@ public class FoundsetTypeViewport
 		{
 			try
 			{
-				isFoundSetNotificationsDisabled = true;
+				foundset.removeFoundSetEventListener(getFoundsetEventListener());
 				IRecordInternal firstRec = foundset.getRecord(startIndex);
 				if (firstRec != null)
 				{
@@ -161,7 +159,7 @@ public class FoundsetTypeViewport
 			}
 			finally
 			{
-				isFoundSetNotificationsDisabled = false;
+				foundset.addFoundSetEventListener(getFoundsetEventListener());
 			}
 		}
 		else
@@ -180,7 +178,6 @@ public class FoundsetTypeViewport
 				@Override
 				public void foundSetChanged(FoundSetEvent event)
 				{
-					if (isFoundSetNotificationsDisabled) return;
 					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE) changeMonitor.findModeChanged(foundset.isInFindMode());
 					else if (event.getType() == FoundSetEvent.FOUNDSET_INVALIDATED) changeMonitor.foundsetInvalidated();
 					else if (event.getType() == FoundSetEvent.CONTENTS_CHANGED)
