@@ -410,12 +410,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		IWebFormController controller = getApplication().getFormManager().getForm(formName);
 		if (controller != null)
 		{
-			getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+			getApplication().getFormManager().showFormInContainer(formName, getApplication().getRuntimeWindowManager().getWindow(windowName), getTitle(), true,
+				windowName);
 			this.formName = formName;
 			controller.getFormUI().setParentWindowName(getName());
 			//show panel as main
 			switchForm(controller);
-
 		}
 
 		String titleArg = getTitle();
@@ -458,8 +458,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("switchForm",
 			new Object[] { getName(), mainForm, navigatorForm });
 		sendTitle(title);
-		//add to history
-		this.history.add(getName());
 	}
 
 	/**

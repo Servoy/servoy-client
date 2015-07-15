@@ -424,6 +424,9 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			if (fp != null)
 			{
 				setCurrentControllerJS(fp);
+				//add to history
+				getHistory(container).add(fp.getName());
+
 
 				// test if solution is closed in the onload method.
 				if (application.getSolution() == null) return null;
