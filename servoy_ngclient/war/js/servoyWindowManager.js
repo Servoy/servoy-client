@@ -1,6 +1,9 @@
 angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that window is a component with handlers
+.config(['$locationProvider', function($locationProvider) {
+    $locationProvider.html5Mode(true);
+}])
 .factory('$servoyWindowManager', ['$timeout', '$rootScope','$http','$q','$templateCache','$injector','$controller','$compile','WindowType',
-                                  function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {
+                                  function($timeout, $rootScope,$http,$q ,$templateCache,$injector,$controller,$compile,WindowType) {	
 	var WM = new WindowManager();
 	var winInstances = {}
 	return {
@@ -128,7 +131,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {x:left,y:top}
 	};
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
@@ -190,6 +193,16 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		// makes sure the given form is prepared (so DOM/directives are ready for use, not necessarily with initial data)
 		prepareUnresolvedFormForUse: prepareFormForUseInHiddenDiv
 
+	});
+	
+	$rootScope.$watch(function () { return $location.url(); }, function (newURL, oldURL) {
+	    if (newURL != oldURL) {	
+	        var formName =  $location.search().f;
+	        if (formName && formName != $solutionSettings.mainForm.name )
+	        {
+	        	$formService.goToForm(formName);
+	        }
+	    }
 	});
 
 	return {
@@ -330,6 +343,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			else if ($solutionSettings.windowName == name) { // main window form switch
 				$solutionSettings.mainForm = form;
 				$solutionSettings.navigatorForm = navigatorForm;
+				$location.url($location.path() + '?f=' + form.name);
 			}
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},

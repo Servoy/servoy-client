@@ -345,6 +345,17 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			return $sabloApplication.callService('formService', 'formvisibility', {formname:formname,visible:false,parentForm:parentForm,bean:beanName,relation:relationname,formIndex:formIndex});
 		},
+		/**
+		 * Use for going back and forward in history.
+		 * @param formname is the form to show 
+		 */
+		goToForm: function(formname)
+		{
+			if (!formname) {
+				throw new Error("formname is undefined");
+			}
+			return $sabloApplication.callService('formService', 'gotoform', {formname:formname});
+		}
 	}	
 }).directive('svyAutosave',  function ($sabloApplication) {
 	return {

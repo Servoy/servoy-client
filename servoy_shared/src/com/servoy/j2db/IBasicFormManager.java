@@ -270,6 +270,11 @@ public interface IBasicFormManager extends IFormManager
 			return index;
 		}
 
+		public int getFormIndex(String formName)
+		{
+			return list.indexOf(formName);
+		}
+
 		/**
 		 *
 		 */

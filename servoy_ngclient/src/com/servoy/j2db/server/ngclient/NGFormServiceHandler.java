@@ -26,6 +26,7 @@ import org.json.JSONString;
 import org.sablo.services.server.FormServiceHandler;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
@@ -174,6 +175,38 @@ public class NGFormServiceHandler extends FormServiceHandler
 			case "formLoaded" :
 			{
 				NGClientWindow.getCurrentWindow().formCreated(args.optString("formname"));
+				break;
+			}
+
+			case "gotoform" :
+			{
+				String formName = args.optString("formname");
+				IWebFormController form = getApplication().getFormManager().getForm(formName);
+				if (form != null)
+				{
+					String windowName = form.getFormUI().getParentWindowName();
+					NGRuntimeWindow window = null;
+					if (windowName != null && (window = getApplication().getRuntimeWindowManager().getWindow(windowName)) != null)
+					{
+						History history = window.getHistory();
+						if (history.getFormIndex(formName) != -1)
+						{
+							history.go(history.getFormIndex(formName) - history.getIndex());
+						}
+						else
+						{
+							Debug.log("Form " + formName + " was not found in the history of window " + windowName);
+						}
+					}
+					else
+					{
+						Debug.error("Window was not found for form " + formName);
+					}
+				}
+				else
+				{
+					Debug.error("Form " + formName + " was not found");
+				}
 				break;
 			}
 
