@@ -682,8 +682,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			Debug.log("startEdit called on a property that is not bound to a dataprovider: " + property + " of component: " + webComponent);
 			return;
 		}
+
 		if (record != null && !ScopesUtils.isVariableScope(dataProviderID))
 		{
+			int selectedIndex = record.getParentFoundSet().getSelectedIndex();
+			int rowIndex = record.getParentFoundSet().getRecordIndex(record);
+			if (selectedIndex != rowIndex)
+			{
+				record.getParentFoundSet().setSelectedIndex(rowIndex);
+			}
 			record.startEditing();
 		}
 	}
