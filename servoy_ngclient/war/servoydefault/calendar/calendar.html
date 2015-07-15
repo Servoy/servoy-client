@@ -2,6 +2,7 @@
     ng-model="model.dataProviderID"
     ng-style="(!model.readOnly && model.enabled && !model.findmode) ? { 'position':'relative'} : {'display':'inline', 'position':'relative'}">
 	<input type="text" 
+	   sablo-tabseq='model.tabSeq'
 	   svy-focusgained='handlers.onFocusGainedMethodID($event)'
 	   svy-focuslost='handlers.onFocusLostMethodID($event)'
 	   svy-rightclick='handlers.onRightClickMethodID($event)'
