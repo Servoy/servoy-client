@@ -481,28 +481,28 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				pushChangedValues(null, fireChangeEvent);
 				this.record.addModificationListener(this);
 			}
-			if (uninitializedRelatedForms.size() > 0)
-			{
-				//a record is set, we must initialize related forms, legacy behavior from sc/wc
-				for (String formName : uninitializedRelatedForms.keySet())
-				{
-					addRelatedForm(getApplication().getFormManager().getForm(formName), uninitializedRelatedForms.get(formName), true);
-				}
-				uninitializedRelatedForms.clear();
-			}
-			for (IWebFormController form : relatedForms.keySet())
-			{
-				if (relatedForms.get(form) != null)
-				{
-					form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form), ((BasicFormController)form).getDefaultSortColumns())
-						: null);
-				}
-			}
 		}
 		finally
 		{
 			settingRecord = false;
 		}
+		if (uninitializedRelatedForms.size() > 0)
+		{
+			//a record is set, we must initialize related forms, legacy behavior from sc/wc
+			for (String formName : uninitializedRelatedForms.keySet())
+			{
+				addRelatedForm(getApplication().getFormManager().getForm(formName), uninitializedRelatedForms.get(formName), true);
+			}
+			uninitializedRelatedForms.clear();
+		}
+		for (IWebFormController form : relatedForms.keySet())
+		{
+			if (relatedForms.get(form) != null)
+			{
+				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form), ((BasicFormController)form).getDefaultSortColumns()) : null);
+			}
+		}
+
 	}
 
 	public IRecordInternal getRecord()
