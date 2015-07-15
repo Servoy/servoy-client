@@ -180,7 +180,7 @@
 			 * @example var resizeWeight = %%prefix%%%%elementName%%.resizeWeight
 			 */
 			$scope.api.getResizeWeight = function() {
-				return $scope.resizeWeight;
+				return $scope.model..resizeWeight;
 			}
 			
 			/**
@@ -191,7 +191,7 @@
 			 * @example %%prefix%%%%elementName%%.resizeWeight = 10;
 			 */
 			$scope.api.setResizeWeight = function(resizeW) {
-				$scope.resizeWeight = resizeW;
+				$scope.model.resizeWeight = resizeW;
 			}
 			
 			/**
@@ -199,7 +199,7 @@
 			 * @example var left = %%prefix%%%%elementName%%.leftFormMinSize
 			 */
 			$scope.api.getLeftFormMinSize = function() {
-				return $scope.pane1MinSize;
+				return $scope.model.pane1MinSize;
 			}
 			
 			/**
@@ -207,7 +207,7 @@
 			 * @example %%prefix%%%%elementName%%.leftFormMinSize = 100;
 			 */
 			$scope.api.setLeftFormMinSize = function(minSize) {
-				$scope.pane1MinSize = minSize;
+				$scope.model.pane1MinSize = minSize;
 			}
 			
 			/**
@@ -215,7 +215,7 @@
 			 * @example var right = %%prefix%%%%elementName%%.rightFormMinSize
 			 */
 			$scope.api.getRightFormMinSize = function() {
-				return $scope.pane2MinSize;
+				return $scope.model.pane2MinSize;
 			}
 			
 			/**
@@ -223,7 +223,7 @@
 			 * @example %%prefix%%%%elementName%%.rightFormMinSize = 100;
 			 */
 			$scope.api.setRightFormMinSize = function(minSize) {
-				$scope.pane2MinSize = minSize;
+				$scope.model.pane2MinSize = minSize;
 			}
 			
 			/**

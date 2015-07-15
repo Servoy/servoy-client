@@ -148,25 +148,16 @@ public class SpecGenerator
 			}
 			// @formatter:on
 		));
-		specTemplateList.add(new SpecTemplateModel(
-			"portal",
-			"Portal",
-			"portal.gif",
-			IRepository.PORTALS,
-			com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-			new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},"
-				+ "\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"},"
-				+ "\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
-			"servoydefault/portal/portal_server.js"));
-		specTemplateList.add(new SpecTemplateModel(
-			"spinner",
-			"Spinner",
-			"spinner.png",
-			IRepository.FIELDS,
-			com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
+		specTemplateList.add(
+			new SpecTemplateModel("portal", "Portal", "portal.gif", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
+				new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"}," +
+					"\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"}," +
+					"\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
+				"servoydefault/portal/portal_server.js"));
+		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", "spinner.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
 			new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
-		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
-			new String[0]));
+		specTemplateList.add(
+			new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,
 			com.servoy.j2db.ui.runtime.IRuntimeRectangle.class, new String[0]));
 
@@ -395,6 +386,9 @@ public class SpecGenerator
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "divLocation", IRepository.INTEGER, Integer.valueOf(-1)));
 				model.add(cs.new Element(-1, IRepository.FIELDS, "divSize", IRepository.INTEGER, Integer.valueOf(-1)));
+				model.add(cs.new Element(-1, IRepository.FIELDS, "resizeWeight", IRepository.INTEGER, Integer.valueOf(-1)));
+				model.add(cs.new Element(-1, IRepository.FIELDS, "pane1MinSize", IRepository.INTEGER, Integer.valueOf(-1)));
+				model.add(cs.new Element(-1, IRepository.FIELDS, "pane2MinSize", IRepository.INTEGER, Integer.valueOf(-1)));
 			}
 			if ("portal".equals(componentSpec.getName()))
 			{
@@ -660,6 +654,10 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		splitpaneMapping.put("divLocation", "{ \"type\": \"double\", \"" + WebComponentSpecification.TWO_WAY + "\": \"" + TwoWayValue.shallow + "\", \"default\": -1 }");
 		splitpaneMapping.put("divSize", "{ \"type\": \"int\", \"default\": -1 }");
+		splitpaneMapping.put("resizeWeight","{\"type\":\"double\",\"default\":0}");
+		splitpaneMapping.put("pane1MinSize","{\"type\":\"int\",\"default\":30}");
+		splitpaneMapping.put("pane2MinSize","{\"type\":\"int\",\"default\":30}");
+
 		splitpaneMapping.put("readOnly", "{ \"type\": \"protected\", \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
 		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
@@ -852,6 +850,7 @@ public class SpecGenerator
 	}
 
 	private static Map<String, String> docTypeMappingExceptions = new HashMap<>();
+
 	static
 	{
 		docTypeMappingExceptions.put("[B", "byte");

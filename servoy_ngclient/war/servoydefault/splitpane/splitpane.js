@@ -1,4 +1,4 @@
-angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function($apifunctions, $svyProperties, $sabloConstants) {  
+angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSplitpane', function($apifunctions, $svyProperties, $sabloConstants, $rootScope, $window) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -7,38 +7,92 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			handlers: "=svyHandlers",
 			api: "=svyApi"
 		},
-		controller: function($scope, $element, $attrs, $rootScope) {
+		controller: function($scope, $element, $attrs) {
 
-			$scope.pane1MinSize = 30;
-			$scope.pane2MinSize = 30;
+			if ($scope.model.resizeWeight == undefined) $scope.model.resizeWeight = 0;
+			if ($scope.model.pane1MinSize == undefined) $scope.model.pane1MinSize = 30;
+			if ($scope.model.pane2MinSize == undefined) $scope.model.pane2MinSize = 30;
+			
+			var splitPane1;
+			var splitPane2;
+			$scope.registerSplitPane = function(splitPaneElement, which) {
+				if (which == "split1") {
+					splitPane1 = splitPaneElement;
+				}
+				else if (which == "split2") {
+					splitPane2 = splitPaneElement;
+				}
+				processDivLocation();
+			} 
+			
+			function processDivLocation() {
+				if(!splitPane1 || !splitPane2) return;
+				var dividerEl = angular.element($element[0].querySelector(".split-handler"));
 
-			$scope.resizeWeight = 0;
+				var pos = $scope.model.divLocation;
+				if($scope.model.tabOrientation == -3) { 
+					if(pos < 1) {
+						pos = $scope.model.size.height * pos;
+					}
+					dividerEl.css('top', pos + 'px');
+					splitPane1.css('height', pos + 'px');
+					splitPane2.css('top', pos + 'px');
+				}
+				else {
+					if(pos < 1) {
+						pos = $scope.model.size.width * pos;
+					}
+					dividerEl.css('left', pos + 'px');
+					splitPane1.css('width', pos + 'px');
+					splitPane2.css('left', pos + 'px');
+				}
+			}
 
 			function initDivLocation(newValue) {
 				if ($scope.model.divLocation === -1) {
 					$scope.model.divLocation = Math.round(newValue / 2);
+					processDivLocation();
 				}
 			}
+			
+			function processResize() {
+				var delta  = 0;
+				var standard = 0;
+				if($scope.model.tabOrientation == -3) {
+					delta = $element[0].firstChild.clientHeight - height;
+					standard = height;
+				}
+				else if($scope.model.tabOrientation == -2) {
+					delta = $element[0].firstChild.clientWidth - width;
+					standard = width;
+				}
+				if (delta != 0)
+					$scope.model.divLocation = standard/2 + Math.round(delta * $scope.model.resizeWeight); // the divLocation watch will do the rest
+			}
+
+			var width = $scope.model.size.width;
+			var height = $scope.model.size.height;
+			$window.addEventListener('resize',processResize);
 
 			if($scope.model.tabOrientation == -3) {
 				$scope.$watch("model.size.height", function(newValue, oldValue) {
+					height = newValue;
 					initDivLocation(newValue);
-					var delta = newValue - oldValue;
-					if(delta != 0) {
-						$scope.model.divLocation = (getBrowserDividerLocation() - delta) + Math.round(delta * $scope.resizeWeight); // the divLocation watch will do the rest
-					}
+					processResize();
 				});
 			} 
-
-			if($scope.model.tabOrientation == -2) {
+			else if($scope.model.tabOrientation == -2) {
 				$scope.$watch("model.size.width", function(newValue, oldValue) {
+					width = newValue;
 					initDivLocation(newValue);
-					var delta = newValue - oldValue;
-					if(delta != 0) {
-						$scope.model.divLocation = (getBrowserDividerLocation() - delta) + Math.round(delta * $scope.resizeWeight);  // the divLocation watch will do the rest
-					}     				 
+					processResize();    				 
 				});
 			}
+			
+			$scope.$watch("model.resizeWeight", function(newValue,oldValue) {
+				if (newValue === oldValue) return;
+				processResize()
+			});
 
 			$scope.$watch('model.divSize', function(newValue, oldValue){
 				var dividerEl = angular.element($element[0].querySelector(".split-handler"));
@@ -52,27 +106,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			//called when the divider location is changed from server side scripting
 			$scope.$watch('model.divLocation', function(newValue, oldValue){
 				if (newValue && newValue  !== oldValue) {
-					var dividerEl = angular.element($element[0].querySelector(".split-handler"));
-					var pane1 = angular.element($element[0].querySelector(".split-pane1"));
-					var pane2 = angular.element($element[0].querySelector(".split-pane2"));
-
-					var pos = $scope.model.divLocation;
-					if($scope.model.tabOrientation == -3) { 
-						if(pos < 1) {
-							pos = $scope.model.size.height * pos;
-						}
-						dividerEl.css('top', pos + 'px');
-						pane1.css('height', pos + 'px');
-						pane2.css('top', pos + 'px');
-					}
-					else {
-						if(pos < 1) {
-							pos = $scope.model.size.width * pos;
-						}
-						dividerEl.css('left', pos + 'px');
-						pane1.css('width', pos + 'px');
-						pane2.css('left', pos + 'px');
-					}
+					processDivLocation();
 					if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,$.Event("change"));
 				}
 			});
@@ -158,4 +192,11 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 		},
 		templateUrl: 'servoydefault/splitpane/splitpane.html'
 	};
+}).directive("tabloadchecker",function($parse) {
+	return {
+		restrict: 'A',
+		link: function($scope, $element, $attrs) {
+			$scope.registerSplitPane($element, $attrs.tabloadchecker)
+		}
+	}
 })
