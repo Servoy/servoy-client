@@ -1063,6 +1063,12 @@ public class EditRecordList
 		// only IRowListeners can go into edit.. (SubSummaryFoundSet records can't)
 		if (!(record.getParentFoundSet() instanceof IRowListener)) return true;
 
+		int selectedIndex = record.getParentFoundSet().getSelectedIndex();
+		int rowIndex = record.getParentFoundSet().getRecordIndex(record);
+		if (selectedIndex != rowIndex)
+		{
+			record.getParentFoundSet().setSelectedIndex(rowIndex);
+		}
 		if (isEditing(record))
 		{
 			editRecordsLock.lock();
