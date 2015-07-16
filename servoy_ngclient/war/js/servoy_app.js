@@ -893,7 +893,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			keyboard: false
 		});				
 	}
-	var uiProperties = {};
 	return {
 		setStyleSheet: function(path) {
 			if (angular.isDefined(path)) {
@@ -921,10 +920,21 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			webStorage.local.add("userProperties", JSON.stringify(obj))
 		},
 		getUIProperty: function(key) {
-			return uiProperties[key];
+			var json = webStorage.session.get("uiProperties");
+			if (json) {
+				return JSON.parse(json)[key];
+			}
+			return null;
 		},
 		setUIProperty: function(key,value) {
-			uiProperties[key] = value;
+			var obj = {}
+			var json = webStorage.session.get("uiProperties");
+			if (json) {
+				obj = JSON.parse(json);
+			}
+			if (value == null) delete obj[key]
+			else obj[key] = value;
+			webStorage.session.add("uiProperties", JSON.stringify(obj))
 		},
 		getUserPropertyNames: function() {
 			var json = webStorage.local.get("userProperties");
