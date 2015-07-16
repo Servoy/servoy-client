@@ -65,7 +65,7 @@ describe("Test component_custom_property suite", function() {
 		expect(converted.__internalState.isChanged()).toBe(true);
 		expect(converted.__internalState.requests[0].handlerExec.eventType).toBe('onActionMethodID');
 		expect(converted.__internalState.requests[0].handlerExec.rowId).toBe(123);
-		expect(converted.__internalState.requests[0].handlerExec.args[1].dog).toBe('S');
+		expect(converted.__internalState.requests[0].handlerExec.args[0].dog).toBe('S');
 	});
 
 	it("should add a startEdit request after startEdit has been called", function() {
