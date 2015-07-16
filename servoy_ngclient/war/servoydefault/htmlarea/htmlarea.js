@@ -205,7 +205,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			});
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
-				delete scope.model[$sabloConstants.modelChangeNotifier];
+				delete $scope.model[$sabloConstants.modelChangeNotifier];
 			});
 			// data can already be here, if so call the modelChange function so
 			// that it is initialized correctly.
