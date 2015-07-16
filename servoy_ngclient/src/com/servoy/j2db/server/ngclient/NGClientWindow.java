@@ -263,7 +263,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	protected boolean formLoaded(WebComponent component)
 	{
-		String formName = ((WebFormComponent)component).findParent(IWebFormUI.class).getController().getName();
+		IWebFormUI parent = ((WebFormComponent)component).findParent(IWebFormUI.class);
+		if (parent == null) return false;
+		IWebFormController controller = parent.getController();
+		if (controller == null) return false;
+		String formName = controller.getName();
 		String formUrl = getEndpoint().getFormUrl(formName);
 		if (formUrl != null)
 		{
