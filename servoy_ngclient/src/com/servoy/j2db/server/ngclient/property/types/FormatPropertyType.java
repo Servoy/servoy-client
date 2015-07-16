@@ -317,6 +317,11 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 										{
 											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 										}
+										else if (val.getCustomValues() == null)
+										{
+											// items will be set later, this is always a string ?
+											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+										}
 									}
 								}
 								catch (Exception ex)
