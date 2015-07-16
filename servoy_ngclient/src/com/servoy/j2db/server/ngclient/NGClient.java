@@ -656,14 +656,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE.equals(name))
 		{
-			try
-			{
-				getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("setUIProperty", new Object[] { name, val });
-			}
-			catch (IOException e)
-			{
-				Debug.error("Error getting setting property '" + name + "' value: " + val, e);
-			}
+			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperty", new Object[] { name, val });
 		}
 		if (uiProperties == null)
 		{
