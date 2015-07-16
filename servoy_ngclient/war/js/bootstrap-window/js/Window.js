@@ -158,7 +158,8 @@ var Window = null;
 
     Window.prototype.close = function() {
         var _this = this;
-        $('.modal-backdrop').remove(); 
+        if(this.options.window_manager && this.options.window_manager.modalStack.length === 1)
+        	$('.modal-backdrop').remove(); 
         this.$el.trigger('close');
         if (this.options.parent) {
             this.options.parent.clearBlocker();
