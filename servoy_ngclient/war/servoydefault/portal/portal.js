@@ -646,12 +646,19 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 										$scope.gridApi.selection.selectRow(rows[rowIdx]);
 										if(!scrolledToSelection) {
 											scrolledToSelection = true;
-											$timeout(function() {
-												$scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow(rows[rowIdx]), null /* must be null here, can't be undefined */).then(function() {
-													if (deferredAPICallExecution) deferredAPICallExecution.resolve();
-													deferredAPICallExecution = undefined;
-												});
-											}, 0);
+											var addTimeOut = function(timeoutIdx,rowId) {
+												$timeout(function() {
+													var row = rows[timeoutIdx];
+													if (row && row._svyRowId == rowId) {
+														$scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow(row), null /* must be null here, can't be undefined */).then(function() {
+															if (deferredAPICallExecution) deferredAPICallExecution.resolve();
+															deferredAPICallExecution = undefined;
+														});
+													}
+												}, 0);	
+											}
+											addTimeOut(rowIdx,rows[rowIdx]._svyRowId);
+											
 										}
 									} else if(!scrolledToSelection) {
 										var nrRecordsToLoad = 0;
