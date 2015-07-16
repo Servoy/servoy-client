@@ -25,8 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
-import org.sablo.IContributionFilter;
-
 import ro.isdc.wro.config.factory.PropertyWroConfigurationFactory;
 import ro.isdc.wro.config.jmx.WroConfiguration;
 import ro.isdc.wro.http.WroFilter;
@@ -39,9 +37,7 @@ import ro.isdc.wro.model.group.Group;
 import ro.isdc.wro.model.group.GroupExtractor;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.ResourceType;
-import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer;
 import ro.isdc.wro.util.ObjectFactory;
-import ro.isdc.wro.util.Transformer;
 
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -51,21 +47,21 @@ import com.servoy.j2db.util.Utils;
  * @author gboros
  *
  */
-@WebFilter(urlPatterns = { "*.js", "*.css" })
+@WebFilter(urlPatterns = { "/wro/*" })
 @SuppressWarnings("nls")
-public class NGWroFilter extends WroFilter implements IContributionFilter
+public class NGWroFilter extends WroFilter
 {
 	public static final String WROFILTER = "wroFilter";
-	private static final String JS_CONTRIBUTION_NAME = "svycontribution.js";
-	private static final String CSS_CONTRIBUTION_NAME = "svycontribution.css";
+	private boolean isMinimize;
 
 	@Override
 	protected void doInit(final FilterConfig config) throws ServletException
 	{
 		// can be used in servoy.properties file with 'system.property.' prefix);
-		boolean enableWebResourceOptimizer = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.enableWebResourceOptimizer", "true"));
+		boolean enableWebResourceOptimizer = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizer", "false"));
 		setEnable(enableWebResourceOptimizer);
 		if (enableWebResourceOptimizer) config.getServletContext().setAttribute(WROFILTER, this);
+		isMinimize = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.enableWebResourceOptimizerMinimize", "false"));
 	}
 
 	@Override
@@ -82,84 +78,27 @@ public class NGWroFilter extends WroFilter implements IContributionFilter
 		return new ConfigurationFreeManagerFactory(this);
 	}
 
-	public class ConfigurationFreeModelFactory implements WroModelFactory
-	{
-		public WroModel create()
-		{
-			WroModel result = new WroModel();
-			result.addGroup(createAllResourcesGroup());
-			return result;
-		}
-
-		private Group createAllResourcesGroup()
-		{
-			Resource allJS = new Resource();
-			allJS.setType(ResourceType.JS);
-			allJS.setUri("/**.js");
-
-			Resource allCSS = new Resource();
-			allCSS.setType(ResourceType.CSS);
-			allCSS.setUri("/**.css");
-
-			Group group = new Group("fake");
-			group.addResource(allJS);
-			group.addResource(allCSS);
-			return group;
-		}
-
-		public void destroy()
-		{
-		}
-
-	}
-
-	class ResourcesToGroupsModelTransformer implements Transformer<WroModel>
+	class ConfigurationFreeModelFactory implements WroModelFactory
 	{
 		private final NGWroFilter ngWroFilter;
 
-		ResourcesToGroupsModelTransformer(NGWroFilter ngWroFilter)
+		ConfigurationFreeModelFactory(NGWroFilter ngWroFilter)
 		{
 			this.ngWroFilter = ngWroFilter;
 		}
 
-		public WroModel transform(WroModel input) throws Exception
+		public WroModel create()
 		{
-			Group jsContribGroup = ngWroFilter.getJSCotributionsGroup();
-			Group cssContribGroup = ngWroFilter.getCSSCotributionsGroup();
 			WroModel result = new WroModel();
-			for (Group group : input.getGroups())
+			for (Group g : ngWroFilter.getContributionsGroups())
 			{
-				for (Resource resource : group.getResources())
-				{
-					if (jsContribGroup != null && jsContribGroup.hasResource(resource.getUri()))
-					{
-						if (!result.getGroups().contains(jsContribGroup))
-						{
-							result.addGroup(jsContribGroup);
-						}
-					}
-					else if (cssContribGroup != null && cssContribGroup.hasResource(resource.getUri()))
-					{
-						if (!result.getGroups().contains(cssContribGroup))
-						{
-							result.addGroup(cssContribGroup);
-						}
-					}
-					else
-					{
-						Group resourceGroup = toGroup(resource);
-						result.addGroup(resourceGroup);
-					}
-				}
+				result.addGroup(g);
 			}
 			return result;
 		}
 
-		private Group toGroup(Resource resource)
+		public void destroy()
 		{
-			Group resourceGroup = new Group(resource.getUri());
-			resourceGroup.addResource(resource);
-			return resourceGroup;
 		}
 
 	}
@@ -225,76 +164,40 @@ public class NGWroFilter extends WroFilter implements IContributionFilter
 		@Override
 		protected WroModelFactory newModelFactory()
 		{
-			return new ConfigurationFreeModelFactory();
-		}
-
-		@Override
-		protected List<Transformer<WroModel>> newModelTransformers()
-		{
-			//The super class store the list of model transformers in a private
-			//property. We need both modify that property and return the list of
-			//correct transformers.
-			List<Transformer<WroModel>> modelTransformers = super.newModelTransformers();
-			if (modelTransformers != null) modelTransformers.clear();
-			addModelTransformer(new WildcardExpanderModelTransformer());
-			addModelTransformer(new ResourcesToGroupsModelTransformer(ngWroFilter));
-			return super.newModelTransformers();
+			return new ConfigurationFreeModelFactory(ngWroFilter);
 		}
 	}
 
-	private Group cssContributionsGroup;
+	private final ArrayList<Group> contributionsGroups = new ArrayList<Group>();
 
-	Group getCSSCotributionsGroup()
+	ArrayList<Group> getContributionsGroups()
 	{
-		return cssContributionsGroup;
+		return contributionsGroups;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.IContributionFilter#filterCSSContributions(java.util.ArrayList)
-	 */
-	@Override
-	public ArrayList<String> filterCSSContributions(ArrayList<String> cssContributions)
+	public String createCSSGroup(String name, List<String> cssContributions)
 	{
-		cssContributionsGroup = new Group("/" + CSS_CONTRIBUTION_NAME);
-		for (String s : cssContributions)
+		return createGroup(name, cssContributions, ResourceType.CSS);
+	}
+
+	public String createJSGroup(String name, List<String> jsContributions)
+	{
+		return createGroup(name, jsContributions, ResourceType.JS);
+	}
+
+	private String createGroup(String name, List<String> contributions, ResourceType type)
+	{
+		Group g = new Group("/" + name);
+		for (String s : contributions)
 		{
 			Resource r = new Resource();
-			r.setType(ResourceType.CSS);
+			r.setType(type);
 			r.setUri("/" + s);
-			cssContributionsGroup.addResource(r);
+			r.setMinimize(isMinimize);
+			g.addResource(r);
 		}
-		ArrayList<String> r = new ArrayList<String>();
-		r.add(CSS_CONTRIBUTION_NAME);
-		return r;
-	}
+		contributionsGroups.add(g);
 
-	private Group jsContributionsGroup;
-
-	Group getJSCotributionsGroup()
-	{
-		return jsContributionsGroup;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.IContributionFilter#filterJSContributions(java.util.ArrayList)
-	 */
-	@Override
-	public ArrayList<String> filterJSContributions(ArrayList<String> jsContributions)
-	{
-		jsContributionsGroup = new Group("/" + JS_CONTRIBUTION_NAME);
-		for (String s : jsContributions)
-		{
-			Resource r = new Resource();
-			r.setType(ResourceType.JS);
-			r.setUri("/" + s);
-			jsContributionsGroup.addResource(r);
-		}
-		ArrayList<String> r = new ArrayList<String>();
-		r.add(JS_CONTRIBUTION_NAME);
-		return r;
+		return name;
 	}
 }

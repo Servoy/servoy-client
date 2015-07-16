@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +22,6 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sablo.IContributionFilter;
 import org.sablo.WebEntry;
 import org.sablo.specification.WebComponentPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -55,6 +55,35 @@ public class NGClientEntryFilter extends WebEntry
 {
 	public static final String SOLUTIONS_PATH = "solutions/";
 	public static final String FORMS_PATH = "forms/";
+
+	private static final String[] INDEX_SERVOY_BASE_CSS = { //
+	"css/bootstrap/css/bootstrap.css", //
+	"js/bootstrap-window/css/bootstrap-window.css" };
+	private static final String[] INDEX_SERVOY_BASE_JS = { //
+	"js/jquery-1.11.1.js", //
+	"js/angular_1.4.1.js", //
+	"js/angular-sanitize_1.4.1.js", //
+	"js/angular-webstorage.js", //
+	"js/angularui/ui-bootstrap-tpls-0.12.0.js", //
+	"js/numeral.js", //
+	"js/languages.js", //
+	"js/angular-file-upload/dist/angular-file-upload.min.js", //
+	"js/bootstrap-window/js/Window.js", //
+	"js/bootstrap-window/js/WindowManager.js", //
+	"js/bindonce.js", //
+	"js/servoy.js", //
+	"js/servoyWindowManager.js", //
+	"js/servoyformat.js", //
+	"js/servoytooltip.js", //
+	"js/fileupload.js", //
+	"js/servoy-components.js" };
+	private static final String[] INDEX_SABLO_JS = { //
+	"sablo/lib/reconnecting-websocket.js", //
+	"sablo/js/websocket.js", //
+	"sablo/js/sablo_app.js" };
+	private static final String[] INDEX_SERVOY_APP_JS = { //
+	"js/servoy_app.js", //
+	"js/jquery.maskedinput.js" };
 
 	private String[] locations;
 	private String[] services;
@@ -337,24 +366,45 @@ public class NGClientEntryFilter extends WebEntry
 	}
 
 	@Override
-	public ArrayList<String> filterCSSContributions(ArrayList<String> cssContributions)
+	public List<String> filterCSSContributions(List<String> cssContributions)
 	{
-		IContributionFilter wroFilter = (IContributionFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
+		ArrayList<String> allIndexCSS;
+		NGWroFilter wroFilter = (NGWroFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
 		if (wroFilter != null)
 		{
-			return wroFilter.filterCSSContributions(cssContributions);
+			allIndexCSS = new ArrayList<String>();
+			allIndexCSS.add(wroFilter.createCSSGroup("wro/servoy_base.css", Arrays.asList(INDEX_SERVOY_BASE_CSS)));
+			allIndexCSS.add(wroFilter.createCSSGroup("wro/servoy_contributions.css", cssContributions));
 		}
-		return cssContributions;
+		else
+		{
+			allIndexCSS = new ArrayList<String>(Arrays.asList(INDEX_SERVOY_BASE_CSS));
+			allIndexCSS.addAll(cssContributions);
+		}
+		return allIndexCSS;
 	}
 
 	@Override
-	public ArrayList<String> filterJSContributions(ArrayList<String> jsContributions)
+	public List<String> filterJSContributions(List<String> jsContributions)
 	{
-		IContributionFilter wroFilter = (IContributionFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
+		ArrayList<String> allIndexJS;
+		NGWroFilter wroFilter = (NGWroFilter)filterConfig.getServletContext().getAttribute(NGWroFilter.WROFILTER);
 		if (wroFilter != null)
 		{
-			return wroFilter.filterJSContributions(jsContributions);
+			allIndexJS = new ArrayList<String>();
+			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_base.js", Arrays.asList(INDEX_SERVOY_BASE_JS)));
+			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
+			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_app.js", Arrays.asList(INDEX_SERVOY_APP_JS)));
+			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_contributions.js", jsContributions));
+
 		}
-		return jsContributions;
+		else
+		{
+			allIndexJS = new ArrayList<String>(Arrays.asList(INDEX_SERVOY_BASE_JS));
+			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
+			allIndexJS.addAll(Arrays.asList(INDEX_SERVOY_APP_JS));
+			allIndexJS.addAll(jsContributions);
+		}
+		return allIndexJS;
 	}
 }
