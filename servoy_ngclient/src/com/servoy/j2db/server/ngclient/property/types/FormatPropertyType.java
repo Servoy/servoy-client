@@ -320,7 +320,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 										else if (val.getCustomValues() == null)
 										{
 											// items will be set later, this is always a string ?
-											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
+											//return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 										}
 									}
 								}
