@@ -131,7 +131,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {x:left,y:top}
 	};
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location,$sabloLoadingIndicator) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;
@@ -294,6 +294,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					windowClass: "tester",
 					windowInstance:instance
 				}).then(function(){
+					// test if it is modal dialog, then the request blocks on the server and we should hide the loading.
+					if (instance.type == 1 && $sabloLoadingIndicator.isShowing()) {
+						instance.loadingIndicatorIsHidden = true;
+						$sabloLoadingIndicator.hideLoading();
+					}
 					instance.bsWindowInstance.$el.on('bswin.resize',instance.onResize)
 					instance.bsWindowInstance.$el.on('bswin.move',instance.onMove)
 					instance.bsWindowInstance.$el.on("setActive", function(ev, active) { 
@@ -311,7 +316,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		},
 		hide:function(name){
 			var instance = instances[name];
-			if (instance) {				
+			if (instance) {		
+				if (instance.loadingIndicatorIsHidden) {
+					delete instance.loadingIndicatorIsHidden;
+					$sabloLoadingIndicator.showLoading();
+				}
 				instance.hide();
 				if($(document).find('[svy-window]').length < 2) {
 					$("#mainForm").trigger("enableTabseq");
