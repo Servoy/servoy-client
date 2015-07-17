@@ -933,14 +933,28 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return [];
 		},
 		showUrl:function(url,target,targetOptions,timeout){
-			// workaround for https://support.servoy.com/browse/SVY-8309
-			var isDynamicResourceFromFF = /firefox/i.test($window.navigator.userAgent) && (url.indexOf('resources/dynamic') === 0);
-			
-			if(!target || isDynamicResourceFromFF) target ='_blank';
+			if(!target) target ='_blank';
 			if(!timeout) timeout = 0;	    	 
-			$timeout(function(){
-				$window.open(url,target,targetOptions)
-			},timeout*1000)	    	
+			$timeout(function() {
+				if(url.indexOf('resources/dynamic') === 0 && target === '_self') {
+					var ifrm = $window.frames['srv_downloadframe'];
+					if (ifrm) {
+						ifrm.location = url;
+					}
+					else {
+						ifrm = document.createElement("IFRAME");
+						ifrm.setAttribute("src", url);
+						ifrm.setAttribute('id', 'srv_downloadframe');
+						ifrm.setAttribute('name', 'srv_downloadframe');
+						ifrm.style.width = 0 + "px";
+						ifrm.style.height = 0 + "px";
+						$window.document.body.appendChild(ifrm);
+					}
+				}
+				else {
+					$window.open(url,target,targetOptions);
+				}
+			}, timeout*1000)
 		},
 		setStatusText:function(text){
 			$window.status = text;  	
