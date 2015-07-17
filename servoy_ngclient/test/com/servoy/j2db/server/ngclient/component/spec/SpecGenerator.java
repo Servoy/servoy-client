@@ -512,7 +512,7 @@ public class SpecGenerator
 		// component specific repository element mapping
 		Map<String, String> htmlViewRepoTypeMapping = new HashMap<>();
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\": \"dataprovider\" }, \"parsehtml\":true, \"displayTagsPropertyName\" : \"displaysTags\"}");
+			"{ \"type\": \"dataprovider\", \"parsehtml\":true, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" } , \"values\" :[]}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		componentRepoTypeMappingExceptions.put("htmlview", htmlViewRepoTypeMapping);
