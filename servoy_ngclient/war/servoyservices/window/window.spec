@@ -7,10 +7,10 @@
 	"libraries": [{"name":"window/shortcut.js", "version":"1", "url":"servoyservices/window/shortcut.js", "mimetype":"text/javascript"},{"name":"yahoo-dom-event.js", "version":"2.9.0", "url":"servoyservices/window/yahoo-dom-event.js", "mimetype":"text/javascript"},{"name":"window/container_core.js", "version":"2.9.0", "url":"servoyservices/window/container_core-min.js", "mimetype":"text/javascript"},{"name":"menu.js", "version":"2.9.0", "url":"servoyservices/window/menu-min.js", "mimetype":"text/javascript"},{"name":"menu.css", "version":"2.9.0", "url":"servoyservices/window/menu.css", "mimetype":"text/css"},{"name":"servoy-menu.css", "version":"1", "url":"servoyservices/window/servoy-menu.css", "mimetype":"text/css"}],
 	"model":
 	{
-	 	"shortcuts" : { "type": "shortcut[]", "tags": { "scope" :"private" }},
-	 	"popupform": {"type": "popupform", "tags": { "scope" :"private" }},
-	 	"popupMenus" : {"type": "popup[]", "tags": { "scope" :"private" }},
-	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "tags": { "scope" :"private" }} 
+	 	"shortcuts" : { "type": "shortcut[]", "pushToServer": "allow", "tags": { "scope" :"private" }},
+	 	"popupform": {"type": "popupform", "pushToServer": "allow", "tags": { "scope" :"private" }},
+	 	"popupMenus" : {"type": "popup[]", "pushToServer": "allow", "tags": { "scope" :"private" }},
+	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "allow", "tags": { "scope" :"private" }} 
 	},
 	"api":
 	{
