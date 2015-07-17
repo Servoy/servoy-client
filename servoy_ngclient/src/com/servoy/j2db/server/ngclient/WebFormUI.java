@@ -71,8 +71,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		private FormSpecification()
 		{
 			super("form_spec", "", "", null, null, null, "", null);
-			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE));
-			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE));
+			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerValue.allow));
+			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerValue.allow));
 		}
 	}
 

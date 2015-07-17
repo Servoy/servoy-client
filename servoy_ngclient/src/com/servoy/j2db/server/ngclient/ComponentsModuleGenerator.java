@@ -48,7 +48,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 
 		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
 		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
-		generateModule(sb, ModifiablePropertiesGenerator.TWO_WAY_BINDINGS_LIST);
+		generateModule(sb, ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST);
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		resp.setContentLength(sb.length());

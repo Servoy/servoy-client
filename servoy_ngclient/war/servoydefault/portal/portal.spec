@@ -12,7 +12,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "childElements" : { "type" : "component[]", "elementConfig" : {"forFoundset": "relatedFoundset"}, "tags" : {"scope": "private"} }, 
+	        "childElements" : { "type" : "component[]", "pushToServer": "allow", "elementConfig" : {"forFoundset": "relatedFoundset"}, "tags" : {"scope": "private"} }, 
 	        "columnHeaders" : { "type" : "tagstring[]", "tags" : {"scope": "private"} }, 
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onDragEndMethodID","onDragMethodID","onDragOverMethodID","onDropMethodID"] }, 
 	        "findmode" : { "type":"findmode", "tags":{"scope":"private"}, "for" : { "enabled":true}}, 
@@ -24,7 +24,7 @@
 	        "location" : "point", 
 	        "multiLine" : "boolean", 
 	        "readOnly" : { "type" : "readOnly", "oppositeOf" : "enabled"}, 
-	        "relatedFoundset" : "foundset", 
+	        "relatedFoundset" : {"type" :"foundset", "pushToServer": "allow"}, 
 	        "reorderable" : "boolean", 
 	        "resizable" : "boolean", 
 	        "resizeble" : "boolean", 

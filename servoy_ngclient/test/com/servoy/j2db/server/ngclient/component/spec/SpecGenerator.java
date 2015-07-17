@@ -19,10 +19,8 @@ package com.servoy.j2db.server.ngclient.component.spec;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +37,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.WebComponentSpecification.TwoWayValue;
+import org.sablo.specification.WebComponentSpecification.PushToServerValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -48,7 +46,6 @@ import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ContentSpec.Element;
-import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.ui.IScriptScriptLabelMethods;
@@ -148,16 +145,25 @@ public class SpecGenerator
 			}
 			// @formatter:on
 		));
-		specTemplateList.add(
-			new SpecTemplateModel("portal", "Portal", "portal.gif", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-				new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"}," +
-					"\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"}," +
-					"\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
-				"servoydefault/portal/portal_server.js"));
-		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", "spinner.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
+		specTemplateList.add(new SpecTemplateModel(
+			"portal",
+			"Portal",
+			"portal.gif",
+			IRepository.PORTALS,
+			com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
+			new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},"
+				+ "\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"},"
+				+ "\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
+			"servoydefault/portal/portal_server.js"));
+		specTemplateList.add(new SpecTemplateModel(
+			"spinner",
+			"Spinner",
+			"spinner.png",
+			IRepository.FIELDS,
+			com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
 			new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
-		specTemplateList.add(
-			new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
+			new String[0]));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,
 			com.servoy.j2db.ui.runtime.IRuntimeRectangle.class, new String[0]));
 
@@ -200,24 +206,14 @@ public class SpecGenerator
 
 		for (SpecTemplateModel componentSpec : specTemplateList)
 		{
-			try
+			String name = componentSpec.getName();
+			File file = new File(COMPONENTS_LOCATION + "/war/servoydefault/" + name + "/" + name + "." + SPEC_EXTENSION);
+			if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+			try (FileWriter fw = new FileWriter(file))
 			{
-				String name = componentSpec.getName();
-				File file = new File(COMPONENTS_LOCATION + "/war/servoydefault/" + name + "/" + name + "." + SPEC_EXTENSION);
-				if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
-				FileWriter fw = new FileWriter(file);
 				System.out.println("generating file: " + file);
 				componentSpec.sortByName();
 				generate(componentSpec, fw);
-				fw.close();
-			}
-			catch (FileNotFoundException e)
-			{
-				e.printStackTrace();
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				e.printStackTrace();
 			}
 			catch (IOException e)
 			{
@@ -365,13 +361,16 @@ public class SpecGenerator
 
 			for (Element element : props)
 			{
-				if (BaseComponent.isEventProperty(element.getName()))
+				if (isAllowedProperty(componentSpec.getName(), element.getName()))
 				{
-					if (!element.getName().equals(IContentSpecConstants.PROPERTY_ONRENDERMETHODID)) handlers.add(element);
-				}
-				else if (isAllowedProperty(componentSpec.getName(), element.getName()) && getSpecTypeFromRepoType(componentSpec.getName(), element) != null)
-				{
-					model.add(element);
+					if (BaseComponent.isEventProperty(element.getName()))
+					{
+						handlers.add(element);
+					}
+					else if (getSpecTypeFromRepoType(componentSpec.getName(), element) != null)
+					{
+						model.add(element);
+					}
 				}
 			}
 
@@ -513,12 +512,10 @@ public class SpecGenerator
 		// component specific repository element mapping
 		Map<String, String> htmlViewRepoTypeMapping = new HashMap<>();
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\": \"dataprovider\", \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"parsehtml\":true, \"displayTagsPropertyName\" : \"displaysTags\"}");
+			"{ \"type\": \"dataprovider\" }, \"parsehtml\":true, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ \"type\" :\"styleclass\", \"tags\": { \"scope\" :\"design\" } , \"values\" :[]}");
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		componentRepoTypeMappingExceptions.put("htmlview", htmlViewRepoTypeMapping);
-
-
 
 		Map<String, String> buttonTypeMapping = new HashMap<>();
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
@@ -533,13 +530,14 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" , \"tags\": { \"directEdit\" : \"true\" } }");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(), "{ \"type\":\"dataprovider\", \"tags\": { \"scope\": \"design\" }, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
 
 		Map<String, String> portalTypeMapping = new HashMap<>();
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":200, \"height\":200}}");
-		portalTypeMapping.put("relatedFoundset", "foundset");
+		portalTypeMapping.put("relatedFoundset", "{\"type\" :\"foundset\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerValue.allow + "\"}");
 		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
-		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"}, \"tags\" : {\"scope\": \"private\"} }");
+		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerValue.allow + "\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"}, \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put("columnHeaders", "{ \"type\" : \"tagstring[]\", \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put("headersClasses", "{ \"type\" : \"string[]\", \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName()+ "\",\""
@@ -607,6 +605,7 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID.getPropertyName()+ "\"] }");
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" , \"tags\": { \"directEdit\" : \"true\" } }");
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(), "{ \"type\":\"dataprovider\", \"tags\": { \"scope\": \"design\" }, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		componentRepoTypeMappingExceptions.put("label", labelMapping);
 
 		Map<String, String> listboxTypeMapping = new HashMap<>();
@@ -652,7 +651,7 @@ public class SpecGenerator
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":300, \"height\":300}}");
 		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"protected\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONTABCHANGEMETHODID.getPropertyName()+ "\"] }");
-		splitpaneMapping.put("divLocation", "{ \"type\": \"double\", \"" + WebComponentSpecification.TWO_WAY + "\": \"" + TwoWayValue.shallow + "\", \"default\": -1 }");
+		splitpaneMapping.put("divLocation", "{ \"type\": \"double\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerValue.shallow + "\", \"default\": -1 }");
 		splitpaneMapping.put("divSize", "{ \"type\": \"int\", \"default\": -1 }");
 		splitpaneMapping.put("resizeWeight","{\"type\":\"double\",\"default\":0}");
 		splitpaneMapping.put("pane1MinSize","{\"type\":\"int\",\"default\":30}");
@@ -697,9 +696,10 @@ public class SpecGenerator
 		typeaheadTypeMapping.put("readOnly", readOnlyEditable);
 		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
 
-		//speciffic repository element mapping
+		// specific repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
-			"{ \"type\":\"dataprovider\", \"tags\": { \"scope\": \"design\"" /*+changes are sent to server via svy-apply/svy-autoapply as arguments anyway, no need to watch them*/ + " }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
+			"{ \"type\":\"dataprovider\", \"" +WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerValue.allow +
+			 "\", \"tags\": { \"scope\": \"design\" }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"valuelistID\",\"dataProviderID\"] , \"type\" :\"format\"}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), "{ \"type\" : \"tagstring\", \"displayTagsPropertyName\" : \"displaysTags\" }");
@@ -717,7 +717,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "{\"type\" :\"mediaoptions\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "labelfor");
 		repoTypeMappingExceptions.put("tabs", "{\"type\":\"tab[]\", \"droppable\":true}");
-		repoTypeMappingExceptions.put("tabIndex", "{ \"type\": \"object\", \"" + WebComponentSpecification.TWO_WAY + "\": \"" + TwoWayValue.shallow + "\" }");
+		repoTypeMappingExceptions.put("tabIndex", "{ \"type\": \"object\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerValue.shallow + "\" }");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MARGIN.getPropertyName(), "{\"type\" :\"insets\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERCURSOR.getPropertyName(), "{\"type\" :\"int\", \"tags\": { \"scope\" :\"design\" }}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(), "{\"type\" :\"scrollbars\", \"tags\": { \"scope\" :\"design\" }}");
@@ -756,33 +756,36 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_PRINTABLE.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SCROLLTABS.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_CLOSEONTABS.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName());
 
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
 		perComponentExceptions.put(
 			"label",
 			Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()),
-				(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName())));
-		perComponentExceptions.put("textfield",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
-		perComponentExceptions.put("typeahead",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
-		perComponentExceptions.put("password",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
-		perComponentExceptions.put("calendar",  Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
-		perComponentExceptions.put("button",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName())));
-		perComponentInternalProperties.put("portal",  Arrays.asList((StaticContentSpecLoader.PROPERTY_RELATIONNAME.getPropertyName())));
+				StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName()));
+		perComponentExceptions.put("textfield",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()));
+		perComponentExceptions.put("typeahead",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()));
+		perComponentExceptions.put("password",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()));
+		perComponentExceptions.put("calendar",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()));
+		perComponentExceptions.put("button",  Arrays.asList(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName()));
+		perComponentExceptions.put("rectangle",  Arrays.asList(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName()));
+		perComponentInternalProperties.put("portal",  Arrays.asList(StaticContentSpecLoader.PROPERTY_RELATIONNAME.getPropertyName()));
 		perComponentInternalProperties.put(
 			"htmlview",
-			Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
-				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()), (StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),
-				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName())));
+			Arrays.asList(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName(),
+				StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),
+				StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName(),
+				StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()));
 		perComponentInternalProperties.put("splitpane",  Arrays.asList("tabIndex"));
-		perComponentInternalProperties.put("calendar",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
-		perComponentInternalProperties.put("htmlarea",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
-		perComponentInternalProperties.put("imagemedia",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
-		perComponentInternalProperties.put("password", Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
-		perComponentInternalProperties.put("textarea",  Arrays.asList((StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName())));
+		perComponentInternalProperties.put("calendar",  Arrays.asList(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("htmlarea",  Arrays.asList(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()));
+		perComponentInternalProperties.put("imagemedia",  Arrays.asList(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()));
+		perComponentInternalProperties.put("password", Arrays.asList(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(),StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("textarea",  Arrays.asList(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()));
 		perComponentInternalProperties.put("check",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
-		perComponentInternalProperties.put("radio",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
-		perComponentInternalProperties.put("radiogroup",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
-		perComponentInternalProperties.put("checkgroup",  Arrays.asList((StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName())));
+		perComponentInternalProperties.put("radio",  Arrays.asList(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(),StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
+		perComponentInternalProperties.put("radiogroup",  Arrays.asList(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()));
+		perComponentInternalProperties.put("checkgroup",  Arrays.asList(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()));
 		perComponentInternalProperties.put("textfield",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
 		perComponentInternalProperties.put("combobox",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
 		perComponentInternalProperties.put("spinner",  Arrays.asList(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()));
@@ -893,6 +896,4 @@ public class SpecGenerator
 			throw new RuntimeException(e);
 		}
 	}
-
-
 }

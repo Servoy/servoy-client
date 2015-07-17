@@ -113,7 +113,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 
 		FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.getConfig());
 		config.setWrappedPropertyDescription(new PropertyDescription(propertyName, wrappedType, ((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig,
-			parameters.defaultValue, parameters.values, parameters.twoWay, parameters.tags, parameters.optional));
+			parameters.defaultValue, parameters.values, parameters.pushToServer, parameters.tags, parameters.optional));
 		return this;
 	}
 
