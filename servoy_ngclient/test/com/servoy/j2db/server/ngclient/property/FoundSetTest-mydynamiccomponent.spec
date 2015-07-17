@@ -5,6 +5,6 @@
 	"libraries": [],
 	"model":
 	{
-	        "myfoundset": {"type":"foundset", "dynamicDataproviders":"true"}
+	        "myfoundset": {"type":"foundset", "dynamicDataproviders":"true", "pushToServer": "allow" }
 	}
 } 

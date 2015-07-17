@@ -5,6 +5,6 @@
 	"libraries": [],
 	"model":
 	{
-	        "myfoundset": {"type":"foundset","dataproviders":["firstname","lastname"]}
+	        "myfoundset": {"type":"foundset","dataproviders":["firstname","lastname"], "pushToServer": "allow" }
 	}
 } 
