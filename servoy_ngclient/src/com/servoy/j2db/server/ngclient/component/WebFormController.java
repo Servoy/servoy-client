@@ -32,6 +32,8 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IWindow;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormController;
@@ -275,7 +277,11 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			formUI = null;
 		}
 		super.destroy();
-		NGClientWindow.getCurrentWindow().destroyForm(getName());
+		IWindow window = CurrentWindow.safeGet();
+		if (window instanceof NGClientWindow)
+		{
+			((NGClientWindow)window).destroyForm(getName());
+		}
 	}
 
 	@Override
