@@ -22,7 +22,7 @@
 	        "tabIndex" : { "type": "object", "pushToServer": "shallow" }, 
 	        "tabOrientation" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"default" :0}, {"TOP":1}, {"HIDE":-1}]}, 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
-	        "tabs" : {"type":"tab[]", "droppable":true}, 
+	        "tabs" : {"type":"tab[]", "pushToServer": "allow", "droppable":true}, 
 	        "transparent" : "boolean", 
 	        "visible" : "visible" 
 	},
