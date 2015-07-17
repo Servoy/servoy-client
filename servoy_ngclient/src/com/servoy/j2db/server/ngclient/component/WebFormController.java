@@ -187,7 +187,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -325,6 +325,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 			if (apiFunction == null)
 			{
+				if (fieldName != null) return;
 				counter++;
 				if (counter == sequence.size()) counter = 0;
 				if (counter == start) return;
