@@ -7,7 +7,7 @@
 	"libraries": [],
 	"model":
 	{
-	        "dataProviderID" : { "type":"dataprovider", "tags": { "scope" :"design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
+	        "dataProviderID" : { "type":"dataprovider", "pushToServer": "allow", "tags": { "scope" :"design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default":"checkbox"}, 
 	        "text" : { "type" : "tagstring" ,"default": "Checkbox" } 
 	},

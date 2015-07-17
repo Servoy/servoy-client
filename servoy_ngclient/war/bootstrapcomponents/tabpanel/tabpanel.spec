@@ -8,7 +8,7 @@
 	"model":
 	{
 			"containerStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
-			"tabs" : {"type":"tab[]", "droppable":true},
+			"tabs" : {"type":"tab[]", "pushToServer": "allow","droppable":true},
 			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 			"height" : {"type":"int", "default":"500"}
 	},
