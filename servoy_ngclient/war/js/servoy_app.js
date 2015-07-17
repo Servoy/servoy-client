@@ -933,7 +933,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return [];
 		},
 		showUrl:function(url,target,targetOptions,timeout){
-			if(!target) target ='_blank';
+			// workaround for https://support.servoy.com/browse/SVY-8309
+			var isDynamicResourceFromFF = /firefox/i.test($window.navigator.userAgent) && (url.indexOf('resources/dynamic') === 0);
+			
+			if(!target || isDynamicResourceFromFF) target ='_blank';
 			if(!timeout) timeout = 0;	    	 
 			$timeout(function(){
 				$window.open(url,target,targetOptions)
