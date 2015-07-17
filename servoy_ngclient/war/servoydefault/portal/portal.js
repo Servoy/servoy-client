@@ -802,13 +802,13 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					{
 						if (requestViewPortSize == -1 && $scope.foundset.serverSize > $scope.foundset.viewPort.size) {
 							var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
-							if ($scope.foundset.viewPort.size  == 0) {
+							if ($scope.foundset.viewPort.size == 0) {
 								// its a full reload because viewPort size = 0
 								requestViewPortSize = 0;
 								$scope.foundset.loadRecordsAsync(0, Math.min($scope.foundset.serverSize, numberOfRows+$scope.pageSize));
 							}
 							else if ($scope.foundset.viewPort.size < numberOfRows) {
-								// only add extra recors
+								// only add extra records
 								requestViewPortSize = $scope.foundset.viewPort.size;
 								$scope.foundset.loadExtraRecordsAsync(Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size));
 							}

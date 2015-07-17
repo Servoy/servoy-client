@@ -20,7 +20,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.CustomJSONObjectType;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IAdjustablePropertyType;
 import org.sablo.specification.property.types.IPropertyTypeFactory;
 import org.sablo.specification.property.types.TypesRegistry;
 
@@ -89,7 +89,7 @@ public class Types
 		{
 
 			@Override
-			public IPropertyType<Object> createType(PropertyDescription params)
+			public IAdjustablePropertyType<Object> createType(PropertyDescription params)
 			{
 				return new NGCustomJSONArrayType(params);
 			}
@@ -98,7 +98,7 @@ public class Types
 		{
 
 			@Override
-			public IPropertyType<Object> createType(String typeName)
+			public IAdjustablePropertyType<Object> createType(String typeName)
 			{
 				return new NGCustomJSONObjectType(typeName, null);
 			}

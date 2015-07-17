@@ -215,7 +215,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				break;
 
 			default :
-				throw new RepositoryException("cannot create object with type id=" + objectTypeId + ", type does not exist");
+				throw new RepositoryException("cannot create object with type id=" + objectTypeId + ", type does not exist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		// Save the uuid to element id mapping.

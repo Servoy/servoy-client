@@ -17,11 +17,16 @@
 package com.servoy.j2db.persistence;
 
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
@@ -31,28 +36,21 @@ import com.servoy.j2db.util.UUID;
  */
 public class WebCustomType extends AbstractBase implements IWebObject
 {
-	private final String jsonKey;
-	private final String typeName;
-	private int index;
+	private transient final String jsonKey;
+	private transient int index;
+	protected transient final WebObjectImpl webObjectImpl;
 
-	/**
-	 * @param newBean
-	 * @param b
-	 * @param parent
-	 * @param element_id
-	 * @param uuid
-	 */
-	public WebCustomType(IWebComponent parentElement, String jsonKey, String typeName, int index, boolean isNew)
+	public WebCustomType(IWebObject parentWebObject, PropertyDescription propertyDescription, String jsonKey, int index, boolean isNew)
 	{
-		//we just tell the GhostBean that it has a parent, we do not tell the parent that it contains a GhostBean
-		super(IRepository.WEBCUSTOMTYPES, parentElement, 0, UUID.randomUUID());
+		super(IRepository.WEBCUSTOMTYPES, parentWebObject, 0, UUID.randomUUID());
+		webObjectImpl = new WebObjectImpl(this, propertyDescription);
+
 		this.jsonKey = jsonKey;
-		this.typeName = typeName;
 		this.index = index;
 
 		try
 		{
-			JSONObject entireModel = parentElement.getJson() != null ? parentElement.getJson() : new ServoyJSONObject();
+			ServoyJSONObject entireModel = parentWebObject.getJson() != null ? parentWebObject.getJson() : new ServoyJSONObject();
 			if (!isNew && entireModel.has(jsonKey))
 			{
 				Object v = entireModel.get(jsonKey);
@@ -65,11 +63,11 @@ public class WebCustomType extends AbstractBase implements IWebObject
 				{
 					obj = entireModel.getJSONObject(jsonKey);
 				}
-				setJson(obj instanceof ServoyJSONObject ? (ServoyJSONObject)obj : new ServoyJSONObject(obj.toString(), false));
+				webObjectImpl.setJsonInternal(obj instanceof ServoyJSONObject ? (ServoyJSONObject)obj : new ServoyJSONObject(obj.toString(), false));
 			}
 			else
 			{
-				setJson(new ServoyJSONObject());
+				webObjectImpl.setJsonInternal(new ServoyJSONObject());
 			}
 		}
 		catch (JSONException e)
@@ -78,86 +76,142 @@ public class WebCustomType extends AbstractBase implements IWebObject
 		}
 	}
 
+	@Override
+	public PropertyDescription getPropertyDescription()
+	{
+		return webObjectImpl.getPropertyDescription();
+	}
+
+	@Override
+	public void clearChanged()
+	{
+		super.clearChanged();
+		for (WebCustomType x : getAllFirstLevelArrayOfOrCustomPropertiesFlattened())
+		{
+			if (x.isChanged()) x.clearChanged();
+		}
+	}
+
+	@Override
+	public void updateJSON()
+	{
+		webObjectImpl.updateCustomProperties();
+		getParent().updateJSON();
+	}
+
+	@Override
+	public void setJsonSubproperty(String key, Object value)
+	{
+		webObjectImpl.setJsonSubproperty(key, value);
+	}
+
+	@Override
+	public void setProperty(String propertyName, Object val)
+	{
+		if (!webObjectImpl.setCustomProperty(propertyName, val)) super.setProperty(propertyName, val);
+	}
+
+	@Override
+	public void clearProperty(String propertyName)
+	{
+		if (!webObjectImpl.clearCustomProperty(propertyName)) super.clearProperty(propertyName);
+	}
+
+	@Override
+	public Object getProperty(String propertyName)
+	{
+		if (webObjectImpl == null) return super.getProperty(propertyName);
+
+		Pair<Boolean, Object> customResult = webObjectImpl.getCustomProperty(propertyName);
+		if (customResult.getLeft().booleanValue()) return customResult.getRight();
+		else return super.getProperty(propertyName);
+	}
+
+	public List<WebCustomType> getAllFirstLevelArrayOfOrCustomPropertiesFlattened()
+	{
+		return webObjectImpl.getAllCustomProperties();
+	}
+
+	// TODO is this still really needed? we now work with the property description based on specs...
+	public void setTypeName(String arg)
+	{
+		webObjectImpl.setTypeName(arg);
+	}
+
+	public String getTypeName()
+	{
+		return webObjectImpl.getTypeName();
+	}
+
+	public void setJson(ServoyJSONObject arg)
+	{
+		webObjectImpl.setJson(arg);
+	}
+
+	public ServoyJSONObject getJson()
+	{
+		return webObjectImpl.getJson();
+	}
+
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
+	}
+
+	@Override
+	public IWebObject getParent()
+	{
+		return (IWebObject)super.getParent();
+	}
+
+	public IWebComponent getParentComponent()
+	{
+		return getParent().getParentComponent();
+	}
+
 	public int getIndex()
 	{
 		return index;
 	}
 
-	public void setTypeName(String arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME, arg);
-	}
+//	public String getUUIDString()
+//	{
+//		String addIndex = "";
+//		if (index >= 0) addIndex = "." + index;
+//		return parent.getUUID() + "_" + jsonKey + addIndex + "_" + typeName;
+//	}
 
-	public String getTypeName()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME);
-	}
+//	public String getUUIDString()
+//	{
+//		String addIndex = "";
+//		if (index >= 0) addIndex = "[" + index + "]";
+//		return parentWebObject.getUUID() + "_" + jsonKey + addIndex + "_" + typeName;
+//	}
+//
 
-	public void setJson(ServoyJSONObject arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
-	}
-
-	public ServoyJSONObject getJson()
-	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
-	}
-
-	public IWebComponent getParentComponent()
-	{
-		return (IWebComponent)super.getParent();
-	}
-
-	/**
-	 * @return
-	 */
-	public String getUUIDString()
-	{
-		String addIndex = "";
-		if (index >= 0) addIndex = "." + index;
-		return parent.getUUID() + "_" + jsonKey + addIndex + "_" + typeName;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.AbstractBase#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj instanceof WebCustomType)
-		{
-			return ((WebCustomType)obj).getUUIDString().equals(this.getUUIDString());
-		}
-		return super.equals(obj);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.IWebObject#setName(java.lang.String)
-	 */
+//	@Override
+//	public boolean equals(Object obj)
+//	{
+//		if (obj instanceof WebCustomType)
+//		{
+//			return ((WebCustomType)obj).getUUIDString().equals(this.getUUIDString());
+//		}
+//		return super.equals(obj);
+//	}
+//
 	@Override
 	public void setName(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.IWebObject#getName()
-	 */
 	@Override
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
-	/**
-	 * @return the jsonKey
-	 */
 	public String getJsonKey()
 	{
 		return jsonKey;
@@ -170,4 +224,35 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	{
 		index = i;
 	}
+
+	@Override
+	protected void internalRemoveChild(IPersist obj)
+	{
+		webObjectImpl.internalRemoveChild(obj);
+	}
+
+	@Override
+	public void internalAddChild(IPersist obj)
+	{
+		webObjectImpl.internalAddChild(obj);
+	}
+
+	@Override
+	public Iterator<IPersist> getAllObjects()
+	{
+		return webObjectImpl.getAllObjects();
+	}
+
+	@Override
+	public <T extends IPersist> Iterator<T> getObjects(int tp)
+	{
+		return webObjectImpl.getObjects(tp);
+	}
+
+	@Override
+	public IPersist getChild(UUID childUuid)
+	{
+		return webObjectImpl.getChild(childUuid);
+	}
+
 }

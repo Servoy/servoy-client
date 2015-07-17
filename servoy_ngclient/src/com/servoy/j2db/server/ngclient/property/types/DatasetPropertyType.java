@@ -33,6 +33,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * Currently this type is only used when set from scripting - for setValueListItems api call, but in the future
@@ -141,7 +142,7 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 			JSONObject columnTypesObj = config.optJSONObject("columnTypes");
 			if (columnTypesObj != null)
 			{
-				String[] names = JSONObject.getNames(columnTypesObj);
+				String[] names = ServoyJSONObject.getNames(columnTypesObj);
 				for (String propertyName : names)
 				{
 					try

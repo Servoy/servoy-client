@@ -17,24 +17,45 @@
 
 package com.servoy.j2db.persistence;
 
+import org.sablo.specification.PropertyDescription;
+
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
+ * Persists based on spec - PropertyDescriptor defined entities (web components, custom object types...).
+ *
  * @author gboros
  *
  */
-public interface IWebObject extends IPersist
+public interface IWebObject extends ISupportChilds
 {
-	public void setName(String arg);
 
-	public String getName();
+	void setName(String arg);
 
-	public void setTypeName(String arg);
+	String getName();
 
-	public String getTypeName();
+	void setTypeName(String arg);
 
-	public void setJson(ServoyJSONObject arg);
+	String getTypeName();
 
-	public ServoyJSONObject getJson();
+	void setJson(ServoyJSONObject arg);
+
+	void setJsonSubproperty(String key, Object value); // can be a json objec, array or primitive
+
+	ServoyJSONObject getJson();
+
+	void setProperty(String propertyName, Object val);
+
+	void clearProperty(String propertyName);
+
+	Object getProperty(String propertyName);
+
+	PropertyDescription getPropertyDescription();
+
+	IWebComponent getParentComponent();
+
+	void updateJSON();
+
+	void clearChanged();
 
 }

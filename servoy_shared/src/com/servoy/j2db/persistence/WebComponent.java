@@ -17,21 +17,12 @@
 package com.servoy.j2db.persistence;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.PropertyDescription;
 
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ServoyJSONArray;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
@@ -40,278 +31,131 @@ import com.servoy.j2db.util.UUID;
  */
 public class WebComponent extends BaseComponent implements IWebComponent
 {
-	/**
-	 * Constructor I
-	 */
+
+	protected transient final WebObjectImpl webObjectImpl;
+
 	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
+		webObjectImpl = new WebObjectImpl(this);
 	}
 
 	@Override
-	public boolean isChanged()
+	public PropertyDescription getPropertyDescription()
 	{
-		boolean changed = super.isChanged();
-
-		if (!changed)
-		{
-			for (IPersist p : getAllCustomProperties())
-			{
-				if (p.isChanged())
-				{
-					changed = true;
-					updateCustomProperties();
-					break;
-				}
-			}
-		}
-
-		return changed;
+		return webObjectImpl.getPropertyDescription();
 	}
 
-	private void updateCustomProperties()
+	@Override
+	public IWebComponent getParentComponent()
 	{
-		if (isCustomTypePropertiesLoaded && getCustomTypeProperties().size() > 0)
+		return this;
+	}
+
+
+	@Override
+	public void clearChanged()
+	{
+		super.clearChanged();
+		for (WebCustomType x : getAllFirstLevelArrayOfOrCustomPropertiesFlattened())
 		{
-			ServoyJSONObject entireModel = getJson() != null ? getJson() : new ServoyJSONObject();
-			try
-			{
-				for (Map.Entry<String, Object> wo : getCustomTypeProperties().entrySet())
-				{
-					if (wo.getValue() instanceof WebCustomType)
-					{
-						entireModel.put(wo.getKey(), ((WebCustomType)wo.getValue()).getJson());
-					}
-					else
-					{
-						ServoyJSONArray jsonArray = new ServoyJSONArray();
-						for (WebCustomType wo1 : (WebCustomType[])wo.getValue())
-						{
-							jsonArray.put(wo1.getJson());
-						}
-						entireModel.put(wo.getKey(), jsonArray);
-					}
-				}
-			}
-			catch (JSONException ex)
-			{
-				Debug.error(ex);
-			}
-			setJson(entireModel);
+			if (x.isChanged()) x.clearChanged();
 		}
+	}
+
+	@Override
+	public void updateJSON()
+	{
+		webObjectImpl.updateCustomProperties();
+	}
+
+	@Override
+	public void setJsonSubproperty(String key, Object value)
+	{
+		webObjectImpl.setJsonSubproperty(key, value);
 	}
 
 	@Override
 	public void setProperty(String propertyName, Object val)
 	{
-		if (val instanceof WebCustomType || val instanceof WebCustomType[])
-		{
-			Map<String, Object> ctp = getCustomTypeProperties();
-			ctp.put(propertyName, val);
-		}
-		else super.setProperty(propertyName, val);
+		if (!webObjectImpl.setCustomProperty(propertyName, val)) super.setProperty(propertyName, val);
+	}
+
+	@Override
+	public void clearProperty(String propertyName)
+	{
+		if (!webObjectImpl.clearCustomProperty(propertyName)) super.clearProperty(propertyName);
 	}
 
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		if (!"json".equals(propertyName) && !"typeName".equals(propertyName)) //$NON-NLS-1$//$NON-NLS-2$
-		{
-			Map<String, Object> ctp = getCustomTypeProperties();
-			if (ctp.containsKey(propertyName)) return ctp.get(propertyName);
-		}
-		return super.getProperty(propertyName);
+		if (webObjectImpl == null) return super.getProperty(propertyName);
+
+		Pair<Boolean, Object> customResult = webObjectImpl.getCustomProperty(propertyName);
+		if (customResult.getLeft().booleanValue()) return customResult.getRight();
+		else return super.getProperty(propertyName);
 	}
 
-	public List<IPersist> getAllCustomProperties()
+	public List<WebCustomType> getAllFirstLevelArrayOfOrCustomPropertiesFlattened()
 	{
-		ArrayList<IPersist> allCustomProperties = new ArrayList<IPersist>();
-		for (Object wo : getCustomTypeProperties().values())
-		{
-			if (wo instanceof WebCustomType[])
-			{
-				allCustomProperties.addAll(Arrays.asList((WebCustomType[])wo));
-			}
-			else
-			{
-				allCustomProperties.add((WebCustomType)wo);
-			}
-		}
-
-		return allCustomProperties;
-	}
-
-	private final Map<String, Object> customTypeProperties = new HashMap<String, Object>();
-	private boolean isCustomTypePropertiesLoaded = false;
-
-	private Map<String, Object> getCustomTypeProperties()
-	{
-		if (!isCustomTypePropertiesLoaded)
-		{
-			String typeName = getTypeName();
-			WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
-				? WebComponentSpecProvider.getInstance().getWebComponentSpecification(typeName) : null;
-
-			if (typeName != null && spec != null)
-			{
-				if (getJson() != null && JSONObject.getNames(getJson()) != null)
-				{
-					JSONObject beanJSON = getJson();
-					Map<String, IPropertyType< ? >> foundTypes = spec.getFoundTypes();
-					try
-					{
-
-						for (String beanJSONKey : JSONObject.getNames(beanJSON))
-						{
-							Object object = beanJSON.get(beanJSONKey);
-							if (object != null && spec.getProperty(beanJSONKey) != null)
-							{
-								IPropertyType< ? > propertyType = spec.getProperty(beanJSONKey).getType();
-								String simpleTypeName = propertyType.getName().replaceFirst(spec.getName() + ".", ""); //$NON-NLS-1$//$NON-NLS-2$
-								if (foundTypes.containsKey(simpleTypeName))
-								{
-									boolean arrayReturnType = spec.isArrayReturnType(beanJSONKey);
-									if (!arrayReturnType)
-									{
-										WebCustomType webObject = new WebCustomType(this, beanJSONKey, simpleTypeName, -1, false);
-										webObject.setTypeName(simpleTypeName);
-										customTypeProperties.put(beanJSONKey, webObject);
-									}
-									else if (object instanceof JSONArray)
-									{
-										ArrayList<WebCustomType> webObjects = new ArrayList<WebCustomType>();
-										for (int i = 0; i < ((JSONArray)object).length(); i++)
-										{
-											WebCustomType webObject = new WebCustomType(this, beanJSONKey, simpleTypeName, i, false);
-											webObject.setTypeName(simpleTypeName);
-											webObjects.add(webObject);
-										}
-										customTypeProperties.put(beanJSONKey, webObjects.toArray(new WebCustomType[webObjects.size()]));
-									}
-								}
-							}
-						}
-					}
-					catch (JSONException e)
-					{
-						Debug.error(e);
-					}
-				}
-				isCustomTypePropertiesLoaded = true;
-			}
-		}
-
-		return customTypeProperties;
+		return webObjectImpl.getAllCustomProperties();
 	}
 
 	public void setTypeName(String arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME, arg);
+		webObjectImpl.setTypeName(arg);
 	}
 
 	public String getTypeName()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME);
+		return webObjectImpl.getTypeName();
 	}
 
 	public void setJson(ServoyJSONObject arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
+		webObjectImpl.setJson(arg);
 	}
 
 	public ServoyJSONObject getJson()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
+		return webObjectImpl.getJson();
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.AbstractBase#internalRemoveChild(com.servoy.j2db.persistence.IPersist)
-	 */
 	@Override
 	protected void internalRemoveChild(IPersist obj)
 	{
-		if (obj instanceof WebCustomType)
-		{
-			WebCustomType customType = (WebCustomType)obj;
-			Object children = getCustomTypeProperties().get(customType.getJsonKey());
-			if (children != null)
-			{
-				if (children instanceof WebCustomType[])
-				{
-					List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
-					t.remove(customType);
-					for (int i = customType.getIndex(); i < t.size(); i++)
-					{
-						WebCustomType ct = t.get(i);
-						ct.setIndex(i);
-					}
-					getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
-				}
-				else
-				{
-					getCustomTypeProperties().remove(customType.getJsonKey());
-					//need to remove it from beanJSON because WebComponent.isChanged() calls WebComponent.getAllCustomProperties() which calls
-					//getCustomTypeProperties() which adds the customType back from the beanJson
-					ServoyJSONObject json = getJson();
-					json.remove(customType.getJsonKey());
-					setJson(json);
-				}
-			}
-		}
+		webObjectImpl.internalRemoveChild(obj);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.AbstractBase#internalAddChild(com.servoy.j2db.persistence.IPersist)
-	 */
 	@Override
 	public void internalAddChild(IPersist obj)
 	{
-		if (obj instanceof WebCustomType)
-		{
-			WebCustomType customType = (WebCustomType)obj;
-			String typeName = getTypeName();
-			WebComponentSpecification spec = WebComponentSpecProvider.getInstance() != null
-				? WebComponentSpecProvider.getInstance().getWebComponentSpecification(typeName) : null;
+		webObjectImpl.internalAddChild(obj);
+	}
 
-			if (spec.isArrayReturnType(customType.getJsonKey()))
-			{
-				Object children = getCustomTypeProperties().get(customType.getJsonKey());
-				if (children != null)
-				{
-					if (children instanceof WebCustomType[])
-					{
-						List<WebCustomType> t = new ArrayList<WebCustomType>(Arrays.asList((WebCustomType[])children));
-						t.add(customType.getIndex(), customType);
-						for (int i = customType.getIndex() + 1; i < t.size(); i++)
-						{
-							WebCustomType ct = t.get(i);
-							ct.setIndex(i);
-						}
-						getCustomTypeProperties().put(customType.getJsonKey(), t.toArray(new WebCustomType[t.size()]));
-					}
-				}
-			}
-			else
-			{
-				getCustomTypeProperties().put(customType.getJsonKey(), customType);
-			}
-		}
+	@Override
+	public Iterator<IPersist> getAllObjects()
+	{
+		return webObjectImpl.getAllObjects();
+	}
+
+	@Override
+	public <T extends IPersist> Iterator<T> getObjects(int tp)
+	{
+		return webObjectImpl.getObjects(tp);
+	}
+
+	@Override
+	public IPersist getChild(UUID childUuid)
+	{
+		return webObjectImpl.getChild(childUuid);
 	}
 
 	@Override
 	public String toString()
 	{
-		String name = getName();
-		if (name == null || name.trim().length() == 0)
-		{
-			return getTypeName();
-		}
-		return name + " [" + getTypeName() + ']'; //$NON-NLS-1$
+		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
 	}
 
 }

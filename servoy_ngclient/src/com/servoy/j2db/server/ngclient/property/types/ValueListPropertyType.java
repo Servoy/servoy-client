@@ -227,12 +227,6 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
-	 */
 	@Override
 	public ValueListTypeSabloValue toSabloComponentValue(Object rhinoValue, ValueListTypeSabloValue previousComponentValue, PropertyDescription pd,
 		BaseWebObject componentOrService)
@@ -264,24 +258,12 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
-	 */
 	@Override
 	public boolean isValueAvailableInRhino(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
 		return webComponentValue != null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
-	 */
 	@Override
 	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
@@ -308,4 +290,5 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		}
 		return null;
 	}
+
 }

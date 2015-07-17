@@ -13,23 +13,24 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
-
 
 import java.util.Iterator;
 
 import com.servoy.j2db.util.UUID;
 
+
 /**
  * Interface for consistency let the repository delete the child if it has deleted from db or a object which is created via cloning to inform the parent about
  * his presence.<br>
  * mainly used to keep the object structure consistent
- * 
- * @author jblok,jcompagner
+ *
+ * @author jblok, jcompagner
  */
 public interface ISupportChilds extends IPersist
 {
+
 	Iterator<IPersist> getAllObjects();
 
 	<T extends IPersist> Iterator<T> getObjects(int type) throws RepositoryException;

@@ -21,6 +21,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import org.json.JSONException;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.Debug;
@@ -221,11 +223,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.BaseComponent#getBackground()
-	 */
 	@Deprecated
 	@Override
 	public Color getBackground()
@@ -233,11 +230,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.BaseComponent#getBorderType()
-	 */
 	@Deprecated
 	@Override
 	public String getBorderType()
@@ -245,11 +237,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.BaseComponent#getFontType()
-	 */
 	@Deprecated
 	@Override
 	public String getFontType()
@@ -257,11 +244,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.BaseComponent#getForeground()
-	 */
 	@Override
 	@Deprecated
 	public Color getForeground()
@@ -269,11 +251,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.BaseComponent#getPrintSliding()
-	 */
 	@Deprecated
 	@Override
 	public int getPrintSliding()
@@ -281,11 +258,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.BaseComponent#getStyleClass()
-	 */
 	@Deprecated
 	@Override
 	public String getStyleClass()
@@ -293,11 +265,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.BaseComponent#getTransparent()
-	 */
 	@Override
 	@Deprecated
 	public boolean getTransparent()
@@ -316,11 +283,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return name + " [" + getBeanClassName() + ']'; //$NON-NLS-1$
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#getJson()
-	 */
 	@Override
 	public ServoyJSONObject getJson()
 	{
@@ -335,11 +297,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#setJson(org.json.JSONObject)
-	 */
 	@Override
 	public void setJson(ServoyJSONObject o)
 	{
@@ -351,25 +308,52 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 		setBeanXML(beanXML);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ISupportWebCustomType#getTypeName()
-	 */
+	@Override
+	public void updateJSON()
+	{
+		// not supported by legacy Bean impl of web components
+	}
+
+	@Override
+	public void setJsonSubproperty(String key, Object value)
+	{
+		try
+		{
+			ServoyJSONObject jsonObject = getJson() == null ? new ServoyJSONObject(true, true) : getJson();
+			if (!jsonObject.has(getName()) || !jsonObject.get(getName()).equals(value))
+			{
+				jsonObject.put(getName(), value);
+				setJson(jsonObject);
+			}
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+		}
+	}
+
 	@Override
 	public String getTypeName()
 	{
 		return getBeanClassName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IWebObject#setTypeName(java.lang.String)
-	 */
 	@Override
 	public void setTypeName(String arg)
 	{
 		setBeanClassName(arg);
 	}
+
+	@Override
+	public PropertyDescription getPropertyDescription()
+	{
+		return WebComponentSpecProvider.getInstance().getWebComponentSpecification(getBeanClassName());
+	}
+
+	@Override
+	public IWebComponent getParentComponent()
+	{
+		return this;
+	}
+
 }

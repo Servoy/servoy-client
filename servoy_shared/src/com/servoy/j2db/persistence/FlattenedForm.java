@@ -104,11 +104,6 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.Form#getExtendsForm()
-	 */
 	@Override
 	public Form getExtendsForm()
 	{
@@ -131,8 +126,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 
 		copyPropertiesMap(form.getPropertiesMap(), false);
 
-		// caches for the duplicate (over the form hierarchy) methods/variables, so that only 
-		// the first method based on its name is added. 
+		// caches for the duplicate (over the form hierarchy) methods/variables, so that only
+		// the first method based on its name is added.
 		Set<String> methods = new HashSet<String>(64);
 		Set<String> variables = new HashSet<String>(64);
 		List<Integer> existingIDs = new ArrayList<Integer>();

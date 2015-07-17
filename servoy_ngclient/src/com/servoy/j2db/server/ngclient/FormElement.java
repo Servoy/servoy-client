@@ -45,6 +45,7 @@ import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Bean;
@@ -75,6 +76,8 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public final class FormElement implements IWebComponentInitializer, INGFormElement
 {
+
+	public static final String DROPPABLE = "droppable";
 	public static final String ERROR_BEAN = "servoydefault-errorbean";
 	public static final String SVY_NAME_PREFIX = "svy_";
 
@@ -98,7 +101,12 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		Form f = persistImpl.getForm();
 		if (f instanceof FlattenedForm) this.form = f;
 		else this.form = fs.getFlattenedForm(f);
-		this.componentType = FormTemplateGenerator.getComponentTypeName(persist);
+
+		boolean willTurnIntoErrorBean = inDesigner && persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()) &&
+			WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()) != null &&
+			PropertyUtils.usesCustomJSONObjectTypes(WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()));
+
+		this.componentType = willTurnIntoErrorBean ? FormElement.ERROR_BEAN : FormTemplateGenerator.getComponentTypeName(persist);
 		this.uniqueIdWithinForm = String.valueOf(persist.getID());
 
 		propertyValues = new HashMap<String, Object>();
@@ -111,18 +119,23 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		adjustLocationRelativeToPart(fs, map);
 		initTemplateProperties(specProperties, map, fs, propertyPath);
 
-		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
-		if (addNameToPath) propertyPath.backOneLevel();
-
-		if (persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()) &&
-			WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()) != null &&
-			!WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()).getFoundTypes().isEmpty())
+		if (willTurnIntoErrorBean)
 		{
-			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
+			map.put(
+				"error",
+				"Please remove and insert this component again. Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). See log file for details.");
+
+			Debug.warn("Please remove and insert again the component with name '" +
+				persist.getName() +
 				(this.form != null ? "' on the form '" + this.form.getName() : "") +
-				"'. Components which define types might not work properly due to some persist model change.");
+				"'. Type: " +
+				FormTemplateGenerator.getComponentTypeName(persist) +
+				". Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). Properties: " +
+				map.get("beanXML")); // so Bean persist used for custom components is no longer working properly - now it uses WebComponent
 		}
 
+		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
+		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
@@ -165,7 +178,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		if (this.componentType == FormElement.ERROR_BEAN)
 		{
-			map.put("toolTipText", "component type: " + componentTypeString + " not found");
+			map.put("error", "Component (specification) with type: " + componentTypeString +
+				" not found. Please make sure that this custom web component type is available.");
 		}
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		if (addNameToPath) propertyPath.backOneLevel();
@@ -726,7 +740,6 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	}
 
 	/**
-	 *
 	 * @return a list of accepted type names when dropping from palette. Possible type names include the types defined in the specfile and the "component" type.
 	 */
 	public List<String> getSvyTypesNames()
@@ -736,8 +749,12 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		Map<String, PropertyDescription> properties = spec.getProperties();
 		for (PropertyDescription propertyDescription : properties.values())
 		{
-			String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
-			if (spec.getFoundTypes().containsKey(simpleTypeName) || simpleTypeName.equals("component")) result.add(simpleTypeName);
+			Object configObject = propertyDescription.getConfig();
+			if (configObject instanceof JSONObject && Boolean.TRUE.equals(((JSONObject)configObject).opt(DROPPABLE)))
+			{
+				String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyDescription.getType());
+				if (PropertyUtils.isCustomJSONProperty(propertyDescription.getType()) || simpleTypeName.equals("component")) result.add(simpleTypeName);
+			}
 		}
 		return result;
 	}

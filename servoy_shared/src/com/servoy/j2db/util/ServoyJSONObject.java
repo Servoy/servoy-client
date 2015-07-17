@@ -429,19 +429,15 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 		{
 			JSONObject obj = (JSONObject)o;
 			HashMap<String, Object> map = new HashMap<String, Object>();
-			String[] names = JSONObject.getNames(obj);
-			if (names != null)
+			for (String key : ServoyJSONObject.getNames(obj))
 			{
-				for (String key : names)
+				try
 				{
-					try
-					{
-						map.put(key, toSerializable(obj.get(key)));
-					}
-					catch (JSONException e)
-					{
-						Debug.trace(e);
-					}
+					map.put(key, toSerializable(obj.get(key)));
+				}
+				catch (JSONException e)
+				{
+					Debug.trace(e);
 				}
 			}
 			return map;
@@ -505,4 +501,14 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 		}
 		return o;
 	}
+
+	/**
+	 * The same as {@link JSONObject#getNames(JSONObject)} but in case you give it an empty object '{}' it will not return null, but an String[0].
+	 */
+	public static String[] getNames(JSONObject jsonObject)
+	{
+		String[] x = JSONObject.getNames(jsonObject);
+		return x == null ? new String[0] : x;
+	}
+
 }

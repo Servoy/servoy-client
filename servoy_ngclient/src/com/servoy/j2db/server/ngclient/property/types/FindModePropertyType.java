@@ -41,6 +41,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author gganea
@@ -57,7 +58,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.IPropertyType#getName()
 	 */
 	@Override
@@ -68,7 +69,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.types.DefaultPropertyType#parseConfig(org.json.JSONObject)
 	 */
 	@Override
@@ -78,7 +79,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		try
 		{
 			JSONObject forProperty = (JSONObject)config.get("for"); //$NON-NLS-1$
-			String[] names = JSONObject.getNames(forProperty);
+			String[] names = ServoyJSONObject.getNames(forProperty);
 			for (String propertyName : names)
 			{
 				forEntities.put(propertyName, forProperty.get(propertyName));
@@ -93,7 +94,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.types.DefaultPropertyType#defaultValue(org.sablo.specification.PropertyDescription)
 	 */
 	@Override
@@ -104,7 +105,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.property.IDataConverterContext)
 	 */
@@ -117,7 +118,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.IPropertyConverter#toJSON(org.json.JSONWriter, java.lang.String, java.lang.Object,
 	 * org.sablo.websocket.utils.DataConversion, org.sablo.specification.property.IDataConverterContext)
 	 */
@@ -131,7 +132,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent#toSabloComponentValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
 	 * com.servoy.j2db.server.ngclient.DataAdapterList)
@@ -145,7 +146,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent#toSabloComponentDefaultValue(org.sablo.specification
 	 * .PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
@@ -161,7 +162,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -173,7 +174,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */
@@ -185,7 +186,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -198,7 +199,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON#toTemplateJSONValue(org.json.JSONWriter, java.lang.String,
 	 * java.lang.Object, org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, com.servoy.j2db.FlattenedSolution,
 	 * com.servoy.j2db.server.ngclient.FormElement)
