@@ -53,7 +53,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.IServerService#executeMethod(java.lang.String, org.json.JSONObject)
 	 */
 	@SuppressWarnings("nls")
@@ -118,7 +118,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		FoundsetTypeSabloValue foundsetTypeSabloValue = foundsetTypeSabloValueMap.get(foundset);
 		if (foundsetTypeSabloValue == null)
 		{
-			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, (INGApplication)getApplication());
+			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null);
 			foundsetTypeSabloValue.updateFoundset(foundset);
 			foundsetTypeSabloValueMap.put(foundset, foundsetTypeSabloValue);
 		}

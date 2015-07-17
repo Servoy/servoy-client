@@ -45,7 +45,6 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -109,7 +108,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	protected final DataAdapterList parentDAL;
 
-	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL, INGApplication application)
+	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL)
 	{
 		this.designJSONValue = designJSONValue;
 		this.propertyName = propertyName;
