@@ -44,6 +44,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -365,6 +366,14 @@ public class DebugUtils
 					{
 						formsToReload.add(formController);
 					}
+				}
+			}
+			else if (persist instanceof Media && clientState.getFlattenedSolution().getSolution().getStyleSheetID() == ((Media)persist).getID())
+			{
+				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
+				for (IFormController formController : cachedFormControllers)
+				{
+					formsToReload.add(formController);
 				}
 			}
 		}
