@@ -422,11 +422,14 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if (!element.model[$sabloConstants.modelChangeNotifier]) {
 						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, {value:function(property,value) {
 							for(var key in rowProxyObjects) {
-								var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel
-								// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same) 
-								if (mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
-									mergedCellModel[$sabloConstants.modelChangeNotifier](property,value);
-								else return;
+								// test if there is a column at this point for that index, it could be hidden and not created yet.
+								if (rowProxyObjects[key][elementIndex]) {
+									var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel
+									// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same) 
+									if (mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
+										mergedCellModel[$sabloConstants.modelChangeNotifier](property,value);
+									else return;
+								}
 							}
 						}});
 					}
