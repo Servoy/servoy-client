@@ -295,6 +295,10 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		createFormatState: function(element, $scope, ngModelController, checkNumbers, newValue) {
 			var svyFormat = newValue;
 			
+			if (svyFormat.maxLength)
+			{
+				element.attr('maxlength',svyFormat.maxLength);
+			}	
 			var callChangeOnBlur = null;
 		    var enterKeyCheck = function(e) {
 				if (callChangeOnBlur && $utils.testEnterKey(e)) {

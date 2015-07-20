@@ -87,11 +87,11 @@ public class FormatParser
 
 	/**
 	 * Parsers a format string, current supported formats:
-	 * 
+	 *
 	 * numbers/integers: display, display|edit
 	 * date: display, display|edit, display|mask, display|placeholder|mask
 	 * text: |U , |L , |#, display, display|raw, display|placeholder, display|placeholder|raw
-	 *  
+	 *
 	 * @param format
 	 */
 	private static ParsedFormat parseFormatString(String fmtString, String uiConverterName, Map<String, String> uiConverterProperties)
@@ -203,7 +203,7 @@ public class FormatParser
 
 	/**
 	 * Immutable parsed format.
-	 * 
+	 *
 	 * @author rgansevles
 	 *
 	 */
@@ -217,7 +217,7 @@ public class FormatParser
 
 		private final String editOrPlaceholder;
 		private final String displayFormat;
-		private final Integer maxLength;
+		private Integer maxLength;
 
 		private final String uiConverterName;
 		private final Map<String, String> uiConverterProperties;
@@ -320,6 +320,11 @@ public class FormatParser
 			return maxLength;
 		}
 
+		public void updateMaxLength(Integer maxLength)
+		{
+			this.maxLength = maxLength;
+		}
+
 		public String getDateMask()
 		{
 			if (!mask) return null;
@@ -359,7 +364,7 @@ public class FormatParser
 
 		public boolean hasEditFormat()
 		{
-			// if it is a mask format then the editorplaceholder is always the place holder. 
+			// if it is a mask format then the editorplaceholder is always the place holder.
 			// currently we dont have display and edit (with mask) support
 			return !mask && editOrPlaceholder != null && !editOrPlaceholder.equals(displayFormat);
 		}

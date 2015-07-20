@@ -196,9 +196,11 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 			map.put("groupingSeparator", String.valueOf(dfs.getGroupingSeparator()));
 			map.put("currencySymbol", dfs.getCurrencySymbol());
 			map.put("percent", String.valueOf(dfs.getPercent()));
-			map.put("maxLength", format.parsedFormat.getMaxLength() == null ? new Integer(-1) : format.parsedFormat.getMaxLength());
 		}
-
+		if (format.parsedFormat.getMaxLength() != null)
+		{
+			map.put("maxLength", format.parsedFormat.getMaxLength());
+		}
 		if (isAllUppercase) map.put("uppercase", Boolean.valueOf(isAllUppercase));
 		else if (isAllLowercase) map.put("lowercase", Boolean.valueOf(isAllLowercase));
 
@@ -337,7 +339,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 				(String)formElementValue,
 				dataproviderId,
 				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
-					component.getDataConverterContext().getForm().getForm()), application);
+					component.getDataConverterContext().getForm().getForm()), application, true);
 			return format;
 		}
 		return formElementValue;

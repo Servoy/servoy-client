@@ -65,6 +65,12 @@ public class ComponentFormat
 
 	public static ComponentFormat getComponentFormat(String format, String dataProviderID, IDataProviderLookup dataProviderLookup, IServiceProvider application)
 	{
+		return getComponentFormat(format, dataProviderID, dataProviderLookup, application, false);
+	}
+
+	public static ComponentFormat getComponentFormat(String format, String dataProviderID, IDataProviderLookup dataProviderLookup,
+		IServiceProvider application, boolean autoFillMaxLength)
+	{
 		int dpType = IColumnTypes.TEXT;
 		String formatProperty = format;
 
@@ -72,7 +78,7 @@ public class ComponentFormat
 		{
 			try
 			{
-				return ComponentFormat.getComponentFormat(formatProperty, dataProviderLookup.getDataProvider(dataProviderID), application);
+				return ComponentFormat.getComponentFormat(formatProperty, dataProviderLookup.getDataProvider(dataProviderID), application, autoFillMaxLength);
 			}
 			catch (RepositoryException e)
 			{
@@ -84,6 +90,11 @@ public class ComponentFormat
 	}
 
 	public static ComponentFormat getComponentFormat(String format, IDataProvider dataProvider, IServiceProvider application)
+	{
+		return getComponentFormat(format, dataProvider, application, false);
+	}
+
+	public static ComponentFormat getComponentFormat(String format, IDataProvider dataProvider, IServiceProvider application, boolean autoFillMaxLength)
 	{
 		int dpType = IColumnTypes.TEXT;
 		String formatProperty = format;
@@ -139,7 +150,13 @@ public class ComponentFormat
 			}
 		}
 
-		return ComponentFormat.getComponentFormat(formatProperty, dpType, application);
+		ComponentFormat componentFormat = ComponentFormat.getComponentFormat(formatProperty, dpType, application);
+		if (autoFillMaxLength && dataProvider != null && dataProvider.getLength() > 0 && componentFormat.parsedFormat != null &&
+			componentFormat.parsedFormat.getMaxLength() == null && (dpType == IColumnTypes.TEXT || dpType == IColumnTypes.MEDIA))
+		{
+			componentFormat.parsedFormat.updateMaxLength(Integer.valueOf(dataProvider.getLength()));
+		}
+		return componentFormat;
 	}
 
 	public static ComponentFormat getComponentFormat(String formatProperty, int dpType, IServiceProvider application)
