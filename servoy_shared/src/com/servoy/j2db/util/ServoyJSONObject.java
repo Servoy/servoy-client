@@ -57,6 +57,13 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 		this.newLines = newLines;
 	}
 
+	public ServoyJSONObject(JSONObject objToCopyFrom, String[] propsToCopy, boolean noQuotes, boolean newLines) throws JSONException
+	{
+		super(objToCopyFrom, propsToCopy);
+		this.noQuotes = noQuotes;
+		this.newLines = newLines;
+	}
+
 	public ServoyJSONObject(Map<String, Object> props)
 	{
 		super(props);

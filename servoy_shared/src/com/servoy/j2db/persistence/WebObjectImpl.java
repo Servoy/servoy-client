@@ -82,9 +82,10 @@ public class WebObjectImpl
 	{
 		if (areCustomTypePropertiesLoaded)
 		{
-			ServoyJSONObject entireModel = getJson() != null ? getJson() : new ServoyJSONObject();
+			ServoyJSONObject old = getJson();
 			try
 			{
+				ServoyJSONObject entireModel = (old != null ? new ServoyJSONObject(old, ServoyJSONObject.getNames(old), true, true) : new ServoyJSONObject()); // copy or new object so that AbstractBase is able to compare them properly
 				Iterator<String> it = entireModel.keys();
 				while (it.hasNext())
 				{
@@ -107,24 +108,13 @@ public class WebObjectImpl
 						entireModel.put(wo.getKey(), jsonArray);
 					}
 				}
+				setJsonInternal(entireModel);
 			}
 			catch (JSONException ex)
 			{
 				Debug.error(ex);
 			}
-			setJsonInternal(entireModel);
 		}
-	}
-
-	/**
-	 * Removes a custom property if it was available.
-	 * @param propertyName the name of the property to remove.
-	 * @return the value of that property that was just removed; can be null if there was nothing to remove.
-	 */
-	public void removeCustomProperty(String propertyName)
-	{
-		getCustomTypeProperties().remove(propertyName);
-		customTypePropsByUUID = null;
 	}
 
 	/**
@@ -136,6 +126,7 @@ public class WebObjectImpl
 		{
 			getCustomTypeProperties().put(propertyName, val);
 			customTypePropsByUUID = null;
+			updateCustomProperties();
 			return true;
 		}
 		else return false;
@@ -284,9 +275,11 @@ public class WebObjectImpl
 	{
 		try
 		{
-			ServoyJSONObject jsonObject = getJson() == null ? new ServoyJSONObject(true, true) : getJson();
-			if (!jsonObject.has(key) || !jsonObject.get(key).equals(value))
+			ServoyJSONObject oldJson = getJson();
+			if (oldJson == null || !oldJson.has(key) || !oldJson.get(key).equals(value))
 			{
+				ServoyJSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : new ServoyJSONObject(oldJson, ServoyJSONObject.getNames(oldJson),
+					true, true)); // either new object or copy (so that it is seen as changed when set) // TODO we could manually mark as changed and reuse same obj but only if we are sure setJSON doesn't do more then just that when using separate obj.
 				jsonObject.put(key, value);
 				setJsonInternal(jsonObject);
 
@@ -422,12 +415,7 @@ public class WebObjectImpl
 				}
 				else
 				{
-					removeCustomProperty(customType.getJsonKey());
-					//need to remove it from beanJSON because WebComponent.isChanged() calls WebComponent.getAllCustomProperties() which calls
-					//getCustomTypeProperties() which adds the customType back from the beanJson
-					ServoyJSONObject json = getJson();
-					json.remove(customType.getJsonKey());
-					setJson(json);
+					clearCustomProperty(customType.getJsonKey());
 				}
 			}
 			customTypePropsByUUID = null;
@@ -438,13 +426,12 @@ public class WebObjectImpl
 		}
 	}
 
-	// TODO should we offer alernate implementation for AbstractBase.getAllObjectsAsList() here as well? that one is currently final
+	// TODO should we offer alternate implementation for AbstractBase.getAllObjectsAsList() here as well? that one is currently final
 	// and at first look I think we can leave it alone (and is not part of the IsupportChilds interface)
 
 	public Iterator<IPersist> getAllObjects()
 	{
-		Map<String, Object> allCustomProps = getCustomTypeProperties();
-		final Iterator<Object> it1 = allCustomProps.values().iterator();
+		final Iterator<Object> it1 = getCustomTypeProperties().values().iterator();
 
 		return new Iterator<IPersist>()
 		{
