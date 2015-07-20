@@ -143,6 +143,7 @@ angular.module('window',['servoy'])
 			style+= 'left:'+left+'px;';
 			style+= 'top:'+top+'px;';
 			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()" onload="loadSize()" onclick="event.stopPropagation()"></div>')(scope);
+			scope.popupElement = popup;
 			body.on('click',this.cancelFormPopup);
 			body.append(popup);
 		},
@@ -171,6 +172,10 @@ angular.module('window',['servoy'])
 				popup.remove();
 			}
 			scope.model.popupform = null;
+			if(scope.popupElement) {
+				scope.popupElement.remove();
+				scope.popupElement = null;
+			}
 		},
 		generateMenu: function(items,oMenu)
 		{
