@@ -40,7 +40,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	private transient int index;
 	protected transient final WebObjectImpl webObjectImpl;
 
-	public WebCustomType(IWebObject parentWebObject, PropertyDescription propertyDescription, String jsonKey, int index, boolean isNew)
+	public WebCustomType(IBasicWebObject parentWebObject, PropertyDescription propertyDescription, String jsonKey, int index, boolean isNew)
 	{
 		super(IRepository.WEBCUSTOMTYPES, parentWebObject, 0, UUID.randomUUID());
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
@@ -160,12 +160,12 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	}
 
 	@Override
-	public IWebObject getParent()
+	public IBasicWebObject getParent()
 	{
-		return (IWebObject)super.getParent();
+		return (IBasicWebObject)super.getParent();
 	}
 
-	public IWebComponent getParentComponent()
+	public IBasicWebComponent getParentComponent()
 	{
 		return getParent().getParentComponent();
 	}

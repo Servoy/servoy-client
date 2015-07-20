@@ -21,8 +21,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import org.json.JSONException;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.Debug;
@@ -35,7 +33,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
+public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComponent
 {
 	/**
 	 * Constructor I
@@ -345,13 +343,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IWebComponent
 	}
 
 	@Override
-	public PropertyDescription getPropertyDescription()
-	{
-		return WebComponentSpecProvider.getInstance().getWebComponentSpecification(getBeanClassName());
-	}
-
-	@Override
-	public IWebComponent getParentComponent()
+	public IBasicWebComponent getParentComponent()
 	{
 		return this;
 	}
