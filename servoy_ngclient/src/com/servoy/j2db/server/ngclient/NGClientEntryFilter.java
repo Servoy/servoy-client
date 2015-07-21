@@ -56,11 +56,12 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String SOLUTIONS_PATH = "solutions/";
 	public static final String FORMS_PATH = "forms/";
 
-	private static final String[] INDEX_SERVOY_BASE_CSS = { //
+	private static final String[] INDEX_3TH_PARTY_CSS = { //
 	"css/bootstrap/css/bootstrap.css", //
 	"js/bootstrap-window/css/bootstrap-window.css" };
-	private static final String[] INDEX_SERVOY_BASE_JS = { //
+	private static final String[] INDEX_3TH_PARTY_JS = { //
 	"js/jquery-1.11.1.js", //
+	"js/jquery.maskedinput.js", //
 	"js/angular_1.4.1.js", //
 	"js/angular-sanitize_1.4.1.js", //
 	"js/angular-webstorage.js", //
@@ -70,20 +71,19 @@ public class NGClientEntryFilter extends WebEntry
 	"js/angular-file-upload/dist/angular-file-upload.min.js", //
 	"js/bootstrap-window/js/Window.js", //
 	"js/bootstrap-window/js/WindowManager.js", //
-	"js/bindonce.js", //
+	"js/bindonce.js" };
+	private static final String[] INDEX_SABLO_JS = { //
+	"sablo/lib/reconnecting-websocket.js", //
+	"sablo/js/websocket.js", //
+	"sablo/js/sablo_app.js" };
+	private static final String[] INDEX_SERVOY_JS = { //
 	"js/servoy.js", //
 	"js/servoyWindowManager.js", //
 	"js/servoyformat.js", //
 	"js/servoytooltip.js", //
 	"js/fileupload.js", //
-	"js/servoy-components.js" };
-	private static final String[] INDEX_SABLO_JS = { //
-	"sablo/lib/reconnecting-websocket.js", //
-	"sablo/js/websocket.js", //
-	"sablo/js/sablo_app.js" };
-	private static final String[] INDEX_SERVOY_APP_JS = { //
-	"js/servoy_app.js", //
-	"js/jquery.maskedinput.js" };
+	"js/servoy-components.js", //
+	"js/servoy_app.js" };
 
 	private String[] locations;
 	private String[] services;
@@ -373,12 +373,12 @@ public class NGClientEntryFilter extends WebEntry
 		if (wroFilter != null)
 		{
 			allIndexCSS = new ArrayList<String>();
-			allIndexCSS.add(wroFilter.createCSSGroup("wro/servoy_base.css", Arrays.asList(INDEX_SERVOY_BASE_CSS)));
+			allIndexCSS.add(wroFilter.createCSSGroup("wro/servoy_thirdparty.css", Arrays.asList(INDEX_3TH_PARTY_CSS)));
 			allIndexCSS.add(wroFilter.createCSSGroup("wro/servoy_contributions.css", cssContributions));
 		}
 		else
 		{
-			allIndexCSS = new ArrayList<String>(Arrays.asList(INDEX_SERVOY_BASE_CSS));
+			allIndexCSS = new ArrayList<String>(Arrays.asList(INDEX_3TH_PARTY_CSS));
 			allIndexCSS.addAll(cssContributions);
 		}
 		return allIndexCSS;
@@ -392,17 +392,17 @@ public class NGClientEntryFilter extends WebEntry
 		if (wroFilter != null)
 		{
 			allIndexJS = new ArrayList<String>();
-			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_base.js", Arrays.asList(INDEX_SERVOY_BASE_JS)));
+			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_thirdparty.js", Arrays.asList(INDEX_3TH_PARTY_JS)));
 			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
-			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_app.js", Arrays.asList(INDEX_SERVOY_APP_JS)));
+			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_app.js", Arrays.asList(INDEX_SERVOY_JS)));
 			allIndexJS.add(wroFilter.createJSGroup("wro/servoy_contributions.js", jsContributions));
 
 		}
 		else
 		{
-			allIndexJS = new ArrayList<String>(Arrays.asList(INDEX_SERVOY_BASE_JS));
+			allIndexJS = new ArrayList<String>(Arrays.asList(INDEX_3TH_PARTY_JS));
 			allIndexJS.addAll(Arrays.asList(INDEX_SABLO_JS));
-			allIndexJS.addAll(Arrays.asList(INDEX_SERVOY_APP_JS));
+			allIndexJS.addAll(Arrays.asList(INDEX_SERVOY_JS));
 			allIndexJS.addAll(jsContributions);
 		}
 		return allIndexJS;
