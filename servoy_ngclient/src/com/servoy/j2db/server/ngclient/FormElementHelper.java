@@ -51,8 +51,10 @@ import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.IWebComponent;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -123,8 +125,8 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-				designer);
+			if (formElement instanceof BodyPortal)
+				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -243,6 +245,7 @@ public class FormElementHelper
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
 				List<String> headersText = new ArrayList<>();
 				List<String> headersClasses = new ArrayList<>();
+				List<String> headersAction = new ArrayList<>();
 				propertyPath.add(portalFormElement.getName());
 				propertyPath.add("childElements");
 
@@ -258,7 +261,8 @@ public class FormElementHelper
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos > loc.y)
 						{
-							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
+								continue;
 							propertyPath.add(children.size());
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
@@ -276,6 +280,35 @@ public class FormElementHelper
 										headersText.add(gc.getText());
 										hasLabelFor = true;
 										headerCellClass = gc.getStyleClass();
+										if (gc.getOnActionMethodID() > 0)
+										{
+											ScriptMethod scriptMethod = form.getScriptMethod(gc.getOnActionMethodID());
+											if (scriptMethod == null)
+											{
+												scriptMethod = fs.getScriptMethod(gc.getOnActionMethodID());
+												if (scriptMethod != null)
+												{
+													headersAction.add("scopes." + scriptMethod.getScopeName() + '.' + scriptMethod.getName());
+												}
+												else if (form.getDataSource() != null)
+												{
+													Iterator<TableNode> tableNodes = fs.getTableNodes(form.getDataSource());
+													while (tableNodes.hasNext())
+													{
+														scriptMethod = tableNodes.next().getFoundsetMethod(gc.getOnActionMethodID());
+														if (scriptMethod != null) break;
+													}
+													if (scriptMethod != null)
+													{
+														headersAction.add("entity." + form.getName() + '.' + scriptMethod.getName());
+													}
+												}
+											}
+											else
+											{
+												headersAction.add(form.getName() + '.' + scriptMethod.getName());
+											}
+										}
 										break;
 									}
 								}
@@ -290,6 +323,7 @@ public class FormElementHelper
 									{
 										headersText.add(null);
 									}
+									headersAction.add(null);
 								}
 								headersClasses.add(headerCellClass);
 								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
@@ -319,6 +353,7 @@ public class FormElementHelper
 				{
 					portalFormElementProperties.put("columnHeaders", headersText.toArray());
 					portalFormElementProperties.put("headersClasses", headersClasses.toArray());
+					portalFormElementProperties.put("headersAction", headersAction.toArray());
 				}
 
 				portalFormElementProperties.put("tabSeq", Integer.valueOf(minBodyPortalTabSeq)); // table view tab seq. is the minimum of it's children tabSeq'es

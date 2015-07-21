@@ -2,10 +2,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
                                    '$timeout', '$solutionSettings', '$anchorConstants', 
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
-                                   '$svyProperties', '$sabloConstants',
+                                   '$svyProperties', '$sabloConstants','$window',
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants,$window) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -144,11 +144,27 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
 						var isSortable = $scope.model.sortable && el.foundsetConfig.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change
 						var headerCellClass = null;
+						var headerAction = null;
 						if ($scope.model.headersClasses)
 						{
 							var headerIndex = el.componentIndex ? el.componentIndex : idx;
 							headerCellClass = $scope.model.headersClasses[headerIndex];
 						}	
+						if ($scope.model.headersAction) {
+							var headerIndex = el.componentIndex ? el.componentIndex : idx;
+							if ($scope.model.headersAction[headerIndex]) {
+								isSortable = false;
+								isMovable = false;
+								var getHandler = function(callback) {
+									return function(event) {
+										var jsEvent = {svyType: 'jsevent'};
+										var argsWithEvent = [jsEvent];// append args
+										$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
+									}
+								}
+								headerAction = getHandler($scope.model.headersAction[headerIndex]);
+							}
+						}
 						var newL = $scope.columnDefinitions.push({
 							name:el.name,
 							cellTemplate: cellTemplate,
@@ -163,6 +179,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							enableHiding: false,
 							allowCellFocus: false,
 							headerCellClass: headerCellClass,
+							svyHeaderAction: headerAction,
 							type: "string", // just put a type here, we don't know the type and we dont use the edit feature of ui-grid
 							svyColumnIndex: el.componentIndex ? el.componentIndex : idx
 						});
@@ -1041,7 +1058,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
   );
 
   $templateCache.put('ui-grid/uiGridHeaderCell',
-		  "<div ng-class=\"{ 'sortable': sortable }\"><!-- <div class=\"ui-grid-vertical-bar\">&nbsp;</div> --><div class=\"ui-grid-cell-contents\" col-index=\"renderIndex\"><span ng-if=\"!!col.colDef.displayNameHTML\"><span ng-bind-html=\"col.colDef.displayNameHTML CUSTOM_FILTERS\"></span></span><span ng-if=\"!col.colDef.displayNameHTML\"><span>{{ col.displayName CUSTOM_FILTERS }}</span></span> <span ui-grid-visible=\"col.sort.direction\" ng-class=\"{ 'ui-grid-icon-up-dir': col.sort.direction == asc, 'ui-grid-icon-down-dir': col.sort.direction == desc, 'ui-grid-icon-blank': !col.sort.direction }\">&nbsp;</span></div><div class=\"ui-grid-column-menu-button\" ng-if=\"grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false\" ng-click=\"toggleMenu($event)\" ng-class=\"{'ui-grid-column-menu-button-last-col': isLastCol && grid.options.enableGridMenu}\"><i class=\"ui-grid-icon-angle-down\">&nbsp;</i></div><div ng-if=\"filterable\" class=\"ui-grid-filter-container\" ng-repeat=\"colFilter in col.filters\"><div ng-if=\"colFilter.type !== 'select'\"><input type=\"text\" class=\"ui-grid-filter-input\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\"><div class=\"ui-grid-filter-button\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div><div ng-if=\"colFilter.type === 'select'\"><select class=\"ui-grid-filter-select\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\" ng-options=\"option.value as option.label for option in colFilter.selectOptions\"></select><div class=\"ui-grid-filter-button-select\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div></div></div>"
+		  "<div ng-class=\"{ 'sortable': sortable }\"><!-- <div class=\"ui-grid-vertical-bar\">&nbsp;</div> --><div class=\"ui-grid-cell-contents\" col-index=\"renderIndex\" svy-header-click=\"col.colDef.svyHeaderAction\"><span ng-if=\"!!col.colDef.displayNameHTML\"><span ng-bind-html=\"col.colDef.displayNameHTML CUSTOM_FILTERS\"></span></span><span ng-if=\"!col.colDef.displayNameHTML\"><span>{{ col.displayName CUSTOM_FILTERS }}</span></span> <span ui-grid-visible=\"col.sort.direction\" ng-class=\"{ 'ui-grid-icon-up-dir': col.sort.direction == asc, 'ui-grid-icon-down-dir': col.sort.direction == desc, 'ui-grid-icon-blank': !col.sort.direction }\">&nbsp;</span></div><div class=\"ui-grid-column-menu-button\" ng-if=\"grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false\" ng-click=\"toggleMenu($event)\" ng-class=\"{'ui-grid-column-menu-button-last-col': isLastCol && grid.options.enableGridMenu}\"><i class=\"ui-grid-icon-angle-down\">&nbsp;</i></div><div ng-if=\"filterable\" class=\"ui-grid-filter-container\" ng-repeat=\"colFilter in col.filters\"><div ng-if=\"colFilter.type !== 'select'\"><input type=\"text\" class=\"ui-grid-filter-input\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\"><div class=\"ui-grid-filter-button\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div><div ng-if=\"colFilter.type === 'select'\"><select class=\"ui-grid-filter-select\" ng-model=\"colFilter.term\" ng-attr-placeholder=\"{{colFilter.placeholder || ''}}\" ng-options=\"option.value as option.label for option in colFilter.selectOptions\"></select><div class=\"ui-grid-filter-button-select\" ng-click=\"colFilter.term = null\"><i class=\"ui-grid-icon-cancel\" ng-show=\"!!colFilter.term\">&nbsp;</i><!-- use !! because angular interprets 'f' as false --></div></div></div></div>"
   );
 
 }])
@@ -1103,6 +1120,16 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 	    	{
 	    		$svyProperties.setCssProperty($element,"backgroundColor",$scope.model.transparent?"transparent":$scope.model.background);
 	    	}
+		}
+	}
+}]).directive('svyHeaderClick',  ["$parse",function($parse) {
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			var x = $parse(attrs['svyHeaderClick'])(scope)
+			if (x) {
+				element.on("click",x);
+			}
 		}
 	}
 }]);
