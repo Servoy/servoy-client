@@ -64,7 +64,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 					size = windowInstance.size;
 				}
 				//-1 means default size and location(center)
-				if(!location || (location.x <0 && location.y <0)) location=centerWindow(windowInstance.form.size)
+				if(!location || (location.x <0 && location.y <0)) location=centerWindow(size ? size : windowInstance.form.size)
 				if(!size || size.width<0 || size.height<0) size =null;
 
 				//convert servoy x,y to library top , left
