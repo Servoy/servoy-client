@@ -42,6 +42,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -51,6 +52,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author jcompagner
@@ -94,7 +96,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
 	 */
 	@Override
@@ -205,8 +207,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
-		Bean bean = form.createNewBean("mycustombean", "my-component");
-		bean.setInnerHTML("{atype:{name:'name',text:'i18n:servoy.button.ok'}}");
+		WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
+		bean.setJson(new ServoyJSONObject("{atype:{name:'name',text:'i18n:servoy.button.ok'}}", false));
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
@@ -237,6 +239,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
 
+		// as client's "inDesigner" == true we will generate an error bean because legacy Bean usage for custom web components with custom object/array types is depreacated and not fully working (in designer at least)
+		// so we will check that it generates an error bean (that means no props are set)
 		Bean bean = form.createNewBean("mycustombean", "my-component");
 		bean.setInnerHTML("{atype:{name:'name',form:'tabform'}}");
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
@@ -244,6 +248,17 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
+		Assert.assertNull(type); // err0r bean doesn't have this prop
+
+		// ok now for the real test that uses WebComponent
+		form.removeChild(bean);
+		WebComponent webComponent = form.createNewWebComponent("mycustombean", "my-component");
+		webComponent.setJson(new ServoyJSONObject("{atype:{name:'name',form:'tabform'}}", false));
+		formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
+		Assert.assertEquals(1, formElements.size());
+		wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
+
+		type = (Map<String, Object>)wc.getProperty("atype");
 		Assert.assertEquals("name", type.get("name"));
 		Assert.assertEquals("tabform", type.get("form"));
 

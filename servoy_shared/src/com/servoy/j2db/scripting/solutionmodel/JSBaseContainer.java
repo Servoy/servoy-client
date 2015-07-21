@@ -1748,7 +1748,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		checkModification();
 		try
 		{
-			WebComponent webComponent = getContainer().createWebComponent(name, type);
+			WebComponent webComponent = getContainer().createNewWebComponent(name, type);
 			webComponent.setSize(new Dimension(width, height));
 			webComponent.setLocation(new Point(x, y));
 			return new JSWebComponent((IJSParent)this, webComponent, application, true);

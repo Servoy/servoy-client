@@ -40,7 +40,6 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -49,10 +48,12 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author jcompagner
@@ -61,6 +62,7 @@ import com.servoy.j2db.util.ServoyException;
 @SuppressWarnings("nls")
 public class FoundsetTest extends AbstractSolutionTest
 {
+
 	@Override
 	protected InMemPackageReader getTestComponents() throws IOException
 	{
@@ -89,28 +91,27 @@ public class FoundsetTest extends AbstractSolutionTest
 		return inMemPackageReader;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#createSolution()
-	 */
 	@Override
 	protected void fillTestSolution() throws ServoyException
 	{
-		Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
-		Bean bean = form.createNewBean("mycustombean", "my-component");
-		bean.setInnerHTML("{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}}");
+		try
+		{
+			Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
+			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
+			bean.setJson(new ServoyJSONObject("{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}}", false));
 
-		Bean bean1 = form.createNewBean("mydynamiccustombean", "my-dynamiccomponent");
-		bean1.setInnerHTML("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}");
+			WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
+			bean1.setJson(new ServoyJSONObject("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}",
+				false));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			throw new ServoyException();
+		}
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.component.AbstractSoluionTest#setupData()
-	 */
 	@Override
 	protected void setupData() throws ServoyException
 	{
@@ -544,4 +545,5 @@ public class FoundsetTest extends AbstractSolutionTest
 			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter3.toString());
 	}
+
 }

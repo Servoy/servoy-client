@@ -228,7 +228,7 @@ public class WebComponentSpecTest
 
 		PropertyDescription wct = ((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("test.mytype", wct.getType().getName());
-		Assert.assertEquals(0, wct.getProperties().size());
+		Assert.assertEquals(1, wct.getProperties().size());
 		wct = ((CustomJSONPropertyType)wct.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
@@ -253,7 +253,7 @@ public class WebComponentSpecTest
 
 		PropertyDescription wct = ((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals("test.mytype", wct.getType().getName());
-		Assert.assertEquals(0, wct.getProperties().size());
+		Assert.assertEquals(1, wct.getProperties().size());
 		wct = ((CustomJSONPropertyType)wct.getType()).getCustomJSONTypeDefinition();
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
