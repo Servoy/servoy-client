@@ -39,6 +39,18 @@ $scope.api.setToolTipTextDataprovider = function(datasource, tooltiptextdataprov
 	$scope.getBinding(datasource).tooltiptextdataprovider = tooltiptextdataprovider;
 }   
 
+$scope.api.setImageURLDataprovider = function(datasource, imageurldataprovider) {
+	$scope.getBinding(datasource).imageurldataprovider = imageurldataprovider;
+}   
+
+$scope.api.setChildSortDataprovider = function(datasource, childsortdataprovider) {
+	$scope.getBinding(datasource).childsortdataprovider = childsortdataprovider;
+}   
+
+$scope.api.setMethodToCallOnDoubleClick = function(datasource, callbackfunction, param) {
+	$scope.getBinding(datasource).methodToCallOnDoubleClick = {f: callbackfunction, param: param }  		
+}
+
 $scope.getBinding = function(datasource) {
 	if(!$scope.model.bindings) {
 		$scope.model.bindings = [];

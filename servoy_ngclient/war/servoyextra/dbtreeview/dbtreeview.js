@@ -1,15 +1,15 @@
-angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive('servoyextraDbtreeview', function($timeout, $window, $foundsetManager) {  
+angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).directive('servoyextraDbtreeview', ['$timeout', '$window', '$foundsetManager', '$applicationService', function($timeout, $window, $foundsetManager, $applicationService) {
     return {
       restrict: 'E',
       scope: {
     	  model: "=svyModel",
     	  api: "=svyApi"
       },
-      link: function($scope, $element, $attrs) {
-
+      link: function($scope, $element, $attrs) {    	  
     	$scope.expandedNodes = [];
     	var theTree;
-
+    	var clickTimeout;
+    	
     	var treeReloadTimeout;
     	function reloadTree() {
     		if(theTree) {
@@ -50,16 +50,40 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
 				},
 				click: function(event, data) {
 					if(data.node.data && data.node.data.callbackinfo) {
-						$window.executeInlineScript(
-								data.node.data.callbackinfo.formname,
-								data.node.data.callbackinfo.script,
-								[data.node.data.callbackinfoParamValue]);
+		    			if(clickTimeout) {
+		    				$timeout.cancel(clickTimeout);
+		    			}
+		    			clickTimeout = $timeout(function() {
+							$window.executeInlineScript(
+									data.node.data.callbackinfo.formname,
+									data.node.data.callbackinfo.script,
+									[data.node.data.callbackinfoParamValue]);
+		    			}, 200);
 					}					
-				}
+				},
+				dblclick: function(event, data) {
+					if(data.node.data && data.node.data.methodToCallOnDoubleClick) {
+		    			if(clickTimeout) {
+		    				$timeout.cancel(clickTimeout);
+		    				clickTimeout = null;
+		    			}						
+						$window.executeInlineScript(
+								data.node.data.methodToCallOnDoubleClick.formname,
+								data.node.data.methodToCallOnDoubleClick.script,
+								[data.node.data.methodToCallOnDoubleClickParamValue]);
+					}
+				},				
  			});
       		theTree = theTree.fancytree("getTree");
-     	}    	  
-    	  
+     	}
+    	 
+    	function getIconURL(iconPath) {
+    		if(iconPath && iconPath.indexOf("media://") == 0) {
+    			return "resources/fs/" + $applicationService.getSolutionName() + iconPath.substring(8);
+    		}
+    		return iconPath;
+    	}
+    	
       	function getBinding(datasource) {
     		for(var i = 0; i < $scope.model.bindings.length; i++) {
     			if(datasource == $scope.model.bindings[i].datasource) {
@@ -90,22 +114,31 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
     		if(binding.tooltiptextdataprovider) {
     			dataproviders[binding.tooltiptextdataprovider] = binding.tooltiptextdataprovider;
     		}
+    		if(binding.imageurldataprovider) {
+    			dataproviders[binding.imageurldataprovider] = binding.imageurldataprovider;
+    		}
+    		if(binding.childsortdataprovider) {
+    			dataproviders[binding.childsortdataprovider] = binding.childsortdataprovider;
+    		}    		    		
     		if(binding.callbackinfo) {
     			dataproviders[binding.callbackinfo.param] = binding.callbackinfo.param;
     		}
     		if(binding.methodToCallOnCheckBoxChange) {
     			dataproviders[binding.methodToCallOnCheckBoxChange.param] = binding.methodToCallOnCheckBoxChange.param;
     		}    		
-    		
+    		if(binding.methodToCallOnDoubleClick) {
+    			dataproviders[binding.methodToCallOnDoubleClick.param] = binding.methodToCallOnDoubleClick.param;
+    		}    		    		
+
     		return dataproviders;
     	}
 
     	
-    	function getRelatedFoundSetCallback(item) {
+    	function getRelatedFoundSetCallback(item, sort) {
     		return function(rfoundsetinfo) {
 				$foundsetManager.getFoundSet(
 						rfoundsetinfo.foundsethash,
-						getDataproviders(rfoundsetinfo.foundsetdatasource, rfoundsetinfo.foundsetpk)).then(
+						getDataproviders(rfoundsetinfo.foundsetdatasource, rfoundsetinfo.foundsetpk), sort).then(
 								function(rfoundset) {
 									item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource));
 									if(item.children.length > 0) {
@@ -124,6 +157,7 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
     			item.key =  foundsethash + '_' + foundset.viewPort.rows[i][foundsetpk]; 
     			item.title = foundset.viewPort.rows[i][binding.textdataprovider];
     			if(binding.tooltiptextdataprovider) item.tooltip = foundset.viewPort.rows[i][binding.tooltiptextdataprovider];
+    			if(binding.imageurldataprovider) item.icon = getIconURL(foundset.viewPort.rows[i][binding.imageurldataprovider]);
     			item.hideCheckbox = binding.hascheckboxdataprovider == undefined || !foundset.viewPort.rows[i][binding.hascheckboxdataprovider];
     			if(!item.hideCheckbox) {
     				item.selected = Boolean(foundset.viewPort.rows[i][binding.checkboxvaluedataprovider])
@@ -141,7 +175,7 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
     				item.data.checkboxvaluedataprovidertype = typeof foundset.viewPort.rows[i][binding.checkboxvaluedataprovider];
     			}
  	
-    			if(binding.callbackinfo || binding.methodToCallOnCheckBoxChange)
+    			if(binding.callbackinfo || binding.methodToCallOnCheckBoxChange || binding.methodToCallOnDoubleClick)
     			{
     				if(binding.callbackinfo) {
     					item.data.callbackinfo = binding.callbackinfo.f;
@@ -150,15 +184,20 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
     				if(binding.methodToCallOnCheckBoxChange) {
     					item.data.methodToCallOnCheckBoxChange = binding.methodToCallOnCheckBoxChange.f;
     					item.data.methodToCallOnCheckBoxChangeParamValue = foundset.viewPort.rows[i][binding.methodToCallOnCheckBoxChange.param];
-    				}    				
+    				}
+    				if(binding.methodToCallOnDoubleClick) {
+    					item.data.methodToCallOnDoubleClick = binding.methodToCallOnDoubleClick.f;
+    					item.data.methodToCallOnDoubleClickParamValue = foundset.viewPort.rows[i][binding.methodToCallOnDoubleClick.param];
+    				}    				    				
     			}
 
     			returnChildren.push(item);
     			if(binding.nrelationname) {
+    				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
 					$foundsetManager.getRelatedFoundSetHash(
 							foundsethash,
 							foundset.viewPort.rows[i]._svyRowId,
-							binding.nrelationname).then(getRelatedFoundSetCallback(item));
+							binding.nrelationname).then(getRelatedFoundSetCallback(item, sort));
     			}
     		}
     		
@@ -183,9 +222,6 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
     		return null;
     	}
     	
-  		$scope.$watch('model.roots', function(newValue) {
-  			$scope.api.refresh();
-		})
   		
       	$scope.api.refresh = function() {
 			if($scope.model.roots && $scope.model.roots.length > 0) {
@@ -211,7 +247,7 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
 				});
 			}
       	}
-      	
+
       	$scope.api.isNodeExpanded = function(pk) {
       		if(theTree) {	  			
 	  			var node = findNode(theTree.getRootNode(), pk, 0);
@@ -221,9 +257,7 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
       		}
       		return false;
       	}
-      	
-      	
-      	
+
       	$scope.api.setExpandNode = function(pk, state) {
       		if(theTree) {	  			
 	  			var node = findNode(theTree.getRootNode(), pk, 0);
@@ -233,7 +267,33 @@ angular.module('servoyextraDbtreeview',['servoy', 'foundset_manager']).directive
 	  			}
       		}      		
       	}      	
+
+      	function expandChildNodes(node, level, state) {
+      		if(level >= 1) {
+    			var nodeChildren = node.getChildren();
+    			for(var i = 0; i < nodeChildren.length; i++) {
+    				if(state) {
+	    				nodeChildren[i].makeVisible();
+	    				nodeChildren[i].setExpanded(state);
+    				}
+    				else if(level == 1) {
+    					nodeChildren[i].setExpanded(state);
+    				}
+    				expandChildNodes(node, level - 1);
+    			}
+      		}
+      	}
+      	
+      	$scope.api.setNodeLevelVisible = function(level, state) {
+      		if(theTree) {	  			
+      			expandChildNodes(theTree.getRootNode(), level, state);
+      		}
+      	}
+      	
+  		$scope.$watch('model.roots', function(newValue) {
+  			$scope.api.refresh();
+		})
       },
       templateUrl: 'servoyextra/dbtreeview/dbtreeview.html'
     };
-  })
+  }]);

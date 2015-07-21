@@ -63,6 +63,11 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		if ("getFoundSet".equals(methodName))
 		{
 			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null);
+			String sort = args.optString("sort");
+			if(sort != null)
+			{
+				foundset.setSort(sort);
+			}
 			FoundsetTypeSabloValue value = getFoundsetTypeSabloValue(foundset, args.optJSONObject("dataproviders"));
 			PropertyDescription foundsetProperty = new PropertyDescription("", FoundsetPropertyType.INSTANCE);
 			return new TypedData<FoundsetTypeSabloValue>(value, foundsetProperty);

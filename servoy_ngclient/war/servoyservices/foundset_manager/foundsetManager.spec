@@ -15,6 +15,14 @@
 				{
 					"name": "foundsethash",
 					"type": "int"
+				},
+				{
+					"name": "dataproviders",
+					"type": "object"
+				},
+				{
+					"name": "sort",
+					"type": "string"
 				}
 			]
 		},

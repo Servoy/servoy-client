@@ -44,7 +44,19 @@
 							"type": "boolean"
 		                	}		                	
 						 ]
-        },        
+        },
+        "setNodeLevelVisible": {
+			"parameters":[
+							{                                                                 
+							"name":"level",
+							"type": "int"
+		                	},
+							{                                                                 
+							"name":"visible",
+							"type": "boolean"
+		                	}		                	
+						 ]
+        },
         "setTextDataprovider": {
 			"parameters":[
 							{                                                                 
@@ -136,7 +148,47 @@
 							"type": "string"
 		                	}	
 						 ]
-        }        
+        },
+        "setImageURLDataprovider": {
+			"parameters":[
+							{                                                                 
+							"name":"datasource",
+							"type": "string"
+		                	},
+							{                                                                 
+							"name":"imageurldataprovider",
+							"type": "string"
+		                	}	
+						 ]
+        },
+        "setChildSortDataprovider": {
+			"parameters":[
+							{                                                                 
+							"name":"datasource",
+							"type": "string"
+		                	},
+							{                                                                 
+							"name":"childsortdataprovider",
+							"type": "string"
+		                	}	
+						 ]
+        },        
+		"setMethodToCallOnDoubleClick": {
+			"parameters":[
+							{                                                                 
+							"name":"datasource",
+							"type": "string"
+		                	},
+							{                                                                 
+							"name":"callbackfunction",
+							"type": "function"
+		                	},
+		                	{                                                                 
+							"name":"param",
+							"type": "string"
+		                	}
+						 ]
+        }
 	},
 	"types": {
 	  "callback": {
@@ -150,8 +202,11 @@
 	  		"hascheckboxdataprovider": "string",
 	  		"checkboxvaluedataprovider": "string",
 	  		"tooltiptextdataprovider": "string",
+	  		"imageurldataprovider": "string",
+	  		"childsortdataprovider": "string",
 	  		"callbackinfo": "callback",
-	  		"methodToCallOnCheckBoxChange": "callback"
+	  		"methodToCallOnCheckBoxChange": "callback",
+	  		"methodToCallOnDoubleClick": "callback"
 	  }
 	}
 }
