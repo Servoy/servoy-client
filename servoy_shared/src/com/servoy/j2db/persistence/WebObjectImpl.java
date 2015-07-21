@@ -268,7 +268,7 @@ public class WebObjectImpl
 		// update JSON property of all parent web objects as all this web object hierarchy is actually described by top-most web object JSON property
 		// and the JSON of each web object should never get out-of-sync with the child web objects it contains
 		ISupportChilds parent = webObject.getParent();
-		if (parent instanceof IWebObject) ((IWebObject)parent).updateJSON();
+		if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
 	}
 
 	public void setJsonSubproperty(String key, Object value)
@@ -291,7 +291,7 @@ public class WebObjectImpl
 				// update JSON property of all parent web objects as all this web object hierarchy is actually described by top-most web object JSON property
 				// and the JSON of each web object should never get out-of-sync with the child web objects it contains
 				ISupportChilds parent = webObject.getParent();
-				if (parent instanceof IWebObject) ((IWebObject)parent).updateJSON();
+				if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
 			}
 		}
 		catch (JSONException e)

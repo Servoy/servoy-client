@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IAnchorConstants;
+import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -577,7 +578,7 @@ public class FormElementHelper
 
 		public int getSeqValue()
 		{
-			if (propertyName != null && element instanceof IWebComponent)
+			if (propertyName != null && element instanceof IBasicWebComponent)
 			{
 				String componentType = FormTemplateGenerator.getComponentTypeName(element);
 				WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);

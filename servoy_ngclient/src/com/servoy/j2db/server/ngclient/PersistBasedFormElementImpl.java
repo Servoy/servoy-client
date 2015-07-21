@@ -36,12 +36,12 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
-import com.servoy.j2db.persistence.IWebComponent;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
@@ -85,11 +85,11 @@ class PersistBasedFormElementImpl
 
 	public Map<String, Object> getFormElementPropertyValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
-		if (persist instanceof IWebComponent)
+		if (persist instanceof IBasicWebComponent)
 		{
 			if (FormTemplateGenerator.isWebcomponentBean(persist))
 			{
-				JSONObject jsonProperties = ((IWebComponent)persist).getJson();
+				JSONObject jsonProperties = ((IBasicWebComponent)persist).getJson();
 				if (jsonProperties == null) jsonProperties = new ServoyJSONObject();
 				// convert from persist design-time value (which might be non-json) to the expected value
 				Map<String, Object> jsonMap = processPersistProperties(fs, specProperties, propertyPath);
@@ -112,8 +112,8 @@ class PersistBasedFormElementImpl
 			else
 			{
 				Map<String, Object> defaultProperties = new HashMap<String, Object>();
-				defaultProperties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), ((IWebComponent)persist).getSize());
-				defaultProperties.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), ((IWebComponent)persist).getName());
+				defaultProperties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), ((IBasicWebComponent)persist).getSize());
+				defaultProperties.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), ((IBasicWebComponent)persist).getName());
 				defaultProperties.put("error", "Bean not supported in NGClient: " + persist);
 				return defaultProperties;
 			}
