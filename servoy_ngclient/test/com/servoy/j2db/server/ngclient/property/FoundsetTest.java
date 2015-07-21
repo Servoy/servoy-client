@@ -318,9 +318,10 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
+			true);
 		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mydynamiccustombean").getRawPropertyValue(
-			"myfoundset");
+			"myfoundset", true);
 		dynamicBeanRelatedFoundset.getViewPort().setBounds(1, 1);
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
 		customBeanFoundSet.getFoundset().setSelectedIndex(0);
@@ -356,7 +357,8 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
+			true);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(1, 1);
 		viewPort.changeMonitor.clearChanges();
@@ -375,7 +377,8 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
+			true);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(0, form.getFormModel().getSize());
 
@@ -407,7 +410,8 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
+			true);
 
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(1, 1);
@@ -466,7 +470,8 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
+			true);
 
 		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
 		foundSet.newRecord(0, false);
@@ -485,7 +490,8 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
+			true);
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(0, 2);
 		StringWriter stringWriter = new StringWriter();
