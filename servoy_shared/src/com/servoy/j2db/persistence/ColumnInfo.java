@@ -739,7 +739,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	 * 
 	 * @see Column#getConfiguredColumnType()
 	 */
-	ColumnType getConfiguredColumnType()
+	public ColumnType getConfiguredColumnType()
 	{
 		return configuredColumnType;
 	}
