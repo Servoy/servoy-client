@@ -26,16 +26,20 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.FunctionPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScriptVariableScope;
+import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
@@ -44,7 +48,7 @@ import com.servoy.j2db.util.Settings;
  * @author lvostinar
  *
  */
-public class ServoyFunctionPropertyType extends FunctionPropertyType implements IConvertedPropertyType<Object>
+public class ServoyFunctionPropertyType extends FunctionPropertyType implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>
 {
 	public static final ServoyFunctionPropertyType INSTANCE = new ServoyFunctionPropertyType();
 
@@ -86,10 +90,16 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 			if (object instanceof String)
 			{
 				String script = (String)object;
-				if (script.contains(ScriptVariable.SCOPES_DOT_PREFIX) || script.contains(ScriptVariable.GLOBALS_DOT_PREFIX) || !script.contains("."))
+				if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX) || !script.contains("."))
 				{
 					// scope method
 					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
+				}
+				else if (script.startsWith("entity."))
+				{
+					String formName = script.substring(7, script.indexOf('.', 7));
+					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
+					map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
 				}
 				else
 				{
@@ -130,6 +140,13 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 		{
 			Debug.error(ex);
 		}
-		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion, null);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, clientConversion, null);
+	}
+
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+	{
+		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}
 }
