@@ -367,7 +367,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		// editor is never transparent
-		// if the editor must be transparent, then make sure that the getBackGround call done below 
+		// if the editor must be transparent, then make sure that the getBackGround call done below
 		// is done on a none transparent field (and reset the transparency)
 		if (!editor.isOpaque() && editor instanceof JComponent)
 		{
@@ -567,7 +567,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					drd.setRecord(state, true);
 				}
 			}
-			if (editor instanceof IDisplayData)// && dataProviderID != null)
+			if (editor instanceof IDisplayData) // && dataProviderID != null)
 			{
 				try
 				{
@@ -685,7 +685,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			}
 			else if (isRenderWithOnRender && foundset.getSize() == 1)
 			{
-				// if the foundset contains a single record, we need to force trigger onRender 
+				// if the foundset contains a single record, we need to force trigger onRender
 				// because renderEventExecutor refers already to the changed render state
 				renderEventExecutor.setRenderStateChanged();
 			}
@@ -936,7 +936,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				if (style != null && style.getAttributeCount() == 0) style = null;
 				if (style == null)
 				{
-					style = (row % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1	
+					style = (row % 2 == 0) ? oddEvenStyling.getRowOddStyle() : oddEvenStyling.getRowEvenStyle(); // because index = 0 means record = 1
 				}
 
 				rowStyleAttrValue = getStyleAttribute(ss, style, rowStyleAttribute);
@@ -1006,7 +1006,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	{
 		Color bgColor = null;
 		IRecordInternal state = ((IFoundSetInternal)jtable.getModel()).getRecord(row);
-		boolean specialStateCase = (state instanceof PrototypeState || state instanceof FindState);
+		boolean specialStateCase = (state instanceof PrototypeState || state instanceof FindState || state == null || state.getRawData() == null);
 		if (/* !(renderer instanceof JButton) && */!specialStateCase)
 		{
 			ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
@@ -1039,19 +1039,20 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					String nm = (editor instanceof IDisplayData) ? ((IDisplayData)editor).getDataProviderID() : null;
 					if (isRowBGColorCalculation)
 					{
-						bg_color = foundset.getCalculationValue(
-							state,
-							strRowBGColorProvider,
+						bg_color = foundset.getCalculationValue(state, strRowBGColorProvider,
 							Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(isSelected), type, nm, new Boolean(isEdited) }),
-								Utils.parseJSExpressions(rowBGColorArgs)), null);
+								Utils.parseJSExpressions(rowBGColorArgs)),
+							null);
 					}
 					else
 					{
 						try
 						{
 							FormController currentForm = dal.getFormController();
-							bg_color = currentForm.executeFunction(strRowBGColorProvider, Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(
-								isSelected), type, nm, currentForm.getName(), state, new Boolean(isEdited) }), Utils.parseJSExpressions(rowBGColorArgs)),
+							bg_color = currentForm.executeFunction(strRowBGColorProvider,
+								Utils.arrayMerge(
+									(new Object[] { new Integer(row), new Boolean(isSelected), type, nm, currentForm.getName(), state, new Boolean(isEdited) }),
+									Utils.parseJSExpressions(rowBGColorArgs)),
 								false, null, true, null);
 						}
 						catch (Exception ex)
@@ -1145,9 +1146,10 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					// create a focus border with the same border insets
 					Insets noFocusBorderInsets = styleBorder.getBorderInsets(component);
 					Insets adjustedBorderInsets = adjustedBorder.getBorderInsets(component);
-					EmptyBorder emptyInsideBorder = new EmptyBorder(Math.max(0, noFocusBorderInsets.top - adjustedBorderInsets.top), Math.max(0,
-						noFocusBorderInsets.left - adjustedBorderInsets.left), Math.max(0, noFocusBorderInsets.bottom - adjustedBorderInsets.bottom), Math.max(
-						0, noFocusBorderInsets.right - adjustedBorderInsets.right));
+					EmptyBorder emptyInsideBorder = new EmptyBorder(Math.max(0, noFocusBorderInsets.top - adjustedBorderInsets.top),
+						Math.max(0, noFocusBorderInsets.left - adjustedBorderInsets.left),
+						Math.max(0, noFocusBorderInsets.bottom - adjustedBorderInsets.bottom),
+						Math.max(0, noFocusBorderInsets.right - adjustedBorderInsets.right));
 
 					adjustedBorder = new CompoundBorder(adjustedBorder, emptyInsideBorder);
 				}
@@ -1349,7 +1351,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	public Object getCellEditorValue()
 	{
 		// test if currentEditing state isn't deleted already
-		if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null)) return null;
+		if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null))
+			return null;
 
 		Object comp = editor;
 		if ((comp instanceof IDisplay && ((IDisplay)comp).isReadOnly()) || gettingEditorValue)
@@ -1413,7 +1416,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				// if the editor is not enable or is readonly dont try to set any value.
 				if (!displayData.isEnabled() || displayData.isReadOnly()) return obj;
 				// then make sure the current state is in edit, if not, try to start it else just return.
-				// this can happen when toggeling with readonly. case 233226 or 232188 
+				// this can happen when toggeling with readonly. case 233226 or 232188
 				if (!currentEditingState.isEditing() && !currentEditingState.startEditing()) return obj;
 
 				try
@@ -1689,7 +1692,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			// ignore globals in a cell adapter, will be handled by the row manager
 			if (!table.isEditing() && ScopesUtils.isVariableScope(e.getName()))
 			{
-				// test if it is a related 
+				// test if it is a related
 				if (dataProviderID != null && dataProviderID.indexOf('.') != -1)
 				{
 					TableModel parent = table.getModel();
@@ -1752,7 +1755,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	/**
 	 * Returns the editor.
-	 * 
+	 *
 	 * @return Component
 	 */
 	public Component getEditor()
@@ -1762,7 +1765,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	/**
 	 * Returns the renderer.
-	 * 
+	 *
 	 * @return Component
 	 */
 	public Component getRenderer()
@@ -1901,23 +1904,23 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			Area borderClip = new Area(new Rectangle(x, y, width, height));
 			if ((hideMask & LEFT) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x, y + sourceBorderInsets.top, sourceBorderInsets.left, height - sourceBorderInsets.top -
-					sourceBorderInsets.bottom)));
+				borderClip.subtract(new Area(
+					new Rectangle(x, y + sourceBorderInsets.top, sourceBorderInsets.left, height - sourceBorderInsets.top - sourceBorderInsets.bottom)));
 			}
 			if ((hideMask & RIGHT) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x + width - sourceBorderInsets.right, y + sourceBorderInsets.top, sourceBorderInsets.right, height -
-					sourceBorderInsets.top - sourceBorderInsets.bottom)));
+				borderClip.subtract(new Area(new Rectangle(x + width - sourceBorderInsets.right, y + sourceBorderInsets.top, sourceBorderInsets.right,
+					height - sourceBorderInsets.top - sourceBorderInsets.bottom)));
 			}
 			if ((hideMask & TOP) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y, width - sourceBorderInsets.left - sourceBorderInsets.right,
-					sourceBorderInsets.top)));
+				borderClip.subtract(new Area(
+					new Rectangle(x + sourceBorderInsets.left, y, width - sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.top)));
 			}
 			if ((hideMask & BOTTOM) != 0)
 			{
-				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y + height - sourceBorderInsets.bottom, width -
-					sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.bottom)));
+				borderClip.subtract(new Area(new Rectangle(x + sourceBorderInsets.left, y + height - sourceBorderInsets.bottom,
+					width - sourceBorderInsets.left - sourceBorderInsets.right, sourceBorderInsets.bottom)));
 			}
 			g.setClip(borderClip);
 			sourceBorder.paintBorder(c, g, x, y, width, height);
