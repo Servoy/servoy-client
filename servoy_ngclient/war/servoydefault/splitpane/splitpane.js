@@ -76,14 +76,14 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 
 			if($scope.model.tabOrientation == -3) {
 				$scope.$watch("model.size.height", function(newValue, oldValue) {
-					height = newValue;
+					if (!height) height = newValue;
 					initDivLocation(newValue);
 					processResize();
 				});
 			} 
 			else if($scope.model.tabOrientation == -2) {
 				$scope.$watch("model.size.width", function(newValue, oldValue) {
-					width = newValue;
+					if (!width) width = newValue;
 					initDivLocation(newValue);
 					processResize();    				 
 				});
