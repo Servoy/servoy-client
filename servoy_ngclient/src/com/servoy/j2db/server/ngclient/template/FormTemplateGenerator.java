@@ -29,10 +29,10 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.IWebComponent;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.Solution;
@@ -112,9 +112,9 @@ public class FormTemplateGenerator
 
 	private static String getPersistComponentTypeName(IFormElement persist)
 	{
-		if (persist instanceof IWebComponent && isWebcomponentBean(persist))
+		if (persist instanceof IBasicWebComponent && isWebcomponentBean(persist))
 		{
-			String type = ((IWebComponent)persist).getTypeName();
+			String type = ((IBasicWebComponent)persist).getTypeName();
 			return getComponentTypeName(type);
 		}
 		else
@@ -218,13 +218,13 @@ public class FormTemplateGenerator
 				IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
 				FlattenedSolution fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
 					((Solution)persist.getRootObject()).getName(), IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
-				{
-					@Override
-					public IRepository getRepository()
 					{
-						return ApplicationServerRegistry.get().getLocalRepository();
-					}
-				});
+						@Override
+						public IRepository getRepository()
+						{
+							return ApplicationServerRegistry.get().getLocalRepository();
+						}
+					});
 
 				ValueList valuelist = fs.getValueList(field.getValuelistID());
 				return isSingleValue(valuelist);
