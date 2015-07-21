@@ -180,7 +180,7 @@
 			 * @example var resizeWeight = %%prefix%%%%elementName%%.resizeWeight
 			 */
 			$scope.api.getResizeWeight = function() {
-				return $scope.model..resizeWeight;
+				return $scope.model.resizeWeight;
 			}
 			
 			/**
