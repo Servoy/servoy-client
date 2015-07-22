@@ -53,7 +53,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			scope.api.onDataChangeCallback = function(event, returnval) {
 				var ngModel = element.children().controller("ngModel");
 				var stringValue = (typeof returnval === 'string' || returnval instanceof String);
-				if (!returnval || stringValue) {
+				if (returnval === false || stringValue) {
 					element[0].focus();
 					ngModel.$setValidity("", false);
 					if (stringValue) {

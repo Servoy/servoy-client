@@ -19,7 +19,7 @@ angular.module('servoydefaultTextarea', [ 'servoy' ]).directive('servoydefaultTe
 			// fill in the api defined in the spec file
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
-				if (!returnval || stringValue) {
+				if (returnval === false || stringValue) {
 					$element[0].focus();
 					ngModel.$setValidity("", false);
 					if (stringValue) {
