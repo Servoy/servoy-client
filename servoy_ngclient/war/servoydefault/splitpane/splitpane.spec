@@ -11,7 +11,7 @@
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "divLocation" : { "type": "double", "pushToServer": "shallow", "default": -1 }, 
-	        "divSize" : { "type": "int", "default": -1 }, 
+	        "divSize" : { "type": "int", "default": 5 }, 
 	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onChangeMethodID","onTabChangeMethodID"] }, 
 	        "fontType" : {"type":"font","stringformat":true}, 
 	        "foreground" : "color", 
