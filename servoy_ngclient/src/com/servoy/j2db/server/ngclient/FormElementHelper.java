@@ -49,7 +49,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
-import com.servoy.j2db.persistence.IWebComponent;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -126,8 +125,8 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal)
-				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
+			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
+				designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -262,8 +261,7 @@ public class FormElementHelper
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos > loc.y)
 						{
-							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
-								continue;
+							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
@@ -512,14 +510,14 @@ public class FormElementHelper
 				IPersist persist = iterator.next();
 				if (FormTemplateGenerator.isWebcomponentBean(persist))
 				{
-					String componentType = FormTemplateGenerator.getComponentTypeName((IWebComponent)persist);
+					String componentType = FormTemplateGenerator.getComponentTypeName((IBasicWebComponent)persist);
 					WebComponentSpecification specification = WebComponentSpecProvider.getInstance().getWebComponentSpecification(componentType);
 					if (specification != null)
 					{
 						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 						if (properties != null && properties.size() > 0)
 						{
-							JSONObject json = ((IWebComponent)persist).getJson();
+							JSONObject json = ((IBasicWebComponent)persist).getJson();
 							for (PropertyDescription tabSeqProperty : properties)
 							{
 								int tabseq = json != null ? json.optInt(tabSeqProperty.getName()) : 0;
@@ -587,7 +585,7 @@ public class FormElementHelper
 					PropertyDescription property = specification.getProperty(propertyName);
 					if (property != null)
 					{
-						JSONObject json = ((IWebComponent)element).getJson();
+						JSONObject json = ((IBasicWebComponent)element).getJson();
 						if (json != null)
 						{
 							return json.optInt(propertyName);
