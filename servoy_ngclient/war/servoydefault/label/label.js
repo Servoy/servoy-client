@@ -33,11 +33,11 @@ angular.module('servoydefaultLabel',['servoy'])
 						break;
 					case "enabled":
 						if(value) {
-							var css = {filter:"",opacity:""}
+							var css = {filter:"",opacity:"",pointerEvents:""}
 							css['-moz-opacity'] = "";
 							element.css(css);
 						} else {
-							var css = {filter:"alpha(opacity=50)",opacity:".50"}
+							var css = {filter:"alpha(opacity=50)",opacity:".50",pointerEvents:"none"}
 							css['-moz-opacity'] = ".50";
 							element.css(css);
 						}
