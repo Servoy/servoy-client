@@ -309,12 +309,16 @@ public class WebServiceScriptable implements Scriptable
 	public Object[] getIds()
 	{
 		ArrayList<String> al = new ArrayList<>();
-		BaseWebObject service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+		BaseWebObject service = null;
+		if (application != null)
+		{
+			service = (BaseWebObject)application.getWebsocketSession().getClientService(serviceSpecification.getName());
+		}
 		for (String name : serviceSpecification.getAllPropertiesNames())
 		{
 			PropertyDescription pd = serviceSpecification.getProperty(name);
 			IPropertyType< ? > type = pd.getType();
-			if (!(type instanceof ISabloComponentToRhino< ? >) ||
+			if (service == null || !(type instanceof ISabloComponentToRhino< ? >) ||
 				((ISabloComponentToRhino)type).isValueAvailableInRhino(service.getProperty(name), pd, service))
 			{
 				al.add(name);
