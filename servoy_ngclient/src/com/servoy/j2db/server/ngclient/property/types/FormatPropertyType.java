@@ -15,6 +15,7 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.sql.Types;
 import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Locale;
@@ -40,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
-import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -314,15 +314,11 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 									}
 									else if (val.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 									{
-										IValueList realValuelist = new CustomValueList(application, val, val.getCustomValues(), false, IColumnTypes.TEXT, null);
+										IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true,
+											Types.OTHER, null, null);
 										if (realValuelist.hasRealValues())
 										{
 											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
-										}
-										else if (val.getCustomValues() == null)
-										{
-											// items will be set later, this is always a string ?
-											//return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
 										}
 									}
 								}
