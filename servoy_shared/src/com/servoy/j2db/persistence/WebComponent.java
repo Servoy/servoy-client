@@ -32,11 +32,22 @@ import com.servoy.j2db.util.UUID;
 public class WebComponent extends BaseComponent implements IWebComponent
 {
 
-	protected transient final WebObjectImpl webObjectImpl;
+	protected transient WebObjectImpl webObjectImpl;
 
 	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
+		webObjectImpl = new WebObjectImpl(this);
+	}
+
+	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException
+	{
+		stream.defaultWriteObject();
+	}
+
+	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
+	{
+		stream.defaultReadObject();
 		webObjectImpl = new WebObjectImpl(this);
 	}
 
