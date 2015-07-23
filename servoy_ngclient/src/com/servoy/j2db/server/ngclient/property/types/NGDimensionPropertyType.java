@@ -56,7 +56,7 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Dimension formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}

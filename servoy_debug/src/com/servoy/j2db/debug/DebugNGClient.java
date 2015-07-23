@@ -41,6 +41,7 @@ import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
+import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
@@ -172,6 +173,14 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		if (forms != null && forms.size() > 0)
 		{
 			FormElementHelper.INSTANCE.reload();
+			List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
+			for (IFormController formController : cachedFormControllers)
+			{
+				if (formController.getFormUI() instanceof WebFormUI)
+				{
+					((WebFormUI)formController.getFormUI()).clearCachedFormElements();
+				}
+			}
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(); // should we also use these?
 			for (IFormController controller : forms)
 			{

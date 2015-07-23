@@ -33,7 +33,6 @@ import org.sablo.specification.property.types.FunctionPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -145,7 +144,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}

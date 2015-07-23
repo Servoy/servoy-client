@@ -176,8 +176,9 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
+		FlattenedSolution fs = formElementContext.getFlattenedSolution();
 		if (fs != null)
 		{
 			String url = getMediaUrl(formElementValue, fs, null);

@@ -128,11 +128,10 @@ public class NGConversions
 		 * @param formElementValue the value to be converted and written
 		 * @param pd the property description for this property.
 		 * @param browserConversionMarkers client conversion markers that can be set and if set will be used client side to interpret the data properly.
-		 * @param fs The flattened solution for the value
 		 * @return the JSON writer for easily continuing the write process in the caller.
 		 */
 		JSONWriter toTemplateJSONValue(JSONWriter writer, String key, F formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-			FlattenedSolution fs, FormElementContext formElementContext) throws JSONException;
+			FormElementContext formElementContext) throws JSONException;
 
 	}
 
@@ -255,9 +254,9 @@ public class NGConversions
 	 * @param formElement
 	 */
 	public JSONWriter convertFormElementToTemplateJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws IllegalArgumentException, JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws IllegalArgumentException, JSONException
 	{
-		return new FormElementToJSON(fs).toJSONValue(writer, key, value, valueType, browserConversionMarkers, formElementContext);
+		return new FormElementToJSON().toJSONValue(writer, key, value, valueType, browserConversionMarkers, formElementContext);
 	}
 
 	/**
@@ -265,11 +264,10 @@ public class NGConversions
 	 */
 	public static class FormElementToJSON implements IToJSONConverter<FormElementContext>
 	{
-		private final FlattenedSolution fs;
+		public static final FormElementToJSON INSTANCE = new FormElementToJSON();
 
-		public FormElementToJSON(FlattenedSolution fs)
+		private FormElementToJSON()
 		{
-			this.fs = fs;
 		}
 
 		/**
@@ -291,7 +289,7 @@ public class NGConversions
 				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
 				if (type instanceof IFormElementToTemplateJSON)
 				{
-					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, fs, formElementContext);
+					writer = ((IFormElementToTemplateJSON)type).toTemplateJSONValue(writer, key, v, valueType, browserConversionMarkers, formElementContext);
 				}
 				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, valueType, formElementContext))
 				{

@@ -189,7 +189,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	@Override
 	public JSONWriter toTemplateJSONValue(final JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, FlattenedSolution fs, final FormElementContext formElementContext) throws JSONException
+		DataConversion conversionMarkers, final FormElementContext formElementContext) throws JSONException
 	{
 		FlattenedSolution clientFlattenedSolution = (formElementContext != null && formElementContext.getContext() != null)
 			? formElementContext.getContext().getSolution() : null;
@@ -215,8 +215,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 				// TODO here we could remove record based props from fe.propertiesForTemplateJSON(); but normally record based props will not write any value in template anyway
 				TypedData<Map<String, Object>> modelProperties = feContext.getFormElement().propertiesForTemplateJSON();
 				writer.object();
-				JSONUtils.writeDataWithConversions(new FormElementToJSON(feContext.getFormElement().getFlattendSolution()), writer, modelProperties.content,
-					modelProperties.contentType, feContext);
+				JSONUtils.writeDataWithConversions(FormElementToJSON.INSTANCE, writer, modelProperties.content, modelProperties.contentType, feContext);
 				writer.endObject();
 			}
 

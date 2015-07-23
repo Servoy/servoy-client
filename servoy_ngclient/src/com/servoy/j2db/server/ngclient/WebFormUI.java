@@ -903,6 +903,11 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 	}
 
+	public void clearCachedFormElements()
+	{
+		cachedElements.clear();
+	}
+
 	public List<FormElement> getFormElements()
 	{
 		if (cachedElements.size() == 0)

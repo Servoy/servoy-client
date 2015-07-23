@@ -47,7 +47,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Date formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
 	}

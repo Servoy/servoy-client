@@ -544,8 +544,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			{
 				writer.object();
 				DataConversion dataConversion = new DataConversion();
-				JSONUtils.writeData(new FormElementToJSON(fe.getFlattendSolution()), writer, formElementProperties.content, formElementProperties.contentType,
-					dataConversion, formElementContext);
+				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, dataConversion,
+					formElementContext);
 				JSONUtils.writeData(JSONUtils.FullValueToJSONConverter.INSTANCE, writer, runtimeProperties.content, runtimeProperties.contentType,
 					dataConversion, childComponent);
 				JSONUtils.writeClientConversions(writer, dataConversion);

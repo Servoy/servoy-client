@@ -177,11 +177,6 @@ public class NGClientEntryFilter extends WebEntry
 	{
 		try
 		{
-			if (Utils.getAsBoolean(System.getProperty("servoy.internal.reloadSpecsAllTheTime", "false"))) // can be used in servoy.properties file with 'system.property.' prefix
-			{
-				FormElementHelper.INSTANCE.reload(); // we can't reload just specs cause lately FormElement can add size/location/anchors to spec and we don't want to use old/cached/already initialized form elements while new specs were reloaded
-			}
-
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			String uri = request.getRequestURI();
 			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))

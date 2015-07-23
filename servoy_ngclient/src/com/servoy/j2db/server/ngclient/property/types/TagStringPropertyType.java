@@ -104,7 +104,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
 		// TODO when type has more stuff added to it, see if this needs to be changed (what is put in form cached templates for such properties)
 		JSONUtils.addKeyIfPresent(writer, key);

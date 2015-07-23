@@ -131,7 +131,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion conversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -140,13 +140,11 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		{
 			writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
 			DataConversion arrayConversionMarkers = new DataConversion();
-			FlattenedSolution clientFlattenedSolution = (formElementContext != null && formElementContext.getContext() != null)
-				? formElementContext.getContext().getSolution() : null;
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
 				arrayConversionMarkers.pushNode(e.getKey());
 				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
-					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, fs, formElementContext);
+					getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
 				arrayConversionMarkers.popNode();
 			}
 			writer.endObject();

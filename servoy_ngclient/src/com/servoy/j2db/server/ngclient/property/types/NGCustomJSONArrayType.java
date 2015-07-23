@@ -110,7 +110,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd, DataConversion conversionMarkers,
-		FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONArrayType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -123,7 +123,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			{
 				arrayConversionMarkers.pushNode(String.valueOf(i));
 				NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, null, formElementValue[i], getCustomJSONTypeDefinition(),
-					arrayConversionMarkers, fs, formElementContext);
+					arrayConversionMarkers, formElementContext);
 				arrayConversionMarkers.popNode();
 			}
 			writer.endArray();

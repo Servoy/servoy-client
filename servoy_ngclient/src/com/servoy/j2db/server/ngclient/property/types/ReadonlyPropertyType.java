@@ -29,7 +29,6 @@ import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -55,7 +54,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.IPropertyType#getName()
 	 */
 	@Override
@@ -72,7 +71,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.property.IDataConverterContext)
 	 */
@@ -84,7 +83,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.specification.property.IPropertyConverter#toJSON(org.json.JSONWriter, java.lang.String, java.lang.Object,
 	 * org.sablo.websocket.utils.DataConversion, org.sablo.specification.property.IDataConverterContext)
 	 */
@@ -98,7 +97,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent#toSabloComponentValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
 	 * com.servoy.j2db.server.ngclient.DataAdapterList)
@@ -112,7 +111,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent#toSabloComponentDefaultValue(org.sablo.specification
 	 * .PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
@@ -127,7 +126,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.specification.property.types.DefaultPropertyType#defaultValue(org.sablo.specification.PropertyDescription)
 	 */
 	@Override
@@ -138,14 +137,14 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON#toTemplateJSONValue(org.json.JSONWriter, java.lang.String,
 	 * java.lang.Object, org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, com.servoy.j2db.FlattenedSolution,
 	 * com.servoy.j2db.server.ngclient.FormElement)
 	 */
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
@@ -156,7 +155,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -170,7 +169,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
 	 */
@@ -182,7 +181,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
 	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
 	 */

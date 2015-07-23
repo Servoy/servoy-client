@@ -167,7 +167,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, YF formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-		FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
 		browserConversionMarkers.convert(CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
@@ -181,7 +181,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 			DataConversion dataConversions = new DataConversion();
 			dataConversions.pushNode(SINGLE_VALUE);
 			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, SINGLE_VALUE, formElementValue, getConfig(pd).wrappedPropertyDescription,
-				browserConversionMarkers, fs, formElementContext);
+				browserConversionMarkers, formElementContext);
 			JSONUtils.writeClientConversions(writer, dataConversions);
 		}
 

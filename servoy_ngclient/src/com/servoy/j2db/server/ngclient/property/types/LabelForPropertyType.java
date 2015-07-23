@@ -19,19 +19,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IPropertyConverter;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
 /**
  * @author jcompagner
  */
-public class LabelForPropertyType extends DefaultPropertyType<String> implements IFormElementToTemplateJSON<String, String>
+public class LabelForPropertyType extends DefaultPropertyType<String> implements IPropertyConverter<String>, IFormElementToSabloComponent<String, String>,
+	IFormElementToTemplateJSON<String, String>, ISupportTemplateValue<String>
 {
 
 	public static final LabelForPropertyType INSTANCE = new LabelForPropertyType();
@@ -53,20 +60,40 @@ public class LabelForPropertyType extends DefaultPropertyType<String> implements
 		return json;
 	}
 
+	@Override
+	public String toSabloComponentValue(String formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
+	{
+		return ComponentFactory.getMarkupId(component.findParent(IWebFormUI.class).getController().getName(), formElementValue);
+	}
+
+	@Override
+	public String fromJSON(Object newJSONValue, String previousSabloValue, IDataConverterContext dataConverterContext)
+	{
+		return (String)newJSONValue;
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
+		throws JSONException
+	{
+		JSONUtils.addKeyIfPresent(writer, key);
+		writer.value(sabloValue);
+		return writer;
+	}
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FlattenedSolution fs, FormElementContext formElementContext) throws JSONException
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		if (formElementValue != null && formElementContext.getFormElement() != null)
-		{
-			// TODO getForm().getName() only returns the form where the label form properties element is on, not the actual form (like a sub form or a form instance what is used to create the markupid for the actual component)
-			writer.value(ComponentFactory.getMarkupId(formElementContext.getFormElement().getForm().getName(), formElementValue));
-			return writer;
-		}
 		writer.value(formElementValue);
 		return writer;
 	}
 
+	@Override
+	public boolean valueInTemplate(String object, PropertyDescription pd, FormElementContext formElementContext)
+	{
+		return false;
+	}
 }

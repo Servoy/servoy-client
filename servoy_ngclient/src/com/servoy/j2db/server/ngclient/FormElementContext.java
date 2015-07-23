@@ -21,6 +21,8 @@ import java.util.Collection;
 
 import org.json.JSONException;
 
+import com.servoy.j2db.FlattenedSolution;
+
 /**
  * @author gboros
  *
@@ -69,5 +71,11 @@ public class FormElementContext
 	public IServoyDataConverterContext getContext()
 	{
 		return context;
+	}
+
+	public FlattenedSolution getFlattenedSolution()
+	{
+		if (context != null && context.getApplication() != null) return context.getApplication().getFlattenedSolution();
+		return formElement.getFlattendSolution();
 	}
 }

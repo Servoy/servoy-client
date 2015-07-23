@@ -83,10 +83,6 @@ public class FormElementHelper
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
-		if (Boolean.valueOf(System.getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue())
-		{
-			reload(); // we can't reload just specs cause lately FormElement can add size/location/anchors to spec and we don't want to use old/cached/already initialized form elements while new specs were reloaded
-		}
 		List<FormElement> lst = new ArrayList<>();
 		while (iterator.hasNext())
 		{
