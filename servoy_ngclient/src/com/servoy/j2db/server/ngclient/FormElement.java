@@ -121,15 +121,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		if (willTurnIntoErrorBean)
 		{
-			map.put(
-				"error",
+			map.put("error",
 				"Please remove and insert this component again. Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). See log file for details.");
 
-			Debug.warn("Please remove and insert again the component with name '" +
-				persist.getName() +
-				(this.form != null ? "' on the form '" + this.form.getName() : "") +
-				"'. Type: " +
-				FormTemplateGenerator.getComponentTypeName(persist) +
+			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
+				(this.form != null ? "' on the form '" + this.form.getName() : "") + "'. Type: " + FormTemplateGenerator.getComponentTypeName(persist) +
 				". Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). Properties: " +
 				map.get("beanXML")); // so Bean persist used for custom components is no longer working properly - now it uses WebComponent
 		}
@@ -138,8 +134,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
-	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
-		PropertyPath propertyPath, boolean inDesigner)
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
+		boolean inDesigner)
 	{
 		this.inDesigner = inDesigner;
 		this.persistImpl = null;
@@ -410,7 +406,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		{
 			String errorMessage = "Component spec for " + componentType + " not found; please check your component spec file(s).";
 			Debug.error(errorMessage);
-			if (throwException) throw new IllegalStateException(errorMessage);
+			return WebComponentSpecProvider.getInstance().getWebComponentSpecification(FormElement.ERROR_BEAN);
+			//if (throwException) throw new IllegalStateException(errorMessage);
 		}
 		return spec;
 	}
@@ -702,8 +699,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 	private void addAbsoluteLayoutProperty(String propertyName, String propertyTypeName)
 	{
-		if (getWebComponentSpec().getProperty(propertyName) == null) getWebComponentSpec().putProperty(propertyName,
-			new PropertyDescription(propertyName, TypesRegistry.getType(propertyTypeName)));
+		if (getWebComponentSpec().getProperty(propertyName) == null)
+			getWebComponentSpec().putProperty(propertyName, new PropertyDescription(propertyName, TypesRegistry.getType(propertyTypeName)));
 	}
 
 	Dimension getDesignSize()
