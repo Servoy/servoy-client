@@ -370,14 +370,24 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 				}
 			}
 		}
+		adjustForAbsoluteLayout();
+	}
 
+	/**
+	 *
+	 */
+	protected void adjustForAbsoluteLayout()
+	{
 		if (form != null && !form.isResponsiveLayout())
 		{
-			addAbsoluteLayoutProperty("location", PointPropertyType.TYPE_NAME);
-			addAbsoluteLayoutProperty("size", DimensionPropertyType.TYPE_NAME);
-			addAbsoluteLayoutProperty("anchors", IntPropertyType.TYPE_NAME);
+			WebComponentSpecification spec = getWebComponentSpec();
+			if (spec.getProperty("location") == null)
+				spec.putProperty("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
+			if (spec.getProperty("size") == null)
+				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
+			if (spec.getProperty("anchors") == null)
+				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
 		}
-
 	}
 
 	public Map<String, Object> getRawPropertyValues()
@@ -653,6 +663,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	{
 		Map<String, Object> properties = new HashMap<>();
 
+		adjustForAbsoluteLayout();
 		WebComponentSpecification componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (PropertyDescription pd : propDescription.values())
@@ -695,12 +706,6 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 
 		return new TypedData<>(properties, propertyTypes.hasChildProperties() ? propertyTypes : null);
-	}
-
-	private void addAbsoluteLayoutProperty(String propertyName, String propertyTypeName)
-	{
-		if (getWebComponentSpec().getProperty(propertyName) == null)
-			getWebComponentSpec().putProperty(propertyName, new PropertyDescription(propertyName, TypesRegistry.getType(propertyTypeName)));
 	}
 
 	Dimension getDesignSize()
