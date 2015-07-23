@@ -170,7 +170,7 @@ public abstract class NGUtils
 		ArrayList<WebComponentSpecification> allPublicWebServiceSpecifications = new ArrayList<WebComponentSpecification>();
 		for (WebComponentSpecification spec : WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications())
 		{
-			if (!"sablo".equals(spec.getPackageName())) //$NON-NLS-1$
+			if (!"sablo".equals(spec.getPackageName()) && !"servoyservices".equals(spec.getPackageName())) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				allPublicWebServiceSpecifications.add(spec);
 			}
