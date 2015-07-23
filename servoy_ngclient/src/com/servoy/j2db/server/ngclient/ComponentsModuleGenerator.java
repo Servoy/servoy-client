@@ -30,6 +30,8 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 
+import com.servoy.j2db.util.HTTPUtils;
+
 /**
  * @author jcompagner
  *
@@ -44,8 +46,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		resp.setContentType("text/javascript");
+		HTTPUtils.checkAndSetUnmodified(req, resp, System.currentTimeMillis());
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-
 		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
 		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
 		generateModule(sb, ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST);
