@@ -73,12 +73,14 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 						previous = $element[0].firstChild.clientHeight;
 					}
 					delta = $element[0].firstChild.clientHeight - previous;
+					previous = $element[0].firstChild.clientHeight;
 				}
 				else if($scope.model.tabOrientation == -2) {
 					if (previous == -1) {
 						previous = $element[0].firstChild.clientWidth;
 					}
 					delta = $element[0].firstChild.clientWidth - previous;
+					previous = $element[0].firstChild.clientWidth;
 				}
 				if (delta != 0)
 					$scope.model.divLocation += Math.round(delta * $scope.model.resizeWeight); // the divLocation watch will do the rest
