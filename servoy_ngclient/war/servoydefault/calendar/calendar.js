@@ -31,6 +31,13 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				ngModel.$setValidity("", true);
 				$scope.svyServoyapi.apply('dataProviderID');
 			};
+			
+			function correctDateValueToUse(newValue) {
+				// .date() throws exception if (newDate !== null && typeof newDate !== 'string' && !moment.isMoment(newDate) && !(newDate instanceof Date))
+				// because we do call this method quite fast using ngModel$viewValue that value might be NaN (used by angular JS) because ngModel code only
+				// initializes it to the actual value in a watch so later; we also want to be able to call .date() for undefined values
+				return (angular.isDefined(newValue) && !isNaN(newValue)) ? newValue : null;
+			}
 
 			// when model change, update our view, set the date in the
 			// datepicker
@@ -38,7 +45,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				try {
 					$element.off("dp.change", inputChanged);
 					var x = child.data('DateTimePicker');
-					if (x && !$scope.model.findmode) x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null); // set default date for widget open; turn undefined to null as well (undefined gives exception)
+					if (x && !$scope.model.findmode) x.date(correctDateValueToUse(ngModel.$viewValue)); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 					else {
 						// in find mode
 						child.children("input").val(ngModel.$viewValue);
@@ -89,7 +96,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					x.format(dateFormat);
 
 					try {
-						x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
+						x.date(correctDateValueToUse(ngModel.$viewValue));
 
 					}
 					finally {
@@ -149,7 +156,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					x.format(dateFormat);
 					try {
 						$element.off("dp.change", inputChanged);
-						x.date(angular.isDefined(ngModel.$viewValue) ? ngModel.$viewValue : null);
+						x.date(correctDateValueToUse(ngModel.$viewValue));
 					} finally {
 						$element.on("dp.error", onError);
 						$element.on("dp.change", inputChanged);
