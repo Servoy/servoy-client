@@ -17,11 +17,15 @@
 
 package com.servoy.j2db.server.ngclient.utils;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONStringer;
 import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DoublePropertyType;
@@ -159,5 +163,19 @@ public abstract class NGUtils
 			}
 		}
 		return showData;
+	}
+
+	public static WebComponentSpecification[] getAllPublicWebServiceSpecifications()
+	{
+		ArrayList<WebComponentSpecification> allPublicWebServiceSpecifications = new ArrayList<WebComponentSpecification>();
+		for (WebComponentSpecification spec : WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications())
+		{
+			if (!"sablo".equals(spec.getPackageName())) //$NON-NLS-1$
+			{
+				allPublicWebServiceSpecifications.add(spec);
+			}
+		}
+
+		return allPublicWebServiceSpecifications.toArray(new WebComponentSpecification[allPublicWebServiceSpecifications.size()]);
 	}
 }
