@@ -965,6 +965,13 @@ public class ComponentFactory
 	public static IValueList getRealValueList(IServiceProvider application, ValueList valuelist, boolean useSoftCacheForCustom, int type, ParsedFormat format,
 		String dataprovider)
 	{
+		return getRealValueList(application, valuelist, useSoftCacheForCustom, type, format, dataprovider, false);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static IValueList getRealValueList(IServiceProvider application, ValueList valuelist, boolean useSoftCacheForCustom, int type, ParsedFormat format,
+		String dataprovider, boolean readOnlyCache)
+	{
 		if (application == null)
 		{
 			application = J2DBGlobals.getServiceProvider();
@@ -989,7 +996,7 @@ public class ComponentFactory
 					SoftReference<IValueList> sr = (SoftReference<IValueList>)object;
 					list = sr.get();
 					// if it was inserted by a soft reference but now it can't be softly referenced, put it back in hard.
-					if (list != null && !useSoftCacheForCustom)
+					if (list != null && !useSoftCacheForCustom && !readOnlyCache)
 					{
 						hmValueLists.put(valuelist.getUUID(), list);
 					}
@@ -1010,7 +1017,7 @@ public class ComponentFactory
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 				{
-					if (hmValueLists != null) hmValueLists.put(valuelist.getUUID(), list);
+					if (hmValueLists != null && !readOnlyCache) hmValueLists.put(valuelist.getUUID(), list);
 					if (dataprovider != null)
 					{
 						((CustomValueList)list).addDataProvider(dataprovider);
@@ -1018,7 +1025,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					if (hmValueLists != null) hmValueLists.put(valuelist.getUUID(), new SoftReference<IValueList>(list));
+					if (hmValueLists != null && !readOnlyCache) hmValueLists.put(valuelist.getUUID(), new SoftReference<IValueList>(list));
 
 					if (dataprovider != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 					{

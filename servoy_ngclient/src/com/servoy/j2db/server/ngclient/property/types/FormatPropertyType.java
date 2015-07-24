@@ -315,7 +315,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 									else if (val.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 									{
 										IValueList realValuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true,
-											Types.OTHER, null, null);
+											Types.OTHER, null, null, true);
 										if (realValuelist.hasRealValues())
 										{
 											return ComponentFormat.getComponentFormat((String)formElementValue, dpType, application);
