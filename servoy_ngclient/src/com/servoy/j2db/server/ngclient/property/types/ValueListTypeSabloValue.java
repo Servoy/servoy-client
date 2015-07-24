@@ -146,7 +146,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (dataLinks == null)
 		{
 			// they weren't cached in form element; get them again
-			dataLinks = ((ValueListPropertyType)vlPD.getType()).getDataLinks(valueList, vlPD, formElement.getFlattendSolution(), formElement);
+			dataLinks = ((ValueListPropertyType)vlPD.getType()).getDataLinks(valueList, vlPD,
+				((WebFormComponent)component).getDataConverterContext().getSolution(), formElement);
 		}
 		dataAdapterList.addDataLinkedProperty(this, dataLinks);
 	}
