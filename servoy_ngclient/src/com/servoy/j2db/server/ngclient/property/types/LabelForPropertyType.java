@@ -18,6 +18,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IPropertyConverter;
@@ -26,19 +27,15 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
-import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
 /**
  * @author jcompagner
  */
-public class LabelForPropertyType extends DefaultPropertyType<String> implements IPropertyConverter<String>, IFormElementToSabloComponent<String, String>,
-	IFormElementToTemplateJSON<String, String>, ISupportTemplateValue<String>
+public class LabelForPropertyType extends DefaultPropertyType<String> implements IPropertyConverter<String>, IFormElementToTemplateJSON<String, String>,
+	ISupportTemplateValue<String>
 {
 
 	public static final LabelForPropertyType INSTANCE = new LabelForPropertyType();
@@ -61,13 +58,6 @@ public class LabelForPropertyType extends DefaultPropertyType<String> implements
 	}
 
 	@Override
-	public String toSabloComponentValue(String formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
-		DataAdapterList dataAdapterList)
-	{
-		return ComponentFactory.getMarkupId(component.findParent(IWebFormUI.class).getController().getName(), formElementValue);
-	}
-
-	@Override
 	public String fromJSON(Object newJSONValue, String previousSabloValue, IDataConverterContext dataConverterContext)
 	{
 		return (String)newJSONValue;
@@ -78,7 +68,15 @@ public class LabelForPropertyType extends DefaultPropertyType<String> implements
 		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		writer.value(sabloValue);
+		if (sabloValue != null && dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebComponent)
+		{
+			writer.value(ComponentFactory.getMarkupId(
+				((WebComponent)dataConverterContext.getWebObject()).findParent(IWebFormUI.class).getController().getName(), sabloValue));
+		}
+		else
+		{
+			writer.value(null);
+		}
 		return writer;
 	}
 
