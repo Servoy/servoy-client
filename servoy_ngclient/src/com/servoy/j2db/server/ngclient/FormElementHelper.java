@@ -121,8 +121,8 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-				designer);
+			if (formElement instanceof BodyPortal)
+				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -257,7 +257,8 @@ public class FormElementHelper
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos > loc.y)
 						{
-							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
+								continue;
 							propertyPath.add(children.size());
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
@@ -265,6 +266,7 @@ public class FormElementHelper
 								String elementName = fe.getName();
 								boolean hasLabelFor = false;
 								String headerCellClass = null;
+								String headerAction = null;
 								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
 								while (graphicalComponents.hasNext())
 								{
@@ -283,7 +285,7 @@ public class FormElementHelper
 												scriptMethod = fs.getScriptMethod(gc.getOnActionMethodID());
 												if (scriptMethod != null)
 												{
-													headersAction.add("scopes." + scriptMethod.getScopeName() + '.' + scriptMethod.getName());
+													headerAction = "scopes." + scriptMethod.getScopeName() + '.' + scriptMethod.getName();
 												}
 												else if (form.getDataSource() != null)
 												{
@@ -295,13 +297,13 @@ public class FormElementHelper
 													}
 													if (scriptMethod != null)
 													{
-														headersAction.add("entity." + form.getName() + '.' + scriptMethod.getName());
+														headerAction = "entity." + form.getName() + '.' + scriptMethod.getName();
 													}
 												}
 											}
 											else
 											{
-												headersAction.add(form.getName() + '.' + scriptMethod.getName());
+												headerAction = form.getName() + '.' + scriptMethod.getName();
 											}
 										}
 										break;
@@ -318,9 +320,9 @@ public class FormElementHelper
 									{
 										headersText.add(null);
 									}
-									headersAction.add(null);
 								}
 								headersClasses.add(headerCellClass);
+								headersAction.add(headerAction);
 								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
 								feRawProperties.put("componentIndex", Integer.valueOf(children.size()));
 								feRawProperties.put("headerCellClass", headerCellClass);
