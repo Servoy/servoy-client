@@ -27,6 +27,7 @@ import org.sablo.IChangeListener;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.util.Debug;
 
@@ -75,7 +76,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
 	 */
 	@Override
@@ -88,7 +89,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.specification.property.ISmartPropertyValue#detach()
 	 */
 	@Override
@@ -99,7 +100,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue#findModeChanged(boolean)
 	 */
 	@Override
@@ -130,7 +131,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 						Object configuredPropertyValue = config.getConfiguredPropertyValueOf(propertyName);
 						if (configuredPropertyValue instanceof Boolean)
 						{
-							component.setProperty(propertyName, configuredPropertyValue);
+							component.setProperty(propertyName, configuredPropertyValue, !((WebFormComponent)component).getFormElement().isLegacy());
 						}
 						else Debug.log("Warning! findmode config property value \"" + propertyName + //$NON-NLS-1$
 							"\" is NOT a Boolean. This property will not be affected by the findmode toggle."); //$NON-NLS-1$
@@ -141,7 +142,7 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 					//when we exit findmode, we put back the old values
 					for (String propertyName : saveOldConfigValues.keySet())
 					{
-						component.setProperty(propertyName, saveOldConfigValues.get(propertyName));
+						component.setProperty(propertyName, saveOldConfigValues.get(propertyName), !((WebFormComponent)component).getFormElement().isLegacy());
 					}
 					saveOldConfigValues.clear();
 				}
