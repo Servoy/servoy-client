@@ -119,7 +119,6 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	formState.removeWatches = function (beanNames) {
 		if (Object.getOwnPropertyNames(watches).length == 0) return false;
-
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
 				if (watches[beanName]) for (unW in watches[beanName]) watches[beanName][unW]();
@@ -134,6 +133,8 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	formState.getScope = function() { return $scope; }
 
+	formState.addWatches();
+	
 	var formStateWrapper = wrapper('');
 	$scope.$watch("formProperties", function(newValue, oldValue) {
 		formStateWrapper(newValue, oldValue, undefined);
