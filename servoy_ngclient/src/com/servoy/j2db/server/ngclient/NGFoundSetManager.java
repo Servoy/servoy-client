@@ -53,7 +53,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.websocket.IServerService#executeMethod(java.lang.String, org.json.JSONObject)
 	 */
 	@SuppressWarnings("nls")
@@ -64,7 +64,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		{
 			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null);
 			String sort = args.optString("sort");
-			if(sort != null)
+			if (!"".equals(sort))
 			{
 				foundset.setSort(sort);
 			}
