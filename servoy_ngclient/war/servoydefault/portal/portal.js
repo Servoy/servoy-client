@@ -935,9 +935,17 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					});
 
 					// size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
-					$scope.$watch('foundset.viewPort.size', function(newVal, oldVal) {
-						if (requestViewPortSize != newVal) requestViewPortSize = -1;
-						testNumberOfRows();
+//					$scope.$watch('foundset.viewPort.size', function(newVal, oldVal) {
+//						if (requestViewPortSize != newVal) requestViewPortSize = -1;
+//						testNumberOfRows();
+//					});
+					$scope.$watch('foundset', function(newVal, oldVal) {
+						if (!$scope.foundset.viewPort[$foundsetTypeConstants.UPDATE_SIZE_CALLBACK]){
+							$scope.foundset.viewPort[$foundsetTypeConstants.UPDATE_SIZE_CALLBACK] = function (newVal) {
+								if (requestViewPortSize != newVal) requestViewPortSize = -1;
+								testNumberOfRows();
+							}
+						}
 					});
 
 					$scope.$watch('foundset.serverSize', function(newVal, oldVal) {

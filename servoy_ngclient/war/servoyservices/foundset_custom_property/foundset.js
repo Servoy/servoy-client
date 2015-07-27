@@ -3,6 +3,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 .value("$foundsetTypeConstants", {
 	ROW_ID_COL_KEY: '_svyRowId',
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
+	UPDATE_SIZE_CALLBACK:'updateSizeCallback'
 })
 .run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
@@ -34,12 +35,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			var internalState = value[$sabloConverters.INTERNAL_IMPL];
 			if (value[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(value[VIEW_PORT][ROWS], internalState, componentScope, false, undefined); // shouldn't need component model getter - takes rowids directly from viewport
 			if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return value[SELECTED_ROW_INDEXES]; }, function (newSel, oldSel) {
-				setTimeout(function() {
+				componentScope.$evalAsync(function() {
 					if (newSel !== oldSel) {
 						internalState.requests.push({newClientSelection: newSel});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
-				}, 50);
+				});
 			});
 		}
 	};
@@ -75,6 +76,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 					if (angular.isDefined(viewPortUpdate[SIZE])) {
 						currentClientValue[VIEW_PORT][SIZE] = viewPortUpdate[SIZE];
+						if (angular.isDefined(currentClientValue[VIEW_PORT][$foundsetTypeConstants.UPDATE_SIZE_CALLBACK])) {
+							currentClientValue[VIEW_PORT][$foundsetTypeConstants.UPDATE_SIZE_CALLBACK](viewPortUpdate[SIZE]);
+						}
 					}
 					if (angular.isDefined(viewPortUpdate[ROWS])) {
 						$viewportModule.updateWholeViewport(currentClientValue[VIEW_PORT], ROWS, internalState, viewPortUpdate[ROWS],
