@@ -110,12 +110,13 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var el = elements[idx]; 
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
-					
+					var allowCellFocus = false
 					var columnTitle = getColumnTitle(el.componentIndex ? el.componentIndex : idx, idx);
 
 					var cellTemplate
 					if($applicationService.getUIProperty("ngClientOptimizedReadonlyMode") && el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead") {
-						cellTemplate = '<span class="svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"></span>';
+						allowCellFocus = true
+						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"></div>';
 					}
 					else {
 						var portal_svy_name = $element[0].getAttribute('data-svy-name');
@@ -177,7 +178,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							enableColumnMenu: isSortable,
 							enableSorting:isSortable,
 							enableHiding: false,
-							allowCellFocus: false,
+							allowCellFocus: allowCellFocus,
 							headerCellClass: headerCellClass,
 							svyHeaderAction: headerAction,
 							type: "string", // just put a type here, we don't know the type and we dont use the edit feature of ui-grid
@@ -771,6 +772,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
 					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
 				});
+				
+				gridApi.cellNav.on.navigate($scope,function(newRowCol, oldRowCol){
+					$scope.gridApi.selection.selectRow(newRowCol.row.entity);
+		        });
 
 				gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){
 					var extraSize = Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size);
