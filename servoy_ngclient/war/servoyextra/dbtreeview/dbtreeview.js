@@ -134,13 +134,13 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     	}
 
     	
-    	function getRelatedFoundSetCallback(item, sort) {
+    	function getRelatedFoundSetCallback(item, sort, level) {
     		return function(rfoundsetinfo) {
 				$foundsetManager.getFoundSet(
 						rfoundsetinfo.foundsethash,
 						getDataproviders(rfoundsetinfo.foundsetdatasource, rfoundsetinfo.foundsetpk), sort).then(
 								function(rfoundset) {
-									item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource));
+									item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource), level);
 									if(item.children.length > 0) {
 										item.folder = "true";
 									}
@@ -150,7 +150,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     	}
     	
     	
-    	function getChildren(foundset, foundsethash, foundsetpk, binding) {
+    	function getChildren(foundset, foundsethash, foundsetpk, binding, level) {
     		var returnChildren = new Array();
     		for(var i = 0; i < foundset.viewPort.rows.length; i++) {
     			var item = {};
@@ -162,11 +162,15 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     			if(!item.hideCheckbox) {
     				item.selected = Boolean(foundset.viewPort.rows[i][binding.checkboxvaluedataprovider])
     			}
+
+    			if($scope.model.visibleNodeLevel && level <= $scope.model.visibleNodeLevel) {
+    				item.expanded = $scope.model.visibleNodeState;
+    			}     			
     			
     			if($scope.expandedNodes.indexOf(item.key) != -1) {
     				item.expanded = true;
     			}
-
+    			
     			item.data = {}
     			item.data._svyRowId = foundset.viewPort.rows[i]._svyRowId;
     			
@@ -197,7 +201,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 					$foundsetManager.getRelatedFoundSetHash(
 							foundsethash,
 							foundset.viewPort.rows[i]._svyRowId,
-							binding.nrelationname).then(getRelatedFoundSetCallback(item, sort));
+							binding.nrelationname).then(getRelatedFoundSetCallback(item, sort, level + 1));
     			}
     		}
     		
@@ -237,7 +241,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 				
 				$foundsetManager.getFoundSet($scope.model.roots[0].foundsethash, getDataproviders($scope.model.roots[0].foundsetdatasource, $scope.model.roots[0].foundsetpk)).then(
 						function(foundset) {			
-							$scope.treeJSON = getChildren(foundset, $scope.model.roots[0].foundsethash, $scope.model.roots[0].foundsetpk, getBinding($scope.model.roots[0].foundsetdatasource), 0);
+							$scope.treeJSON = getChildren(foundset, $scope.model.roots[0].foundsethash, $scope.model.roots[0].foundsetpk, getBinding($scope.model.roots[0].foundsetdatasource), 1);
 							if(theTree) {
 								reloadTree();
 							}
@@ -279,12 +283,14 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     				else if(level == 1) {
     					nodeChildren[i].setExpanded(state);
     				}
-    				expandChildNodes(node, level - 1);
+    				expandChildNodes(node, level - 1, state);
     			}
       		}
       	}
-      	
+
       	$scope.api.setNodeLevelVisible = function(level, state) {
+  			$scope.model.visibleNodeLevel = level;
+  			$scope.model.visibleNodeState = state;
       		if(theTree) {	  			
       			expandChildNodes(theTree.getRootNode(), level, state);
       		}
