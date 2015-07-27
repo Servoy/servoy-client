@@ -1,11 +1,11 @@
 angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.selection','ui.grid.moveColumns','ui.grid.resizeColumns','ui.grid.infiniteScroll','ui.grid.cellNav'])
-.directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants', 
-                                   '$timeout', '$solutionSettings', '$anchorConstants', 
+.directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants',
+                                   '$timeout', '$solutionSettings', '$anchorConstants',
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
                                    '$svyProperties', '$sabloConstants','$window',
-                                   function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants, 
+                                   function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants,
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants,$window) {  
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants,$window) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -60,7 +60,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
 					for (var someKey in rowProxyObjects)
 						disposeOfRowProxies(rowProxyObjects[someKey]);
-					
+
 					rowProxyObjects = {};
 				}
 			})
@@ -71,7 +71,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			var rowWidth = 0;
 
 			$scope.columnDefinitions = [];
-			
+
 			function applyColumnTitle(columnDefinition, titleString) {
 				if (!titleString || titleString.trim().indexOf('<html>') != 0) {
 					columnDefinition.displayName = titleString;
@@ -81,13 +81,13 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					columnDefinition.displayNameHTML = $sce.trustAsHtml(titleString);
 				}
 			}
-			
+
 			function getColumnTitle(columnHeaderIdx, elementIdx) {
 				var columnTitle = null;
 				if ($scope.model.columnHeaders && columnHeaderIdx < $scope.model.columnHeaders.length)
 				{
 					columnTitle = $scope.model.columnHeaders[columnHeaderIdx];
-				}	
+				}
 				if (!columnTitle) columnTitle = elements[elementIdx].model.text; // here we should not use 'text' of label and buttons as that doesn't have the same meaning as 'text' that maps to 'titleText' on other fields
 				if (!columnTitle && elements[elementIdx].modelViewport && elements[elementIdx].modelViewport.length > 0) columnTitle = elements[elementIdx].modelViewport[0].text;
 	//			if (!columnTitle) {
@@ -107,7 +107,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			if (elements)
 			{
 				for (var idx = 0; idx < elements.length; idx++) {
-					var el = elements[idx]; 
+					var el = elements[idx];
 					var elY = el.model.location.y - $scope.model.location.y;
 					var elX = el.model.location.x - $scope.model.location.x;
 					var allowCellFocus = false
@@ -128,7 +128,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
 						cellTemplate += '/>';
 					}
-					if($scope.model.multiLine) { 
+					if($scope.model.multiLine) {
 						if($scope.rowHeight == undefined || (!$scope.model.rowHeight && ($scope.rowHeight < elY + el.model.size.height))) {
 							$scope.rowHeight = $scope.model.rowHeight ? $scope.model.rowHeight : elY + el.model.size.height;
 						}
@@ -141,8 +141,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if($scope.rowHeight == undefined || ($scope.model.rowHeight == 0 && $scope.rowHeight < el.model.size.height)) {
 							$scope.rowHeight = el.model.size.height;
 						}
-						var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0) 
-						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0) 
+						var isResizable = ((el.model.anchors & $anchorConstants.EAST) != 0) && ((el.model.anchors & $anchorConstants.WEST) != 0)
+						var isMovable = ((el.model.anchors & $anchorConstants.NORTH) === 0) || ((el.model.anchors & $anchorConstants.SOUTH) === 0)
 						var isSortable = $scope.model.sortable && el.foundsetConfig.recordBasedProperties.length > 0; // TODO update uigrid when recordBasedProperties change
 						var headerCellClass = null;
 						var headerAction = null;
@@ -150,7 +150,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						{
 							var headerIndex = el.componentIndex ? el.componentIndex : idx;
 							headerCellClass = $scope.model.headersClasses[headerIndex];
-						}	
+						}
 						if ($scope.model.headersAction) {
 							var headerIndex = el.componentIndex ? el.componentIndex : idx;
 							if ($scope.model.headersAction[headerIndex]) {
@@ -188,7 +188,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						updateColumnDefinition($scope, idx);
 					}
 				}
-			}	
+			}
 
 
 			if($scope.model.multiLine) {
@@ -196,7 +196,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				{
 					// needed for anchoring
 					rowWidth = '100%';
-				}	
+				}
 				$scope.columnDefinitions.push({
 					width: rowWidth,
 					cellTemplate: rowTemplate,
@@ -210,7 +210,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				scope.$watch('model.childElements[' + idx + '].model.visible', function (newVal, oldVal) {
 					scope.columnDefinitions[idx].visible = scope.model.childElements[idx].model.visible;
 				}, false);
-				
+
 				scope.$watch('model.childElements[' + idx + '].model.size.width', function (newVal, oldVal) {
 					if(newVal !== oldVal)
 					{
@@ -225,7 +225,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					function getTitleTextForWatch() {
 						return getColumnTitle(columnHeaderIdx, idx);
 					};
-					
+
 					scope.$watch(getTitleTextForWatch, function (newVal, oldVal) {
 						if(newVal !== oldVal && scope.columnDefinitions[idx])
 						{
@@ -247,32 +247,32 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				if (!rowProxies[elementIndex]) rowProxies[elementIndex] = {};
 				return rowProxies[elementIndex];
 			}
-			
+
 			function removeRowAPICacheWatches(rowAPICache) {
 				for (var unw in rowAPICache.unwatchFuncs) rowAPICache.unwatchFuncs[unw]();
 			}
-			
+
 			var changinOrUnstableAPIPromise;
 			var unstableAPIStabilizedListener;
-			
+
 			// api objects are kept linked to the real dom element (so linked to render index), so the the api can work with the correct "$element"
 			// after the component contributed it (so try not to give the api object contributed by a web component to a different web component...)
 			// hopefully ui-grid always uses the same directive/webcomponent at the same 'rowRenderIndex'
 			function getOrCreateRowAPICache(ngGridRow, renderedRowIndex, rowElementHelper) {
 				var rowAPICache = cellAPICaches[renderedRowIndex];
 				if (!rowAPICache || (rowAPICache.rowElement !== rowElementHelper.getRowElement())) {
-					// a new or different rowElement is being rendered at this renderRowIndex; cache value must change 
+					// a new or different rowElement is being rendered at this renderRowIndex; cache value must change
 					cellAPICaches[renderedRowIndex] = rowAPICache = [];
 					rowAPICache.unwatchFuncs = [];
 					rowAPICache.rowElement = rowElementHelper.getRowElement();
-					
+
 					rowAPICache.rowElement.on('$destroy', function () {
 						removeRowAPICacheWatches(rowAPICache);
 						if (cellAPICaches[renderedRowIndex] && cellAPICaches[renderedRowIndex].rowElement == rowAPICache.rowElement) delete cellAPICaches[renderedRowIndex];
 						// is .off needed for $destroy?
 					});
 				}
-				
+
 				// API calls that need scroll need to know when the API <-> rowId relation is stable enough because of a bug in ngGrid that doesn't keep for example focus
 				// on the correct row when scrolling; unfortunately the scrolled promises returned by ui-grid api are not that useful as they trigger too early, before data - row
 				// mapping stabilizes
@@ -283,11 +283,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if (unstableAPIStabilizedListener) unstableAPIStabilizedListener();
 					}, 1000); // is 1000 ms too much or too little? didn't find a way to avoid this as after scroll ui-grid still decides sometimes to scroll a bit more
 				}
-				
+
 				rowAPICache.rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 				return rowAPICache;
 			}
-			
+
 			var rowCache = {};
 			function rowIdToViewportRelativeRowIndex(rowId) {
 				var result = rowCache[rowId];
@@ -388,7 +388,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					}
 					elLayout.top = (elModel.location.y - $scope.model.location.y) + 'px';
 					elLayout.width = elModel.size.width + 'px';
-					elLayout.height = elModel.size.height + 'px';		   
+					elLayout.height = elModel.size.height + 'px';
 				}
 
 				if (typeof elModel.visible !== "undefined" && !elModel.visible) elLayout.display = 'none'; // undefined is considered visible by default
@@ -400,22 +400,22 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			$scope.getMergedCellModel = function(ngGridRow, elementIndex) {
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
-				
+
 				var relativeRowIndex = rowIdToViewportRelativeRowIndex(rowId);
 				if(relativeRowIndex < 0) {
 					return {}
 				}
-				
+
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 				var cellModel = cellProxies.mergedCellModel;
-				
+
 				if (!cellModel) {
 					var element = elements[elementIndex];
 
 					function CellData() {
 					}
 					CellData.prototype = element.model;
-					
+
 					var key;
 					var cellData = new CellData();
 
@@ -443,7 +443,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								// test if there is a column at this point for that index, it could be hidden and not created yet.
 								if (rowProxyObjects[key][elementIndex]) {
 									var mergedCellModel = rowProxyObjects[key][elementIndex].mergedCellModel
-									// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same) 
+									// test if it has its own modelChangeNotifier, if so call it else skip the rest (all cells in a column should be the same)
 									if (mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
 										mergedCellModel[$sabloConstants.modelChangeNotifier](property,value);
 									else return;
@@ -453,7 +453,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					}
 
 					cellProxies.mergedCellModel = cellModel = cellData;
-				} 
+				}
 				return cellModel;
 			}
 
@@ -473,11 +473,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if (callOnFirstSelectedCellOnly) {
 						if ($scope.foundset.selectedRowIndexes.length > 0) {
 							var rowIdxOfFirstSelected = $scope.foundset.selectedRowIndexes[0];
-							
+
 							function callAPIAfterScroll(rowIdToCall) {
 								// the grid reports that it scrolled very fast - so it did actually scroll, but no content is created/visible yet
 								// so we see if the content is actually loaded or if not we must wait for those to render so that the correct scrolled rows are in the rendered array
-								
+
 								function getCellAPIToUse() {
 									for (var renderRowIndex in cellAPICaches) {
 										var cellAPI = cellAPICaches[renderRowIndex][elementIndex];
@@ -487,7 +487,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 										}
 									}
 								}
-								
+
 								var cellAPIToUse = getCellAPIToUse();
 								var retVal;
 								if (cellAPIToUse && !changinOrUnstableAPIPromise) retVal = cellAPIToUse.apply(cellAPI, arguments);
@@ -515,7 +515,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								}
 								return retVal;
 							}
-							
+
 							if (isInViewPort(rowIdxOfFirstSelected)) {
 								retVal = $scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(rowIdxOfFirstSelected)]), null /* must be null here, can't be undefined */).then(function () {
 									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
@@ -543,7 +543,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							}
 						} else if ($scope.foundset.serverSize == 0) {
 							if ($log.debugEnabled) $log.debug("API method called when there was no record selected (foundset size is 0). Api call: '" + apiFunctionName + "' on column " + elementIndex);
-						} else $log.error("API method called when there was no record selected although foundset size is: " + $scope.foundset.serverSize + ". Api call: '" + apiFunctionName + "' on column " + elementIndex); 
+						} else $log.error("API method called when there was no record selected although foundset size is: " + $scope.foundset.serverSize + ". Api call: '" + apiFunctionName + "' on column " + elementIndex);
 					} else {
 						var retValForSelectedStored = false;
 						var retValForSelectedCell;
@@ -553,7 +553,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								var rowId = cellAPICaches[renderRowIndex].rowId;
 								var rowIsSelected = isRowIndexSelected(rowIdToAbsoluteRowIndex(rowId));
 								retVal = cellAPI[apiFunctionName].apply(cellAPI, arguments);
-	
+
 								// give back return value from a selected row cell if possible
 								if (!retValForSelectedStored && rowIsSelected) {
 									retValForSelectedCell = retVal;
@@ -566,14 +566,14 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					return retVal;
 				}
 			}
-			
+
 			// cells provide API calls; one API call (from server) should execute on all cells of that element's column or only on selected based on type.
 			// so any API provided by a cell is added to the server side controlled API object; when server calls that API method,
 			// it will execute on all cells or only on selected
 			$scope.cellApiWrapper = function(ngGridRow, elementIndex, renderedRowIndex, rowElementHelper) {
 				var rowAPICache = getOrCreateRowAPICache(ngGridRow, renderedRowIndex, rowElementHelper);
 				var cellAPICache = rowAPICache[elementIndex];
-				
+
 				if (!cellAPICache) {
 					var columnApi = elements[elementIndex].api;
 					rowAPICache[elementIndex] = cellAPICache = {}; // new cell API object
@@ -599,7 +599,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
 					return {}
 				}
-				
+
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
 				if (!cellProxies.cellServoyApi) {
@@ -621,7 +621,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 
 			var updatingGridSelection = false;
-			
+
 			// bind foundset.selectedRowIndexes to what nggrid has to offer
 			function updateFoundsetSelectionFromGrid(newNGGridSelectedItems) {
 				if (updatingGridSelection) return;
@@ -650,7 +650,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if ($scope.foundset)
 						{
 							var rows = $scope.foundset.viewPort.rows;
-							updatingGridSelection = true; 
+							updatingGridSelection = true;
 							if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
 								var scrolledToSelection = !scrollToSelection;
 								var oldSelection = $scope.gridApi.selection.getSelectedRows();
@@ -676,10 +676,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 															deferredAPICallExecution = undefined;
 														});
 													}
-												}, 0);	
+												}, 0);
 											}
 											addTimeOut(rowIdx,rows[rowIdx]._svyRowId);
-											
+
 										}
 									} else if(!scrolledToSelection) {
 										var nrRecordsToLoad = 0;
@@ -726,7 +726,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			$scope.$watchCollection('foundset.selectedRowIndexes', function() {
 				updateGridSelectionFromFoundset(true)
 			});
-			
+
 			$scope.gridOptions = {
 					data: 'foundset.viewPort.rows',
 					enableRowSelection: true,
@@ -750,20 +750,20 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						return o._svyRowId;
 					},
 					rowEquality: function(row1,row2) {
-						return row1._svyRowId == row2._svyRowId; 
+						return row1._svyRowId == row2._svyRowId;
 					}
 			};
-			
+
 			if ($scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
 					$scope.gridOptions.enableVerticalScrollbar = uiGridConstants.scrollbars.ALWAYS;
 			else if ( $scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_NEVER)
 					$scope.gridOptions.enableVerticalScrollbar = uiGridConstants.scrollbars.NEVER;
-			
+
 			if ($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
 					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.ALWAYS;
 			else if ( $scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
 					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.NEVER;
-			
+
 			$scope.gridOptions.onRegisterApi = function(gridApi) {
 				$scope.gridApi = gridApi;
 				$scope.gridApi.grid.registerDataChangeCallback(function() {
@@ -772,7 +772,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
 					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
 				});
-				
+
 				gridApi.cellNav.on.navigate($scope,function(newRowCol, oldRowCol){
 					$scope.gridApi.selection.selectRow(newRowCol.row.entity);
 		        });
@@ -782,12 +782,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if (extraSize !== 0)
 					{
 						$scope.foundset.loadExtraRecordsAsync(extraSize);
-					}	
+					}
 					else
 					{
 						// nothing to load, mark data as loaded
 						$scope.gridApi.infiniteScroll.dataLoaded(false,false);
-					}	
+					}
 				});
 			    gridApi.infiniteScroll.on.needLoadMoreDataTop($scope,function(){
 			    	$scope.gridApi.infiniteScroll.dataLoaded();
@@ -838,9 +838,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								$scope.foundset.loadExtraRecordsAsync(Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size));
 							}
 						}
-					}	
+					}
 				}
-				
+
 				function layoutColumnsAndGrid() {
 					$scope.gridApi.grid.gridWidth = gridUtil.elementWidth($element);
 					$scope.gridApi.grid.gridHeight = gridUtil.elementHeight($element);
@@ -848,7 +848,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					{
 						var totalWidth = 0;
 						var resizeWidth = 0;
-						for(var i = 0; i < $scope.model.childElements.length; i++) 
+						for(var i = 0; i < $scope.model.childElements.length; i++)
 						{
 							totalWidth += $scope.model.childElements[i].model.size.width;
 							var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
@@ -863,7 +863,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					    }
 						if (resizeWidth > 0 && totalWidth > 0)
 						{
-							for(var i = 0; i < $scope.model.childElements.length; i++) 
+							for(var i = 0; i < $scope.model.childElements.length; i++)
 							{
 								var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
 								if (isResizable)
@@ -880,16 +880,16 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 
 				$timeout(function(){
-					
+
 					// this is only needed because of the $timeout, it can happen that the form
 					// is already destroyed, so, we do an extra check here to avoid further exceptions
 					if($scope.$parent.formname != undefined && !$sabloApplication.hasFormState($scope.$parent.formname)) {
 						// form is already destroyed
 						return;
-					}					
-					
+					}
+
 					layoutColumnsAndGrid();
-					
+
 					// watch for resize and re-layout when needed - but at most once every 200 ms
 					function justToIsolateScope() {
 						var minRelayoutPeriodPassed = true;
@@ -903,18 +903,18 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								$scope.$apply();
 							}
 						}
-						$scope.$watch(function() { 
+						$scope.$watch(function() {
 							if (timeoutPromise) $timeout.cancel(timeoutPromise);
 							timeoutPromise = $timeout(getNewSize,500, false);
 							return elementSize;
-						  }, 
+						  },
 							function(oldV, newV) {
 							if (oldV != newV) {
 								// the portal resized (browser window resize or split pane resize for example)
 								if (pendingLayout) return; // will layout later anyway
 								if (minRelayoutPeriodPassed) {
 									layoutColumnsAndGrid();
-									
+
 									minRelayoutPeriodPassed = false;
 									function wait200ms() {
 										if (pendingLayout) {
@@ -929,7 +929,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						})
 					}
 					justToIsolateScope();
-					
+
 					testNumberOfRows();
 					// reset what ui-grid did if somehow the row height was smaller then the elements height because it didn't layout yet
 					$element.children(".svyPortalGridStyle").height('');
@@ -946,10 +946,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 //					});
 					$scope.$watch('foundset', function(newVal, oldVal) {
 						if (!$scope.foundset.viewPort[$foundsetTypeConstants.UPDATE_SIZE_CALLBACK]){
-							$scope.foundset.viewPort[$foundsetTypeConstants.UPDATE_SIZE_CALLBACK] = function (newVal) {
-								if (requestViewPortSize != newVal) requestViewPortSize = -1;
+							$scope.foundset.viewPort[$foundsetTypeConstants.UPDATE_SIZE_CALLBACK] = function (newValue) {
+								if (requestViewPortSize != newValue) requestViewPortSize = -1;
 								testNumberOfRows();
 							}
+							if (requestViewPortSize != $scope.foundset.viewPort.size) requestViewPortSize = -1;
+							testNumberOfRows();
 						}
 					});
 
@@ -1000,7 +1002,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
 					return {}
 				}
-				
+
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
 
 				if (!cellProxies.cellHandlers) {
@@ -1018,9 +1020,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
 			$scope.api.getLocationX = $apifunctions.getX($element[0]);
 			$scope.api.getLocationY = $apifunctions.getY($element[0]);
-			
-			
-			
+
+
+
 			var className = null;
 			Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
 				configurable : true,
@@ -1052,9 +1054,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			for (key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-			
+
 			// // special method that servoy calls when this component goes into find mode.
-			// $scope.api.setFindMode = function(findMode, editable) {				
+			// $scope.api.setFindMode = function(findMode, editable) {
 			// 	$scope.model.svy_findMode = findMode;
 			// 	$scope.model.svy_editable = editable;
 			// 	setElementsFindMode($scope.model.svy_findMode, $scope.model.svy_editable);
@@ -1065,7 +1067,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 	};
 }])
 .run(['$templateCache', function($templateCache) {
-	
+
   $templateCache.put('svy-ui-grid/ui-grid-row',
 		  "<div row-element-helper sablo-tabseq=\"rowRenderIndex + 1\" sablo-tabseq-config=\"{container: true}\"><div ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div></div>"
   );
@@ -1075,7 +1077,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
   );
 
 }])
-.directive('rowElementHelper', [function() {  
+.directive('rowElementHelper', [function() {
 	return {
 		restrict: 'A',
 	    link: function($scope, $element, attrs, ctrl, transclude) {
@@ -1086,7 +1088,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 		}
 	}
-}]).directive('cellHelper', ["$parse","$formatterUtils","$svyProperties",function($parse,$formatterUtils,$svyProperties) {  
+}]).directive('cellHelper', ["$parse","$formatterUtils","$svyProperties",function($parse,$formatterUtils,$svyProperties) {
 	return {
 		scope: {
 			model: "=cellHelper",
@@ -1097,11 +1099,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 	    		if ($scope.model.dataProviderID){
 	    			var svyFormat = $scope.model.format;
 	    			var data = $scope.model.dataProviderID;
-	    			
+
 	    			if ($scope.model.valuelistID) {
 	    				var valueList = $scope.model.valuelistID;
 						for (var i=0;i<valueList.length;i++)
-						{  
+						{
 							if(valueList[i].realValue == data)
 							{
 								data = valueList[i].displayValue;
@@ -1109,10 +1111,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							}
 						}
 	    			}
-	    			
+
 	    			if(svyFormat){
 				    	var type = svyFormat ? svyFormat.type: null;
-				    	var format = svyFormat.display? svyFormat.display : svyFormat.edit 
+				    	var format = svyFormat.display? svyFormat.display : svyFormat.edit
 				    	try {
 				    		data = $formatterUtils.format(data,format,type);
 				    	}catch(e){
@@ -1123,7 +1125,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				    		else if(svyFormat.lowercase) data = data.toLowerCase();
 						}
 			    	}
-	    			$element.text(data);	    		
+	    			$element.text(data);
 	    		}
 	    	})
 	    	if ($scope.model.styleClass) {
