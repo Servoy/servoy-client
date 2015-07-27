@@ -46,6 +46,8 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	private final boolean readOnly;
 
+	private boolean findModeChange;
+
 	public ReadonlySabloValue(ReadonlyConfig config, boolean readOnly)
 	{
 		this.configuration = config;
@@ -62,7 +64,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
 	 */
 	@Override
@@ -100,6 +102,8 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
+				// ignore the change when this is a find mode change.
+				if (findModeChange) return;
 				savedOppositeOfValue = (Boolean)evt.getNewValue();
 			}
 		};
@@ -122,7 +126,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sablo.specification.property.ISmartPropertyValue#detach()
 	 */
 	@Override
@@ -178,5 +182,13 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	public int hashCode()
 	{
 		return readOnly ? 1231 : 1237;
+	}
+
+	/**
+	 * @param b
+	 */
+	public void setFindModeChange(boolean findModeChange)
+	{
+		this.findModeChange = findModeChange;
 	}
 }

@@ -60,11 +60,8 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 {
-	/**
-	 *
-	 */
-	private static final String ENABLED = "enabled";
-	private static final String READONLY = "readOnly";
+	public static final String ENABLED = "enabled";
+	public static final String READONLY = "readOnly";
 
 	private static final class FormSpecification extends WebComponentSpecification
 	{
@@ -222,10 +219,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
 			elementsScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
 			elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
-			if (fe.isLegacy() ||
-				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-					fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
-					"servoydefault-")))
+			if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+				fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
+				fe.getTypeName().startsWith("servoydefault-")))
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
@@ -745,8 +741,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public JSDataSet getFormContext()
 	{
-		IDataSet set = new BufferedDataSet(
-			new String[] { "windowname", "formname", "containername", "tabname", "tabindex", "tabindex1based" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		IDataSet set = new BufferedDataSet(new String[] { "windowname", "formname", "containername", "tabname", "tabindex", "tabindex1based" }, //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$
+			new ArrayList<Object[]>());
 		set.addRow(new Object[] { null, formController.getName(), null, null, null, null });
 		Object currentContainer = parentContainerOrWindowName;
 		WebFormUI currentForm = this;
@@ -755,8 +751,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
-			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
-				index + 1) });
+			set.addRow(0,
+				new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
 			currentContainer = currentForm.getParentContainer();
 		}
 		if (currentContainer instanceof String)
