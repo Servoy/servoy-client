@@ -35,6 +35,7 @@ public class FoundsetTypeViewport
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected IFoundSetInternal foundset;
 	protected IFoundSetEventListener foundsetEventListener;
+	private int preferredViewPortSize = 10;
 
 	/**
 	 * Creates a new viewport object.
@@ -51,9 +52,9 @@ public class FoundsetTypeViewport
 		if (newFoundset != null) newFoundset.addFoundSetEventListener(getFoundsetEventListener());
 		this.foundset = newFoundset;
 
-		// just start fresh - 0 / 0
-		// should we try to keep current viewPort indexes on the new fooundset here instead? (so just call correct)
-		setBounds(0, 0);
+		// reset to the preferred viewport size if that is set
+		setBounds(0, Math.min(preferredViewPortSize, foundset.getSize()));
+		changeMonitor.viewPortCompletelyChanged();
 	}
 
 	public int getStartIndex()
@@ -189,7 +190,13 @@ public class FoundsetTypeViewport
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_INSERT)
 						{
-							changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this, false); // true - slide if first so that viewPort follows the first record
+							if (size == 0)
+							{
+								// reset to the preferred viewport size if that is set
+								setBounds(0, Math.min(preferredViewPortSize, foundset.getSize()));
+								changeMonitor.viewPortCompletelyChanged();
+							}
+							else changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this, false); // true - slide if first so that viewPort follows the first record
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
 						{
@@ -222,6 +229,15 @@ public class FoundsetTypeViewport
 		correctViewportBoundsIfNeededInternal();
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
+	}
+
+	/**
+	 * Sets the preferred viewport size
+	 * @param int1
+	 */
+	public void setPreferredViewportSize(int preferredViewPortSize)
+	{
+		this.preferredViewPortSize = preferredViewPortSize;
 	}
 
 }

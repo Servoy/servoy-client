@@ -116,6 +116,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push({sort: columns});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
+					newValue.setPreferredViewportSize = function(size) {
+						internalState.requests.push({preferredViewportSize: size});
+						if (internalState.changeNotifier) internalState.changeNotifier();
+					}
 					
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup

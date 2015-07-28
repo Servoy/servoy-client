@@ -83,6 +83,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public static final String VIEW_PORT = "viewPort";
 	public static final String START_INDEX = "startIndex";
 	public static final String SIZE = "size";
+	public static final String PREFERRED_VIEWPORT_SIZE = "preferredViewportSize";
 	public static final String ROWS = "rows";
 	public static final String NO_OP = "n";
 
@@ -484,6 +485,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 						JSONObject newViewport = update.getJSONObject("newViewPort");
 						viewPort.setBounds(newViewport.getInt(START_INDEX), newViewport.getInt(SIZE));
 					}
+					if (update.has(PREFERRED_VIEWPORT_SIZE))
+					{
+						viewPort.setPreferredViewportSize(update.getInt(PREFERRED_VIEWPORT_SIZE));
+					}
+
 					// {loadExtraRecords: negativeOrPositiveCount}
 					else if (update.has("loadExtraRecords"))
 					{
@@ -518,10 +524,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							// our api only supports one dataproviderid sort at a time
 							JSEvent event = new JSEvent();
 							event.setFormName(fc.getName());
-							fc.executeFunction(
-								String.valueOf(fc.getForm().getOnSortCmdMethodID()),
+							fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 								Utils.arrayMerge((new Object[] { dataProviderID, Boolean.valueOf(sortAscending), event }),
-									Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
+									Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
+								true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$
 						}
 						else
 						{
