@@ -35,7 +35,7 @@ public class FoundsetTypeViewport
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected IFoundSetInternal foundset;
 	protected IFoundSetEventListener foundsetEventListener;
-	private int preferredViewPortSize = 10;
+	private int preferredViewPortSize = 15;
 
 	/**
 	 * Creates a new viewport object.
