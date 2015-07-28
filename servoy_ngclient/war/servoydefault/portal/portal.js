@@ -1103,8 +1103,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 	    	$scope.$watch("model.dataProviderID",function(){
     			var svyFormat = $scope.model.format;
     			var data = $scope.model.dataProviderID;
-    			if (data == undefined) data = null;
-
+    			
     			if ($scope.model.valuelistID) {
     				var valueList = $scope.model.valuelistID;
 					for (var i=0;i<valueList.length;i++)

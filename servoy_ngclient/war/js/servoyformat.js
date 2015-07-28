@@ -266,7 +266,8 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	return{
 		
 		format : function (data,servoyFormat,type){
-			if((!servoyFormat) || (!type) || (!data && data!=0) ) return data;
+			if((!servoyFormat) || (!type) ) return data;
+			if (angular.isUndefined(data) || data === null) return "";
 			if((type == "NUMBER") || (type == "INTEGER")){
 				 return formatNumbers(data,servoyFormat);
 			}else if(type == "TEXT"){
