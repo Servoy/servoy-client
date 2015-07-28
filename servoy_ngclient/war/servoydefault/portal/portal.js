@@ -202,7 +202,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					cellTemplate: rowTemplate,
 					name: "unique",
 					cellEditableCondition: false,
-					allowCellFocus: false
+					allowCellFocus: true
 				});
 			}
 
