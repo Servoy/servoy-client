@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.util.Iterator;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Pair;
@@ -123,14 +124,15 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return webObjectImpl.getTypeName();
 	}
 
-	public void setJson(ServoyJSONObject arg)
+	public void setJson(JSONObject arg)
 	{
+		if (!(arg instanceof ServoyJSONObject)) throw new RuntimeException("ServoyJSONObject is needed here in order to make it serializable");
 		webObjectImpl.setJson(arg);
 	}
 
 	public ServoyJSONObject getJson()
 	{
-		return webObjectImpl.getJson();
+		return (ServoyJSONObject)webObjectImpl.getJson();
 	}
 
 	@Override

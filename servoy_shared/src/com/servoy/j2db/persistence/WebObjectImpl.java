@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.CustomJSONArrayType;
@@ -82,10 +83,10 @@ public class WebObjectImpl
 	{
 		if (areCustomTypePropertiesLoaded)
 		{
-			ServoyJSONObject old = getJson();
+			JSONObject old = getJson();
 			try
 			{
-				ServoyJSONObject entireModel = (old != null ? new ServoyJSONObject(old, ServoyJSONObject.getNames(old), true, true) : new ServoyJSONObject()); // copy or new object so that AbstractBase is able to compare them properly
+				JSONObject entireModel = (old != null ? old : new ServoyJSONObject()); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
 				Iterator<String> it = entireModel.keys();
 				while (it.hasNext())
 				{
@@ -109,6 +110,7 @@ public class WebObjectImpl
 					}
 				}
 				setJsonInternal(entireModel);
+				((AbstractBase)webObject).flagChanged();
 			}
 			catch (JSONException ex)
 			{
@@ -182,7 +184,7 @@ public class WebObjectImpl
 		{
 			if (getJson() != null)
 			{
-				ServoyJSONObject beanJSON = getJson();
+				JSONObject beanJSON = getJson();
 				try
 				{
 
@@ -260,7 +262,7 @@ public class WebObjectImpl
 		return ((AbstractBase)webObject).getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME);
 	}
 
-	public void setJson(ServoyJSONObject arg)
+	public void setJson(JSONObject arg)
 	{
 		clearCustomPropertyCache(); // let them completely reload later when needed
 		((AbstractBase)webObject).setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
@@ -275,13 +277,13 @@ public class WebObjectImpl
 	{
 		try
 		{
-			ServoyJSONObject oldJson = getJson();
+			JSONObject oldJson = getJson();
 			if (oldJson == null || !oldJson.has(key) || !oldJson.get(key).equals(value))
 			{
-				ServoyJSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : new ServoyJSONObject(oldJson, ServoyJSONObject.getNames(oldJson),
-					true, true)); // either new object or copy (so that it is seen as changed when set) // TODO we could manually mark as changed and reuse same obj but only if we are sure setJSON doesn't do more then just that when using separate obj.
+				JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
 				jsonObject.put(key, value);
 				setJsonInternal(jsonObject);
+				((AbstractBase)webObject).flagChanged();
 
 				if (areCustomTypePropertiesLoaded && getPropertyDescription() != null)
 				{
@@ -306,12 +308,12 @@ public class WebObjectImpl
 		customTypeProperties.clear();
 	}
 
-	public void setJsonInternal(ServoyJSONObject arg)
+	public void setJsonInternal(JSONObject arg)
 	{
 		((AbstractBase)webObject).setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
 	}
 
-	public ServoyJSONObject getJson()
+	public JSONObject getJson()
 	{
 		return ((AbstractBase)webObject).getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
 	}

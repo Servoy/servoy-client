@@ -21,7 +21,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.util.HashMap;
 
-import com.servoy.j2db.util.ServoyJSONObject;
+import org.json.JSONObject;
 
 
 /**
@@ -255,7 +255,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_PLACEHOLDERTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PLACEHOLDERTEXT);
 	public static final TypedProperty<Integer> PROPERTY_TEXTROTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TEXTROTATION);
 	//public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
-	public static final TypedProperty<ServoyJSONObject> PROPERTY_JSON = new TypedProperty<ServoyJSONObject>(IContentSpecConstants.PROPERTY_JSON);
+	public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
 	public static final TypedProperty<String> PROPERTY_TYPENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TYPENAME);
 
 	// deprecated or metadata properties

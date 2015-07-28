@@ -50,7 +50,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 
 		try
 		{
-			ServoyJSONObject entireModel = parentWebObject.getJson() != null ? parentWebObject.getJson() : new ServoyJSONObject();
+			JSONObject entireModel = (parentWebObject.getJson() != null ? parentWebObject.getJson() : new ServoyJSONObject());
 			if (!isNew && entireModel.has(jsonKey))
 			{
 				Object v = entireModel.get(jsonKey);
@@ -63,7 +63,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 				{
 					obj = entireModel.getJSONObject(jsonKey);
 				}
-				webObjectImpl.setJsonInternal(obj instanceof ServoyJSONObject ? (ServoyJSONObject)obj : new ServoyJSONObject(obj.toString(), false));
+				webObjectImpl.setJsonInternal(obj);
 			}
 			else
 			{
@@ -143,12 +143,12 @@ public class WebCustomType extends AbstractBase implements IWebObject
 		return webObjectImpl.getTypeName();
 	}
 
-	public void setJson(ServoyJSONObject arg)
+	public void setJson(JSONObject arg)
 	{
 		webObjectImpl.setJson(arg);
 	}
 
-	public ServoyJSONObject getJson()
+	public JSONObject getJson()
 	{
 		return webObjectImpl.getJson();
 	}

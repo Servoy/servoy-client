@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.util.ServoyJSONObject;
+import org.json.JSONObject;
 
 /**
  * A web object that might not be not aware of it's PropertyDescription. For legacy purposes only (Bean usage for web components).
@@ -36,11 +36,11 @@ public interface IBasicWebObject extends ISupportChilds
 
 	String getTypeName();
 
-	void setJson(ServoyJSONObject arg);
+	void setJson(JSONObject arg);
 
 	void setJsonSubproperty(String key, Object value); // can be a json objec, array or primitive
 
-	ServoyJSONObject getJson();
+	JSONObject getJson();
 
 	void setProperty(String propertyName, Object val);
 
