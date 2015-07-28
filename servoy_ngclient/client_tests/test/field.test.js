@@ -18,6 +18,10 @@ describe('servoydefaultTextfield component', function() {
 					apply: function(propertyName)
 					{
 				
+					},
+					startEdit: function(propertyName)
+					{
+				
 					}
 				}
 			}
@@ -110,9 +114,8 @@ describe('servoydefaultTextfield component', function() {
         var textComponent = $compile(template)($scope);             
         // Now run a $digest cycle to update your template with new data
  		$scope.$digest();
+ 		textComponent.trigger("blur")
  		textComponent.triggerHandler("focus")
- 		textComponent.triggerHandler("blur")
-
  		$timeout.flush();
  		expect( focus).toBe(true);
  		expect( blur).toBe(true);
