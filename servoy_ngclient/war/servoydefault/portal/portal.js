@@ -1096,37 +1096,36 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 		restrict: 'A',
 	    link: function($scope, $element, attrs, ctrl, transclude) {
 	    	$scope.$watch("model.dataProviderID",function(){
-	    		if ($scope.model.dataProviderID){
-	    			var svyFormat = $scope.model.format;
-	    			var data = $scope.model.dataProviderID;
+    			var svyFormat = $scope.model.format;
+    			var data = $scope.model.dataProviderID;
+    			if (data == undefined) data = null;
 
-	    			if ($scope.model.valuelistID) {
-	    				var valueList = $scope.model.valuelistID;
-						for (var i=0;i<valueList.length;i++)
+    			if ($scope.model.valuelistID) {
+    				var valueList = $scope.model.valuelistID;
+					for (var i=0;i<valueList.length;i++)
+					{
+						if(valueList[i].realValue == data)
 						{
-							if(valueList[i].realValue == data)
-							{
-								data = valueList[i].displayValue;
-								break;
-							}
+							data = valueList[i].displayValue;
+							break;
 						}
-	    			}
+					}
+    			}
 
-	    			if(svyFormat){
-				    	var type = svyFormat ? svyFormat.type: null;
-				    	var format = svyFormat.display? svyFormat.display : svyFormat.edit
-				    	try {
-				    		data = $formatterUtils.format(data,format,type);
-				    	}catch(e){
-				    		console.log(e)
-				    	}
-				    	if (data && svyFormat.type == "TEXT") {
-				    		if (svyFormat.uppercase) data = data.toUpperCase();
-				    		else if(svyFormat.lowercase) data = data.toLowerCase();
-						}
+    			if(svyFormat){
+			    	var type = svyFormat ? svyFormat.type: null;
+			    	var format = svyFormat.display? svyFormat.display : svyFormat.edit
+			    	try {
+			    		data = $formatterUtils.format(data,format,type);
+			    	}catch(e){
+			    		console.log(e)
 			    	}
-	    			$element.text(data);
-	    		}
+			    	if (data && svyFormat.type == "TEXT") {
+			    		if (svyFormat.uppercase) data = data.toUpperCase();
+			    		else if(svyFormat.lowercase) data = data.toLowerCase();
+					}
+		    	}
+    			$element.text(data);
 	    	})
 	    	if ($scope.model.styleClass) {
 	    		 $element.addClass($scope.model.styleClass);
