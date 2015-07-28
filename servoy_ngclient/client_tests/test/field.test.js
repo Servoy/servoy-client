@@ -5,6 +5,8 @@ describe('servoydefaultTextfield component', function() {
     var $compile  
 	var $httpBackend 
 	var $timeout
+	var startEditCalls ={};
+    var applyCalls = {}
 	var handlersMock = {			
     		myTextfield: {
 				svy_servoyApi: {
@@ -17,11 +19,11 @@ describe('servoydefaultTextfield component', function() {
 					},
 					apply: function(propertyName)
 					{
-				
+						applyCalls[propertyName] = true;
 					},
 					startEdit: function(propertyName)
 					{
-				
+						startEditCalls[propertyName] = true;
 					}
 				}
 			}
@@ -79,6 +81,8 @@ describe('servoydefaultTextfield component', function() {
   	  
   	  // mock timout
 	  jasmine.clock().install();
+      startEditCalls ={};
+      applyCalls = {}
 	});
     afterEach(function() {
         jasmine.clock().uninstall();
@@ -99,7 +103,7 @@ describe('servoydefaultTextfield component', function() {
 //  		expect( clicked).toBe(true);
 	  });
     
-    it("should have focusgained and focuslost", function() {
+    it("should have focusgained (start edit) and focuslost", function() {
   		var template= '<data-servoydefault-textfield name="myTextfield" svy-model="model.myTextfield" svy-api="api.myTextfield" svy-handlers="handlers.myTextfield" '+
   				'svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
   		var focus = false;
@@ -114,8 +118,9 @@ describe('servoydefaultTextfield component', function() {
         var textComponent = $compile(template)($scope);             
         // Now run a $digest cycle to update your template with new data
  		$scope.$digest();
- 		textComponent.trigger("blur")
  		textComponent.triggerHandler("focus")
+ 		expect(startEditCalls['dataProviderID']).toBe(true)
+ 		textComponent.trigger("blur")
  		$timeout.flush();
  		expect( focus).toBe(true);
  		expect( blur).toBe(true);
