@@ -51,6 +51,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -101,8 +102,8 @@ public class FoundsetTest extends AbstractSolutionTest
 			bean.setJson(new ServoyJSONObject("{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}}", false));
 
 			WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
-			bean1.setJson(new ServoyJSONObject("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}",
-				false));
+			bean1.setJson(
+				new ServoyJSONObject("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}", false));
 		}
 		catch (JSONException e)
 		{
@@ -119,6 +120,22 @@ public class FoundsetTest extends AbstractSolutionTest
 			new int[] { IColumnTypes.INTEGER, IColumnTypes.TEXT, IColumnTypes.TEXT });
 		ds.addRow(new Object[] { Integer.valueOf(1), "value1", "value2" });
 		ds.addRow(new Object[] { Integer.valueOf(2), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(3), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(4), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(5), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(6), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(7), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(8), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(9), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(10), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(11), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(12), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(13), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(14), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(15), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(16), "value3", "value4" });
+		ds.addRow(new Object[] { Integer.valueOf(17), "value1", "value2" });
+		ds.addRow(new Object[] { Integer.valueOf(18), "value3", "value4" });
 		client.getFoundSetManager().createDataSourceFromDataSet("test", ds, null, new String[] { "pk" });
 
 		BufferedDataSet relatedDS = new BufferedDataSet(new String[] { "relatedtestpk", "testpk", "relatedtest1", "relatedtest2" },
@@ -127,6 +144,18 @@ public class FoundsetTest extends AbstractSolutionTest
 		relatedDS.addRow(new Object[] { Integer.valueOf(2), Integer.valueOf(1), "relatedvalue121", "relatedvalue122" });
 		relatedDS.addRow(new Object[] { Integer.valueOf(3), Integer.valueOf(1), "relatedvalue131", "relatedvalue132" });
 		relatedDS.addRow(new Object[] { Integer.valueOf(4), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(5), Integer.valueOf(1), "relatedvalue111", "relatedvalue112" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(6), Integer.valueOf(1), "relatedvalue121", "relatedvalue122" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(7), Integer.valueOf(1), "relatedvalue131", "relatedvalue132" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(8), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(9), Integer.valueOf(1), "relatedvalue111", "relatedvalue112" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(10), Integer.valueOf(1), "relatedvalue121", "relatedvalue122" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(11), Integer.valueOf(1), "relatedvalue131", "relatedvalue132" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(12), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(13), Integer.valueOf(1), "relatedvalue111", "relatedvalue112" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(14), Integer.valueOf(1), "relatedvalue121", "relatedvalue122" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(15), Integer.valueOf(1), "relatedvalue131", "relatedvalue132" });
+		relatedDS.addRow(new Object[] { Integer.valueOf(16), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
 		client.getFoundSetManager().createDataSourceFromDataSet("relatedtest", relatedDS, null, new String[] { "relatedtestpk" });
 
 		HashMap<String, IServer> serverProxies = new HashMap<String, IServer>();
@@ -235,15 +264,16 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mycustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(2, foundset.getInt("serverSize"));
+		Assert.assertEquals(18, foundset.getInt("serverSize"));
 		JSONObject viewPort = foundset.getJSONObject("viewPort");
 		Assert.assertEquals(0, viewPort.getInt("startIndex"));
-		Assert.assertEquals(0, viewPort.getInt("size"));
-		Assert.assertEquals(0, viewPort.getJSONArray("rows").length());
+		// 15 is default preferredViewPortSize
+		Assert.assertEquals(15, viewPort.getInt("size"));
+		Assert.assertEquals(15, viewPort.getJSONArray("rows").length());
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
-			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":2}}]}},\"service\":\"formService\"}",
+			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"newViewPort\":{\"startIndex\":0,\"size\":18}}]}},\"service\":\"formService\"}",
 			true);
 
 		String changes = NGUtils.formChangesToString(((Container)form.getFormUI()), FullValueToJSONConverter.INSTANCE);
@@ -251,12 +281,12 @@ public class FoundsetTest extends AbstractSolutionTest
 		object = new JSONObject(changes).getJSONObject("changes");
 		bean = object.getJSONObject("mycustombean");
 		foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(2, foundset.getInt("serverSize"));
+		Assert.assertEquals(18, foundset.getInt("serverSize"));
 		viewPort = foundset.getJSONObject("viewPort");
 		Assert.assertEquals(0, viewPort.getInt("startIndex"));
-		Assert.assertEquals(2, viewPort.getInt("size"));
+		Assert.assertEquals(18, viewPort.getInt("size"));
 		JSONArray rows = viewPort.getJSONArray("rows");
-		Assert.assertEquals(2, rows.length());
+		Assert.assertEquals(18, rows.length());
 
 		JSONObject row0 = rows.getJSONObject(0);
 		Assert.assertEquals("value1", row0.getString("firstname"));
@@ -269,7 +299,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		// fake an update
 		endpoint.incoming(
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
-				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
+				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
+			true);
 
 		Assert.assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));
 	}
@@ -278,16 +309,22 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetWithDynamicDataproviders() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		WebFormComponent webComponent = form.getFormUI().getWebComponent("mydynamiccustombean");
+		FoundsetTypeSabloValue property = (FoundsetTypeSabloValue)webComponent.getProperty("myfoundset");
+		JSONArray json = new JSONArray("[{" + FoundsetTypeSabloValue.PREFERRED_VIEWPORT_SIZE + ":1}]");
+		property.browserUpdatesReceived(json);
+
+
 		Assert.assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mydynamiccustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(3, foundset.getInt("serverSize"));
+		Assert.assertEquals(12, foundset.getInt("serverSize"));
 		JSONObject viewPort = foundset.getJSONObject("viewPort");
 		Assert.assertEquals(0, viewPort.getInt("startIndex"));
-		Assert.assertEquals(0, viewPort.getInt("size"));
-		Assert.assertEquals(0, viewPort.getJSONArray("rows").length());
+		Assert.assertEquals(12, viewPort.getInt("size"));
+		Assert.assertEquals(12, viewPort.getJSONArray("rows").length());
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
@@ -298,7 +335,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		object = new JSONObject(changes).getJSONObject("changes");
 		bean = object.getJSONObject("mydynamiccustombean");
 		foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(3, foundset.getInt("serverSize"));
+		Assert.assertEquals(12, foundset.getInt("serverSize"));
 		viewPort = foundset.getJSONObject("viewPort");
 		Assert.assertEquals(0, viewPort.getInt("startIndex"));
 		Assert.assertEquals(3, viewPort.getInt("size"));
@@ -326,7 +363,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		dynamicBeanRelatedFoundset.getViewPort().setBounds(1, 1);
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
 		customBeanFoundSet.getFoundset().setSelectedIndex(0);
-		Assert.assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getSize());
+		Assert.assertEquals(12, dynamicBeanRelatedFoundset.getViewPort().getSize());
 		Assert.assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getStartIndex());
 		dynamicBeanRelatedFoundset.getViewPort().setBounds(1, 1);
 		StringWriter stringWriter = new StringWriter();
@@ -339,7 +376,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, new DataConversion());
 		Assert.assertEquals(
-			"{\"upd_serverSize\":3,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			"{\"upd_serverSize\":12,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			stringWriter.toString());
 
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);
@@ -348,7 +385,46 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, new DataConversion());
 		Assert.assertEquals(
-			"{\"upd_serverSize\":1,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+			"{\"upd_serverSize\":4,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+			stringWriter.toString());
+
+	}
+
+	@Test
+	public void setPreferredViewport() throws JSONException// change selected index in main foundset and related foundset should change
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
+			true);
+		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mydynamiccustombean").getRawPropertyValue(
+			"myfoundset", true);
+		dynamicBeanRelatedFoundset.getViewPort().setPreferredViewportSize(8);
+		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
+		customBeanFoundSet.getFoundset().setSelectedIndex(0);
+		Assert.assertEquals(8, dynamicBeanRelatedFoundset.getViewPort().getSize());
+		Assert.assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getStartIndex());
+		StringWriter stringWriter = new StringWriter();
+		JSONWriter jsonWriter = new JSONWriter(stringWriter);
+		dynamicBeanRelatedFoundset.toJSON(jsonWriter, new DataConversion(), null);
+		Assert.assertEquals(
+			"{\"serverSize\":12,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			stringWriter.toString());
+
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
+		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, new DataConversion());
+		Assert.assertEquals(
+			"{\"upd_serverSize\":4,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":4,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"1.8;_1\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.12;_2\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.16;_3\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+			stringWriter.toString());
+
+		stringWriter = new StringWriter();
+		jsonWriter = new JSONWriter(stringWriter);
+		customBeanFoundSet.getFoundset().setSelectedIndex(0);
+		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, new DataConversion());
+		Assert.assertEquals(
+			"{\"upd_serverSize\":12,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			stringWriter.toString());
 
 	}
@@ -388,7 +464,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), null);
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":18,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter.toString());
 
 		form.getFormModel().fireFoundSetChanged();
@@ -400,7 +476,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), null);
 
 		Assert.assertEquals(
-			"{\"serverSize\":1,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_0\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":17,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":17,\"rows\":[{\"_svyRowId\":\"1.2;_0\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_2\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_3\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_4\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_5\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_6\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_7\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_8\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_9\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_10\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_11\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_12\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_13\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_14\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_15\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_16\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter.toString());
 
 
@@ -420,7 +496,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		foundSet.newRecord(1, false);
 		Assert.assertEquals(1, viewPort.size);
 		Assert.assertEquals(1, viewPort.startIndex);
-		Assert.assertEquals(3, rawPropertyValue.getFoundset().getSize());
+		Assert.assertEquals(19, rawPropertyValue.getFoundset().getSize());
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.addViewPort(jsonWriter);
@@ -430,7 +506,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		foundSet.deleteRecord(1);
 
 
-		Assert.assertEquals(2, rawPropertyValue.getFoundset().getSize());
+		Assert.assertEquals(18, rawPropertyValue.getFoundset().getSize());
 
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
@@ -450,7 +526,7 @@ public class FoundsetTest extends AbstractSolutionTest
 			stringWriter.toString());
 
 		foundSet.newRecord(3, false);
-		Assert.assertEquals(4, rawPropertyValue.getFoundset().getSize());
+		Assert.assertEquals(20, rawPropertyValue.getFoundset().getSize());
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 
@@ -463,7 +539,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		//delete records added in this test
 		foundSet.deleteRecord(0);
 		foundSet.deleteRecord(2);//last record is now at index 2
-		Assert.assertEquals(2, rawPropertyValue.getFoundset().getSize());
+		Assert.assertEquals(18, rawPropertyValue.getFoundset().getSize());
 	}
 
 	@Test
@@ -500,7 +576,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, new DataConversion(), null);
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter.toString());
 
 		//changes to json
@@ -512,38 +588,44 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter2, new DataConversion(), null);
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			stringWriter2.toString());
 
 		viewPort.loadExtraRecords(-1);
 
 		StringWriter stringWriter3 = new StringWriter();
 		JSONWriter jsonWriter3 = new JSONWriter(stringWriter3);
-		rawPropertyValue.toJSON(jsonWriter3, new DataConversion(), null);
+		rawPropertyValue.changesToJSON(jsonWriter3, new DataConversion());
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":2,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"}],\"startIndex\":0,\"endIndex\":2,\"type\":1}]}}",
 			stringWriter3.toString());
 
 		viewPort.loadExtraRecords(-1);
 
 		stringWriter3 = new StringWriter();
 		jsonWriter3 = new JSONWriter(stringWriter3);
-		rawPropertyValue.toJSON(jsonWriter3, new DataConversion(), null);
+		rawPropertyValue.changesToJSON(jsonWriter3, new DataConversion());
+
+		Assert.assertEquals("{\"upd_viewPort\":{\"upd_rows\":[{\"rows\":[],\"startIndex\":0,\"endIndex\":2,\"type\":1}]}}", stringWriter3.toString());
+
+		viewPort.loadExtraRecords(16);
+
+		stringWriter3 = new StringWriter();
+		jsonWriter3 = new JSONWriter(stringWriter3);
+		rawPropertyValue.changesToJSON(jsonWriter3, new DataConversion());
 
 		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":18,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}],\"startIndex\":2,\"endIndex\":18,\"type\":1}]}}",
 			stringWriter3.toString());
 
 		viewPort.loadExtraRecords(1);
 
 		stringWriter3 = new StringWriter();
 		jsonWriter3 = new JSONWriter(stringWriter3);
-		rawPropertyValue.toJSON(jsonWriter3, new DataConversion(), null);
+		rawPropertyValue.changesToJSON(jsonWriter3, new DataConversion());
 
-		Assert.assertEquals(
-			"{\"serverSize\":2,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
-			stringWriter3.toString());
+		Assert.assertEquals("{\"n\":true}", stringWriter3.toString());
 	}
 
 }
