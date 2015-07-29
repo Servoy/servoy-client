@@ -152,7 +152,7 @@ public class WebObjectImpl
 
 	public Pair<Boolean, Object> getCustomProperty(String propertyName)
 	{
-		if (!"json".equals(propertyName) && !"typeName".equals(propertyName)) //$NON-NLS-1$//$NON-NLS-2$
+		if (!"json".equals(propertyName) && !"typeName".equals(propertyName) && !"extendsID".equals(propertyName)) //$NON-NLS-1$//$NON-NLS-2$
 		{
 			Map<String, Object> ctp = getCustomTypeProperties();
 			if (ctp.containsKey(propertyName)) return new Pair<>(Boolean.TRUE, ctp.get(propertyName));
@@ -349,7 +349,8 @@ public class WebObjectImpl
 
 			if (getPropertyDescription().isArrayReturnType(customType.getJsonKey()))
 			{
-				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
+				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+					customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
 				{
 					Object children = getCustomTypeProperties().get(customType.getJsonKey());
 					if (children == null) children = new WebCustomType[0];
@@ -372,7 +373,8 @@ public class WebObjectImpl
 				else
 				{
 					Debug.error("Element type (" +
-						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
+						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+							customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
 						") does not match persist-to-add type: " + type + " - " + webObject);
 				}
 			}
