@@ -67,7 +67,6 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			var previous = -1;
 			function processResize() {
 				var delta  = 0;
-				var standard = 0;
 				if($scope.model.tabOrientation == -3) {
 					if (previous == -1) {
 						previous = $element[0].firstChild.clientHeight;
@@ -84,7 +83,6 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 				}
 				if (delta != 0)
 					$scope.model.divLocation += Math.round(delta * $scope.model.resizeWeight); // the divLocation watch will do the rest
-				if ($scope.model.divLocation > 2000) $scope.model.divLocation = 100
 			}
 
 			$window.addEventListener('resize',processResize);
