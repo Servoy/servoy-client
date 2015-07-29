@@ -180,11 +180,6 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 		return super.getTransparent();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.scripting.solutionmodel.ISMBeanx#toString()
-	 */
 	@SuppressWarnings("nls")
 	@Override
 	public String toString()
@@ -241,7 +236,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 					value = ((IRhinoDesignConverter)pd.getType()).toDesignValue(value, pd);
 				}
 			}
-			ServoyJSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
+			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
 			jsonObject.put(propertyName, value);
 			webComponent.setJson(jsonObject);
 		}

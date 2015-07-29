@@ -20,9 +20,11 @@ package com.servoy.j2db.persistence;
 import java.util.Iterator;
 import java.util.List;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
@@ -130,9 +132,18 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		webObjectImpl.setJson(arg);
 	}
 
-	public ServoyJSONObject getJson()
+	public JSONObject getJson()
 	{
-		return (ServoyJSONObject)webObjectImpl.getJson();
+		JSONObject x = webObjectImpl.getJson();
+		try
+		{
+			return (x instanceof ServoyJSONObject) ? x : new ServoyJSONObject(x, ServoyJSONObject.getNames(x), true, true);
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+			return x;
+		}
 	}
 
 	@Override
