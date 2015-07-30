@@ -514,6 +514,7 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 	 */
 	public static String[] getNames(JSONObject jsonObject)
 	{
+		if (jsonObject == null) return new String[0];
 		String[] x = JSONObject.getNames(jsonObject);
 		return x == null ? new String[0] : x;
 	}
