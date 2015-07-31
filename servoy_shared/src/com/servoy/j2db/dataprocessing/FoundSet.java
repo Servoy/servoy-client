@@ -2893,7 +2893,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sampleas js_newRecord()
 	 *
-	 * @param onTop when true the new record is added as the topmost record.
+	 * @param onTop when true the new record is added as the topmost record; when false
+	 * the record is added to the end, if all records are loaded, otherwise it will be added to the top
 	 * @param changeSelection boolean when true the selection is changed to the new record.
 	 *
 	 * @return int index of new record.
