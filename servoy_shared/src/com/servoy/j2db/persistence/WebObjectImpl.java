@@ -183,25 +183,25 @@ public class WebObjectImpl
 			areCustomTypePropertiesLoaded = true; // do this here rather then later to avoid stack overflows in case code below end up calling persist.getProperty() again
 
 			if (getPropertyDescription() != null)
-		{
-			if (getJson() != null)
 			{
-				JSONObject beanJSON = getJson();
-				try
+				if (getJson() != null)
 				{
-
-					for (String beanJSONKey : ServoyJSONObject.getNames(beanJSON))
+					JSONObject beanJSON = getJson();
+					try
 					{
-						Object object = beanJSON.get(beanJSONKey);
-						updateCustomTypedProperty(beanJSONKey, object);
+
+						for (String beanJSONKey : ServoyJSONObject.getNames(beanJSON))
+						{
+							Object object = beanJSON.get(beanJSONKey);
+							updateCustomTypedProperty(beanJSONKey, object);
+						}
+					}
+					catch (JSONException e)
+					{
+						Debug.error(e);
 					}
 				}
-				catch (JSONException e)
-				{
-					Debug.error(e);
-				}
 			}
-		}
 			else areCustomTypePropertiesLoaded = false; // maybe the solution is being activated as we speak and the property descriptions from resources project are not yet available...
 		}
 
@@ -282,21 +282,21 @@ public class WebObjectImpl
 		{
 			JSONObject oldJson = getJson();
 			// we can no longer check for differences here as we now reuse JSON objects/arrays
-				JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
-				jsonObject.put(key, value);
-				setJsonInternal(jsonObject);
-				((AbstractBase)webObject).flagChanged();
+			JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
+			jsonObject.put(key, value);
+			setJsonInternal(jsonObject);
+			((AbstractBase)webObject).flagChanged();
 
-				if (areCustomTypePropertiesLoaded && getPropertyDescription() != null)
-				{
-					updateCustomTypedProperty(key, value); // update this web object's child web objects if needed (if this key affects them)
-				} // else not yet loaded - they will all load later so nothing to do here
+			if (areCustomTypePropertiesLoaded && getPropertyDescription() != null)
+			{
+				updateCustomTypedProperty(key, value); // update this web object's child web objects if needed (if this key affects them)
+			} // else not yet loaded - they will all load later so nothing to do here
 
-				// update JSON property of all parent web objects as all this web object hierarchy is actually described by top-most web object JSON property
-				// and the JSON of each web object should never get out-of-sync with the child web objects it contains
-				ISupportChilds parent = webObject.getParent();
-				if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
-			}
+			// update JSON property of all parent web objects as all this web object hierarchy is actually described by top-most web object JSON property
+			// and the JSON of each web object should never get out-of-sync with the child web objects it contains
+			ISupportChilds parent = webObject.getParent();
+			if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
+		}
 		catch (JSONException e)
 		{
 			Debug.error(e);
