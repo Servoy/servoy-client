@@ -38,6 +38,23 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 	protected boolean newLines = true;
 	protected boolean noBrackets = false;
 	private static final SimpleDateFormat ISO_DATE_FORMAT; // from rhino NativeDate
+
+	/**
+	 * JSONObject.NULL is nice but has one problem - java code that manipulates JSON needs to see the difference between javascript null
+	 * (which is meant to be JSONObject.NULL) and javascript undefined (which would be Java null).
+	 *
+	 * But JSONObject.NULL.equals() says it's equal to Java null and because of that java code is not able to handle correctly the difference between null and JSONObject.NULL.
+	 * This NULL_FOR_JAVA has the same meaning in Javascript but is for temporary use in Java portions of code that need to make that difference. Be sure to convert that back to JSONObject.NULL when working with org.json.
+	 */
+	public static final Object NULL_FOR_JAVA = new Object()
+	{
+		@Override
+		public boolean equals(Object obj)
+		{
+			return super.equals(obj) || obj == JSONObject.NULL;
+		}
+	};
+
 	static
 	{
 		ISO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -517,6 +534,38 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 		if (jsonObject == null) return new String[0];
 		String[] x = JSONObject.getNames(jsonObject);
 		return x == null ? new String[0] : x;
+	}
+
+	/**
+	 * As java null is mapped to Javascript undefined, we need a way of treating real javascript null values.
+	 * This is a helper method to check for nulls.
+	 */
+	public static boolean isJavascriptNull(Object o)
+	{
+		return o == JSONObject.NULL || o == ServoyJSONObject.NULL_FOR_JAVA;
+	}
+
+	/**
+	 * Java null is mapped to Javascript undefined. This is basically a null check.
+	 */
+	public static boolean isJavascriptUndefined(Object o)
+	{
+		return o == null;
+	}
+
+	public static boolean isJavascriptNullOrUndefined(Object o)
+	{
+		return isJavascriptUndefined(o) || isJavascriptNull(o);
+	}
+
+	public static Object adjustJavascriptNULLForOrgJSON(Object o)
+	{
+		return o == ServoyJSONObject.NULL_FOR_JAVA ? JSONObject.NULL : o;
+	}
+
+	public static Object adjustJavascriptNULLForJava(Object o)
+	{
+		return o == JSONObject.NULL ? ServoyJSONObject.NULL_FOR_JAVA : o;
 	}
 
 }

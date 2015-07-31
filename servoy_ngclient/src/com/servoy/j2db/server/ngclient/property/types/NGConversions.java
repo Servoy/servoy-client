@@ -243,7 +243,8 @@ public class NGConversions
 			}
 			else
 			{
-				return ((IDesignToFormElement)type).toFormElementValue(designValue, pd, flattenedSolution, formElement, propertyPath);
+				return ((IDesignToFormElement)type).toFormElementValue(designValue == JSONObject.NULL ? null : designValue, pd, flattenedSolution, formElement,
+					propertyPath);
 			}
 		}
 		return designValue;

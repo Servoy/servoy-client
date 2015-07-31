@@ -74,4 +74,55 @@ public class ServoyJSONArray extends JSONArray implements Serializable
 	{
 		ServoyJSONObject.fromSerializable(this, in.readObject());
 	}
+
+	// TODO should/can we make this non-static methods for ServoyJSONArrays only?
+	/**
+	 * As {@link JSONArray} doesn't have nice API for add/remove of elements this utility method will do that by creating a modified copy of the initial array that includes the inserted element.
+	 */
+	public static ServoyJSONArray insertAtIndexInJSONArray(JSONArray previousValue, int index, Object value)
+	{
+		ServoyJSONArray newValue = new ServoyJSONArray();
+		try
+		{
+			for (int i = previousValue.length() - 1; i >= index; i--)
+			{
+				newValue.put(i + 1, previousValue.opt(i));
+			}
+			newValue.put(index, value);
+			for (int i = index - 1; i >= 0; i--)
+			{
+				newValue.put(i, previousValue.opt(i));
+			}
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+		}
+		return newValue;
+	}
+
+	/**
+	 * As {@link JSONArray} doesn't have nice API for add/remove of elements this utility method will do that by creating a modified copy of the initial array with the given index removed.
+	 */
+	public static ServoyJSONArray removeIndexFromJSONArray(JSONArray previousValue, int index)
+	{
+		ServoyJSONArray newValue = new ServoyJSONArray();
+		try
+		{
+			for (int i = previousValue.length() - 1; i > index; i--)
+			{
+				newValue.put(i - 1, previousValue.opt(i));
+			}
+			for (int i = index - 1; i >= 0; i--)
+			{
+				newValue.put(i, previousValue.opt(i));
+			}
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+		}
+		return newValue;
+	}
+
 }

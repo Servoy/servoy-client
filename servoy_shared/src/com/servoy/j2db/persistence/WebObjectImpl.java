@@ -152,11 +152,9 @@ public class WebObjectImpl
 
 	public Pair<Boolean, Object> getCustomProperty(String propertyName)
 	{
-		if (!"json".equals(propertyName) && !"typeName".equals(propertyName) && !"extendsID".equals(propertyName)) //$NON-NLS-1$//$NON-NLS-2$
-		{
-			Map<String, Object> ctp = getCustomTypeProperties();
-			if (ctp.containsKey(propertyName)) return new Pair<>(Boolean.TRUE, ctp.get(propertyName));
-		}
+		Map<String, Object> ctp = getCustomTypeProperties();
+		if (ctp.containsKey(propertyName)) return new Pair<>(Boolean.TRUE, ctp.get(propertyName));
+
 		return new Pair<>(Boolean.FALSE, null);
 	}
 
@@ -180,7 +178,11 @@ public class WebObjectImpl
 
 	private Map<String, Object> getCustomTypeProperties()
 	{
-		if (!areCustomTypePropertiesLoaded && getPropertyDescription() != null)
+		if (!areCustomTypePropertiesLoaded)
+		{
+			areCustomTypePropertiesLoaded = true; // do this here rather then later to avoid stack overflows in case code below end up calling persist.getProperty() again
+
+			if (getPropertyDescription() != null)
 		{
 			if (getJson() != null)
 			{
@@ -199,7 +201,8 @@ public class WebObjectImpl
 					Debug.error(e);
 				}
 			}
-			areCustomTypePropertiesLoaded = true;
+		}
+			else areCustomTypePropertiesLoaded = false; // maybe the solution is being activated as we speak and the property descriptions from resources project are not yet available...
 		}
 
 		return customTypeProperties;
@@ -278,8 +281,7 @@ public class WebObjectImpl
 		try
 		{
 			JSONObject oldJson = getJson();
-			if (oldJson == null || !oldJson.has(key) || !oldJson.get(key).equals(value))
-			{
+			// we can no longer check for differences here as we now reuse JSON objects/arrays
 				JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
 				jsonObject.put(key, value);
 				setJsonInternal(jsonObject);
@@ -295,7 +297,6 @@ public class WebObjectImpl
 				ISupportChilds parent = webObject.getParent();
 				if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
 			}
-		}
 		catch (JSONException e)
 		{
 			Debug.error(e);

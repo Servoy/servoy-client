@@ -137,7 +137,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		JSONObject x = webObjectImpl.getJson();
 		try
 		{
-			return (x instanceof ServoyJSONObject) ? x : new ServoyJSONObject(x, ServoyJSONObject.getNames(x), true, true);
+			return ((x instanceof ServoyJSONObject) || x == null) ? x : new ServoyJSONObject(x, ServoyJSONObject.getNames(x), true, true);
 		}
 		catch (JSONException e)
 		{

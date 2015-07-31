@@ -52,7 +52,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
-import com.servoy.j2db.util.Debug;
 
 /**
  * A JSON array type that is Servoy NG client aware as well.
@@ -83,13 +82,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				try
 				{
 					propertyPath.add(i);
-					formElementValues[i] = NGConversions.INSTANCE.convertDesignToFormElementValue(designValue.get(i), getCustomJSONTypeDefinition(),
+					formElementValues[i] = NGConversions.INSTANCE.convertDesignToFormElementValue(designValue.opt(i), getCustomJSONTypeDefinition(),
 						flattenedSolution, formElement, propertyPath);
-				}
-				catch (JSONException e)
-				{
-					Debug.error(e);
-					formElementValues[i] = null;
 				}
 				finally
 				{

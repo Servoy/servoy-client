@@ -57,7 +57,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 				JSONObject obj = null;
 				if (v instanceof JSONArray)
 				{
-					obj = ((JSONArray)v).getJSONObject(index);
+					obj = ((JSONArray)v).optJSONObject(index);
 				}
 				else
 				{
