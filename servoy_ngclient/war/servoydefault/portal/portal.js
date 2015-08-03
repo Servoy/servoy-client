@@ -460,9 +460,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			var deferredAPICallExecution;
 			function linkAPIToAllCellsInColumn(apiFunctionName, elementIndex) {
 				// returns a column level API function that will call that API func. on all cell elements of that column
-				return function()
+				return function(event)
 				{
 					var retVal;
+					var functionArguments = arguments;
 					var callOnFirstSelectedCellOnly = true;
 					if (elements[elementIndex].foundsetConfig && elements[elementIndex].foundsetConfig.apiCallTypes) {
 						callOnFirstSelectedCellOnly = (elements[elementIndex].foundsetConfig.apiCallTypes[apiFunctionName] != $componentTypeConstants.CALL_ON_ONE_SELECTED_ROW);
@@ -473,6 +474,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if (callOnFirstSelectedCellOnly) {
 						if ($scope.foundset.selectedRowIndexes.length > 0) {
 							var rowIdxOfFirstSelected = $scope.foundset.selectedRowIndexes[0];
+							if (event && (event.selectedIndex || event.selectedIndex === 0))
+								rowIdxOfFirstSelected = event.selectedIndex;// if the server also sent a selectedIndex, then we use that index
 
 							function callAPIAfterScroll(rowIdToCall) {
 								// the grid reports that it scrolled very fast - so it did actually scroll, but no content is created/visible yet
@@ -490,7 +493,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 								var cellAPIToUse = getCellAPIToUse();
 								var retVal;
-								if (cellAPIToUse && !changinOrUnstableAPIPromise) retVal = cellAPIToUse.apply(cellAPI, arguments);
+								if (cellAPIToUse && !changinOrUnstableAPIPromise) retVal = cellAPIToUse.apply(cellAPI, functionArguments);
 								else {
 									// cannot find it yet - it probably didn't actually load scrolled contents yet; it just scrolled; delay a bit more
 									if ($log.debugEnabled) $log.debug("API method call - waiting for scrolled contents to load. Api call: '" + apiFunctionName + "' on column " + elementIndex);
@@ -519,7 +522,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							if (isInViewPort(rowIdxOfFirstSelected)) {
 								retVal = $scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(rowIdxOfFirstSelected)]), null /* must be null here, can't be undefined */).then(function () {
 									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
-									if (rowIdxOfFirstSelected !== newFirstSelected)
+									if ((rowIdxOfFirstSelected !== newFirstSelected) && !(event && (event.selectedIndex || event.selectedIndex === 0)))
 										return $q.reject("First selected index changed for some reason (" + rowIdxOfFirstSelected + " -> " + newFirstSelected + ") while scrolling for loader row API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									return callAPIAfterScroll(absoluteRowIndexToRowId(rowIdxOfFirstSelected));
 								});
@@ -531,7 +534,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									// success
 									deferredAPICallExecution = undefined;
 									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
-									if (rowIdxOfFirstSelected !== newFirstSelected)
+									if ((rowIdxOfFirstSelected !== newFirstSelected)&& !(event && (event.selectedIndex || event.selectedIndex === 0)))
 										return $q.reject("First selected index changed for some reason (" + rowIdxOfFirstSelected + " -> " + newFirstSelected + ") while scrolling for non-loaded API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									return callAPIAfterScroll(absoluteRowIndexToRowId(rowIdxOfFirstSelected));
 								}, function(reason) {
@@ -724,7 +727,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			};
 			$scope.$watchCollection('foundset.selectedRowIndexes', function() {
-				updateGridSelectionFromFoundset(true)
+				updateGridSelectionFromFoundset(true);
 			});
 
 			$scope.gridOptions = {
@@ -770,7 +773,29 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					updateGridSelectionFromFoundset(true);
 				},[uiGridConstants.dataChange.ROW]);
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
-					updateFoundsetSelectionFromGrid(gridApi.selection.getSelectedRows())
+					var newNGGridSelectedItems =  gridApi.selection.getSelectedRows();
+					var tmpSelectedRowIdxs = [];
+					for (var idx = 0; idx < newNGGridSelectedItems.length; idx++) {
+						var absRowIdx = rowIdToAbsoluteRowIndex(newNGGridSelectedItems[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]);
+						tmpSelectedRowIdxs.push(absRowIdx);
+					}	
+					$scope.foundset.requestSelectionUpdate(tmpSelectedRowIdxs).then(
+						function(serverRows){
+							//success
+						},
+						function(serverRows){
+							//canceled 
+							if (serverRows === 'canceled'){
+								return;
+							}
+							//reject
+							var rowid = absoluteRowIndexToRowId(serverRows[0]);
+							var selection = {};
+							selection[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowid;
+							$scope.gridApi.selection.selectRow(selection);
+							document.activeElement.blur();
+						}
+					);
 				});
 
 				gridApi.cellNav.on.navigate($scope,function(newRowCol, oldRowCol){
@@ -993,10 +1018,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 			function linkHandlerToRowIdWrapper(handler, rowId) {
 				return function() {
-					var entity = $scope.foundset.viewPort.rows[rowIdToViewportRelativeRowIndex(rowId)]
-					$scope.gridApi.selection.selectRow(entity); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
-					updateFoundsetSelectionFromGrid($scope.gridApi.selection.getSelectedRows()); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
-					var recordHandler = handler.selectRecordHandler(rowId)
+//					var entity = $scope.foundset.viewPort.rows[rowIdToViewportRelativeRowIndex(rowId)]
+//					$scope.gridApi.selection.selectRow(entity); // TODO for multiselect - what about modifiers such as CTRL? then it might be false
+//					updateFoundsetSelectionFromGrid($scope.gridApi.selection.getSelectedRows()); // otherwise the watch/digest will update the foundset selection only after the handler was triggered...
+					var recordHandler = handler.selectRecordHandler(rowId);
 					return recordHandler.apply(recordHandler, arguments);
 				}
 			}

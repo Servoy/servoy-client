@@ -660,7 +660,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				beanProperty).getConfig()).getOnDataChange();
 			if (onDataChange != null && !Utils.equalObjects(oldValue, v) && webComponent.hasEvent(onDataChange))
 			{
-				JSONObject event = EventExecutor.createEvent(onDataChange);
+				JSONObject event = EventExecutor.createEvent(onDataChange, record.getParentFoundSet().getSelectedIndex());
 				Object returnValue = null;
 				Exception exception = null;
 				try

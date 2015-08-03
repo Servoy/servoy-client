@@ -41,18 +41,20 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * The whole foundset property needs to get sent to the client.
 	 */
-	protected static final int SEND_ALL = 0b00001;
+	protected static final int SEND_ALL = 0b000001;
 	/**
 	 * Only the bounds of the viewPort changed, data is the same; for example records were added/removed before startIndex of viewPort,
 	 * or even inside the viewPort but will be combined by incremental updates (adds/deletes).
 	 */
-	protected static final int SEND_VIEWPORT_BOUNDS = 0b00010;
+	protected static final int SEND_VIEWPORT_BOUNDS = 0b000010;
 	/**
 	 * Foundset size changed (add/remove of records).
 	 */
-	protected static final int SEND_FOUNDSET_SIZE = 0b01000;
+	protected static final int SEND_FOUNDSET_SIZE = 0b001000;
 
-	protected static final int SEND_SELECTED_INDEXES = 0b10000;
+	protected static final int SEND_SELECTED_INDEXES = 0b010000;
+
+	protected static final int SEND_SELECTION_DENIED = 0b100000;
 
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
@@ -65,6 +67,19 @@ public class FoundsetTypeChangeMonitor
 		this.propertyValue = propertyValue;
 		viewPortDataChangeMonitor = new ViewportDataChangeMonitor(null, rowDataProvider);
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
+	}
+
+	/**
+	 * Called when the foundSet selection request from the client was denied by the server.
+	 */
+	public void selectionDenied()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_SELECTION_DENIED;
+			if (oldChangeFlags != changeFlags) notifyChange();
+		}
 	}
 
 	/**
@@ -358,6 +373,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendSelectedIndexes()
 	{
 		return (changeFlags & SEND_SELECTED_INDEXES) != 0;
+	}
+
+	public boolean shouldSendSelectionDenied()
+	{
+		return (changeFlags & SEND_SELECTION_DENIED) != 0;
 	}
 
 	public boolean shouldSendFoundsetSize()

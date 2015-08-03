@@ -119,6 +119,7 @@ describe('servoydefaultTextfield component', function() {
         // Now run a $digest cycle to update your template with new data
  		$scope.$digest();
  		textComponent.triggerHandler("focus")
+ 		$scope.$digest();
  		expect(startEditCalls['dataProviderID']).toBe(true)
  		textComponent.trigger("blur")
  		$timeout.flush();

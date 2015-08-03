@@ -440,6 +440,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 				// Listen for start edit
 				element.bind('focus', function() {
+					scope.$evalAsync ( function() {
 						var svyServoyApi = $utils.findAttribute(element, parent, "svy-servoyApi");
 						if (svyServoyApi && svyServoyApi.startEdit) {
 							svyServoyApi.startEdit(propertyname);
@@ -448,6 +449,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							if (!formName) formName = searchForFormName(); 
 							$sabloApplication.callService("formService", "startEdit", {formname:formName,beanname:beanname,property:propertyname},true)
 						}
+					});
 				});
 
 			}

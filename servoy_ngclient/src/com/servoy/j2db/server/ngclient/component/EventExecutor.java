@@ -208,7 +208,7 @@ public class EventExecutor
 		}
 	}
 
-	public static JSONObject createEvent(String type)
+	public static JSONObject createEvent(String type, int i)
 	{
 		JSONObject event = new JSONObject();
 		try
@@ -219,6 +219,7 @@ public class EventExecutor
 			event.put("modifiers", 0);
 			event.put("x", 0);
 			event.put("y", 0);
+			event.put("selectedIndex", i);
 		}
 		catch (JSONException ex)
 		{

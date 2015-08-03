@@ -79,6 +79,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	public static final String SERVER_SIZE = "serverSize";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
+	public static final String SEND_SELECTION_DENIED = "selectionDenied";
 	public static final String MULTI_SELECT = "multiSelect";
 	public static final String VIEW_PORT = "viewPort";
 	public static final String START_INDEX = "startIndex";
@@ -385,6 +386,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				addSelectedIndexes(destinationJSON);
 				somethingChanged = true;
 			}
+			if (changeMonitor.shouldSendSelectionDenied())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_DENIED);
+				addSelectedIndexes(destinationJSON);
+				somethingChanged = true;
+			}
 			if (changeMonitor.shouldSendWholeViewPort())
 			{
 				if (!somethingChanged) destinationJSON.object();
@@ -573,6 +581,50 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							if (!Arrays.equals(foundset.getSelectedIndexes(), newSelectedIndexes))
 							{
 								changeMonitor.selectionChanged();
+							}
+						}
+					}
+					// {newClientSelectionRequest: newSelectedIndexesArray}
+					else if (update.has("newClientSelectionRequest"))
+					{
+						JSONArray jsonSelectedIndexes = update.getJSONArray("newClientSelectionRequest");
+						int[] newSelectedIndexes = new int[jsonSelectedIndexes.length()];
+						for (int j = newSelectedIndexes.length - 1; j >= 0; j--)
+						{
+							newSelectedIndexes[j] = jsonSelectedIndexes.getInt(j);
+						}
+
+						int[] oldSelection = foundset.getSelectedIndexes();
+						// this !Arrays.equals check in conjunction with pause()/resume() is needed to avoid an effect on the client that server always sends back changed selection in which case
+						// if the user quickly changes selection multiple times and the connection is slow, selection will jump all over
+						// the place until it stabilizes correctly
+						getListSelectionListener().pause();
+						try
+						{
+							if (newSelectedIndexes.length == 1)
+							{
+								foundset.setSelectedIndex(newSelectedIndexes[0]);
+							}
+							else
+							{
+								foundset.setSelectedIndexes(newSelectedIndexes);
+							}
+						}
+						finally
+						{
+							getListSelectionListener().resume();
+
+							if (!Arrays.equals(oldSelection, foundset.getSelectedIndexes()))
+							{// if the selection is changed, send it back to the client so that its model is also updated
+								changeMonitor.selectionChanged();
+							}
+							else
+							{
+								if (!Arrays.equals(oldSelection, newSelectedIndexes))
+								{// it was supposed to change but the server did not allow it
+									changeMonitor.selectionDenied();
+								}
+								else changeMonitor.selectionChanged();
 							}
 						}
 					}

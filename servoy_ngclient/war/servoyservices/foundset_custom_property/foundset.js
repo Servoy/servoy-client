@@ -5,12 +5,13 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	UPDATE_SIZE_CALLBACK:'updateSizeCallback'
 })
-.run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils) {
+.run(function ($sabloConverters, $foundsetTypeConstants, $viewportModule, $sabloUtils, $q) {
 	var UPDATE_PREFIX = "upd_"; // prefixes keys when only partial updates are send for them
 	var CONVERSIONS = "conversions"; // data conversion info
 
 	var SERVER_SIZE = "serverSize";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
+	var SEND_SELECTION_DENIED = "selectionDenied"
 	var MULTI_SELECT = "multiSelect";
 	var VIEW_PORT = "viewPort";
 	var START_INDEX = "startIndex";
@@ -64,8 +65,23 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
+					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+					if (internalState.deferred) {
+						internalState.deferred.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
+					}
+					delete internalState.deferred;
 					updates = true;
 				}
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_DENIED])) {
+					var serverRows = serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_DENIED];
+					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+					if (internalState.deferred) {
+						internalState.deferred.reject(serverRows);
+					}
+					delete internalState.deferred;
+					updates = true;
+				}
+
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
 					updates = true;
 					var viewPortUpdate = serverJSONValue[UPDATE_PREFIX + VIEW_PORT];
@@ -120,7 +136,18 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push({preferredViewportSize: size});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
-					
+					newValue.requestSelectionUpdate = function(tmpSelectedRowIdxs) {
+						if (internalState.deferred) {
+							internalState.deferred.reject("canceled");
+						}
+						delete internalState.deferred;
+
+						internalState.deferred = $q.defer();
+						internalState.requests.push({newClientSelectionRequest: tmpSelectedRowIdxs});
+						if (internalState.changeNotifier) internalState.changeNotifier();
+
+						return internalState.deferred.promise;
+					}
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup
 					internalState.setChangeNotifier = function(changeNotifier) {
