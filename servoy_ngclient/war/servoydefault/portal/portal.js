@@ -1154,6 +1154,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			    		else if(svyFormat.lowercase) data = data.toLowerCase();
 					}
 		    	}
+    			//.text(null) really sets null, see http://bugs.jquery.com/ticket/13666
+    			if (data === null) data = "";
     			$element.text(data);
 	    	})
 	    	if ($scope.model.styleClass) {
