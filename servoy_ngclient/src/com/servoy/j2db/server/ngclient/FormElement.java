@@ -68,6 +68,7 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -304,13 +305,13 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 					if (pd.getType() instanceof IDataLinkedType)
 					{
 						getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd,
-							((IDataLinkedType)pd.getType()).getDataLinks(formElementValue, pd, fs, this));
+							((IDataLinkedType)pd.getType()).getDataLinks(ServoyJSONObject.nullToUndefined(formElementValue), pd, fs, this));
 					}
 
 					if (pd.getType() instanceof IFindModeAwareType)
 					{
 						getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd,
-							((IFindModeAwareType)pd.getType()).isFindModeAware(formElementValue, pd, fs, this));
+							((IFindModeAwareType)pd.getType()).isFindModeAware(ServoyJSONObject.nullToUndefined(formElementValue), pd, fs, this));
 					}
 				}
 			}

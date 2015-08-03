@@ -52,6 +52,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * A JSON array type that is Servoy NG client aware as well.
@@ -265,9 +266,9 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		for (Object value : formElementValue)
 		{
 			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
-			if (value != null && entryPD.getType() instanceof IFindModeAwareType)
+			if (entryPD.getType() instanceof IFindModeAwareType)
 			{
-				if (((IFindModeAwareType)entryPD.getType()).isFindModeAware(value, entryPD, flattenedSolution, formElement))
+				if (((IFindModeAwareType)entryPD.getType()).isFindModeAware(ServoyJSONObject.nullToUndefined(value), entryPD, flattenedSolution, formElement))
 				{
 					isFindModeAware = true;
 					break;
@@ -291,10 +292,11 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 		{
 			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those;
 			// if we ever need to cache these for performance we have to use something more unique (like property path) for formElement.getOrCreatePreprocessedPropertyInfoMap(...).put(...) and cache them for arrays as well
-			if (value != null && entryPD.getType() instanceof IDataLinkedType)
+			if (entryPD.getType() instanceof IDataLinkedType)
 			{
-				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(value, entryPD, flattenedSolution, formElement);
-				if (entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
+				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.nullToUndefined(value), entryPD,
+					flattenedSolution, formElement);
+				if (entryDPs != null && entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
 				{
 					dps.addAll(Arrays.asList(entryDPs.dataProviderIDs));
 					recordLinked |= entryDPs.recordLinked;

@@ -39,6 +39,7 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * This class does the ng specific conversions for property types.<br>
@@ -243,11 +244,11 @@ public class NGConversions
 			}
 			else
 			{
-				return ((IDesignToFormElement)type).toFormElementValue(designValue == JSONObject.NULL ? null : designValue, pd, flattenedSolution, formElement,
+				return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.nullToUndefined(designValue), pd, flattenedSolution, formElement,
 					propertyPath);
 			}
 		}
-		return designValue;
+		return ServoyJSONObject.nullToUndefined(designValue);
 	}
 
 	/**
