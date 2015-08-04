@@ -88,11 +88,14 @@ public class WebObjectImpl
 			{
 				JSONObject entireModel = (old != null ? old : new ServoyJSONObject()); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
 				Iterator<String> it = entireModel.keys();
+
+				// remove custom properties that were removed (be sure to keep any keys that do not map to custom properties or arrays of custom properties - for example ints, string arrays and so on)
 				while (it.hasNext())
 				{
 					String key = it.next();
-					if (!getCustomTypeProperties().containsKey(key)) entireModel.remove(key);
+					if (isCustomJSONOrArrayOfCustomJSON(key) && !getCustomTypeProperties().containsKey(key)) entireModel.remove(key);
 				}
+
 				for (Map.Entry<String, Object> wo : getCustomTypeProperties().entrySet())
 				{
 					if (wo.getValue() instanceof WebCustomType)
@@ -117,6 +120,36 @@ public class WebObjectImpl
 				Debug.error(ex);
 			}
 		}
+	}
+
+	/**
+	 * Return true if this property is handled as a custom property persist and false otherwise.
+	 * @param key the subproperty name.
+	 * @return true if this property is handled as a custom property persist and false otherwise.
+	 */
+	protected boolean isCustomJSONOrArrayOfCustomJSON(String key)
+	{
+		PropertyDescription childPd = getPropertyDescription().getProperty(key);
+		IPropertyType< ? > propertyType = childPd.getType();
+
+		if (PropertyUtils.isCustomJSONProperty(propertyType))
+		{
+			boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
+			if (arrayReturnType)
+			{
+				PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >) ? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition()
+					: null;
+				if (elementPD != null && PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -350,8 +383,7 @@ public class WebObjectImpl
 
 			if (getPropertyDescription().isArrayReturnType(customType.getJsonKey()))
 			{
-				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
-					customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
+				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
 				{
 					Object children = getCustomTypeProperties().get(customType.getJsonKey());
 					if (children == null) children = new WebCustomType[0];
@@ -374,8 +406,7 @@ public class WebObjectImpl
 				else
 				{
 					Debug.error("Element type (" +
-						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
-							customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
+						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
 						") does not match persist-to-add type: " + type + " - " + webObject);
 				}
 			}
