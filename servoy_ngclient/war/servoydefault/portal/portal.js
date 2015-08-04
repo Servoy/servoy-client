@@ -688,7 +688,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 										if(rowIdx < $scope.foundset.viewPort.startIndex) {
 											nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex;
 										} else {
-											nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex - $scope.foundset.viewPort.size + 1;
+											nrRecordsToLoad = rowIdx - $scope.foundset.viewPort.startIndex - $scope.foundset.viewPort.size +  $scope.gridOptions.infiniteScrollRowsFromEnd +1;
 										}
 
 										var tmp;
