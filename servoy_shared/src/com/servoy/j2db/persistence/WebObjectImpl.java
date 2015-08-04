@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
@@ -469,55 +470,112 @@ public class WebObjectImpl
 	{
 		final Iterator<Object> it1 = getCustomTypeProperties().values().iterator();
 
-		return new Iterator<IPersist>()
+		return new CustomTypesIterator(it1);
+	}
+
+	protected static class CustomTypesIterator implements Iterator<IPersist>
+	{
+
+
+		WebCustomType nextSingleObj;
+
+		WebCustomType[] nextArrayObj;
+		int nextArrayObjIdx = 0;
+
+		private final Iterator<Object> it;
+
+		public CustomTypesIterator(Iterator<Object> it)
 		{
-			int idx = 0;
-			WebCustomType[] ai;
+			this.it = it;
+			prepareNext();
+		}
 
-			private boolean hasArrayItems()
+		protected void prepareNext()
+		{
+			if (nextArrayObj != null)
 			{
-				return ai != null && idx < ai.length;
-			}
-
-			@Override
-			public boolean hasNext()
-			{
-				return it1.hasNext() || hasArrayItems();
-			}
-
-			@Override
-			public IPersist next()
-			{
-				IPersist item;
-				if (hasArrayItems())
+				// find next non-null in array
+				while (nextArrayObjIdx < nextArrayObj.length && nextArrayObj[nextArrayObjIdx] == null)
 				{
-					item = ai[idx++];
+					nextArrayObjIdx++;
 				}
-				else
+			}
+
+			if (!hasArrayItems())
+			{
+				nextArrayObj = null;
+				nextArrayObjIdx = 0;
+				nextSingleObj = null;
+
+				if (it.hasNext())
 				{
-					Object o = it1.next();
-					while (o instanceof WebCustomType[])
+					Object o = it.next();
+					while (!prepareNextItemFromElement(o) && it.hasNext())
 					{
-						ai = (WebCustomType[])o;
-						if (ai.length == 0) o = it1.next();
-						else
-						{
-							idx = 1;
-							o = ai[0];
-						}
+						o = it.next();
 					}
-					item = (IPersist)o;
 				}
-				return item;
 			}
+		}
 
-			@Override
-			public void remove()
+		protected boolean prepareNextItemFromElement(Object o)
+		{
+			if (o instanceof WebCustomType)
 			{
-				throw new RuntimeException("Operation not supported.");
+				nextSingleObj = (WebCustomType)o;
+				return true;
 			}
+			else if (o instanceof WebCustomType[])
+			{
+				WebCustomType[] arr = (WebCustomType[])o;
+				int i = 0;
+				while (i < arr.length)
+				{
+					if (arr[i] != null)
+					{
+						nextArrayObj = arr;
+						nextArrayObjIdx = i;
+						return true;
+					}
+				}
+				return false;
+			}
+			return false;
+		}
 
-		};
+		private boolean hasArrayItems()
+		{
+			return nextArrayObj != null && nextArrayObjIdx < nextArrayObj.length;
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return (nextSingleObj != null || hasArrayItems());
+		}
+
+		@Override
+		public IPersist next()
+		{
+			if (hasNext())
+			{
+				WebCustomType toReturn;
+				if (nextSingleObj != null) toReturn = nextSingleObj;
+				else toReturn = nextArrayObj[nextArrayObjIdx++];
+
+				prepareNext();
+
+				return toReturn;
+			}
+			else throw new NoSuchElementException();
+		}
+
+		@Override
+		public void remove()
+		{
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 	public <T extends IPersist> Iterator<T> getObjects(int tp)
