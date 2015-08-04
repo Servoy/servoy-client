@@ -37,17 +37,21 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.NGUUIDPropertyType;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -74,10 +78,24 @@ public abstract class NGUtils
 		TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME), Boolean.TRUE);
 	public static final PropertyDescription TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (text/nph)",
 		TypesRegistry.getType(HTMLStringPropertyType.TYPE_NAME), Boolean.FALSE);
+	public static final PropertyDescription UUID_DATAPROVIDER_CACHED_PD = new PropertyDescription("Dataprovider (uuid)",
+		TypesRegistry.getType(NGUUIDPropertyType.TYPE_NAME));
 
 	public static PropertyDescription getDataProviderPropertyDescription(String dataProviderName, ITable table, boolean parseHTML)
 	{
 		if (table == null || dataProviderName == null) return null;
+		if (table instanceof Table)
+		{
+			Column column = ((Table)table).getColumn(dataProviderName);
+			if (column != null)
+			{
+				ColumnInfo ci = column.getColumnInfo();
+				if (ci != null && ci.hasFlag(Column.UUID_COLUMN))
+				{
+					return UUID_DATAPROVIDER_CACHED_PD;
+				}
+			}
+		}
 		return getDataProviderPropertyDescription(table.getColumnType(dataProviderName), parseHTML);
 	}
 
