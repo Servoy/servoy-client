@@ -115,7 +115,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var cellTemplate
 					if($applicationService.getUIProperty("ngClientOptimizedReadonlyMode") && el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead") {
 						allowCellFocus = true
-						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"></div>';
+						var handlers = ""
+						if (el.handlers.onActionMethodID) {
+							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
+						}
+						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"' + handlers + '></div>';
 					}
 					else {
 						var portal_svy_name = $element[0].getAttribute('data-svy-name');
@@ -1121,6 +1125,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 	return {
 		scope: {
 			model: "=cellHelper",
+			handlers: "=svyHandlers"
 		},
 		restrict: 'A',
 	    link: function($scope, $element, attrs, ctrl, transclude) {
@@ -1163,6 +1168,15 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 	    	if ($scope.model.background || $scope.model.transparent)
 	    	{
 	    		$svyProperties.setCssProperty($element,"backgroundColor",$scope.model.transparent?"transparent":$scope.model.background);
+	    	}
+	    	if ($scope.handlers) {
+		    	if ($scope.handlers.onActionMethodID) {
+		    		$element.on("click", function(event) {
+		    			$scope.$evalAsync(function() {
+		    				$scope.handlers.onActionMethodID(event);
+		    			});
+		    		});
+		    	}
 	    	}
 		}
 	}
