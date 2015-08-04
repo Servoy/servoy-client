@@ -14,8 +14,33 @@
 	},
 	"handlers":
 	{
-	        "onActionMethodID" : "function", 
-	        "onDataChangeMethodID" : "function" 
+	        "onActionMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }, 
+	        "onDataChangeMethodID" : {
+	          "returns": "Boolean", 
+	         	
+	        	"parameters":[
+								{
+						          "name":"oldValue",
+								  "type":"${dataproviderType}"
+								}, 
+								{
+						          "name":"newValue",
+								  "type":"${dataproviderType}"
+								}, 
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }
 	},
 	"api":
 	{

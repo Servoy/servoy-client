@@ -13,8 +13,33 @@
 	},
 	"handlers":
 	{
-			"onActionMethodID" : "function",
-	        "onRightClickMethodID" : "function" 
+			"onActionMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }, 
+	        "onDataChangeMethodID" : {
+	          "returns": "Boolean", 
+	         	
+	        	"parameters":[
+								{
+						          "name":"oldValue",
+								  "type":"${dataproviderType}"
+								}, 
+								{
+						          "name":"newValue",
+								  "type":"${dataproviderType}"
+								}, 
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }
 	},
 	"api":
 	{

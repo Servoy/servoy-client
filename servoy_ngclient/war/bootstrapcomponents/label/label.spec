@@ -13,9 +13,33 @@
 	},
 	"handlers":
 	{
-	        "onActionMethodID" : "function", 
-	        "onDoubleClickMethodID" : "function", 
-	        "onRightClickMethodID" : "function" 
+	        "onActionMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }, 
+	        "onDoubleClickMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }, 
+	        "onRightClickMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        } 
 	},
 	"api":
 	{
