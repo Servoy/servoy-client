@@ -157,7 +157,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								isMovable = false;
 								var getHandler = function(callback) {
 									return function(event) {
-										var jsEvent = {svyType: 'jsevent'};
+										var jsEvent = {svyType: 'JSEvent'};
 										var argsWithEvent = [jsEvent];// append args
 										$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
 									}

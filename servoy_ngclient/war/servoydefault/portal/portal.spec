@@ -18,7 +18,7 @@
 	        "findmode" : { "type":"findmode", "tags":{"scope":"private"}, "for" : { "enabled":true}}, 
 	        "foreground" : "color", 
 	        "headerHeight" : {"type" :"int",  "default" : 32}, 
-	        "headersClasses" : { "type" : "string[]", "tags" : {"scope": "private"} },
+	        "headersClasses" : { "type" : "string[]", "tags" : {"scope": "private"} }, 
 	        "headersAction" : { "type" : "function[]", "tags" : {"scope": "private"} }, 
 	        "initialSort" : "string", 
 	        "intercellSpacing" : "dimension", 
@@ -43,10 +43,45 @@
 	},
 	"handlers":
 	{
-	        "onDragEndMethodID" : "function", 
-	        "onDragMethodID" : "function", 
-	        "onDragOverMethodID" : "function", 
-	        "onDropMethodID" : "function" 
+	        "onDragEndMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSDNDEvent"
+								} 
+							 ]
+	        }, 
+	        "onDragMethodID" : {
+	          "returns": "Number", 
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSDNDEvent"
+								} 
+							 ]
+	        }, 
+	        "onDragOverMethodID" : {
+	          "returns": "Boolean", 
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSDNDEvent"
+								} 
+							 ]
+	        }, 
+	        "onDropMethodID" : {
+	          "returns": "Boolean", 
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSDNDEvent"
+								} 
+							 ]
+	        } 
 	},
 	"api":
 	{

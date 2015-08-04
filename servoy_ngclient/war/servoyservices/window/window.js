@@ -69,7 +69,7 @@ angular.module('window',['servoy'])
 						
 						if (!contextMatch) continue;
 						
-						var jsEvent = {svyType: 'jsevent', eventType: shortcutcombination};
+						var jsEvent = {svyType: 'JSEvent', eventType: shortcutcombination};
 						if(form != 'MainController') {
 							jsEvent.formName = form;
 							var formScope = angular.element(parent).scope();

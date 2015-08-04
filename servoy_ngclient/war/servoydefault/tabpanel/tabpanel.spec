@@ -28,8 +28,19 @@
 	},
 	"handlers":
 	{
-	        "onChangeMethodID" : "function", 
-	        "onTabChangeMethodID" : "function" 
+	        "onChangeMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"previousIndex",
+								  "type":"Number"
+								}, 
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        } 
 	},
 	"api":
 	{

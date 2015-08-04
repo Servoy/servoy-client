@@ -38,15 +38,20 @@ import javax.xml.xpath.XPathFactory;
 
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebComponentSpecification.PushToServerValue;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.servoy.base.persistence.constants.IRepositoryConstants;
+import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.MethodArgument;
+import com.servoy.j2db.persistence.MethodTemplate;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.ui.IScriptScriptLabelMethods;
 import com.servoy.j2db.ui.runtime.IRuntimeCalendar;
@@ -352,12 +357,13 @@ public class SpecGenerator
 
 	private void readModelAndHandlers(List<SpecTemplateModel> specTemplateList)
 	{
+		MethodTemplatesLoader.loadMethodTemplatesFromXML();
 		ContentSpec spec = StaticContentSpecLoader.getContentSpec();
 		for (SpecTemplateModel componentSpec : specTemplateList)
 		{
 			List<Element> props = Utils.asList(spec.getPropertiesForObjectType(componentSpec.getRepositoryType()));
 			List<Element> model = new ArrayList<Element>();
-			List<Element> handlers = new ArrayList<Element>();
+			List<ApiMethod> handlers = new ArrayList<ApiMethod>();
 
 			for (Element element : props)
 			{
@@ -365,7 +371,25 @@ public class SpecGenerator
 				{
 					if (BaseComponent.isEventProperty(element.getName()))
 					{
-						handlers.add(element);
+						if (element.getDeprecatedMoveContentID() == 0)
+						{
+							MethodTemplate template = MethodTemplate.getTemplate(ScriptMethod.class, element.getName());
+							List<String> parametersNames = new ArrayList<String>();
+							List<String> parameterTypes = new ArrayList<String>();
+							List<String> optionalParameters = new ArrayList<String>();
+							if (template.getArguments() != null)
+							{
+								for (MethodArgument arg : template.getArguments())
+								{
+									parametersNames.add(arg.getName());
+									parameterTypes.add(arg.getType().getName());
+									if (arg.isOptional()) optionalParameters.add(arg.getName());
+								}
+							}
+							String returnType = template.getReturnType() != null ? template.getReturnType().getName() : null;
+							handlers.add(new ApiMethod(element.getName(), returnType, parametersNames, parameterTypes, optionalParameters,
+								metaDataForApi.get(template.getName())));
+						}
 					}
 					else if (getSpecTypeFromRepoType(componentSpec.getName(), element) != null)
 					{

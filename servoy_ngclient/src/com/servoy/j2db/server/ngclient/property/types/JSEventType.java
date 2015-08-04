@@ -49,7 +49,7 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 public class JSEventType extends ReferencePropertyType<JSEvent> implements IPropertyConverter<JSEvent>, IClassPropertyType<JSEvent>
 {
 	public static final JSEventType INSTANCE = new JSEventType();
-	public static final String TYPE_NAME = "jsevent"; //$NON-NLS-1$
+	public static final String TYPE_NAME = "JSEvent"; //$NON-NLS-1$
 
 	/*
 	 * @see org.sablo.specification.property.IPropertyType#getName()
@@ -135,7 +135,7 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 
 			JSONUtils.addKeyIfPresent(writer, key);
 			writer.object();
-			writer.key("svyType").value("jsevent");
+			writer.key("svyType").value("JSEvent");
 			writer.key("jseventhash").value(addReference(sabloValue));
 			writer.endObject();
 		}

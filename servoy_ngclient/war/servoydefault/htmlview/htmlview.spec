@@ -27,10 +27,42 @@
 	},
 	"handlers":
 	{
-	        "onActionMethodID" : "function", 
-	        "onFocusGainedMethodID" : "function", 
-	        "onFocusLostMethodID" : "function", 
-	        "onRightClickMethodID" : "function" 
+	        "onActionMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }, 
+	        "onFocusGainedMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }, 
+	        "onFocusLostMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        }, 
+	        "onRightClickMethodID" : {
+	         	
+	        	"parameters":[
+								{
+						          "name":"event",
+								  "type":"JSEvent"
+								} 
+							 ]
+	        } 
 	},
 	"api":
 	{

@@ -31,7 +31,26 @@
 	"handlers":
 	{
 	    <#list handlers as prop>
-	        "${prop.name}" : "function"<#if prop_has_next>,</#if> 
+	        "${prop.name}" : {
+	        <#if (prop.returnType?? && prop.returnType != "void")>  "returns": "${prop.returnType}"<#if (prop.parameters?size>0 || prop.hints??)>, </#if>
+	        </#if> <#if (prop.parameters?? && prop.parameters?size>0)>	
+	        	"parameters":[
+								<#list prop.parameters as param><#rt>					
+								{
+						          "name":"${param.left}",
+								  "type":"${param.right}"<#if (prop.isOptionalParameter(param.left)!="false")>,
+								  "optional":${prop.isOptionalParameter(param.left)}
+								}<#else>
+								}</#if><#if param_has_next>,</#if> 
+								</#list>
+<#t>							 ]<#if prop.hints??>,</#if>
+
+						</#if>
+							<#if prop.hints??>
+							<#list prop.hints as hint>${hint}<#if hint_has_next>,</#if>
+				            </#list>
+			            </#if>
+	        }<#if prop_has_next>,</#if> 
 	    </#list>
 	},
 	"api":

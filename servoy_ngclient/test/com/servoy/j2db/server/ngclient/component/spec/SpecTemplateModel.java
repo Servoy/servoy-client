@@ -46,7 +46,7 @@ public class SpecTemplateModel
 	private final String[] libraries;
 	private final List<ApiMethod> apis = new ArrayList<>();
 	private final int repositoryType;
-	private List<Element> handlers;
+	private List<ApiMethod> handlers;
 	private List<Element> model;
 	private final int version;
 
@@ -126,7 +126,7 @@ public class SpecTemplateModel
 		return model;
 	}
 
-	public List<Element> getHandlers()
+	public List<ApiMethod> getHandlers()
 	{
 		return handlers;
 	}
@@ -136,7 +136,7 @@ public class SpecTemplateModel
 		this.model = model;
 	}
 
-	public void setHandlers(List<Element> handlers)
+	public void setHandlers(List<ApiMethod> handlers)
 	{
 		this.handlers = handlers;
 	}
@@ -171,14 +171,15 @@ public class SpecTemplateModel
 
 	public void sortByName()
 	{
-		Collections.sort(apis, new Comparator<ApiMethod>()
+		Comparator<ApiMethod> functionComparator = new Comparator<ApiMethod>()
 		{
 			@Override
 			public int compare(ApiMethod o1, ApiMethod o2)
 			{
 				return o1.getName().compareTo(o2.getName());
 			}
-		});
+		};
+		Collections.sort(apis, functionComparator);
 
 		Comparator<Element> elementComparator = new Comparator<Element>()
 		{
@@ -189,7 +190,7 @@ public class SpecTemplateModel
 		};
 
 		Collections.sort(model, elementComparator);
-		Collections.sort(handlers, elementComparator);
+		Collections.sort(handlers, functionComparator);
 	}
 
 	public String getTypes()
