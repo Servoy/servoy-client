@@ -17,12 +17,17 @@
 
 package com.servoy.j2db.server.ngclient.eventthread;
 
+import java.util.Collection;
+
+import org.sablo.Container;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.websocket.IWebsocketSession;
+import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
+import com.servoy.j2db.server.ngclient.NGRuntimeWindow;
 
 /**
  * A {@link INGClientWindow} implementation that redirects all the calls on it to the current registered,
@@ -34,12 +39,63 @@ import com.servoy.j2db.server.ngclient.INGClientWindow;
 public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows implements INGClientWindow
 {
 
+	private IWindow lastKnownWindow;
+
 	/**
 	 * @param session
 	 */
 	public NGClientWebsocketSessionWindows(INGClientWebsocketSession session)
 	{
 		super(session);
+		Collection<INGClientWindow> windows = getSession().getWindows();
+		if (windows.size() == 1)
+		{
+			// just a shortcut if there is one 1 window (tab in browser) then just always take that one
+			lastKnownWindow = windows.iterator().next();
+		}
+		else
+		{
+			NGRuntimeWindow currentWindow = getSession().getClient().getRuntimeWindowManager().getCurrentWindow();
+			if (currentWindow != null)
+			{
+				for (INGClientWindow window : windows)
+				{
+					if (window.getUuid().equals(currentWindow.getName()))
+					{
+						lastKnownWindow = window;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public String getCurrentFormUrl()
+	{
+		if (lastKnownWindow != null) return lastKnownWindow.getCurrentFormUrl();
+		return super.getCurrentFormUrl();
+	}
+
+	@Override
+	public Container getForm(String formName)
+	{
+		if (lastKnownWindow != null) return lastKnownWindow.getForm(formName);
+		return super.getForm(formName);
+	}
+
+	@Override
+	public String getName()
+	{
+		if (lastKnownWindow != null) return lastKnownWindow.getName();
+		return super.getName();
+	}
+
+	@Override
+	public String getUuid()
+	{
+		if (lastKnownWindow != null) return lastKnownWindow.getUuid();
+		return super.getUuid();
 	}
 
 
