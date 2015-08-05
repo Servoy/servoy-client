@@ -386,7 +386,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			new Object[] { getName() });
 
 		// assume that just after hiding the window, currentController in js is the main window controller
-		IFormController formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
+		JSWindow parent = getParent();
+		IFormController formController = null;
+		if (parent != null)
+		{
+			formController = parent.getImpl().getController();
+			getApplication().getRuntimeWindowManager().setCurrentWindowName(parent.getImpl().getName());
+		}
+		else
+		{
+			formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
+		}
 		if (formController instanceof IWebFormController) getApplication().getFormManager().setCurrentControllerJS((IWebFormController)formController);
 
 		// resume
@@ -407,6 +417,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
+		String currentWindowName = getApplication().getRuntimeWindowManager().getCurrentWindowName();
 		IWebFormController controller = getApplication().getFormManager().getForm(formName);
 		if (controller != null)
 		{
@@ -427,6 +438,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			try
 			{
 				getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT, IEventDispatcher.NO_TIMEOUT);
+				// this is now a hide of this window, set back the window name just before this show.
+				getApplication().getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
 			}
 			catch (CancellationException e)
 			{

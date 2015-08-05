@@ -163,7 +163,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#setCurrentWindowName(java.lang.String)
 	 */
 	@Override
@@ -178,6 +178,12 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 	{
 		((INGApplication)application).getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("create",
 			new Object[] { windowName, String.valueOf(type) });
+		if (parent == null && CurrentWindow.exists())
+		{
+			// try to always just set the current parent if it is null
+			// this way we can later on use this to set the window back.
+			parent = getWindow(CurrentWindow.get().getUuid());
+		}
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
 
