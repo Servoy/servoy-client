@@ -20,10 +20,19 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 	var sendChanges = function(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
-			var changes = getComponentChanges(now, prev, $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname),
+			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
+			var changes = getComponentChanges(now, prev, beanConversionInfo,
 					formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifierGenerator(formname, beanname), formState.getScope(),property);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
-				$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes}, true)
+				// if this is a simple property change without any special conversions then then push the old value.
+				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {
+					var oldvalues ={};
+					oldvalues[property] = $sabloUtils.convertClientObject(prev)
+					$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes,oldvalues:oldvalues}, true)
+				}
+				else {
+					$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes}, true)
+				}
 			}
 		})
 	};
