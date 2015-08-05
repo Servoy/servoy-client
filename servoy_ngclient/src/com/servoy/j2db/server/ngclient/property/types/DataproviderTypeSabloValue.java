@@ -40,6 +40,7 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithConversions;
 import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -186,44 +187,37 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
 	{
 		// TODO can type or fieldFormat change, for example in scripting the format is reset (but type shouldn't really change)
-		if (typeOfDP == null)
+		IDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(servoyDataConverterContext.getApplication().getFlattenedSolution(),
+			servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null);
+		Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
+		for (PropertyDescription formatPd : properties)
 		{
-			Collection<PropertyDescription> properties = formElement.getWebComponentSpec().getProperties(TypesRegistry.getType("format"));
-			for (PropertyDescription formatPd : properties)
+			// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
+			Object formatConfig = formatPd.getConfig();
+			if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
 			{
-				// compare whether format and valuelist property are for same property (dataprovider) or if format is used for valuelist property itself
-				Object formatConfig = formatPd.getConfig();
-				if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
+				INGApplication application = servoyDataConverterContext.getApplication();
+				String format = (String)formElement.getPropertyValue(formatPd.getName());
+				if (format != null)
 				{
-					INGApplication application = servoyDataConverterContext.getApplication();
-					String format = (String)formElement.getPropertyValue(formatPd.getName());
-					if (format != null)
-					{
-						fieldFormat = ComponentFormat.getComponentFormat(
-							format,
-							dataProviderID,
-							application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
-								servoyDataConverterContext.getForm().getForm()), application);
-						break;
-					}
+					fieldFormat = ComponentFormat.getComponentFormat(format, dataProviderID, dpLookup, application);
+					break;
 				}
 			}
-			if (fieldFormat != null)
-			{
-				typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml());
-			}
-			else
-			{
-				// see type of dataprovider; this is done only once - first time we get a new record
-				typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
-					servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
-					getDataProviderConfig().hasParseHtml());
-			}
+		}
+		if (fieldFormat != null)
+		{
+			typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml());
+		}
+		else
+		{
+			// see type of dataprovider; this is done only once - first time we get a new record
+			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
+				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
+				getDataProviderConfig().hasParseHtml());
 		}
 
 		String dpID = dataProviderID;
-		IDataProviderLookup dpLookup = servoyDataConverterContext.getApplication().getFlattenedSolution().getDataproviderLookup(
-			servoyDataConverterContext.getApplication().getFoundSetManager(), servoyDataConverterContext.getForm().getForm());
 		if (dpLookup != null)
 		{
 			IDataProvider dp;
