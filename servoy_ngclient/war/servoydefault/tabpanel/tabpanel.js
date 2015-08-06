@@ -1,4 +1,4 @@
-angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window, $log, $apifunctions) {  
+angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window, $log, $apifunctions,$timeout) {  
 	return {
 		restrict: 'E',
 		transclude: true,
@@ -120,13 +120,16 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 
 			function setFormVisible(tab,event) {
 				if (tab.containsFormId) $scope.svyServoyapi.formWillShow(tab.containsFormId, tab.relationName);
-				if($scope.model.selectedTab && $scope.model.selectedTab != tab && $scope.handlers.onChangeMethodID)
-				{
-					$scope.handlers.onChangeMethodID($scope.getTabIndex($scope.model.selectedTab),event !=null?event : $.Event("change"));
-				}   			
 				if ($log.debugEnabled) $log.debug("svy * selectedTab = '" + tab.containsFormId + "' -- " + new Date().getTime());
+				var oldSelected = $scope.model.selectedTab;
 				$scope.model.selectedTab = tab;
 				$scope.model.tabIndex = $scope.getTabIndex($scope.model.selectedTab);
+				if(oldSelected && oldSelected != tab && $scope.handlers.onChangeMethodID)
+				{
+					$timeout(function() {
+						$scope.handlers.onChangeMethodID($scope.getTabIndex(oldSelected),event !=null?event : $.Event("change"));
+					});
+				} 
 			}
 
 			$scope.getTabIndex = function(tab) {
