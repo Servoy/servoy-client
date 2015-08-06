@@ -91,7 +91,7 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 		this.previousValues = new HashMap<Integer, SabloT>();
 		if (previousComponentValue != null)
 		{
-			for (int i = previousComponentValue.size(); i >= 0; i++)
+			for (int i = previousComponentValue.size() - 1; i >= 0; i--)
 				this.previousValues.put(Integer.valueOf(i), previousComponentValue.get(i));
 		}
 		this.componentOrService = componentOrService;
