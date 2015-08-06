@@ -692,7 +692,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							$sabloApplication.callService('formService', 'formLoaded', { formname: formName }, true)
 							var formWidth = element.prop('offsetWidth');
 							var formHeight = element.prop('offsetHeight');
-							if (formWidth === 0 && formHeight === 0)
+							// for some reason, height is not 0 in firefox for svy-formload tag; should we just assume the structure and remove this test altogether?
+							if (formWidth === 0 || formHeight === 0)
 							{
 								var formWidth = element.children().prop('offsetWidth');
 								var formHeight = element.children().prop('offsetHeight');
