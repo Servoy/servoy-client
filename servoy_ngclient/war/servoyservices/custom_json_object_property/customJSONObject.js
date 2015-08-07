@@ -31,26 +31,33 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 
 	/** Initializes internal state on a new object value */
 	function initializeNewValue(newValue, contentVersion) {
-		$sabloConverters.prepareInternalState(newValue);
+		var newInternalState = false; // TODO although unexpected (internal state to already be defined at this stage it can happen until SVY-8612 is implemented and property types change to use that
+		if (!newValue.hasOwnProperty($sabloConverters.INTERNAL_IMPL)) {
+			newInternalState = true;
+			$sabloConverters.prepareInternalState(newValue);
+		} // else: we don't try to redefine internal state if it's already defined
+
 		var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 		internalState[CONTENT_VERSION] = contentVersion; // being full content updates, we don't care about the version, we just accept it
 
-		// implement what $sabloConverters need to make this work
-		internalState.setChangeNotifier = function(changeNotifier) {
-			internalState.notifier = changeNotifier; 
-		}
-		internalState.isChanged = function() {
-			var hasChanges = internalState.allChanged;
-			if (!hasChanges) for (var x in internalState.changedKeys) { hasChanges = true; break; }
-			return hasChanges;
-		}
+		if (newInternalState) {
+			// implement what $sabloConverters need to make this work
+			internalState.setChangeNotifier = function(changeNotifier) {
+				internalState.notifier = changeNotifier; 
+			}
+			internalState.isChanged = function() {
+				var hasChanges = internalState.allChanged;
+				if (!hasChanges) for (var x in internalState.changedKeys) { hasChanges = true; break; }
+				return hasChanges;
+			}
 
-		// private impl
-		internalState.modelUnwatch = [];
-		internalState.objStructureUnwatch = null;
-		internalState.conversionInfo = {};
-		internalState.changedKeys = {};
-		internalState.allChanged = false;
+			// private impl
+			internalState.modelUnwatch = [];
+			internalState.objStructureUnwatch = null;
+			internalState.conversionInfo = {};
+			internalState.changedKeys = {};
+			internalState.allChanged = false;
+		} // else don't reinitilize it - it's already initialized
 	}
 	
 	function removeAllWatches(value) {
