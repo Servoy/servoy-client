@@ -476,9 +476,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					// otherwise it will be called on the entire column, and the return value will be of a selected row if possible
 					if (callOnFirstSelectedCellOnly) {
 						if ($scope.foundset.selectedRowIndexes.length > 0) {
-							var rowIdxOfFirstSelected = $scope.foundset.selectedRowIndexes[0];
+							var apiCallTargetRowIndex = $scope.foundset.selectedRowIndexes[0];
 							if (event && (event.selectedIndex || event.selectedIndex === 0))
-								rowIdxOfFirstSelected = event.selectedIndex;// if the server also sent a selectedIndex, then we use that index
+								apiCallTargetRowIndex = event.selectedIndex;// if the server also sent a selectedIndex, then we use that index
 
 							function callAPIAfterScroll(rowIdToCall) {
 								// the grid reports that it scrolled very fast - so it did actually scroll, but no content is created/visible yet
@@ -522,12 +522,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								return retVal;
 							}
 
-							if (isInViewPort(rowIdxOfFirstSelected)) {
-								retVal = $scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(rowIdxOfFirstSelected)]), null /* must be null here, can't be undefined */).then(function () {
+							if (isInViewPort(apiCallTargetRowIndex)) {
+								retVal = $scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow($scope.foundset.viewPort.rows[absoluteToViewPort(apiCallTargetRowIndex)]), null /* must be null here, can't be undefined */).then(function () {
 									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
-									if ((rowIdxOfFirstSelected !== newFirstSelected) && !(event && (event.selectedIndex || event.selectedIndex === 0)))
-										return $q.reject("First selected index changed for some reason (" + rowIdxOfFirstSelected + " -> " + newFirstSelected + ") while scrolling for loader row API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
-									return callAPIAfterScroll(absoluteRowIndexToRowId(rowIdxOfFirstSelected));
+									if ((apiCallTargetRowIndex !== newFirstSelected) && !(event && (event.selectedIndex || event.selectedIndex === 0)))
+										return $q.reject("First selected index changed for some reason (" + apiCallTargetRowIndex + " -> " + newFirstSelected + ") while scrolling for loader row API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+									return callAPIAfterScroll(absoluteRowIndexToRowId(apiCallTargetRowIndex));
 								});
 							} else {
 								// updateGridSelectionFromFoundset will scroll to it anyway, so wait for that to happen
@@ -537,9 +537,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									// success
 									deferredAPICallExecution = undefined;
 									var newFirstSelected = ($scope.foundset.selectedRowIndexes.length > 0 ? $scope.foundset.selectedRowIndexes[0] : -1);
-									if ((rowIdxOfFirstSelected !== newFirstSelected)&& !(event && (event.selectedIndex || event.selectedIndex === 0)))
-										return $q.reject("First selected index changed for some reason (" + rowIdxOfFirstSelected + " -> " + newFirstSelected + ") while scrolling for non-loaded API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
-									return callAPIAfterScroll(absoluteRowIndexToRowId(rowIdxOfFirstSelected));
+									if ((apiCallTargetRowIndex !== newFirstSelected)&& !(event && (event.selectedIndex || event.selectedIndex === 0)))
+										return $q.reject("First selected index changed for some reason (" + apiCallTargetRowIndex + " -> " + newFirstSelected + ") while scrolling for non-loaded API call. Api call: '" + apiFunctionName + "' on column " + elementIndex);
+									return callAPIAfterScroll(absoluteRowIndexToRowId(apiCallTargetRowIndex));
 								}, function(reason) {
 									// error
 									deferredAPICallExecution = undefined;
@@ -718,7 +718,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									}
 								}
 							} else if (rows.length > 0) {
+								$scope.ignoreSelection = true;
 								$scope.gridApi.selection.selectRow(rows[0]);
+								$scope.ignoreSelection = false;
 								$scope.gridApi.grid.scrollTo($scope, rows[0], null);
 							}
 							updatingGridSelection = false;
@@ -804,10 +806,15 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									return;
 								}
 								//reject
-								var rowid = absoluteRowIndexToRowId(serverRows[0]);
-								var selection = {};
-								selection[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowid;
-								$scope.gridApi.selection.selectRow(selection);
+								var i = 0;
+								for (i = 0; i < serverRows.length; i++) {
+									var rowid = absoluteRowIndexToRowId(serverRows[i]);
+									var selection = {};
+									selection[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowid;
+									$scope.ignoreSelection = true;
+									$scope.gridApi.selection.selectRow(selection);
+									$scope.ignoreSelection = false;
+								}
 								document.activeElement.blur();
 							}
 						);

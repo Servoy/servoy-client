@@ -67,7 +67,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
-					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_ACCEPTED])) {

@@ -49,7 +49,7 @@ module.exports = function(config){
     },
 
     frameworks: ['jasmine'],
-    browsers : ['PhantomJS', 'Chrome', 'Firefox', 'IE'],//
+    browsers : ['Chrome'],//
 
     /*plugins : [    <- not needed since karma loads by default all sibling plugins that start with karma-*
             'karma-junit-reporter',

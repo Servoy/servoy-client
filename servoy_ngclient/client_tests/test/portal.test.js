@@ -174,9 +174,9 @@ describe("Test portal suite", function() {
 		var newconverted = sabloConverters.convertFromServerToClient(newServerValue, {
 			'childElements': 'JSON_arr'
 		}, scope.model, scope, null);
-
 		scope.model.relatedFoundset.viewPort.rows[0] = {
-			"one": 1
+			"one": 1,
+			"_svyRowId": "5.11248;2.11;_0"
 		};
 		scope.$apply();
 
