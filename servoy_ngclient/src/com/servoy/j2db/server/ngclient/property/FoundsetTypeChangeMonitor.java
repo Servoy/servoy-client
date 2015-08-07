@@ -41,20 +41,22 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * The whole foundset property needs to get sent to the client.
 	 */
-	protected static final int SEND_ALL = 0b000001;
+	protected static final int SEND_ALL = 0b0000001;
 	/**
 	 * Only the bounds of the viewPort changed, data is the same; for example records were added/removed before startIndex of viewPort,
 	 * or even inside the viewPort but will be combined by incremental updates (adds/deletes).
 	 */
-	protected static final int SEND_VIEWPORT_BOUNDS = 0b000010;
+	protected static final int SEND_VIEWPORT_BOUNDS = 0b0000010;
 	/**
 	 * Foundset size changed (add/remove of records).
 	 */
-	protected static final int SEND_FOUNDSET_SIZE = 0b001000;
+	protected static final int SEND_FOUNDSET_SIZE = 0b0001000;
 
-	protected static final int SEND_SELECTED_INDEXES = 0b010000;
+	protected static final int SEND_SELECTED_INDEXES = 0b0010000;
 
-	protected static final int SEND_SELECTION_DENIED = 0b100000;
+	protected static final int SEND_SELECTION_DENIED = 0b0100000;
+
+	protected static final int SEND_SELECTION_ACCEPTED = 0b1000000;
 
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
@@ -67,6 +69,20 @@ public class FoundsetTypeChangeMonitor
 		this.propertyValue = propertyValue;
 		viewPortDataChangeMonitor = new ViewportDataChangeMonitor(null, rowDataProvider);
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
+	}
+
+
+	/**
+	 * Called when the foundSet selection request from the client was accepted by the server.
+	 */
+	public void selectionAccepted()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_SELECTION_ACCEPTED;
+			if (oldChangeFlags != changeFlags) notifyChange();
+		}
 	}
 
 	/**
@@ -373,6 +389,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendSelectedIndexes()
 	{
 		return (changeFlags & SEND_SELECTED_INDEXES) != 0;
+	}
+
+	public boolean shouldSendSelectionAccepted()
+	{
+		return (changeFlags & SEND_SELECTION_ACCEPTED) != 0;
 	}
 
 	public boolean shouldSendSelectionDenied()

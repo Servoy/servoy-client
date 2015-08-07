@@ -218,3 +218,7 @@ div.svy-label-with-focus:focus{
 {
 	cursor : default;
 }
+.ui-grid-cell-focus
+{ 
+	background-color: transparent;
+}

@@ -670,7 +670,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
 									var rowIdx = $scope.foundset.selectedRowIndexes[idx];
 									if (isInViewPort(rowIdx)) {
+										$scope.ignoreSelection = true;
 										$scope.gridApi.selection.selectRow(rows[rowIdx]);
+										$scope.ignoreSelection = false;
 										if(!scrolledToSelection) {
 											scrolledToSelection = true;
 											var addTimeOut = function(timeoutIdx,rowId) {
@@ -776,33 +778,46 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					updateGridSelectionFromFoundset(true);
 				},[uiGridConstants.dataChange.ROW]);
 				gridApi.selection.on.rowSelectionChanged($scope,function(row){
+					
+					if ($scope.ignoreSelection) return;
+					
 					var newNGGridSelectedItems =  gridApi.selection.getSelectedRows();
 					var tmpSelectedRowIdxs = [];
 					for (var idx = 0; idx < newNGGridSelectedItems.length; idx++) {
 						var absRowIdx = rowIdToAbsoluteRowIndex(newNGGridSelectedItems[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]);
-						tmpSelectedRowIdxs.push(absRowIdx);
-					}	
-					$scope.foundset.requestSelectionUpdate(tmpSelectedRowIdxs).then(
-						function(serverRows){
-							//success
-						},
-						function(serverRows){
-							//canceled 
-							if (serverRows === 'canceled'){
-								return;
-							}
-							//reject
-							var rowid = absoluteRowIndexToRowId(serverRows[0]);
-							var selection = {};
-							selection[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowid;
-							$scope.gridApi.selection.selectRow(selection);
-							document.activeElement.blur();
-						}
-					);
+						if (newNGGridSelectedItems[idx][$foundsetTypeConstants.ROW_ID_COL_KEY].indexOf('-')>0)
+							tmpSelectedRowIdxs.push(absRowIdx);
+					}
+					if (tmpSelectedRowIdxs.length === 0 && newNGGridSelectedItems.length > 0) return;
+					
+					requestSelectionUpdate(tmpSelectedRowIdxs);
 				});
+				
+				function requestSelectionUpdate(tmpSelectedRowIdxs) {
+					$scope.foundset.requestSelectionUpdate(tmpSelectedRowIdxs).then(
+							function(serverRows){
+								//success
+							},
+							function(serverRows){
+								//canceled 
+								if (serverRows === 'canceled'){
+									return;
+								}
+								//reject
+								var rowid = absoluteRowIndexToRowId(serverRows[0]);
+								var selection = {};
+								selection[$foundsetTypeConstants.ROW_ID_COL_KEY] = rowid;
+								$scope.gridApi.selection.selectRow(selection);
+								document.activeElement.blur();
+							}
+						);
+				};
 
 				gridApi.cellNav.on.navigate($scope,function(newRowCol, oldRowCol){
-					$scope.gridApi.selection.selectRow(newRowCol.row.entity);
+					var tmpSelectedRowIdxs = [];					
+					var absRowIdx = rowIdToAbsoluteRowIndex(newRowCol.row.entity[$foundsetTypeConstants.ROW_ID_COL_KEY]);
+					tmpSelectedRowIdxs.push(absRowIdx);
+					requestSelectionUpdate(tmpSelectedRowIdxs);
 		        });
 
 				gridApi.infiniteScroll.on.needLoadMoreData($scope,function(){

@@ -11,15 +11,17 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 	var SERVER_SIZE = "serverSize";
 	var SELECTED_ROW_INDEXES = "selectedRowIndexes";
-	var SEND_SELECTION_DENIED = "selectionDenied"
+	var SEND_SELECTION_ACCEPTED = "selectionAccepted";
+	var SEND_SELECTION_DENIED = "selectionDenied";
+	var SEND_SELECTION_REQUESTID = "selectionRequestID";
 	var MULTI_SELECT = "multiSelect";
 	var VIEW_PORT = "viewPort";
 	var START_INDEX = "startIndex";
 	var SIZE = "size";
 	var ROWS = "rows";
-	
+
 	var NO_OP = "n";
-	
+
 	function removeAllWatches(value) {
 		if (value != null && angular.isDefined(value)) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
@@ -49,10 +51,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, componentModelGetter) {
 			var newValue = currentClientValue;
-			
+
 			// remove watches so that this update won't trigger them
 			removeAllWatches(currentClientValue);
-			
+
 			// see if this is an update or whole value and handle it
 			if (!serverJSONValue) {
 				newValue = serverJSONValue;
@@ -66,19 +68,28 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-					if (internalState.deferred) {
-						internalState.deferred.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
+					updates = true;
+				}
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_ACCEPTED])) {
+					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+					if (internalState.msgid && internalState.msgid === serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_REQUESTID]) {
+						if (internalState.deferred) {
+							currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_ACCEPTED];
+							internalState.deferred.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
+						}
+						delete internalState.deferred;
 					}
-					delete internalState.deferred;
 					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_DENIED])) {
-					var serverRows = serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_DENIED];
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-					if (internalState.deferred) {
-						internalState.deferred.reject(serverRows);
+					if (internalState.msgid && internalState.msgid === serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_REQUESTID]) {
+						var serverRows = serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_DENIED];
+						if (internalState.deferred) {
+							internalState.deferred.reject(serverRows);
+						}
+						delete internalState.deferred;
 					}
-					delete internalState.deferred;
 					updates = true;
 				}
 
@@ -86,7 +97,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					updates = true;
 					var viewPortUpdate = serverJSONValue[UPDATE_PREFIX + VIEW_PORT];
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-					
+
 					if (angular.isDefined(viewPortUpdate[START_INDEX])) {
 						currentClientValue[VIEW_PORT][START_INDEX] = viewPortUpdate[START_INDEX];
 					}
@@ -103,14 +114,14 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						$viewportModule.updateViewportGranularly(currentClientValue[VIEW_PORT][ROWS], internalState, viewPortUpdate[UPDATE_PREFIX + ROWS], viewPortUpdate[CONVERSIONS] && viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] ? viewPortUpdate[CONVERSIONS][UPDATE_PREFIX + ROWS] : undefined, componentScope, componentModelGetter, false);
 					}
 				}
-				
+
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && !serverJSONValue[NO_OP]) {
 					newValue = serverJSONValue; // not updates - so whole thing received
 					$sabloConverters.prepareInternalState(newValue);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
 					internalState.requests = [];
-					
+
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
 					$viewportModule.updateAllConversionInfo(newValue[VIEW_PORT][ROWS], internalState, newValue[VIEW_PORT][CONVERSIONS] ? newValue[VIEW_PORT][CONVERSIONS][ROWS] : undefined);
 					if (newValue[VIEW_PORT][CONVERSIONS]) {
@@ -118,7 +129,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						$sabloConverters.convertFromServerToClient(newValue[VIEW_PORT][ROWS], newValue[VIEW_PORT][CONVERSIONS][ROWS], componentScope, componentModelGetter);
 						delete newValue[VIEW_PORT][CONVERSIONS];
 					}
-					
+
 					// PUBLIC API to components; initialize the property value; make it 'smart'
 					newValue.loadRecordsAsync = function(startIndex, size) {
 						internalState.requests.push({newViewPort: {startIndex : startIndex, size : size}});
@@ -143,7 +154,13 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						delete internalState.deferred;
 
 						internalState.deferred = $q.defer();
-						internalState.requests.push({newClientSelectionRequest: tmpSelectedRowIdxs});
+						if (internalState.msgid === undefined) {
+							internalState.msgid = 1;
+						}
+						else {
+							internalState.msgid++;
+						}
+						internalState.requests.push({newClientSelectionRequest: tmpSelectedRowIdxs, selectionRequestID: internalState.msgid});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 
 						return internalState.deferred.promise;
@@ -151,15 +168,15 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup
 					internalState.setChangeNotifier = function(changeNotifier) {
-						internalState.changeNotifier = changeNotifier; 
+						internalState.changeNotifier = changeNotifier;
 					}
 					internalState.isChanged = function() { return internalState.requests && (internalState.requests.length > 0); }
-					
+
 					// private state/impl
 				}
-				
+
 			}
-			
+
 			// restore/add watches
 			addBackWatches(newValue, componentScope);
 

@@ -79,7 +79,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	public static final String SERVER_SIZE = "serverSize";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
+
 	public static final String SEND_SELECTION_DENIED = "selectionDenied";
+	public static final String SEND_SELECTION_ACCEPTED = "selectionAccepted";
+	public static final String SEND_SELECTION_REQUESTID = "selectionRequestID";
+
 	public static final String MULTI_SELECT = "multiSelect";
 	public static final String VIEW_PORT = "viewPort";
 	public static final String START_INDEX = "startIndex";
@@ -109,6 +113,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	protected final Map<String, String> elementsToDataproviders;
 
 	protected final DataAdapterList parentDAL;
+
+	private int selectionRequestMsgid;
 
 	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL)
 	{
@@ -389,7 +395,18 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			if (changeMonitor.shouldSendSelectionDenied())
 			{
 				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_REQUESTID);
+				destinationJSON.value(this.selectionRequestMsgid);
 				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_DENIED);
+				addSelectedIndexes(destinationJSON);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendSelectionAccepted())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_REQUESTID);
+				destinationJSON.value(this.selectionRequestMsgid);
+				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_ACCEPTED);
 				addSelectedIndexes(destinationJSON);
 				somethingChanged = true;
 			}
@@ -587,6 +604,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					// {newClientSelectionRequest: newSelectedIndexesArray}
 					else if (update.has("newClientSelectionRequest"))
 					{
+						this.selectionRequestMsgid = update.getInt("selectionRequestID");
 						JSONArray jsonSelectedIndexes = update.getJSONArray("newClientSelectionRequest");
 						int[] newSelectedIndexes = new int[jsonSelectedIndexes.length()];
 						for (int j = newSelectedIndexes.length - 1; j >= 0; j--)
@@ -616,7 +634,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 							if (!Arrays.equals(oldSelection, foundset.getSelectedIndexes()))
 							{// if the selection is changed, send it back to the client so that its model is also updated
-								changeMonitor.selectionChanged();
+								changeMonitor.selectionAccepted();
 							}
 							else
 							{
@@ -624,7 +642,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 								{// it was supposed to change but the server did not allow it
 									changeMonitor.selectionDenied();
 								}
-								else changeMonitor.selectionChanged();
+								else changeMonitor.selectionAccepted();
 							}
 						}
 					}
