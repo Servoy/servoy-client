@@ -27,6 +27,13 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			var cellAPICaches = {};
 
 			$scope.pageSize = 25;
+			$scope.transferFocus = function() {
+				// hack to set the lastRowCol to null
+				// so that the focus call really initializes everything again
+				// (else cellNav thinks nothing is changed and the wrong div has still focus) 
+				$scope.gridApi.grid.cellNav.lastRowCol = null;
+				$($element.find(".ui-grid-cell")[0]).find("div")[0].focus();
+			}
 
 			$scope.foundset = null;
 			var elements = $scope.model.childElements;
@@ -119,7 +126,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
 						}
-						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"' + handlers + '></div>';
+						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"' + handlers + ' tabIndex="-1"></div>';
 					}
 					else {
 						var portal_svy_name = $element[0].getAttribute('data-svy-name');

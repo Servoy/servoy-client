@@ -337,7 +337,8 @@ public class FormElementHelper
 								String tabSeqPropertyName = tabSeqProperty.getName();
 								Integer tabSeqVal = (Integer)fe.getPropertyValue(tabSeqPropertyName);
 								if (tabSeqVal == null) tabSeqVal = Integer.valueOf(0); // default is 0 == DEFAULT tab sequence
-								if (minBodyPortalTabSeq < 0 || minBodyPortalTabSeq > tabSeqVal.intValue()) minBodyPortalTabSeq = tabSeqVal.intValue();
+								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0))
+									minBodyPortalTabSeq = tabSeqVal.intValue();
 							}
 						}
 
