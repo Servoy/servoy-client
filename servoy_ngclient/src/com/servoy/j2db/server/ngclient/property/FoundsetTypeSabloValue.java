@@ -80,8 +80,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public static final String SERVER_SIZE = "serverSize";
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 
-	public static final String SEND_SELECTION_DENIED = "selectionDenied";
-	public static final String SEND_SELECTION_ACCEPTED = "selectionAccepted";
+	public static final String SEND_SELECTION_RESPONSE = "selectionResponse";
 	public static final String SEND_SELECTION_REQUESTID = "selectionRequestID";
 
 	public static final String MULTI_SELECT = "multiSelect";
@@ -397,8 +396,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_REQUESTID);
 				destinationJSON.value(this.selectionRequestMsgid);
-				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_DENIED);
-				addSelectedIndexes(destinationJSON);
+				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_RESPONSE);
+				destinationJSON.value(false);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendSelectionAccepted())
@@ -406,8 +405,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_REQUESTID);
 				destinationJSON.value(this.selectionRequestMsgid);
-				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_ACCEPTED);
-				addSelectedIndexes(destinationJSON);
+				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_RESPONSE);
+				destinationJSON.value(true);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendWholeViewPort())
@@ -634,12 +633,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 							if (!Arrays.equals(oldSelection, foundset.getSelectedIndexes()))
 							{// if the selection is changed, send it back to the client so that its model is also updated
+								changeMonitor.selectionChanged();
 								changeMonitor.selectionAccepted();
 							}
 							else
 							{
 								if (!Arrays.equals(oldSelection, newSelectedIndexes))
-								{// it was supposed to change but the server did not allow it
+								{ // it was supposed to change but the server did not allow it
+									//send back the selection to the client so that it can reject the promise with the correct selection
+									changeMonitor.selectionChanged();
 									changeMonitor.selectionDenied();
 								}
 								else changeMonitor.selectionAccepted();
