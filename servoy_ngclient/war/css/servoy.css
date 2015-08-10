@@ -213,6 +213,7 @@ div.svy-label-with-focus:focus{
 .modal-backdrop
 {
 	height: 100%;
+	position: fixed;
 }
 .svyPortalGridStyle .form-control[readonly]
 {
