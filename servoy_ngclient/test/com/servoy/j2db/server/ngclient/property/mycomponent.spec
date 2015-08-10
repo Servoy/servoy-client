@@ -5,6 +5,7 @@
 	"libraries": [],
 	"model":
 	{
+		"background": {"type":"color", "pushToServer":"shallow"},
 		"objectT": "mytype007",
 		"arrayT": "mytype007[]"
 	},
