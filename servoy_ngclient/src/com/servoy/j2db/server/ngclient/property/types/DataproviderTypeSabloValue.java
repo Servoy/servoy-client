@@ -42,9 +42,12 @@ import org.sablo.websocket.utils.JSONUtils.JSONStringWithConversions;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.dataprocessing.FoundSetEvent;
+import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -59,6 +62,7 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UUID;
 
@@ -85,6 +89,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private TargetDataLinks dataLinks;
 	private Set<String> tagsDataProviders;
 	private boolean displaysTags;
+	private IFoundSetEventListener globalRelatedFoundsetListener = null;
 
 	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
 	{
@@ -151,6 +156,34 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		if (isFindModeAware != null && isFindModeAware.booleanValue() == true) dataAdapterList.addFindModeAwareProperty(this);
 
+		if (dataProviderID.indexOf('.') != -1)
+		{
+			String relationName = dataProviderID.substring(0, dataProviderID.indexOf('.'));
+			Relation relation = servoyDataConverterContext.getApplication().getFlattenedSolution().getRelation(relationName);
+			if (relation != null && relation.isGlobal())
+			{
+				try
+				{
+					servoyDataConverterContext.getApplication().getFoundSetManager().getGlobalRelatedFoundSet(relationName).addFoundSetEventListener(
+						globalRelatedFoundsetListener = new IFoundSetEventListener()
+						{
+							@Override
+							public void foundSetChanged(FoundSetEvent e)
+							{
+								if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+								{
+									dataProviderOrRecordChanged(dataAdapterList.getRecord(), null, false, false, true);
+								}
+							}
+						});
+				}
+				catch (ServoyException e)
+				{
+					Debug.error(e);
+				}
+			}
+		}
+
 		DataproviderConfig config = (DataproviderConfig)dpPD.getConfig();
 		String dtpn = config.getDisplayTagsPropertyName();
 		Object dtPropVal = null;
@@ -170,6 +203,24 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		// unregister listeners
 		dataAdapterList.removeDataLinkedProperty(this);
 		dataAdapterList.removeFindModeAwareProperty(this);
+		if (globalRelatedFoundsetListener != null && dataProviderID.indexOf('.') != -1)
+		{
+			String relationName = dataProviderID.substring(0, dataProviderID.indexOf('.'));
+			Relation relation = servoyDataConverterContext.getApplication().getFlattenedSolution().getRelation(relationName);
+			if (relation != null && relation.isGlobal())
+			{
+				try
+				{
+					servoyDataConverterContext.getApplication().getFoundSetManager().getGlobalRelatedFoundSet(relationName).removeFoundSetEventListener(
+						globalRelatedFoundsetListener);
+				}
+				catch (ServoyException e)
+				{
+					Debug.error(e);
+				}
+			}
+			globalRelatedFoundsetListener = null;
+		}
 	}
 
 	@Override
@@ -184,7 +235,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	}
 
 	@Override
-	public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
+	public void dataProviderOrRecordChanged(final IRecordInternal record, final String dataProvider, final boolean isFormDP, final boolean isGlobalDP,
+		boolean fireChangeEvent)
 	{
 		// TODO can type or fieldFormat change, for example in scripting the format is reset (but type shouldn't really change)
 		IDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(servoyDataConverterContext.getApplication().getFlattenedSolution(),
