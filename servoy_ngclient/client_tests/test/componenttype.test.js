@@ -1,11 +1,13 @@
 describe("Test component_custom_property suite", function() {
 
-	beforeEach(module('servoy'));
-	beforeEach(module('foundset_viewport_module'));
-	beforeEach(module('component_custom_property'));
-	beforeEach(module('sabloApp'));
-	
-	
+	beforeEach(function() {
+		module('servoy');
+		module('foundset_viewport_module');
+		module('component_custom_property');
+		module('sabloApp');
+		angular.module('pushToServerData', ['pushToServer']);
+	});
+
 	var sabloConverters;
 	var foundsetTypeConstants;
 	var $scope;

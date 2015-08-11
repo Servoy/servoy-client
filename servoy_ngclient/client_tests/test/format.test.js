@@ -4,7 +4,10 @@
 
 describe('servoy $formatUtils', function() {
 
-  beforeEach(module('servoy'));
+  beforeEach(function() {
+	  module('servoy');
+	  angular.module('pushToServerData', ['pushToServer']);
+  });
 
   describe("format numbers", function() {
 	    it("should corecly format numbers", function() {
