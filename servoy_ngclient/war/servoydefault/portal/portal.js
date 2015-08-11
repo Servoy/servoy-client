@@ -2,10 +2,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 .directive('servoydefaultPortal', ["$sabloUtils", '$utils', '$foundsetTypeConstants', '$componentTypeConstants',
                                    '$timeout', '$solutionSettings', '$anchorConstants',
                                    'gridUtil','uiGridConstants','$scrollbarConstants',"uiGridMoveColumnService","$sce","$apifunctions","$log","$q", "$sabloApplication","$sabloConstants","$applicationService",
-                                   '$svyProperties', '$sabloConstants','$window',
+                                   '$svyProperties', '$sabloConstants','$window','i18nService',
                                    function($sabloUtils, $utils, $foundsetTypeConstants, $componentTypeConstants,
                                 		   $timeout, $solutionSettings, $anchorConstants,
-                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants,$window) {
+                                		   gridUtil, uiGridConstants, $scrollbarConstants, uiGridMoveColumnService, $sce, $apifunctions, $log, $q, $sabloApplication, $sabloConstants, $applicationService, $svyProperties, $sabloConstants,$window,i18nService) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -26,6 +26,10 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			var rowProxyObjects = {};
 			var cellAPICaches = {};
 
+			var locale = $sabloApplication.getLocale();
+			if (locale.language) {
+				i18nService.setCurrentLang(locale.language)
+			}
 			$scope.pageSize = 25;
 			$scope.transferFocus = function() {
 				// hack to set the lastRowCol to null

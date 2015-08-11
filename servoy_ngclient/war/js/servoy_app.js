@@ -1020,6 +1020,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					} catch(e3) {}
 				}
 			}
+			var lang = webStorage.session.get("locale");
+			if (lang) {
+				var array = language.split('-');
+				$sabloApplication.setLocale( {language: array[0], country:array[1]});
+			}
 		},
 		showInfoPanel: function(url,w,h,t,closeText)
 		{
@@ -1065,6 +1070,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	}
 	var language = webStorage.session.get("locale");
 	if (!language) language = $applicationService.getLanguage();
+	else {
+		var array = language.split('-');
+		$sabloApplication.setLocale( {language: array[0], country:array[1]});
+	}
 	// fix that only nl-nl is added but not just nl
 	numeral.language('nl',numeral.languageData('nl-nl'));
 	try{ 
