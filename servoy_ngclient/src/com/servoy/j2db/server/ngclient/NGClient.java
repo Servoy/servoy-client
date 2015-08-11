@@ -443,7 +443,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			if (args == null || args.length < 1)
 			{
-				if (!force)
+				if (!force && showUrl == null)
 				{
 					CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
 					{
@@ -768,11 +768,18 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		// TODO call request focus on a div in a client?
 	}
 
+	private ShowUrl showUrl = null;
+
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
-			new Object[] { url, target, target_options, timeout });
+		// 2 calls to show url? Just send this one.
+		if (showUrl != null)
+		{
+			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
+				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
+		}
+		showUrl = new ShowUrl(url, target, target_options, timeout, onRootFrame);
 		return true;
 	}
 
@@ -813,7 +820,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				}
 				scheduledExecutorService = null;
 			}
-			getWebsocketSession().sendRedirect(null);
+			if (showUrl == null) getWebsocketSession().sendRedirect(null);
 			WebsocketSessionManager.removeSession(getWebsocketSession().getUuid());
 		}
 	}
@@ -1070,5 +1077,42 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			Debug.error(ex);
 		}
+	}
+
+	@Override
+	public void changesWillBeSend()
+	{
+		if (showUrl != null)
+		{
+			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
+				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
+			showUrl = null;
+		}
+	}
+
+	private class ShowUrl
+	{
+		private final String url;
+		private final String target;
+		private final String target_options;
+		private final int timeout;
+		private final boolean onRootFrame;
+
+		/**
+		 * @param url
+		 * @param target
+		 * @param target_options
+		 * @param timeout
+		 * @param onRootFrame
+		 */
+		public ShowUrl(String url, String target, String target_options, int timeout, boolean onRootFrame)
+		{
+			this.url = url;
+			this.target = target;
+			this.target_options = target_options;
+			this.timeout = timeout;
+			this.onRootFrame = onRootFrame;
+		}
+
 	}
 }

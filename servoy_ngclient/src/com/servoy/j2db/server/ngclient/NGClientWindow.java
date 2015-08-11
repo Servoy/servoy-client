@@ -93,6 +93,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
+	public void sendChanges() throws IOException
+	{
+		websocketSession.getClient().changesWillBeSend();
+		super.sendChanges();
+	}
+
+	@Override
 	protected Object invokeApi(WebComponent receiver, WebComponentApiDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
 		Map<String, Object> callContributions)
 	{
