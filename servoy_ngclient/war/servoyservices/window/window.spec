@@ -8,7 +8,7 @@
 	"model":
 	{
 	 	"shortcuts" : { "type": "shortcut[]", "pushToServer": "allow", "tags": { "scope" :"private" }},
-	 	"popupform": {"type": "popupform", "pushToServer": "allow", "tags": { "scope" :"private" }},
+	 	"popupform": {"type": "popupform", "pushToServer": "shallow", "tags": { "scope" :"private" }},
 	 	"popupMenus" : {"type": "popup[]", "pushToServer": "allow", "tags": { "scope" :"private" }},
 	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "allow", "tags": { "scope" :"private" }} 
 	},
