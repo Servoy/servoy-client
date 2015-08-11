@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
@@ -50,7 +49,6 @@ public class ComponentsModuleGenerator extends HttpServlet
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
 		generateModules(sb, WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications());
 		generateModules(sb, WebComponentSpecProvider.getInstance().getAllWebComponentSpecifications());
-		generateModule(sb, ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST);
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		resp.setContentLength(sb.length());
