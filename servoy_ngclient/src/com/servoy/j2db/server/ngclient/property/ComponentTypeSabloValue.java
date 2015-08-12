@@ -135,29 +135,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			});
 		}
-		Collection<PropertyDescription> readOnlyPropertiesParent = this.parentComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
-		if (childComponent != null && readOnlyPropertiesParent.size() > 0)
-		{
-			PropertyDescription propertyDescParent = readOnlyPropertiesParent.iterator().next();
-			Collection<PropertyDescription> readOnlyPropertiesChild = childComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
-			if (readOnlyPropertiesChild.size() > 0)
-			{
-				final PropertyDescription propertyDescChild = readOnlyPropertiesChild.iterator().next();
-				this.parentComponent.addPropertyChangeListener(propertyDescParent.getName(), new PropertyChangeListener()
-				{
-					@Override
-					public void propertyChange(PropertyChangeEvent evt)
-					{
-						if (evt.getNewValue() != null)
-						{
-							ReadonlySabloValue value = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(((ReadonlySabloValue)evt.getNewValue()).getValue(),
-								(ReadonlySabloValue)childComponent.getProperty(propertyDescChild.getName()), propertyDescChild, childComponent);
-							childComponent.setProperty(propertyDescChild.getName(), value);
-						}
-					}
-				});
-			}
-		}
 	}
 
 	private void setDataproviderNameToFoundset()
@@ -300,11 +277,36 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (foundsetPropValue != null)
 		{
-			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
-				recordBasedProperties, this));
+			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor,
+				new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent, recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
 		}
+
+		Collection<PropertyDescription> readOnlyPropertiesParent = this.parentComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
+		if (childComponent != null && readOnlyPropertiesParent.size() > 0)
+		{
+			PropertyDescription propertyDescParent = readOnlyPropertiesParent.iterator().next();
+			Collection<PropertyDescription> readOnlyPropertiesChild = childComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
+			if (readOnlyPropertiesChild.size() > 0)
+			{
+				final PropertyDescription propertyDescChild = readOnlyPropertiesChild.iterator().next();
+				this.parentComponent.addPropertyChangeListener(propertyDescParent.getName(), new PropertyChangeListener()
+				{
+					@Override
+					public void propertyChange(PropertyChangeEvent evt)
+					{
+						if (evt.getNewValue() != null)
+						{
+							ReadonlySabloValue value = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(((ReadonlySabloValue)evt.getNewValue()).getValue(),
+								(ReadonlySabloValue)childComponent.getProperty(propertyDescChild.getName()), propertyDescChild, childComponent);
+							childComponent.setProperty(propertyDescChild.getName(), value);
+						}
+					}
+				});
+			}
+		}
+
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
@@ -406,7 +408,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(changes);
 
 		boolean modelChanged = (changes.content.size() > 0);
-		boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+		boolean viewPortChanged = (forFoundsetTypedPropertyName != null &&
+			(viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
 
 		destinationJSON.object();
 		if (modelChanged || viewPortChanged)
@@ -777,8 +780,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				catch (JSONException e)
 				{
-					Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value +
-						" failed.", e);
+					Debug.error(
+						"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.", e);
 				}
 				finally
 				{
