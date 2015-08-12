@@ -1003,6 +1003,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					$scope.$watch('foundset.multiSelect', function(newVal, oldVal) {
 						// if the server foundset changes and that results in startIndex change (as the viewport will follow first record), see if the page number needs adjusting
 						$scope.gridApi.selection.setMultiSelect(newVal);
+						if (newVal) {
+							var i = 0;
+							for (i=0; i<$scope.columnDefinitions.length; i++){
+								$scope.columnDefinitions[i].allowCellFocus = false;
+							}
+						}
 					});
 
 					// size can change serverside if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
