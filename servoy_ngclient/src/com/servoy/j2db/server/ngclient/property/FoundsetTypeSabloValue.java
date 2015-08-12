@@ -640,8 +640,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							{
 								if (!Arrays.equals(oldSelection, newSelectedIndexes))
 								{ // it was supposed to change but the server did not allow it
-									//send back the selection to the client so that it can reject the promise with the correct selection
-									changeMonitor.selectionChanged();
 									changeMonitor.selectionDenied();
 								}
 								else changeMonitor.selectionAccepted();

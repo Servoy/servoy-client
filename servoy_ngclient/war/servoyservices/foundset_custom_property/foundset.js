@@ -65,37 +65,19 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					updates = true;
 				}
 				
-				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE]) && serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE]) {//response was true
-					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-					if (internalState.msgid && internalState.msgid === serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_REQUESTID]) {
-						if (internalState.deferred) {
-							if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
-								currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
-								updates = true;
-							}
-							internalState.deferred.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
-						}
-						delete internalState.deferred;
-					}
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {//selection was changed without a client request
+					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
 					updates = true;
 				}
-				else {
-					if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE]) && !serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE]) {//response was false
-						var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
-						if (internalState.msgid && internalState.msgid === serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_REQUESTID]) {
-							var serverRows = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
-							if (internalState.deferred) {
-								internalState.deferred.reject(serverRows);
-							}
-							delete internalState.deferred;
-						}
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE])) {
+					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
+					if (internalState.deferred && internalState.msgid && internalState.msgid === serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_REQUESTID]) {
+						
+						if (serverJSONValue[UPDATE_PREFIX + SEND_SELECTION_RESPONSE]) internalState.deferred.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
+						else internalState.deferred.reject(currentClientValue[SELECTED_ROW_INDEXES]);
+						
+						delete internalState.deferred;
 						updates = true;
-					}
-					else {
-						if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {//selection was changed without a client request
-							currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
-							updates = true;
-						}
 					}
 				}
 				
