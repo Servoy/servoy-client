@@ -56,6 +56,8 @@ public interface IFormController extends IForm
 
 	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables);
 
+	boolean stopUIEditing(boolean looseFocus);
+
 	/**
 	 *
 	 */

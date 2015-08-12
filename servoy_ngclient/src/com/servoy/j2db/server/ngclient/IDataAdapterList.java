@@ -73,4 +73,6 @@ public interface IDataAdapterList extends ITagResolver
 	void destroy();
 
 	void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables);
+
+	boolean stopUIEditing(boolean looseFocus);
 }

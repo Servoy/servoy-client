@@ -280,8 +280,6 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	public abstract IBasicFormManager getBasicFormManager();
 
-	public abstract boolean stopUIEditing(boolean looseFocus);
-
 	protected abstract void refreshAllPartRenderers(IRecordInternal[] records);
 
 	protected abstract FormAndComponent getJSApplicationNames(Object source, Function function, boolean useFormAsEventSourceEventually);
@@ -1083,7 +1081,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IForm#getFoundSet()
 	 */
 	@Override
