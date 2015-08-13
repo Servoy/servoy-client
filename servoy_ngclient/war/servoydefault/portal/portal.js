@@ -124,8 +124,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var allowCellFocus = $applicationService.getUIProperty("ngClientOptimizedReadonlyMode");
 					var columnTitle = getColumnTitle(el.componentIndex ? el.componentIndex : idx, idx);
 					var cellTemplate
-					if($applicationService.getUIProperty("ngClientOptimizedReadonlyMode") && el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead") {
-						allowCellFocus = true
+					if(allowCellFocus && (el.componentDirectiveName === "servoydefault-textfield" || el.componentDirectiveName === "servoydefault-typeahead")) {
 						var handlers = ""
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
