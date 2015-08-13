@@ -65,7 +65,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					updates = true;
 				}
 				
-				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {//selection was changed without a client request
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
 					updates = true;
 				}
