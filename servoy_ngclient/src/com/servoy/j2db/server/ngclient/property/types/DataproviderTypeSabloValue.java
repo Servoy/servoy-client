@@ -63,7 +63,6 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
-import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UUID;
 
@@ -92,6 +91,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private boolean displaysTags;
 	private IFoundSetEventListener globalRelatedFoundsetListener = null;
 	private IFoundSetInternal globalRelatedFoundset = null;
+	private String globalRelationName = null;
 
 	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
 	{
@@ -103,7 +103,26 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			this.dataProviderID = dataProviderID;
 		}
-
+		if (dataProviderID.indexOf('.') != -1)
+		{
+			String relationName = dataProviderID.substring(0, dataProviderID.indexOf('.'));
+			Relation relation = dataAdapterList.getApplication().getFlattenedSolution().getRelation(relationName);
+			if (relation != null && relation.isGlobal())
+			{
+				globalRelationName = relation.getName();
+				globalRelatedFoundsetListener = new IFoundSetEventListener()
+				{
+					@Override
+					public void foundSetChanged(FoundSetEvent e)
+					{
+						if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+						{
+							dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
+						}
+					}
+				};
+			}
+		}
 		this.dataAdapterList = dataAdapterList;
 		this.servoyDataConverterContext = component.getDataConverterContext();
 		this.dpPD = dpPD;
@@ -158,40 +177,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		if (isFindModeAware != null && isFindModeAware.booleanValue() == true) dataAdapterList.addFindModeAwareProperty(this);
 
-		if (globalRelatedFoundset != null && globalRelatedFoundsetListener != null)
-		{
-			globalRelatedFoundset.removeFoundSetEventListener(globalRelatedFoundsetListener);
-			globalRelatedFoundset = null;
-			globalRelatedFoundsetListener = null;
-		}
-		if (dataProviderID.indexOf('.') != -1)
-		{
-			String relationName = dataProviderID.substring(0, dataProviderID.indexOf('.'));
-			Relation relation = servoyDataConverterContext.getApplication().getFlattenedSolution().getRelation(relationName);
-			if (relation != null && relation.isGlobal())
-			{
-				try
-				{
-					globalRelatedFoundset = servoyDataConverterContext.getApplication().getFoundSetManager().getGlobalRelatedFoundSet(relationName);
-					globalRelatedFoundset.addFoundSetEventListener(globalRelatedFoundsetListener = new IFoundSetEventListener()
-					{
-						@Override
-						public void foundSetChanged(FoundSetEvent e)
-						{
-							if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
-							{
-								dataProviderOrRecordChanged(dataAdapterList.getRecord(), null, false, false, true);
-							}
-						}
-					});
-				}
-				catch (ServoyException e)
-				{
-					Debug.error(e);
-				}
-			}
-		}
-
 		DataproviderConfig config = (DataproviderConfig)dpPD.getConfig();
 		String dtpn = config.getDisplayTagsPropertyName();
 		Object dtPropVal = null;
@@ -211,7 +196,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		// unregister listeners
 		dataAdapterList.removeDataLinkedProperty(this);
 		dataAdapterList.removeFindModeAwareProperty(this);
-		if (globalRelatedFoundset != null && globalRelatedFoundsetListener != null)
+		if (globalRelatedFoundset != null)
 		{
 			globalRelatedFoundset.removeFoundSetEventListener(globalRelatedFoundsetListener);
 		}
@@ -263,6 +248,28 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication().getFlattenedSolution(),
 				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
 				getDataProviderConfig().hasParseHtml());
+		}
+
+		if (globalRelationName != null)
+		{
+			try
+			{
+				IFoundSetInternal newRelatedFoundset = servoyDataConverterContext.getApplication().getFoundSetManager().getGlobalRelatedFoundSet(
+					globalRelationName);
+				if (newRelatedFoundset != globalRelatedFoundset)
+				{
+					if (globalRelatedFoundset != null)
+					{
+						globalRelatedFoundset.removeFoundSetEventListener(globalRelatedFoundsetListener);
+					}
+					globalRelatedFoundset = newRelatedFoundset;
+					globalRelatedFoundset.addFoundSetEventListener(globalRelatedFoundsetListener);
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
 		}
 
 		String dpID = dataProviderID;
