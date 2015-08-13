@@ -305,13 +305,13 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 					if (pd.getType() instanceof IDataLinkedType)
 					{
 						getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(pd,
-							((IDataLinkedType)pd.getType()).getDataLinks(ServoyJSONObject.nullToUndefined(formElementValue), pd, fs, this));
+							((IDataLinkedType)pd.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
 					}
 
 					if (pd.getType() instanceof IFindModeAwareType)
 					{
 						getOrCreatePreprocessedPropertyInfoMap(IFindModeAwareType.class).put(pd,
-							((IFindModeAwareType)pd.getType()).isFindModeAware(ServoyJSONObject.nullToUndefined(formElementValue), pd, fs, this));
+							((IFindModeAwareType)pd.getType()).isFindModeAware(ServoyJSONObject.jsonNullToNull(formElementValue), pd, fs, this));
 					}
 				}
 			}

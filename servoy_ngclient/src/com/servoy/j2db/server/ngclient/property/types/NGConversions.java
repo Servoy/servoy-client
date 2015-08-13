@@ -244,11 +244,11 @@ public class NGConversions
 			}
 			else
 			{
-				return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.nullToUndefined(designValue), pd, flattenedSolution, formElement,
+				return ((IDesignToFormElement)type).toFormElementValue(ServoyJSONObject.jsonNullToNull(designValue), pd, flattenedSolution, formElement,
 					propertyPath);
 			}
 		}
-		return ServoyJSONObject.nullToUndefined(designValue);
+		return ServoyJSONObject.jsonNullToNull(designValue);
 	}
 
 	/**

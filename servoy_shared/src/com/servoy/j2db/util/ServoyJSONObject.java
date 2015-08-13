@@ -571,9 +571,10 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 	/**
 	 * In Java, where generics are used in some places, JSONObject.NULL messes up types (class cast exceptions because for example what we expect to be a String
 	 * can be a String, null or JSONObject.NULL in json). Null is better there.
-	 * @return null in case o is JSONObject.NULL. The given object otherwise.
+	 *
+	 * @return null in case o is JSONObject.NULL. The given object otherwise. Note that a java return value of null is equivalent to the javascript undefined from org.json point of view.
 	 */
-	public static Object nullToUndefined(Object o)
+	public static Object jsonNullToNull(Object o)
 	{
 		return o == JSONObject.NULL ? null : o;
 	}
