@@ -591,6 +591,35 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public void valueChanged(ModificationEvent e)
 	{
+		if (record != null && e != null && e.getName() != null)
+		{
+			for (Entry<IWebFormController, String> relatedFormEntry : relatedForms.entrySet())
+			{
+				IWebFormController relatedForm = relatedFormEntry.getKey();
+				String relatedFormRelation = relatedFormEntry.getValue();
+				boolean depends = false;
+				Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(relatedFormRelation);
+				for (int r = 0; !depends && relations != null && r < relations.length; r++)
+				{
+					try
+					{
+						IDataProvider[] primaryDataProviders = relations[r].getPrimaryDataProviders(getApplication().getFlattenedSolution());
+						for (int p = 0; !depends && primaryDataProviders != null && p < primaryDataProviders.length; p++)
+						{
+							depends = e.getName().equals(primaryDataProviders[p].getDataProviderID());
+						}
+					}
+					catch (RepositoryException ex)
+					{
+						Debug.log(ex);
+					}
+				}
+				if (depends)
+				{
+					relatedForm.loadRecords(record.getRelatedFoundSet(relatedFormRelation, ((BasicFormController)relatedForm).getDefaultSortColumns()));
+				}
+			}
+		}
 		if (getForm().isFormVisible())
 		{
 			pushChangedValues(e.getName(), true);
