@@ -654,6 +654,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			return;
 		}
 
+		// Check security
+		webComponent.checkPropertyProtection(beanProperty);
+
 		if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
 
 		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
