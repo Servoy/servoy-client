@@ -21,7 +21,7 @@ import org.sablo.websocket.IWebsocketEndpoint;
 
 /**
  * The websocket endpoints for NGClient.
- * 
+ *
  * @author rgansevles
  */
 public interface INGClientWebsocketEndpoint extends IWebsocketEndpoint
@@ -32,6 +32,11 @@ public interface INGClientWebsocketEndpoint extends IWebsocketEndpoint
 	 * @param formUrl
 	 */
 	boolean addFormIfAbsent(String formName, String formUrl);
+
+	/**
+	 * @param formName
+	 */
+	void formDestroyed(String formName);
 
 	/**
 	 * @param formName

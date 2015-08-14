@@ -251,6 +251,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public void destroyForm(String name)
 	{
 		websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
+		// also remove it from the endpoint as a form that is on the client.
+		getEndpoint().formDestroyed(name);
 	}
 
 	public void formCreated(String formName)

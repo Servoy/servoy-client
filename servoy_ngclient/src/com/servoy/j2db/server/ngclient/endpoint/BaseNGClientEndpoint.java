@@ -49,6 +49,12 @@ public class BaseNGClientEndpoint extends WebsocketEndpoint implements INGClient
 	}
 
 	@Override
+	public void formDestroyed(String formName)
+	{
+		formsOnClient.remove(formName);
+	}
+
+	@Override
 	public String getFormUrl(String formName)
 	{
 		return formsOnClient.containsKey(formName) ? formsOnClient.get(formName).getLeft() : null;
