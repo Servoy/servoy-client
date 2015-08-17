@@ -18,9 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.json.JSONObject;
 import org.sablo.websocket.CurrentWindow;
@@ -206,17 +204,16 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 
 	public void destroy()
 	{
-		Iterator<Entry<String, RuntimeWindow>> iterator = windows.entrySet().iterator();
-		while (iterator.hasNext())
+		List<RuntimeWindow> copy = new ArrayList<>(windows.values());
+		for (RuntimeWindow rw : copy)
 		{
-			RuntimeWindow rw = iterator.next().getValue();
 			if (rw instanceof NGRuntimeWindow && rw.getParent() != null)
 			{
 				((NGRuntimeWindow)rw).setController(null);
 				rw.destroy();
 			}
-			iterator.remove();
 		}
+		windows.clear();
 	}
 
 }
