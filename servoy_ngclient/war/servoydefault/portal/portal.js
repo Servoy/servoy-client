@@ -797,8 +797,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var tmpSelectedRowIdxs = [];
 					for (var idx = 0; idx < newNGGridSelectedItems.length; idx++) {
 						var absRowIdx = rowIdToAbsoluteRowIndex(newNGGridSelectedItems[idx][$foundsetTypeConstants.ROW_ID_COL_KEY]);
-						if (newNGGridSelectedItems[idx][$foundsetTypeConstants.ROW_ID_COL_KEY].indexOf('-')>0)
-							tmpSelectedRowIdxs.push(absRowIdx);
+						tmpSelectedRowIdxs.push(absRowIdx);
 					}
 					if (tmpSelectedRowIdxs.length === 0 && newNGGridSelectedItems.length > 0) return;
 					
