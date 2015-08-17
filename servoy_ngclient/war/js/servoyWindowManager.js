@@ -67,6 +67,19 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 				if(!location || (location.x <0 && location.y <0)) location=centerWindow(size ? size : windowInstance.form.size)
 				if(!size || size.width<0 || size.height<0) size =null;
 
+				if (size)
+				{
+					// dialog shouldn't be bigger than viewport
+					var browserWindow =  $(window);
+					if (size.width && size.width > browserWindow.width())
+					{
+						size.width = browserWindow.width();
+					}
+					if (size.height && size.height > browserWindow.height())
+					{
+						size.height = browserWindow.height();
+					}	
+				}	
 				//convert servoy x,y to library top , left
 				var loc = {left:location.x,top:location.y}
 
@@ -128,6 +141,8 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		if (top < bodyTop) {
 			top = bodyTop;
 		}
+		if (left < 0) left = 0;
+		if (top < 0) top = 0; 
 		return {x:left,y:top}
 	};
 
