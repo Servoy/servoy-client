@@ -94,7 +94,9 @@
 	     	},
 	     "createPopupMenu": {
 	            "returns": "popup"
-	        }
+	        },
+	     "cleanup": {
+	     	}
 	},
 	"types": {
 	  "shortcut": {

@@ -20,7 +20,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
+import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -436,7 +440,33 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean closeSolution(boolean force, Object[] args)
 	{
-
+		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
+		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
+		{
+			WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
+			if (apiFunction != null && getScriptEngine() != null)
+			{
+				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
+				if (scope != null)
+				{
+					Scriptable service = (Scriptable)scope.get(serviceSpecification.getName(), null);
+					Function api = (Function)service.get(apiFunction.getName(), null);
+					Context context = Context.enter();
+					try
+					{
+						api.call(context, scope, service, null);
+					}
+					catch (Exception ex)
+					{
+						Debug.error(ex);
+					}
+					finally
+					{
+						Context.exit();
+					}
+				}
+			}
+		}
 		String currentSolution = isSolutionLoaded() ? getSolutionName() : null;
 		boolean isCloseSolution = super.closeSolution(force, args);
 		if (isCloseSolution)
