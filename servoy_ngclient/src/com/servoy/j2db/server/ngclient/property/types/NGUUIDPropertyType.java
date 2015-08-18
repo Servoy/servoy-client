@@ -61,7 +61,6 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 	public JSONWriter toJSON(JSONWriter writer, String key, UUID sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
 		throws JSONException
 	{
-		if (clientConversion != null) clientConversion.convert("uuid");
 		JSONUtils.addKeyIfPresent(writer, key);
 		return writer.value(sabloValue.toString());
 	}
