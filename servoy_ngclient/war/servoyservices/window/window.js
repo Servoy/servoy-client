@@ -1,5 +1,5 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication) {
+.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout) {
 	var scope = $services.getServiceScope('window');
 	return {
 
@@ -43,7 +43,7 @@ angular.module('window',['servoy'])
 				var targetEl;
 				if(e.target) targetEl=e.target;
 				else if(e.srcElement) targetEl=e.srcElement;
-				
+				var pushedChanges = false;
 				for (var j = 0;j< scope.model.shortcuts.length;j++)
 				{
 					if (scope.model.shortcuts[j].shortcut == shortcutcombination )
@@ -90,7 +90,11 @@ angular.module('window',['servoy'])
 								argsWithEvent.push(args);
 							}
 						}
-						$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
+						if (!pushedChanges) $(targetEl).change();
+						pushedChanges = true;
+						$timeout(function() {
+							$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
+						},10);
 					}	
 				}	
 			};
