@@ -128,7 +128,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -440,37 +440,37 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean closeSolution(boolean force, Object[] args)
 	{
-		WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
-		for (WebComponentSpecification serviceSpecification : serviceSpecifications)
-		{
-			WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
-			if (apiFunction != null && getScriptEngine() != null)
-			{
-				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
-				if (scope != null)
-				{
-					Scriptable service = (Scriptable)scope.get(serviceSpecification.getName(), null);
-					Function api = (Function)service.get(apiFunction.getName(), null);
-					Context context = Context.enter();
-					try
-					{
-						api.call(context, scope, service, null);
-					}
-					catch (Exception ex)
-					{
-						Debug.error(ex);
-					}
-					finally
-					{
-						Context.exit();
-					}
-				}
-			}
-		}
 		String currentSolution = isSolutionLoaded() ? getSolutionName() : null;
 		boolean isCloseSolution = super.closeSolution(force, args);
 		if (isCloseSolution)
 		{
+			WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
+			for (WebComponentSpecification serviceSpecification : serviceSpecifications)
+			{
+				WebComponentApiDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
+				if (apiFunction != null && getScriptEngine() != null)
+				{
+					PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
+					if (scope != null)
+					{
+						Scriptable service = (Scriptable)scope.get(serviceSpecification.getName(), null);
+						Function api = (Function)service.get(apiFunction.getName(), null);
+						Context context = Context.enter();
+						try
+						{
+							api.call(context, scope, service, null);
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+						finally
+						{
+							Context.exit();
+						}
+					}
+				}
+			}
 			if (args == null || args.length < 1)
 			{
 				if (!force && showUrl == null)
