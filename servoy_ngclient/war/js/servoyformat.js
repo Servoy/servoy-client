@@ -435,7 +435,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			}
 			function keypress(e){
 				 if(!$scope.model.findmode && checkNumbers){
-					 if(svyFormat.type == "INTEGER"){
+					 if($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT'){
+						 $(e.target).blur()
+					 } else if(svyFormat.type == "INTEGER"){
 						 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
 					 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
 						 return numbersonly(e, true, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
@@ -468,12 +470,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 						 ngModelController.$render();
 					 })	
 				 }				 
-			 }
-				
+			}
+ 
 			function register() {
 				 element.on('focus',focus)
 				 element.on('blur',blur)
-	
 				 element.on('keypress',keypress)
 				 
 				 //convert data from view format to model format
