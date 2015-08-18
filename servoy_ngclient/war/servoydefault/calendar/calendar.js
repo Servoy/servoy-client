@@ -90,8 +90,8 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 					var end=0;
 					if(ieVersion){
 
-						start = document.getElementById($scope.model.svyMarkupId).selectionStart;
-						end = document.getElementById($scope.model.svyMarkupId).selectionEnd;
+						start = child.children("input")[0].selectionStart;
+						end = child.children("input")[0].selectionEnd;
 					}
 					x.format(dateFormat);
 
