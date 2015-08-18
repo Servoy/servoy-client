@@ -689,10 +689,20 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 												$timeout(function() {
 													var row = rows[timeoutIdx];
 													if (row && row._svyRowId == rowId) {
+														// hack for ui bug: https://github.com/angular-ui/ui-grid/issues/4204
+														// it calculates with the header height but it should calculate with just the rowHeigt
+														// fake the headerHeight to set it equal to the rowHeigth so that it does scroll up enough
+														var headIsZero = $scope.gridApi.grid.headerHeight == 0;
+														if (headIsZero) {
+															$scope.gridApi.grid.headerHeight = $scope.gridApi.grid.options.rowHeight;
+														}
 														$scope.gridApi.grid.scrollToIfNecessary($scope.gridApi.grid.getRow(row), null /* must be null here, can't be undefined */).then(function() {
 															if (deferredAPICallExecution) deferredAPICallExecution.resolve();
 															deferredAPICallExecution = undefined;
 														});
+														if (headIsZero) {
+															$scope.gridApi.grid.headerHeight  = 0;
+														}
 													}
 												}, 0);
 											}
