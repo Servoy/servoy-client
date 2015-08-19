@@ -565,7 +565,7 @@ describe("Test foundset_custom_property suite", function() {
 							],
 
 							"startIndex": 0,
-							"endIndex": 1,
+							"endIndex": 0,
 							"type": 0
 						},
 
@@ -591,7 +591,7 @@ describe("Test foundset_custom_property suite", function() {
 							],
 
 							"startIndex": 1,
-							"endIndex": 2,
+							"endIndex": 1,
 							"type": 0
 						}
 					]
