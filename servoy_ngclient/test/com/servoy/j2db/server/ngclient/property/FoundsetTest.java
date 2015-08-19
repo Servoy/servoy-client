@@ -397,11 +397,12 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
-		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
-		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
-//		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
-		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
+		WebFormComponent wc1 = form.getFormUI().getWebComponent("mycustombean");
+		WebFormComponent wc2 = form.getFormUI().getWebComponent("mydynamiccustombean");
+		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)wc1.getRawPropertyValue("myfoundset", true);
+		FoundsetTypeSabloValue dynamicBeanRelatedFoundset = (FoundsetTypeSabloValue)wc2.getRawPropertyValue("myfoundset", true);
+
+		BrowserConverterContext allowBrowserConverterContext2 = new BrowserConverterContext(wc1, PushToServerEnum.allow);
 
 		dynamicBeanRelatedFoundset.getViewPort().setPreferredViewportSize(8);
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
@@ -410,7 +411,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getStartIndex());
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
-		dynamicBeanRelatedFoundset.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext);
+		dynamicBeanRelatedFoundset.toJSON(jsonWriter, new DataConversion(), allowBrowserConverterContext2);
 		Assert.assertEquals(
 			"{\"serverSize\":12,\"selectedRowIndexes\":[0],\"multiSelect\":false,\"viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			stringWriter.toString());
