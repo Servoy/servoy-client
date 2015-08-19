@@ -30,6 +30,8 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
+import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -212,6 +214,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
 		Assert.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
+		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
 		Assert.assertEquals("name", type.get("name"));
@@ -222,7 +225,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
-		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
+		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, allowBrowserConverterContext);
 		Assert.assertEquals(
 			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"b31e38a4634ea9d002a6cdbfcfc786d0\",\"conversions\":{\"atype\":\"JSON_obj\"}}",
 			json);
