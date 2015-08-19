@@ -143,8 +143,8 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 					if (selection != selectedRow)
 					{
 						super.setSelectionInterval(selection, selection); // this call can trigger onRecordSelect handler
-						// which can change the selected record
-						selectionWasChangedTo = getSelectedRow(); //so we save it so we can restore it after super.removeIndexInterval
+						int realSelection = getSelectedRow(); // which can change the selected record
+						if (realSelection != selection) selectionWasChangedTo = realSelection; //so we save it so we can restore it after super.removeIndexInterval
 					}
 
 				}
