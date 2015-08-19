@@ -13,6 +13,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			var isDataFormatted = true;
 
 			child.datetimepicker({
+				widgetParent: $(document.body),
 				useCurrent : false,
 				useStrict : true,
 				showClear : true,
