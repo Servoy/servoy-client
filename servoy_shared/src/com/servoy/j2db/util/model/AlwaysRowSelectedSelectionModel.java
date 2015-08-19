@@ -142,8 +142,8 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 					if (selection != selectedRow)
 					{
 						super.setSelectionInterval(selection, selection); // this call can trigger onRecordSelect handler
-						// which can change the selected record
-						selectionWasChangedTo = getSelectedRow(); //so we save it so we can restore it after super.removeIndexInterval
+						int realSelection = getSelectedRow(); // which can change the selected record
+						if (realSelection != selection) selectionWasChangedTo = realSelection; //so we save it so we can restore it after super.removeIndexInterval
 					}
 
 				}
@@ -234,11 +234,6 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.DefaultListSelectionModel#fireValueChanged(int, int, boolean)
-	 */
 	@Override
 	protected void fireValueChanged(int firstIndex, int lastIndex, boolean isAdjusting)
 	{
@@ -312,11 +307,6 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.DefaultListSelectionModel#setSelectionInterval(int, int)
-	 */
 	@Override
 	public void setSelectionInterval(int index0, int index1)
 	{
@@ -331,11 +321,6 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		super.setSelectionInterval(index0, index1);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.DefaultListSelectionModel#setAnchorSelectionIndex(int)
-	 */
 	@Override
 	public void setAnchorSelectionIndex(int anchorIndex)
 	{
