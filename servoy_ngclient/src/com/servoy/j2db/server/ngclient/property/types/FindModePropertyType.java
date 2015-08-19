@@ -46,9 +46,9 @@ import com.servoy.j2db.util.ServoyJSONObject;
  * @author gganea
  *
  */
-public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue> implements IConvertedPropertyType<FindModeSabloValue>,
-	IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>, ISabloComponentToRhino<FindModeSabloValue>,
-	IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
+public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue>
+	implements IConvertedPropertyType<FindModeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>,
+	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
 {
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
@@ -67,7 +67,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		HashMap<String, Object> forEntities = new HashMap<String, Object>();
 		try
 		{
-			JSONObject forProperty = (JSONObject)config.get("for"); //$NON-NLS-1$
+			JSONObject forProperty = (JSONObject)config.opt("for"); //$NON-NLS-1$
 			String[] names = ServoyJSONObject.getNames(forProperty);
 			for (String propertyName : names)
 			{
@@ -104,8 +104,8 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	}
 
 	@Override
-	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
-		WebFormComponent component, DataAdapterList dataAdapterList)
+	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
 	{
 		return new FindModeSabloValue((FindModeConfig)pd.getConfig(), dataAdapterList);
 	}
