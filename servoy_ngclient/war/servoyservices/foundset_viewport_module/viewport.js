@@ -166,8 +166,8 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 					// apply the conversions
 					var rowConversionUpdate = (rowUpdateConversions && rowUpdateConversions[i] && rowUpdateConversions[i].rows) ? rowUpdateConversions[i].rows[relIdx] : undefined;
 					if (rowConversionUpdate) $sabloConverters.convertFromServerToClient(rowUpdate.rows[relIdx], rowConversionUpdate, viewPort[j], componentScope, componentModelGetter);
-
-					if (simpleRowValue) {
+					//if the rowUpdate contains '_svyRowId' then we know it's the entire/complete row object
+					if (simpleRowValue || rowUpdate.rows[relIdx][$foundsetTypeConstants.ROW_ID_COL_KEY]) {
 						viewPort[j] = rowUpdate.rows[relIdx];
 
 						if (rowConversionUpdate) {
