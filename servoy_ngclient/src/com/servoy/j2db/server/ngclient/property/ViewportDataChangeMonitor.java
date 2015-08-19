@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -116,10 +116,10 @@ public class ViewportDataChangeMonitor
 			try
 			{
 				IJSONStringWithConversions writtenAsJSON;
-				writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter<BaseWebObject>()
+				writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter<IBrowserConverterContext>()
 				{
 					@Override
-					public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<BaseWebObject> converter,
+					public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
 						DataConversion clientDataConversions) throws JSONException
 					{
 						rowDataProvider.writeRowData(newDataStartIndex, newDataEndIndex, foundset, w, clientDataConversions);
@@ -163,10 +163,10 @@ public class ViewportDataChangeMonitor
 			try
 			{
 				IJSONStringWithConversions writtenAsJSON;
-				writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter<BaseWebObject>()
+				writtenAsJSON = JSONUtils.writeToJSONString(new IToJSONWriter<IBrowserConverterContext>()
 				{
 					@Override
-					public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<BaseWebObject> converter,
+					public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
 						DataConversion clientDataConversions) throws JSONException
 					{
 						rowDataProvider.writeRowData(absoluteRowIndex, absoluteRowIndex, columnName, foundset, w, clientDataConversions);

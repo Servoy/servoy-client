@@ -9,6 +9,8 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	var CONVERSION_NAME = "fsLinked";
 	var PROPERTY_CHANGE = "propertyChange";
 
+	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
+
 	var CONVERSIONS = 'conversions';
 	
 	/** Initializes internal state of a new value */
@@ -42,7 +44,13 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	function addBackWatches(value, componentScope) {
 		if (angular.isDefined(value) && value !== null) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
-			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, undefined); // TODO 'undefined' param should actually be the value of twoWay attribute in spec file here
+			
+			// prepare pushToServer values as needed for the following call
+			var pushToServerValues;
+			if (typeof iS[PUSH_TO_SERVER] === 'undefined') pushToServerValues = {}; // that will not add watches for any column
+			else pushToServerValues = iS[PUSH_TO_SERVER]; // true or false then, just use that for adding watches (deep/shallow) to all columns
+
+			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, pushToServerValues);
 		}
 	};
 
@@ -68,6 +76,10 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 						return componentModelGetter()[forFoundsetPropertyName];
 					};
 					didSomething = true;
+				}
+
+				if (typeof serverJSONValue[PUSH_TO_SERVER] !== 'undefined') {
+					internalState[PUSH_TO_SERVER] = serverJSONValue[PUSH_TO_SERVER];
 				}
 
 				var childChangedNotifier;

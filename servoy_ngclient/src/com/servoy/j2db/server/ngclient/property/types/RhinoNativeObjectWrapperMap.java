@@ -31,9 +31,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareMap.IAttachAware;
 import org.sablo.specification.property.ChangeAwareMap.IAttachHandler;
 import org.sablo.specification.property.ConvertedMap;
-import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IWrappedBaseMapProvider;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.WrappingContext;
 
 /**
  * This map is able to act as a Sablo wrap-aware map that is based on a native Rhino JS object value.
@@ -150,8 +150,8 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 	protected SabloWT wrap(String forKey, SabloT value)
 	{
 		IWrapperType<SabloT, SabloWT> wt = childPropsThatNeedWrapping.get(forKey);
-		return wt != null ? wt.wrap(value, null /* we never store the wrapped value here... */,
-			new DataConverterContext(customJSONTypeDefinition.getProperty(forKey), componentOrService)) : (SabloWT)value;
+		return wt != null ? wt.wrap(value, null /* we never store the wrapped value here... */, customJSONTypeDefinition.getProperty(forKey),
+			new WrappingContext(componentOrService)) : (SabloWT)value;
 	}
 
 	/**

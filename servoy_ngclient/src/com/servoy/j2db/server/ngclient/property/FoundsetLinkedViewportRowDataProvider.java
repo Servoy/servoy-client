@@ -50,7 +50,8 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 	{
 		// TODO we should change the order in which rows are populated for a foundset; the foundset itself should do dal.setRecordQuietly(record) then call all ViewportRowDataProvider to populate their data somehow
 		dal.setRecordQuietly(record);
-		FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, sabloValue.getWrappedValue(), pd, clientConversionInfo, sabloValue.getComponent());
+		FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, sabloValue.getWrappedValue(), pd, clientConversionInfo,
+			sabloValue.getBrowserConverterContextForToJSON());
 	}
 
 	@Override

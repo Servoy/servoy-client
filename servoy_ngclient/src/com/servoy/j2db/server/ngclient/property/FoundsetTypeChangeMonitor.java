@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -448,7 +448,7 @@ public class FoundsetTypeChangeMonitor
 		if (changeNotifier != null) changeNotifier.valueChanged();
 	}
 
-	public static class RowData implements IToJSONWriter<BaseWebObject>
+	public static class RowData implements IToJSONWriter<IBrowserConverterContext>
 	{
 		public static final int CHANGE = 0;
 		public static final int INSERT = 1;
@@ -480,8 +480,8 @@ public class FoundsetTypeChangeMonitor
 		}
 
 		@Override
-		public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<BaseWebObject> converter, DataConversion clientDataConversions)
-			throws JSONException
+		public boolean writeJSONContent(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
+			DataConversion clientDataConversions) throws JSONException
 		{
 			JSONUtils.addKeyIfPresent(w, keyInParent);
 

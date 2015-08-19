@@ -35,8 +35,8 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 			if (getCellValue() && getCellValue()[$sabloConverters.INTERNAL_IMPL] && getCellValue()[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
 				// smart property value
 
-				// watch for change-by reference
-				internalState.unwatchData[idx].push(
+				// watch for change-by reference if needed
+				if (typeof (dumbWatchType) !== 'undefined') internalState.unwatchData[idx].push(
 						componentScope.$watch(getCellValue, function (newData, oldData) {
 							if (newData !== oldData) { /* this doesn't seem to work correctly for 2 identical Date objects in Chrome when debugging; but it should */
 								queueChange(newData, oldData);
@@ -44,6 +44,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 						})
 				);
 
+				// we don't care to check below for dumbWatchType because some types (see foundset) need to send internal protocol messages even if they are not watched/changeable on server
 				getCellValue()[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(function () {
 					if (getCellValue()[$sabloConverters.INTERNAL_IMPL].isChanged()) queueChange(getCellValue(), getCellValue());
 				});
@@ -69,8 +70,10 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		}
 	};
 
-	// dumbWatchMarkers when simpleRowValue === true means (undefined - no watch needed, true/false - deep/shallow watch)
-	// dumbWatchMarkers when simpleRowValue === false means (undefined - watch all cause there is no marker information, { col1: true; col2: false } means watch type needed for each column)
+	// 1. dumbWatchMarkers when simpleRowValue === true means (undefined - no watch needed, true/false - deep/shallow watch)
+	// 2. dumbWatchMarkers when simpleRowValue === false means (undefined - watch all cause there is no marker information,
+	//                                                          { col1: true; col2: false } means watch type needed for each column and no watches for the ones not mentioned,
+	//                                                          true/false directly means deep/shallow watch for all columns)
 	function addDataWatchesToRow(idx, viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
 		if (!angular.isDefined(internalState.unwatchData)) internalState.unwatchData = {};
 		internalState.unwatchData[idx] = [];
@@ -79,7 +82,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		} else {
 			var columnName;
 			for (columnName in viewPort[idx]) {
-				if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope, dumbWatchMarkers ? dumbWatchMarkers[columnName] : true);
+				if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope, (typeof dumbWatchMarkers === 'boolean' ? dumbWatchMarkers : (dumbWatchMarkers ? dumbWatchMarkers[columnName] : true)));
 			}
 		}
 	};

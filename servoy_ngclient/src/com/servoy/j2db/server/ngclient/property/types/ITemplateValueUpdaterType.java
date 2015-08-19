@@ -19,8 +19,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.websocket.utils.DataConversion;
 
 /**
@@ -34,7 +35,7 @@ import org.sablo.websocket.utils.DataConversion;
  *
  * @author acostescu
  */
-public interface ITemplateValueUpdaterType<T> extends IPropertyConverter<T>
+public interface ITemplateValueUpdaterType<T> extends IPropertyConverterForBrowser<T>
 {
 
 	/**
@@ -48,11 +49,12 @@ public interface ITemplateValueUpdaterType<T> extends IPropertyConverter<T>
 	 * is useful for cases when you don't want the value written at all in resulting JSON in which case you don't write neither key or value. If
 	 * key is null and you want to write the converted value write only the converted value to the writer, ignore the key.
 	 * @param object the property value to convert to JSON.
+	 * @param propertyDescription the description of the property
 	 * @param clientConversion can be use to mark needed client/browser side conversion types.
 	 * @return the writer for cascaded usage.
 	 * @throws JSONException if a JSON exception happens.
 	 */
-	JSONWriter initialToJSON(JSONWriter writer, String key, T sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException;
+	JSONWriter initialToJSON(JSONWriter writer, String key, T sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException;
 
 }

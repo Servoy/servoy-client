@@ -18,9 +18,10 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -30,7 +31,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
  *
  * @author gboros
  */
-public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal> implements IPropertyConverter<IFoundSetInternal>,
+public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal> implements IPropertyConverterForBrowser<IFoundSetInternal>,
 	IClassPropertyType<IFoundSetInternal>
 {
 
@@ -48,7 +49,7 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	}
 
 	@Override
-	public IFoundSetInternal fromJSON(Object newValue, IFoundSetInternal previousValue, IDataConverterContext dataConverterContext)
+	public IFoundSetInternal fromJSON(Object newValue, IFoundSetInternal previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		if (newValue instanceof JSONObject)
 		{
@@ -59,8 +60,8 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, IFoundSetInternal value, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, IFoundSetInternal value, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
@@ -72,11 +73,6 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 		return writer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IClassPropertyType#getTypeClass()
-	 */
 	@Override
 	public Class<IFoundSetInternal> getTypeClass()
 	{

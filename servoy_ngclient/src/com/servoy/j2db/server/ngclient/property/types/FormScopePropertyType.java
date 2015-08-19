@@ -20,8 +20,8 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
@@ -36,7 +36,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
  * TODO this should be looked at for getRightForm for example of the SplitPane
  * @author jcompagner
  */
-public class FormScopePropertyType extends DefaultPropertyType<FormScope> implements IRhinoToSabloComponent<FormScope>, IPropertyConverter<FormScope>
+public class FormScopePropertyType extends DefaultPropertyType<FormScope> implements IRhinoToSabloComponent<FormScope>, IPropertyConverterForBrowser<FormScope>
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
@@ -70,7 +70,7 @@ public class FormScopePropertyType extends DefaultPropertyType<FormScope> implem
 	}
 
 	@Override
-	public FormScope fromJSON(Object newJSONValue, FormScope previousSabloValue, IDataConverterContext dataConverterContext)
+	public FormScope fromJSON(Object newJSONValue, FormScope previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		INGApplication app = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication();
 		if (newJSONValue instanceof String && app != null)
@@ -81,8 +81,8 @@ public class FormScopePropertyType extends DefaultPropertyType<FormScope> implem
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FormScope sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, FormScope sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{

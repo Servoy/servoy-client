@@ -24,6 +24,7 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
@@ -68,8 +69,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		private FormSpecification()
 		{
 			super("form_spec", "", "", null, null, null, "", null);
-			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerValue.allow));
-			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerValue.allow));
+			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
+			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
 		}
 	}
 
@@ -219,9 +220,10 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
 			elementsScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
 			elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
-			if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-				fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
-				fe.getTypeName().startsWith("servoydefault-")))
+			if (fe.isLegacy() ||
+				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+					fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
+					"servoydefault-")))
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
@@ -283,7 +285,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	}
 
 	@Override
-	public boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter converter) throws JSONException
+	public boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException
 	{
 		try
 		{
@@ -297,8 +299,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	}
 
 	@Override
-	public boolean writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter converter, DataConversion clientDataConversions)
-		throws JSONException
+	public boolean writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
+		DataConversion clientDataConversions) throws JSONException
 	{
 		try
 		{
@@ -751,8 +753,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
-			set.addRow(0,
-				new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
+			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
+				index + 1) });
 			currentContainer = currentForm.getParentContainer();
 		}
 		if (currentContainer instanceof String)

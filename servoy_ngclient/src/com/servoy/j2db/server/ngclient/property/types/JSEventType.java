@@ -23,9 +23,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.BaseWebObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -46,7 +47,7 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
  * @author gboros
  *
  */
-public class JSEventType extends ReferencePropertyType<JSEvent> implements IPropertyConverter<JSEvent>, IClassPropertyType<JSEvent>
+public class JSEventType extends ReferencePropertyType<JSEvent> implements IPropertyConverterForBrowser<JSEvent>, IClassPropertyType<JSEvent>
 {
 	public static final JSEventType INSTANCE = new JSEventType();
 	public static final String TYPE_NAME = "JSEvent"; //$NON-NLS-1$
@@ -60,14 +61,8 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 		return TYPE_NAME;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object,
-	 * org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
-	public JSEvent fromJSON(Object newJSONValue, JSEvent previousSabloValue, IDataConverterContext dataConverterContext)
+	public JSEvent fromJSON(Object newJSONValue, JSEvent previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		JSEvent event = null;
 		if (newJSONValue instanceof JSONObject)
@@ -116,15 +111,9 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 
 	private final WeakHashMap<Object, JSEvent> sourceEventMap = new WeakHashMap<Object, JSEvent>();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IPropertyConverter#toJSON(org.json.JSONWriter, java.lang.String, java.lang.Object,
-	 * org.sablo.websocket.utils.DataConversion, org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, JSEvent sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, JSEvent sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -142,11 +131,6 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 		return writer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IClassPropertyType#getTypeClass()
-	 */
 	@Override
 	public Class<JSEvent> getTypeClass()
 	{

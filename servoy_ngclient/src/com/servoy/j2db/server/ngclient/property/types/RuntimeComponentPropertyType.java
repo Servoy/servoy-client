@@ -20,8 +20,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
@@ -53,15 +54,16 @@ public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWeb
 	}
 
 	@Override
-	public RuntimeWebComponent fromJSON(Object newJSONValue, RuntimeWebComponent previousSabloValue, IDataConverterContext dataConverterContext)
+	public RuntimeWebComponent fromJSON(Object newJSONValue, RuntimeWebComponent previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		//do we need this one also?
 		return null;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, RuntimeWebComponent sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, RuntimeWebComponent sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (key != null)
 		{

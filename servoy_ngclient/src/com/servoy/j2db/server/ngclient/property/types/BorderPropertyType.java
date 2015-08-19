@@ -38,8 +38,8 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.FontPropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -99,7 +99,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	}
 
 	@Override
-	public Border fromJSON(Object newValue, Border previousValue, IDataConverterContext dataConverterContext)
+	public Border fromJSON(Object newValue, Border previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		if (newValue == null) return null;
 		JSONObject object = (JSONObject)newValue;
@@ -223,7 +223,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 						break;
 				}
 
-				Font titleFont = FontPropertyType.INSTANCE.fromJSON(object.optJSONObject("font"), null, dataConverterContext);//TODO previous value
+				Font titleFont = FontPropertyType.INSTANCE.fromJSON(object.optJSONObject("font"), null, null, dataConverterContext);//TODO previous value
 				Color titleColor = PersistHelper.createColor(object.optString("color"));
 				return BorderFactory.createTitledBorder(null, borderTitle, titleJustification, titlePosition, titleFont, titleColor);
 			}
@@ -233,8 +233,8 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Border value, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Border value, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		Map<String, Object> javaResult = writeBorderToJson(value);
 		return JSONUtils.toBrowserJSONFullValue(writer, key, javaResult, null, clientConversion, null);
@@ -418,14 +418,14 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Border formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 
 	@Override
 	public Border toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return fromJSON(designValue, null, null);
+		return fromJSON(designValue, null, pd, null);
 	}
 
 	@Override
@@ -460,7 +460,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 			try
 			{
 				writer.object();
-				toJSON(writer, pd.getName(), border, new DataConversion(), null);
+				toJSON(writer, pd.getName(), border, pd, new DataConversion(), null);
 				writer.endObject();
 				return new JSONObject(writer.toString()).get(pd.getName());
 			}
@@ -475,7 +475,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	@Override
 	public Object toRhinoValue(Object value, PropertyDescription pd)
 	{
-		Border border = fromJSON(value, null, null);
+		Border border = fromJSON(value, null, pd, null);
 		return ComponentFactoryHelper.createBorderString(border);
 	}
 }

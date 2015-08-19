@@ -35,6 +35,8 @@ import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
@@ -107,11 +109,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		this.componentPropertyDescription = componentPropertyDescription;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
-	 */
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, org.sablo.BaseWebObject parentComponent)
 	{
@@ -277,8 +274,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (foundsetPropValue != null)
 		{
-			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor,
-				new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent, recordBasedProperties, this));
+			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
+				recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
 		}
@@ -381,7 +378,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 		destinationJSON.object();
-		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType, childComponent);
+		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType,
+			new BrowserConverterContext(childComponent, PushToServerEnum.allow));
+		;
 		destinationJSON.endObject();
 
 		// viewport content
@@ -408,8 +407,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(changes);
 
 		boolean modelChanged = (changes.content.size() > 0);
-		boolean viewPortChanged = (forFoundsetTypedPropertyName != null &&
-			(viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+		boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
 
 		destinationJSON.object();
 		if (modelChanged || viewPortChanged)
@@ -423,7 +421,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 			destinationJSON.object();
 			// send component model (when linked to foundset only props that are not record related)
-			JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType, childComponent);
+			JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType, new BrowserConverterContext(childComponent,
+				PushToServerEnum.allow));
 			destinationJSON.endObject();
 		}
 
@@ -550,7 +549,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, dataConversion,
 					formElementContext);
 				JSONUtils.writeData(JSONUtils.FullValueToJSONConverter.INSTANCE, writer, runtimeProperties.content, runtimeProperties.contentType,
-					dataConversion, childComponent);
+					dataConversion, new BrowserConverterContext(childComponent, PushToServerEnum.allow));
 				JSONUtils.writeClientConversions(writer, dataConversion);
 				writer.endObject();
 			}
@@ -780,8 +779,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				catch (JSONException e)
 				{
-					Debug.error(
-						"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.", e);
+					Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value +
+						" failed.", e);
 				}
 				finally
 				{

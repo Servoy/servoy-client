@@ -5,7 +5,8 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 	var INDEX = "i";
 	var INITIALIZE = "in";
 	var VALUE = "v";
-	var CONTENT_VERSION = "vEr"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile serverside
+	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
+	var CONTENT_VERSION = "vEr"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile server-side
 	var NO_OP = "n";
 
 	function getChangeNotifier(propertyValue, idx) {
@@ -16,7 +17,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 		}
 	}
 
-	function watchDumbElementForChanges(propertyValue, idx, componentScope) {
+	function watchDumbElementForChanges(propertyValue, idx, componentScope, deep) {
 		// if elements are primitives or anyway not something that wants control over changes, just add an in-depth watch
 		return componentScope.$watch(function() {
 			return propertyValue[idx];
@@ -25,7 +26,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 			internalState.changedIndexes[idx] = { old: oldvalue };
 			internalState.changeNotifier();
-		}, true);
+		}, deep);
 	}
 
 	/** Initializes internal state on a new array value */
@@ -77,36 +78,41 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 		if (value) {
 			var internalState = value[$sabloConverters.INTERNAL_IMPL];
 			internalState.elUnwatch = {};
-			for (var c = 0; c < value.length; c++) {
-				var elem = value[c];
-				if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-					// watch the child's value to see if it changes
-					if (componentScope) internalState.elUnwatch[c] = watchDumbElementForChanges(value, c, componentScope);
+			
+			// add shallow/deep watches as needed
+			if (componentScope && typeof internalState[PUSH_TO_SERVER] != 'undefined') {
+				for (var c = 0; c < value.length; c++) {
+					var elem = value[c];
+					if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+						// watch the child's value to see if it changes
+						 internalState.elUnwatch[c] = watchDumbElementForChanges(value, c, componentScope, internalState[PUSH_TO_SERVER]);
+					} // else if it's a smart value and the pushToServer is shallow or deep we must shallow watch it (it will manage it's own contents but we still must watch for reference changes);
+					// but that is done below in a $watchCollection
 				}
-			}
 
-			// watch for add/remove and such operations on array; this is helpful also when 'smart' child values (that have .setChangeNotifier)
-			// get changed completely by reference
-			if (componentScope) internalState.arrayStructureUnwatch = componentScope.$watchCollection(function() { return value; }, function(newWVal, oldWVal) {
-				if (newWVal === oldWVal) return;
+				// watch for add/remove and such operations on array; this is helpful also when 'smart' child values (that have .setChangeNotifier)
+				// get changed completely by reference
+				internalState.arrayStructureUnwatch = componentScope.$watchCollection(function() { return value; }, function(newWVal, oldWVal) {
+					if (newWVal === oldWVal) return;
 
-				if (newWVal === null || oldWVal === null || newWVal.length !== oldWVal.length) {
-					internalState.allChanged = true;
-					internalState.changeNotifier();
-				} else {
-					// some elements changed by reference; we only need to handle this for smart element values,
-					// as the others will be handled by the separate 'dumb' watches
-					var referencesChanged = false;
-					for (var j in newWVal) {
-						if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-							changed = true;
-							internalState.changedIndexes[j] = { old: true };
+					if (newWVal === null || oldWVal === null || newWVal.length !== oldWVal.length) {
+						internalState.allChanged = true;
+						internalState.changeNotifier();
+					} else {
+						// some elements changed by reference; we only need to handle this for smart element values,
+						// as the others will be handled by the separate 'dumb' watches
+						var referencesChanged = false;
+						for (var j in newWVal) {
+							if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+								changed = true;
+								internalState.changedIndexes[j] = { old: true };
+							}
 						}
-					}
 
-					if (referencesChanged) internalState.changeNotifier();
-				}
-			});
+						if (referencesChanged) internalState.changeNotifier();
+					}
+				});
+			}
 		}
 	}
 
@@ -124,6 +130,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					newValue = serverJSONValue[VALUE];
 					initializeNewValue(newValue, serverJSONValue[CONTENT_VERSION]);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
+					if (typeof serverJSONValue[PUSH_TO_SERVER] !== 'undefined') internalState[PUSH_TO_SERVER] = serverJSONValue[PUSH_TO_SERVER];
 
 					for (var c in newValue) {
 						var elem = newValue[c];

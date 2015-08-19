@@ -18,8 +18,9 @@ import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
-import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
@@ -111,7 +112,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			ArrayList<Object> javaArguments = new ArrayList<Object>();
 			Object argObj = null;
-			DataConverterContext dataConverterContext = new DataConverterContext(null, (WebFormUI)formController.getFormUI());
+			BrowserConverterContext dataConverterContext = new BrowserConverterContext((WebFormUI)formController.getFormUI(), PushToServerEnum.allow);
 			for (int i = 0; i < appendingArgs.length(); i++)
 			{
 				try
@@ -123,9 +124,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						if (typeHint != null)
 						{
 							IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
-							if (propertyType instanceof IPropertyConverter< ? >)
+							if (propertyType instanceof IPropertyConverterForBrowser< ? >)
 							{
-								javaArguments.add(((IPropertyConverter< ? >)propertyType).fromJSON(argObj, null, dataConverterContext));
+								javaArguments.add(((IPropertyConverterForBrowser< ? >)propertyType).fromJSON(argObj, null, null /*
+																																 * TODO this shouldn't be null!
+																																 * Make this better - maybe
+																																 * parse the type or just
+																																 * instantiate a property
+																																 * description if we don't want
+																																 * full support for what can be
+																																 * defined in spec file as a
+																																 * type
+																																 */, dataConverterContext));
 								continue;
 							}
 						}

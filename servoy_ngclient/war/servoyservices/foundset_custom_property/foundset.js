@@ -19,6 +19,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var SIZE = "size";
 	var ROWS = "rows";
 
+	var PUSH_TO_SERVER = "w";
+
 	var NO_OP = "n";
 
 	function removeAllWatches(value) {
@@ -35,7 +37,14 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	function addBackWatches(value, componentScope) {
 		if (angular.isDefined(value) && value !== null) {
 			var internalState = value[$sabloConverters.INTERNAL_IMPL];
-			if (value[VIEW_PORT][ROWS]) $viewportModule.addDataWatchesToRows(value[VIEW_PORT][ROWS], internalState, componentScope, false, undefined); // shouldn't need component model getter - takes rowids directly from viewport
+			if (value[VIEW_PORT][ROWS]) {
+				// prepare pushToServer values as needed for the following call
+				var pushToServerValues;
+				if (typeof internalState[PUSH_TO_SERVER] === 'undefined') pushToServerValues = {}; // that will not add watches for any column
+				else pushToServerValues = internalState[PUSH_TO_SERVER]; // true or false then, just use that for adding watches (deep/shallow) to all columns
+				
+				$viewportModule.addDataWatchesToRows(value[VIEW_PORT][ROWS], internalState, componentScope, false, pushToServerValues); // shouldn't need component model getter - takes rowids directly from viewport
+			}
 			if (componentScope) internalState.unwatchSelection = componentScope.$watchCollection(function() { return value[SELECTED_ROW_INDEXES]; }, function (newSel, oldSel) {
 				componentScope.$evalAsync(function() {
 					if (newSel !== oldSel) {
@@ -108,6 +117,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					newValue = serverJSONValue; // not updates - so whole thing received
 					$sabloConverters.prepareInternalState(newValue);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
+					
+					if (typeof newValue[PUSH_TO_SERVER] !== 'undefined') {
+						internalState[PUSH_TO_SERVER] = newValue[PUSH_TO_SERVER];
+						delete newValue[PUSH_TO_SERVER];
+					}
+
 					internalState.requests = [];
 
 					// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset

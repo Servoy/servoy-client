@@ -48,14 +48,14 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 	public Color toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return fromJSON(designValue, null, null);
+		return fromJSON(designValue, null, pd, null);
 	}
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Color formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 
 	@Override

@@ -32,8 +32,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.property.CustomJSONPropertyType;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
@@ -299,7 +299,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
-	public ComponentTypeSabloValue fromJSON(Object newJSONValue, ComponentTypeSabloValue previousSabloValue, IDataConverterContext dataConverterContext)
+	public ComponentTypeSabloValue fromJSON(Object newJSONValue, ComponentTypeSabloValue previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		if (previousSabloValue != null)
 		{
@@ -311,8 +312,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
-	public JSONWriter initialToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter initialToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		// this sends a diff update between the value it has in the template and the initial data requested after runtime components were created or during a page refresh.
 		if (sabloValue != null)
@@ -324,8 +325,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
-	public JSONWriter changesToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter changesToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -336,8 +337,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{

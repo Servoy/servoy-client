@@ -23,8 +23,8 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
@@ -65,7 +65,7 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 	}
 
 	@Override
-	public Object fromJSON(Object newJSONValue, Object previousSabloValue, IDataConverterContext dataConverterContext)
+	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		if (newJSONValue instanceof JSONObject)
 		{
@@ -87,8 +87,8 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (key != null)
 		{

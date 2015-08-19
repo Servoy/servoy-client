@@ -20,8 +20,8 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -34,8 +34,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 /**
  * @author jcompagner
  */
-public class LabelForPropertyType extends DefaultPropertyType<String> implements IPropertyConverter<String>, IFormElementToTemplateJSON<String, String>,
-	ISupportTemplateValue<String>
+public class LabelForPropertyType extends DefaultPropertyType<String> implements IPropertyConverterForBrowser<String>,
+	IFormElementToTemplateJSON<String, String>, ISupportTemplateValue<String>
 {
 
 	public static final LabelForPropertyType INSTANCE = new LabelForPropertyType();
@@ -58,14 +58,14 @@ public class LabelForPropertyType extends DefaultPropertyType<String> implements
 	}
 
 	@Override
-	public String fromJSON(Object newJSONValue, String previousSabloValue, IDataConverterContext dataConverterContext)
+	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		return (String)newJSONValue;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (sabloValue != null && dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebComponent)

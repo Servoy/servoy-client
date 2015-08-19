@@ -12,6 +12,7 @@ import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -122,11 +123,6 @@ public class WebFormComponent extends Container implements IContextProvider
 		addEventHandler(eventType, new FormcomponentEventHandler(eventType, functionID));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.BaseWebObject#getEventHandler(java.lang.String)
-	 */
 	@Override
 	public IEventHandler getEventHandler(String eventType)
 	{
@@ -277,8 +273,8 @@ public class WebFormComponent extends Container implements IContextProvider
 	}
 
 	@Override
-	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter converter, String nodeName, DataConversion clientDataConversions)
-		throws JSONException
+	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter, String nodeName,
+		DataConversion clientDataConversions) throws JSONException
 	{
 
 		try

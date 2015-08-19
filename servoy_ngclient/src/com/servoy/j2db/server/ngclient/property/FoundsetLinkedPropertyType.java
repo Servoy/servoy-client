@@ -25,8 +25,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.websocket.utils.DataConversion;
@@ -203,12 +203,12 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	}
 
 	@Override
-	public FoundsetLinkedTypeSabloValue<YF, YT> fromJSON(Object newJSONValue, FoundsetLinkedTypeSabloValue<YF, YT> previousSabloValue,
-		IDataConverterContext dataConverterContext)
+	public FoundsetLinkedTypeSabloValue<YF, YT> fromJSON(Object newJSONValue, FoundsetLinkedTypeSabloValue<YF, YT> previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		if (previousSabloValue != null)
 		{
-			previousSabloValue.browserUpdatesReceived(newJSONValue, getConfig(dataConverterContext.getPropertyDescription()).wrappedPropertyDescription);
+			previousSabloValue.browserUpdatesReceived(newJSONValue, getConfig(pd).wrappedPropertyDescription, pd, dataConverterContext);
 		}
 		// else there's nothing to do here / this type can't receive browser updates when server has no value for it
 
@@ -216,17 +216,17 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, PropertyDescription pd,
+		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return sabloValue.fullToJSON(writer, key, clientConversion, getConfig(dataConverterContext.getPropertyDescription()).wrappedPropertyDescription);
+		return sabloValue.fullToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext);
 	}
 
 	@Override
-	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, PropertyDescription pd,
+		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return sabloValue.changesToJSON(writer, key, clientConversion, getConfig(dataConverterContext.getPropertyDescription()).wrappedPropertyDescription);
+		return sabloValue.changesToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext);
 	}
 
 	@Override

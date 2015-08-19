@@ -33,8 +33,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
-import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.WrappingContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -159,10 +159,10 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareMap<SabloT, SabloWT> changeAwareMap, DataConversion conversionMarkers,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareMap<SabloT, SabloWT> changeAwareMap, PropertyDescription pd,
+		DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return toJSON(writer, key, changeAwareMap, conversionMarkers, true, InitialToJSONConverter.INSTANCE, dataConverterContext.getWebObject());
+		return toJSON(writer, key, changeAwareMap, conversionMarkers, true, InitialToJSONConverter.INSTANCE, dataConverterContext);
 	}
 
 	@Override
@@ -215,7 +215,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			{
 				rhinoMap = new RhinoNativeObjectWrapperMap<SabloT, SabloWT>((NativeObject)rhinoValue, getCustomJSONTypeDefinition(), previousComponentValue,
 					componentOrService, getChildPropsThatNeedWrapping());
-				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, new DataConverterContext(pd, componentOrService));
+				ChangeAwareMap<SabloT, SabloWT> cam = wrap(rhinoMap, previousSpecialMap, pd, new WrappingContext(componentOrService));
 				cam.markAllChanged();
 				return cam;
 

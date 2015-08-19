@@ -18,8 +18,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -45,14 +46,14 @@ public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> i
 	}
 
 	@Override
-	public byte[] fromJSON(Object newJSONValue, byte[] previousSabloValue, IDataConverterContext dataConverterContext)
+	public byte[] fromJSON(Object newJSONValue, byte[] previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		return previousSabloValue; // not supported yet; currently MediaResourcesServlet is used to upload directly to dataProviders
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, byte[] sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, byte[] sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (sabloValue != null)

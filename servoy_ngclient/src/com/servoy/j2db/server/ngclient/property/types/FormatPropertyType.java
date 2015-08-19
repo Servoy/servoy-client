@@ -29,8 +29,8 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -130,7 +130,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public Object/* ComponentFormat */fromJSON(Object newValue, Object/* ComponentFormat */previousValue, IDataConverterContext dataConverterContext)
+	public Object/* ComponentFormat */fromJSON(Object newValue, Object/* ComponentFormat */previousValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		// TODO remove when these types are design-aware and we know exactly how to deal with FormElement values (a refactor is to be done soon)
 		return newValue;
@@ -140,8 +141,8 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object/* ComponentFormat */formatValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object/* ComponentFormat */formatValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		ComponentFormat format;
 		if (formatValue == null || formatValue instanceof String)

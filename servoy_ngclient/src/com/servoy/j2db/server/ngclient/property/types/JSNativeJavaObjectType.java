@@ -21,8 +21,8 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeJavaObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
@@ -48,28 +48,17 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 		return TYPE_NAME;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object,
-	 * org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
-	public NativeJavaObject fromJSON(Object newJSONValue, NativeJavaObject previousSabloValue, IDataConverterContext dataConverterContext)
+	public NativeJavaObject fromJSON(Object newJSONValue, NativeJavaObject previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IPropertyConverter#toJSON(org.json.JSONWriter, java.lang.String, java.lang.Object,
-	 * org.sablo.websocket.utils.DataConversion, org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, NativeJavaObject sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, NativeJavaObject sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -84,7 +73,7 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 						IClassPropertyType classPropertyType = TypesRegistry.getType(Class.forName(className));
 						if (classPropertyType != null)
 						{
-							return classPropertyType.toJSON(writer, key, o, clientConversion, dataConverterContext);
+							return classPropertyType.toJSON(writer, key, o, pd, clientConversion, dataConverterContext);
 						}
 					}
 					catch (ClassNotFoundException ex)
@@ -97,11 +86,6 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IPropertyType#defaultValue(org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public NativeJavaObject defaultValue(PropertyDescription pd)
 	{
@@ -109,11 +93,6 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.specification.property.IClassPropertyType#getTypeClass()
-	 */
 	@Override
 	public Class<NativeJavaObject> getTypeClass()
 	{

@@ -24,8 +24,9 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONPropertyType;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -51,7 +52,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue> implements
 	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
 	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
-	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>
+	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
 {
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType(null);
 
@@ -92,11 +93,12 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public FoundsetTypeSabloValue fromJSON(Object newJSONValue, FoundsetTypeSabloValue previousSabloValue, IDataConverterContext dataConverterContext)
+	public FoundsetTypeSabloValue fromJSON(Object newJSONValue, FoundsetTypeSabloValue previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		if (previousSabloValue != null)
 		{
-			previousSabloValue.browserUpdatesReceived(newJSONValue);
+			previousSabloValue.browserUpdatesReceived(newJSONValue, pd, dataConverterContext);
 		}
 		// else there's nothing to do here / this type can't receive browser updates when server has no value for it
 
@@ -104,8 +106,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -116,8 +118,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -246,5 +248,11 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		}
 	}
 
+
+	@Override
+	public boolean shouldAlwaysAllowIncommingJSON()
+	{
+		return true;
+	}
 
 }

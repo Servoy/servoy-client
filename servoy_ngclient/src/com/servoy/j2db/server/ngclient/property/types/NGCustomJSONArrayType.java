@@ -34,8 +34,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.CustomJSONArrayType;
-import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.WrappingContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -97,10 +97,10 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareList<SabloT, SabloWT> changeAwareList, DataConversion conversionMarkers,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareList<SabloT, SabloWT> changeAwareList, PropertyDescription pd,
+		DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return toJSON(writer, key, changeAwareList, conversionMarkers, true, InitialToJSONConverter.INSTANCE, dataConverterContext.getWebObject());
+		return toJSON(writer, key, changeAwareList, conversionMarkers, true, InitialToJSONConverter.INSTANCE, dataConverterContext);
 	}
 
 	@Override
@@ -200,7 +200,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 			if (rhinoArray != null)
 			{
-				ChangeAwareList<SabloT, SabloWT> cal = wrap(rhinoArray, (ChangeAwareList<SabloT, SabloWT>)previousComponentValue, new DataConverterContext(pd,
+				ChangeAwareList<SabloT, SabloWT> cal = wrap(rhinoArray, (ChangeAwareList<SabloT, SabloWT>)previousComponentValue, pd, new WrappingContext(
 					componentOrService));
 				cal.markAllChanged();
 				return cal;

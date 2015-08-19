@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.sablo.services.server.FormServiceHandler;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.IBasicFormManager.History;
@@ -58,7 +59,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 	}
 
 	@Override
-	protected IToJSONConverter getInitialRequestDataConverter()
+	protected IToJSONConverter<IBrowserConverterContext> getInitialRequestDataConverter()
 	{
 		return InitialToJSONConverter.INSTANCE;
 	}

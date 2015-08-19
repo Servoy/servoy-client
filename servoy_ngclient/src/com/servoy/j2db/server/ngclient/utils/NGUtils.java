@@ -26,7 +26,7 @@ import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
-import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DoublePropertyType;
 import org.sablo.specification.property.types.LongPropertyType;
@@ -148,7 +148,7 @@ public abstract class NGUtils
 		return typePD;
 	}
 
-	public static String formChangesToString(Container formUI, IToJSONConverter converter) throws JSONException
+	public static String formChangesToString(Container formUI, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException
 	{
 		JSONStringer w = new JSONStringer();
 		DataConversion conversions = new DataConversion();
@@ -159,7 +159,7 @@ public abstract class NGUtils
 		return w.toString();
 	}
 
-	public static String formComponentPropertiesToString(IWebFormUI formUI, IToJSONConverter converter) throws JSONException
+	public static String formComponentPropertiesToString(IWebFormUI formUI, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException
 	{
 		JSONStringer w = new JSONStringer();
 		w.object();
@@ -169,7 +169,7 @@ public abstract class NGUtils
 	}
 
 
-	public static boolean shouldShowData(IDataConverterContext dataConverterContext)
+	public static boolean shouldShowData(IBrowserConverterContext dataConverterContext)
 	{
 		boolean showData = true;
 		if (dataConverterContext != null)

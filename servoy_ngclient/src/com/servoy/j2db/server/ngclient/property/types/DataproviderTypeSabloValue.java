@@ -28,9 +28,8 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.DataConverterContext;
-import org.sablo.specification.property.IDataConverterContext;
-import org.sablo.specification.property.IPropertyConverter;
+import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -368,7 +367,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		return result;
 	}
 
-	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IDataConverterContext dataConverterContext) throws JSONException
+	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		// TODO UUIDs are now just seen as strings
 		if (value instanceof UUID)
@@ -388,7 +387,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			{
 				EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 				DataConversion jsonDataConversion = new DataConversion();
-				FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext.getWebObject());
+				FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext);
 				if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
 				String str = ejw.toJSONString();
 				if (str == null || str.trim().length() == 0)
@@ -408,16 +407,15 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (jsonValue instanceof IJSONStringWithConversions) clientConversion.convert(((IJSONStringWithConversions)jsonValue).getDataConversions());
 	}
 
-	public void browserUpdateReceived(Object newJSONValue, IDataConverterContext dataConverterContext)
+	public void browserUpdateReceived(Object newJSONValue, IBrowserConverterContext dataConverterContext)
 	{
 		Object oldValue = value;
 
 		if (!findMode && typeOfDP != null)
 		{
-			if (typeOfDP.getType() instanceof IPropertyConverter< ? >)
+			if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
-				value = ((IPropertyConverter)typeOfDP.getType()).fromJSON(newJSONValue, value,
-					new DataConverterContext(typeOfDP, dataConverterContext.getWebObject()));
+				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext);
 			}
 			else value = newJSONValue;
 		}
@@ -428,5 +426,4 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			jsonValue = null;
 		}
 	}
-
 }

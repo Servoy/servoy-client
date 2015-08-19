@@ -5,7 +5,8 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 	var KEY = "k";
 	var INITIALIZE = "in";
 	var VALUE = "v";
-	var CONTENT_VERSION = "vEr"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile serverside
+	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
+	var CONTENT_VERSION = "vEr"; // server side sync to make sure we don't end up granular updating something that has changed meanwhile server-side
 	var NO_OP = "n";
 	var angularAutoAddedKeys = ["$$hashKey"];
 
@@ -17,7 +18,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 		}
 	}
 	
-	function watchDumbElementForChanges(propertyValue, key, componentScope) {
+	function watchDumbElementForChanges(propertyValue, key, componentScope, deep) {
 		// if elements are primitives or anyway not something that wants control over changes, just add an in-depth watch
 		return componentScope.$watch(function() {
 			return propertyValue[key];
@@ -26,7 +27,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 			internalState.changedKeys[key] = { old: oldvalue };
 			internalState.notifier();
-		}, true);
+		}, deep);
 	}
 
 	/** Initializes internal state on a new object value */
@@ -78,57 +79,62 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 		if (value) {
 			var internalState = value[$sabloConverters.INTERNAL_IMPL];
 			internalState.elUnwatch = {};
-			for (var c in value) {
-				var elem = value[c];
-				if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-					// watch the child's value to see if it changes
-					if (angularAutoAddedKeys.indexOf(c) === -1 && componentScope) internalState.elUnwatch[c] = watchDumbElementForChanges(value, c, componentScope);
-				}
-			}
 
-			// watch for add/remove and such operations on object; this is helpful also when 'smart' child values (that have .setChangeNotifier)
-			// get changed completely by reference
-			if (componentScope) internalState.objStructureUnwatch = componentScope.$watchCollection(function() { return value; }, function(newWVal, oldWVal) {
-				if (newWVal === oldWVal) return;
-				var sendAllNeeded = (newWVal === null || oldWVal === null);
-				if (!sendAllNeeded) {
-					// see if the two objects have the same keys
-					var tmp = [];
-					var tzi;
-					for (var tz in newWVal) if (angularAutoAddedKeys.indexOf(tz) === -1) tmp.push(tz);
-					for (var tz in oldWVal) {
-						if (angularAutoAddedKeys.indexOf(tz) !== -1) continue;
-						
-						if ((tzi = tmp.indexOf(tz)) != -1) tmp.splice(tzi, 1);
-						else {
-							sendAllNeeded = true;
-							break;
-						}
-					}
-					sendAllNeeded = (tmp.length != 0);
-				}
+			// add shallow/deep watches as needed
+			if (componentScope && typeof internalState[PUSH_TO_SERVER] != 'undefined') {
 				
-				if (sendAllNeeded) {
-					internalState.allChanged = true;
-					internalState.notifier();
-				} else {
-					// some elements changed by reference; we only need to handle this for smart element values,
-					// as the others will be handled by the separate 'dumb' watches
-					
-					// we already checked that length and keys are the same above
-					var referencesChanged = false;
-					for (var j in newWVal) {
-						if (angularAutoAddedKeys.indexOf(j) !== -1) continue;
-						
-						if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-							changed = true;
-							internalState.changedIndexes[j] = { old: true };
-						}
+				for (var c in value) {
+					var elem = value[c];
+					if (!elem || !elem[$sabloConverters.INTERNAL_IMPL] || !elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+						// watch the child's value to see if it changes
+						if (angularAutoAddedKeys.indexOf(c) === -1) internalState.elUnwatch[c] = watchDumbElementForChanges(value, c, componentScope, internalState[PUSH_TO_SERVER]);
 					}
-					
-					if (referencesChanged) internalState.notifier();
 				}
-			});
+
+				// watch for add/remove and such operations on object; this is helpful also when 'smart' child values (that have .setChangeNotifier)
+				// get changed completely by reference
+				internalState.objStructureUnwatch = componentScope.$watchCollection(function() { return value; }, function(newWVal, oldWVal) {
+					if (newWVal === oldWVal) return;
+					var sendAllNeeded = (newWVal === null || oldWVal === null);
+					if (!sendAllNeeded) {
+						// see if the two objects have the same keys
+						var tmp = [];
+						var tzi;
+						for (var tz in newWVal) if (angularAutoAddedKeys.indexOf(tz) === -1) tmp.push(tz);
+						for (var tz in oldWVal) {
+							if (angularAutoAddedKeys.indexOf(tz) !== -1) continue;
+
+							if ((tzi = tmp.indexOf(tz)) != -1) tmp.splice(tzi, 1);
+							else {
+								sendAllNeeded = true;
+								break;
+							}
+						}
+						sendAllNeeded = (tmp.length != 0);
+					}
+
+					if (sendAllNeeded) {
+						internalState.allChanged = true;
+						internalState.notifier();
+					} else {
+						// some elements changed by reference; we only need to handle this for smart element values,
+						// as the others will be handled by the separate 'dumb' watches
+
+						// we already checked that length and keys are the same above
+						var referencesChanged = false;
+						for (var j in newWVal) {
+							if (angularAutoAddedKeys.indexOf(j) !== -1) continue;
+
+							if (newWVal[j] !== oldWVal[j] && oldWVal[j] && oldWVal[j][$sabloConverters.INTERNAL_IMPL] && oldWVal[j][$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+								changed = true;
+								internalState.changedIndexes[j] = { old: true };
+							}
+						}
+
+						if (referencesChanged) internalState.notifier();
+					}
+				});
+			}
 		}
 	}
 
@@ -146,7 +152,8 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 					newValue = serverJSONValue[VALUE];
 					initializeNewValue(newValue, serverJSONValue[CONTENT_VERSION]);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
-
+					if (typeof serverJSONValue[PUSH_TO_SERVER] !== 'undefined') internalState[PUSH_TO_SERVER] = serverJSONValue[PUSH_TO_SERVER];
+						
 					for (var c in newValue) {
 						var elem = newValue[c];
 						var conversionInfo = null;

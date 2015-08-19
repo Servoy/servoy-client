@@ -21,8 +21,8 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -117,7 +117,8 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public DataproviderTypeSabloValue fromJSON(Object newJSONValue, DataproviderTypeSabloValue previousSabloValue, IDataConverterContext dataConverterContext)
+	public DataproviderTypeSabloValue fromJSON(Object newJSONValue, DataproviderTypeSabloValue previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		if (previousSabloValue != null)
 		{
@@ -127,8 +128,8 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, DataproviderTypeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, DataproviderTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{

@@ -19,8 +19,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -55,20 +56,20 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 	}
 
 	@Override
-	public String fromJSON(Object newJSONValue, String previousSabloValue, IDataConverterContext dataConverterContext)
+	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		return (String)newJSONValue;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (HtmlUtils.startsWithHtml(sabloValue))
 		{
 			writer.value(HTMLTagsConverter.convert(sabloValue, ((WebFormComponent)dataConverterContext.getWebObject()).getDataConverterContext(),
-				((Boolean)dataConverterContext.getPropertyDescription().getConfig()).booleanValue()));
+				((Boolean)pd.getConfig()).booleanValue()));
 		}
 		else
 		{

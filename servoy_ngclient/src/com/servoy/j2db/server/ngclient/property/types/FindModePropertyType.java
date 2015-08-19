@@ -25,8 +25,8 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -55,22 +55,12 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	public static final String TYPE_NAME = "findmode";
 	private static final FindModeSabloValue defaultValue = new FindModeSabloValue(null, null);
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyType#getName()
-	 */
 	@Override
 	public String getName()
 	{
 		return TYPE_NAME;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.types.DefaultPropertyType#parseConfig(org.json.JSONObject)
-	 */
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
@@ -91,51 +81,28 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		return new FindModeConfig(forEntities);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.types.DefaultPropertyType#defaultValue(org.sablo.specification.PropertyDescription)
-	 */
 	@Override
 	public FindModeSabloValue defaultValue(PropertyDescription pd)
 	{
 		return defaultValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object,
-	 * org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
-	public FindModeSabloValue fromJSON(Object newJSONValue, FindModeSabloValue previousSabloValue, IDataConverterContext dataConverterContext)
+	public FindModeSabloValue fromJSON(Object newJSONValue, FindModeSabloValue previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		//we do not allow changes coming in from the client
 		return previousSabloValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyConverter#toJSON(org.json.JSONWriter, java.lang.String, java.lang.Object,
-	 * org.sablo.websocket.utils.DataConversion, org.sablo.specification.property.IDataConverterContext)
-	 */
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, FindModeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, FindModeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		return sabloValue.toJSON(writer);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent#toSabloComponentValue(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
-	 * com.servoy.j2db.server.ngclient.DataAdapterList)
-	 */
 	@Override
 	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dataAdapterList)
@@ -143,14 +110,6 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		return new FindModeSabloValue((FindModeConfig)pd.getConfig(), dataAdapterList);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent#toSabloComponentDefaultValue(org.sablo.specification
-	 * .PropertyDescription, com.servoy.j2db.server.ngclient.FormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
-	 * com.servoy.j2db.server.ngclient.DataAdapterList)
-	 */
 	@Override
 	public FindModeSabloValue toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
@@ -159,36 +118,18 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#isValueAvailableInRhino(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
-	 */
 	@Override
 	public boolean isValueAvailableInRhino(FindModeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino#toRhinoValue(java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject, org.mozilla.javascript.Scriptable)
-	 */
 	@Override
 	public Object toRhinoValue(FindModeSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
 		return Scriptable.NOT_FOUND;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent#toSabloComponentValue(java.lang.Object, java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.BaseWebObject)
-	 */
 	@Override
 	public FindModeSabloValue toSabloComponentValue(Object rhinoValue, FindModeSabloValue previousComponentValue, PropertyDescription pd,
 		BaseWebObject componentOrService)
@@ -196,13 +137,6 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		return previousComponentValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON#toTemplateJSONValue(org.json.JSONWriter, java.lang.String,
-	 * java.lang.Object, org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, com.servoy.j2db.FlattenedSolution,
-	 * com.servoy.j2db.server.ngclient.FormElement)
-	 */
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException

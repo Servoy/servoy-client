@@ -19,7 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -64,7 +64,7 @@ public class BasicTagStringTypeSabloValue
 		return dataAdapterList;
 	}
 
-	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IDataConverterContext dataConverterContext) throws JSONException
+	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		String v = getTagReplacedValue();

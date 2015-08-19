@@ -25,8 +25,9 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
@@ -70,7 +71,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
 	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
-	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>
+	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -108,7 +109,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public ValueListTypeSabloValue fromJSON(Object newJSONValue, ValueListTypeSabloValue previousSabloValue, IDataConverterContext dataConverterContext)
+	public ValueListTypeSabloValue fromJSON(Object newJSONValue, ValueListTypeSabloValue previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		// handle any valuelist specific websocket incomming traffic
 		if (previousSabloValue != null && newJSONValue instanceof String)
@@ -122,8 +124,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ValueListTypeSabloValue sabloValue, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, ValueListTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -289,6 +291,12 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean shouldAlwaysAllowIncommingJSON()
+	{
+		return true; // fromJSON can only filter stuff so it shouldn't be a problem (it's not setting anything from client to server)
 	}
 
 }

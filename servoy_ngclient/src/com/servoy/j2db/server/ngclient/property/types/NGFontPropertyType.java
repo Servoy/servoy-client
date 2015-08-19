@@ -47,14 +47,14 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	public Font toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return fromJSON(designValue, null, null);
+		return fromJSON(designValue, null, pd, null);
 	}
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 			try
 			{
 				writer.object();
-				toJSON(writer, pd.getName(), font, new DataConversion(), null);
+				toJSON(writer, pd.getName(), font, pd, new DataConversion(), null);
 				writer.endObject();
 				return new JSONObject(writer.toString()).get(pd.getName());
 			}
@@ -82,7 +82,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	@Override
 	public Object toRhinoValue(Object value, PropertyDescription pd)
 	{
-		Font font = fromJSON(value, null, null);
+		Font font = fromJSON(value, null, pd, null);
 		return PersistHelper.createFontString(font);
 	}
 

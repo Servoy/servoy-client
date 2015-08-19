@@ -28,7 +28,10 @@ import org.json.JSONWriter;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.DataConverterContext;
+import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
@@ -57,6 +60,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	 */
 	protected static final String PROPERTY_CHANGE = "propertyChange";
 
+	protected static final String PUSH_TO_SERVER = "w";
+
 	/**
 	 * When non-null then the wrapped property is not yet initialized - waiting for forFoundset property's DAL to be available
 	 */
@@ -64,6 +69,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 	protected YT wrappedSabloValue;
 	protected WebFormComponent component;
+	protected IBrowserConverterContext browserConverterContext;
 	protected final String forFoundsetPropertyName;
 	protected PropertyChangeListener forFoundsetPropertyListener;
 	protected IDataLinkedPropertyRegistrationListener dataLinkedPropertyRegistrationListener;
@@ -102,6 +108,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		initializingState = new InitializingState(wrappedPropertyDescription, formElementValue, formElement);
 		this.component = component;
+		browserConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow);
 		this.forFoundsetPropertyName = forFoundsetPropertyName;
 		// this.wrappedSabloValue = null; // for now; waiting for foundset property availability
 	}
@@ -137,6 +144,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	public void attachToBaseObject(final IChangeListener monitor, @SuppressWarnings("hiding") BaseWebObject component)
 	{
 		this.component = (WebFormComponent)component;
+		browserConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow);
 		this.changeMonitor = monitor;
 
 		createWrappedSabloValueNeededAndPossible();
@@ -218,9 +226,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		return wrappedSabloValue;
 	}
 
-	protected WebFormComponent getComponent()
+	protected IBrowserConverterContext getBrowserConverterContextForToJSON()
 	{
-		return component;
+		return browserConverterContext;
 	}
 
 	public void rhinoToSablo(Object rhinoValue, PropertyDescription wrappedPropertyDescription, BaseWebObject componentOrService)
@@ -239,8 +247,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		}
 	}
 
-	public JSONWriter fullToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription)
-		throws JSONException
+	public JSONWriter fullToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (initializingState != null)
 		{
@@ -254,13 +262,19 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
 
+		PushToServerEnum pushToServer = dataConverterContext.getParentPropertyPushToServerValue();
+		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
+		{
+			writer.key(PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
+		}
+
 		if (viewPortChangeMonitor == null)
 		{
 			// single value; not record dependent
 			DataConversion dataConversions = new DataConversion();
 			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE);
 			FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, component);
+				dataConversions, dataConverterContext);
 			JSONUtils.writeClientConversions(writer, dataConversions);
 		}
 		else
@@ -290,8 +304,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 	}
 
-	public JSONWriter changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription)
-		throws JSONException
+	public JSONWriter changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (initializingState != null)
 		{
@@ -309,7 +323,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			DataConversion dataConversions = new DataConversion();
 			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE);
 			ChangesToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, component);
+				dataConversions, dataConverterContext);
 			JSONUtils.writeClientConversions(writer, dataConversions);
 		}
 		else
@@ -349,83 +363,96 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		return writer;
 	}
 
-	public void browserUpdatesReceived(Object newJSONValue, PropertyDescription wrappedPropertyDescription)
+	public void browserUpdatesReceived(Object newJSONValue, PropertyDescription wrappedPropertyDescription, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
+		PushToServerEnum pushToServer = dataConverterContext.getParentPropertyPushToServerValue();
+
 		if (initializingState != null)
 		{
 			Debug.error("Trying to update state for an uninitialized foundset linked property: " + wrappedPropertyDescription + " | " + component);
 			return;
 		}
 
-		try
+		if ((wrappedPropertyDescription instanceof IPushToServerSpecialType && ((IPushToServerSpecialType)wrappedPropertyDescription).shouldAlwaysAllowIncommingJSON()) ||
+			PushToServerEnum.allow.compareTo(pushToServer) <= 0)
 		{
-			JSONArray updates = (JSONArray)newJSONValue;
-			for (int i = 0; i < updates.length(); i++)
+			try
 			{
-				JSONObject update = (JSONObject)updates.get(i);
-				if (update.has(PROPERTY_CHANGE))
+				JSONArray updates = (JSONArray)newJSONValue;
+				for (int i = 0; i < updates.length(); i++)
 				{
-					// for when property is not record dependent
-					// { propertyChange : propValue }
-
-					if (viewPortChangeMonitor != null)
+					JSONObject update = (JSONObject)updates.get(i);
+					if (update.has(PROPERTY_CHANGE))
 					{
-						Debug.error("Trying to update single state value for a foundset linked record dependent property: " + wrappedPropertyDescription +
-							" | " + component);
-						return;
+						// for when property is not record dependent
+						// { propertyChange : propValue }
+
+						if (viewPortChangeMonitor != null)
+						{
+							Debug.error("Trying to update single state value for a foundset linked record dependent property: " + wrappedPropertyDescription +
+								" | " + component);
+							return;
+						}
+
+						Object object = update.get(PROPERTY_CHANGE);
+						YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, object, wrappedPropertyDescription, dataConverterContext);
+
+						if (newWrappedValue != wrappedSabloValue)
+						{
+							// do what component would do when a property changed
+							// TODO should we make current method return a completely new instance instead and leave component code do the rest?
+							if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
+							wrappedSabloValue = newWrappedValue;
+							if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(
+								changeMonitor, component);
+						}
 					}
-
-					Object object = update.get(PROPERTY_CHANGE);
-					YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, object, new DataConverterContext(wrappedPropertyDescription,
-						component));
-
-					if (newWrappedValue != wrappedSabloValue)
+					else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
 					{
-						// do what component would do when a property changed
-						// TODO should we make current method return a completely new instance instead and leave component code do the rest?
-						if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
-						wrappedSabloValue = newWrappedValue;
-						if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(
-							changeMonitor, component);
-					}
-				}
-				else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
-				{
-					if (viewPortChangeMonitor == null)
-					{
-						Debug.error("Trying to update some record value for a foundset linked non-record dependent property: " + wrappedPropertyDescription +
-							" | " + component);
-						return;
-					}
+						if (viewPortChangeMonitor == null)
+						{
+							Debug.error("Trying to update some record value for a foundset linked non-record dependent property: " +
+								wrappedPropertyDescription + " | " + component);
+							return;
+						}
 
-					// property is linked to a foundset and the value of a property that depends on the record changed client side;
-					// in this case update DataAdapterList with the correct record and then set the value on the wrapped property
-					FoundsetTypeSabloValue foundsetPropertyValue = getFoundsetValue();
-					if (foundsetPropertyValue != null && foundsetPropertyValue.getFoundset() != null)
-					{
-						JSONObject change = update.getJSONObject(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
+						// property is linked to a foundset and the value of a property that depends on the record changed client side;
+						// in this case update DataAdapterList with the correct record and then set the value on the wrapped property
+						FoundsetTypeSabloValue foundsetPropertyValue = getFoundsetValue();
+						if (foundsetPropertyValue != null && foundsetPropertyValue.getFoundset() != null)
+						{
+							JSONObject change = update.getJSONObject(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
 
-						String rowIDValue = change.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
-						Object value = change.get(FoundsetTypeSabloValue.VALUE_KEY);
+							String rowIDValue = change.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
+							Object value = change.get(FoundsetTypeSabloValue.VALUE_KEY);
 
-						updatePropertyValueForRecord(foundsetPropertyValue, rowIDValue, value, wrappedPropertyDescription);
-					}
-					else
-					{
-						Debug.error("Component updates received for record linked property, but component is not linked to a foundset: " +
-							update.get(ViewportDataChangeMonitor.VIEWPORT_CHANGED));
+							updatePropertyValueForRecord(foundsetPropertyValue, rowIDValue, value, wrappedPropertyDescription, dataConverterContext);
+						}
+						else
+						{
+							Debug.error("Component updates received for record linked property, but component is not linked to a foundset: " +
+								update.get(ViewportDataChangeMonitor.VIEWPORT_CHANGED));
+						}
 					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
 		}
-		catch (Exception ex)
+		else
 		{
-			Debug.error(ex);
+			Debug.error("Foundset linked property (" + pd +
+				") that doesn't define a suitable pushToServer value (allow/shallow/deep) tried to update proxied value(s) serverside. Denying and sending back server value!");
+			if (viewPortChangeMonitor != null) viewPortChangeMonitor.shouldSendWholeViewport();
+			else changeMonitor.valueChanged();
 		}
 	}
 
 	protected void updatePropertyValueForRecord(FoundsetTypeSabloValue foundsetPropertyValue, String rowIDValue, Object value,
-		PropertyDescription wrappedPropertyDescription)
+		PropertyDescription wrappedPropertyDescription, IBrowserConverterContext dataConverterContext)
 	{
 		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
@@ -442,8 +469,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 				try
 				{
-					YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, value, new DataConverterContext(wrappedPropertyDescription,
-						component));
+					YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, value, wrappedPropertyDescription, dataConverterContext);
 
 					if (newWrappedValue != wrappedSabloValue)
 					{

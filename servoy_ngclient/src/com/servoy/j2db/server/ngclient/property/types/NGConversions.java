@@ -23,7 +23,7 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.DataConverterContext;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -320,7 +320,7 @@ public class NGConversions
 
 		@Override
 		public JSONWriter toJSONValue(JSONWriter writer, String key, Object value, PropertyDescription valueType, DataConversion browserConversionMarkers,
-			BaseWebObject webObject) throws JSONException, IllegalArgumentException
+			IBrowserConverterContext context) throws JSONException, IllegalArgumentException
 		{
 			if (value != null && valueType != null)
 			{
@@ -330,8 +330,7 @@ public class NGConversions
 					// good, we now know that this type puts values in template as well and now it only needs to update them to match runtime content
 					try
 					{
-						return ((ITemplateValueUpdaterType)type).initialToJSON(writer, key, value, browserConversionMarkers, new DataConverterContext(
-							valueType, webObject));
+						return ((ITemplateValueUpdaterType)type).initialToJSON(writer, key, value, valueType, browserConversionMarkers, context);
 					}
 					catch (Exception ex)
 					{
@@ -342,7 +341,7 @@ public class NGConversions
 			}
 
 			// for most values that don't support template value + updates use full value to JSON
-			super.toJSONValue(writer, key, value, valueType, browserConversionMarkers, webObject);
+			super.toJSONValue(writer, key, value, valueType, browserConversionMarkers, context);
 
 			return writer;
 		}

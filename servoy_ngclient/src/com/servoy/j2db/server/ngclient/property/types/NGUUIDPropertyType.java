@@ -20,8 +20,8 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -51,15 +51,15 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 	}
 
 	@Override
-	public UUID fromJSON(Object newJSONValue, UUID previousSabloValue, IDataConverterContext dataConverterContext)
+	public UUID fromJSON(Object newJSONValue, UUID previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		if (newJSONValue instanceof String && (previousSabloValue == null || !((String)newJSONValue).equals(previousSabloValue.toString()))) return UUID.fromString((String)newJSONValue);
 		return null;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, UUID sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, UUID sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		return writer.value(sabloValue.toString());
@@ -75,7 +75,7 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, UUID formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 
 }

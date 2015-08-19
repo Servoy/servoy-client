@@ -27,8 +27,8 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.FunctionPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -56,7 +56,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	}
 
 	@Override
-	public Object fromJSON(Object newValue, Object previousValue, IDataConverterContext dataConverterContext)
+	public Object fromJSON(Object newValue, Object previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		if (newValue instanceof JSONObject)
 		{
@@ -80,8 +80,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object object, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		Map<String, Object> map = new HashMap<>();
 		try
@@ -146,6 +146,6 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 }

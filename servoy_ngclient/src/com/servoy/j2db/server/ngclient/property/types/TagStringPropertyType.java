@@ -24,8 +24,8 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -121,11 +121,12 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public BasicTagStringTypeSabloValue fromJSON(Object newValue, BasicTagStringTypeSabloValue previousValue, IDataConverterContext dataConverterContext)
+	public BasicTagStringTypeSabloValue fromJSON(Object newValue, BasicTagStringTypeSabloValue previousValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext)
 	{
 		BaseWebObject webObject = dataConverterContext.getWebObject();
-		return createNewTagStringTypeSabloValue((String)newValue, (previousValue != null ? previousValue.getDataAdapterList() : null), false, false,
-			dataConverterContext.getPropertyDescription(), webObject instanceof WebFormComponent ? ((WebFormComponent)webObject) : null,
+		return createNewTagStringTypeSabloValue((String)newValue, (previousValue != null ? previousValue.getDataAdapterList() : null), false, false, pd,
+			webObject instanceof WebFormComponent ? ((WebFormComponent)webObject) : null,
 			((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication(), false);
 	}
 
@@ -173,8 +174,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, BasicTagStringTypeSabloValue object, DataConversion clientConversion,
-		IDataConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, BasicTagStringTypeSabloValue object, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (object != null)
 		{

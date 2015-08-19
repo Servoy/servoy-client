@@ -21,8 +21,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IDataConverterContext;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.IWrappingContext;
+import org.sablo.specification.property.WrappingContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -75,14 +77,16 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	}
 
 	@Override
-	public MediaWrapper fromJSON(Object newValue, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
+	public MediaWrapper fromJSON(Object newValue, MediaWrapper previousValue, PropertyDescription propertyDescription,
+		IBrowserConverterContext dataConverterContext)
 	{
-		return wrap(newValue, previousValue, dataConverterContext);
+		if (dataConverterContext instanceof IWrappingContext) return wrap(newValue, previousValue, propertyDescription, (IWrappingContext)dataConverterContext);
+		else return wrap(newValue, previousValue, propertyDescription, new WrappingContext(dataConverterContext.getWebObject()));
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, MediaWrapper object, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, MediaWrapper object, PropertyDescription propertyDescription, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (object != null)
 		{
@@ -99,7 +103,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	}
 
 	@Override
-	public MediaWrapper wrap(Object value, MediaWrapper previousValue, IDataConverterContext dataConverterContext)
+	public MediaWrapper wrap(Object value, MediaWrapper previousValue, PropertyDescription propertyDescription, IWrappingContext dataConverterContext)
 	{
 		if (previousValue != null && Utils.equalObjects(value, previousValue.mediaUrl))
 		{
@@ -184,7 +188,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 			String url = getMediaUrl(formElementValue, fs, null);
 			if (url != null)
 			{
-				return toJSON(writer, key, new MediaWrapper(formElementValue, url), browserConversionMarkers, null);
+				return toJSON(writer, key, new MediaWrapper(formElementValue, url), pd, browserConversionMarkers, null);
 			}
 		}
 

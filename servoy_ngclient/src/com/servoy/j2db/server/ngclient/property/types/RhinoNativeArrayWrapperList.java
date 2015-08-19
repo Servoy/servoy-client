@@ -30,9 +30,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ChangeAwareList.IAttachAware;
 import org.sablo.specification.property.ChangeAwareList.IAttachHandler;
 import org.sablo.specification.property.ConvertedList;
-import org.sablo.specification.property.DataConverterContext;
 import org.sablo.specification.property.IWrappedBaseListProvider;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.WrappingContext;
 
 /**
  * This list is able to act as a Sablo wrap-aware map that is based on a (native or otherwise) Rhino JS array value.
@@ -159,7 +159,7 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 		if (elementTypeDefinition.getType() instanceof IWrapperType)
 		{
 			IWrapperType<SabloT, SabloWT> wt = (IWrapperType<SabloT, SabloWT>)elementTypeDefinition.getType();
-			return wt.wrap(value, null /* we never store the wrapped value here... */, new DataConverterContext(elementTypeDefinition, componentOrService));
+			return wt.wrap(value, null /* we never store the wrapped value here... */, elementTypeDefinition, new WrappingContext(componentOrService));
 		}
 		else return (SabloWT)value;
 	}

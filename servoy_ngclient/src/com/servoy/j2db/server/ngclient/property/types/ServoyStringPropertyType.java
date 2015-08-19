@@ -22,8 +22,8 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Undefined;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -41,14 +41,14 @@ public class ServoyStringPropertyType extends StringPropertyType implements ICon
 	public static final ServoyStringPropertyType INSTANCE = new ServoyStringPropertyType();
 
 	@Override
-	public String fromJSON(Object newJSONValue, String previousSabloValue, IDataConverterContext dataConverterContext)
+	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		return (String)newJSONValue;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		String value = sabloValue;

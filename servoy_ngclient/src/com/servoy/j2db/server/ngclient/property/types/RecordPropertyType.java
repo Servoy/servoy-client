@@ -21,8 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -50,7 +50,7 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 	}
 
 	@Override
-	public Record fromJSON(Object newJSONValue, Record previousSabloValue, IDataConverterContext dataConverterContext)
+	public Record fromJSON(Object newJSONValue, Record previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		if (newJSONValue instanceof JSONObject)
 		{
@@ -61,8 +61,8 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Record sabloValue, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Record sabloValue, PropertyDescription pd, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
@@ -82,6 +82,6 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Record formElementValue, PropertyDescription pd,
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
-		return toJSON(writer, key, formElementValue, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
 }

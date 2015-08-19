@@ -51,18 +51,13 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		((NGClient)getApplication()).getWebsocketSession().registerServerService(FOUNDSET_SERVICE, this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.websocket.IServerService#executeMethod(java.lang.String, org.json.JSONObject)
-	 */
 	@SuppressWarnings("nls")
 	@Override
 	public Object executeMethod(String methodName, JSONObject args) throws Exception
 	{
 		if ("getFoundSet".equals(methodName))
 		{
-			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null);
+			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null);
 			String sort = args.optString("sort");
 			if (!"".equals(sort))
 			{
@@ -74,7 +69,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		}
 		else if ("getRelatedFoundSetHash".equals(methodName))
 		{
-			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null);
+			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null);
 			String rowid = args.optString("rowid");
 			String relation = args.optString("relation");
 
@@ -95,7 +90,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		}
 		else if ("updateFoundSetRow".equals(methodName))
 		{
-			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null);
+			IFoundSetInternal foundset = FoundsetReferencePropertyType.INSTANCE.fromJSON(args, null, null, null);
 			String rowid = args.optString("rowid");
 			String dataproviderid = args.optString("dataproviderid");
 			Object value = args.get("value");

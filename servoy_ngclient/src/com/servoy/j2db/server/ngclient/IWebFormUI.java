@@ -25,6 +25,7 @@ import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.IBasicFormUI;
@@ -38,7 +39,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 {
 
-	boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter converter) throws JSONException;
+	boolean writeAllComponentsProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException;
 
 	WebFormComponent getWebComponent(String name);
 

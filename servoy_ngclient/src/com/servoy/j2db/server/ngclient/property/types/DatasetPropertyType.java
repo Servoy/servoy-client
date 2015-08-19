@@ -21,10 +21,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IDataConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IWrapperType;
+import org.sablo.specification.property.IWrappingContext;
+import org.sablo.specification.property.WrappingContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
@@ -58,15 +60,15 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 	}
 
 	@Override
-	public IDataSet fromJSON(Object newValue, IDataSet previousValue, IDataConverterContext dataConverterContext)
+	public IDataSet fromJSON(Object newValue, IDataSet previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
 		// ?
 		return null;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, IDataSet value, DataConversion clientConversion, IDataConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, IDataSet value, PropertyDescription propertyDescription, DataConversion clientConversion,
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (value == null)
@@ -78,7 +80,7 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 
 		if (value.getColumnCount() > 0)
 		{
-			DatasetConfig datasetConfig = (DatasetConfig)dataConverterContext.getPropertyDescription().getConfig();
+			DatasetConfig datasetConfig = (DatasetConfig)propertyDescription.getConfig();
 			String[] columnNames = value.getColumnNames();
 
 			if (datasetConfig.isIncludeColumnNames() && columnNames != null)
@@ -107,7 +109,9 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 						Object v;
 						if (pd.getType() instanceof IWrapperType< ? , ? >)
 						{
-							v = ((IWrapperType<Object, ? >)pd.getType()).wrap(row[j], null, dataConverterContext);
+							IWrappingContext c = (dataConverterContext instanceof IWrappingContext ? (IWrappingContext)dataConverterContext
+								: new WrappingContext(dataConverterContext.getWebObject()));
+							v = ((IWrapperType<Object, ? >)pd.getType()).wrap(row[j], null, pd, c);
 						}
 						else
 						{

@@ -34,6 +34,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.Container;
 import org.sablo.InMemPackageReader;
+import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
@@ -102,8 +104,8 @@ public class FoundsetTest extends AbstractSolutionTest
 			bean.setJson(new ServoyJSONObject("{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}}", false));
 
 			WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
-			bean1.setJson(
-				new ServoyJSONObject("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}", false));
+			bean1.setJson(new ServoyJSONObject("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}",
+				false));
 		}
 		catch (JSONException e)
 		{
@@ -299,8 +301,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		// fake an update
 		endpoint.incoming(
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
-				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
-			true);
+				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
 
 		Assert.assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));
 	}
@@ -312,7 +313,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebFormComponent webComponent = form.getFormUI().getWebComponent("mydynamiccustombean");
 		FoundsetTypeSabloValue property = (FoundsetTypeSabloValue)webComponent.getProperty("myfoundset");
 		JSONArray json = new JSONArray("[{" + FoundsetTypeSabloValue.PREFERRED_VIEWPORT_SIZE + ":1}]");
-		property.browserUpdatesReceived(json);
+		property.browserUpdatesReceived(json, webComponent.getSpecification().getProperty("myfoundset"), new BrowserConverterContext(webComponent,
+			PushToServerEnum.allow));
 
 
 		Assert.assertNotNull(form);
