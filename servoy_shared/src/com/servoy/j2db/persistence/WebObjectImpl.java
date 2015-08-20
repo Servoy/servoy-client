@@ -312,12 +312,25 @@ public class WebObjectImpl
 
 	public void setJsonSubproperty(String key, Object value)
 	{
+		setOrRemoveJsonSubproperty(key, value, false);
+	}
+
+	public boolean setOrRemoveJsonSubproperty(String key, Object value, boolean remove)
+	{
 		try
 		{
+			boolean removed = false;
 			JSONObject oldJson = getJson();
 			// we can no longer check for differences here as we now reuse JSON objects/arrays
 			JSONObject jsonObject = (oldJson == null ? new ServoyJSONObject() : oldJson); // we have to keep the same instance if possible cause otherwise com.servoy.eclipse.designer.property.UndoablePropertySheetEntry would set child but restore completely from parent when modifying a child value in case of nested properties
-			jsonObject.put(key, value);
+			if (remove)
+			{
+				removed = (jsonObject.remove(key) != null);
+			}
+			else
+			{
+				jsonObject.put(key, value);
+			}
 			setJsonInternal(jsonObject);
 			((AbstractBase)webObject).flagChanged();
 
@@ -330,11 +343,18 @@ public class WebObjectImpl
 			// and the JSON of each web object should never get out-of-sync with the child web objects it contains
 			ISupportChilds parent = webObject.getParent();
 			if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
+			return removed;
 		}
 		catch (JSONException e)
 		{
 			Debug.error(e);
 		}
+		return false;
+	}
+
+	public boolean removeJsonSubproperty(String key)
+	{
+		return setOrRemoveJsonSubproperty(key, null, true);
 	}
 
 	protected void clearCustomPropertyCache()
