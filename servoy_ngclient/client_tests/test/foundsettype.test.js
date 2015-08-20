@@ -63,6 +63,7 @@ describe("Test foundset_custom_property suite", function() {
 		it("Will get template dummy value", function() {
 			serverValue = {
 					"serverSize": 0,
+					"w": false,
 					"selectedRowIndexes": [],
 					"multiSelect": false,
 					"viewPort": {
@@ -83,6 +84,7 @@ describe("Test foundset_custom_property suite", function() {
 			// *** initial size no viewport
 			var updateValue = {
 					"serverSize": 6,
+					"w": false,
 					"selectedRowIndexes":[0],
 					"multiSelect": false,
 					"viewPort": 
