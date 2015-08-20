@@ -50,6 +50,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	// from foundset ListDataListener - this way no UI JTable/JList will decide, only the foundset itself; not completely sure about this though
 	private boolean foundsetIsFiringSizeChange = false;
 	private boolean selectionAlreadyAdjustedBySizeChangeListeners = false;
+	private int rowBeforeSelectionListeners;
 
 	public AlwaysRowSelectedSelectionModel(ISwingFoundSet foundset)
 	{
@@ -124,33 +125,30 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			selectionAlreadyAdjustedBySizeChangeListeners = true;
 //			if (getSelectionMode() == SINGLE_SELECTION)
 			{
-				int selectedRow = getSelectedRow();
-				int selectionWasChangedTo = -1;
+				int selectedRow = getSelectedRow();//save the selection
+				this.rowBeforeSelectionListeners = Integer.MIN_VALUE;//make sure we start fresh
+				super.removeIndexInterval(index0, index1);//this can trigger selectionListeners that may include executing onRecordSelect, which can change the selection
+				int rowAfterSelectionListeners = getSelectedRow();//get the selected row after the new row is selected
 				if (selectedRow >= index0 && selectedRow <= index1 && foundset.getSize() > 0)
 				{
-
 					// selected record was removed, set selection after the removed block or before (if at the end)
 					// note: default behavior of DefaultListSelectionModel is to set selected index to -1 when selected was removed
-					int selection = Math.min(index1 + 1, foundset.getSize());
+					int selection = Math.min(index0, foundset.getSize());
 					// if it is set to the foundset.getSize() - 1 but the foundset had more rows, then just select the first..
 					// else it will load in the next pks and the selection will be somewhere in the middle
 					if (selection == foundset.getSize() && foundset.hadMoreRows())
 					{
 						selection = 0;
 					}
-					// i have to call the setSelectionInterval else our methods will test if the record is there, but it can be that a selection is set
-					// that will just fall out of the foundset size (== foundset size) but the super.removeIndexInterval will adjust this.
-					if (selection != selectedRow)
+					//adjust the selection if super.removeIndexInterval() did not set it correctly but only if the listeners (onRecordSelect) didn't already adjust it
+					if (selection != rowAfterSelectionListeners &&
+						(rowBeforeSelectionListeners != Integer.MIN_VALUE && rowAfterSelectionListeners == rowBeforeSelectionListeners) &&
+						selection < foundset.getSize())
 					{
-						super.setSelectionInterval(selection, selection); // this call can trigger onRecordSelect handler
-						int realSelection = getSelectedRow(); // which can change the selected record
-						if (realSelection != selection) selectionWasChangedTo = realSelection; //so we save it so we can restore it after super.removeIndexInterval
+						// i have to call the setSelectionInterval else our methods will test if the record is there
+						super.setSelectionInterval(selection, selection);
 					}
-
 				}
-				super.removeIndexInterval(index0, index1);
-				if (selectionWasChangedTo > -1) super.setSelectionInterval(selectionWasChangedTo, selectionWasChangedTo); // see case https://support.servoy.com/browse/SVY-8347
-
 			}
 //			else
 //			{
@@ -247,6 +245,8 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		// that we just set the selected row to the first index. (and that will do the real fire)
 		if (getSelectedRow() == -1 && (firstIndex != lastIndex || !isPrinting) && foundset.getSize() > 0)
 		{
+			//save the selected row for removeIndexInterval
+			this.rowBeforeSelectionListeners = firstIndex;
 			setSelectedRow(firstIndex);
 		}
 		else
