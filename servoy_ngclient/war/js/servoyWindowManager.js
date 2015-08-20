@@ -109,8 +109,14 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			});	        	
 
 			return dialogOpenedDeferred.promise;
+		},
+		destroyAllDialogs: function(){
+			for(var dialog in this.instances)
+			{
+				if (this.instances[dialog] && this.instances[dialog].bsWindowInstance) this.instances[dialog].hide();
+			}
+			instances = {};
 		}
-
 	}	
 
 
@@ -146,7 +152,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return {x:left,y:top}
 	};
 
-}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings,$solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location,$sabloLoadingIndicator) {
+}]).factory("$windowService", function($servoyWindowManager, $log, $rootScope, $solutionSettings, $window, $timeout, $formService, $sabloApplication, webStorage, WindowType,$servoyInternal,$templateCache, $location,$sabloLoadingIndicator) {
 	var instances = $servoyWindowManager.instances;
 	var formTemplateUrls = {};
 	var storage = webStorage.local;

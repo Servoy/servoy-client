@@ -793,10 +793,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		})
 	}	
 })
-.factory('$sessionService',['$solutionSettings','$window','$rootScope',function($solutionSettings,$window,$rootScope){
+.factory('$sessionService',['$solutionSettings','$window','$rootScope','$servoyWindowManager',function($solutionSettings,$window,$rootScope,$servoyWindowManager){
 
 	return {
 		expireSession : function (sessionExpired){
+			$servoyWindowManager.destroyAllDialogs();
 			var exp = { 
 					viewUrl: 'templates/sessionExpiredView.html',
 					redirectUrl : $window.location.href
