@@ -424,8 +424,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				var formName = null;
 				// Listen for change events to enable binding
 				element.bind('change', function() {
-					// model has not been updated yet
-					setTimeout(function() {
+					scope.$evalAsync ( function() {
+						// model maybe is not updated yet, commit it now.
+						ngModel.$commitViewValue();
 						var svyServoyApi = $utils.findAttribute(element, parent, "svy-servoyApi");
 						// use svy apply rather then pushChange because svy apply might get intercepted by components such as portals
 						// that have nested child web components
@@ -435,7 +436,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							// this shouldn't happen (svy-apply not being set on a web-component...)
 							$log.error("cannot apply new value");
 						}
-					}, 0, parent, element);
+					});
 				});
 
 				// Listen for start edit
