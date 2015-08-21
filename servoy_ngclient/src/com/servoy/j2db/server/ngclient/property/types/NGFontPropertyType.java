@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.FontPropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -30,6 +31,7 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.PersistHelper;
@@ -37,8 +39,8 @@ import com.servoy.j2db.util.PersistHelper;
 /**
  * @author acostescu
  */
-public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>,
-	IRhinoDesignConverter
+public class NGFontPropertyType extends FontPropertyType
+	implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>, IRhinoDesignConverter, IRhinoToSabloComponent<Font>
 {
 
 	public final static NGFontPropertyType NG_INSTANCE = new NGFontPropertyType();
@@ -51,8 +53,8 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
+		FormElementContext formElementContext) throws JSONException
 	{
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
@@ -84,6 +86,16 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	{
 		Font font = fromJSON(value, null, pd, null);
 		return PersistHelper.createFontString(font);
+	}
+
+	@Override
+	public Font toSabloComponentValue(Object rhinoValue, Font previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		if (rhinoValue instanceof String)
+		{
+			return PersistHelper.createFont((String)rhinoValue);
+		}
+		return (Font)(rhinoValue instanceof Font ? rhinoValue : null);
 	}
 
 
