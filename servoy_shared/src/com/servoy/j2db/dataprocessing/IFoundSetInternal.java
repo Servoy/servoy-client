@@ -26,7 +26,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * The foundset interface
- * 
+ *
  * @author jblok
  */
 public interface IFoundSetInternal extends IFoundSet, IFireCollectable
@@ -81,7 +81,7 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 	/**
 	 * @param record
 	 */
-	public void deleteRecord(Record record) throws ServoyException;
+	public void deleteRecord(IRecordInternal record) throws ServoyException;
 
 	public IRecordInternal getRecord(Object[] pk);
 
