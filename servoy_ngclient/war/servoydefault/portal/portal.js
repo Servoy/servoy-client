@@ -1037,6 +1037,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 					$scope.$watch('foundset.serverSize', function(newVal, oldVal) {
 						if (requestViewPortSize === 0) requestViewPortSize = -1
+						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
+						if ($scope.foundset.viewPort.size < numberOfRows && newVal > oldVal)
+						{
+							// we need to load extra rows
+							requestViewPortSize = -1;
+						}	
 						testNumberOfRows();
 					});
 
