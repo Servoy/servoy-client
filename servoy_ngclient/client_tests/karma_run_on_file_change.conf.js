@@ -25,6 +25,8 @@ module.exports = function(config){
          '../war/servoydefault/*/*/*.js',
          '../war/servoyservices/component_custom_property/*.js',
          '../war/servoyservices/custom_json_array_property/*.js',
+         '../war/servoyservices/custom_json_object_property/*.js',
+         '../war/servoyservices/foundset_linked_property/*.js',
          '../war/servoyservices/foundset_custom_property/*.js',
          '../war/servoyservices/foundset_viewport_module/*.js',
 
@@ -49,7 +51,7 @@ module.exports = function(config){
     },
 
     frameworks: ['jasmine'],
-    browsers : ['Chrome'],//
+    browsers : ['Chrome','Firefox'],//
 
     /*plugins : [    <- not needed since karma loads by default all sibling plugins that start with karma-*
             'karma-junit-reporter',

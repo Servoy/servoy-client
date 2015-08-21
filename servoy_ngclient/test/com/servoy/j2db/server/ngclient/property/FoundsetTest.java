@@ -101,10 +101,13 @@ public class FoundsetTest extends AbstractSolutionTest
 		{
 			Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
 			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
-			bean.setJson(new ServoyJSONObject("{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}}", false));
+			bean.setJson(new ServoyJSONObject(
+				"{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}, myfoundsetWithAllow:{dataproviders:{firstname:'test1',lastname:'test2'}}}",
+				false));
 
 			WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
-			bean1.setJson(new ServoyJSONObject("{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}",
+			bean1.setJson(new ServoyJSONObject(
+				"{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}, myfoundsetWithAllow:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}",
 				false));
 		}
 		catch (JSONException e)
@@ -257,7 +260,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	}
 
 	@Test
-	public void foundsetReadByDataproviders() throws JSONException
+	public void foundsetReadByDataprovidersPushToServerReject() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
@@ -301,6 +304,56 @@ public class FoundsetTest extends AbstractSolutionTest
 		// fake an update
 		endpoint.incoming(
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
+				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
+
+		Assert.assertEquals("value4", form.getFormModel().getRecord(1).getValue("test2")); // not value 5 cause pushToServer is rejected!
+	}
+
+	@Test
+	public void foundsetReadByDataprovidersPushToServerAllow() throws JSONException
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
+
+		JSONObject object = new JSONObject(full);
+		JSONObject bean = object.getJSONObject("mycustombean");
+		JSONObject foundset = bean.getJSONObject("myfoundsetWithAllow");
+		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		JSONObject viewPort = foundset.getJSONObject("viewPort");
+		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		// 15 is default preferredViewPortSize
+		Assert.assertEquals(15, viewPort.getInt("size"));
+		Assert.assertEquals(15, viewPort.getJSONArray("rows").length());
+
+		// fake incomming request for view port change.
+		endpoint.incoming(
+			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundsetWithAllow\":[{\"newViewPort\":{\"startIndex\":0,\"size\":18}}]}},\"service\":\"formService\"}",
+			true);
+
+		String changes = NGUtils.formChangesToString(((Container)form.getFormUI()), FullValueToJSONConverter.INSTANCE);
+
+		object = new JSONObject(changes).getJSONObject("changes");
+		bean = object.getJSONObject("mycustombean");
+		foundset = bean.getJSONObject("myfoundsetWithAllow");
+		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		viewPort = foundset.getJSONObject("viewPort");
+		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		Assert.assertEquals(18, viewPort.getInt("size"));
+		JSONArray rows = viewPort.getJSONArray("rows");
+		Assert.assertEquals(18, rows.length());
+
+		JSONObject row0 = rows.getJSONObject(0);
+		Assert.assertEquals("value1", row0.getString("firstname"));
+		Assert.assertEquals("value2", row0.getString("lastname"));
+
+		JSONObject row1 = rows.getJSONObject(1);
+		Assert.assertEquals("value3", row1.getString("firstname"));
+		Assert.assertEquals("value4", row1.getString("lastname"));
+
+		// fake an update
+		endpoint.incoming(
+			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundsetWithAllow\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
 				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
 
 		Assert.assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));

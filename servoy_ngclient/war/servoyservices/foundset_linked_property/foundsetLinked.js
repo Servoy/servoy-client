@@ -44,13 +44,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	function addBackWatches(value, componentScope) {
 		if (angular.isDefined(value) && value !== null) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
-			
-			// prepare pushToServer values as needed for the following call
-			var pushToServerValues;
-			if (typeof iS[PUSH_TO_SERVER] === 'undefined') pushToServerValues = {}; // that will not add watches for any column
-			else pushToServerValues = iS[PUSH_TO_SERVER]; // true or false then, just use that for adding watches (deep/shallow) to all columns
-
-			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, pushToServerValues);
+			$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, iS[PUSH_TO_SERVER]);
 		}
 	};
 

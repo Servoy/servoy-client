@@ -60,10 +60,39 @@ describe("Test foundset_custom_property suite", function() {
 			jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
 		});
 		
+		it("Should not send change of int value to server when no pushToServer is specified for property", function() {
+			serverValue = {
+					"serverSize": 0,
+					"selectedRowIndexes": [],
+					"multiSelect": false,
+					"viewPort": {
+						"startIndex": 0,
+						"size": 0,
+						"rows": [{
+							 "d": someDateMs, "i": 1234, "_svyRowId": "5.10643;_0"
+						 }]
+					}
+			};
+
+			var template = '<div></div>';
+			$compile(template)($scope);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue,'foundset', $scope.model, $scope, componentModelGetter);
+			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
+			$scope.$digest();
+			expect(getAndClearNotified()).toEqual(false);
+
+			// so no "w": false in server received value...
+			var tmp = realClientValue.viewPort.rows[0].i;
+			realClientValue.viewPort.rows[0].i = 4321234;
+			$scope.$digest();
+			expect(getAndClearNotified()).toEqual(false);
+			expect(realClientValue[iS].isChanged()).toEqual(false);
+			realClientValue.viewPort.rows[0].i = tmp;
+		});
+		
 		it("Will get template dummy value", function() {
 			serverValue = {
 					"serverSize": 0,
-					"w": false,
 					"selectedRowIndexes": [],
 					"multiSelect": false,
 					"viewPort": {
