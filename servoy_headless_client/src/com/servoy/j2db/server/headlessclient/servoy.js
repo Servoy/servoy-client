@@ -1862,9 +1862,9 @@ function showurl(url, timeout, onRootFrame, useIFrame, pageExpiredRedirect)
 	}
 
 	if (useIFrame) {
-		var ifrm = mywindow.frames['srv_downloadframe'];
+		var ifrm = document.getElementById('srv_downloadframe');
 		if (ifrm) {
-			ifrm.location = url;
+			ifrm.src = url;
 		} else {
 			ifrm = document.createElement("IFRAME");
 			ifrm.setAttribute("src", url);
