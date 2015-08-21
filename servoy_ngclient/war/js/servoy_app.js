@@ -948,9 +948,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if(!timeout) timeout = 0;	    	 
 			$timeout(function() {
 				if(url.indexOf('resources/dynamic') === 0 && target === '_self') {
-					var ifrm = $window.frames['srv_downloadframe'];
+					var ifrm = document.getElementById('srv_downloadframe');
 					if (ifrm) {
-						ifrm.location = url;
+						ifrm.src = url;
 					}
 					else {
 						ifrm = document.createElement("IFRAME");
