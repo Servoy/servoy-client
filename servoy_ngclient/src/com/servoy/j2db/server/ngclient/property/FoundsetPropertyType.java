@@ -112,7 +112,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.changesToJSON(writer, clientConversion);
+			sabloValue.changesToJSON(writer, clientConversion, dataConverterContext);
 		}
 		return null;
 	}

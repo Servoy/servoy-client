@@ -71,12 +71,12 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 			{
 				ByteArrayResourcePropertyType.INSTANCE.toJSON(writer, null, (byte[])sabloValue, NGUtils.MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD,
 					clientConversion,
-					new BrowserConverterContext(dataConverterContext.getWebObject(), dataConverterContext.getParentPropertyPushToServerValue()));
+					new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
 			}
 			else if (sabloValue instanceof Date)
 			{
 				DatePropertyType.INSTANCE.toJSON(writer, null, (Date)sabloValue, NGUtils.DATE_DATAPROVIDER_CACHED_PD, clientConversion,
-					new BrowserConverterContext(dataConverterContext.getWebObject(), dataConverterContext.getParentPropertyPushToServerValue()));
+					new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
 			}
 			else if (sabloValue instanceof String)
 			{
@@ -89,13 +89,13 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 				else if (Boolean.TRUE.equals(pd.getConfig()))
 				{
 					HTMLStringPropertyType.INSTANCE.toJSON(writer, null, (String)sabloValue, NGUtils.TEXT_PARSEHTML_DATAPROVIDER_CACHED_PD, clientConversion,
-						new BrowserConverterContext(dataConverterContext.getWebObject(), dataConverterContext.getParentPropertyPushToServerValue()));
+						new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
 				}
 				else
 				{
 					HTMLStringPropertyType.INSTANCE.toJSON(writer, null, (String)sabloValue, NGUtils.TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD,
 						clientConversion,
-						new BrowserConverterContext(dataConverterContext.getWebObject(), dataConverterContext.getParentPropertyPushToServerValue()));
+						new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
 				}
 			}
 			else

@@ -306,7 +306,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 		destinationJSON.object();
 
-		PushToServerEnum pushToServer = dataConverterContext.getParentPropertyPushToServerValue();
+		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
 		{
 			destinationJSON.key(PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
@@ -383,9 +383,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	}
 
-	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers) throws JSONException
+	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
-		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers, null);
+		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers, dataConverterContext);
 		else
 		{
 			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -508,7 +509,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	public void browserUpdatesReceived(Object jsonValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 	{
-		PushToServerEnum pushToServer = dataConverterContext.getParentPropertyPushToServerValue();
+		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 
 		if (getFoundset() == null) return;
 		try

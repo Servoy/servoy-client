@@ -262,7 +262,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
 
-		PushToServerEnum pushToServer = dataConverterContext.getParentPropertyPushToServerValue();
+		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
 		{
 			writer.key(PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
@@ -366,7 +366,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	public void browserUpdatesReceived(Object newJSONValue, PropertyDescription wrappedPropertyDescription, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext)
 	{
-		PushToServerEnum pushToServer = dataConverterContext.getParentPropertyPushToServerValue();
+		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 
 		if (initializingState != null)
 		{
