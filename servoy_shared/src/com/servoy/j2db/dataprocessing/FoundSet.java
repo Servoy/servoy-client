@@ -2496,7 +2496,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean js_deleteRecord(IJSRecord record) throws ServoyException
 	{
 		checkInitialized();
-		return deleteRecord(new int[] { getRecordIndex((IRecord)record) });
+
+		deleteRecord((IRecordInternal)record);
+		return true;
 	}
 
 	/**
@@ -3877,10 +3879,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void deleteRecord(int row) throws ServoyException
 	{
+		deleteRecord(getRecord(row), row);
+	}
+
+	public void deleteRecord(IRecordInternal state, int row) throws ServoyException
+	{
+		if (state == null)
+		{
+			return;
+		}
+
 		((FoundSetManager)getFoundSetManager()).clearAllDeleteSets();
 		try
 		{
-			deleteRecord(row, false);
+			deleteRecord(state, row, false);
 		}
 		finally
 		{
@@ -3889,19 +3901,34 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#deleteRecord(com.servoy.j2db.dataprocessing.Record)
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#deleteRecord(com.servoy.j2db.dataprocessing.IRecordInternal)
 	 */
-	public void deleteRecord(Record record) throws ServoyException
+	public void deleteRecord(IRecordInternal record) throws ServoyException
 	{
 		if (record.getParentFoundSet() != this) throw new ApplicationException(ServoyException.INVALID_INPUT, new RuntimeException(
 			"Record not from this foundset")); //$NON-NLS-1$
 		int recordIndex = getRecordIndex(record);
 		if (recordIndex == -1) throw new ApplicationException(ServoyException.INVALID_INPUT, new RuntimeException("Record pk not found in this foundset")); //$NON-NLS-1$
-		deleteRecord(recordIndex);
+		deleteRecord(record, recordIndex);
 	}
 
 	// part of bigger delete == sql foundset delete is already done for this row (see deleteAll)
 	private void deleteRecord(int row, boolean partOfBiggerDelete) throws ServoyException
+	{
+		IRecordInternal state;
+		if (partOfBiggerDelete)
+		{
+			state = pksAndRecords.getCachedRecords().get(row);
+		}
+		else
+		{
+			state = getRecord(row);
+		}
+
+		deleteRecord(state, row, partOfBiggerDelete);
+	}
+
+	private void deleteRecord(IRecordInternal state, int row, boolean partOfBiggerDelete) throws ServoyException
 	{
 		if (sheet.getTable() == null)
 		{
@@ -3910,16 +3937,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (!hasAccess(IRepository.DELETE))
 		{
 			throw new ApplicationException(ServoyException.NO_DELETE_ACCESS);
-		}
-
-		IRecordInternal state = null;
-		if (partOfBiggerDelete)
-		{
-			state = pksAndRecords.getCachedRecords().get(row);
-		}
-		else
-		{
-			state = getRecord(row);
 		}
 
 		if (state != null && !(state instanceof PrototypeState) && !findMode)
@@ -4364,7 +4381,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
 			}
-		}
+			}
 
 		return success;
 	}

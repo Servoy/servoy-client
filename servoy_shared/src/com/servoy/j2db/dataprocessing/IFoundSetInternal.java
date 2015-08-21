@@ -78,7 +78,7 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public boolean hadMoreRows();
 
-	public void deleteRecord(Record record) throws ServoyException;
+	public void deleteRecord(IRecordInternal record) throws ServoyException;
 
 	public IRecordInternal getRecord(Object[] pk);
 

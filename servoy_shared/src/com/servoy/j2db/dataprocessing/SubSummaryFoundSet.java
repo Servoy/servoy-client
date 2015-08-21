@@ -180,9 +180,9 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	}
 
 	/**
-	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#deleteRecord(com.servoy.j2db.dataprocessing.Record)
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#deleteRecord(com.servoy.j2db.dataprocessing.IRecordInternal)
 	 */
-	public void deleteRecord(Record record) throws ServoyException
+	public void deleteRecord(IRecordInternal record) throws ServoyException
 	{
 		// ignore
 	}
