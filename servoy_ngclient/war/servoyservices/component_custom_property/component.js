@@ -19,19 +19,17 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 	var NO_OP = "n";
 
-	function getChildPropertyChanges(componentState, oldPropertyValue, componentScope, newPropertyValue, propertyName) {
+	function getChildPropertyChanges(componentState, oldPropertyValue, newPropertyValue, propertyName) {
 		var internalState = componentState[$sabloConverters.INTERNAL_IMPL];
 		var beanConversionInfo = $sabloUtils.getInDepthProperty(internalState, CONVERSIONS);
-		var childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(componentState, componentScope); 
 		
 		// just dummy stuff - currently the parent controls layout, but getComponentChanges needs such args...
 		var containerSize = {width: 0, height: 0};
 
-		return $servoyInternal.getComponentChanges(newPropertyValue, oldPropertyValue, beanConversionInfo,
-				internalState.beanLayout, containerSize, childChangedNotifierGenerator, componentScope, propertyName);
+		return $servoyInternal.getComponentChanges(newPropertyValue, oldPropertyValue, beanConversionInfo, internalState.beanLayout, containerSize, propertyName);
 	};
 
-	function getBeanPropertyChangeNotifierGenerator(propertyValue, componentScope) {
+	function getBeanPropertyChangeNotifierGenerator(propertyValue) {
 		return function beanPropertyChangeNotifierGenerator(propertyName) {
 			if (!propertyValue) return undefined;
 
@@ -41,7 +39,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					// so smart property - no watch involved (it notifies itself as changed)
 					oldValue = newValue = propertyValue[MODEL_KEY][propertyName];
 				} 
-				internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldValue, componentScope, newValue, propertyName) });
+				internalState.requests.push({ propertyChanges : getChildPropertyChanges(propertyValue, oldValue, newValue, propertyName) });
 				if (internalState.changeNotifier) internalState.changeNotifier();
 			};
 		};
@@ -84,7 +82,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 			var childChangedNotifierGenerator; 
 			if (serverJSONValue && serverJSONValue[PROPERTY_UPDATES_KEY]) {
 				// granular updates received
-				childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(currentClientValue, componentScope); 
+				childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(currentClientValue); 
 
 				var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 				var beanUpdate = serverJSONValue[PROPERTY_UPDATES_KEY];
@@ -138,7 +136,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 				if (newValue) {
 
 					$sabloConverters.prepareInternalState(newValue);
-					childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(newValue, componentScope);
+					childChangedNotifierGenerator = getBeanPropertyChangeNotifierGenerator(newValue);
 
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
@@ -269,7 +267,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 		updateAngularScope: function(clientValue, componentScope) {
 			removeAllWatches(clientValue);
-			if (componentScope) addBackWatches(clientValue, componentScope,	getBeanPropertyChangeNotifierGenerator(clientValue, componentScope));
+			if (componentScope) addBackWatches(clientValue, componentScope,	getBeanPropertyChangeNotifierGenerator(clientValue));
 
 			if (clientValue) {
 				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];

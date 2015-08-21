@@ -6,13 +6,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 	var latestApplyCall = {};
 
-	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, changeNotifierGenerator, componentScope, property) {
+	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property) {
 
-		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, changeNotifierGenerator, componentScope, property)
+		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
-				applyBeanData(now, beanLayout, changes, parentSize, changeNotifierGenerator, undefined, undefined, componentScope);
+				applyBeanLayout(now, beanLayout, changes, parentSize);
 			}
 		}
 		return changes;
@@ -21,8 +21,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	var sendChanges = function(now, prev, formname, beanname, property) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
-			var changes = getComponentChanges(now, prev, beanConversionInfo,
-					formState.layout[beanname], formState.properties.designSize, $sabloApplication.getChangeNotifierGenerator(formname, beanname), formState.getScope(),property);
+			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then then push the old value.
 				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {

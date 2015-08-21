@@ -86,8 +86,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						else internalState.deferred.reject(currentClientValue[SELECTED_ROW_INDEXES]);
 						
 						delete internalState.deferred;
-						updates = true;
 					}
+					updates = true;
 				}
 				
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
