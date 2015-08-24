@@ -280,7 +280,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		Collection<PropertyDescription> readOnlyPropertiesParent = this.parentComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
-		if (childComponent != null && readOnlyPropertiesParent.size() > 0)
+		if (readOnlyPropertiesParent.size() > 0)
 		{
 			PropertyDescription propertyDescParent = readOnlyPropertiesParent.iterator().next();
 			Collection<PropertyDescription> readOnlyPropertiesChild = childComponent.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE);
