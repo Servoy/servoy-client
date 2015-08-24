@@ -35,12 +35,11 @@ import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
-import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -378,9 +377,12 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 		destinationJSON.object();
-		JSONUtils.writeDataWithConversions(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType,
-			new BrowserConverterContext(childComponent, PushToServerEnum.allow));
-		;
+
+		DataConversion conversions = new DataConversion();
+		// send component model (when linked to foundset only props that are not record related)
+		childComponent.writeProperties(InitialToJSONConverter.INSTANCE, destinationJSON, allProps.content, allProps.contentType, conversions);
+		JSONUtils.writeClientConversions(destinationJSON, conversions);
+
 		destinationJSON.endObject();
 
 		// viewport content
@@ -420,9 +422,12 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 			destinationJSON.object();
+
+			DataConversion conversions = new DataConversion();
 			// send component model (when linked to foundset only props that are not record related)
-			JSONUtils.writeDataWithConversions(destinationJSON, changes.content, changes.contentType, new BrowserConverterContext(childComponent,
-				PushToServerEnum.allow));
+			childComponent.writeProperties(ChangesToJSONConverter.INSTANCE, destinationJSON, changes.content, changes.contentType, conversions);
+			JSONUtils.writeClientConversions(destinationJSON, conversions);
+
 			destinationJSON.endObject();
 		}
 
@@ -548,8 +553,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				DataConversion dataConversion = new DataConversion();
 				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, dataConversion,
 					formElementContext);
-				JSONUtils.writeData(JSONUtils.FullValueToJSONConverter.INSTANCE, writer, runtimeProperties.content, runtimeProperties.contentType,
-					dataConversion, new BrowserConverterContext(childComponent, PushToServerEnum.allow));
+				childComponent.writeProperties(JSONUtils.FullValueToJSONConverter.INSTANCE, writer, runtimeProperties.content, runtimeProperties.contentType,
+					dataConversion);
 				JSONUtils.writeClientConversions(writer, dataConversion);
 				writer.endObject();
 			}

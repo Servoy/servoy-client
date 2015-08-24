@@ -34,6 +34,14 @@ public abstract class ViewportRowDataProvider
 {
 
 	/**
+	 * Some data providers need to be initialized before being used. (usually that happens when the property that uses it has first time 'to browser json' happen).
+	 * This is needed in order to ignore any previous foundset changes - don't force a toJSON for them before initial send of value, because for such
+	 * cases foundset property types convert/write viewport changes to a string and keep it that way - but converting cell values might need a BrowserConverterContext
+	 * which is not yet available...
+	 */
+	protected abstract boolean isReady();
+
+	/**
 	 * @param generatedRowId null if {@link #shouldGenerateRowIds()} returns false
 	 */
 	protected abstract void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)

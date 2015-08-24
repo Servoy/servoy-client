@@ -22,7 +22,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -41,17 +40,17 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 {
 
 	protected final FoundsetDataAdapterList dal;
-	protected final BrowserConverterContext browserConversionContext;
 	protected final List<String> recordBasedProperties;
 	protected final ComponentTypeSabloValue componentTypeSabloValue;
+	protected final WebFormComponent component;
 
 	public ComponentViewportRowDataProvider(FoundsetDataAdapterList dal, WebFormComponent component, List<String> recordBasedProperties,
 		ComponentTypeSabloValue componentTypeSabloValue)
 	{
 		this.dal = dal;
-		this.browserConversionContext = new BrowserConverterContext(component, PushToServerEnum.allow);
 		this.recordBasedProperties = recordBasedProperties;
 		this.componentTypeSabloValue = componentTypeSabloValue;
+		this.component = component;
 	}
 
 	@Override
@@ -79,12 +78,13 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 
 	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
 	{
-		PropertyDescription t = browserConversionContext.getWebObject().getSpecification().getProperty(propertyName);
-		Object val = browserConversionContext.getWebObject().getRawPropertyValue(propertyName, true);
+		PropertyDescription t = component.getSpecification().getProperty(propertyName);
+		Object val = component.getRawPropertyValue(propertyName, true);
 		if (t != null && val != null)
 		{
 			clientConversionInfo.pushNode(propertyName);
-			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, clientConversionInfo, browserConversionContext);
+			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, clientConversionInfo,
+				new BrowserConverterContext(component, t.getPushToServer()));
 			clientConversionInfo.popNode();
 		}
 	}
@@ -93,6 +93,12 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	protected boolean shouldGenerateRowIds()
 	{
 		return false;
+	}
+
+	@Override
+	protected boolean isReady()
+	{
+		return true;
 	}
 
 }

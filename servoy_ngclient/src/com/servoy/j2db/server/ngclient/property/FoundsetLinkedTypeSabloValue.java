@@ -69,13 +69,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 	protected YT wrappedSabloValue;
 	protected WebFormComponent component;
-	protected IBrowserConverterContext browserConverterContext;
 	protected final String forFoundsetPropertyName;
 	protected PropertyChangeListener forFoundsetPropertyListener;
 	protected IDataLinkedPropertyRegistrationListener dataLinkedPropertyRegistrationListener;
 	protected IChangeListener changeMonitor;
 
-	protected ViewportDataChangeMonitor viewPortChangeMonitor;
+	protected ViewportDataChangeMonitor<FoundsetLinkedViewportRowDataProvider<YF, YT>> viewPortChangeMonitor;
 
 	protected class InitializingState
 	{
@@ -108,7 +107,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		initializingState = new InitializingState(wrappedPropertyDescription, formElementValue, formElement);
 		this.component = component;
-		browserConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow);
 		this.forFoundsetPropertyName = forFoundsetPropertyName;
 		// this.wrappedSabloValue = null; // for now; waiting for foundset property availability
 	}
@@ -144,7 +142,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	public void attachToBaseObject(final IChangeListener monitor, @SuppressWarnings("hiding") BaseWebObject component)
 	{
 		this.component = (WebFormComponent)component;
-		browserConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow);
 		this.changeMonitor = monitor;
 
 		createWrappedSabloValueNeededAndPossible();
@@ -190,7 +187,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					// this could be the result of initialization or it could for example get changed from Rhino
 					boolean changed = (viewPortChangeMonitor == null);
 
-					viewPortChangeMonitor = new ViewportDataChangeMonitor(changeMonitor, new FoundsetLinkedViewportRowDataProvider<YF, YT>(
+					viewPortChangeMonitor = new ViewportDataChangeMonitor<>(changeMonitor, new FoundsetLinkedViewportRowDataProvider<YF, YT>(
 						foundsetPropValue.getDataAdapterList(), pd, FoundsetLinkedTypeSabloValue.this));
 					foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 
@@ -224,11 +221,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected YT getWrappedValue()
 	{
 		return wrappedSabloValue;
-	}
-
-	protected IBrowserConverterContext getBrowserConverterContextForToJSON()
-	{
-		return browserConverterContext;
 	}
 
 	public void rhinoToSablo(Object rhinoValue, PropertyDescription wrappedPropertyDescription, BaseWebObject componentOrService)
@@ -279,6 +271,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		}
 		else
 		{
+			viewPortChangeMonitor.getRowDataProvider().initializeIfNeeded(dataConverterContext);
+
 			// record dependent; viewport value
 			writeWholeViewportToJSON(writer);
 			viewPortChangeMonitor.clearChanges();
@@ -328,6 +322,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		}
 		else
 		{
+			viewPortChangeMonitor.getRowDataProvider().initializeIfNeeded(dataConverterContext);
+
 			if (viewPortChangeMonitor.shouldSendWholeViewport())
 			{
 				writeWholeViewportToJSON(writer);

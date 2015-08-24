@@ -19,46 +19,42 @@ package com.servoy.j2db.server.ngclient.property;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 
 /**
- * Writes values for each record of the foundset viewport according to a {@link FoundsetLinkedPropertyType}'s wrapped type value.
- *
  * @author acostescu
  */
-public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDataProvider
+public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 {
 
-	private final FoundsetDataAdapterList dal;
-	private final PropertyDescription pd;
-	private final FoundsetLinkedTypeSabloValue<YF, YT> sabloValue;
-	private IBrowserConverterContext browserConverterContext;
+	protected final FoundsetTypeSabloValue foundsetPropertyValue;
+	protected IBrowserConverterContext browserConverterContext;
 
-	public FoundsetLinkedViewportRowDataProvider(FoundsetDataAdapterList dal, PropertyDescription pd, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue)
+	public FoundsetTypeRowDataProvider(FoundsetTypeSabloValue foundsetPropertyValue)
 	{
-		this.dal = dal;
-		this.pd = pd;
-		this.sabloValue = sabloValue;
+		this.foundsetPropertyValue = foundsetPropertyValue;
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnNameAlwaysNullSoIgnore, JSONWriter w, DataConversion clientConversionInfo,
-		String generatedRowId) throws JSONException
+	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+		throws JSONException
 	{
-		// TODO we should change the order in which rows are populated for a foundset; the foundset itself should do dal.setRecordQuietly(record) then call all ViewportRowDataProvider to populate their data somehow
-		dal.setRecordQuietly(record);
-		FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, sabloValue.getWrappedValue(), pd, clientConversionInfo, browserConverterContext);
+		w.object();
+		w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex is just a hint for where to start searching for the pk when needed
+
+		// we ignore columnName as foundset type is currently not able to send column level updates;
+		foundsetPropertyValue.populateRowData(record, w, clientConversionInfo, browserConverterContext);
+
+		w.endObject();
 	}
 
 	@Override
 	protected boolean shouldGenerateRowIds()
 	{
-		return false;
+		return true;
 	}
 
 	/**

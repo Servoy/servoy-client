@@ -109,16 +109,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	protected FoundsetDataAdapterList dataAdapterList;
 	protected String propertyName;
 
-	protected BrowserConverterContext browserConverterContext;
-
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected FoundsetPropertySelectionListener listSelectionListener;
 
-	protected ViewportRowDataProvider rowDataProvider;
+	protected FoundsetTypeRowDataProvider rowDataProvider;
 
 	protected final Map<String, String> elementsToDataproviders;
 
 	protected final DataAdapterList parentDAL;
+
+	protected BaseWebObject webObject;
 
 	private int selectionRequestMsgid;
 
@@ -128,29 +128,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		this.propertyName = propertyName;
 		this.parentDAL = parentDAL;
 
-		rowDataProvider = new ViewportRowDataProvider()
-		{
-
-			@Override
-			protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
-				throws JSONException
-			{
-				w.object();
-				w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex is just a hint for where to start searching for the pk when needed
-
-				// we ignore columnName as foundset type is currently not able to send column level updates;
-				FoundsetTypeSabloValue.this.populateRowData(record, w, clientConversionInfo);
-
-				w.endObject();
-			}
-
-			@Override
-			protected boolean shouldGenerateRowIds()
-			{
-				return true;
-			}
-
-		};
+		rowDataProvider = new FoundsetTypeRowDataProvider(this);
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
 		viewPort = new FoundsetTypeViewport(changeMonitor);
 		// nothing to do here; foundset is not initialized until it's attached to a component
@@ -187,7 +165,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	@Override
 	public void attachToBaseObject(IChangeListener changeNotifier, BaseWebObject webObject)
 	{
-		browserConverterContext = new BrowserConverterContext(webObject, PushToServerEnum.allow);
+		this.webObject = webObject;
 		dataAdapterList = null;
 		changeMonitor.setChangeNotifier(changeNotifier);
 
@@ -304,6 +282,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		// TODO conversion markers should never be null I think, but it did happen (due to JSONUtils.toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType); will create a case for that
 		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
+		rowDataProvider.initializeIfNeeded(dataConverterContext);
+
 		destinationJSON.object();
 
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
@@ -319,7 +299,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
-		addViewPort(destinationJSON, dataConverterContext);
+		addViewPort(destinationJSON);
 		// end viewPort
 
 		destinationJSON.endObject();
@@ -328,11 +308,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	}
 
 	protected void addViewPort(JSONWriter destinationJSON) throws JSONException
-	{
-		addViewPort(destinationJSON, null);
-	}
-
-	protected void addViewPort(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		destinationJSON.object();
 		addViewPortBounds(destinationJSON);
@@ -390,6 +365,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		else
 		{
 			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
+
+			rowDataProvider.initializeIfNeeded(dataConverterContext);
 
 			boolean somethingChanged = false;
 			// change monitor already takes care not to report duplicates here (like whole viewport + viewport bounds)
@@ -484,7 +461,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		}
 	}
 
-	protected void populateRowData(IRecordInternal record, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
+	protected void populateRowData(IRecordInternal record, JSONWriter w, DataConversion clientConversionInfo, IBrowserConverterContext browserConverterContext)
+		throws JSONException
 	{
 		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
 		while (it.hasNext())
@@ -687,7 +665,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName,
 										foundset.getTable(), false); // this should be enough for when only foundset dataproviders are used
-									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, browserConverterContext);
+									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, dataConverterContext);
 
 									changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 									try
@@ -749,7 +727,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	{
 		// this method gets called by linked component type property/properties
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
-		if (dataAdapterList == null && browserConverterContext != null && browserConverterContext.getWebObject() != null)
+		if (dataAdapterList == null && webObject != null)
 		{
 			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
 		}
@@ -758,7 +736,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	protected IWebFormUI getFormUI()
 	{
-		return ((WebComponent)browserConverterContext.getWebObject()).findParent(IWebFormUI.class);
+		return ((WebComponent)webObject).findParent(IWebFormUI.class);
 	}
 
 	public static Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
@@ -802,11 +780,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	@Override
 	public String toString()
 	{
-		return "'" +
-			propertyName +
-			"' foundset type property on component " +
-			(browserConverterContext != null && browserConverterContext.getWebObject() != null ? browserConverterContext.getWebObject().getName()
-				: "- not yet attached -");
+		return "'" + propertyName + "' foundset type property on component " + (webObject != null ? webObject.getName() : "- not yet attached -");
 	}
 
 

@@ -41,7 +41,7 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
-public class ViewportDataChangeMonitor
+public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 {
 	public static final String VIEWPORT_CHANGED = "viewportDataChanged";
 
@@ -52,19 +52,19 @@ public class ViewportDataChangeMonitor
 
 	protected List<RowData> viewPortChanges = new ArrayList<>();
 
-	protected final ViewportRowDataProvider rowDataProvider;
+	protected final DPT rowDataProvider;
 
 	protected final IChangeListener monitor;
 
 //	protected String ignoreUpdateOnPkHash;
 
-	public ViewportDataChangeMonitor(IChangeListener monitor, ViewportRowDataProvider rowDataProvider)
+	public ViewportDataChangeMonitor(IChangeListener monitor, DPT rowDataProvider)
 	{
 		this.rowDataProvider = rowDataProvider;
 		this.monitor = monitor;
 	}
 
-	public ViewportRowDataProvider getRowDataProvider()
+	public DPT getRowDataProvider()
 	{
 		return rowDataProvider;
 	}
@@ -104,6 +104,8 @@ public class ViewportDataChangeMonitor
 	public void queueOperation(int relativeFirstRow, int relativeLastRow, final int newDataStartIndex, final int newDataEndIndex,
 		final IFoundSetInternal foundset, int operationType)
 	{
+		if (!rowDataProvider.isReady()) return;
+
 		if (!shouldSendWholeViewport())
 		{
 			// changed values that were sent from browser should not be sent back as they are already up-to-date
@@ -157,6 +159,8 @@ public class ViewportDataChangeMonitor
 	 */
 	public void queueCellChange(int relativeRowIndex, final int absoluteRowIndex, final String columnName, final IFoundSetInternal foundset)
 	{
+		if (!rowDataProvider.isReady()) return;
+
 		if (!shouldSendWholeViewport())
 		{
 			boolean changed = (viewPortChanges.size() == 0);

@@ -60,14 +60,14 @@ public class FoundsetTypeChangeMonitor
 
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
-	protected final ViewportDataChangeMonitor viewPortDataChangeMonitor;
-	protected final List<ViewportDataChangeMonitor> viewPortDataChangeMonitors = new ArrayList<>();
+	protected final ViewportDataChangeMonitor<FoundsetTypeRowDataProvider> viewPortDataChangeMonitor;
+	protected final List<ViewportDataChangeMonitor< ? >> viewPortDataChangeMonitors = new ArrayList<>();
 	protected final FoundsetTypeSabloValue propertyValue; // TODO when we implement merging foundset events based on indexes, data will no longer be needed and this member can be removed
 
-	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue, ViewportRowDataProvider rowDataProvider)
+	public FoundsetTypeChangeMonitor(FoundsetTypeSabloValue propertyValue, FoundsetTypeRowDataProvider rowDataProvider)
 	{
 		this.propertyValue = propertyValue;
-		viewPortDataChangeMonitor = new ViewportDataChangeMonitor(null, rowDataProvider);
+		viewPortDataChangeMonitor = new ViewportDataChangeMonitor<>(null, rowDataProvider);
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
 	}
 

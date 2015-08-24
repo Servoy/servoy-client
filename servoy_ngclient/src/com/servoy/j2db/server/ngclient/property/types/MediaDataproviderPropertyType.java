@@ -21,7 +21,6 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
@@ -70,13 +69,11 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 			if (sabloValue.getClass().isArray() && sabloValue.getClass().getComponentType() == byte.class)
 			{
 				ByteArrayResourcePropertyType.INSTANCE.toJSON(writer, null, (byte[])sabloValue, NGUtils.MEDIA_DATAPROVIDER_BYTE_ARRAY_CACHED_PD,
-					clientConversion,
-					new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
+					clientConversion, dataConverterContext);
 			}
 			else if (sabloValue instanceof Date)
 			{
-				DatePropertyType.INSTANCE.toJSON(writer, null, (Date)sabloValue, NGUtils.DATE_DATAPROVIDER_CACHED_PD, clientConversion,
-					new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
+				DatePropertyType.INSTANCE.toJSON(writer, null, (Date)sabloValue, NGUtils.DATE_DATAPROVIDER_CACHED_PD, clientConversion, dataConverterContext);
 			}
 			else if (sabloValue instanceof String)
 			{
@@ -89,13 +86,12 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 				else if (Boolean.TRUE.equals(pd.getConfig()))
 				{
 					HTMLStringPropertyType.INSTANCE.toJSON(writer, null, (String)sabloValue, NGUtils.TEXT_PARSEHTML_DATAPROVIDER_CACHED_PD, clientConversion,
-						new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
+						dataConverterContext);
 				}
 				else
 				{
 					HTMLStringPropertyType.INSTANCE.toJSON(writer, null, (String)sabloValue, NGUtils.TEXT_NO_PARSEHTML_DATAPROVIDER_CACHED_PD,
-						clientConversion,
-						new BrowserConverterContext(dataConverterContext.getWebObject(), BrowserConverterContext.getPushToServerValue(dataConverterContext)));
+						clientConversion, dataConverterContext);
 				}
 			}
 			else
