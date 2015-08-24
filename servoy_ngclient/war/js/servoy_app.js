@@ -362,6 +362,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				if (event.target.tagName.toLowerCase() == 'div')
 				{
 					$sabloApplication.callService("applicationServerService", "autosave",{}, true);
+					return false;
 				}
 			});
 		}
