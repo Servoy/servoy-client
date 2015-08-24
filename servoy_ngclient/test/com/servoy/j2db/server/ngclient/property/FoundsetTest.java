@@ -29,6 +29,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.json.JSONWriter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -495,8 +496,10 @@ public class FoundsetTest extends AbstractSolutionTest
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
 		Assert.assertNotNull(form);
-		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset",
-			true);
+		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset", true);
+
+		// right now the viewport change monitor will ignore updates because the value wasn't yet sent to the client - so no use keeping track of changes
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
 		viewPort.setBounds(1, 1);
 		viewPort.changeMonitor.clearChanges();
@@ -506,6 +509,18 @@ public class FoundsetTest extends AbstractSolutionTest
 		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
 		rawPropertyValue.getFoundset().getRecord(1).startEditing();
 		rawPropertyValue.getFoundset().getRecord(1).setValue("test2", "not test2 any more");
+		rawPropertyValue.getFoundset().getRecord(1).stopEditing();
+		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
+
+		// no simulate a send to client (from this point on, the change monitor will be interested in server side changes)
+		rawPropertyValue.toJSON(new JSONStringer(), new DataConversion(), new BrowserConverterContext(wc, PushToServerEnum.allow));
+
+		rawPropertyValue.getFoundset().getRecord(0).startEditing();
+		rawPropertyValue.getFoundset().getRecord(0).setValue("test1", "not test1 any more nor not test1 any more");
+		rawPropertyValue.getFoundset().getRecord(0).stopEditing();
+		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
+		rawPropertyValue.getFoundset().getRecord(1).startEditing();
+		rawPropertyValue.getFoundset().getRecord(1).setValue("test2", "not test2 any more nor not test2 any more");
 		rawPropertyValue.getFoundset().getRecord(1).stopEditing();
 		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().size());
 	}
