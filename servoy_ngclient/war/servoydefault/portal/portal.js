@@ -934,36 +934,40 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				function layoutColumnsAndGrid() {
 					$scope.gridApi.grid.gridWidth = gridUtil.elementWidth($element);
 					$scope.gridApi.grid.gridHeight = gridUtil.elementHeight($element);
-					if (!$scope.model.multiLine && (($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER))
+					if (($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
 					{
-						var totalWidth = 0;
-						var resizeWidth = 0;
-						for(var i = 0; i < $scope.model.childElements.length; i++)
-						{
-							totalWidth += $scope.model.childElements[i].model.size.width;
-							var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
-							if (isResizable)
-							{
-								resizeWidth += $scope.model.childElements[i].model.size.width;
-							}
-						}
-						totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;
-					    if (typeof($scope.gridApi.grid.scrollbarWidth) !== 'undefined' && $scope.gridApi.grid.scrollbarWidth !== undefined && $scope.gridApi.grid.scrollbarWidth > 0) {
-					    	totalWidth = totalWidth - $scope.gridApi.grid.scrollbarWidth;
-					    }
-						if (resizeWidth > 0 && totalWidth > 0)
-						{
+						if(!$scope.model.multiLine) {
+							var totalWidth = 0;
+							var resizeWidth = 0;
 							for(var i = 0; i < $scope.model.childElements.length; i++)
 							{
+								totalWidth += $scope.model.childElements[i].model.size.width;
 								var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
 								if (isResizable)
 								{
-									// calculate new width based on weight
-									var elemWidth = $scope.model.childElements[i].model.size.width;
-									var newWidthDelta = elemWidth * totalWidth / resizeWidth;
-									$scope.gridApi.grid.columns[i].width = elemWidth + newWidthDelta;
+									resizeWidth += $scope.model.childElements[i].model.size.width;
 								}
 							}
+							totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;							
+						    totalWidth = totalWidth - 17; //make sure possible vertical scroll does now overlap last column
+						    
+							if (resizeWidth > 0 && totalWidth > 0)
+							{
+								for(var i = 0; i < $scope.model.childElements.length; i++)
+								{
+									var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
+									if (isResizable)
+									{
+										// calculate new width based on weight
+										var elemWidth = $scope.model.childElements[i].model.size.width;
+										var newWidthDelta = elemWidth * totalWidth / resizeWidth;
+										$scope.gridApi.grid.columns[i].width = elemWidth + newWidthDelta;
+									}
+								}
+							}	
+						}
+						else {
+							$scope.gridApi.grid.columns[0].width = $scope.gridApi.grid.gridWidth - 17; //make sure possible vertical scroll does now overlap last column
 						}
 					}
 					$scope.gridApi.grid.refreshCanvas(true).then(function() {
