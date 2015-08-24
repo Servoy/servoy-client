@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.FontPropertyType;
@@ -32,6 +33,7 @@ import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.PersistHelper;
@@ -39,8 +41,8 @@ import com.servoy.j2db.util.PersistHelper;
 /**
  * @author acostescu
  */
-public class NGFontPropertyType extends FontPropertyType
-	implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>, IRhinoDesignConverter, IRhinoToSabloComponent<Font>
+public class NGFontPropertyType extends FontPropertyType implements IDesignToFormElement<JSONObject, Font, Font>, IFormElementToTemplateJSON<Font, Font>,
+	IRhinoDesignConverter, IRhinoToSabloComponent<Font>, ISabloComponentToRhino<Font>
 {
 
 	public final static NGFontPropertyType NG_INSTANCE = new NGFontPropertyType();
@@ -96,6 +98,18 @@ public class NGFontPropertyType extends FontPropertyType
 			return PersistHelper.createFont((String)rhinoValue);
 		}
 		return (Font)(rhinoValue instanceof Font ? rhinoValue : null);
+	}
+
+	@Override
+	public Object toRhinoValue(Font webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
+	{
+		return PersistHelper.createFontString(webComponentValue);
+	}
+
+	@Override
+	public boolean isValueAvailableInRhino(Font webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
+	{
+		return true;
 	}
 
 
