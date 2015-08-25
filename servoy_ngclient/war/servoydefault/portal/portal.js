@@ -951,7 +951,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							}
 						}
 					}
-					$scope.gridApi.grid.refreshCanvas(true);
+					$scope.gridApi.grid.refreshCanvas(true).then(function() {
+						// make sure the columns are all rendered that are in the viewport (SVY-8638) 
+						$scope.gridApi.grid.redrawInPlace();
+					})
+					
 				}
 
 				$timeout(function(){
