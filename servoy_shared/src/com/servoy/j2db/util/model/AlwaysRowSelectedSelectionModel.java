@@ -127,8 +127,6 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			{
 				int selectedRow = getSelectedRow();//save the selection
 				this.rowBeforeSelectionListeners = Integer.MIN_VALUE;//make sure we start fresh
-				super.removeIndexInterval(index0, index1);//this can trigger selectionListeners that may include executing onRecordSelect, which can change the selection
-				int rowAfterSelectionListeners = getSelectedRow();//get the selected row after the new row is selected
 				if (selectedRow >= index0 && selectedRow <= index1 && foundset.getSize() > 0)
 				{
 					// selected record was removed, set selection after the removed block or before (if at the end)
@@ -139,15 +137,29 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 					if (selection == foundset.getSize() && foundset.hadMoreRows())
 					{
 						selection = 0;
-					}
-					//adjust the selection if super.removeIndexInterval() did not set it correctly but only if the listeners (onRecordSelect) didn't already adjust it
-					if (selection != rowAfterSelectionListeners &&
-						(rowBeforeSelectionListeners != Integer.MIN_VALUE && rowAfterSelectionListeners == rowBeforeSelectionListeners) &&
-						selection < foundset.getSize())
-					{
-						// i have to call the setSelectionInterval else our methods will test if the record is there
+						//set the selection to the first row first
 						super.setSelectionInterval(selection, selection);
+						//and then remove the interval because this way the selection does not remain on the last row
+						//and it won't fetch the next rows
+						super.removeIndexInterval(index0, index1);
 					}
+					else
+					{
+						super.removeIndexInterval(index0, index1);//this can trigger selectionListeners that may include executing onRecordSelect, which can change the selection
+						int rowAfterSelectionListeners = getSelectedRow();//get the selected row after the new row is selected
+						//adjust the selection if super.removeIndexInterval() did not set it correctly but only if the listeners (onRecordSelect) didn't already adjust it
+						if (selection != rowAfterSelectionListeners &&
+							(rowBeforeSelectionListeners != Integer.MIN_VALUE && rowAfterSelectionListeners == rowBeforeSelectionListeners) &&
+							selection < foundset.getSize())
+						{
+							// i have to call the setSelectionInterval else our methods will test if the record is there
+							super.setSelectionInterval(selection, selection);
+						}
+					}
+				}
+				else
+				{
+					super.removeIndexInterval(index0, index1);
 				}
 			}
 //			else
