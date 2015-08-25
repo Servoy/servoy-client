@@ -435,12 +435,12 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				@Override
 				public void propertyChange(PropertyChangeEvent evt)
 				{
-					setReadOnly((boolean)evt.getNewValue());
+					((BasicFormController)getController()).setReadOnly((boolean)evt.getNewValue());
 				}
 			};
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
 			// set readonly state from form manager, just like in wc/sc
-			setReadOnly(formController.isReadOnly());
+			((BasicFormController)getController()).setReadOnly(formController.isReadOnly());
 			parentEnabledListener = new PropertyChangeListener()
 			{
 				@Override
