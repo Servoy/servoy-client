@@ -38,15 +38,30 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				$scope.gridApi.grid.cellNav.lastRowCol = null;
 				$($element.find(".ui-grid-cell")[0]).find("div")[0].focus();
 			}
+			
+			var EMPTY =  {viewPort:{rows:[]}};
 
-			$scope.foundset = null;
+			$scope.foundset = EMPTY;
 			var elements = $scope.model.childElements;
+			var foundsetSetTimeOut1 = null;
+			var foundsetSetTimeOut2 = null;
 			$scope.$watch('model.relatedFoundset', function(newVal, oldVal) {
-				if (!$scope.foundset && newVal && newVal.viewPort && newVal.viewPort.size > 0){
+				if ($scope.foundset === EMPTY && newVal && newVal.viewPort && newVal.viewPort.size > 0){
 					// this is the first time after a tab switch, there is data but the portal is not showing yet.
-					$scope.foundset = {viewPort:{rows:[]}}
-					$timeout(function() {
-						$timeout(function() {
+					if(foundsetSetTimeOut1) {
+						$timeout.cancel(foundsetSetTimeOut1);
+						foundsetSetTimeOut1 = null;
+					}
+					if (foundsetSetTimeOut2) {
+						$timeout.cancel(foundsetSetTimeOut2);
+						foundsetSetTimeOut2 = null;
+					}
+					foundsetSetTimeOut1 = $timeout(function() {
+						if (foundsetSetTimeOut2) {
+							$timeout.cancel(foundsetSetTimeOut2);
+							foundsetSetTimeOut2 = null;
+						}
+						foundsetSetTimeOut2 = $timeout(function() {
 							$scope.foundset = newVal;
 						},1);
 					},1);
