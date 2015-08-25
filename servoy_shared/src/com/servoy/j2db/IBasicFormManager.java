@@ -126,6 +126,14 @@ public interface IBasicFormManager extends IFormManager
 
 	void removeFormController(BasicFormController fp);
 
+	boolean isFormReadOnly(String formName);
+
+	void setFormReadOnly(String formName, boolean readOnly);
+
+	boolean isFormEnabled(String formName);
+
+	void setFormEnabled(String formName, boolean enabled);
+
 	public static class History
 	{
 		private static final int DEFAULT_HISTORY_SIZE = 10;

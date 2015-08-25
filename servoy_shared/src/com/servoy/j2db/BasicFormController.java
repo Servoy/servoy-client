@@ -248,6 +248,16 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	}
 
+	public boolean isReadOnly()
+	{
+		return application.getFormManager().isFormReadOnly(getName());
+	}
+
+	public boolean isEnabled()
+	{
+		return application.getFormManager().isFormEnabled(getName());
+	}
+
 	protected abstract void focusFirstField();
 
 	protected abstract void focusField(String fieldName, final boolean skipReadonly);
@@ -255,10 +265,6 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	public abstract void propagateFindMode(boolean findMode);
 
 	public abstract void setReadOnly(boolean b);
-
-	public abstract boolean isReadOnly();
-
-	public abstract boolean isEnabled();
 
 	public abstract void setComponentEnabled(boolean b);
 
@@ -1081,7 +1087,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IForm#getFoundSet()
 	 */
 	@Override

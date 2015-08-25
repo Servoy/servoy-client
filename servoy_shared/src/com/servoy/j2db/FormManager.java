@@ -173,49 +173,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		application.showSolutionLoading(b);
 	}
 
-	public boolean isFormReadOnly(String formName)
-	{
-		return readOnlyCheck.contains(formName);
-	}
-
-	protected List<String> readOnlyCheck = new ArrayList<String>();
-
-	@Override
-	public void setFormReadOnly(String formName, boolean readOnly)
-	{
-		if (readOnly && readOnlyCheck.contains(formName)) return;
-
-		if (readOnly)
-		{
-			readOnlyCheck.add(formName);
-		}
-		else
-		{
-			readOnlyCheck.remove(formName);
-		}
-	}
-
-	public boolean isFormEnabled(String formName)
-	{
-		return !enabledCheck.contains(formName);
-	}
-
-	protected List<String> enabledCheck = new ArrayList<String>();
-
-	public void setFormEnabled(String formName, boolean enabled)
-	{
-		if (!enabled && enabledCheck.contains(formName)) return;
-
-		if (!enabled)
-		{
-			enabledCheck.add(formName);
-		}
-		else
-		{
-			enabledCheck.remove(formName);
-		}
-	}
-
 	protected abstract void selectFormMenuItem(Form form);
 
 	public abstract void fillScriptMenu();
@@ -535,7 +492,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IBasicFormManager#showFormInMainPanel(java.lang.String, com.servoy.j2db.IBasicMainContainer, java.lang.Object, boolean,
 	 * java.lang.String)
 	 */

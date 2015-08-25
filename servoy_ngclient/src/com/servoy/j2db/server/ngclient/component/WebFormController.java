@@ -189,7 +189,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
@@ -368,25 +368,16 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void setReadOnly(boolean b)
 	{
+		if (b) stopUIEditing(true);
 		formUI.setReadOnly(b);
-	}
-
-	@Override
-	public boolean isReadOnly()
-	{
-		return formUI.isReadOnly();
-	}
-
-	@Override
-	public boolean isEnabled()
-	{
-		return formUI.isEnabled();
+		application.getFormManager().setFormReadOnly(getName(), b);
 	}
 
 	@Override
 	public void setComponentEnabled(boolean b)
 	{
 		formUI.setComponentEnabled(b);
+		application.getFormManager().setFormEnabled(getName(), b);
 	}
 
 	@Override

@@ -63,7 +63,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#showYesNoQuestionDialog(com.servoy.j2db.IApplication, java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -75,7 +75,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#getContainerName()
 	 */
 	@Override
@@ -87,7 +87,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#printPreview(boolean, boolean, int, java.awt.print.PrinterJob)
 	 */
 	@Override
@@ -99,7 +99,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#print(boolean, boolean, boolean, java.awt.print.PrinterJob)
 	 */
 	@Override
@@ -111,7 +111,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#printXML(boolean)
 	 */
 	@Override
@@ -123,7 +123,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#showSortDialog(com.servoy.j2db.IApplication, java.lang.String)
 	 */
 	@Override
@@ -135,7 +135,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#getFormWidth()
 	 */
 	@Override
@@ -147,7 +147,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#getPartHeight(int)
 	 */
 	@Override
@@ -159,7 +159,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#getFormContext()
 	 */
 	@Override
@@ -171,7 +171,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#changeFocusIfInvalid(java.util.List)
 	 */
 	@Override
@@ -183,7 +183,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IBasicFormUI#prepareForSave(boolean)
 	 */
 	@Override
@@ -195,7 +195,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setComponentEnabled(boolean)
 	 */
 	@Override
@@ -207,7 +207,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#isEnabled()
 	 */
 	@Override
@@ -219,7 +219,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setComponentVisible(boolean)
 	 */
 	@Override
@@ -231,7 +231,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#notifyVisible(boolean, java.util.List)
 	 */
 	@Override
@@ -242,7 +242,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#isVisible()
 	 */
 	@Override
@@ -254,7 +254,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setLocation(java.awt.Point)
 	 */
 	@Override
@@ -266,7 +266,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getLocation()
 	 */
 	@Override
@@ -278,7 +278,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setSize(java.awt.Dimension)
 	 */
 	@Override
@@ -290,7 +290,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getSize()
 	 */
 	@Override
@@ -302,7 +302,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setForeground(java.awt.Color)
 	 */
 	@Override
@@ -314,7 +314,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getForeground()
 	 */
 	@Override
@@ -326,7 +326,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setBackground(java.awt.Color)
 	 */
 	@Override
@@ -338,7 +338,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getBackground()
 	 */
 	@Override
@@ -350,7 +350,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setFont(java.awt.Font)
 	 */
 	@Override
@@ -362,7 +362,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getFont()
 	 */
 	@Override
@@ -374,7 +374,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setBorder(javax.swing.border.Border)
 	 */
 	@Override
@@ -386,7 +386,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getBorder()
 	 */
 	@Override
@@ -398,7 +398,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setName(java.lang.String)
 	 */
 	@Override
@@ -410,7 +410,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getName()
 	 */
 	@Override
@@ -422,7 +422,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setOpaque(boolean)
 	 */
 	@Override
@@ -434,7 +434,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#isOpaque()
 	 */
 	@Override
@@ -446,7 +446,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setCursor(java.awt.Cursor)
 	 */
 	@Override
@@ -458,7 +458,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#setToolTipText(java.lang.String)
 	 */
 	@Override
@@ -470,7 +470,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
 	@Override
@@ -482,7 +482,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.IComponent#getId()
 	 */
 	@Override
@@ -494,7 +494,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#setModel(com.servoy.j2db.dataprocessing.IFoundSetInternal)
 	 */
 	@Override
@@ -506,7 +506,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#start(com.servoy.j2db.IApplication)
 	 */
 	@Override
@@ -518,7 +518,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#stop()
 	 */
 	@Override
@@ -530,7 +530,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#editCellAt(int)
 	 */
 	@Override
@@ -542,7 +542,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#stopUIEditing(boolean)
 	 */
 	@Override
@@ -554,7 +554,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#isEditing()
 	 */
 	@Override
@@ -566,7 +566,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#requestFocus()
 	 */
 	@Override
@@ -578,7 +578,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#ensureIndexIsVisible(int)
 	 */
 	@Override
@@ -590,7 +590,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#setEditable(boolean)
 	 */
 	@Override
@@ -602,7 +602,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#isDisplayingMoreThanOneRecord()
 	 */
 	@Override
@@ -614,7 +614,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#getVisibleRect()
 	 */
 	@Override
@@ -626,7 +626,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.IView#setVisibleRect(java.awt.Rectangle)
 	 */
 	@Override
@@ -638,7 +638,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#setRowBGColorScript(java.lang.String, java.util.List)
 	 */
 	@Override
@@ -650,7 +650,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorScript()
 	 */
 	@Override
@@ -662,7 +662,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportRowBGColorScript#getRowBGColorArgs()
 	 */
 	@Override
@@ -674,7 +674,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.util.IDestroyable#destroy()
 	 */
 	@Override
@@ -686,7 +686,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.IChangeListener#valueChanged()
 	 */
 	@Override
@@ -698,7 +698,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#writeAllComponentsProperties(org.json.JSONWriter, org.sablo.websocket.utils.JSONUtils.IToJSONConverter)
 	 */
 	@Override
@@ -710,7 +710,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getWebComponent(java.lang.String)
 	 */
 	@Override
@@ -722,7 +722,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getComponents()
 	 */
 	@Override
@@ -734,7 +734,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getDataAdapterList()
 	 */
 	@Override
@@ -745,7 +745,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#init()
 	 */
 	@Override
@@ -757,19 +757,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#isReadOnly()
-	 */
-	@Override
-	public boolean isReadOnly()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#setReadOnly(boolean)
 	 */
 	@Override
@@ -781,7 +769,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#setParentContainer(com.servoy.j2db.server.ngclient.WebFormComponent)
 	 */
 	@Override
@@ -793,7 +781,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getParentWindowName()
 	 */
 	@Override
@@ -805,7 +793,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#setParentWindowName(java.lang.String)
 	 */
 	@Override
@@ -817,7 +805,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getDataConverterContext()
 	 */
 	@Override
@@ -829,7 +817,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#contributeComponentToElementsScope(com.servoy.j2db.server.ngclient.FormElement,
 	 * org.sablo.specification.WebComponentSpecification, com.servoy.j2db.server.ngclient.WebFormComponent)
 	 */
@@ -842,7 +830,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#refreshValueList(com.servoy.j2db.dataprocessing.IValueList)
 	 */
 	@Override
@@ -854,7 +842,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getController()
 	 */
 	@Override
@@ -866,7 +854,7 @@ public class TestWebFormUI implements IWebFormUI
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IWebFormUI#getParentContainer()
 	 */
 	@Override

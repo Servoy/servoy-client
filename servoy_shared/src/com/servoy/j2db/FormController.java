@@ -1057,31 +1057,19 @@ public class FormController extends BasicFormController
 	}
 
 	@Override
-	public boolean isReadOnly()
-	{
-		return ((FormManager)application.getFormManager()).isFormReadOnly(getName());
-	}
-
-	@Override
 	public void setReadOnly(boolean b)
 	{
 		if (b) stopUIEditing(true);
 		containerImpl.setReadOnly(b);
-		((FormManager)application.getFormManager()).setFormReadOnly(getName(), b);
+		application.getFormManager().setFormReadOnly(getName(), b);
 		if (b && containerImpl.getUndoManager() != null) containerImpl.getUndoManager().discardAllEdits();
-	}
-
-	@Override
-	public boolean isEnabled()
-	{
-		return ((FormManager)application.getFormManager()).isFormEnabled(getName());
 	}
 
 	@Override
 	public void setComponentEnabled(boolean b)
 	{
 		containerImpl.setComponentEnabled(b);
-		((FormManager)application.getFormManager()).setFormEnabled(getName(), b);
+		application.getFormManager().setFormEnabled(getName(), b);
 	}
 
 	@Override

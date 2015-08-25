@@ -31,6 +31,7 @@ import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
@@ -79,8 +80,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	private final Map<String, Integer> events = new HashMap<>(); //event name mapping to persist id
 	private final IWebFormController formController;
 
-	private boolean enabled = true;
-	private boolean readOnly = false;
 	private Object parentContainerOrWindowName;
 
 	protected DataAdapterList dataAdapterList;
@@ -379,27 +378,19 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public void setComponentEnabled(boolean enabled)
 	{
-		this.enabled = enabled;
 		propagatePropertyToAllComponents(ENABLED, enabled);
-	}
-
-	@Override
-	public boolean isEnabled()
-	{
-		return enabled;
-	}
-
-	@Override
-	public boolean isReadOnly()
-	{
-		return readOnly;
 	}
 
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		this.readOnly = readOnly;
 		propagatePropertyToAllComponents(READONLY, readOnly);
+	}
+
+	@Override
+	public boolean isEnabled()
+	{
+		return ((BasicFormController)formController).isEnabled();
 	}
 
 	private void propagatePropertyToAllComponents(String property, boolean value)
@@ -434,6 +425,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 
 	public void setParentContainer(WebFormComponent parentContainer)
 	{
+		if (this.parentContainerOrWindowName == parentContainer) return;
 		cleanupListeners();
 		this.parentContainerOrWindowName = parentContainer;
 		if (parentContainer != null)
@@ -447,7 +439,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				}
 			};
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
-			setReadOnly(Utils.getAsBoolean(parentContainer.getProperty(READONLY)));
+			// set readonly state from form manager, just like in wc/sc
+			setReadOnly(formController.isReadOnly());
 			parentEnabledListener = new PropertyChangeListener()
 			{
 				@Override

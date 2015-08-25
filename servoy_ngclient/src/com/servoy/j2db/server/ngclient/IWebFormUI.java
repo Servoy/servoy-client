@@ -49,8 +49,6 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 
 	void init();
 
-	boolean isReadOnly();
-
 	void setReadOnly(boolean readOnly);
 
 	void setParentContainer(WebFormComponent parentContainer);

@@ -83,11 +83,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	}
 
 	@Override
-	protected void setFormReadOnly(String formName, boolean b)
-	{
-	}
-
-	@Override
 	public List<IFormController> getCachedFormControllers()
 	{
 		return new ArrayList<IFormController>(createdFormControllers.values());

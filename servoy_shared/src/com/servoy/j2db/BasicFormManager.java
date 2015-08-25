@@ -17,8 +17,10 @@
 
 package com.servoy.j2db;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -217,13 +219,53 @@ public abstract class BasicFormManager implements IBasicFormManager
 	}
 
 
+	public boolean isFormReadOnly(String formName)
+	{
+		return readOnlyCheck.contains(formName);
+	}
+
+	protected List<String> readOnlyCheck = new ArrayList<String>();
+
+	public void setFormReadOnly(String formName, boolean readOnly)
+	{
+		if (readOnly && readOnlyCheck.contains(formName)) return;
+
+		if (readOnly)
+		{
+			readOnlyCheck.add(formName);
+		}
+		else
+		{
+			readOnlyCheck.remove(formName);
+		}
+	}
+
+	public boolean isFormEnabled(String formName)
+	{
+		return !enabledCheck.contains(formName);
+	}
+
+	protected List<String> enabledCheck = new ArrayList<String>();
+
+	public void setFormEnabled(String formName, boolean enabled)
+	{
+		if (!enabled && enabledCheck.contains(formName)) return;
+
+		if (!enabled)
+		{
+			enabledCheck.add(formName);
+		}
+		else
+		{
+			enabledCheck.remove(formName);
+		}
+	}
+
 	/**
 	 * @param formName
 	 * @return
 	 */
 	public abstract IFormController getCachedFormController(String formName);
-
-	protected abstract void setFormReadOnly(String formName, boolean b);
 
 
 }
