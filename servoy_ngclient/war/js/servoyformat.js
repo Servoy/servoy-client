@@ -465,17 +465,24 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			 function blur(){
 				 if(!$scope.model.findmode){
 					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
+				 }
+			}
+			 
+			function change(){
+				 if(!$scope.model.findmode){
+					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
 					 $scope.$evalAsync(function(){
 						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
 						 ngModelController.$render();
 					 })	
-				 }				 
-			}
- 
+				 }		
+			} 
+			
 			function register() {
 				 element.on('focus',focus)
 				 element.on('blur',blur)
 				 element.on('keypress',keypress)
+				 element.on('change', change)
 				 
 				 //convert data from view format to model format
 			    ngModelController.$parsers.push(viewToModel);
@@ -488,6 +495,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 				 element.off('blur',blur)
 	
 				 element.off('keypress',keypress)
+				 element.off('change', change)
 				 
 				 var i = ngModelController.$parsers.indexOf(viewToModel);
 			     if(i != -1) {
