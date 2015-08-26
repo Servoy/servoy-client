@@ -110,35 +110,33 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			this.dataProviderID = dataProviderID;
 		}
-		if (dataProviderID.indexOf('.') != -1)
+		if (dataProviderID.indexOf('.') != -1 && !ScopesUtils.isVariableScope(dataProviderID))
 		{
-			relationName = dataProviderID.substring(0, dataProviderID.indexOf('.'));
-			Relation relation = dataAdapterList.getApplication().getFlattenedSolution().getRelation(relationName);
-			if (relation != null)
+			Relation relation = dataAdapterList.getApplication().getFlattenedSolution().getRelation(dataProviderID.substring(0, dataProviderID.indexOf('.')));
+			if (relation != null && relation.isGlobal())
 			{
-				if (relation.isGlobal())
+
+				globalRelationName = relation.getName();
+				globalRelatedFoundsetListener = new IFoundSetEventListener()
 				{
-					globalRelationName = relation.getName();
-					globalRelatedFoundsetListener = new IFoundSetEventListener()
+					@Override
+					public void foundSetChanged(FoundSetEvent e)
 					{
-						@Override
-						public void foundSetChanged(FoundSetEvent e)
+						if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
 						{
-							if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
-							{
-								dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
-							}
+							dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
 						}
-					};
-				}
-				relatedFoundsetSelectionListener = new ListSelectionListener()
-				{
-					public void valueChanged(ListSelectionEvent e)
-					{
-						dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
 					}
 				};
 			}
+			relationName = dataProviderID.substring(0, dataProviderID.lastIndexOf('.'));
+			relatedFoundsetSelectionListener = new ListSelectionListener()
+			{
+				public void valueChanged(ListSelectionEvent e)
+				{
+					dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
+				}
+			};
 		}
 		this.dataAdapterList = dataAdapterList;
 		this.servoyDataConverterContext = component.getDataConverterContext();
