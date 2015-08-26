@@ -262,7 +262,7 @@ angular.module('window',['servoy'])
 				var translatedShortcut = window.translateSwingShortcut(newvalue.shortcuts[i].shortcut);
 				if (!shortcut.all_shortcuts[translatedShortcut])
 				{
-					shortcut.add(translatedShortcut,window.getCallbackFunction(newvalue.shortcuts[i].shortcut),{'propagate':true,'disable_in_input':false});
+					shortcut.add(translatedShortcut,window.getCallbackFunction(newvalue.shortcuts[i].shortcut),{'propagate':false,'disable_in_input':false});
 				}	
 			}
 		}
