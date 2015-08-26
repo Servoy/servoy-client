@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
@@ -45,6 +48,7 @@ import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Relation;
@@ -88,9 +92,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private TargetDataLinks dataLinks;
 	private Set<String> tagsDataProviders;
 	private boolean displaysTags;
-	private IFoundSetEventListener globalRelatedFoundsetListener = null;
-	private IFoundSetInternal globalRelatedFoundset = null;
-	private String globalRelationName = null;
+	private IFoundSetEventListener globalRelatedFoundsetListener;
+	private IFoundSetInternal globalRelatedFoundset;
+	private String globalRelationName;
+
+	private ListSelectionListener relatedFoundsetSelectionListener;
+	private IFoundSetInternal relatedFoundset;
+	private String relationName;
 
 	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
 	{
@@ -104,20 +112,30 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		if (dataProviderID.indexOf('.') != -1)
 		{
-			String relationName = dataProviderID.substring(0, dataProviderID.indexOf('.'));
+			relationName = dataProviderID.substring(0, dataProviderID.indexOf('.'));
 			Relation relation = dataAdapterList.getApplication().getFlattenedSolution().getRelation(relationName);
-			if (relation != null && relation.isGlobal())
+			if (relation != null)
 			{
-				globalRelationName = relation.getName();
-				globalRelatedFoundsetListener = new IFoundSetEventListener()
+				if (relation.isGlobal())
 				{
-					@Override
-					public void foundSetChanged(FoundSetEvent e)
+					globalRelationName = relation.getName();
+					globalRelatedFoundsetListener = new IFoundSetEventListener()
 					{
-						if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+						@Override
+						public void foundSetChanged(FoundSetEvent e)
 						{
-							dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
+							if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+							{
+								dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
+							}
 						}
+					};
+				}
+				relatedFoundsetSelectionListener = new ListSelectionListener()
+				{
+					public void valueChanged(ListSelectionEvent e)
+					{
+						dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
 					}
 				};
 			}
@@ -201,6 +219,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		globalRelatedFoundset = null;
 		globalRelatedFoundsetListener = null;
+
+		if (relatedFoundset != null)
+		{
+			((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
+		}
+		relatedFoundset = null;
+		relatedFoundsetSelectionListener = null;
 	}
 
 	@Override
@@ -263,6 +288,26 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					}
 					globalRelatedFoundset = newRelatedFoundset;
 					globalRelatedFoundset.addFoundSetEventListener(globalRelatedFoundsetListener);
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		if (relatedFoundsetSelectionListener != null)
+		{
+			try
+			{
+				IFoundSetInternal newRelatedFoundset = record.getRelatedFoundSet(relationName);
+				if (newRelatedFoundset != relatedFoundset)
+				{
+					if (relatedFoundset != null)
+					{
+						((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
+					}
+					relatedFoundset = newRelatedFoundset;
+					((ISwingFoundSet)relatedFoundset).getSelectionModel().addListSelectionListener(relatedFoundsetSelectionListener);
 				}
 			}
 			catch (Exception ex)
