@@ -42,6 +42,8 @@ public interface IBasicWebObject extends ISupportChilds
 
 	JSONObject getJson();
 
+	JSONObject getFlattenedJson();
+
 	void setProperty(String propertyName, Object val);
 
 	void clearProperty(String propertyName);

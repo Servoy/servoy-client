@@ -89,7 +89,7 @@ class PersistBasedFormElementImpl
 		{
 			if (FormTemplateGenerator.isWebcomponentBean(persist))
 			{
-				JSONObject jsonProperties = ((IBasicWebComponent)persist).getJson();
+				JSONObject jsonProperties = ((IBasicWebComponent)persist).getFlattenedJson();
 				if (jsonProperties == null) jsonProperties = new ServoyJSONObject();
 				// convert from persist design-time value (which might be non-json) to the expected value
 				Map<String, Object> jsonMap = processPersistProperties(fs, specProperties, propertyPath);

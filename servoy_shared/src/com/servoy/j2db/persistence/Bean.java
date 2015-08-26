@@ -297,6 +297,13 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	}
 
 	@Override
+	public JSONObject getFlattenedJson()
+	{
+		// simple inheritance for bean
+		return getJson();
+	}
+
+	@Override
 	public void setJson(JSONObject o)
 	{
 		String beanXML = null;

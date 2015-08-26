@@ -257,7 +257,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	public Object getJSONProperty(String propertyName)
 	{
 		WebComponent webComponent = getBaseComponent(false);
-		JSONObject json = webComponent.getJson();
+		JSONObject json = webComponent.getFlattenedJson();
 		Object value = json.opt(propertyName);
 		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)

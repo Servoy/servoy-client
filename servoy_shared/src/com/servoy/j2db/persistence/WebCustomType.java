@@ -154,6 +154,12 @@ public class WebCustomType extends AbstractBase implements IWebObject
 	}
 
 	@Override
+	public JSONObject getFlattenedJson()
+	{
+		return getJson();
+	}
+
+	@Override
 	public String toString()
 	{
 		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$

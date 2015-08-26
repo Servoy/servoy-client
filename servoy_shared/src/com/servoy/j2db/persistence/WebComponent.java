@@ -26,6 +26,7 @@ import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
@@ -144,6 +145,37 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			Debug.error(e);
 			return x;
 		}
+	}
+
+	public JSONObject getFlattenedJson()
+	{
+		JSONObject json = getJson();
+		IPersist superPersist = PersistHelper.getSuperPersist(this);
+		if (superPersist instanceof WebComponent)
+		{
+			JSONObject superJson = ((WebComponent)superPersist).getFlattenedJson();
+			if (superJson != null)
+			{
+				if (json != null)
+				{
+					Iterator it = json.keys();
+					while (it.hasNext())
+					{
+						String key = (String)it.next();
+						try
+						{
+							superJson.put(key, json.get(key));
+						}
+						catch (JSONException e)
+						{
+							Debug.error(e);
+						}
+					}
+				}
+				json = superJson;
+			}
+		}
+		return json;
 	}
 
 	@Override
