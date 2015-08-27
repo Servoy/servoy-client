@@ -320,5 +320,13 @@ angular.module('window',['servoy'])
 				}
 			}
 		}
+		else
+		{
+			var popup = angular.element("#basicmenu");
+			if (popup)
+			{
+				popup.remove();
+			}
+		}	
 	}, true);
 })

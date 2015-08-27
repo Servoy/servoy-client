@@ -128,7 +128,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -438,11 +438,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public boolean closeSolution(boolean force, Object[] args)
+	protected boolean callCloseSolutionMethod(boolean force)
 	{
-		String currentSolution = isSolutionLoaded() ? getSolutionName() : null;
-		boolean isCloseSolution = super.closeSolution(force, args);
-		if (isCloseSolution)
+		boolean canClose = super.callCloseSolutionMethod(force);
+		//cleanup here before script engine is destroyed
+		if (canClose || force)
 		{
 			WebComponentSpecification[] serviceSpecifications = WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications();
 			for (WebComponentSpecification serviceSpecification : serviceSpecifications)
@@ -471,6 +471,17 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					}
 				}
 			}
+		}
+		return canClose;
+	}
+
+	@Override
+	public boolean closeSolution(boolean force, Object[] args)
+	{
+		String currentSolution = isSolutionLoaded() ? getSolutionName() : null;
+		boolean isCloseSolution = super.closeSolution(force, args);
+		if (isCloseSolution)
+		{
 			if (args == null || args.length < 1)
 			{
 				if (!force && showUrl == null)
