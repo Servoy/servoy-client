@@ -18,6 +18,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var START_INDEX = "startIndex";
 	var SIZE = "size";
 	var ROWS = "rows";
+	var COLUMN_FORMATS = "columnFormats";
 
 	var PUSH_TO_SERVER = "w";
 
@@ -71,6 +72,11 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				var updates = false;
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SERVER_SIZE])) {
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
+					updates = true;
+				}
+				
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS])) {
+					currentClientValue[COLUMN_FORMATS] = serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS];
 					updates = true;
 				}
 				

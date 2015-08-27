@@ -89,7 +89,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public FoundsetTypeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dal)
 	{
-		return new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal);
+		return new FoundsetTypeSabloValue(formElementValue, pd.getName(), dal, (FoundsetPropertyTypeConfig)pd.getConfig());
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				}
 				case "dataproviders" :
 				{
-					if (webComponentValue.elementsToDataproviders.size() > 0)
+					if (webComponentValue.linkedChildComponentToColumn.size() > 0)
 					{
 						return "Foundset bound to a components with dataproviders, can't be set through the foundset property";
 					}
@@ -195,7 +195,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						public void put(String nm, Scriptable strt, Object value)
 						{
 							webComponentValue.dataproviders.put(nm, (String)value);
-							webComponentValue.changeMonitor.allChanged();
+							webComponentValue.notifyDataProvidersUpdated();
 						}
 
 						@Override
@@ -222,7 +222,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				}
 				case "dataproviders" :
 				{
-					if (webComponentValue.elementsToDataproviders.size() > 0)
+					if (webComponentValue.linkedChildComponentToColumn.size() > 0)
 					{
 						throw new RuntimeException("Foundset bound to a components with dataproviders, can't be set through the foundset property");
 					}
@@ -234,7 +234,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						{
 							webComponentValue.dataproviders.put((String)id, (String)((Scriptable)value).get((String)id, ((Scriptable)value)));
 						}
-						webComponentValue.changeMonitor.allChanged();
+						webComponentValue.notifyDataProvidersUpdated();
 					}
 					else throw new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName());
 				}
@@ -253,6 +253,12 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	public boolean shouldAlwaysAllowIncommingJSON()
 	{
 		return true;
+	}
+
+	@Override
+	public Object parseConfig(JSONObject config)
+	{
+		return new FoundsetPropertyTypeConfig(config);
 	}
 
 }

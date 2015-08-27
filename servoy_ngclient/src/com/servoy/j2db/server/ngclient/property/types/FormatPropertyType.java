@@ -141,8 +141,12 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object/* ComponentFormat */formatValue, PropertyDescription pd, DataConversion clientConversion,
+	// @formatter:off
+	public JSONWriter toJSON(JSONWriter writer, String key, Object/* ComponentFormat */formatValue,
+		PropertyDescription pdd/* if this arg is needed in the future please also handle it in foundset property type! that uses null */,
+		DataConversion cc/* if this arg is needed in the future please also handle it in foundset property type! then that will need to handle client side conversions as well */,
 		IBrowserConverterContext dataConverterContext) throws JSONException
+	// @formatter:on
 	{
 		ComponentFormat format;
 		if (formatValue == null || formatValue instanceof String)
@@ -205,7 +209,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 		if (isAllUppercase) map.put("uppercase", Boolean.valueOf(isAllUppercase));
 		else if (isAllLowercase) map.put("lowercase", Boolean.valueOf(isAllLowercase));
 
-		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, clientConversion, null);
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, cc, null);
 	}
 
 	@Override

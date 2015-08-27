@@ -36,21 +36,27 @@ import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.property.types.FormatPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
@@ -91,6 +97,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	public static final String MULTI_SELECT = "multiSelect";
 	public static final String VIEW_PORT = "viewPort";
+	public static final String COLUMN_FORMATS = "columnFormats";
 	public static final String START_INDEX = "startIndex";
 	public static final String SIZE = "size";
 	public static final String PREFERRED_VIEWPORT_SIZE = "preferredViewportSize";
@@ -104,7 +111,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	protected FoundsetTypeViewport viewPort;
 	private IFoundSetInternal foundset;
 	protected final Object designJSONValue;
+
 	protected Map<String, String> dataproviders = new HashMap<>();
+	protected Map<String, ComponentFormat> columnFormats;
+
 	protected String foundsetSelector;
 	protected FoundsetDataAdapterList dataAdapterList;
 	protected String propertyName;
@@ -114,31 +124,35 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	protected FoundsetTypeRowDataProvider rowDataProvider;
 
-	protected final Map<String, String> elementsToDataproviders;
+	// child components can be foundset linked (forFoundset: ...); in this case foundset prop. API can sort by child component name if it's told
+	// which child component maps to which foundset column...
+	protected final Map<String, String> linkedChildComponentToColumn;
 
 	protected final DataAdapterList parentDAL;
 
 	protected BaseWebObject webObject;
 
-	private int selectionRequestMsgid;
+	protected int selectionRequestMsgid;
+	protected final FoundsetPropertyTypeConfig specConfig;
 
-	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL)
+	public FoundsetTypeSabloValue(Object designJSONValue, String propertyName, DataAdapterList parentDAL, FoundsetPropertyTypeConfig specConfig)
 	{
 		this.designJSONValue = designJSONValue;
 		this.propertyName = propertyName;
 		this.parentDAL = parentDAL;
+		this.specConfig = specConfig;
 
 		rowDataProvider = new FoundsetTypeRowDataProvider(this);
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
 		viewPort = new FoundsetTypeViewport(changeMonitor);
 		// nothing to do here; foundset is not initialized until it's attached to a component
-		elementsToDataproviders = new HashMap<String, String>();
+		linkedChildComponentToColumn = new HashMap<String, String>();
 		// foundsetSelector as defined in component design XML.
 		foundsetSelector = ((JSONObject)designJSONValue).optString(FOUNDSET_SELECTOR);
-		updateDataproviders(((JSONObject)designJSONValue).optJSONObject("dataproviders"));
+		initializeDataproviders(((JSONObject)designJSONValue).optJSONObject("dataproviders"));
 	}
 
-	public void updateDataproviders(JSONObject dataProvidersJSON)
+	public void initializeDataproviders(JSONObject dataProvidersJSON)
 	{
 		if (dataProvidersJSON != null)
 		{
@@ -150,6 +164,24 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				dataproviders.put(key, dataProvidersJSON.optString(key));
 			}
 		}
+	}
+
+	protected void notifyDataProvidersUpdated()
+	{
+		refreshColumnFormats();
+
+		if (getFoundset() != null)
+		{
+			if (viewPort.getSize() > 0) changeMonitor.viewPortCompletelyChanged();
+		}
+	}
+
+	protected void refreshColumnFormats()
+	{
+		boolean formatsChanged = (columnFormats != null);
+		columnFormats = null;
+		formatsChanged = updateColumnFormatsIfNeeded() || formatsChanged;
+		if (formatsChanged) changeMonitor.columnFormatsUpdated();
 	}
 
 	public FoundsetTypeViewport getViewPort()
@@ -239,6 +271,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		return getFormUI().getDataConverterContext().getApplication().getFoundSetManager();
 	}
 
+	protected INGApplication getApplication()
+	{
+		return getFormUI().getDataConverterContext().getApplication();
+	}
+
 	public void updateFoundset(IFoundSetInternal newFoundset)
 	{
 		if (newFoundset != foundset)
@@ -250,9 +287,28 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			viewPort.setFoundset(foundset);
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
+
+			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
+
 			if (foundset instanceof ISwingFoundSet) ((ISwingFoundSet)foundset).getSelectionModel().addListSelectionListener(getListSelectionListener());
 			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 		}
+	}
+
+	protected boolean updateColumnFormatsIfNeeded()
+	{
+		if (specConfig.sendDefaultFormats && columnFormats == null && getFoundset() != null && webObject != null)
+		{
+			columnFormats = new HashMap<>();
+			for (Entry<String, String> dp : dataproviders.entrySet())
+			{
+				columnFormats.put(dp.getKey(),
+					ComponentFormat.getComponentFormat(null, ((Table)getFoundset().getTable()).getColumn(dp.getValue()), getApplication(), true));
+			}
+
+			return true;
+		}
+		return false;
 	}
 
 	protected FoundsetPropertySelectionListener getListSelectionListener()
@@ -297,6 +353,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		addSelectedIndexes(destinationJSON);
 		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false); // TODO listener and granular changes for this as well?
 
+		writeColumnFormatsIfNeededAndAvailable(destinationJSON, dataConverterContext, false);
+
 		// viewPort
 		destinationJSON.key(VIEW_PORT);
 		addViewPort(destinationJSON);
@@ -305,6 +363,25 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		destinationJSON.endObject();
 		changeMonitor.clearChanges();
 		return destinationJSON;
+	}
+
+	protected void writeColumnFormatsIfNeededAndAvailable(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext, boolean update)
+		throws JSONException
+	{
+		if (specConfig.sendDefaultFormats)
+		{
+			destinationJSON.key((update ? UPDATE_PREFIX : "") + COLUMN_FORMATS).object();
+			if (columnFormats != null)
+			{
+				IConvertedPropertyType<Object> formatPropertyType = (IConvertedPropertyType<Object>)TypesRegistry.getType(FormatPropertyType.TYPE_NAME); // just get it nicely in case it's overridden in designer for example
+
+				for (Entry<String, ComponentFormat> columnFormat : columnFormats.entrySet())
+				{
+					formatPropertyType.toJSON(destinationJSON, columnFormat.getKey(), columnFormat.getValue(), null, null, dataConverterContext);
+				}
+			} // else just an empty object if fine (but we do write it because when changing dataproviders from scripting it could change from something to null and the client should know about it)
+			destinationJSON.endObject();
+		}
 	}
 
 	protected void addViewPort(JSONWriter destinationJSON) throws JSONException
@@ -399,6 +476,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				destinationJSON.value(this.selectionRequestMsgid);
 				destinationJSON.key(UPDATE_PREFIX + SEND_SELECTION_RESPONSE);
 				destinationJSON.value(true);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendColumnFormats())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				writeColumnFormatsIfNeededAndAvailable(destinationJSON, dataConverterContext, true);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendWholeViewPort())
@@ -518,7 +601,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 					{
 						JSONArray columns = update.getJSONArray("sort");
 						StringBuilder sort = new StringBuilder();
-						Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : elementsToDataproviders;
+						Map<String, String> dp = dataproviders.size() > 0 ? dataproviders : linkedChildComponentToColumn;
 						String dataProviderID = null;
 						boolean sortAscending = true;
 						for (int j = 0; j < columns.length(); j++)
@@ -786,6 +869,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 
 	protected void setColumnDataprovider(String name, String dataprovider)
 	{
-		elementsToDataproviders.put(name, dataprovider);
+		linkedChildComponentToColumn.put(name, dataprovider);
 	}
 }

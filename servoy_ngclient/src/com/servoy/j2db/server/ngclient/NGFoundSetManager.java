@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetFactory;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
+import com.servoy.j2db.server.ngclient.property.FoundsetPropertyTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FoundsetReferencePropertyType;
 import com.servoy.j2db.util.Pair;
@@ -118,11 +119,11 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		FoundsetTypeSabloValue foundsetTypeSabloValue = foundsetTypeSabloValueMap.get(foundset);
 		if (foundsetTypeSabloValue == null)
 		{
-			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null);
+			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, new FoundsetPropertyTypeConfig(false, false, null));
 			foundsetTypeSabloValue.updateFoundset(foundset);
 			foundsetTypeSabloValueMap.put(foundset, foundsetTypeSabloValue);
 		}
-		foundsetTypeSabloValue.updateDataproviders(dataproviders);
+		foundsetTypeSabloValue.initializeDataproviders(dataproviders);
 		foundsetTypeSabloValue.getViewPort().setBounds(0, foundsetTypeSabloValue.getFoundset().getSize());
 
 		return foundsetTypeSabloValue;

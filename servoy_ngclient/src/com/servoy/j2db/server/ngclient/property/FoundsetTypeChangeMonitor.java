@@ -41,22 +41,24 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * The whole foundset property needs to get sent to the client.
 	 */
-	protected static final int SEND_ALL = 0b0000001;
+	protected static final int SEND_ALL = 0b00000001;
 	/**
 	 * Only the bounds of the viewPort changed, data is the same; for example records were added/removed before startIndex of viewPort,
 	 * or even inside the viewPort but will be combined by incremental updates (adds/deletes).
 	 */
-	protected static final int SEND_VIEWPORT_BOUNDS = 0b0000010;
+	protected static final int SEND_VIEWPORT_BOUNDS = 0b00000010;
 	/**
 	 * Foundset size changed (add/remove of records).
 	 */
-	protected static final int SEND_FOUNDSET_SIZE = 0b0001000;
+	protected static final int SEND_FOUNDSET_SIZE = 0b00001000;
 
-	protected static final int SEND_SELECTED_INDEXES = 0b0010000;
+	protected static final int SEND_SELECTED_INDEXES = 0b00010000;
 
-	protected static final int SEND_SELECTION_DENIED = 0b0100000;
+	protected static final int SEND_SELECTION_DENIED = 0b00100000;
 
-	protected static final int SEND_SELECTION_ACCEPTED = 0b1000000;
+	protected static final int SEND_SELECTION_ACCEPTED = 0b01000000;
+
+	protected static final int SEND_COLUMN_FORMATS = 0b10000000;
 
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
@@ -406,6 +408,11 @@ public class FoundsetTypeChangeMonitor
 		return (changeFlags & SEND_FOUNDSET_SIZE) != 0;
 	}
 
+	public boolean shouldSendColumnFormats()
+	{
+		return (changeFlags & SEND_COLUMN_FORMATS) != 0;
+	}
+
 	public boolean shouldSendViewPortBounds()
 	{
 		return (changeFlags & SEND_VIEWPORT_BOUNDS) != 0;
@@ -434,7 +441,7 @@ public class FoundsetTypeChangeMonitor
 	public boolean hasChanges()
 	{
 		return shouldSendAll() || shouldSendFoundsetSize() || shouldSendSelectedIndexes() || shouldSendViewPortBounds() || shouldSendWholeViewPort() ||
-			getViewPortChanges().size() > 0;
+			shouldSendColumnFormats() || shouldSendSelectionAccepted() || shouldSendSelectionDenied() || getViewPortChanges().size() > 0;
 	}
 
 	public void clearChanges()
@@ -531,6 +538,17 @@ public class FoundsetTypeChangeMonitor
 	protected void resumeRowUpdateListener()
 	{
 		viewPortDataChangeMonitor.resumeRowUpdateListener();
+	}
+
+
+	public void columnFormatsUpdated()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_COLUMN_FORMATS;
+			if (oldChangeFlags != changeFlags) notifyChange();
+		}
 	}
 
 //	protected static class RecordChangeDescriptor implements JSONWritable
