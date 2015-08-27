@@ -69,7 +69,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
+public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>implements IConvertedPropertyType<ValueListTypeSabloValue>,
 	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
 	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType
 {
@@ -77,7 +77,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
 	public static final String TYPE_NAME = "valuelist";
 
-	private ValueListPropertyType()
+	protected ValueListPropertyType()
 	{
 	}
 
@@ -159,7 +159,29 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		ValueList val = null;
 		IValueList valueList = null;
+		ValueListConfig config = (ValueListConfig)pd.getConfig();
+		String dataproviderID = (pd.getConfig() != null ? (String)formElement.getPropertyValue(config.getFor()) : null);
 
+		valueList = getIValueList(formElementValue, pd, formElement, component, dataAdapterList, val, valueList, config, dataproviderID);
+
+		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd) : null;
+	}
+
+	/**
+	 * @param formElementValue
+	 * @param pd
+	 * @param formElement
+	 * @param component
+	 * @param dataAdapterList
+	 * @param val
+	 * @param valueList
+	 * @param config
+	 * @param dataproviderID
+	 * @return
+	 */
+	protected IValueList getIValueList(Object formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList, ValueList val, IValueList valueList, ValueListConfig config, String dataproviderID)
+	{
 		int valuelistID = Utils.getAsInteger(formElementValue);
 		INGApplication application = dataAdapterList.getApplication();
 		if (valuelistID > 0)
@@ -172,8 +194,6 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			if (uuid != null) val = (ValueList)application.getFlattenedSolution().searchPersist(uuid);
 		}
 
-		ValueListConfig config = (ValueListConfig)pd.getConfig();
-		String dataproviderID = (pd.getConfig() != null ? (String)formElement.getPropertyValue(config.getFor()) : null);
 
 		if (val != null)
 		{
@@ -215,8 +235,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				}
 			}
 		}
-
-		return valueList != null ? new ValueListTypeSabloValue(valueList, dataAdapterList, config, dataproviderID, pd) : null;
+		return valueList;
 	}
 
 	@Override

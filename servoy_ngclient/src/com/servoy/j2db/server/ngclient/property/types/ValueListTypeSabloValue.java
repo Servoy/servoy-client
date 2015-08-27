@@ -68,7 +68,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private IRecordInternal previousRecord;
 	private final PropertyDescription vlPD;
 
-	ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID, PropertyDescription vlPD)
+	public ValueListTypeSabloValue(IValueList valueList, DataAdapterList dataAdapterList, ValueListConfig config, String dataproviderID,
+		PropertyDescription vlPD)
 	{
 		this.valueList = valueList;
 		this.dataAdapterList = dataAdapterList;
@@ -89,7 +90,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (changeMonitor != null) changeMonitor.valueChanged();
 	}
 
-	List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
+	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		List<Map<String, Object>> jsonValue = null;
 		if (filteredValuelist != null)
