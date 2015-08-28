@@ -297,7 +297,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			try
 			{
-				IFoundSetInternal newRelatedFoundset = record.getRelatedFoundSet(relationName);
+				IFoundSetInternal newRelatedFoundset = record != null ? record.getRelatedFoundSet(relationName) : null;
 				if (newRelatedFoundset != relatedFoundset)
 				{
 					if (relatedFoundset != null)
