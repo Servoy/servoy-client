@@ -454,19 +454,22 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					if (scope != null)
 					{
 						Scriptable service = (Scriptable)scope.get(serviceSpecification.getName(), null);
-						Function api = (Function)service.get(apiFunction.getName(), null);
-						Context context = Context.enter();
-						try
+						Object api = service.get(apiFunction.getName(), null);
+						if (api instanceof Function)
 						{
-							api.call(context, scope, service, null);
-						}
-						catch (Exception ex)
-						{
-							Debug.error(ex);
-						}
-						finally
-						{
-							Context.exit();
+							Context context = Context.enter();
+							try
+							{
+								((Function)api).call(context, scope, service, null);
+							}
+							catch (Exception ex)
+							{
+								Debug.error(ex);
+							}
+							finally
+							{
+								Context.exit();
+							}
 						}
 					}
 				}
