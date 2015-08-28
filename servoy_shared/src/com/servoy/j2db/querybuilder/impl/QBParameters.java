@@ -38,7 +38,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBParameters extends DefaultJavaScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBParameters.class);
+	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBParameters.class);
 
 	private final QBSelect query;
 	private final Map<String, QBParameter> parameters = new HashMap<String, QBParameter>();
@@ -87,6 +87,7 @@ public class QBParameters extends DefaultJavaScope
 		{
 			value = ((Wrapper)value).unwrap();
 		}
+
 		try
 		{
 			if (value instanceof IQueryBuilder)
@@ -107,6 +108,18 @@ public class QBParameters extends DefaultJavaScope
 	{
 		parameters.remove(name);
 		super.delete(name);
+	}
+
+	@Override
+	public Object[] getIds()
+	{
+		return parameters.keySet().toArray();
+	}
+
+	@Override
+	public boolean has(String name, Scriptable start)
+	{
+		return parameters.containsKey(name) || super.has(name, start);
 	}
 
 	public QBParameter getParameter(String name) throws RepositoryException
