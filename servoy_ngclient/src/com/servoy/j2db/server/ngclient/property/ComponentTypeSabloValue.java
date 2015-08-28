@@ -284,7 +284,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (parentComponent.getSpecification().getProperty(WebFormUI.READONLY) != null && propertyDescChild != null)
 		{
 			Object value = parentComponent.getProperty(WebFormUI.READONLY);
-			if (!value.equals(ReadonlyPropertyType.INSTANCE.defaultValue(propertyDescChild))) setChildReadOnlyProperty(propertyDescChild, value);
+			if (!ReadonlyPropertyType.INSTANCE.defaultValue(propertyDescChild).equals(value)) setChildReadOnlyProperty(propertyDescChild, value);
 
 			this.parentComponent.addPropertyChangeListener(WebFormUI.READONLY, new PropertyChangeListener()
 			{
