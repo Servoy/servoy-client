@@ -30,105 +30,105 @@ import com.servoy.j2db.util.Utils;
 public class Ident
 {
 	public final static String[] java_js_keywords = new String[] { //Java or JS Related
-	"abstract", //  
-	"double", //  
-	"int", //  
-	"strictfp", //  
-	"boolean", //  
-	"else", //  
-	"interface", //  
-	"super", //  
-	"break", //  
-	"extends", //  
-	"long", //  
-	"switch", //  
-	"byte", //  
-	"final", //  
-	"native", //  
-	"synchronized", //  
-	"case", //  
-	"finally", //  
-	"new", //  
-	"this", //  
-	"catch", //  
-	"float", //  
-	"package", //  
-	"throw", //  
-	"char", //  
-	"for", //  
-	"private", //  
-	"throws", //  
-	"class", //  
-	"goto", //  
-	"protected", //  
-	"transient", //  
-	"const", //  
-	"if", //  
-	"public", //  
-	"try", //  
-	"continue", //  
-	"implements", //  
-	"return", //  
-	"void", //  
-	"default", //  
-	"import", //  
-	"short", //  
-	"volatile", //  
-	"do", //  
-	"instanceof", //  
-	"static", //  
-	"while", //  
+	"abstract", //
+	"double", //
+	"int", //
+	"strictfp", //
+	"boolean", //
+	"else", //
+	"interface", //
+	"super", //
+	"break", //
+	"extends", //
+	"long", //
+	"switch", //
+	"byte", //
+	"final", //
+	"native", //
+	"synchronized", //
+	"case", //
+	"finally", //
+	"new", //
+	"this", //
+	"catch", //
+	"float", //
+	"package", //
+	"throw", //
+	"char", //
+	"for", //
+	"private", //
+	"throws", //
+	"class", //
+	"goto", //
+	"protected", //
+	"transient", //
+	"const", //
+	"if", //
+	"public", //
+	"try", //
+	"continue", //
+	"implements", //
+	"return", //
+	"void", //
+	"default", //
+	"import", //
+	"short", //
+	"volatile", //
+	"do", //
+	"instanceof", //
+	"static", //
+	"while", //
 
 		//JS Related
-	"null", //  
-	"export", //  
-	"undefined", //  
-	"constant", //  
-	"function", //  
-	"debugger", //  
-	"in", //  
-	"typeof", //  
-	"native", //  
-	"var", //  
-	"enum", //  
-	"export", //  
-	"with", //  
-	"delete", //  
-	"date", // to prevent Date 
-	"array", // to prevent Array 
-	"arguments", // to prevent an dataprovider with the name arguments 
+	"null", //
+	"export", //
+	"undefined", //
+	"constant", //
+	"function", //
+	"debugger", //
+	"in", //
+	"typeof", //
+	"native", //
+	"var", //
+	"enum", //
+	"export", //
+	"with", //
+	"delete", //
+	"date", // to prevent Date
+	"array", // to prevent Array
+	"arguments", // to prevent an dataprovider with the name arguments
 	};
 
 	public final static String[] servoy_keywords = new String[] {
 		//Standard j2db DOM things
-	"databaseManager", //  
-	"datasources", //  
-	"application", //  
-	"currentform", //  
-	"currentcontroller", //  
-	"currentRecordIndex", //  
-	"history", //  
-	"math", //  
-	"form", //  
-	"controller", //  
-	"elements", //  
-	"length", //  
-	"globals", //  
-	"scopes", //  
-	"plugins", //  
-	"forms", //  
-	"foundset", //  
-	"utils", //  
-	"security", // 
-	"solutionModel", // 
-	"recordIndex", //  
-	"allnames", //  
-	"allmethods", //  
-	"allrelations", //  
-	"allvariables", //  
-	"exception", //  
-	"jsunit", //  
-	"servoyDeveloper", //  
+	"databaseManager", //
+	"datasources", //
+	"application", //
+	"currentform", //
+	"currentcontroller", //
+	"currentRecordIndex", //
+	"history", //
+	"math", //
+	"form", //
+	"controller", //
+	"elements", //
+	"length", //
+	"globals", //
+	"scopes", //
+	"plugins", //
+	"forms", //
+	"foundset", //
+	"utils", //
+	"security", //
+	"solutionModel", //
+	"recordIndex", //
+	"allnames", //
+	"allmethods", //
+	"allrelations", //
+	"allvariables", //
+	"exception", //
+	"jsunit", //
+	"servoyDeveloper", //
 	// New
 	"_super" };
 
@@ -289,6 +289,7 @@ public class Ident
 					// not allowed in scripting
 				case ' ' :
 				case '-' :
+				case '.' :
 					chars[i] = '_';
 					replaced = true;
 					break;

@@ -20,7 +20,7 @@ package com.servoy.base.query;
 
 /**
  * Quedry column for mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -43,10 +43,6 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 		if (table == null || (id == -1 && name == null))
 		{
 			throw new IllegalArgumentException("Null table or column argument"); //$NON-NLS-1$
-		}
-		if (id == -1 && name.indexOf('.') >= 0)
-		{
-			throw new IllegalArgumentException("Invalid column name '" + name + '\''); //$NON-NLS-1$
 		}
 		this.table = table;
 		this.id = id;
