@@ -596,13 +596,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Use clear() or loadAllRecords() to make the filter effective.
 	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
-	 * @sample
-	 * // Filter a fondset on a dataprovider value.
-	 * // Note that multiple filters can be added to the same dataprovider, they will all be applied.
-	 *
-	 * var success = %%prefix%%foundset.addFoundSetFilterParam('customerid', '=', 'BLONP', 'custFilter');//possible to add multiple
-	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
-	 * // Named filters can be removed using %%prefix%%foundset.removeFoundSetFilterParam(filterName)
+	 * @sampleas js_addFoundSetFilterParam(String, String, Object, String)
 	 *
 	 * @param dataprovider String column to filter on.
 	 *
@@ -628,6 +622,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
 	 * var ok = %%prefix%%foundset.addFoundSetFilterParam('companyname', '#^||=', 'servoy')
+	 *
+	 * // Filters with in-conditions can be used with arrays or with custom queries:
+	 * success = foundset.addFoundSetFilterParam("productcode", "in", [120, 144, 200]);
+	 * success = foundset.addFoundSetFilterParam("city", "in", ["London", "Paris"]);
+	 * success = foundset.addFoundSetFilterParam("countrycode", "in", "select country code from countries where region in ('Europe', 'Asia')");
 	 *
 	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
 	 *
@@ -4381,7 +4380,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
 			}
-			}
+		}
 
 		return success;
 	}
