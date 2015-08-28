@@ -94,36 +94,13 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 	{
 		keys = AbstractBaseQuery.acceptVisitor(keys, visitor);
 		values = AbstractBaseQuery.acceptVisitor(values, visitor);
-		if (visitor instanceof PlaceHolderSetter)
+		if (values instanceof Placeholder && visitor instanceof PlaceHolderSetter)
 		{
 			PlaceHolderSetter phs = (PlaceHolderSetter)visitor;
-			Placeholder ph = null;
-			Object phValue = null;
-			if (values instanceof Placeholder)
+			Placeholder ph = (Placeholder)values;
+			if (ph.getKey().equals(phs.getKey()))
 			{
-				ph = (Placeholder)values;
-				phValue = phs.getValue();
-			}
-			else if (values instanceof Object[] && ((Object[])values).length == 1)
-			{
-				// When a placeholder is used with the QueryBuilder and the parameter value is set with an array we have to get the array and turn [ val1, ,,,, valn ] into [[ val1, ,,,, valn ]].
-				// this happens with code:
-				//    query.where.add(query.columns.mycolumn.isin(query.getParameter('myparam')));
-				//    query.params['myparam'] = ['x', 'y', 'z']
-				Object values0 = ((Object[])values)[0];
-				if (values0 instanceof Object[] && ((Object[])values0).length == 1 && ((Object[])values0)[0] instanceof QueryColumnValue)
-				{
-					QueryColumnValue colValue = (QueryColumnValue)((Object[])values0)[0];
-					if (colValue.getValue() instanceof Placeholder && phs.getValue() instanceof Object[])
-					{
-						ph = (Placeholder)colValue.getValue();
-						phValue = new Object[][] { (Object[])phs.getValue() }; // 1 key, values in array of dimension 1
-					}
-				}
-			}
-			if (ph != null && ph.getKey().equals(phs.getKey()))
-			{
-				ph.setValue(validateValues(keys, phValue));
+				ph.setValue(validateValues(keys, phs.getValue()));
 			}
 		}
 	}
