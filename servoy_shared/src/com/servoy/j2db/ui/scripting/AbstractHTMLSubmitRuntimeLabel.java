@@ -25,6 +25,7 @@ import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -36,7 +37,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable component which has label + html submit behavior.
- * 
+ *
  * @author lvostinar
  * @since 6.0
  */
@@ -86,7 +87,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 			Border b = border;
 			Insets m = null;
 			// empty border gets handled as margin
-			if (b instanceof EmptyBorder)
+			if (b instanceof EmptyBorder && !(b instanceof MatteBorder))
 			{
 				m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
 				b = null;
