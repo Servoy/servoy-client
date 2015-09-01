@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
+import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.BasicFormManager;
@@ -48,6 +49,7 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -202,8 +204,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			}
 			catch (Exception e1)
 			{
-				application.reportError(
-					Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), e1); //$NON-NLS-1$
+				application.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), //$NON-NLS-1$
+					e1);
 			}
 		}
 	}
@@ -262,8 +264,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		Context.enter();
 		try
 		{
-			ss.put(
-				"currentcontroller", ss, new NativeJavaObject(ss, currentController.initForJSUsage(), new InstanceJavaMembers(ss, com.servoy.j2db.BasicFormController.JSForm.class))); //$NON-NLS-1$
+			ss.put("currentcontroller", ss, //$NON-NLS-1$
+				new NativeJavaObject(ss, currentController.initForJSUsage(), new InstanceJavaMembers(ss, com.servoy.j2db.BasicFormController.JSForm.class)));
 		}
 		finally
 		{
@@ -313,11 +315,22 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		if ("solution".equals(name)) //$NON-NLS-1$
 		{
 			final Solution s = (Solution)evt.getNewValue();
-			destroySolutionSettings();//must run on same thread
-			if (s != null)
+			Runnable run = new Runnable()
 			{
-				makeSolutionSettings(s);
-			}
+				@Override
+				public void run()
+				{
+					destroySolutionSettings();//must run on same thread
+					if (s != null)
+					{
+						makeSolutionSettings(s);
+					}
+				}
+			};
+
+			if (CurrentWindow.exists()) run.run();
+			else CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getApplication().getWebsocketSession()), run);
+
 		}
 		else if ("mode".equals(name)) //$NON-NLS-1$
 		{

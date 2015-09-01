@@ -53,7 +53,7 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 			// just a shortcut if there is one 1 window (tab in browser) then just always take that one
 			lastKnownWindow = windows.iterator().next();
 		}
-		else
+		else if (windows.size() > 0)
 		{
 			NGRuntimeWindow currentWindow = getSession().getClient().getRuntimeWindowManager().getCurrentWindow();
 			if (currentWindow != null)

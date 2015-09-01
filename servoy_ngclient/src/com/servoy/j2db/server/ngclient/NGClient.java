@@ -438,7 +438,23 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	protected boolean callCloseSolutionMethod(boolean force)
+	protected boolean callCloseSolutionMethod(final boolean force)
+	{
+		final boolean[] retValue = new boolean[1];
+		Runnable run = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				retValue[0] = doCallCloseSolutionMethod(force);
+			}
+		};
+		if (CurrentWindow.exists()) run.run();
+		else CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), run);
+		return retValue[0];
+	}
+
+	private boolean doCallCloseSolutionMethod(boolean force)
 	{
 		boolean canClose = super.callCloseSolutionMethod(force);
 		//cleanup here before script engine is destroyed
