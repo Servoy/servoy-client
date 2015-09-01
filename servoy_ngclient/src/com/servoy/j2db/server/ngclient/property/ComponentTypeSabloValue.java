@@ -85,7 +85,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected boolean componentIsCreated = false;
 
 	protected String forFoundsetTypedPropertyName;
-	protected PropertyChangeListener forFoundsetPropertyListener;
+	protected PropertyChangeListener forFoundsetPropertyListener, enabledPropertyListener, readonlyPropertyListener;
 
 	protected boolean recordBasedPropertiesChanged = false;
 	protected boolean recordBasedPropertiesChangedComparedToTemplate = false;
@@ -169,6 +169,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			}
 		}
+		if (enabledPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.ENABLED, enabledPropertyListener);
+		if (readonlyPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
 	}
 
 	private FoundsetTypeSabloValue getFoundsetValue()
@@ -280,37 +282,49 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			setDataproviderNameToFoundset();
 		}
 
-		final PropertyDescription propertyDescChild = childComponent.getSpecification().getProperty(WebFormUI.READONLY);
-		if (parentComponent.getSpecification().getProperty(WebFormUI.READONLY) != null && propertyDescChild != null)
-		{
-			Object value = parentComponent.getProperty(WebFormUI.READONLY);
-			if (!ReadonlyPropertyType.INSTANCE.defaultValue(propertyDescChild).equals(value)) setChildReadOnlyProperty(propertyDescChild, value);
+		addPropertyChangeListener(WebFormUI.ENABLED, parentComponent.getFormElement().getPropertyValue(WebFormUI.ENABLED));
+		addPropertyChangeListener(WebFormUI.READONLY, parentComponent.getProperty(WebFormUI.READONLY));
 
-			this.parentComponent.addPropertyChangeListener(WebFormUI.READONLY, new PropertyChangeListener()
+
+		if (childComponent.hasChanges()) monitor.valueChanged();
+	}
+
+	private void addPropertyChangeListener(final String property, Object initialValue)
+	{
+		if (parentComponent.getSpecification().getProperty(property) != null && childComponent.getSpecification().getProperty(property) != null)
+		{
+			setChildProperty(property, initialValue);
+			this.parentComponent.addPropertyChangeListener(property, enabledPropertyListener = new PropertyChangeListener()
 			{
 				@Override
 				public void propertyChange(PropertyChangeEvent evt)
 				{
 					if (evt.getNewValue() != null)
 					{
-						setChildReadOnlyProperty(propertyDescChild, evt.getNewValue());
+						setChildProperty(property, evt.getNewValue());
 					}
 				}
 			});
 		}
-
-		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
 
-	private void setChildReadOnlyProperty(final PropertyDescription propertyDescChild, Object value)
+	private void setChildProperty(String propertyName, Object value)
 	{
 		Object val = value instanceof ReadonlySabloValue ? ((ReadonlySabloValue)value).getValue() : value;
-		if (propertyDescChild.getType() instanceof ReadonlyPropertyType)
+		if (childComponent.getProperty(propertyName) == null || !childComponent.getProperty(propertyName).equals(val)) //check if the values are different
 		{
-			val = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(val, (ReadonlySabloValue)childComponent.getProperty(propertyDescChild.getName()),
-				propertyDescChild, childComponent);
+			if (WebFormUI.READONLY.equals(propertyName))
+			{
+				PropertyDescription propertyDescChild = childComponent.getSpecification().getProperty(WebFormUI.READONLY);
+				if (propertyDescChild.getType() instanceof ReadonlyPropertyType)
+				{
+					val = ReadonlyPropertyType.INSTANCE.toSabloComponentValue(val, (ReadonlySabloValue)childComponent.getProperty(WebFormUI.READONLY),
+						propertyDescChild, childComponent);
+				}
+			}
+
+			childComponent.setProperty(propertyName, val);
 		}
-		childComponent.setProperty(propertyDescChild.getName(), val);
 	}
 
 	protected IDataLinkedPropertyRegistrationListener createDataLinkedPropertyRegistrationListener()

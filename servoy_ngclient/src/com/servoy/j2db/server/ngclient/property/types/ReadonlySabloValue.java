@@ -121,7 +121,13 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	private boolean oppositeValue()
 	{
-		return (boolean)webComponent.getProperty(configuration.getOppositeOf());
+		if (configuration != null && webComponent != null)
+		{
+			Object value = webComponent.getProperty(configuration.getOppositeOf());
+			if (value == null) value = webComponent.getSpecification().getProperty(configuration.getOppositeOf()).getDefaultValue();
+			if (value != null) return (boolean)value;
+		}
+		return true;
 	}
 
 	/*
