@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
@@ -437,6 +438,14 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		{
 			try
 			{
+				try
+				{
+					CurrentWindow.get().sendChanges();
+				}
+				catch (IOException e)
+				{
+					Debug.log(e);
+				}
 				getApplication().getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT, IEventDispatcher.NO_TIMEOUT);
 				// this is now a hide of this window, set back the window name just before this show.
 				getApplication().getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
