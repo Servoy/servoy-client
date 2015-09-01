@@ -811,6 +811,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.NEVER;
 
 			$scope.gridOptions.onRegisterApi = function(gridApi) {
+				var shouldCallDataLoaded = false;
 				$scope.gridApi = gridApi;
 				$scope.gridApi.grid.registerDataChangeCallback(function() {
 					updateGridSelectionFromFoundset(true);
@@ -866,6 +867,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					var extraSize = Math.min($scope.pageSize, $scope.foundset.serverSize - $scope.foundset.viewPort.size);
 					if (extraSize !== 0)
 					{
+						shouldCallDataLoaded = true;
 						$scope.foundset.loadExtraRecordsAsync(extraSize);
 					}
 					else
@@ -1088,9 +1090,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 						// allow nggrid to update it's model / selected items and make sure selection didn't fall/remain on a wrong item because of that update...
 						updateGridSelectionFromFoundset(true);
-						var scrollUp = $scope.foundset.viewPort.startIndex > 0;
-						var scrollDown = ($scope.foundset.viewPort.startIndex + $scope.foundset.viewPort.size <  $scope.foundset.serverSize);
-						$scope.gridApi.infiniteScroll.dataLoaded(scrollUp,scrollDown);
+						if (shouldCallDataLoaded) {
+							shouldCallDataLoaded = false;
+							var scrollUp = $scope.foundset.viewPort.startIndex > 0;
+							var scrollDown = ($scope.foundset.viewPort.startIndex + $scope.foundset.viewPort.size <  $scope.foundset.serverSize);
+							$scope.gridApi.infiniteScroll.dataLoaded(scrollUp,scrollDown);
+						}
 					});
 				},0)
 			};
