@@ -69,7 +69,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue>implements IConvertedPropertyType<ValueListTypeSabloValue>,
+public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
 	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
 	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType
 {
@@ -214,8 +214,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 			ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(format, dataproviderID,
 				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), dataAdapterList.getForm().getForm()), application);
-			valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true, fieldFormat.dpType, fieldFormat.parsedFormat,
-				dataproviderID);
+			valueList = getRealValueList(application, val, fieldFormat, dataproviderID);
 		}
 		else
 		{
@@ -236,6 +235,11 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 		return valueList;
+	}
+
+	protected IValueList getRealValueList(INGApplication application, ValueList val, ComponentFormat fieldFormat, String dataproviderID)
+	{
+		return com.servoy.j2db.component.ComponentFactory.getRealValueList(application, val, true, fieldFormat.dpType, fieldFormat.parsedFormat, dataproviderID);
 	}
 
 	@Override
