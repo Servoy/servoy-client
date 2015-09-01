@@ -39,11 +39,12 @@ import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * This AttributeModifier will display the tooltip of an {@link IComponent#getToolTipText()} in the browser.
  * add the instance to the behavior list of your wicket component.
- * 
+ *
  * @author jcompagner
  * @since 5.0
  */
@@ -63,7 +64,7 @@ public class TooltipAttributeModifier extends AttributeModifier implements IIgno
 
 	/**
 	 * Construct.
-	 * 
+	 *
 	 * @param attribute
 	 * @param replaceModel
 	 */
@@ -90,7 +91,7 @@ public class TooltipAttributeModifier extends AttributeModifier implements IIgno
 				return super.isEnabled(component);
 			}
 		});
-		// in case the component is disabled 
+		// in case the component is disabled
 		component.add(new SimpleAttributeModifier("title", "dummyTooltip")
 		{
 			@Override
@@ -106,7 +107,12 @@ public class TooltipAttributeModifier extends AttributeModifier implements IIgno
 			@Override
 			public void onComponentTag(Component component, ComponentTag tag)
 			{
-				tag.getAttributes().put("title", getToolTipForComponent(component));
+				String tooltip = getToolTipForComponent(component);
+				if (HtmlUtils.startsWithHtml(tooltip))
+				{
+					tooltip = HtmlUtils.stripHTML(tooltip);
+				}
+				tag.getAttributes().put("title", tooltip);
 			}
 		});
 
