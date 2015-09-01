@@ -12,7 +12,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
-				applyBeanLayout(now, beanLayout, changes, parentSize);
+				applyBeanLayout(now, beanLayout, changes, parentSize, false);
 			}
 		}
 		return changes;
@@ -39,24 +39,23 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	var applyBeanData = function(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope) {
 
 		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope)
-		applyBeanLayout(beanModel, beanLayout, beanData, containerSize)
+		applyBeanLayout(beanModel, beanLayout, beanData, containerSize, true)
 	}
 
-	var applyBeanLayout = function(beanModel, beanLayout, beanData, containerSize) {
+	var applyBeanLayout = function(beanModel, beanLayout, beanData, containerSize, isApplyBeanData) {
 
+		var runtimeChanges = !isApplyBeanData && ( beanData.size != undefined || beanData.location != undefined );
 		//beanData.anchors means anchors changed or must be initialized
-		if (beanData.anchors && containerSize && $solutionSettings.enableAnchoring) {
+		if ((beanData.anchors || runtimeChanges) && containerSize && $solutionSettings.enableAnchoring) {
 			var anchoredTop = (beanModel.anchors & $anchorConstants.NORTH) != 0; // north
 			var anchoredRight = (beanModel.anchors & $anchorConstants.EAST) != 0; // east
 			var anchoredBottom = (beanModel.anchors & $anchorConstants.SOUTH) != 0; // south
 			var anchoredLeft = (beanModel.anchors & $anchorConstants.WEST) != 0; //west
 
-			var runtimeChanges = beanData.size != undefined || beanData.location != undefined;
-
 			if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
 			if (!anchoredTop && !anchoredBottom) anchoredTop = true;
 
-			if (anchoredTop)
+			if (anchoredTop || runtimeChanges)
 			{
 				if (beanLayout.top == undefined || runtimeChanges && beanModel.location != undefined) beanLayout.top = beanModel.location.y + 'px';
 			}
@@ -77,7 +76,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (!anchoredTop || !anchoredBottom) beanLayout.height = beanModel.size.height + 'px';
 			else delete beanLayout.height;
 
-			if (anchoredLeft)
+			if (anchoredLeft || runtimeChanges)
 			{
 				if ( $solutionSettings.ltrOrientation)
 				{
@@ -199,7 +198,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							}
 							if (latestApplyCall && latestApplyCall.formname == formname && latestApplyCall.beanname == beanname && beanData[latestApplyCall.property] != undefined)
 								latestApplyCall = {};
-							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize)
+							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false)
 						}
 					}
 				}
@@ -284,7 +283,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (formState.initializing) $sabloApplication.requestInitialData(formname, function(initialFormData,formState) {
 				for (var beanName in initialFormData) {
 					if (beanName != '') {
-						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize)
+						applyBeanLayout(formState.model[beanName], formState.layout[beanName], initialFormData[beanName], formState.properties.designSize, false)
 					}
 				}
 			});

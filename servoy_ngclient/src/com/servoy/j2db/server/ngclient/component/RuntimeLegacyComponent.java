@@ -35,7 +35,6 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportName;
@@ -422,10 +421,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			{
 				putClientProperty(args[0], args[1]);
 			}
-			if (StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(propertyName))
-			{
-				scriptable.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), null, Integer.valueOf(IAnchorConstants.DEFAULT));
-			}
+//			if (StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName().equals(propertyName))
+//			{
+//				scriptable.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), null, Integer.valueOf(IAnchorConstants.DEFAULT));
+//			}
 			scriptable.put(propertyName, null, value);
 			return null;
 		}
