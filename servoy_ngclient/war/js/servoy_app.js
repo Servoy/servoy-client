@@ -358,10 +358,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			element.on('click', function(event) {
-				if (event.target.tagName.toLowerCase() == 'div')
+				// clicking on part element or grid stuff triggers autosave
+				if ((event.target == element[0]) || (event.target.parentNode == element[0]) || $(event.target).is('[class^="ui-grid"]'))
 				{
-					$sabloApplication.callService("applicationServerService", "autosave",{}, true);
-					return false;
+					if($(event.target).closest("div[svy-autosave]")[0] == element[0])
+					{
+						// only execute for closest form
+						$sabloApplication.callService("applicationServerService", "autosave",{}, true);
+					}	
 				}
 			});
 		}
