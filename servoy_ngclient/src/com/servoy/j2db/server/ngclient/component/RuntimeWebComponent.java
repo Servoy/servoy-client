@@ -122,10 +122,8 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors)
 		{
 			int anchor = Utils.getAsInteger(component.getProperty(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName()));//((ISupportAnchors)fe.getPersistIfAvailable()).getAnchors();
-			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST) ||
-				(fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
-				(("getLocationX").equals(functionName) || ("getLocationY").equals(functionName) || ("getWidth").equals(functionName) ||
-					("getHeight").equals(functionName)))
+			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST) || (fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
+				(("getLocationX").equals(functionName) || ("getLocationY").equals(functionName) || ("getWidth").equals(functionName) || ("getHeight").equals(functionName)))
 			{
 				return false;
 			}
@@ -252,6 +250,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
+		if (isInvalidValue(name, value)) return;
 		List<Pair<String, String>> oldVisibleForms = getVisibleForms();
 		if (specProperties != null && specProperties.contains(name))
 		{
@@ -315,6 +314,24 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			}
 		}
 		updateVisibleContainers(oldVisibleForms);
+	}
+
+	private boolean isInvalidValue(String name, Object value)
+	{
+		if (component.getFormElement() != null && component.getFormElement().getPersistIfAvailable() instanceof TabPanel &&
+			Utils.equalObjects(name, "tabIndex"))
+		{
+			Object tabs = component.getProperty("tabs");
+			if (tabs instanceof List && value instanceof Number)
+			{
+				int index = ((Number)value).intValue() - 1;
+				if (index < 0 || index >= ((List)tabs).size())
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private List<Pair<String, String>> getVisibleForms()
@@ -383,8 +400,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 	private void updateVisibleContainers(List<Pair<String, String>> oldForms)
 	{
-		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedVisibleForms(oldForms,
-			getVisibleForms());
+		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedVisibleForms(oldForms, getVisibleForms());
 	}
 
 	@Override
