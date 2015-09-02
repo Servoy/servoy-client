@@ -315,7 +315,7 @@ public class WebObjectImpl
 		setOrRemoveJsonSubproperty(key, value, false);
 	}
 
-	public boolean setOrRemoveJsonSubproperty(String key, Object value, boolean remove)
+	private boolean setOrRemoveJsonSubproperty(String key, Object value, boolean remove)
 	{
 		try
 		{
