@@ -241,7 +241,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 						undecorated:false,
 						bsWindowInstance:null,  // bootstrap-window instance , available only after creation 
 						hide: function (result) {
-							win.bsWindowInstance.close();
+							if(win.bsWindowInstance) win.bsWindowInstance.close();
 							if(!this.storeBounds){
 								delete this.location;
 								delete this.size;
