@@ -797,7 +797,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					},
 					rowEquality: function(row1,row2) {
 						return row1._svyRowId == row2._svyRowId;
-					}
+					},
+					infiniteScrollRowsFromEnd: $scope.pageSize
 			};
 
 			if ($scope.model.scrollbars & $scrollbarConstants.VERTICAL_SCROLLBAR_ALWAYS)
@@ -914,20 +915,24 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if ($scope.foundset && $scope.foundset.setPreferredViewportSize)
 					{
 						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
-						if (preferredViewportSize != numberOfRows) {
-							preferredViewportSize = numberOfRows;
-							$scope.foundset.setPreferredViewportSize(numberOfRows)
+						if (preferredViewportSize != numberOfRows*2) {
+							// make the viewport always 2 times the size then the number of rows.
+							$scope.pageSize = Math.max(numberOfRows, 25);
+							$scope.gridOptions.infiniteScrollRowsFromEnd = $scope.pageSize;
+							preferredViewportSize = numberOfRows*2;
+							$scope.foundset.setPreferredViewportSize(preferredViewportSize)
 						}
 						if (requestViewPortSize == -1 && $scope.foundset.serverSize > $scope.foundset.viewPort.size) {
 							if ($scope.foundset.viewPort.size == 0) {
 								// its a full reload because viewPort size = 0
-								requestViewPortSize = 0;
-								$scope.foundset.loadRecordsAsync(0, Math.min($scope.foundset.serverSize, numberOfRows+$scope.pageSize));
+								requestViewPortSize = Math.min($scope.foundset.serverSize, numberOfRows+$scope.pageSize);
+								$scope.foundset.loadRecordsAsync(0, requestViewPortSize);
 							}
-							else if ($scope.foundset.viewPort.size < numberOfRows) {
+							else if ($scope.foundset.viewPort.size < (numberOfRows+$scope.pageSize)) {
 								// only add extra records
-								requestViewPortSize = $scope.foundset.viewPort.size;
-								$scope.foundset.loadExtraRecordsAsync(Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size));
+								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size);
+								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
+								$scope.foundset.loadExtraRecordsAsync(extraRecords);
 							}
 						}
 					}
@@ -1064,7 +1069,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					$scope.$watch('foundset.serverSize', function(newVal, oldVal) {
 						if (requestViewPortSize === 0) requestViewPortSize = -1
 						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
-						if ($scope.foundset.viewPort.size < numberOfRows && newVal > oldVal)
+						if (requestViewPortSize < (numberOfRows+$scope.pageSize) && newVal > oldVal)
 						{
 							// we need to load extra rows
 							requestViewPortSize = -1;
