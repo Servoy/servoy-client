@@ -26,7 +26,6 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.IIgnoreDisabledComponentBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IComponentAssignedModel;
 import org.apache.wicket.model.IModel;
@@ -39,7 +38,6 @@ import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * This AttributeModifier will display the tooltip of an {@link IComponent#getToolTipText()} in the browser.
@@ -91,31 +89,6 @@ public class TooltipAttributeModifier extends AttributeModifier implements IIgno
 				return super.isEnabled(component);
 			}
 		});
-		// in case the component is disabled
-		component.add(new SimpleAttributeModifier("title", "dummyTooltip")
-		{
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				if (!component.isEnabledInHierarchy() && getToolTipForComponent(component) != null)
-				{
-					return true;
-				}
-				else return false;
-			}
-
-			@Override
-			public void onComponentTag(Component component, ComponentTag tag)
-			{
-				String tooltip = getToolTipForComponent(component);
-				if (HtmlUtils.startsWithHtml(tooltip))
-				{
-					tooltip = HtmlUtils.stripHTML(tooltip);
-				}
-				tag.getAttributes().put("title", tooltip);
-			}
-		});
-
 	}
 
 	static String getToolTipForComponent(Component component)
