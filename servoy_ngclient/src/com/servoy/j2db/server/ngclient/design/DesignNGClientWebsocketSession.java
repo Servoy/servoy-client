@@ -31,7 +31,7 @@ import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 /**
  * @author jcompagner
  */
-public final class DesignNGClientWebsocketSession extends NGClientWebsocketSession
+public class DesignNGClientWebsocketSession extends NGClientWebsocketSession
 {
 	public static final String EDITOR_CONTENT_SERVICE = "$editorContentService";
 

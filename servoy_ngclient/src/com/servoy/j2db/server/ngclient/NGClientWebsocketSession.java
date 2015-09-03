@@ -65,6 +65,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		super(uuid);
 	}
 
+	@Override
+	public void init() throws Exception
+	{
+		setClient(new NGClient(this));
+	}
+
 	public void setClient(NGClient client)
 	{
 		this.client = client;
@@ -183,12 +189,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 						List<String> arguments = new ArrayList<String>();
 
-						if (args.getSolutionName() != null) arguments.add(StartupArguments.PARAM_KEY_SOLUTION + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
-							args.getSolutionName());
-						if (args.getFirstArgument() != null) arguments.add(StartupArguments.PARAM_KEY_ARGUMENT + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
-							args.getFirstArgument());
-						if (args.getMethodName() != null) arguments.add(StartupArguments.PARAM_KEY_METHOD + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
-							args.getMethodName());
+						if (args.getSolutionName() != null)
+							arguments.add(StartupArguments.PARAM_KEY_SOLUTION + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getSolutionName());
+						if (args.getFirstArgument() != null)
+							arguments.add(StartupArguments.PARAM_KEY_ARGUMENT + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getFirstArgument());
+						if (args.getMethodName() != null)
+							arguments.add(StartupArguments.PARAM_KEY_METHOD + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getMethodName());
 						client.handleArguments(arguments.toArray(new String[arguments.size()]), args);
 
 						client.loadSolution(solutionName);

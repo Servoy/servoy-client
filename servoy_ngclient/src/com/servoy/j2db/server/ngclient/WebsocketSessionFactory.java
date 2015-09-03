@@ -37,8 +37,6 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 	 */
 	public IWebsocketSession createSession(String uuid) throws Exception
 	{
-		NGClientWebsocketSession wsSession = new NGClientWebsocketSession(uuid);
-		wsSession.setClient(new NGClient(wsSession));
-		return wsSession;
+		return new NGClientWebsocketSession(uuid);
 	}
 }

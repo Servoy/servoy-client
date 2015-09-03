@@ -91,6 +91,12 @@ public class TestNGClient extends NGClient
 		super(new NGClientWebsocketSession("1")
 		{
 			@Override
+			public void init() throws Exception
+			{
+				//override default init, shouldnt make another client.
+			}
+
+			@Override
 			protected IEventDispatcher createEventDispatcher()
 			{
 				return new IEventDispatcher()

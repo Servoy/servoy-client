@@ -903,16 +903,23 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		catch (final ApplicationException e)
 		{
 			((NGClientWebsocketSession)wsSession).setClient(this);
-			if (e.getErrorCode() == ServoyException.NO_LICENSE)
+			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), new Runnable()
 			{
-				getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setNoLicense",
-					new Object[] { getLicenseAndMaintenanceDetail() });
-			}
-			else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
-			{
-				getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setMaintenanceMode",
-					new Object[] { getLicenseAndMaintenanceDetail() });
-			}
+				@Override
+				public void run()
+				{
+					if (e.getErrorCode() == ServoyException.NO_LICENSE)
+					{
+						getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setNoLicense",
+							new Object[] { getLicenseAndMaintenanceDetail() });
+					}
+					else if (e.getErrorCode() == ServoyException.MAINTENANCE_MODE)
+					{
+						getWebsocketSession().getClientService("$sessionService").executeAsyncServiceCall("setMaintenanceMode",
+							new Object[] { getLicenseAndMaintenanceDetail() });
+					}
+				}
+			});
 			throw e;
 		}
 		return registered;
