@@ -116,14 +116,14 @@ import com.servoy.j2db.util.Utils;
 /**
  * Class to create (special)sessions and is a container which can hold a reference to ApplicationServer (actually application server should have bin the
  * org.apache.wicket application but it requires to be a subclass from webapp)
- * 
+ *
  * @author jblok
  */
 public class WebClientsApplication extends WebApplication implements IWiQuerySettings, IThemableApplication
 {
 	/**
 	 * @author jcompagner
-	 * 
+	 *
 	 */
 	private final class ServoyCryptedUrlWebRequestCodingStrategy extends CryptedUrlWebRequestCodingStrategy
 	{
@@ -410,21 +410,21 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 									String[] values = (String[])value;
 									for (String value1 : values)
 									{
-										if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
-										queryParams.append(key).append("=").append(value1);//$NON-NLS-1$ 
+										if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$
+										queryParams.append(key).append("=").append(value1);//$NON-NLS-1$
 									}
 								}
 								else
 								{
-									if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
-									queryParams.append(key).append("=").append(value);//$NON-NLS-1$ 
+									if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$
+									queryParams.append(key).append("=").append(value);//$NON-NLS-1$
 								}
 							}
 						}
 					}
 					if (queryParams.length() > 0)
 					{
-						url.append("?").append(queryParams);//$NON-NLS-1$ 
+						url.append("?").append(queryParams);//$NON-NLS-1$
 					}
 				}
 			}
@@ -434,7 +434,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 			protected void appendPathParameter(AppendingStringBuffer url, String key, String value)
 			{
 				String escapedValue = value;
-				String[] values = escapedValue.split("/");//$NON-NLS-1$ 
+				String[] values = escapedValue.split("/");//$NON-NLS-1$
 				if (values.length > 1)
 				{
 					StringBuilder sb = new StringBuilder(escapedValue.length());
@@ -453,11 +453,11 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 
 				if (!Strings.isEmpty(escapedValue))
 				{
-					if (!url.endsWith("/"))//$NON-NLS-1$ 
+					if (!url.endsWith("/"))//$NON-NLS-1$
 					{
-						url.append("/");//$NON-NLS-1$ 
+						url.append("/");//$NON-NLS-1$
 					}
-					if (key != null) url.append(urlEncodePathComponent(key)).append("/");//$NON-NLS-1$ 
+					if (key != null) url.append(urlEncodePathComponent(key)).append("/");//$NON-NLS-1$
 					url.append(escapedValue);
 				}
 			}
@@ -526,7 +526,16 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 				}
 				else
 				{
-					if (!component.isEnabled()) return;
+					if (!component.isEnabled())
+					{
+						boolean hasOnRender = (component instanceof IFieldComponent &&
+							((IFieldComponent)component).getScriptObject() instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)((IFieldComponent)component).getScriptObject()).getRenderEventExecutor().hasRenderCallback());
+						if (!hasOnRender)
+						{
+							// onrender may change the enable state
+							return;
+						}
+					}
 					Component targetComponent = null;
 					boolean hasFocus = false, hasBlur = false;
 					if (component instanceof IFieldComponent && ((IFieldComponent)component).getEventExecutor() != null)
