@@ -552,6 +552,13 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		super.destroy();
 		if (visible) hideUI();
+
+		IWebFormController controller = getApplication().getFormManager().getForm(formName);
+		if (controller != null && controller.getFormUI().getParentWindowName() == getName())
+		{
+			controller.getFormUI().setParentWindowName(null);
+		}
+
 		getApplication().getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroy",
 			new Object[] { getName() });
 	}
