@@ -71,6 +71,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	private static final long serialVersionUID = 1L;
 
 	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+
 	static
 	{
 		try
@@ -1204,7 +1205,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
-	 * dataset.getValue(2, 1,'data');
+	 * dataset.setValue(2, 1,'data');
 	 *
 	 * @param row row number, 1-based
 	 *
@@ -1353,8 +1354,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 								}
 							}
 						}
-						Object compareResult = scriptEngine.executeFunction(comparator, rowComparatorScope, rowComparatorScope,
-							new Object[] { param1, param2 }, false, true);
+						Object compareResult = scriptEngine.executeFunction(comparator, rowComparatorScope, rowComparatorScope, new Object[] { param1, param2 },
+							false, true);
 						return Utils.getAsInteger(compareResult, true);
 					}
 					catch (Exception ex)
