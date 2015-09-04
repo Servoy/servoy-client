@@ -865,7 +865,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				if (showToolBar != null && showToolBar.equals("false")) toolbarsPanel.setVisible(false);
 				else toolbarsPanel.setVisible(true);
 			}
-			if (getMainApplicationFrame().isVisible())
+
+			if (getPreferedSolutionNameToLoadOnInit() == null && getMainApplicationFrame().isVisible())
 			{
 				invokeLater(new Runnable()
 				{

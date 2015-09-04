@@ -1366,28 +1366,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param methodName Name of the global method to call
 	 * @param methodArgument Argument passed to the global method
 	 */
-	public void js_closeSolution(String solutionToLoad, String methodName, Object methodArgument)
+	public void js_closeSolution(final String solutionToLoad, final String methodName, final Object methodArgument)
 	{
-		final List<Object> arguments = new ArrayList<Object>();
-		if (solutionToLoad != null)
-		{
-			arguments.add(solutionToLoad);
-		}
-		if (methodName != null)
-		{
-			arguments.add(methodName);
-		}
-		if (methodArgument != null)
-		{
-			arguments.add(methodArgument);
-		}
 		application.invokeAndWait(new Runnable()
 		{
-
 			public void run()
 			{
-
-				application.closeSolution(false, arguments.size() > 0 ? arguments.toArray() : null);
+				application.closeSolution(false, solutionToLoad != null || methodName != null || methodArgument != null
+					? new Object[] { solutionToLoad, methodName, methodArgument } : null);
 			}
 		});
 		//application.closeSolution(false, solution_to_open_args);
