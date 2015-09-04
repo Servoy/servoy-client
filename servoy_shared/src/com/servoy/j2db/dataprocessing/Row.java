@@ -345,14 +345,15 @@ public class Row
 		}
 		if (!Utils.equalObjects(o, convertedValue))
 		{
-			boolean mustStop = !parent.getFoundsetManager().getEditRecordList().isEditing();
-			if (src != null && existInDB && !wasUNINITIALIZED) //if not yet existInDB, leave startEdit to Foundset new/duplicateRecord code!
-			{
-				src.startEditing(false);
-			}
-
+			boolean mustStop = false;
 			if (columnIndex != -1 && columnIndex < columndata.length)
 			{
+				mustStop = !parent.getFoundsetManager().getEditRecordList().isEditing();
+				if (src != null && existInDB && !wasUNINITIALIZED) //if not yet existInDB, leave startEdit to Foundset new/duplicateRecord code!
+				{
+					src.startEditing(false);
+				}
+
 				createOldValuesIfNeeded();
 				columndata[columnIndex] = convertedValue;
 			}
