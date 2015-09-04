@@ -53,7 +53,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A model that holds 1 {@link IRecord}.
- * 
+ *
  * @author jcompagner
  */
 public abstract class RecordItemModel extends LoadableDetachableModel implements IComponentInheritedModel
@@ -230,7 +230,12 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 
 	public void updateRenderedValue(Component comp)
 	{
-		lastRenderedValues.put(comp, comp.getDefaultModelObject());
+		Object convertedObj = comp.getDefaultModelObject();
+		if (comp instanceof IResolveObject)
+		{
+			convertedObj = ((IResolveObject)comp).resolveRealValue(convertedObj);
+		}
+		lastRenderedValues.put(comp, convertedObj);
 	}
 
 	public Object getLastRenderedValue(Component comp)
@@ -326,7 +331,7 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 				}
 			}
 			// this can be called on another dataprovider id then the component (media upload)
-			// then dont call notify 
+			// then dont call notify
 			if (ownComponentsValue)
 			{
 				((IDisplayData)component).notifyLastNewValueWasChange(prevValue, obj);
@@ -354,7 +359,7 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 	/**
 	 * Gets the value for dataProviderID in the context of this record and the form determined using given component. The component is only used for getting the
 	 * form, otherwise it does not affect the returned value.
-	 * 
+	 *
 	 * @param component the component used to determine the form (in case of global or form variables).
 	 * @param dataProviderID the data provider id pointing to a data provider in the record, a form or a global variable.
 	 * @return the value.
