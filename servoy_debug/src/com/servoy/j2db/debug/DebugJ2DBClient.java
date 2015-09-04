@@ -121,7 +121,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 {
@@ -582,7 +582,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void show(final Form form)
 	{
@@ -869,7 +869,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				if (showToolBar != null && showToolBar.equals("false")) toolbarsPanel.setVisible(false); //$NON-NLS-1$
 				else toolbarsPanel.setVisible(true);
 			}
-			if (getMainApplicationFrame().isVisible())
+
+			if (getPreferedSolutionNameToLoadOnInit() == null && getMainApplicationFrame().isVisible())
 			{
 				invokeLater(new Runnable()
 				{
@@ -1107,7 +1108,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 					{
 						detail = e;
 					}
-					msg += "\n > " + detail.toString(); // complete stack? 
+					msg += "\n > " + detail.toString(); // complete stack?
 					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
 					{
 						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
