@@ -1201,7 +1201,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
-	 * dataset.getValue(2, 1,'data');
+	 * dataset.setValue(2, 1,'data');
 	 *
 	 * @param row row number, 1-based
 	 *
