@@ -982,7 +982,7 @@ public class TemplateGenerator
 							{
 								cssClass += " " + COMBOBOX_CLASS;
 							}
-							columns.append("<div class='" + cssClass + "'>");
+							columns.append("<div class='" + cssClass + "' style='position:relative'>");
 							TextualStyle classBasedStyle = createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, false, sp);
 							if (element instanceof Field)
 							{
@@ -1800,7 +1800,6 @@ public class TemplateGenerator
 		styleObj = css.addStyle(".tableviewcell");
 		styleObj.setProperty("width", "100%");
 		styleObj.setProperty("height", "100%");
-		styleObj.setProperty("position", "relative");
 
 		//accordion link margin for image custom
 		styleObj = css.addStyle(".accordionlinkmargin");
