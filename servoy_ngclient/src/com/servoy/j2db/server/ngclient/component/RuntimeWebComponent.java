@@ -385,7 +385,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					}
 					if (visibleTab != null)
 					{
-						String relationName = (String)visibleTab.get("relationName");
+						String relationName = visibleTab.get("relationName") != null ? visibleTab.get("relationName").toString() : null;
 						Object form = visibleTab.get("containsFormId");
 						if (form != null)
 						{
