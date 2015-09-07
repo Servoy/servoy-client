@@ -20,15 +20,17 @@ import java.awt.Dimension;
 
 import org.apache.wicket.markup.html.DynamicWebResource;
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.util.string.StringValueConversionException;
 import org.apache.wicket.util.time.Time;
 
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.MimeTypes;
 
 /**
  * A {@link DynamicWebResource} that will or can resize itself based on the {@link Dimension} it gets.
- * 
+ *
  * @author jcompagner
  */
 public final class MediaResource extends DynamicWebResource
@@ -126,6 +128,23 @@ public final class MediaResource extends DynamicWebResource
 	@Override
 	public ResourceState getResourceState()
 	{
+		int mediaOptions = 0;
+		int width = 0;
+		int height = 0;
+		try
+		{
+			mediaOptions = getParameters().getInt("option", 0); //$NON-NLS-1$
+			width = getParameters().getInt("w", 0); //$NON-NLS-1$
+			height = getParameters().getInt("h", 0); //$NON-NLS-1$
+		}
+		catch (StringValueConversionException ex)
+		{
+			Debug.error(ex);
+		}
+		if (mediaOptions != 0 && mediaOptions != 1 && width != 0 && height != 0)
+		{
+			checkResize(new Dimension(width, height));
+		}
 		return new MediaResourceState(lastModifiedTime);
 	}
 
