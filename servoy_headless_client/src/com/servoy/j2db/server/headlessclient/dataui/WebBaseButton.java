@@ -93,9 +93,9 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Base class for buttons in the webbrowser.
- * 
+ *
  * @author jcompagner
- * 
+ *
  */
 public abstract class WebBaseButton extends Button implements IButton, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
 	ILinkListener, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider,
@@ -174,7 +174,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public String getAjaxIndicatorMarkupId()
 	{
-		return WebClientSession.get().hideLoadingIndicator() ? null : "indicator"; //$NON-NLS-1$ 
+		return WebClientSession.get().hideLoadingIndicator() ? null : "indicator"; //$NON-NLS-1$
 	}
 
 
@@ -400,7 +400,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if ((rolloverMedia = application.getFlattenedSolution().getMedia(rollOverId)) != null)
 		{
 			addRolloverBehaviors();
-			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$ 
+			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$
 		}
 	}
 
@@ -991,6 +991,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				}
 				else isRandomParamRemoved = Boolean.TRUE;
 				imgURL = Strings.replaceAll(imageDisplayComponent.getResponse().encodeURL(url), "&", "&amp;").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+				if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
+				{
+					imgURL = imgURL + "&option=" + imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getWebBounds().width + "&h=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						imageDisplay.getWebBounds().height;
+				}
 			}
 			else if (imageDisplay.getIconReference() != null && imageDisplay.getMedia() != null)
 			{
@@ -998,7 +1003,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
 				{
 					imgURL = imageDisplayComponent.urlFor(imageDisplay.getIconReference()) +
-						"?id=" + imageDisplay.getMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+						"?id=" + imageDisplay.getMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getWebBounds().width + "&h=" + imageDisplay.getWebBounds().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						(imageDisplay.getMedia().getMediaData() != null ? +imageDisplay.getMedia().getMediaData().hashCode() : 0);
 				}
@@ -1053,7 +1058,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 						if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
 						{
 							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
-								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								imageDisplay.getMediaOptions() +
 								"&w=" + imageDisplay.getWebBounds().width + "&h=" + imageDisplay.getWebBounds().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
@@ -1061,7 +1066,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 						else
 						{
 							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
-								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
 						}
 					}
@@ -1270,7 +1275,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		instrumentedBodyText.append(">"); //$NON-NLS-1$
 
-		//in ie<8 the filter:alpha(opacity=50) applied on the <button> element is not applied to the <img> element 
+		//in ie<8 the filter:alpha(opacity=50) applied on the <button> element is not applied to the <img> element
 		String IE8filterFIx = "";
 		if (!isEnabled)
 		{
