@@ -58,14 +58,17 @@ public class Activator implements BundleActivator
 						@Override
 						public void init() throws Exception
 						{
-							final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
-							if (service != null)
+							if (getClient() == null)
 							{
-								setClient((NGClient)service.createDebugNGClient(this));
-							}
-							else
-							{
-								setClient(new NGClient(this));
+								final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
+								if (service != null)
+								{
+									setClient((NGClient)service.createDebugNGClient(this));
+								}
+								else
+								{
+									setClient(new NGClient(this));
+								}
 							}
 						}
 					};

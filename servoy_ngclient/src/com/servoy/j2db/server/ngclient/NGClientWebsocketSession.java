@@ -68,7 +68,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void init() throws Exception
 	{
-		setClient(new NGClient(this));
+		if (client == null)
+		{
+			setClient(new NGClient(this));
+		}
 	}
 
 	public void setClient(NGClient client)
