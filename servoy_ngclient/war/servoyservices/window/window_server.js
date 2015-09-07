@@ -286,7 +286,7 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 	$scope.model.popupform.height = height;
 }
 
-$scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments)
+$scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments,consumeEvent)
 {
 	if (contextFilter == undefined)
 	{
@@ -296,9 +296,13 @@ $scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments)
 	{
 		arguments = null;
 	}
+	if (consumeEvent == undefined) 
+	{
+		consumeEvent = false;
+	}
 	if (!$scope.model.shortcuts) $scope.model.shortcuts = [];
 	$scope.api.removeShortcut(shortcut,contextFilter)
-	$scope.model.shortcuts.push({'shortcut': shortcut,'callback':callback,'contextFilter':contextFilter,'arguments':arguments});
+	$scope.model.shortcuts.push({'shortcut': shortcut,'callback':callback,'contextFilter':contextFilter,'arguments':arguments,'consumeEvent':consumeEvent});
 	return true;
 }
 

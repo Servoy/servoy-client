@@ -36,7 +36,7 @@ angular.module('window',['servoy'])
 			}
 			return translatedShortcut;
 		},
-		getCallbackFunction: function(shortcutcombination)
+		getCallbackFunction: function(shortcutcombination, consumeEvent)
 		{
 			return function(e){
 				
@@ -44,6 +44,7 @@ angular.module('window',['servoy'])
 				if(e.target) targetEl=e.target;
 				else if(e.srcElement) targetEl=e.srcElement;
 				var pushedChanges = false;
+				var retValue = true;
 				for (var j = 0;j< scope.model.shortcuts.length;j++)
 				{
 					if (scope.model.shortcuts[j].shortcut == shortcutcombination )
@@ -95,8 +96,10 @@ angular.module('window',['servoy'])
 						$timeout(function() {
 							$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
 						},10);
+						if (retValue && consumeEvent) retValue = false;
 					}	
-				}	
+				}
+				return retValue;
 			};
 		},
 		
@@ -262,7 +265,7 @@ angular.module('window',['servoy'])
 				var translatedShortcut = window.translateSwingShortcut(newvalue.shortcuts[i].shortcut);
 				if (!shortcut.all_shortcuts[translatedShortcut])
 				{
-					shortcut.add(translatedShortcut,window.getCallbackFunction(newvalue.shortcuts[i].shortcut),{'propagate':false,'disable_in_input':false});
+					shortcut.add(translatedShortcut,window.getCallbackFunction(newvalue.shortcuts[i].shortcut, newvalue.shortcuts[i].consumeEvent),{'propagate':true,'disable_in_input':false});
 				}	
 			}
 		}

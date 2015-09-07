@@ -34,6 +34,11 @@
 						            "name":"arguments",
 						            "type":"object []",
 						            "optional":"true"
+					            },
+					            {
+						            "name":"consumeEvent",
+						            "type":"boolean",
+						            "optional":"true"
 					            }
 	            			 ]
 	        },
