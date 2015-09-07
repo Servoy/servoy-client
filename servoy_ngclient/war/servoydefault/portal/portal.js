@@ -932,7 +932,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								$scope.foundset.loadRecordsAsync(0, requestViewPortSize);
 							}
 							else if ($scope.foundset.viewPort.size < (numberOfRows+$scope.pageSize)) {
-								// only add extra records
+								// only add extra needed records; note: this is not for scrolling; just for ensuring initial content + a small scroll window;
+								// requesting new data when scrolling is done in another place
 								var extraRecords = Math.min($scope.foundset.serverSize- $scope.foundset.viewPort.size, (numberOfRows + $scope.pageSize) - $scope.foundset.viewPort.size);
 								requestViewPortSize = $scope.foundset.viewPort.size + extraRecords;
 								$scope.foundset.loadExtraRecordsAsync(extraRecords);
