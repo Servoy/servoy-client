@@ -195,9 +195,9 @@ shortcut = {
 						modifiers.shift.pressed == modifiers.shift.wanted &&
 						modifiers.alt.pressed == modifiers.alt.wanted &&
 						modifiers.meta.pressed == modifiers.meta.wanted) {
-				callback(e);
+				var retVal = callback(e);
 	
-				if(!opt['propagate']) { //Stop the event
+				if(!opt['propagate'] || !retVal) { //Stop the event
 					//e.cancelBubble is supported by IE - this will kill the bubbling process.
 					e.cancelBubble = true;
 					e.returnValue = false;
