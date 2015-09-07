@@ -26,6 +26,8 @@ import java.util.Set;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
@@ -64,6 +66,31 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	{
 		super(wsSession);
 		this.designerCallback = designerCallback;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
+	 */
+	@Override
+	public synchronized void shutDown(boolean force)
+	{
+		// shutdown can be called for an older client when opening a new debug client.
+		// then nothing should be done for the current window which is already for the new client instance
+		IWindow currentWindow = null;
+		if (CurrentWindow.exists() && !CurrentWindow.get().getSession().getUuid().equals(getWebsocketSession().getUuid()))
+		{
+			currentWindow = CurrentWindow.set(null);
+		}
+		try
+		{
+			super.shutDown(force);
+		}
+		finally
+		{
+			CurrentWindow.set(currentWindow);
+		}
 	}
 
 	@Override
