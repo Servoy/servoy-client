@@ -112,6 +112,15 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = "ngClientOptimizedReadonlyMode"; //$NON-NLS-1$
 
 	/**
+	 * A number that defines the factor of what the next page size should be is in the tableview/listview/portal,
+	 * this value is used to get the initial size (numerOfVisibleRows * thisPageSize).
+	 * So a value of 2 (default) will load in 20 records if the number of visible rows is 10.
+	 * Then if you scroll down the new set of records will be: (numberOfVisibleRows * thisPageSize) - numerOfVisibleRows
+	 * so that will load for the default value 2, 1 page which is the number of visible rows (10 in this example).
+	 */
+	public static final String TABLEVIEW_NG_PAGE_SIZE_FACTOR = "ngClientPageSizeFactor"; //$NON-NLS-1$
+
+	/**
 	 * When Boolean.TRUE, component will accept javascript links in the input
 	 */
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = "allowJavascriptLinkInput"; //$NON-NLS-1$

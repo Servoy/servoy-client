@@ -226,6 +226,26 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	/**
 	 * Property that can be set using application.putClientProperty().
 	 *
+	 * A number that defines the factor of what the next page size should be is in the tableview/listview/portal,
+	 * this value is used to get the initial size (numerOfVisibleRows * thisPageSize).
+	 * So a value of 2 (default) will load in 20 records if the number of visible rows is 10.
+	 * Then if you scroll down the new set of records will be: (numberOfVisibleRows * thisPageSize) - numerOfVisibleRows
+	 * so that will load for the default value 2, 1 page which is the number of visible rows (10 in this example).
+	 *
+	 * The value can any number but it should be bigger then 1.
+	 *
+	 * WARNING the bigger the number, the more data is pushed initially to the client (and more is pushed in every new page)
+	 *
+	 * DEFAULT: 2
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_NG_PAGE_SIZE_FACTOR, 3)
+	 */
+	public static final String TABLEVIEW_NG_PAGE_SIZE_FACTOR = IApplication.TABLEVIEW_NG_PAGE_SIZE_FACTOR;
+
+	/**
+	 * Property that can be set using application.putClientProperty().
+	 *
 	 * If set to true, you can change selection in webclient tableview using up/down keys
 	 * If set to false, you cannot change selection via keyboard arrows
 	 *

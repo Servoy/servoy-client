@@ -30,6 +30,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			if (locale.language) {
 				i18nService.setCurrentLang(locale.language)
 			}
+			var pageSizeFactor = $applicationService.getUIProperty("ngClientPageSizeFactor");
+			if (!pageSizeFactor || pageSizeFactor <= 1) pageSizeFactor = 2;
 			$scope.pageSize = 25;
 			$scope.transferFocus = function() {
 				// hack to set the lastRowCol to null
@@ -915,11 +917,12 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					if ($scope.foundset && $scope.foundset.setPreferredViewportSize)
 					{
 						var numberOfRows = Math.ceil($scope.gridApi.grid.gridHeight / $scope.gridOptions.rowHeight);
-						if (preferredViewportSize != numberOfRows*2) {
-							// make the viewport always 2 times the size then the number of rows.
-							$scope.pageSize = Math.max(numberOfRows, 25);
+						var totalPreferedViewportSize = numberOfRows*pageSizeFactor; 
+						if (preferredViewportSize != totalPreferedViewportSize) {
+							// make the viewport always X (pageSizeFactor) times the size then the number of rows.
+							preferredViewportSize = totalPreferedViewportSize;
+							$scope.pageSize = Math.max(totalPreferedViewportSize-numberOfRows, 25);
 							$scope.gridOptions.infiniteScrollRowsFromEnd = $scope.pageSize;
-							preferredViewportSize = numberOfRows*2;
 							$scope.foundset.setPreferredViewportSize(preferredViewportSize)
 						}
 						if (requestViewPortSize == -1 && $scope.foundset.serverSize > $scope.foundset.viewPort.size) {
