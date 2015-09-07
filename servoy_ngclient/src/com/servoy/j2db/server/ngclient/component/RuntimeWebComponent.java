@@ -351,7 +351,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					for (int i = 0; i < tabsList.size(); i++)
 					{
 						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
-						String relationName = (String)tab.get("relationName");
+						String relationName = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
 						Object form = tab.get("containsFormId");
 						if (form != null)
 						{

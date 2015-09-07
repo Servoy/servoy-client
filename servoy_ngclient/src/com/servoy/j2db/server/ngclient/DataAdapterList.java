@@ -848,7 +848,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					for (int i = 0; i < tabsList.size(); i++)
 					{
 						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
-						String relation = (String)tab.get("relationName");
+						String relation = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
 						Object form = tab.get("containsFormId");
 						if (Utils.equalObjects(form, relatedController.getName()) && Utils.equalObjects(relation, relationName))
 						{
