@@ -20,14 +20,17 @@ package com.servoy.j2db.util;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,6 +39,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
@@ -48,7 +52,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 
 /**
  * Helper class to the repository model persist side
- * 
+ *
  * @author jblok
  */
 public class PersistHelper
@@ -445,6 +449,34 @@ public class PersistHelper
 		return font;
 	}
 
+	/**
+	 * Adds fonts to the internal cache, so when processing fonts Servoy can resolve it. Must be called as soon as possible, ideally in the onSolutionOpen callback<br>
+	 * <br>
+	 * For the Smart Client adding the fotn through this function is enough to use the font in StyleSheets. For the Web Client, the font needs to be added to the HTML markup by the developer.<br>
+	 * <br>
+	 * The custom fonts added to the system through this method can only be used in StyleSheets, not directly on elements using the fontStyle property<br>
+	 * <br>
+	 * The Form Editor in Servoy Developer might not display the correct font until a debug client is launched and the font is added to the system.
+	 * A workaround can be making the font available to the OS on the development machine<br>
+	 * <br>
+	 * Supports multiple fontfiles per font, see http://stackoverflow.com/questions/24800886/how-to-import-a-custom-java-awt-font-from-a-font-family-with-multiple-ttf-files<br>
+	 * <br>
+	 *
+	 * @param url Supports both media library and external urls
+	 *
+	 * @throws FontFormatException
+	 * @throws IOException
+	 */
+	public static void addFont(String url) throws FontFormatException, IOException
+	{
+		initFonts();
+		URL fontUrl = url.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF) ? new URL(null, url, new MediaURLStreamHandler()) : new URL(url);
+		Font font = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream());
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		ge.registerFont(font);
+		allFonts.put(Utils.stringReplace(font.getName(), " ", "").toLowerCase(), font); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	private static Font createFontImpl(String name, int style, int size)
 	{
 		if (name == null) return null;
@@ -774,7 +806,7 @@ public class PersistHelper
 			if (tk.hasMoreTokens()) family = tk.nextToken();
 			family = HtmlUtils.getValidFontFamilyValue(family);
 
-			Pair<String, String> fam = new Pair<String, String>("font-family", family + ", Verdana, Arial"); //$NON-NLS-1$ //$NON-NLS-2$ 
+			Pair<String, String> fam = new Pair<String, String>("font-family", family + ", Verdana, Arial"); //$NON-NLS-1$ //$NON-NLS-2$
 			Pair<String, String> size = new Pair<String, String>("font-size", isize + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 			Pair<String, String> italic = null;
 			Pair<String, String> bold = null;
@@ -797,7 +829,7 @@ public class PersistHelper
 
 	/**
 	 * Get highest super persist.
-	 * 
+	 *
 	 * @param persist
 	 * @return
 	 */
