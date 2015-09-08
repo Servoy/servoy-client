@@ -99,13 +99,13 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 							tooltipState = $svyProperties.createTooltipState(element, value);
 						break;
 					case "enabled":
-						if (value)
+						if (value && $scope.model.editable)
 							inputElement.removeAttr("disabled");
 						else
 							inputElement.attr("disabled", "disabled");
 						break;
 					case "editable":
-						if (value)
+						if (value  && $scope.model.enabled)
 							inputElement.removeAttr("disabled");
 						else
 							inputElement.attr("disabled", "disabled");
