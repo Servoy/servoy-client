@@ -1,4 +1,4 @@
-angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck', function($apifunctions, $svyProperties, $formatterUtils, $sabloConstants) {
+angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck', function($apifunctions, $svyProperties, $formatterUtils, $sabloConstants,$timeout) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -16,7 +16,7 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 				$scope.selection = getSelectionFromDataprovider();
 			})
 
-			$scope.checkBoxClicked = function() {
+			$scope.checkBoxClicked = function(event) {
 				if ($scope.model.valuelistID && $scope.model.valuelistID[0]) {
 					$scope.model.dataProviderID = $scope.model.dataProviderID == $scope.model.valuelistID[0].realValue ? null : $scope.model.valuelistID[0].realValue;
 				} else if (angular.isString($scope.model.dataProviderID)) {
@@ -24,7 +24,13 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 				} else {
 					$scope.model.dataProviderID = $scope.model.dataProviderID > 0 ? 0 : 1;
 				}
-				$scope.svyServoyapi.apply('dataProviderID')
+				$timeout(function(){
+					$scope.svyServoyapi.apply('dataProviderID')
+					if ($scope.handlers.onActionMethodID)
+					{
+						$scope.handlers.onActionMethodID(event)
+					}
+				},0)
 			}
 
 			/**

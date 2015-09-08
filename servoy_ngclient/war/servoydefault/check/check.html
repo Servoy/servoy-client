@@ -3,8 +3,7 @@
 	<input type="checkbox"
 		    ng-model ="selection"
 			sablo-tabseq='model.tabSeq'
-			ng-click="checkBoxClicked()"
-			svy-click='handlers.onActionMethodID($event)'
+			ng-click="checkBoxClicked($event)"
             svy-focusgained='handlers.onFocusGainedMethodID($event)'
 	   	    svy-focuslost='handlers.onFocusLostMethodID($event)'
 			id="{{::model.svyMarkupId}}"
