@@ -305,7 +305,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
 					}
 					relatedFoundset = newRelatedFoundset;
-					((ISwingFoundSet)relatedFoundset).getSelectionModel().addListSelectionListener(relatedFoundsetSelectionListener);
+					if (relatedFoundset != null)
+					{
+						((ISwingFoundSet)relatedFoundset).getSelectionModel().addListSelectionListener(relatedFoundsetSelectionListener);
+					}
 				}
 			}
 			catch (Exception ex)
