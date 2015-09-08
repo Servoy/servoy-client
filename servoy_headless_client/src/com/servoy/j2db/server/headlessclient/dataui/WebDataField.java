@@ -97,8 +97,8 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.text.FixedMaskFormatter;
 
 /**
- * Represents a text (single line) field in the webbrowser. 
- * 
+ * Represents a text (single line) field in the webbrowser.
+ *
  * @author jcompagner
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
@@ -499,6 +499,10 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					if (!Utils.equalObjects(displayValue, editValue))
 					{
 						callback.differentEditAndDisplay(displayValue, editValue);
+					}
+					else if (value == null)
+					{
+						callback.differentEditAndDisplay("", "");
 					}
 				}
 				catch (Exception e)
@@ -1417,7 +1421,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
 	}
 
 	@Override
