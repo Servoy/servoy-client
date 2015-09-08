@@ -125,7 +125,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 //			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();//save the selection
-				this.rowBeforeSelectionListeners = -1;//make sure we start fresh
+				this.rowBeforeSelectionListeners = Integer.MIN_VALUE;//make sure we start fresh
 				if (selectedRow >= index0 && selectedRow <= index1 && foundset.getSize() > 0)
 				{
 					// selected record was removed, set selection after the removed block or before (if at the end)
@@ -148,7 +148,8 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 						int rowAfterSelectionListeners = getSelectedRow();//get the selected row after the new row is selected
 						//adjust the selection if super.removeIndexInterval() did not set it correctly but only if the listeners (onRecordSelect) didn't already adjust it
 						if (selection != rowAfterSelectionListeners &&
-							(rowBeforeSelectionListeners != -1 && rowAfterSelectionListeners == rowBeforeSelectionListeners) && selection < foundset.getSize())
+							(rowBeforeSelectionListeners != Integer.MIN_VALUE && rowAfterSelectionListeners == rowBeforeSelectionListeners) &&
+							selection < foundset.getSize())
 						{
 							// i have to call the setSelectionInterval else our methods will test if the record is there
 							super.setSelectionInterval(selection, selection);
