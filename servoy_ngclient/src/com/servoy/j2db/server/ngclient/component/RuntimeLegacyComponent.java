@@ -67,6 +67,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	private Map<Object, Object> clientProperties;
 	private final WebComponentSpecification webComponentSpec;
 	private Scriptable parentScope;
+
 	static
 	{
 		ScriptNameToSpecName = new HashMap<String, String>();
@@ -173,24 +174,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 
 		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
 		{
-			String newName = name.substring(name.startsWith("is") ? 2 : 3);
-			// Make the bean property name.
-			char ch0 = newName.charAt(0);
-			if (Character.isUpperCase(ch0))
-			{
-				if (newName.length() == 1)
-				{
-					newName = newName.toLowerCase();
-				}
-				else
-				{
-					char ch1 = newName.charAt(1);
-					if (!Character.isUpperCase(ch1))
-					{
-						newName = Character.toLowerCase(ch0) + newName.substring(1);
-					}
-				}
-			}
+			String newName = generatePropertyName(name);
 			if (name.startsWith("set"))
 			{
 				putCallable.setProperty(newName);
@@ -225,6 +209,33 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		return value;
 	}
 
+	/**
+	 * @param name
+	 * @return
+	 */
+	protected String generatePropertyName(String name)
+	{
+		String newName = name.substring(name.startsWith("is") ? 2 : 3);
+		// Make the bean property name.
+		char ch0 = newName.charAt(0);
+		if (Character.isUpperCase(ch0))
+		{
+			if (newName.length() == 1)
+			{
+				newName = newName.toLowerCase();
+			}
+			else
+			{
+				char ch1 = newName.charAt(1);
+				if (!Character.isUpperCase(ch1))
+				{
+					newName = Character.toLowerCase(ch0) + newName.substring(1);
+				}
+			}
+		}
+		return newName;
+	}
+
 	@Override
 	public Object get(int index, Scriptable start)
 	{
@@ -234,6 +245,13 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
+		if (webComponentSpec.getApiFunction(name) != null) return true;
+		if (webComponentSpec.getProperty(name) != null) return true;
+		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
+		{
+			String newName = generatePropertyName(name);
+			if (webComponentSpec.getProperty(newName) != null) return true;
+		}
 		return false;
 	}
 
