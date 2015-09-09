@@ -245,6 +245,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
+		if (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name)) return false;
+		if (name.equals("readOnly") || name.equals("putClientProperty") || ScriptNameToSpecName.containsKey(name) || name.equals("getLabelForElementNames") ||
+			name.equals("getLabelForElementName") || name.equals("getElementType") || name.equals("getName") || name.equals("getValueListName") ||
+			name.equals("getDesignTimeProperty")) return true;
 		if (webComponentSpec.getApiFunction(name) != null) return true;
 		if (webComponentSpec.getProperty(name) != null) return true;
 		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
