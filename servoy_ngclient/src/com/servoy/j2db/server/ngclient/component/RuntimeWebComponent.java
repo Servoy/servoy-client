@@ -122,8 +122,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (fe.isLegacy() && fe.getPersistIfAvailable() instanceof ISupportAnchors)
 		{
 			int anchor = Utils.getAsInteger(component.getProperty(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName()));//((ISupportAnchors)fe.getPersistIfAvailable()).getAnchors();
-			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST) || (fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
-				(("getLocationX").equals(functionName) || ("getLocationY").equals(functionName) || ("getWidth").equals(functionName) || ("getHeight").equals(functionName)))
+			if ((anchor == 0 || anchor == (IAnchorConstants.NORTH + IAnchorConstants.WEST) ||
+				(fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW)) &&
+				(("getLocationX").equals(functionName) || ("getLocationY").equals(functionName) || ("getWidth").equals(functionName) ||
+					("getHeight").equals(functionName)))
 			{
 				return false;
 			}
@@ -400,7 +402,8 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 
 	private void updateVisibleContainers(List<Pair<String, String>> oldForms)
 	{
-		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedVisibleForms(oldForms, getVisibleForms());
+		((DataAdapterList)component.getDataConverterContext().getForm().getFormUI().getDataAdapterList()).updateRelatedVisibleForms(oldForms,
+			getVisibleForms());
 	}
 
 	@Override
@@ -452,6 +455,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		for (String name : specProperties)
 		{
 			PropertyDescription pd = webComponentSpec.getProperty(name);
+			if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) continue;
 			IPropertyType< ? > type = pd.getType();
 			if (!(type instanceof ISabloComponentToRhino< ? >) ||
 				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component))

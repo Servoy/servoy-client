@@ -21,8 +21,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
@@ -63,7 +65,8 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	private final WebFormComponent component;
 	private final PutPropertyCallable putCallable;
 	private final GetPropertyCallable getCallable;
-	private static Map<String, String> ScriptNameToSpecName;
+	private final static Map<String, String> ScriptNameToSpecName;
+	private final static Set<String> LegacyApiNames;
 	private Map<Object, Object> clientProperties;
 	private final WebComponentSpecification webComponentSpec;
 	private Scriptable parentScope;
@@ -84,6 +87,19 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		ScriptNameToSpecName.put("valueListItems", StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName());
 		ScriptNameToSpecName.put("valueListName", StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName());
 
+		LegacyApiNames = new HashSet<>();
+		LegacyApiNames.add("putClientProperty");
+		LegacyApiNames.add("getLabelForElementNames");
+		LegacyApiNames.add("getLabelForElementName");
+		LegacyApiNames.add("getElementType");
+		LegacyApiNames.add("getName");
+		LegacyApiNames.add("getValueListName");
+		LegacyApiNames.add("getDesignTimeProperty");
+		LegacyApiNames.add("getLocationX");
+		LegacyApiNames.add("getLocationY");
+		LegacyApiNames.add("getWidth");
+		LegacyApiNames.add("getHeight");
+		LegacyApiNames.add("getDataProviderID");
 	}
 
 	public RuntimeLegacyComponent(WebFormComponent component)
@@ -246,9 +262,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	public boolean has(String name, Scriptable start)
 	{
 		if (component.isDesignOnlyProperty(name) || component.isPrivateProperty(name)) return false;
-		if (name.equals("readOnly") || name.equals("putClientProperty") || ScriptNameToSpecName.containsKey(name) || name.equals("getLabelForElementNames") ||
-			name.equals("getLabelForElementName") || name.equals("getElementType") || name.equals("getName") || name.equals("getValueListName") ||
-			name.equals("getDesignTimeProperty")) return true;
+		if (name.equals("readOnly") || LegacyApiNames.contains(name) || ScriptNameToSpecName.containsKey(name)) return true;
 		if (webComponentSpec.getApiFunction(name) != null) return true;
 		if (webComponentSpec.getProperty(name) != null) return true;
 		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
@@ -335,7 +349,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 	@Override
 	public Object[] getIds()
 	{
-		return new Object[0];
+		return LegacyApiNames.toArray();
 	}
 
 	@Override
