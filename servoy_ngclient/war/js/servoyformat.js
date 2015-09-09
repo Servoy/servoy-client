@@ -34,6 +34,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	// internal function
 	function formatNumbers(data , servoyFormat){
 		if(!servoyFormat ) return data
+		if (data === "") return data;
 		var partchedFrmt=  servoyFormat;   // patched format for numeraljs format
 		
 		//scientific notation case
