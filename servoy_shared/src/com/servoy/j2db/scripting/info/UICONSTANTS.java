@@ -232,7 +232,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * Then if you scroll down the new set of records will be: (numberOfVisibleRows * thisPageSize) - numerOfVisibleRows
 	 * so that will load for the default value 2, 1 page which is the number of visible rows (10 in this example).
 	 *
-	 * The value can any number but it should be bigger then 1.
+	 * The value can be any number but it should be bigger then 1.
 	 *
 	 * WARNING the bigger the number, the more data is pushed initially to the client (and more is pushed in every new page)
 	 *

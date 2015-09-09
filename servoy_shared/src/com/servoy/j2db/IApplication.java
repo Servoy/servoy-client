@@ -131,7 +131,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String HTML_EDITOR_CONFIGURATION = "config"; //$NON-NLS-1$
 
 	/**
-	 * Value that indicates maximum number of rows that will be queried in database or related valuelist. Default value is 500.
+	 * Value that indicates maximum number of rows that will be queried in database or related valuelist. Can be between 1 and 1000. Default value is 500.
 	 */
 	public static final String VALUELIST_MAX_ROWS = "maxValuelistRows";//$NON-NLS-1$
 
