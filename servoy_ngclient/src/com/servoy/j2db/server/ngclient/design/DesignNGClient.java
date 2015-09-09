@@ -28,6 +28,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
 import com.servoy.j2db.persistence.IRepository;
@@ -68,6 +69,7 @@ public class DesignNGClient extends NGClient
 		setUseLoginSolution(false);
 		setTimeZone(TimeZone.getDefault());
 		setLocale(Locale.getDefault());
+		this.putClientProperty(IApplication.VALUELIST_MAX_ROWS, 20);
 	}
 
 	@Override
