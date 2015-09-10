@@ -89,6 +89,7 @@ import org.apache.wicket.util.string.Strings;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
+import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.FormController;
@@ -135,6 +136,7 @@ import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScrollbars;
+import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
@@ -1772,7 +1774,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					IPersist element = components.next();
 					if (element instanceof Field || element instanceof GraphicalComponent)
 					{
-						if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+						if (element instanceof GraphicalComponent && isBodyElement(cellview, ((GraphicalComponent)element).getLabelFor()))
 						{
 							labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
 							continue;
@@ -2084,6 +2086,30 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			});
 		}
+	}
+
+	/**
+	 * Check if the element which has the label is in the body part.
+	 * @return true if the element is in the body part, false otherwise
+	 */
+	private boolean isBodyElement(AbstractBase abstractBase, String labelFor)
+	{
+		if (labelFor != null && !labelFor.equals("") && abstractBase instanceof Form)
+		{
+			Form f = (Form)abstractBase;
+			Iterator<IPersist> components = abstractBase.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+			while (components.hasNext())
+			{
+				IPersist element = components.next();
+				if (element instanceof ISupportName && labelFor.equals(((ISupportName)element).getName()) && element instanceof ISupportBounds &&
+					element instanceof ISupportSize)
+				{
+					Point loc = ((ISupportBounds)element).getLocation();
+					return f.getPartAt(loc.y + ((ISupportSize)element).getSize().height).getPartType() == IPartConstants.BODY;
+				}
+			}
+		}
+		return false;
 	}
 
 	private static String scrollBarDefinitionToOverflowAttribute(int scrollbarDefinition, boolean isScrollMode, boolean isScrollingElement, boolean emptyData)
@@ -2624,7 +2650,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				if (!isListViewMode())
 				{
-					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+					if (element instanceof GraphicalComponent && isBodyElement(cellview, ((GraphicalComponent)element).getLabelFor()))
 					{
 						labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
 						continue;
