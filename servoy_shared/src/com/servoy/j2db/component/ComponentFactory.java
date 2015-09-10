@@ -180,7 +180,7 @@ import com.servoy.j2db.util.gui.MyImageIcon;
 
 /**
  * Create UI objects based on repository objects
- * 
+ *
  * @author jblok, jcompagner
  */
 @SuppressWarnings("nls")
@@ -214,7 +214,7 @@ public class ComponentFactory
 	public static String getWebID(Form form, IPersist meta)
 	{
 		StringBuilder prefix = new StringBuilder();
-		prefix.append(WEB_ID_PREFIX); //to stay javascript id ref compatible 
+		prefix.append(WEB_ID_PREFIX); //to stay javascript id ref compatible
 
 		if (element_name_as_uid_prefix == null)
 		{
@@ -247,7 +247,7 @@ public class ComponentFactory
 
 	/**
 	 * Create a component
-	 * 
+	 *
 	 * @param meta the definition
 	 * @param el the event listener such as action,mouse event listeners, can be null (Example:makes possible for button to call script)
 	 */
@@ -794,7 +794,7 @@ public class ComponentFactory
 
 //		if (c instanceof IDelegate)
 //		{
-//			c = (JComponent)((IDelegate)c).getDelegate(); 
+//			c = (JComponent)((IDelegate)c).getDelegate();
 //		}
 
 		String fontString = bc.getFontType();
@@ -815,7 +815,7 @@ public class ComponentFactory
 
 		if (Utils.isSwingClient(application.getApplicationType()))
 		{
-			//special code for smart client LAFs, like BizLaf 
+			//special code for smart client LAFs, like BizLaf
 			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
 			if (delegateStyleClassNamePropertyKey != null && c instanceof JComponent)
 			{
@@ -834,7 +834,7 @@ public class ComponentFactory
 
 	/**
 	 * Returns the bean Instance.
-	 * 
+	 *
 	 * @return Object
 	 */
 	public static Object getBeanInstanceFromXML(IApplication application, String beanClassName, String beanXML) throws Exception
@@ -1054,7 +1054,8 @@ public class ComponentFactory
 						}
 						message.setLength(message.length() - 1);
 						message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
-						message.append("\nPlease check these dataproviders of this valuelist: " + valuelist.getName());
+						message.append("\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
+							valuelist.getName() + " so that they have the same type.");
 						application.reportError("Valuelist: " + list.getName() + " used with different types", message);
 					}
 				}
@@ -1318,7 +1319,7 @@ public class ComponentFactory
 			}
 
 			// else treat as the default case: TEXT_FIELD
-			default ://Field.TEXT_FIELD 
+			default ://Field.TEXT_FIELD
 				if (field.getValuelistID() > 0)
 				{
 					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.uiType, fieldFormat.parsedFormat,
