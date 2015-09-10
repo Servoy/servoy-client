@@ -521,8 +521,14 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	 */
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
+		boolean listContentChanged = false;
+		Object[] oldListValue = list.toArray();
 		list.fill(state);
-		getStylePropertyChanges().setChanged();
+		listContentChanged = !list.compareTo(oldListValue);
+		if (listContentChanged)
+		{
+			getStylePropertyChanges().setChanged();
+		}
 	}
 
 	public String getSelectedRelationName()
@@ -1018,7 +1024,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -1030,7 +1036,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -1041,7 +1047,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
