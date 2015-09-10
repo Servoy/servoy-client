@@ -17,10 +17,12 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -97,7 +99,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private String globalRelationName;
 
 	private ListSelectionListener relatedFoundsetSelectionListener;
-	private IFoundSetInternal relatedFoundset;
+	private ArrayList<IFoundSetInternal> relatedFoundsets = new ArrayList<IFoundSetInternal>();
 	private String relationName;
 
 	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
@@ -218,11 +220,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		globalRelatedFoundset = null;
 		globalRelatedFoundsetListener = null;
 
-		if (relatedFoundset != null)
+		for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 		{
 			((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
 		}
-		relatedFoundset = null;
 		relatedFoundsetSelectionListener = null;
 	}
 
@@ -297,15 +298,18 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			try
 			{
-				IFoundSetInternal newRelatedFoundset = record != null ? record.getRelatedFoundSet(relationName) : null;
-				if (newRelatedFoundset != relatedFoundset)
+				ArrayList<IFoundSetInternal> newRelatedFoundsets = getRelatedFoundsets(record, relationName);
+
+				if (!newRelatedFoundsets.equals(relatedFoundsets))
 				{
-					if (relatedFoundset != null)
+					for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 					{
 						((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
 					}
-					relatedFoundset = newRelatedFoundset;
-					if (relatedFoundset != null)
+
+					relatedFoundsets = newRelatedFoundsets;
+
+					for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 					{
 						((ISwingFoundSet)relatedFoundset).getSelectionModel().addListSelectionListener(relatedFoundsetSelectionListener);
 					}
@@ -355,6 +359,28 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			changeMonitor.valueChanged();
 		}
+	}
+
+	private ArrayList<IFoundSetInternal> getRelatedFoundsets(IRecordInternal record, String relName)
+	{
+		ArrayList<IFoundSetInternal> returnRelatedFoundsets = new ArrayList<IFoundSetInternal>();
+		if (record != null)
+		{
+			StringTokenizer st = new StringTokenizer(relName, "."); //$NON-NLS-1$
+			String r = null;
+			while (st.hasMoreTokens())
+			{
+				if (r == null) r = st.nextToken();
+				else r = r + "." + st.nextToken(); //$NON-NLS-1$
+				IFoundSetInternal fs = record.getRelatedFoundSet(r);
+				if (fs != null)
+				{
+					returnRelatedFoundsets.add(fs);
+				}
+			}
+		}
+
+		return returnRelatedFoundsets;
 	}
 
 	/**
