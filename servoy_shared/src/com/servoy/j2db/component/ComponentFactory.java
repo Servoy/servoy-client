@@ -1061,7 +1061,8 @@ public class ComponentFactory
 						}
 						message.setLength(message.length() - 1);
 						message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
-						message.append("\nPlease check these dataproviders of this valuelist: " + valuelist.getName());
+						message.append("\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
+							valuelist.getName() + " so that they have the same type.");
 						application.reportError("Valuelist: " + list.getName() + " used with different types", message);
 					}
 				}
