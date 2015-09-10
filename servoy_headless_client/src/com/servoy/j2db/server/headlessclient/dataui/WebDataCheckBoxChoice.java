@@ -80,7 +80,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a multiply choice multi select field in the webbrowser.
- * 
+ *
  * @author jcompagner
  */
 public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
@@ -504,7 +504,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
 	}
 
 	/*
@@ -512,8 +512,14 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	 */
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
+		boolean listContentChanged = false;
+		Object[] oldListValue = list.toArray();
 		list.fill(state);
-		getStylePropertyChanges().setChanged();
+		listContentChanged = !list.compareTo(oldListValue);
+		if (listContentChanged)
+		{
+			getStylePropertyChanges().setChanged();
+		}
 	}
 
 	public String getSelectedRelationName()
@@ -633,7 +639,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	private void updatePrefix()
 	{
 		StringBuilder prefix = new StringBuilder();
-		prefix.append("<div onfocus='if (parentNode.onfocus)parentNode.onfocus()' onblur='if (parentNode.onblur)parentNode.onblur()'"); //$NON-NLS-1$ 
+		prefix.append("<div onfocus='if (parentNode.onfocus)parentNode.onfocus()' onblur='if (parentNode.onblur)parentNode.onblur()'"); //$NON-NLS-1$
 		prefix.append(" tabindex='").append(tabIndex).append("'"); //$NON-NLS-1$//$NON-NLS-2$
 		prefix.append(" class='"); //$NON-NLS-1$
 		if (vScrollPolicy == ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER) prefix.append("inl"); //$NON-NLS-1$

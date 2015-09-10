@@ -82,7 +82,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a single/multiple choice list field in the web browser.
- * 
+ *
  * @author lvostinar
  *
  */
@@ -504,7 +504,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
 	}
 
 	/*
@@ -512,8 +512,14 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 	 */
 	public void setRecord(IRecordInternal state, boolean stopEditing)
 	{
+		boolean listContentChanged = false;
+		Object[] oldListValue = list.toArray();
 		list.fill(state);
-		getStylePropertyChanges().setChanged();
+		listContentChanged = !list.compareTo(oldListValue);
+		if (listContentChanged)
+		{
+			getStylePropertyChanges().setChanged();
+		}
 	}
 
 	public String getSelectedRelationName()
@@ -1012,7 +1018,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.markup.html.form.AbstractChoice#appendOptionHtml(org.apache.wicket.util.string.AppendingStringBuffer, java.lang.Object, int,
 	 * java.lang.String)
 	 */
@@ -1041,7 +1047,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -1053,7 +1059,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -1064,7 +1070,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
