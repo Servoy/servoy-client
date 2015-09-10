@@ -11,7 +11,7 @@
  FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
  You should have received a copy of the GNU Affero General Public License along
- with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ with this program; if not, see http:/www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 package com.servoy.j2db.server.headlessclient.dataui;
@@ -270,6 +270,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private Dimension formBodySize;
 
 	private boolean isListViewMode;
+
+	private StringBuilder jsHeadScrollViewport;
 
 	private final class HeaderHeightCalculationBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
 	{
@@ -1480,6 +1482,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 		}
+	}
+
+	interface JSAppendTarget
+	{
+		void appendJavascript(String javascript);
 	}
 
 	public WebCellBasedView(final String id, final IApplication application, RuntimePortal scriptable, final Form form, final AbstractBase cellview,
@@ -3062,11 +3069,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		super.onBeforeRender();
 		if (isScrollMode())
 		{
-			IRequestTarget rt = RequestCycle.get().getRequestTarget();
-			if (rt instanceof AjaxRequestTarget)
+			selectionChanged = true;
+			jsHeadScrollViewport = new StringBuilder();
+			scrollViewPort(new JSAppendTarget()
 			{
-				scrollViewPort((AjaxRequestTarget)rt, false);
-			}
+				@Override
+				public void appendJavascript(String javascript)
+				{
+					jsHeadScrollViewport.append(javascript);
+				}
+			}, false);
 		}
 	}
 
@@ -4509,12 +4521,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@Override
-	public void renderHead(HtmlHeaderContainer container)
+	public void renderHead(final HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
 
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
-		if ((!(requestTarget instanceof AjaxRequestTarget) || !labelsCssRendered) && labelsCSSClasses.size() > 0)
+		boolean isAjaxRequest = requestTarget instanceof AjaxRequestTarget;
+
+
+		if (jsHeadScrollViewport != null && jsHeadScrollViewport.length() > 0)
+		{
+			container.getHeaderResponse().renderOnDomReadyJavascript(jsHeadScrollViewport.toString());
+			jsHeadScrollViewport = null;
+		}
+
+		if ((!isAjaxRequest || !labelsCssRendered) && labelsCSSClasses.size() > 0)
 		{
 			boolean isStyleSheetLimitForIE = WebEventExecutor.isStyleSheetLimitForIE(getSession());
 
@@ -5250,7 +5271,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	public void scrollViewPort(AjaxRequestTarget target, boolean appendMissingRows)
+	public void scrollViewPort(final AjaxRequestTarget target, boolean appendMissingRows)
+	{
+		scrollViewPort(new JSAppendTarget()
+		{
+			@Override
+			public void appendJavascript(String javascript)
+			{
+				target.appendJavascript(javascript);
+			}
+		}, appendMissingRows);
+	}
+
+	private void scrollViewPort(JSAppendTarget target, boolean appendMissingRows)
 	{
 		if (selectionChanged && !isScrollFirstShow)
 		{
@@ -5386,7 +5419,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is active then it loads records until the selection and scrolls to that position
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
 		 */
-		public void scrollViewPort(AjaxRequestTarget target, boolean appendMissingRows)
+		public void scrollViewPort(JSAppendTarget target, boolean appendMissingRows)
 		{
 			if (currentData == null) return;
 			Collection<ListItem< ? >> newRows = null;
@@ -5401,7 +5434,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
 			}
-			if ((selectedIndex == null && table.size() == 0) || (selectedIndex != null && selectedIndex >= table.size()))
+			if ((selectedIndex == null && table.size() == 0) || (selectedIndex != null && selectedIndex >= table.size() && appendMissingRows))
 			{
 				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
 				return;

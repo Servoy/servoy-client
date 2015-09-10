@@ -320,7 +320,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			{
 				formModel.setSelectedIndex(index);
 			}
-			else if (view != null && formModel.getSelectedIndex() != -1 && (lastSelectedIndex != formModel.getSelectedIndex()))
+			else if (view != null && formModel.getSelectedIndex() != -1)
 			{
 				view.ensureIndexIsVisible(formModel.getSelectedIndex());
 			}
