@@ -74,6 +74,7 @@ public class MediaUploadPage extends WebPage
 	public MediaUploadPage(IPageMap pageMap, final RecordItemModel model, final WebDataImgMediaField field, final IApplication application)
 	{
 		super(pageMap);
+		add(new PageContributor(application, "contribution"));
 		mfuf = null;
 		fuf = new SingleFileUpload("panel", application);
 		Form form = new Form("form")
@@ -127,6 +128,8 @@ public class MediaUploadPage extends WebPage
 	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect, final IApplication application)
 	{
 		super(pageMap);
+
+		add(new PageContributor(application, "contribution"));
 
 		Form form = new Form("form")
 		{
@@ -363,7 +366,7 @@ public class MediaUploadPage extends WebPage
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException
