@@ -922,7 +922,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							// make the viewport always X (pageSizeFactor) times the size then the number of rows.
 							preferredViewportSize = totalPreferedViewportSize;
 							$scope.pageSize = Math.max(totalPreferedViewportSize-numberOfRows, 25);
-							$scope.gridOptions.infiniteScrollRowsFromEnd = $scope.pageSize;
+							$scope.gridOptions.infiniteScrollRowsFromEnd = numberOfRows;
 							$scope.foundset.setPreferredViewportSize(preferredViewportSize)
 						}
 						if (requestViewPortSize == -1 && $scope.foundset.serverSize > $scope.foundset.viewPort.size) {
