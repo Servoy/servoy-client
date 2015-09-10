@@ -89,7 +89,6 @@ import org.apache.wicket.util.string.Strings;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
-import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.FormController;
@@ -136,7 +135,6 @@ import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScrollbars;
-import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
@@ -923,6 +921,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					int webModifier = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER));
 					WebEventExecutor.setSelectedIndex(WebCellBasedViewListViewItem.this, target, WebEventExecutor.convertModifiers(webModifier), true);
 					currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
+					if (application.getFoundSetManager().getEditRecordList().isEditing())
+					{
+						application.getFoundSetManager().getEditRecordList().stopEditing(false);
+					}
 					WebEventExecutor.generateResponse(target, getPage());
 				}
 
@@ -1770,7 +1772,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					IPersist element = components.next();
 					if (element instanceof Field || element instanceof GraphicalComponent)
 					{
-						if (element instanceof GraphicalComponent && isBodyElement(cellview, ((GraphicalComponent)element).getLabelFor()))
+						if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
 						{
 							labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
 							continue;
@@ -2000,7 +2002,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		});
 		if (!Boolean.FALSE.equals(application.getClientProperty(IApplication.TABLEVIEW_WC_USE_KEY_NAVIGATION)))
 		{
-			// default true
 			add(new ServoyAjaxEventBehavior("onkeydown", null, true)
 			{
 				@Override
@@ -2052,31 +2053,37 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			});
 		}
-
-	}
-
-	/**
-	 * Check if the element which has the label is in the body part.
-	 * @return true if the element is in the body part, false otherwise
-	 */
-	private boolean isBodyElement(AbstractBase abstractBase, String labelFor)
-	{
-		if (labelFor != null && !labelFor.equals("") && abstractBase instanceof Form)
+		if (!isListViewMode())
 		{
-			Form f = (Form)abstractBase;
-			Iterator<IPersist> components = abstractBase.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-			while (components.hasNext())
+			add(new ServoyAjaxEventBehavior("onclick", null, true)
 			{
-				IPersist element = components.next();
-				if (element instanceof ISupportName && labelFor.equals(((ISupportName)element).getName()) && element instanceof ISupportBounds &&
-					element instanceof ISupportSize)
+				@Override
+				protected void onEvent(AjaxRequestTarget target)
 				{
-					Point loc = ((ISupportBounds)element).getLocation();
-					return f.getPartAt(loc.y + ((ISupportSize)element).getSize().height).getPartType() == IPartConstants.BODY;
+					if (application.getFoundSetManager().getEditRecordList().isEditing())
+					{
+						application.getFoundSetManager().getEditRecordList().stopEditing(false);
+						WebEventExecutor.generateResponse(target, getPage());
+					}
 				}
-			}
+
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxCallDecorator()
+					{
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public CharSequence decorateScript(CharSequence script)
+						{
+							return "if ((event.target || event.srcElement) == this){ " + script + " }"; //$NON-NLS-1$
+						}
+					};
+				}
+
+			});
 		}
-		return false;
 	}
 
 	private static String scrollBarDefinitionToOverflowAttribute(int scrollbarDefinition, boolean isScrollMode, boolean isScrollingElement, boolean emptyData)
@@ -2617,7 +2624,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				if (!isListViewMode())
 				{
-					if (element instanceof GraphicalComponent && isBodyElement(cellview, ((GraphicalComponent)element).getLabelFor()))
+					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
 					{
 						labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
 						continue;
@@ -2688,8 +2695,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			// apply to this cell the state of the columnIdentifier IComponent, do keep the location that is set by the tableview when creating these components the first time.
 			// for listview this is the location to use.
 			Point loc = ((IComponent)c).getLocation();
+			int height = ((IComponent)c).getSize().height;
 			PropertyCopy.copyElementProps((IComponent)elementToColumnIdentifierComponent.get(element), (IComponent)c);
-			if (!isListViewMode()) ((IComponent)c).setLocation(loc);
+			if (!isListViewMode())
+			{
+				((IComponent)c).setLocation(loc);
+				//it shouldn't be possible to change the height
+				if (c instanceof IScriptableProvider)
+				{
+					IScriptable so = ((IScriptableProvider)c).getScriptObject();
+					if (so instanceof IRuntimeComponent)
+					{
+						IRuntimeComponent ic = (IRuntimeComponent)so;
+						if (ic.getHeight() != height)
+						{
+							ic.setSize(ic.getWidth(), height);
+						}
+					}
+				}
+			}
 		}
 		else
 		{
@@ -5372,7 +5396,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 
 					target.appendJavascript(sb.toString());
-					nrUpdatedListItems = 0;
+					WebCellBasedView.this.nrUpdatedListItems = 0;
 				}
 				else target.appendJavascript("Servoy.TableView.isAppendingRows = false;"); //$NON-NLS-1$
 			}

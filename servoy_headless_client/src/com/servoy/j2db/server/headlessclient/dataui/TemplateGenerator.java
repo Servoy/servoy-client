@@ -108,7 +108,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * HTML generator used by the web framework
- *
+ * 
  * @author jblok
  */
 @SuppressWarnings("nls")
@@ -116,7 +116,7 @@ public class TemplateGenerator
 {
 	/**
 	 * @author jcompagner
-	 *
+	 * 
 	 */
 	private static class FormCache
 	{
@@ -128,7 +128,7 @@ public class TemplateGenerator
 			private final String key;
 
 			/**
-			 * @param key
+			 * @param key 
 			 * @param referent
 			 */
 			public CacheItem(String key, long lastModified, Pair<String, ArrayList<Pair<String, String>>> referent,
@@ -448,7 +448,7 @@ public class TemplateGenerator
 			}
 
 			String webFormCSS = getWebFormCSS(retval.getRight(), formIDToMarkupIDMap);
-			webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "", false).toString(); // string the formcss/solutionname/ out of the url.
+			webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "", false).toString(); // string the formcss/solutionname/ out of the url.		
 			return new Pair<String, String>(retval.getLeft(), webFormCSS);
 		}
 		finally
@@ -560,7 +560,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(form, p));
 //				html.append(getJavaScriptIDParameter(p));
 				html.append(getCssClassForElement(obj, userCssClassAdded, "portal"));
-				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$
+				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
 
 			int yOffset = 0;
@@ -609,8 +609,7 @@ public class TemplateGenerator
 				while (it1.hasNext())
 				{
 					IPersist element = it1.next();
-					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null &&
-						!((GraphicalComponent)element).getLabelFor().equals(""))
+					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
 					{
 						labelsFor.put(((GraphicalComponent)element).getLabelFor(), (GraphicalComponent)element);
 					}
@@ -872,7 +871,7 @@ public class TemplateGenerator
 						html.append(PersistHelper.createColorString(bgColor));
 						html.append(";\"");
 					}
-					html.append(">&nbsp;</th>\n"); // add filler (need to be a space else safari & ie7 will not display correctly)
+					html.append(">&nbsp;</th>\n"); // add filler (need to be a space else safari & ie7 will not display correctly) 
 				}
 
 				html.append("</tr></thead>\n");
@@ -1006,7 +1005,7 @@ public class TemplateGenerator
 			// no filler when the tableview has no horizontal scrollbar.
 			if (!shouldFillAllHorizSpace)
 			{
-				columns.append("<td>&nbsp;</td>\n"); // add filler (need to be a space else safari & ie7 will not display correctly)
+				columns.append("<td>&nbsp;</td>\n"); // add filler (need to be a space else safari & ie7 will not display correctly) 
 			}
 
 			html.append("<tr servoy:id='rows' ");
@@ -1511,7 +1510,7 @@ public class TemplateGenerator
 		styleObj.setProperty("color", "#000000");
 
 		//default field stuff
-		styleObj = css.addStyle(".field , .listbox, .spinner");//input, select, textarea, listbox");
+		styleObj = css.addStyle(".field , .listbox, .spinner");//input, select, textarea, listbox"); 
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_FIELD_PADDING));
 		styleObj.setProperty("margin", "0");
 		styleObj.setProperty("border-style", "inset");
@@ -1679,17 +1678,17 @@ public class TemplateGenerator
 
 		//default tab panel stuff
 		styleObj = css.addStyle("div.tabs");
-		styleObj.setProperty("padding", "3px 0px " + (h1) + "px 2px"); //controls position of bottom line of tab strip
-		styleObj.setProperty("margin", h2 + "px 0px 0px 0px");//controls the space outside the tabs rect.
+		styleObj.setProperty("padding", "3px 0px " + (h1) + "px 2px"); //controls position of bottom line of tab strip  
+		styleObj.setProperty("margin", h2 + "px 0px 0px 0px");//controls the space outside the tabs rect. 
 		styleObj.setProperty("border-bottom", "1px solid #9ac");
 		styleObj.setProperty("left", "0px");
 		styleObj.setProperty("right", "0px");
 		styleObj.setProperty("position", "absolute");
 
-		styleObj = css.addStyle("div.webform");//$NON-NLS-1$
+		styleObj = css.addStyle("div.webform");//$NON-NLS-1$ 
 		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 
-		styleObj = css.addStyle("div.opaquecontainer");//$NON-NLS-1$
+		styleObj = css.addStyle("div.opaquecontainer");//$NON-NLS-1$ 
 		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 
 		//default tab stuff
@@ -1700,9 +1699,9 @@ public class TemplateGenerator
 
 		styleObj = css.addStyle("div.tabs div a");
 		styleObj.setProperty("text-decoration", "none");
-		styleObj.setProperty("padding", (h2 - 1) + "px 10px " + (h1 + 1) + "px 1px");//space inside tab arround the text
-		styleObj.setProperty("margin-top", "0.2em");//space betweens tabs
-		styleObj.setProperty("margin-left", "0.2em");//space betweens tabs
+		styleObj.setProperty("padding", (h2 - 1) + "px 10px " + (h1 + 1) + "px 1px");//space inside tab arround the text   
+		styleObj.setProperty("margin-top", "0.2em");//space betweens tabs  
+		styleObj.setProperty("margin-left", "0.2em");//space betweens tabs  
 		styleObj.setProperty("background-color", "#e7e7f7");
 		styleObj.setProperty("border", "1px solid #9ac");
 		styleObj.setProperty("border-bottom", "1px solid #9ac");
@@ -1782,7 +1781,7 @@ public class TemplateGenerator
 		styleObj = css.addStyle("th.nosort a");
 		styleObj.setProperty("text-decoration", "none");
 		styleObj = css.addStyle("th.sortable a");
-		styleObj.setProperty("text-decoration", "none");//underline
+		styleObj.setProperty("text-decoration", "none");//underline  
 		styleObj.setProperty("font-weight", "normal");
 		styleObj.setProperty("color", "black");
 		styleObj.setProperty("background-position", "right");
@@ -1795,7 +1794,7 @@ public class TemplateGenerator
 //		styleObj = css.addStyle("th.sortable a.orderDesc");
 //		styleObj.setProperty("background-image", "url(/servoy-webclient/templates/lafs/kunststoff/images/sortheader/arrow_up.png)");
 
-		//let users define this
+		//let users define this		
 		//		styleObj = css.addStyle("tr.odd");
 		//		styleObj.add("background-color","#fff");
 		//		styleObj = css.addStyle("tr.even");
@@ -2091,7 +2090,7 @@ public class TemplateGenerator
 //		html.append("\t<tbody><tr><td>\n");
 //		Insets ins = borderAndPadding != null ? borderAndPadding.getSum() : new Insets(0, 0, 0, 0);
 //		int t_width = tabPanel.getSize().width - (ins.left + ins.right + 2); //not sure why to add 2
-//		int t_height = (tabPanel.getSize().height - yoffset) - (ins.top + ins.bottom + 4); //not sure why to add 4
+//		int t_height = (tabPanel.getSize().height - yoffset) - (ins.top + ins.bottom + 4); //not sure why to add 4 
 		TextualStyle style = new TextualStyle();
 		style.setProperty("overflow", "auto");
 		style.setProperty("position", "relative");
@@ -2158,10 +2157,10 @@ public class TemplateGenerator
 			}
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
+				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ 
 				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div></div>"); //$NON-NLS-1$
-			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
-				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div>"); //$NON-NLS-1$
+			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ 
+				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div>"); //$NON-NLS-1$ 
 		}
 		else
 		{
@@ -2276,7 +2275,7 @@ public class TemplateGenerator
 		TextualStyle styleObj = css.addStyle(styleName + ComponentFactory.getWebID(form, label));
 		BorderAndPadding ins = applyBaseComponentProperties(label, form, styleObj, (Insets)DEFAULT_LABEL_PADDING.clone(), border, sp);
 		// fix the background img, see ComponentFactory.createGraphicalComponent
-		// background image through css will only be used when repeat or position are set (or linear gradient is used).
+		// background image through css will only be used when repeat or position are set (or linear gradient is used). 
 		// if both are not specified then it is used as the MEDIA of the label/button, so bck_img is removed from the css.
 		boolean keepBgImageStyle = false;
 		for (String attribute : ServoyStyleSheet.BACKGROUND_IMAGE_CSS)
@@ -2437,7 +2436,7 @@ public class TemplateGenerator
 		}
 		int height = label.getSize().height;
 		// Firefox has a problem when rendering <button> tags. A solution is to tweak the bottom padding
-		// and make it equal to the height of the <button>.
+		// and make it equal to the height of the <button>. 
 		// See: http://doctype.com/html-button-tag-renders-strangely-firefox
 		if (isButton)
 		{
@@ -2487,7 +2486,7 @@ public class TemplateGenerator
 //			while ((index = parsedTxt.indexOf("servoymethod:")) != -1)
 //			{
 //				int openIndex = parsedTxt.indexOf("(",index);
-//
+//				
 //			}
 //			parsedTxt = Utils.stringReplace(parsedTxt, "servoymethod:", "javascript:servoymethod('", -1, false, true);
 //			getElementById(\'servoy_eval\').value='servoy_method_eval
@@ -2546,7 +2545,7 @@ public class TemplateGenerator
 		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(sp, form);
 		IStyleSheet ss = pairStyle != null ? pairStyle.getLeft() : null;
 
-		String cssClass = ""; // By default no css class applied.
+		String cssClass = ""; // By default no css class applied.  
 		switch (field.getDisplayType())
 		{
 			case Field.PASSWORD :
@@ -2563,7 +2562,7 @@ public class TemplateGenerator
 				html.append("type='password' ");
 				if (field.getSelectOnEnter())
 				{
-					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$
+					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$ 
 				}
 				html.append("/>");
 			}
@@ -2684,9 +2683,9 @@ public class TemplateGenerator
 					html.append(getCssClassForElement(field, userCssClassAdded, cssClass));
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
-					html.append(">"); //
+					html.append(">"); // 
 					html.append("<table cellspacing='0' cellpadding='0' border='0' width='100%' height='100%'><tr><td id='check_td' style='vertical-align: middle;'><input onmousedown='radioCheckInputMouseDown=true' onmouseup='radioCheckInputMousedDown=false' onmouseout='radioCheckInputMouseDown=false' class='radioCheckInput' style='border-width: 0px; padding: " +
-						(isRadio ? "0px" : "3px") + "; margin: 0px; vertical-align: middle;' "); //
+						(isRadio ? "0px" : "3px") + "; margin: 0px; vertical-align: middle;' "); // 
 					html.append(getWicketIDParameter(form, field, "check_", ""));
 					html.append(getDataProviderIDParameter(field));
 					if (isRadio)
@@ -2823,7 +2822,7 @@ public class TemplateGenerator
 				html.append("type='text' ");
 				if (field.getSelectOnEnter())
 				{
-					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$
+					html.append("onfocus='Servoy.Utils.doSelect(this)'"); //$NON-NLS-1$ 
 				}
 				html.append("/>");
 			}
@@ -2894,11 +2893,11 @@ public class TemplateGenerator
 	}
 
 	/**
-	 * @param styleObj
-	 * @param field
-	 * @param form
-	 * @param html
-	 *
+	 * @param styleObj 
+	 * @param field 
+	 * @param form 
+	 * @param html 
+	 * 
 	 */
 	private static void createCompositeFieldHTML(StringBuffer html, Form form, Field field, TextualStyle styleObj, boolean[] userCssClassAdded)
 	{
