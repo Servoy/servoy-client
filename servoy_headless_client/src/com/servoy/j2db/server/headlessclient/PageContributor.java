@@ -62,7 +62,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Implementation of {@link IPageContributorInternal} that is a wicket component that is added to the page for adding all kinds of behaviors and scripts to the main page.
- * 
+ *
  * @author jcompagner
  */
 public class PageContributor extends WebMarkupContainer implements IPageContributorInternal
@@ -154,7 +154,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			{
 				if (isFormWidthZero())
 				{
-					response.renderOnLoadJavascript("Servoy.Resize.onWindowResize();"); //$NON-NLS-1$ 
+					response.renderOnLoadJavascript("Servoy.Resize.onWindowResize();"); //$NON-NLS-1$
 				}
 			}
 
@@ -167,7 +167,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			private boolean isFormWidthZero()
 			{
 				final boolean[] returnValue = { false };
-				MainPage page = (MainPage)findPage();
+				Page page = findPage();
 				if (page != null)
 				{
 					page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
@@ -644,7 +644,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.IPageContributor#getRepeatingView()
 	 */
 	public IRepeatingView getRepeatingView()
@@ -654,7 +654,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.IPageContributorInternal#getEventCallback()
 	 */
 	public AbstractAjaxBehavior getEventCallback()
