@@ -694,7 +694,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 										(oldSelection[0]._svyRowId == rows[$scope.foundset.selectedRowIndexes[0]]._svyRowId)) {
 									scrolledToSelection = true;
 								}
-
+								$scope.ignoreSelection = true;
+								$scope.gridApi.selection.clearSelectedRows();
+								$scope.ignoreSelection = false;
 								for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
 									var rowIdx = $scope.foundset.selectedRowIndexes[idx];
 									if (isInViewPort(rowIdx)) {
