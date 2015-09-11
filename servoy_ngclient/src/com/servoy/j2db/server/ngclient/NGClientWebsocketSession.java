@@ -34,6 +34,7 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWindow;
+import org.sablo.websocket.utils.ObjectReference;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
@@ -95,6 +96,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public Collection<INGClientWindow> getWindows()
 	{
 		return (Collection<INGClientWindow>)super.getWindows();
+	}
+
+	@Override
+	public Collection<ObjectReference< ? extends IWindow>> getWindowsRefs()
+	{
+		return super.getWindowsRefs();
 	}
 
 	@Override
@@ -192,12 +199,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 						List<String> arguments = new ArrayList<String>();
 
-						if (args.getSolutionName() != null)
-							arguments.add(StartupArguments.PARAM_KEY_SOLUTION + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getSolutionName());
-						if (args.getFirstArgument() != null)
-							arguments.add(StartupArguments.PARAM_KEY_ARGUMENT + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getFirstArgument());
-						if (args.getMethodName() != null)
-							arguments.add(StartupArguments.PARAM_KEY_METHOD + StartupArguments.PARAM_KEY_VALUE_SEPARATOR + args.getMethodName());
+						if (args.getSolutionName() != null) arguments.add(StartupArguments.PARAM_KEY_SOLUTION + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
+							args.getSolutionName());
+						if (args.getFirstArgument() != null) arguments.add(StartupArguments.PARAM_KEY_ARGUMENT + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
+							args.getFirstArgument());
+						if (args.getMethodName() != null) arguments.add(StartupArguments.PARAM_KEY_METHOD + StartupArguments.PARAM_KEY_VALUE_SEPARATOR +
+							args.getMethodName());
 						client.handleArguments(arguments.toArray(new String[arguments.size()]), args);
 
 						client.loadSolution(solutionName);
@@ -294,7 +301,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * All windows are now closed. We shutdown the client in order to free up the license/resources for the next NGClient instantiation.
-	 *
+	 * 
 	 * @see org.sablo.websocket.BaseWebsocketSession#sessionExpired()
 	 */
 	@Override
@@ -324,7 +331,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.sablo.websocket.IWebsocketSession#getLocale()
 	 */
 	@Override

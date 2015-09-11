@@ -7,6 +7,8 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -29,7 +31,9 @@ import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.IWindow;
 import org.sablo.websocket.WebsocketSessionManager;
+import org.sablo.websocket.utils.ObjectReference;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
@@ -64,6 +68,7 @@ import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IGetStatusLine;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.ServoyException;
@@ -74,7 +79,7 @@ import com.servoy.j2db.util.Utils;
 // TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
 // then we can extend that one.
 @SuppressWarnings("nls")
-public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService
+public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService, IGetStatusLine
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1155,6 +1160,35 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
 			showUrl = null;
 		}
+	}
+
+	/**
+	 * Get a status line to be displayed on the admin page.
+	 */
+	public String getStatusLine()
+	{
+		Collection<ObjectReference< ? extends IWindow>> refs = getWebsocketSession().getWindowsRefs();
+
+		if (refs.size() == 0)
+		{
+			// this should normally not happen
+			return "No websockets";
+		}
+
+		long lastAccessed = Long.MIN_VALUE;
+		for (ObjectReference< ? extends IWindow> ref : refs)
+		{
+			if (ref.getRefcount() > 0)
+			{
+				// window is in use
+				return "Websocket connected";
+			}
+
+			// window is inactive
+			lastAccessed = Math.max(lastAccessed, ref.getLastAccessed());
+		}
+
+		return "Websockets disconnected since " + new Date(lastAccessed);
 	}
 
 	private class ShowUrl

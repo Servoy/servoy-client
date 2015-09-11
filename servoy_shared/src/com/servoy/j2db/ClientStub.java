@@ -17,6 +17,7 @@
 package com.servoy.j2db;
 
 
+import java.rmi.RemoteException;
 import java.util.Stack;
 
 import com.servoy.j2db.dataprocessing.DataServerProxy;
@@ -27,6 +28,7 @@ import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IGetStatusLine;
 
 /**
  * Remote class for server calls to client
@@ -231,5 +233,16 @@ public class ClientStub implements IUserClient
 				});
 			}
 		});
+	}
+
+	@Override
+	public String getClientStatusLine() throws RemoteException
+	{
+		if (client instanceof IGetStatusLine)
+		{
+			return ((IGetStatusLine)client).getStatusLine();
+		}
+
+		return null;
 	}
 }

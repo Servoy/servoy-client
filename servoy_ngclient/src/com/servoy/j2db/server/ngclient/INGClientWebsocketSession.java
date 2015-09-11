@@ -21,6 +21,8 @@ import java.util.Collection;
 
 import org.sablo.IChangeListener;
 import org.sablo.websocket.IWebsocketSession;
+import org.sablo.websocket.IWindow;
+import org.sablo.websocket.utils.ObjectReference;
 
 import com.servoy.j2db.persistence.Solution;
 
@@ -37,5 +39,7 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 	void sendRedirect(String redirectUrl);
 
 	@Override
-	public Collection<INGClientWindow> getWindows();
+	Collection<INGClientWindow> getWindows();
+
+	Collection<ObjectReference< ? extends IWindow>> getWindowsRefs();
 }

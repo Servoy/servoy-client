@@ -23,7 +23,7 @@ import com.servoy.j2db.scripting.StartupArguments;
 
 /**
  * The Client call back interface which are registered on the server.
- * 
+ *
  * @author jblok
  */
 public interface IClient
@@ -38,7 +38,7 @@ public interface IClient
 
 	/**
 	 * called when the databases are modified outside servoy, when server_name and table_name are null all is flushed
-	 * 
+	 *
 	 * @param server_name
 	 * @param table_name
 	 * @throws RemoteException
@@ -49,4 +49,10 @@ public interface IClient
 	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData) throws RemoteException;
 
 	public void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope) throws RemoteException;
+
+
+	/**
+	 * Get a status line for the client to be displayed on the admin page; only when the client supports this.
+	 */
+	String getClientStatusLine() throws RemoteException;
 }
