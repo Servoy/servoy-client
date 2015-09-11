@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.WebComponentSpecification;
@@ -34,6 +35,7 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.IWindow;
+import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.utils.ObjectReference;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -327,6 +329,22 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
 		if (htmlView != null) internalError.put("viewUrl", htmlView);
 		CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError", new Object[] { internalError });
+	}
+
+	@Override
+	public void invalidateWindow(IWindow window)
+	{
+		super.invalidateWindow(window);
+
+		// check for window activity each time a window is closed, after the timeout period
+		client.getScheduledExecutor().schedule(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				WebsocketSessionManager.closeInactiveSessions();
+			}
+		}, getWindowTimeout() + 10, TimeUnit.MILLISECONDS);
 	}
 
 	/*
