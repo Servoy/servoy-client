@@ -107,6 +107,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	
 	// internal function
 	function unformatNumbers(data , format){// todo throw error when not coresponding to format (reimplement with state machine)
+		if (data === "") return data;
 		//treat scientiffic numbers
 		if(data.toLowerCase().indexOf('e')>-1){
 			return new Number(data).valueOf()
