@@ -51,7 +51,7 @@ import com.servoy.j2db.util.ExtendableURLClassLoader;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminationListener
 {
@@ -399,7 +399,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public DBGPDebugger getDebugger()
 	{
@@ -518,7 +518,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public boolean checkState()
 		{
@@ -545,6 +545,11 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			}
 			return connected;
 		}
+	}
+
+	public static void stopExecutingCurrentFunction()
+	{
+		if (debugger != null) debugger.close();
 	}
 
 }

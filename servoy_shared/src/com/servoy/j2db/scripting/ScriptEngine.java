@@ -782,21 +782,6 @@ public class ScriptEngine implements IScriptSupport
 		return null;
 	}
 
-	public void stopExecutingCurrentFunction()
-	{
-		//TODO:see if this works?
-//		Context cx = Context.enter();
-//		try
-//		{
-//			DebuggableEngine de = cx.getDebuggableEngine();
-//			if(de != null) de.setBreakNextLine(true);
-//		}
-//		finally
-//		{
-//			Context.exit();
-//		}
-	}
-
 	public void flushCachedScopes()
 	{
 		reload();

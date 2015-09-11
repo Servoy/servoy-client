@@ -27,7 +27,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 
 /**
  * Interface to script executor
- * 
+ *
  * @author jblok
  */
 public interface IExecutingEnviroment
@@ -52,28 +52,28 @@ public interface IExecutingEnviroment
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Get the top level scope
-	 * 
+	 *
 	 * @exclude
 	 */
 	public SolutionScope getSolutionScope();
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Get the top level scope
-	 * 
+	 *
 	 * @exclude
 	 */
 	public ScopesScope getScopesScope();
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Get the table scope for calculations and to set State as prototype
-	 * 
+	 *
 	 * @exclude
 	 */
 	public Scriptable getTableScope(ITable table);
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Get the table scope for calculations and to set State as prototype
-	 * 
+	 *
 	 * @exclude
 	 */
 	public void registerScriptObjectReturnTypes(IReturnedTypesProvider scriptObject);
@@ -82,14 +82,14 @@ public interface IExecutingEnviroment
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public Object getSystemConstant(String name);
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
-	 * 
+	 *
 	 * @exclude
 	 */
 	public JSApplication getJSApplication();
@@ -106,7 +106,7 @@ public interface IExecutingEnviroment
 
 	/**
 	 * Execute a former compiled a javascript function
-	 * 
+	 *
 	 * @param focusEvent
 	 * @param throwException If true then it will throw the exception that is get from the method instead of calling application.handleException
 	 */
@@ -114,17 +114,12 @@ public interface IExecutingEnviroment
 		throws Exception;
 
 	/**
-	 * Stop current executing function
-	 */
-	public void stopExecutingCurrentFunction();
-
-	/**
 	 * Remove the engine registered scopes from the cache;
 	 */
 	public void destroy();
 
 	/**
-	 * Evaluate the string in a scope. 
+	 * Evaluate the string in a scope.
 	 * @return evaluation result
 	 */
 	public Object eval(Scriptable scope, String eval_string);

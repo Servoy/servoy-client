@@ -222,6 +222,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			IApplication app = getApplication();
 			if (app instanceof IDebugJ2DBClient) ((IDebugJ2DBClient)app).onSolutionOpen();
 			super.makeSolutionSettings(s);
+			if (isShutDown()) return; // for example user could have hit the stop button while solution onLoad was running or the test client solution timeout kicked in; in this case the solution is not loaded anymore!
 			solutionLoaded = true;
 		}
 
@@ -728,11 +729,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.smart.J2DBClient#exportObject(java.rmi.Remote)
-	 */
 	@Override
 	public synchronized int exportObject(Remote object) throws RemoteException
 	{
@@ -933,11 +929,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ClientState#createDataServer()
-	 */
 	@Override
 	protected IDataServer createDataServer()
 	{
