@@ -35,7 +35,15 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	function formatNumbers(data , servoyFormat){
 		if(!servoyFormat ) return data
 		if (data === "") return data;
-		var partchedFrmt=  servoyFormat;   // patched format for numeraljs format
+		var partchedFrmt = servoyFormat;   // patched format for numeraljs format
+		
+		if (partchedFrmt.indexOf(';') > 0){
+			if (data < 0) {
+				partchedFrmt = partchedFrmt.split(';')[1]
+				partchedFrmt = partchedFrmt.replaceAll("-","");
+			}
+			else  partchedFrmt = partchedFrmt.split(';')[0];
+		}
 		
 		//scientific notation case
 		if(servoyFormat.indexOf('E') >-1){
@@ -71,7 +79,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			data *= 1000;
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
-		}else if(servoyFormat.indexOf("-") > -1) {
+		}else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
 			data *= -1;
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
 		}
@@ -105,7 +113,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		}
 		
 		var multFactor =1;
-		if(format.indexOf('-')>-1){
+		if(format.indexOf('-') > -1 && format.indexOf(';') < 0){
 			if(data.indexOf('-')!= data.lastIndexOf('-')){ // double minus case
 				multFactor = 1;
 			}else{
@@ -434,6 +442,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 				}
 				return false;
 			}
+			
 			function keypress(e){
 				 if(!$scope.model.findmode && checkNumbers){
 					 if($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT'){
@@ -445,8 +454,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 					 }
 				 }
 				 return true;
-			 }
-			 function focus(){
+			}
+			
+			function focus(){
 				 if(!$scope.model.findmode){
 					 if(svyFormat.edit && svyFormat.isMask) {
 							 var settings = {};
@@ -462,28 +472,23 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 						 })
 					 }		
 				 }				 			  
-			 }
-			 function blur(){
-				 if(!$scope.model.findmode){
-					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
-				 }
 			}
-			 
-			function change(){
+			
+			function blur(){
 				 if(!$scope.model.findmode){
 					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
+					 //blur needs this because we need to change to the display format even if the value didn't change
 					 $scope.$evalAsync(function(){
 						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
 						 ngModelController.$render();
 					 })	
-				 }		
-			} 
-			
+				 }
+			}
+			 
 			function register() {
-				 element.on('focus',focus)
-				 element.on('blur',blur)
-				 element.on('keypress',keypress)
-				 element.on('change', change)
+				element.on('focus',focus)
+				element.on('blur',blur)
+				element.on('keypress',keypress)
 				 
 				 //convert data from view format to model format
 			    ngModelController.$parsers.push(viewToModel);
