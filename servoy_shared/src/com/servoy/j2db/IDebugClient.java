@@ -26,14 +26,14 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * Marker interface for all the debug clients
- * 
+ *
  * @author jcompagner
  *
  */
 public interface IDebugClient extends IApplication
 {
 
-	void shutDown(boolean b);
+	void shutDown(boolean force);
 
 	void setCurrent(Solution current);
 

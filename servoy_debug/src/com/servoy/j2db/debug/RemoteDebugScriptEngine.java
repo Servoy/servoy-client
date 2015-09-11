@@ -162,7 +162,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 						socket.setKeepAlive(true);
 						if (Debug.tracing())
 						{
-							Debug.trace("Socket " + socket + " Accepted, staring connect thread"); //$NON-NLS-1$ //$NON-NLS-2$
+							Debug.trace("Socket " + socket + " Accepted, staring connect thread");
 						}
 						new Thread(new Runnable()
 						{
@@ -170,18 +170,18 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 							{
 								try
 								{
-									connect("globals.js", "remote:" + ss.getLocalPort()); //$NON-NLS-1$ //$NON-NLS-2$
+									connect("globals.js", "remote:" + ss.getLocalPort());
 								}
 								catch (Exception e)
 								{
-									Debug.error("Error connectiong to a debug", e); //$NON-NLS-1$
+									Debug.error("Error connectiong to a debug", e);
 								}
 							}
-						}, "ScriptDebug Connector").start(); //$NON-NLS-1$
+						}, "ScriptDebug Connector").start();
 					}
 					catch (Exception e)
 					{
-						Debug.error("Error accepting debug connections", e); //$NON-NLS-1$
+						Debug.error("Error accepting debug connections", e);
 						try
 						{
 							ss.close();
@@ -195,7 +195,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			}
 
 		};
-		new Thread(debugThread, "Script Debug accept thread").start(); //$NON-NLS-1$
+		new Thread(debugThread, "Script Debug accept thread").start();
 		return ss.getLocalPort();
 	}
 
@@ -223,7 +223,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		{
 			if (Debug.tracing())
 			{
-				Debug.trace("Waiting for Server socket " + i + " of " + maxWaits + " tries"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Debug.trace("Waiting for Server socket " + i + " of " + maxWaits + " tries");
 			}
 			try
 			{
@@ -241,7 +241,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			// just wait a few seconds if a debugger has to be created.
 			if (Debug.tracing())
 			{
-				Debug.trace("Waiting for debugger to be created" + i + " of 50 tries"); //$NON-NLS-1$ //$NON-NLS-2$ 
+				Debug.trace("Waiting for debugger to be created" + i + " of 50 tries");
 			}
 			try
 			{
@@ -257,7 +257,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		{
 			if (counter++ > 5)
 			{
-				Debug.trace("Debug Socket still not connected after 5 tries, " + socket); //$NON-NLS-1$
+				Debug.trace("Debug Socket still not connected after 5 tries, " + socket);
 				return false;
 			}
 			synchronized (debugger)
@@ -357,7 +357,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			debugger = new ServoyDebugger(socket, file, sessionId, cx, profileListeners);
 			if (Debug.tracing())
 			{
-				Debug.trace("Created Servoy Debugger on socket " + socket + ", starting the debugger command thread."); //$NON-NLS-1$ //$NON-NLS-2$
+				Debug.trace("Created Servoy Debugger on socket " + socket + ", starting the debugger command thread.");
 			}
 
 			debugger.start();
@@ -495,7 +495,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		{
 			try
 			{
-				debugger.outputStdOut(""); //$NON-NLS-1$
+				debugger.outputStdOut("");
 				connected = isSocketValid();
 				if (!connected && socket != null)
 				{
@@ -545,6 +545,11 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			}
 			return connected;
 		}
+	}
+
+	public static void stopExecutingCurrentFunction()
+	{
+		if (debugger != null) debugger.close();
 	}
 
 }
