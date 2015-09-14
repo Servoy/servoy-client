@@ -337,7 +337,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		super.invalidateWindow(window);
 
 		// check for window activity each time a window is closed, after the timeout period
-		client.getScheduledExecutor().schedule(new Runnable()
+		ApplicationServerRegistry.get().getExecutor().schedule(new Runnable()
 		{
 			@Override
 			public void run()
