@@ -399,6 +399,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						element.css(imgStyle)
 					}else {
 						imgStyle = null;
+						element.css(clearStyle);
 					} 
 				}
 			}
