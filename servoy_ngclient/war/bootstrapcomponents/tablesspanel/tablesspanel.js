@@ -19,7 +19,7 @@ angular.module('bootstrapcomponentsTablesspanel',['servoy']).directive('bootstra
     	  
     	  if ($scope.model.containedForm)
 		  {
-    		  $scope.svyServoyapi.formWillShow($scope.model.containedForm,null);
+    		  $scope.svyServoyapi.formWillShow($scope.model.containedForm,$scope.model.relationName);
 		  }
     	  
     	  $scope.getContainerStyle = function() {
