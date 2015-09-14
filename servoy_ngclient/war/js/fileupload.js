@@ -1,5 +1,5 @@
 angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
-.controller("FileuploadController", function($scope, $modalInstance, $upload, $svyFileuploadUtils) {
+.controller("FileuploadController", function($scope, $modalInstance, $upload, $svyFileuploadUtils,$svyI18NService) {
     
     $scope.getTitleText = function() {
     	return $svyFileuploadUtils.getTitleText();
@@ -17,6 +17,26 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     	var idx = $scope.uploadFiles.indexOf(f);
     	$scope.uploadFiles.splice(idx, 1);
     }
+    
+    $scope.i18n_upload = "Upload"
+	$scope.i18n_chooseFiles = "Add more files"
+	$scope.i18n_cancel = "Cancel"
+	$scope.i18n_selectedFiles =	"Selected files"
+	$scope.i18n_nothingSelected = "Nothing selected, yet"
+	$scope.i18n_remove = "Remove" 
+	$scope.i18n_name = "Name" 
+		
+    
+    var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addMoreFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel")
+    x.then(function(result) {
+    	$scope.i18n_upload = result["servoy.filechooser.button.upload"];
+    	$scope.i18n_chooseFiles = result["servoy.filechooser.upload.addMoreFiles"];
+    	$scope.i18n_cancel = result["servoy.button.cancel"];
+    	$scope.i18n_selectedFiles = result["servoy.filechooser.selected.files"];
+    	$scope.i18n_nothingSelected = result["servoy.filechooser.nothing.selected"];
+    	$scope.i18n_remove = result["servoy.filechooser.button.remove"];
+    	$scope.i18n_name = result["servoy.filechooser.label.name"];
+    })
     
     $scope.doUpload = function() {
     	if($scope.isFileSelected()) {
@@ -40,17 +60,20 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     	$modalInstance.dismiss();
     };
 })
-.factory("$svyFileuploadUtils", function($modal){
+.factory("$svyFileuploadUtils", function($modal,$svyI18NService){
 	var uploadUrl, titleText, isMultiSelect;
 	return {
 		open : function (url, title, multiselect) {
 			uploadUrl = url;
 			titleText = title;
 			isMultiSelect = multiselect;
-			$modal.open({
-	        	templateUrl: 'templates/upload.html',
-	        	controller: 'FileuploadController'
-	        });
+			var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addMoreFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel")
+		    x.then(function(result) {
+				$modal.open({
+		        	templateUrl: 'templates/upload.html',
+		        	controller: 'FileuploadController'
+		        });
+		    })
 		},
 		getUploadUrl: function() {
 			return uploadUrl;

@@ -846,4 +846,42 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			} else $timeout(fn, 0, doApply); // it could produce flicker, but better then nothing
 		}
 	}
+}]).factory("$svyI18NService",['$sabloApplication','$q', function($sabloApplication, $q) {
+	var cachedMessages = {};
+	return {
+		getI18NMessages: function() {
+			var retValue = {};
+			var serverKeys = {};
+			var serverKeysCounter = 0;
+			for(var i =0;i<arguments.length;i++) {
+				if (cachedMessages[arguments[i]] != null) {
+					retValue[arguments[i]] = cachedMessages[arguments[i]];
+				}
+				else {
+					serverKeys[serverKeysCounter++] = arguments[i];
+				}
+			}
+			if (serverKeysCounter > 0) {
+				var promiseA = $sabloApplication.callService("i18nService", "getI18NMessages", serverKeys,false);
+				var promiseB = promiseA.then(function(result) {
+					for(var key in result) {
+						cachedMessages[key] = result[key];
+						retValue[key] = result[key];
+					}
+					return retValue;
+				}, function(error) {
+					return error;
+				});
+				return promiseB;
+			}
+			else {
+				var defered = $q.defer()
+				defered.resolve(retValue);
+				return defered.promise;
+			}
+		},
+		flush: function() {
+			cachedMessages = {};
+		}
+	}
 }])

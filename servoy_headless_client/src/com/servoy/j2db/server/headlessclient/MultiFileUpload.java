@@ -76,9 +76,10 @@ public class MultiFileUpload extends MultiFileUploadField
 				{
 					String constructorCall = javascript.substring(0, splitIdx);
 					String functionCall = javascript.substring(splitIdx);
-					String translatedMessages = "[ '" + application.getI18NMessage("servoy.filechooser.upload.addModeFiles") + "' , '" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					String translatedMessages = "[ '" + application.getI18NMessage("servoy.filechooser.upload.addMoreFiles") + "' , '" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						application.getI18NMessage("servoy.filechooser.upload.filesUploading") + "' ]"; //$NON-NLS-1$ //$NON-NLS-2$
-					response.renderOnDomReadyJavascript("var o = " + constructorCall + "; MultipleFileUploadInterceptor(o, " + translatedMessages + ")" + functionCall); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+					response.renderOnDomReadyJavascript(
+						"var o = " + constructorCall + "; MultipleFileUploadInterceptor(o, " + translatedMessages + ")" + functionCall); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 				else response.renderOnDomReadyJavascript(javascript);
 			}

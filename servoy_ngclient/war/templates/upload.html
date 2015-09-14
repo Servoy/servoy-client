@@ -1,13 +1,13 @@
 <div class="well">
 	<h4>{{getTitleText()}}</h4>
 	<table class="table" ng-if="isFileSelected()">
-		<caption>Selected files</caption>
-		<thead><tr><th>Name</th><th></th></tr></thead>
-		<tr ng-repeat="f in uploadFiles"><td>{{f.name}}</td><td><div class="btn btn-small btn-danger" ng-click="doRemove(f)">Remove</div></td></tr>
+		<caption>{{::i18_selectedFiles}}</caption>
+		<thead><tr><th>{{::i18n_name}}</th><th></th></tr></thead>
+		<tr ng-repeat="f in uploadFiles"><td>{{f.name}}</td><td><div class="btn btn-small btn-danger" ng-click="doRemove(f)">{{::i18n_remove}}</div></td></tr>
 	</table>
-	<div ng-if="!isFileSelected()"><span>Nothing selected, yet</span></div>
+	<div ng-if="!isFileSelected()"><span>{{::i18n_nothingSelected}}</span></div>
 	<br>
-	<div class="btn btn-primary" ng-file-select ng-model="uploadFiles" ng-multiple="isMultiSelect()">Choose files</div>
-   	<div class="btn btn-small btn-success" ng-click="doUpload()">Upload</div>
-   	<div class="btn btn-small btn-info" ng-click="dismiss()">Cancel</div>
+	<div class="btn btn-primary" ng-file-select ng-model="uploadFiles" ng-multiple="isMultiSelect()">{{::i18n_chooseFiles}}</div>
+   	<div class="btn btn-small btn-success" ng-click="doUpload()">{{::i18n_upload}}</div>
+   	<div class="btn btn-small btn-info" ng-click="dismiss()">{{::i18n_cancel}}</div>
 </div>
