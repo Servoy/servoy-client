@@ -56,7 +56,7 @@ import com.servoy.j2db.util.ExtendableURLClassLoader;
 public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminationListener
 {
 	private static Socket socket;
-	private static volatile DBGPDebugger debugger;
+	private static volatile ServoyDebugger debugger;
 	private static volatile ServerSocket ss;
 	private static final ConcurrentHashMap<IApplication, List<Context>> contexts = new ConcurrentHashMap<IApplication, List<Context>>();
 
@@ -489,6 +489,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		private volatile boolean executing;
 		private volatile long startTime;
 		private volatile boolean connected = true;
+		private Thread t;
 
 		@Override
 		public void run()
@@ -505,30 +506,30 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			}
 			finally
 			{
-				executing = false;
+				synchronized (this)
+				{
+					executing = false;
+				}
 			}
 		}
 
-		/**
-		 * @return
-		 */
 		private boolean isSocketValid()
 		{
 			return socket != null && !socket.isClosed() && socket.isConnected() && socket.isBound();
 		}
 
-		/**
-		 *
-		 */
-		public boolean checkState()
+		public synchronized boolean checkState()
 		{
+			if (debugger == null) return false;
+
 			if (!executing)
 			{
 				if (isSocketValid())
 				{
 					executing = true;
 					startTime = System.currentTimeMillis();
-					new Thread(this).start();
+					t = new Thread(this);
+					t.start();
 				}
 			}
 			else if ((System.currentTimeMillis() - startTime) > 2000)
@@ -545,11 +546,54 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			}
 			return connected;
 		}
+
+		public synchronized void waitABitIfNeededAndThenRun(int maxMSToWait, Runnable toRun)
+		{
+			if (executing)
+			{
+				try
+				{
+					t.join(maxMSToWait);
+					// TODO we could even try to interrupt it if it takes too long...
+				}
+				catch (InterruptedException e)
+				{
+					// just continue and execute anyway
+				}
+			}
+			toRun.run();
+		}
+
 	}
 
 	public static void stopExecutingCurrentFunction()
 	{
-		if (debugger != null) debugger.close();
+		if (debugger != null)
+		{
+			connectionTester.waitABitIfNeededAndThenRun(1000, new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if (debugger != null)
+					{
+						try
+						{
+							Context.enter();
+							debugger.sendEnd(true);
+						}
+						catch (Throwable t)
+						{
+							t.printStackTrace();
+						}
+						finally
+						{
+							Context.exit();
+						}
+					}
+				}
+			});
+		}
 	}
 
 }
