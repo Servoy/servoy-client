@@ -191,8 +191,9 @@ angular.module('window',['servoy'])
 				var groupCount = 1;
 				if (items[j])
 				{
+					if (items[j].visible == false) continue;
 					var text = items[j].text;
-					if (items[j].visible == false || !text) continue;
+					if (!text) text = 'no text';
 					var cssClass = items[j].cssClass;
 					if (cssClass == 'img_checkbox' && items[j].selected != true)
 					{
@@ -240,7 +241,7 @@ angular.module('window',['servoy'])
 					oMenu.addItem(mi,groupCount);
 					if (items[j].items && items[j].items.length >0)
 					{
-						var menu = new YAHOO.widget.Menu(items[j].text);
+						var menu = new YAHOO.widget.Menu(text);
 						this.generateMenu(items[j].items,menu);
 						mi.cfg.setProperty('submenu', menu);
 					}

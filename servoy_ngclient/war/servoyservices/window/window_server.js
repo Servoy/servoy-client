@@ -251,6 +251,48 @@ var Menu = {
 			command.y = y;
 		}
 		$scope.model.popupMenuShowCommand = command;
+	},
+	
+	setEnabled: function(enabled)
+	{
+		this.enabled = enabled;
+	},
+	
+	isEnabled: function()
+	{
+		if (this.enabled == undefined)
+			return true;
+		return this.enabled;
+	},
+	
+	setIcon: function(icon)
+	{
+		this.icon = icon;
+	},
+	
+	setMnemonic: function(mnemonic)
+	{
+		this.mnemonic = mnemonic;
+	},
+	
+	setText: function(text)
+	{
+		this.text = text;
+	},
+	
+	setVisible: function(visible)
+	{
+		this.visible = visible;
+	},
+	
+	setBackgroundColor: function(color)
+	{
+		this.backgroundColor = color;
+	},
+	
+	setForegroundColor: function(color)
+	{
+		this.foregroundColor = color;
 	}
 }
 $scope.api.createPopupMenu = function() {
