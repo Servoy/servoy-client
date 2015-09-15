@@ -69,6 +69,8 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			});
 
 			$scope.$watch("model.enabled", function(newValue,oldValue) {
+				if (oldValue == true && newValue == true)
+					return;
 				if ($scope.model.tabs)
 				{
 					for(i=0; i<$scope.model.tabs.length; i++) 
