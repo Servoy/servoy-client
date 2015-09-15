@@ -68,6 +68,19 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				refresh();
 			});
 
+			$scope.$watch("model.enabled", function(newValue,oldValue) {
+				if ($scope.model.tabs)
+				{
+					for(i=0; i<$scope.model.tabs.length; i++) 
+					{
+						if($scope.model.tabs[i].active)
+						{
+							$scope.svyServoyapi.setFormEnabled($scope.model.tabs[i].containsFormId,newValue);
+						}	
+					}
+				}	
+			});
+			
 			$scope.$watch("model.tabs", function(newValue) {
 				if ($log.debugEnabled) $log.debug("svy * model.tabs reference updated; length = " + ($scope.model.tabs ? $scope.model.tabs.length : undefined) + " -- " + new Date().getTime());
 				refresh();

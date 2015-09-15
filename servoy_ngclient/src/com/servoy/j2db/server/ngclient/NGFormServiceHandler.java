@@ -93,6 +93,12 @@ public class NGFormServiceHandler extends FormServiceHandler
 				break;
 			}
 
+			case "setEnabled" :
+			{
+				IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(args.optString("formname")).getFormUI();
+				form.setComponentEnabled(args.optBoolean("enabled"));
+				break;
+			}
 			case "executeInlineScript" :
 			{
 				try
