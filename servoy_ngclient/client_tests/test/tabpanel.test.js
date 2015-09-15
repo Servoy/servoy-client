@@ -62,7 +62,8 @@ describe('servoydefaultTabpanel component', function() {
 					height: 480
 				},
 				name: 'tabs'
-			}
+			},
+			enabled: true
 	}
     var apiMock ={
     	tabs:{
