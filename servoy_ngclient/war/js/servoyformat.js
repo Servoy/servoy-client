@@ -81,7 +81,6 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
 		}else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
 			data *= -1;
-			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
 		}
 		
 		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
