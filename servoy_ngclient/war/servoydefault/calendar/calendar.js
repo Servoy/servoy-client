@@ -267,6 +267,12 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						else
 							inputElement.attr("readonly", "readonly");
 						break;
+					case "readOnly":
+						if (!value)
+							inputElement.removeAttr("readonly");
+						else
+							inputElement.attr("readonly", "readonly");
+						break;	
 					case "horizontalAlignment":
 						$svyProperties.setHorizontalAlignment(inputElement, value);
 						break;
