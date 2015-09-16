@@ -26,4 +26,6 @@ import java.awt.Color;
 public interface ISupportsDoubleBackground
 {
 	void setBackground(Color color1, Color color2);
+
+	void setForeground(Color color1, Color color2);
 }
