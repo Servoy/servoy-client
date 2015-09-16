@@ -103,8 +103,10 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	private boolean keyBindingChangedValBeforeFocusEvent = false;
 	private boolean consumeEnterReleased;
-	private boolean useListColor = false;
-	private Color listColor = null;
+	private boolean useBackgroundListColor = false;
+	private boolean useForegroundListColor = false;
+	private Color listBackgroundColor = null;
+	private Color listForegroundColor = null;
 
 	private static Timer timer;
 
@@ -504,8 +506,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 					jlist.setModel(dlm);
 					jlist.setSelectedValue(txt, true);
 					jlist.setFont(getFont());
-					if (isOpaque()) jlist.setBackground(getListColor()); //use bgcolor only for opaque popup
-					jlist.setForeground(getForeground());
+					if (isOpaque()) jlist.setBackground(getListBackgroundColor()); //use bgcolor only for opaque popup
+					jlist.setForeground(getListForegroundColor());
 				}
 				showPopup();
 			}
@@ -629,8 +631,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				jlist.addMouseListener(new ListMouseListener());
 
 				jlist.setFont(getFont());
-				if (isOpaque()) jlist.setBackground(getListColor()); //use bgcolor only for opaque popup
-				jlist.setForeground(getForeground());
+				if (isOpaque()) jlist.setBackground(getListBackgroundColor()); //use bgcolor only for opaque popup
+				jlist.setForeground(getListForegroundColor());
 
 				jlist.setFocusable(false);
 				jlist.addListSelectionListener(new ListSelectionListener()
@@ -1037,23 +1039,48 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	{
 		if (!Utils.equalObjects(color1, color2))
 		{
-			useListColor = true;
-			this.listColor = color2;
+			useBackgroundListColor = true;
+			this.listBackgroundColor = color2;
 		}
 		else
 		{
 			// if the same, still use background
-			useListColor = false;
+			useBackgroundListColor = false;
 		}
 		setBackground(color1);
 	}
 
-	private Color getListColor()
+	private Color getListBackgroundColor()
 	{
-		if (useListColor)
+		if (useBackgroundListColor)
 		{
-			return listColor;
+			return listBackgroundColor;
 		}
 		return getBackground();
+	}
+
+	@Override
+	public void setForeground(Color color1, Color color2)
+	{
+		if (!Utils.equalObjects(color1, color2))
+		{
+			useForegroundListColor = true;
+			this.listForegroundColor = color2;
+		}
+		else
+		{
+			// if the same, still use background
+			useForegroundListColor = false;
+		}
+		setForeground(color1);
+	}
+
+	private Color getListForegroundColor()
+	{
+		if (useForegroundListColor)
+		{
+			return listForegroundColor;
+		}
+		return getForeground();
 	}
 }
