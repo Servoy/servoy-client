@@ -374,7 +374,7 @@ public class MediaResourcesServlet extends HttpServlet
 						ServletFileUpload upload = new ServletFileUpload();
 						FileItemIterator iterator = upload.getItemIterator(req);
 						ArrayList<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
-						if (iterator.hasNext())
+						while (iterator.hasNext())
 						{
 							FileItemStream item = iterator.next();
 							byte[] data = read(item.openStream());
@@ -585,7 +585,7 @@ public class MediaResourcesServlet extends HttpServlet
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException

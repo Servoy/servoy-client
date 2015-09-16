@@ -40,19 +40,17 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     
     $scope.doUpload = function() {
     	if($scope.isFileSelected()) {
-    		for(var i = 0; i < $scope.uploadFiles.length; i++) {
-	    		$scope.upload = $upload.upload({
-	    			url: $svyFileuploadUtils.getUploadUrl(),
-	    			file: $scope.uploadFiles[i]
-	    		}).progress(function(evt) {
-	    			console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
-	    		}).success(function(data, status, headers, config) {
-	    			// file is uploaded successfully
-	    			$scope.dismiss();
-	    		});
-	    		//.error(...)
-	    		//.then(success, error, progress);
-    		}
+    		$scope.upload = $upload.upload({
+    			url: $svyFileuploadUtils.getUploadUrl(),
+    			file: $scope.uploadFiles
+    		}).progress(function(evt) {
+    			console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+    		}).success(function(data, status, headers, config) {
+    			// file is uploaded successfully
+    			$scope.dismiss();
+    		});
+    		//.error(...)
+    		//.then(success, error, progress);
     	} 	        	
     };
     
