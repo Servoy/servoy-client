@@ -505,7 +505,7 @@ public class SpecGenerator
 		addFindmodeModelEntries.add("typeahead");
 
 
-		String readOnly= "{ \"type\" : \"boolean\"}";
+		String readOnly= "{ \"type\" : \"protected\", \"for\" : [\"readOnly\"]}";
 		String readOnlyEnabled = "{ \"type\" : \"readOnly\", \"oppositeOf\" : \"enabled\"}";
 		String readOnlyEditable = "{ \"type\" : \"readOnly\", \"oppositeOf\" : \"editable\"}";
 
