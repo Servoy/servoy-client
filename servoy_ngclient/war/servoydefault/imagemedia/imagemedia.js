@@ -5,6 +5,7 @@ angular.module('servoydefaultImagemedia', [ 'servoy' ]).directive(
 				restrict : 'E',
 				scope : {
 					model : "=svyModel",
+					handlers : "=svyHandlers",
 					api : "=svyApi",
 					svyServoyapi : "="
 				},

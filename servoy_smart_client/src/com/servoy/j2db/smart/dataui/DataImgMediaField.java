@@ -90,7 +90,7 @@ import com.servoy.j2db.util.gui.SnapShot;
 
 /**
  * Field for serving blobs (mainly images)
- * 
+ *
  * @author jblok
  */
 @SuppressWarnings("nls")
@@ -158,12 +158,15 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
-				if (e.isPopupTrigger() && popup != null)
+				if (e.isPopupTrigger())
 				{
-					// the popup invoker should be displayed in order to show popup; otherwise error is thrown
-					// it is for readonly listview where action should work and popup shouldn't
-					if (isDisplayable()) popup.show(DataImgMediaField.this, e.getX() - DataImgMediaField.this.getHorizontalScrollBar().getValue(), e.getY() -
-						DataImgMediaField.this.getVerticalScrollBar().getValue());
+					if (popup != null)
+					{
+						// the popup invoker should be displayed in order to show popup; otherwise error is thrown
+						// it is for readonly listview where action should work and popup shouldn't
+						if (isDisplayable()) popup.show(DataImgMediaField.this, e.getX() - DataImgMediaField.this.getHorizontalScrollBar().getValue(),
+							e.getY() - DataImgMediaField.this.getVerticalScrollBar().getValue());
+					}
 				}
 				else if ((popup == null || !popup.isVisible()) && isEnabled())
 				{
@@ -344,7 +347,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				if (isAsyncLoading() && application.getModeManager().getMode() == IModeManager.EDIT_MODE)
 				{
 					enclosedComponent.setIconDirect((Icon)null, enclosedComponent.getNextSeq());//clear previous image
-					enclosedComponent.setText(application.getI18NMessage("servoy.imageMedia.loadingImage"));//show loading text 
+					enclosedComponent.setText(application.getI18NMessage("servoy.imageMedia.loadingImage"));//show loading text
 				}
 
 				final Object tmp = obj;
@@ -770,7 +773,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				if (editProvider != null) editProvider.startEdit();
 				setValueObject(data);
 				if (editProvider != null) editProvider.commitData();
-				// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList 
+				// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList
 				if (resolver instanceof DataAdapterList)
 				{
 					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, fileNameAndMimeType[0]);
@@ -791,7 +794,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			if (editProvider != null) editProvider.startEdit();
 			setValueObject(null);
 			if (editProvider != null) editProvider.commitData();
-			// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList 
+			// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList
 			if (resolver instanceof DataAdapterList)
 			{
 				((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, null);
@@ -825,7 +828,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				}
 
 				if (editProvider != null) editProvider.commitData();
-				// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList 
+				// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList
 				if (resolver instanceof DataAdapterList)
 				{
 					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, f.getName());
@@ -854,7 +857,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 			FileNameSuggestionFileChooser fc = new FileNameSuggestionFileChooser();
 
 			String fileName = null;
-			// dataprovider_filename and dataprovider_mimetype fields will be used like in the web TODO maybe refactor to avoid cast below 
+			// dataprovider_filename and dataprovider_mimetype fields will be used like in the web TODO maybe refactor to avoid cast below
 			if (resolver instanceof DataAdapterList)
 			{
 				Object val = ((DataAdapterList)resolver).getValueObject(((DataAdapterList)resolver).getState(), dataProviderID + IMediaFieldConstants.FILENAME);
@@ -960,7 +963,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						byte content[] = FileChooserUtils.paintingReadFile(application.getScheduledExecutor(), application, file);
 						setValueObject(content);
 						if (editProvider != null) editProvider.commitData();
-						// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList 
+						// dataprovider_filename and dataprovider_mimetype fields will be set like in the web TODO maybe refactor to avoid cast below and existence of method setValueObject in DataAdapterList
 						if (resolver instanceof DataAdapterList)
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());

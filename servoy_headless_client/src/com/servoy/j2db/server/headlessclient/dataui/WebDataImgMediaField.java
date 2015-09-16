@@ -91,7 +91,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Component to display media inside the browser has support for up and download of media. Can display the image if it is an image.
- * 
+ *
  * @author jcompagner,jblok
  */
 @SuppressWarnings("nls")
@@ -239,7 +239,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 						public void onSubmit()
 						{
-							// submit without uploaded files 
+							// submit without uploaded files
 						}
 					}, false, "");
 					WebEventExecutor.generateResponse(target, page);
@@ -336,7 +336,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.IDesignModeListener#setDesignMode(boolean)
 	 */
 	public void setDesignMode(boolean mode)
@@ -540,8 +540,8 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public void setActionCmd(String id, Object[] args)
 	{
-//		eventExecutor.setActionCmd(id, args);
-		imgd.setActionCommand(id, args);
+		eventExecutor.setActionCmd(id, args);
+//		imgd.setActionCommand(id, args);
 	}
 
 	public void setValidationEnabled(boolean b)
@@ -809,7 +809,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.apache.wicket.Component#getMarkupId(boolean)
 		 */
 		@Override
@@ -1145,7 +1145,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
 	}
 
 	@Override
@@ -1163,7 +1163,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -1175,7 +1175,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -1186,7 +1186,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
