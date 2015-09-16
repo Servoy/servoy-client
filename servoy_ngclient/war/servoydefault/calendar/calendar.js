@@ -262,13 +262,13 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 							inputElement.attr("disabled", "disabled");
 						break;
 					case "editable":
-						if (value)
+						if (value && !$scope.model.readOnly)
 							inputElement.removeAttr("readonly");
 						else
 							inputElement.attr("readonly", "readonly");
 						break;
 					case "readOnly":
-						if (!value)
+						if (!value && $scope.model.editable)
 							inputElement.removeAttr("readonly");
 						else
 							inputElement.attr("readonly", "readonly");
