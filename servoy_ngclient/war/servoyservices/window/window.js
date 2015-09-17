@@ -74,7 +74,9 @@ angular.module('window',['servoy'])
 						while (parent) {
 							form = parent.getAttribute("ng-controller");
 							if (form) {
-								if (contextFilter && form != contextFilter && form != 'MainController') break;
+								//global shortcut or context match
+								var shortcuthit = !contextFilter || (contextFilter && form == contextFilter);
+								if (!shortcuthit) break;
 								contextMatch = true;
 								break;
 							}
