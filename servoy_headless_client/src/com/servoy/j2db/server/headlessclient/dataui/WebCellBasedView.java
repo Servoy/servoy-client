@@ -89,7 +89,6 @@ import org.apache.wicket.util.string.Strings;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
-import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.FormController;
@@ -1777,7 +1776,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					IPersist element = components.next();
 					if (element instanceof Field || element instanceof GraphicalComponent)
 					{
-						if (element instanceof GraphicalComponent && isBodyElement(cellview, ((GraphicalComponent)element).getLabelFor()))
+						if (element instanceof GraphicalComponent && isInView(cellview, ((GraphicalComponent)element).getLabelFor()))
 						{
 							labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
 							continue;
@@ -2063,10 +2062,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	}
 
 	/**
-	 * Check if the element which has the label is in the body part.
-	 * @return true if the element is in the body part, false otherwise
+	 * Check if the element which has the label is in the table view (body part).
+	 * @return true if the element is in the table view, false otherwise
 	 */
-	private boolean isBodyElement(AbstractBase abstractBase, String labelFor)
+	private boolean isInView(AbstractBase abstractBase, String labelFor)
 	{
 		if (labelFor != null && !labelFor.equals("") && abstractBase instanceof Form)
 		{
@@ -2079,7 +2078,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					element instanceof ISupportSize)
 				{
 					Point loc = ((ISupportBounds)element).getLocation();
-					return f.getPartAt(loc.y + ((ISupportSize)element).getSize().height).getPartType() == IPartConstants.BODY;
+					return loc.y >= startY && loc.y < endY;
 				}
 			}
 		}
@@ -2624,7 +2623,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				if (!isListViewMode())
 				{
-					if (element instanceof GraphicalComponent && isBodyElement(cellview, ((GraphicalComponent)element).getLabelFor()))
+					if (element instanceof GraphicalComponent && isInView(cellview, ((GraphicalComponent)element).getLabelFor()))
 					{
 						labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
 						continue;
