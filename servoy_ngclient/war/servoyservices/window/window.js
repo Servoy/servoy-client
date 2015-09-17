@@ -107,9 +107,9 @@ angular.module('window',['servoy'])
 						}
 						if (!pushedChanges) $(targetEl).change();
 						pushedChanges = true;
-						$timeout(function() {
+						$timeout(function(callback,argsWithEvent) {
 							$window.executeInlineScript(callback.formname,callback.script,argsWithEvent);
-						},10);
+						},10,true,callback,argsWithEvent);
 						if (retValue && consumeEvent) retValue = false;
 					}	
 				}
