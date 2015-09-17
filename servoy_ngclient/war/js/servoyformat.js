@@ -35,15 +35,17 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 	function formatNumbers(data , servoyFormat){
 		if(!servoyFormat ) return data
 		if (data === "") return data;
+		var initialData = data;
 		var partchedFrmt = servoyFormat;   // patched format for numeraljs format
 		
 		if (partchedFrmt.indexOf(';') > 0){
 			if (data < 0) {
 				partchedFrmt = partchedFrmt.split(';')[1]
-				partchedFrmt = partchedFrmt.replaceAll("-","");
 			}
 			else  partchedFrmt = partchedFrmt.split(';')[0];
 		}
+		
+		if (data < 0) data *=-1;
 		
 		//scientific notation case
 		if(servoyFormat.indexOf('E') >-1){
@@ -70,6 +72,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		var centIndex = -1;
 		var milIndex = -1;
 		var MILLSIGN = '\u2030' //‰
+			
 		if(servoyFormat.indexOf("%") >-1){
 			data *= 100;
 			centIndex = partchedFrmt.indexOf("%")
@@ -79,9 +82,17 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			data *= 1000;
 			milIndex = partchedFrmt.indexOf(MILLSIGN)
 			partchedFrmt = partchedFrmt.replaceAll(MILLSIGN,"p");
-		}else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
-			data *= -1;
 		}
+		
+		var minIndex = -1;
+		if(servoyFormat.indexOf("-") >-1){
+			minIndex = partchedFrmt.indexOf("-")
+			partchedFrmt = partchedFrmt.replaceAll("-","p");
+		}
+		
+//		else if(servoyFormat.indexOf("-") > -1 && servoyFormat.indexOf(";") < 0) {
+//			data *= -1;
+//		}
 		
 		partchedFrmt = partchedFrmt.replaceAll('\u00A4','$');
 		partchedFrmt = partchedFrmt.replaceAll('(#+)','[$1]');
@@ -97,8 +108,13 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			else ret +=  ' ' + currency;
 		}
 		
-		if(centIndex>-1) ret = ret.insert(centIndex,'%')
-		if(milIndex>-1) ret = ret.insert(milIndex,MILLSIGN)
+		if(centIndex>-1) ret = ret.insert(centIndex,'%');
+		if(milIndex>-1) ret = ret.insert(milIndex,MILLSIGN);
+		if(minIndex>-1) ret = ret.insert(minIndex,'-');
+		
+		if (initialData < 0 && servoyFormat.indexOf(";") < 0) {
+			ret = '-'+ret;
+		}
 		
 		return ret;
 
