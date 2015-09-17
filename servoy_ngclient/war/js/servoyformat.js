@@ -100,11 +100,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		
 		// test for currency, this should be improved inside numeral so it can handle literals inside the format.
 		var currency = getCurrency(servoyFormat);
-		if(currency != "" && partchedFrmt.endsWith(currency))
+		if(currency != "" && endsWith(partchedFrmt, currency))
 		partchedFrmt = (partchedFrmt.substring(0, partchedFrmt.indexOf(currency))).trim();
 		var ret = numeral(data).format(partchedFrmt);
 		if(currency != ""){ 
-			if(servoyFormat.startsWith(currency))	ret = currency + ' ' + ret;
+			if(servoyFormat.indexOf(currency) === 0)	ret = currency + ' ' + ret;
 			else ret +=  ' ' + currency;
 		}
 		
@@ -118,6 +118,10 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		
 		return ret;
 
+	}
+	
+	function endsWith(str, suffix) {
+	    return str.indexOf(suffix, str.length - suffix.length) !== -1;
 	}
 	
 	// internal function
