@@ -29,6 +29,20 @@ angular.module('window',['servoy'])
 				{
 					translatedShortcut +='ALT';
 				}
+				else if (shortcutParts[i].toLowerCase().indexOf('numpad') == 0)
+				{
+					//numpad0 to numpad9
+					if (shortcutParts[i].length == 7)
+					{
+						shortcutParts[i] = shortcutParts[i].toLowerCase();
+						shortcutParts[i] = shortcutParts[i].replace("numpad","numpad-");
+						translatedShortcut += shortcutParts[i];
+					}
+					else
+					{
+						translatedShortcut += shortcutParts[i];
+					}	
+				}	
 				else
 				{
 					translatedShortcut +=shortcutParts[i];
