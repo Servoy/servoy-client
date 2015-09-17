@@ -43,6 +43,8 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.FormElementGroup;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -53,6 +55,7 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebGroup;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
@@ -89,6 +92,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	private PropertyChangeListener parentReadOnlyListener;
 
 	protected List<FormElement> cachedElements = new ArrayList<FormElement>();
+	private final Map<String, RuntimeWebGroup> groups = new HashMap<String, RuntimeWebGroup>();
 
 	public WebFormUI(IWebFormController formController)
 	{
@@ -115,6 +119,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		components.clear();
 		cachedElements.clear();
+		groups.clear();
 		IDataAdapterList previousDataAdapterList = dataAdapterList;
 		dataAdapterList = new DataAdapterList(formController);
 
@@ -214,18 +219,36 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		WebFormComponent component)
 	{
 		int counter = counterStart;
-		if (!fe.getName().startsWith("svy_") && !FormElement.ERROR_BEAN.equals(componentSpec.getName()))
+		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) && (!fe.getName().startsWith("svy_") ||
+			(fe.getPersistIfAvailable() instanceof IFormElement) && ((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
 		{
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-			elementsScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
-			elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
-			if (fe.isLegacy() ||
-				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-					fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
-					"servoydefault-")))
+			if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+				fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
+				fe.getTypeName().startsWith("servoydefault-")))
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
+			}
+			if (!fe.getName().startsWith("svy_"))
+			{
+				elementsScope.put(fe.getRawName(), formController.getFormScope(), runtimeComponent);
+				elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
+			}
+
+			String groupID = fe.getPersistIfAvailable() instanceof IFormElement ? ((IFormElement)fe.getPersistIfAvailable()).getGroupID() : null;
+			if (groupID != null)
+			{
+				RuntimeWebGroup group = groups.get(groupID);
+				if (group == null)
+				{
+					String groupName = FormElementGroup.getName(groupID);
+					group = new RuntimeWebGroup(groupName);
+					group.setParentScope(component.getDataConverterContext().getApplication().getScriptEngine().getSolutionScope());
+					elementsScope.put(groupName, formController.getFormScope(), group);
+					groups.put(groupID, group);
+				}
+				group.add(runtimeComponent);
 			}
 		}
 		return counter;

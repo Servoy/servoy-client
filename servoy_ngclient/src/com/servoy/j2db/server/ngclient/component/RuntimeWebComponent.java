@@ -159,37 +159,6 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 			if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) return Scriptable.NOT_FOUND;
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 		}
-		final Function func = apiFunctions.get(name);
-		if (func != null && isApiFunctionEnabled(name))
-		{
-			final List<Pair<String, String>> oldVisibleForms = getVisibleForms();
-			return new BaseFunction()
-			{
-				@Override
-				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
-				{
-					Object retValue = func.call(cx, scope, thisObj, args);
-					updateVisibleContainers(oldVisibleForms);
-					return retValue;
-				}
-			};
-		}
-		// check if we have a setter/getter for this property
-		if (name != null && name.length() > 0)
-		{
-			String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
-			if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
-			{
-				// call getter
-				Function propertyGetter = apiFunctions.get("get" + uName);
-				return propertyGetter.call(Context.getCurrentContext(), start, start, new Object[] { });
-			}
-		}
-
-		if ("svyMarkupId".equals(name))
-		{
-			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
-		}
 		if ("getFormName".equals(name))
 		{
 			return new Callable()
@@ -205,6 +174,46 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					return null;
 				}
 			};
+		}
+		final Function func = apiFunctions.get(name);
+		if (func != null && isApiFunctionEnabled(name))
+		{
+			final List<Pair<String, String>> oldVisibleForms = getVisibleForms();
+			return new BaseFunction()
+			{
+
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					Object retValue = func.call(cx, scope, thisObj, args);
+					updateVisibleContainers(oldVisibleForms);
+					return retValue;
+				}
+			};
+		}
+		// check if we have a setter/getter for this property
+		if (name != null && name.length() > 0)
+		{
+
+			String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
+			if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
+
+			{
+				// call getter
+				Function propertyGetter = apiFunctions.get("get" + uName);
+				return propertyGetter.call(Context.getCurrentContext(), start, start, new Object[] { });
+			}
+
+		}
+
+		if ("svyMarkupId".equals(name))
+		{
+			return ComponentFactory.getMarkupId(component.getFormElement().getForm().getName(), component.getName());
+		}
+
+		if (prototypeScope != null)
+		{
+			return prototypeScope.get(name, start);
 		}
 
 		return Scriptable.NOT_FOUND;
