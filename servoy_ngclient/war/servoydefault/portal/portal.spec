@@ -25,6 +25,7 @@
 	        "location" : "point", 
 	        "multiLine" : "boolean", 
 	        "readOnly" : { "type" : "protected", "for" : ["readOnly"]}, 
+	        "readOnlyMode" :{"type":"protected", "for": ["readOnlyMode"], "default": undefined},
 	        "relatedFoundset" : {"type" :"foundset", "pushToServer": "allow"}, 
 	        "reorderable" : "boolean", 
 	        "resizable" : "boolean", 
@@ -39,7 +40,7 @@
 	        "styleClass" : "string", 
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "transparent" : "boolean", 
-	        "visible" : "visible" 
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

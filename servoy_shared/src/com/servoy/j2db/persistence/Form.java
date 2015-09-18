@@ -2066,4 +2066,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		putCustomProperty(new String[] { "layout", "responsive" }, Boolean.valueOf(b));
 	}
 
+	public String getNgReadOnlyMode()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_NG_READONLY_MODE });
+		if (customProperty instanceof String) return (String)customProperty;
+		return null;
+	}
+
+	public void setNgReadOnlyMode(String readOnly)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_NG_READONLY_MODE }, readOnly);
+	}
+
 }

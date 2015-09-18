@@ -201,6 +201,10 @@ public class FormElementHelper
 					portal.put("headerHeight", headerHeight);
 					portal.put("sortable", form.getOnSortCmdMethodID() != -1);
 				}
+				if (form.getNgReadOnlyMode() != null)
+				{
+					portal.put("readOnlyMode", Boolean.valueOf(form.getNgReadOnlyMode()));
+				}
 
 				JSONObject location = new JSONObject();
 				location.put("x", 0);

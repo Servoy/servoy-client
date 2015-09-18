@@ -100,7 +100,7 @@ class PersistBasedFormElementImpl
 				{
 					// add beanXML (which is actually a JSON string here) defined properties to the map
 					formElement.convertFromJSONToFormElementValues(fs, specProperties, jsonMap, formElement.getWebComponentSpec().getHandlers(),
-						jsonProperties, propertyPath);
+							jsonProperties, propertyPath);
 				}
 				catch (Exception ex)
 				{
@@ -276,6 +276,22 @@ class PersistBasedFormElementImpl
 			{
 				putAndConvertProperty("relatedFoundset", relatedFoundset, map, fs, pd, propertyPath);
 			}
+
+			map.remove("ngReadOnlyMode");
+			if (portal.getNgReadOnlyMode() != null)
+			{
+				PropertyDescription readOnlyModePD = specProperties.get("readOnlyMode");
+				if (pd == null)
+				{
+					Debug.error(new RuntimeException("Cannot find foundset special type to use for portal."));
+					return;
+				}
+				else
+				{
+					putAndConvertProperty("readOnlyMode", Boolean.valueOf(portal.getNgReadOnlyMode()), map, fs, readOnlyModePD, propertyPath);
+				}
+			}
+
 
 //			components: 'component[]',
 //			component: {

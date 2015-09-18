@@ -210,4 +210,5 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_CSSCLASS = "cssClasses";
 	public static final String PROPERTY_JSON = "json";
 	public static final String PROPERTY_TYPENAME = "typeName";
+	public static final String PROPERTY_NG_READONLY_MODE = "ngReadOnlyMode";
 }
