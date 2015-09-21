@@ -1005,8 +1005,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		     $window.document.getElementsByTagName("head")[0].appendChild(fileref);
 		},
 		getLanguage:function() {
-			// this returns first one of the languages array if the browser supports this (Chrome and FF) else it falls back to language or userLanguage (IE, and IE seems to return the right one from there) 
-			return navigator.languages? navigator.languages[0] : (navigator.language || navigator.userLanguage);
+			// this returns first one of the languages array if the browser supports this (Chrome and FF) else it falls back to language or userLanguage (IE, and IE seems to return the right one from there)
+			return $window.navigator.languages && $window.navigator.languages.length > 0 ? $window.navigator.languages[0] : ($window.navigator.language || $window.navigator.userLanguage);
 		},
 		setLocale:function(language,country) {
 			try{
