@@ -23,9 +23,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			//                                  .cellHandlers     - is the actual cell element handlers cache
 			//                                  .cellServoyApi 	  - is the actual cell element Servoy Api cache
 			// cellAPICaches[renderedRowIndex][elementIndex]       - is the actual cell element API cache
+			// cellChangeNotifierCaches[renderedRowIndex][elementIndex]       - is cache of the $sabloConstants.modelChangeNotifier after cell cache is destroyed, so it can be reused
 			var rowProxyObjects = {};
 			var cellAPICaches = {};
-
+			var cellChangeNotifierCaches = {};
+			
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
 				i18nService.setCurrentLang(locale.language)
@@ -73,8 +75,16 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				}
 			})
 
-			function disposeOfRowProxies(rowProxy) {
+			function disposeOfRowProxies(rowProxy,renderedRowIndex) {
+				if (renderedRowIndex !== undefined)
+				{
+					cellChangeNotifierCaches[renderedRowIndex] = []
+				}
 				for (var elIdx in rowProxy) {
+					if (renderedRowIndex !== undefined && rowProxy[elIdx].mergedCellModel.hasOwnProperty($sabloConstants.modelChangeNotifier))
+					{
+						cellChangeNotifierCaches[renderedRowIndex][elIdx] = rowProxy[elIdx].mergedCellModel[$sabloConstants.modelChangeNotifier];
+					}	
 					if (rowProxy[elIdx].unwatchFuncs) {
 						rowProxy[elIdx].unwatchFuncs.forEach(function (f) { f(); });
 					}
@@ -87,7 +97,20 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					// either a component was added/removed/changed or the whole array changed
 					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
 					for (var someKey in rowProxyObjects)
-						disposeOfRowProxies(rowProxyObjects[someKey]);
+					{
+						var renderedRowIndex = undefined;
+						if ($scope.foundset && $scope.foundset.viewPort && $scope.foundset.viewPort.rows) {
+							for (var idx in $scope.foundset.viewPort.rows) 
+							{
+								if ($scope.foundset.viewPort.rows[idx][$foundsetTypeConstants.ROW_ID_COL_KEY] === someKey)
+								{
+									renderedRowIndex = idx;
+									break;
+								}
+							}
+						}
+						disposeOfRowProxies(rowProxyObjects[someKey],renderedRowIndex);
+					}	
 
 					rowProxyObjects = {};
 				}
@@ -146,13 +169,13 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						if (el.handlers.onActionMethodID) {
 							handlers= ' svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx + ')"'
 						}
-						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ')"' + handlers + ' tabIndex="-1"></div>';
+						cellTemplate = '<div class="ui-grid-cell-contents svy-textfield svy-field form-control input-sm" style="white-space:nowrap" cell-helper="grid.appScope.getMergedCellModel(row, ' + idx + ', rowRenderIndex)"' + handlers + ' tabIndex="-1"></div>';
 					}
 					else {
 						var portal_svy_name = $element[0].getAttribute('data-svy-name');
 						cellTemplate = '<' + el.componentDirectiveName + ' name="' + el.name
 							+ '" svy-model="grid.appScope.getMergedCellModel(row, ' + idx
-							+ ')" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
+							+ ', rowRenderIndex)" svy-api="grid.appScope.cellApiWrapper(row, ' + idx
 							+ ', rowRenderIndex, rowElementHelper)" svy-handlers="grid.appScope.cellHandlerWrapper(row, ' + idx
 							+ ')" svy-servoyApi="grid.appScope.cellServoyApiWrapper(row, ' + idx + ')"';
 						if (portal_svy_name) cellTemplate += " data-svy-name='" + portal_svy_name + "." + el.name + "'";
@@ -329,6 +352,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						rowCache[rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY]] = i;
 					result = rowCache[rowId];
 				}
+				if (result === undefined) result = -1;
 				return result;
 			}
 
@@ -428,7 +452,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			}
 
 			// merges component model and modelViewport (for record dependent properties like dataprovider/tagstring/...) the cell's element's model
-			$scope.getMergedCellModel = function(ngGridRow, elementIndex) {
+			$scope.getMergedCellModel = function(ngGridRow, elementIndex, renderedRowIndex) {
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
 
@@ -482,7 +506,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							}
 						}});
 					}
-
+					if (!cellData.hasOwnProperty($sabloConstants.modelChangeNotifier) && cellChangeNotifierCaches[renderedRowIndex] && cellChangeNotifierCaches[renderedRowIndex].length > elementIndex && cellChangeNotifierCaches[renderedRowIndex][elementIndex])
+					{
+						Object.defineProperty(cellData,$sabloConstants.modelChangeNotifier, {configurable : true,value:cellChangeNotifierCaches[renderedRowIndex][elementIndex]});
+						cellChangeNotifierCaches[renderedRowIndex][elementIndex] = null;
+					}	
 					cellProxies.mergedCellModel = cellModel = cellData;
 				}
 				return cellModel;
@@ -1083,7 +1111,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						testNumberOfRows();
 					});
 
-					$scope.$watchCollection('foundset.viewPort.rows', function() {
+					$scope.$watchCollection('foundset.viewPort.rows', function(newVal, oldVal) {
 						rowCache = {};
 						// check to see if we have obsolete columns in rowProxyObjects[...] - and clean them up + remove two way binding and any other watches
 						var newRowIDs = {};
@@ -1094,7 +1122,18 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						}
 						for (var oldRowId in rowProxyObjects) {
 							if (!newRowIDs[oldRowId]) {
-								disposeOfRowProxies(rowProxyObjects[oldRowId]);
+								var renderedRowIndex = undefined;
+								if (oldVal && newVal && newVal.length > 0)
+								{
+									for (var i = 0; i < oldVal.length && i < newVal.length ;i++) {
+										if(oldVal[i][$foundsetTypeConstants.ROW_ID_COL_KEY] == oldRowId)
+										{
+											renderedRowIndex = i;
+											break;
+										}	
+									}
+								}	
+								disposeOfRowProxies(rowProxyObjects[oldRowId],renderedRowIndex);
 								delete rowProxyObjects[oldRowId];
 							}
 						}
