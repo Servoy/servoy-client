@@ -394,7 +394,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			formController = parent.getImpl().getController();
 			getApplication().getRuntimeWindowManager().setCurrentWindowName(parent.getImpl().getName());
 		}
-		else
+		else if (getApplication().getRuntimeWindowManager().getMainApplicationWindow() != null)
 		{
 			formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
 		}
