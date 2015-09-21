@@ -48,7 +48,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * Helper class.
- * 
+ *
  * @author jblok
  */
 public class ComponentFactoryHelper
@@ -498,7 +498,12 @@ public class ComponentFactoryHelper
 						int bottom = Utils.getAsInteger(tk.nextToken());
 						int left = Utils.getAsInteger(tk.nextToken());
 						Color c = Color.black;
-						if (tk.hasMoreElements()) c = PersistHelper.createColor(tk.nextToken());
+						String colorString = null;
+						if (tk.hasMoreElements())
+						{
+							colorString = tk.nextToken();
+							c = PersistHelper.createColor(colorString);
+						}
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
 						StringBuffer pad = new StringBuffer();
 						pad.append(top);
@@ -510,7 +515,7 @@ public class ComponentFactoryHelper
 						pad.append(left);
 						pad.append("px"); //$NON-NLS-1$
 						style.setProperty("border-width", pad.toString()); //$NON-NLS-1$
-						style.setProperty("border-color", PersistHelper.createColorString(c)); //$NON-NLS-1$
+						style.setProperty("border-color", c != null ? PersistHelper.createColorString(c) : colorString); //$NON-NLS-1$
 						return new Insets(top, left, bottom, right);
 					}
 					else if (type.equals(SPECIAL_MATTE_BORDER) || type.equals(ROUNDED_BORDER))
