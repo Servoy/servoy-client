@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * Represents a template
- * 
+ *
  * @author rgansevles
  */
 public class Template extends StringResource implements Serializable
@@ -33,6 +33,7 @@ public class Template extends StringResource implements Serializable
 	public static final String PROP_LOCATION = "location"; //$NON-NLS-1$
 	public static final String PROP_SIZE = "size"; //$NON-NLS-1$
 	public static final String PROP_GROUPING = "grouping"; //$NON-NLS-1$
+	public static final String PROP_LAYOUT = "layout"; //$NON-NLS-1$
 
 	Template(IRepository repository, RootObjectMetaData metaData)
 	{
