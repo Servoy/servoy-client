@@ -504,14 +504,14 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 		return Boolean.TRUE.equals(getCustomMobileProperty(IMobileProperties.LIST_COMPONENT.propertyName));
 	}
 
-	public String getNgReadOnlyMode()
+	public Boolean getNgReadOnlyMode()
 	{
 		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_NG_READONLY_MODE });
-		if (customProperty instanceof String) return (String)customProperty;
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
 		return null;
 	}
 
-	public void setNgReadOnlyMode(String readOnly)
+	public void setNgReadOnlyMode(Boolean readOnly)
 	{
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_NG_READONLY_MODE }, readOnly);
 	}

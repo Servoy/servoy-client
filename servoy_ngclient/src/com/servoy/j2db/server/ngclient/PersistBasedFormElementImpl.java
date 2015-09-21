@@ -288,7 +288,7 @@ class PersistBasedFormElementImpl
 				}
 				else
 				{
-					putAndConvertProperty("readOnlyMode", Boolean.valueOf(portal.getNgReadOnlyMode()), map, fs, readOnlyModePD, propertyPath);
+					putAndConvertProperty("readOnlyMode", portal.getNgReadOnlyMode(), map, fs, readOnlyModePD, propertyPath);
 				}
 			}
 

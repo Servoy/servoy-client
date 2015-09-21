@@ -25,7 +25,7 @@
 	        "location" : "point", 
 	        "multiLine" : "boolean", 
 	        "readOnly" : { "type" : "protected", "for" : ["readOnly"]}, 
-	        "readOnlyMode" :{"type":"protected", "for": ["readOnlyMode"], "default": undefined},
+	        "readOnlyMode" :{"type":"protected", "for": ["readOnlyMode"], "default": null},
 	        "relatedFoundset" : {"type" :"foundset", "pushToServer": "allow"}, 
 	        "reorderable" : "boolean", 
 	        "resizable" : "boolean", 

@@ -132,7 +132,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				return columnTitle;
 			}
 
-			var allowCellFocus = $scope.model.readOnlyMode !== "undefined" ? $scope.model.readOnlyMode : $applicationService.getUIProperty("ngClientOptimizedReadonlyMode");
+			var allowCellFocus = $scope.model.readOnlyMode !== undefined ? $scope.model.readOnlyMode : $applicationService.getUIProperty("ngClientOptimizedReadonlyMode");
 			if (elements)
 			{
 				for (var idx = 0; idx < elements.length; idx++) {

@@ -570,7 +570,7 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName()+ "\"] }");
 		portalTypeMapping.put("findmode", findModeEnabled);
 		portalTypeMapping.put("readOnly", "{ \"type\": \"protected\" \"for\": [\"readOnly\"] }");
-		portalTypeMapping.put(IContentSpecConstants.PROPERTY_NG_READONLY_MODE, "{\"type\":\"protected\", \"for\": [\"readOnlyMode\"], \"default\": undefined}");
+		portalTypeMapping.put(IContentSpecConstants.PROPERTY_NG_READONLY_MODE, "{\"type\":\"protected\", \"for\": [\"readOnlyMode\"], \"default\": null}");
 		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);
 
 		Map<String, String> calendarTypeMapping = new HashMap<>();
