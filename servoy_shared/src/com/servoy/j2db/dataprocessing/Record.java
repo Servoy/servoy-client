@@ -29,9 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrappedException;
@@ -449,7 +451,11 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	{
 		if (FoundSet.isToplevelKeyword(name)) return Scriptable.NOT_FOUND;
 		Object mobj = jsFunctions.get(name);
-		if (mobj != null) return mobj;
+		if (mobj != null)
+		{
+			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
+			return mobj;
+		}
 		Object o = getValue(name);
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
 		{

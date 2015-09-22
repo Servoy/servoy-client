@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.MemberBox;
@@ -1394,8 +1395,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public Object get(String name, Scriptable start)
 	{
 		Object mobj = jsFunctions.get(name);
-		if (mobj != null) return mobj;
-
+		if (mobj != null)
+		{
+			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
+			return mobj;
+		}
 		if (set != null)
 		{
 			if ("rowIndex".equals(name)) //$NON-NLS-1$
@@ -1612,6 +1616,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				al.add("row_" + df.format(i + 1)); //$NON-NLS-1$
 			}
 		}
+		al.addAll(jsFunctions.keySet());
 		return al.toArray();
 	}
 

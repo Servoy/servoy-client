@@ -3083,10 +3083,18 @@ public final class Utils
 			processed.put(scriptable, sb);
 			return sb;
 		}
-		Object defaultValue = scriptable.getDefaultValue(String.class);
+
+		Object defaultValue;
+		try
+		{
+			defaultValue = scriptable.getDefaultValue(String.class);
+		}
+		catch (Exception e)
+		{
+			defaultValue = null;
+		}
 		if (defaultValue == null) defaultValue = scriptable.toString();
 		processed.put(scriptable, defaultValue.toString());
 		return defaultValue.toString();
 	}
-
 }

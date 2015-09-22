@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Function;
@@ -41,6 +42,7 @@ import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
@@ -124,6 +126,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * _____________________________________________________________ JavaScript stuff
 	 */
 	private static Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+
 	static
 	{
 		try
@@ -5579,7 +5582,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		Object mobj = jsFunctions.get(name);
-		if (mobj != null) return mobj;
+		if (mobj != null)
+		{
+			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
+			return mobj;
+		}
 
 		if (getSize() == 0)
 		{
@@ -5875,6 +5882,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		al.add("_records_"); //$NON-NLS-1$
 		al.add("_selection_"); //$NON-NLS-1$
+
+		al.addAll(jsFunctions.keySet());
 		return al.toArray();
 	}
 

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -32,9 +33,9 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Scope for classes with dynamic members and js functions.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 7.4
  *
  */
@@ -77,6 +78,7 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 		NativeJavaMethod jm = jsFunctions.get(name);
 		if (jm != null)
 		{
+			ScriptRuntime.setFunctionProtoAndParent(jm, start);
 			return jm;
 		}
 
