@@ -648,6 +648,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			while (someAncestor && someAncestor !== window.document) someAncestor = someAncestor.parentNode;
 			if (someAncestor === window.document) {
 				var inHiddenDiv = (tElem.parent().attr("hiddendiv") === "true");
+				if(!inHiddenDiv) {
+					// skip nested forms
+					if(tElem.closest("[hiddendiv]").length) {
+						tElem.empty();
+						blocked = true;
+					}
+				}
 				if (formState && (formState.resolving || $sabloApplication.hasResolvedFormState(formName))) {
 					if ($log.debugEnabled) $log.debug("svy * Template will discard hidden div; resolving = " + formState.resolving + ", resolved = " + $sabloApplication.hasResolvedFormState(formName) +
 							", name = " + formName + ", parentScopeIsOfHiddenDiv = " + inHiddenDiv);
