@@ -147,7 +147,12 @@ public abstract class AbstractBase implements IPersist
 				while (iterator.hasNext())
 				{
 					Entry<String, Object> next = iterator.next();
-					setProperty(next.getKey(), next.getValue());
+					Object v = next.getValue();
+					if (v instanceof ServoyJSONObject)
+					{
+						v = ((ServoyJSONObject)v).clone();
+					}
+					setProperty(next.getKey(), v);
 				}
 			}
 			finally

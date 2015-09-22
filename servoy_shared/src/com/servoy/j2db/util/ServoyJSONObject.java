@@ -32,7 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 
-public class ServoyJSONObject extends JSONObject implements Serializable
+public class ServoyJSONObject extends JSONObject implements Serializable, Cloneable
 {
 	protected boolean noQuotes = true;
 	protected boolean newLines = true;
@@ -237,6 +237,32 @@ public class ServoyJSONObject extends JSONObject implements Serializable
 	public String toString()
 	{
 		return toString(this, noQuotes, newLines, noBrackets);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof ServoyJSONObject)
+		{
+			return ServoyJSONObject.toString((ServoyJSONObject)obj, true, false, true).equals(ServoyJSONObject.toString(this, true, false, true));
+		}
+
+		return false;
+	}
+
+	@Override
+	public ServoyJSONObject clone()
+	{
+		String s = ServoyJSONObject.toString(this, isNoQuotes(), isNewLines(), isNoBrackets());
+		try
+		{
+			return new ServoyJSONObject(s, isNoBrackets(), isNoQuotes(), isNewLines());
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+			return null;
+		}
 	}
 
 	/**
