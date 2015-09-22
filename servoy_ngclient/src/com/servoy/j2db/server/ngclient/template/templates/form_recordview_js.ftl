@@ -76,9 +76,6 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			},
 			apply: function(propertyName) {
 				$servoyInternal.pushDPChange("${name}", beanname, propertyName);
-			},
-			setFormEnabled: function(formName,enabled) {
-				$sabloApplication.callService("formService", "setEnabled", {formname:formName,enabled:enabled},true);
 			}
 		}
 	}

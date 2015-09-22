@@ -18,9 +18,6 @@ describe('servoydefaultTabpanel component', function() {
 					apply: function(propertyName)
 					{
 				
-					},
-					setFormEnabled: function(){
-						
 					}
 				}
 			}
