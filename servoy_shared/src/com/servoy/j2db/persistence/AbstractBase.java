@@ -100,7 +100,7 @@ public abstract class AbstractBase implements IPersist
 
 	public void clearProperty(String propertyName)
 	{
-		if (propertiesMap.containsKey(propertyName) || jsonCustomProperties.containsKey(propertyName))
+		if (propertiesMap.containsKey(propertyName) || jsonCustomProperties != null && jsonCustomProperties.containsKey(propertyName))
 		{
 			isChanged = true;
 
