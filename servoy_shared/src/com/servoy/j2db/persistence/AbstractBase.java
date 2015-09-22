@@ -100,7 +100,7 @@ public abstract class AbstractBase implements IPersist
 
 	public void clearProperty(String propertyName)
 	{
-		if (propertiesMap.containsKey(propertyName) || jsonCustomProperties != null && jsonCustomProperties.containsKey(propertyName))
+		if (propertiesMap.containsKey(propertyName) || (jsonCustomProperties != null && jsonCustomProperties.containsKey(propertyName)))
 		{
 			isChanged = true;
 
@@ -219,8 +219,7 @@ public abstract class AbstractBase implements IPersist
 		else
 		{
 			if (!hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-					(this instanceof ISupportExtendsID && Utils.equalObjects(
-							Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+				(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
 					StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
 						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue())))
 			{
@@ -383,8 +382,8 @@ public abstract class AbstractBase implements IPersist
 				retval = it.next().acceptVisitor(visitor);
 			}
 		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-				? null : retval;
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
 	}
 
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException
@@ -393,19 +392,19 @@ public abstract class AbstractBase implements IPersist
 		if (this instanceof ISupportChilds)
 		{
 			Iterator<IPersist> it = getAllObjects();
-			while (it.hasNext() &&
-					(retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
-				{
-					IPersist visitee = it.next();
-					retval = visitee.acceptVisitorDepthFirst(visitor);
-				}
-			}
-			if (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER)
+			while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+				retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
 			{
-				retval = visitor.visit(this);
+				IPersist visitee = it.next();
+				retval = visitee.acceptVisitorDepthFirst(visitor);
 			}
-			return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-				? null : retval;
+		}
+		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER)
+		{
+			retval = visitor.visit(this);
+		}
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
 	}
 
 	void clearParent()
@@ -1103,7 +1102,8 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (methodKey != null)
 		{
-			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, args == null ? null : Collections.unmodifiableList(args)); //$NON-NLS-1$ //$NON-NLS-2$
+			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, //$NON-NLS-1$//$NON-NLS-2$
+				args == null ? null : Collections.unmodifiableList(args));
 		}
 		return null;
 	}
