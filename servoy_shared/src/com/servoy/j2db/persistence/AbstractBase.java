@@ -100,20 +100,26 @@ public abstract class AbstractBase implements IPersist
 
 	public void clearProperty(String propertyName)
 	{
-		if (!propertiesMap.containsKey(propertyName))
+		if (propertiesMap.containsKey(propertyName) || jsonCustomProperties.containsKey(propertyName))
 		{
-			return;
-		}
-		isChanged = true;
+			isChanged = true;
 
-		// call the setter with content spec default so any cached data is cleared
-		Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
-		setProperty(propertyName, element == null ? null : element.getDefaultClassValue());
+			// call the setter with content spec default so any cached data is cleared
+			Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+			setProperty(propertyName, element == null ? null : element.getDefaultClassValue());
 
-		propertiesMap.remove(propertyName);
-		if (bufferPropertiesMap != null)
-		{
-			bufferPropertiesMap.remove(propertyName); // the setProperty above might set (wrongly) default value in bufferPropertiesMap as well during import
+			if (propertiesMap.containsKey(propertyName))
+			{
+				propertiesMap.remove(propertyName);
+			}
+			else
+			{
+				jsonCustomProperties.remove(propertyName);
+			}
+			if (bufferPropertiesMap != null)
+			{
+				bufferPropertiesMap.remove(propertyName); // the setProperty above might set (wrongly) default value in bufferPropertiesMap as well during import
+			}
 		}
 	}
 
@@ -213,8 +219,8 @@ public abstract class AbstractBase implements IPersist
 		else
 		{
 			if (!hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-				(this instanceof ISupportExtendsID && Utils.equalObjects(
-					Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+					(this instanceof ISupportExtendsID && Utils.equalObjects(
+							Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
 					StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
 						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue())))
 			{
@@ -378,7 +384,7 @@ public abstract class AbstractBase implements IPersist
 			}
 		}
 		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-			? null : retval;
+				? null : retval;
 	}
 
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException
@@ -388,18 +394,18 @@ public abstract class AbstractBase implements IPersist
 		{
 			Iterator<IPersist> it = getAllObjects();
 			while (it.hasNext() &&
-				(retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
-			{
-				IPersist visitee = it.next();
-				retval = visitee.acceptVisitorDepthFirst(visitor);
+					(retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
+				{
+					IPersist visitee = it.next();
+					retval = visitee.acceptVisitorDepthFirst(visitor);
+				}
 			}
-		}
-		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER)
-		{
-			retval = visitor.visit(this);
-		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-			? null : retval;
+			if (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER)
+			{
+				retval = visitor.visit(this);
+			}
+			return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
+				? null : retval;
 	}
 
 	void clearParent()
@@ -712,7 +718,7 @@ public abstract class AbstractBase implements IPersist
 			String newName = ((ISupportUpdateableName)clone).getName() + "_copy" + random; //$NON-NLS-1$
 			((ISupportUpdateableName)clone).updateName(validator, newName);
 		}
-		if (clone instanceof ISupportChilds)//do deep clone
+		if (clone instanceof ISupportChilds) //do deep clone
 		{
 			clone.allobjectsMap = null;
 			if (deep && allobjects != null)
