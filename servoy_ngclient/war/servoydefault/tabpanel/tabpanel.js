@@ -30,6 +30,10 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				
 				if (typeof $scope.model.tabIndex === 'number')
 					realTabIndex = $scope.model.tabIndex - 1;
+				else if (!isNaN(parseInt($scope.model.tabIndex)) && parseInt($scope.model.tabIndex) > 0)
+				{
+					realTabIndex = parseInt($scope.model.tabIndex) - 1;
+				}	
 				else 
 					for(i=0;i<$scope.model.tabs.length;i++) {
 						if ($scope.model.tabs[i].name === $scope.model.tabIndex)
