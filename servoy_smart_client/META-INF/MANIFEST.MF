@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Smart Client Plug-in
 Bundle-SymbolicName: servoy_smart_client
-Bundle-Version: 7.4.4.2039
+Bundle-Version: 7.4.5.2040
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_shared,
