@@ -63,6 +63,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -79,7 +80,7 @@ public class FormElementHelper
 	// todo identity key? SolutionModel persist shouldn't be cached at all?
 	private final ConcurrentMap<String, FlattenedSolution> globalFlattendSolutions = new ConcurrentHashMap<>();
 	private final ConcurrentMap<IPersist, FormElement> persistWrappers = new ConcurrentHashMap<>();
-	private final ConcurrentMap<Form, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
+	private final ConcurrentMap<UUID, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
 
 	public List<FormElement> getFormElements(Iterator<IPersist> iterator, IServoyDataConverterContext context)
 	{
@@ -492,7 +493,7 @@ public class FormElementHelper
 		boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
 		Map<TabSeqProperty, Integer> cachedTabSeq;
 		if (formWasModifiedViaSolutionModel) cachedTabSeq = null;
-		else cachedTabSeq = formTabSequences.get(flattenedForm);
+		else cachedTabSeq = formTabSequences.get(flattenedForm.getUUID());
 
 		if (cachedTabSeq == null)
 		{
@@ -554,7 +555,10 @@ public class FormElementHelper
 				cachedTabSeq.put(tabSeq, Integer.valueOf(i++));
 			}
 
-			if (!formWasModifiedViaSolutionModel) formTabSequences.putIfAbsent(flattenedForm, cachedTabSeq);
+			if (!formWasModifiedViaSolutionModel)
+			{
+				formTabSequences.putIfAbsent(flattenedForm.getUUID(), cachedTabSeq);
+			}
 		}
 
 		Integer controlledTabSeq = cachedTabSeq.get(new TabSeqProperty((IFormElement)flattenedForm.getChild(persistIfAvailable.getUUID()), pd.getName()));
