@@ -55,7 +55,7 @@ import com.servoy.j2db.util.ILogLevel;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class DebugWebClient extends WebClient implements IDebugWebClient
 {
@@ -230,7 +230,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.WebClient#createDispatcher()
 	 */
 	@Override
@@ -299,9 +299,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		super.reportJSInfo(s);
 	}
 
-	/**
-	 * @param form
-	 */
 	public void show(Form f)
 	{
 		this.form = f;
@@ -361,7 +358,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ClientState#createDataServer()
 	 */
 	@Override

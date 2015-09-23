@@ -43,7 +43,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
-import com.servoy.j2db.server.ngclient.design.ConsoleObject;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;

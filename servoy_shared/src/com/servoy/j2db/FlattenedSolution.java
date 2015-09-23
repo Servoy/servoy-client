@@ -273,9 +273,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return clone;
 	}
 
-	/**
-	 * @param form
-	 */
 	public void deletePersistCopy(AbstractBase persist, boolean revertToOriginal)
 	{
 		if (mainSolution == null && loginFlattenedSolution != null)
@@ -796,7 +793,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/*
 	 * Get a flattened form from this flattened solution.
-	 * 
+	 *
 	 * <p>When the form does not have a parent, the form itself is returned
 	 */
 	public Form getFlattenedForm(IPersist persist)

@@ -29,9 +29,12 @@ import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
+import com.servoy.j2db.BasicFormController;
+import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
@@ -42,6 +45,7 @@ import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGFormManager;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
@@ -58,6 +62,34 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	private final IDesignerCallback designerCallback;
 	private Solution current;
 
+	final class DebugNGFormMananger extends NGFormManager implements DebugUtils.DebugUpdateFormSupport
+	{
+		private DebugNGFormMananger(DebugNGClient app)
+		{
+			super(app);
+		}
+
+		public void updateForm(Form form)
+		{
+			boolean isNew = !possibleForms.containsValue(form);
+			boolean isDeleted = false;
+			if (!isNew)
+			{
+				isDeleted = !((AbstractBase)form.getParent()).getAllObjectsAsList().contains(form);
+			}
+			updateForm(form, isNew, isDeleted);
+		}
+
+		private void updateForm(Form form, boolean isNew, boolean isDeleted)
+		{
+			if (isDeleted)
+			{
+				IFormController tmp = getCachedFormController(form.getName());
+				if (tmp != null) removeFormController((BasicFormController)tmp); // form was deleted in designer; remove it's controller from cached/already used forms
+			}
+		}
+	}
+
 	/**
 	 * @param webSocketClientEndpoint
 	 * @param designerCallback
@@ -68,11 +100,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		this.designerCallback = designerCallback;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.NGClient#shutDown(boolean)
-	 */
 	@Override
 	public synchronized void shutDown(boolean force)
 	{
@@ -91,6 +118,12 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		{
 			CurrentWindow.set(currentWindow);
 		}
+	}
+
+	@Override
+	protected IBasicFormManager createFormManager()
+	{
+		return new DebugNGFormMananger(this);
 	}
 
 	@Override
@@ -127,9 +160,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		}
 	}
 
-	/**
-	 * @see com.servoy.j2db.smart.J2DBClient#reportJSError(java.lang.String, java.lang.Object)
-	 */
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
@@ -137,9 +167,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		super.reportJSError(message, detail);
 	}
 
-	/**
-	 * @see com.servoy.j2db.ClientState#reportError(java.lang.String, java.lang.Object)
-	 */
 	@Override
 	public void reportError(String message, Object detail)
 	{

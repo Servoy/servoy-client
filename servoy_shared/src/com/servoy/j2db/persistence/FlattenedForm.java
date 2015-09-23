@@ -115,11 +115,6 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		return null;
 	}
 
-	/**
-	 * @param flattenedSolution
-	 * @param form
-	 * @throws RepositoryException
-	 */
 	private void fill()
 	{
 		List<Form> allForms = flattenedSolution.getFormHierarchy(form);

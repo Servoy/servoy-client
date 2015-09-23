@@ -298,7 +298,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.DefaultScope#hasInstance(org.mozilla.javascript.Scriptable)
 	 */
 	@Override
@@ -374,7 +374,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.mozilla.javascript.Wrapper#unwrap()
 		 */
 		public Object unwrap()
@@ -384,7 +384,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.LazyCompilationScope#getScopeName()
 		 */
 		@Override
@@ -440,7 +440,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.ScriptVariableScope#put(java.lang.String, org.mozilla.javascript.Scriptable, java.lang.Object)
 	 */
 	@Override
@@ -454,7 +454,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	}
 
 	/**
-	 * Returns only relevant servoy scriptables from form scope 
+	 * Returns only relevant servoy scriptables from form scope
 	 */
 	@Override
 	public Scriptable getContextScriptable()
@@ -500,10 +500,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 
 	}
 
-	/**
-	 * @param oldform
-	 * @param form
-	 */
 	public void updateProviderswithCopy(Form originalForm, Form copyForm)
 	{
 		RuntimeSupportScriptProviders thisScope = (RuntimeSupportScriptProviders)getScriptLookup();

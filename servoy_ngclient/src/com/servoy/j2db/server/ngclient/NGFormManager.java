@@ -67,6 +67,9 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	private Form loginForm;
 
+	/**
+	 * @param application
+	 */
 	public NGFormManager(INGApplication application)
 	{
 		super(application);

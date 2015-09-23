@@ -396,7 +396,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 		else if (getApplication().getRuntimeWindowManager().getMainApplicationWindow() != null)
 		{
-			formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
+			if (getApplication().getRuntimeWindowManager().getMainApplicationWindow() != null) formController = getApplication().getRuntimeWindowManager().getMainApplicationWindow().getController();
 		}
 		if (formController instanceof IWebFormController) getApplication().getFormManager().setCurrentControllerJS((IWebFormController)formController);
 

@@ -129,7 +129,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	public void setJson(JSONObject arg)
 	{
-		if (!(arg instanceof ServoyJSONObject)) throw new RuntimeException("ServoyJSONObject is needed here in order to make it serializable");
+		if (arg != null && !(arg instanceof ServoyJSONObject)) throw new RuntimeException("ServoyJSONObject is needed here in order to make it serializable");
 		webObjectImpl.setJson(arg);
 	}
 

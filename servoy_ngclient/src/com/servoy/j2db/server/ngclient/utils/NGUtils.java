@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
-import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
@@ -45,9 +44,7 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.design.DesignNGClient;
 import com.servoy.j2db.server.ngclient.property.types.ByteArrayResourcePropertyType;
 import com.servoy.j2db.server.ngclient.property.types.HTMLStringPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MediaDataproviderPropertyType;
@@ -166,21 +163,6 @@ public abstract class NGUtils
 		formUI.writeAllComponentsProperties(w, converter);
 		w.endObject();
 		return w.toString();
-	}
-
-
-	public static boolean shouldShowData(IBrowserConverterContext dataConverterContext)
-	{
-		boolean showData = true;
-		if (dataConverterContext != null)
-		{
-			BaseWebObject webObject = dataConverterContext.getWebObject();
-			if (webObject instanceof IContextProvider && ((IContextProvider)webObject).getDataConverterContext().getApplication() instanceof DesignNGClient)
-			{
-				showData = ((DesignNGClient)((IContextProvider)webObject).getDataConverterContext().getApplication()).getShowData();
-			}
-		}
-		return showData;
 	}
 
 	public static WebComponentSpecification[] getAllPublicWebServiceSpecifications()
