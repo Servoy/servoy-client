@@ -42,6 +42,13 @@ public class FlattenedTabPanel extends TabPanel implements IFlattenedPersistWrap
 		return tabPanel;
 	}
 
+	// TODO shouldn't a FlattendTabPanel (but also form) be the same as the next FlattenedTabPanel (that builds on the same tabpanel persist)
+//	@Override
+//	public int hashCode()
+//	{
+//		return tabPanel.hashCode();
+//	}
+
 	private void fill()
 	{
 		internalClearAllObjects();

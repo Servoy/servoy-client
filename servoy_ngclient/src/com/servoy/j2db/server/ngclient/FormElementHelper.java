@@ -624,7 +624,7 @@ public class FormElementHelper
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
-			result = prime * result + ((element == null) ? 0 : element.hashCode());
+			result = prime * result + ((element == null) ? 0 : element.getID());
 			return result;
 		}
 	}
