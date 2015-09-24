@@ -141,10 +141,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 					// PUBLIC API to components; initialize the property value; make it 'smart'
 					newValue.loadRecordsAsync = function(startIndex, size) {
+						if (isNaN(startIndex) || isNaN(size)) throw "start or size are not numbers (" + startIndex + "," + size + ")";
 						internalState.requests.push({newViewPort: {startIndex : startIndex, size : size}});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount) {
+						if (isNaN(negativeOrPositiveCount)) throw "extrarecords is not a number (" + negativeOrPositiveCount + ")";
 						internalState.requests.push({loadExtraRecords: negativeOrPositiveCount});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					};
@@ -153,6 +155,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
 					newValue.setPreferredViewportSize = function(size) {
+						if (isNaN(size)) throw "size is not a number (" + size + ")";
 						internalState.requests.push({preferredViewportSize: size});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}

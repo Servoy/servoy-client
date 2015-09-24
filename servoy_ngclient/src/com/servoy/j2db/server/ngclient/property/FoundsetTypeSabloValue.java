@@ -626,8 +626,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							// our api only supports one dataproviderid sort at a time
 							JSEvent event = new JSEvent();
 							event.setFormName(fc.getName());
-							fc.executeFunction(
-								String.valueOf(fc.getForm().getOnSortCmdMethodID()),
+							fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 								Utils.arrayMerge((new Object[] { dataProviderID, Boolean.valueOf(sortAscending), event }),
 									Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
 								true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$
@@ -746,8 +745,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 									IRecordInternal record = foundset.getRecord(recordIndex);
 									// convert Dates where it's needed
 
-									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName,
-										foundset.getTable(), false); // this should be enough for when only foundset dataproviders are used
+									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable(),
+										false); // this should be enough for when only foundset dataproviders are used
 									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, dataConverterContext);
 
 									changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
@@ -787,8 +786,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 						}
 						else
 						{
-							log.error("Property (" +
-								pd +
+							log.error("Property (" + pd +
 								") that doesn't define a suitable pushToServer value (allow/shallow/deep) tried to modify foundset dataprovider value serverside. Denying and sending back full viewport!");
 							changeMonitor.viewPortCompletelyChanged();
 						}
@@ -798,7 +796,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		}
 		catch (JSONException e)
 		{
-			Debug.error("Error when getting browser updates for property (" + this.toString() + ")", e);
+			Debug.error("Error when getting browser updates for property (" + this.toString() + ") for " + jsonValue, e);
 		}
 	}
 
