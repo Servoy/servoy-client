@@ -6,6 +6,9 @@
 .svy-padding-xs {
 	padding: 1px 5px;
 }
+.svy-nowrap {
+	white-space:nowrap;
+}
 .svy-combobox .btn {
 	padding: 1px 5px;
 }
