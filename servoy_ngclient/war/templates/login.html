@@ -3,22 +3,22 @@
   		<img src="templates/logo2.gif" class="img-responsive">
  	</div>
   	<div class="modal-body">
-  	    <h3 class="panel-title">Please sign in</h3>
-  		<h5 class="text-danger">{{model.message}}</h5>
+  	    <h3 class="svy-login-title">Please sign in</h3>
+  		<h5 class="svy-login-text-danger">{{model.message}}</h5>
     	<form   accept-charset="UTF-8" role="form" ng-submit="doLogin()">
-		<fieldset>
-    	  	<div class="form-group">
-    		    <input class="form-control" placeholder="Username" type="text" ng-model="model.username">
+		<fieldset class="svy-login-fieldset">
+    	  	<div class="svy-login-form-group">
+    		    <input class="svy-login-form-control" placeholder="Username" type="text" ng-model="model.username">
     		</div>
-    		<div class="form-group">
-    			<input class="form-control" placeholder="Password" type="password" ng-model="model.password">
+    		<div class="svy-login-form-group">
+    			<input class="svy-login-form-control" placeholder="Password" type="password" ng-model="model.password">
     		</div>
     		<div class="checkbox">
     	    	<label>
     	    		<input name="remember" type="checkbox" value="Remember Me" ng-model="model.remember"> Remember me
     	    	</label>
     	    </div>
-    		<input class="btn btn-lg btn-success btn-block" type="submit" value="Login">
+    		<input class="svy-btn svy-btn-success svy-btn-block" type="submit" value="Login">
     	</fieldset>
       	</form>
     </div>

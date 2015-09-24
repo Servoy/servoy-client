@@ -57,7 +57,6 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String FORMS_PATH = "forms/";
 
 	private static final String[] INDEX_3TH_PARTY_CSS = { //
-	"css/bootstrap/css/bootstrap.css", //
 	"js/bootstrap-window/css/bootstrap-window.css" };
 	private static final String[] INDEX_3TH_PARTY_JS = { //
 	"js/jquery-1.11.1.js", //

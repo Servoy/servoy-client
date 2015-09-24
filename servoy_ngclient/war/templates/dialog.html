@@ -1,9 +1,9 @@
-	<div  svy-window sablo-tabseq='1' sablo-tabseq-config="{container: true}"  bindonce bo-class="{'window':!isUndecorated()}" 
+	<div class="svy-dialog" svy-window sablo-tabseq='1' sablo-tabseq-config="{container: true}"  bindonce bo-class="{'window':!isUndecorated()}" 
 				  bo-style="{'background-color':win.transparent ? 'transparent':'inherit'}" >
 		<div bo-style="{'opacity':win.opacity}">
 			<div  class='window-header'
 				  bo-style="{'display':isUndecorated()? 'none':'block'}">
-				<button type="button" class="close"
+				<button type="button" class="svy-dialog-close"
 					ng-click="cancel()"
 					aria-hidden="true" tabindex="-1">x</button>
 				<h4 class="window-title"  ng-bind='win.title'></h4>

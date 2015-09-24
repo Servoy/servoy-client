@@ -213,11 +213,7 @@ div.svy-label-with-focus:focus{
 {
 	overflow-x: hidden;
 }
-.modal-backdrop
-{
-	height: 100%;
-	position: fixed;
-}
+
 .svyPortalGridStyle .form-control[readonly]
 {
 	cursor : default;
@@ -225,4 +221,360 @@ div.svy-label-with-focus:focus{
 .ui-grid-cell-focus
 { 
 	background-color: transparent;
+}
+
+/* Modal dialog classes
+-------------------------------------------------- */
+
+.modal-open {
+  overflow: hidden;
+}
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  display: none;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  outline: 0;
+}
+.modal.fade .modal-dialog {
+  -webkit-transition: -webkit-transform .3s ease-out;
+       -o-transition:      -o-transform .3s ease-out;
+          transition:         transform .3s ease-out;
+  -webkit-transform: translate(0, -25%);
+      -ms-transform: translate(0, -25%);
+       -o-transform: translate(0, -25%);
+          transform: translate(0, -25%);
+}
+.modal.in .modal-dialog {
+  -webkit-transform: translate(0, 0);
+      -ms-transform: translate(0, 0);
+       -o-transform: translate(0, 0);
+          transform: translate(0, 0);
+}
+.modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.modal-dialog {
+  position: relative;
+  width: auto;
+  margin: 10px;
+}
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+          background-clip: padding-box;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: 6px;
+  outline: 0;
+  -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+          box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+}
+.modal-backdrop {
+  height: 100%;
+  opacity: .5;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  background-color: #000;
+}
+.modal-backdrop.fade {
+  filter: alpha(opacity=0);
+  opacity: 0;
+}
+.modal-backdrop.in {
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+.modal-header {
+  min-height: 16.42857143px;
+  padding: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.modal-header .close {
+  margin-top: -2px;
+}
+.modal-title {
+  margin: 0;
+  line-height: 1.42857143;
+}
+.modal-body {
+  position: relative;
+  padding: 15px;
+}
+.modal-footer {
+  padding: 15px;
+  text-align: right;
+  border-top: 1px solid #e5e5e5;
+}
+.modal-footer .btn + .btn {
+  margin-bottom: 0;
+  margin-left: 5px;
+}
+.modal-footer .btn-group .btn + .btn {
+  margin-left: -1px;
+}
+.modal-footer .btn-block + .btn-block {
+  margin-left: 0;
+}
+.modal-scrollbar-measure {
+  position: absolute;
+  top: -9999px;
+  width: 50px;
+  height: 50px;
+  overflow: scroll;
+}
+@media (min-width: 768px) {
+  .modal-dialog {
+    width: 600px;
+    margin: 30px auto;
+  }
+  .modal-content {
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+  }
+  .modal-sm {
+    width: 300px;
+  }
+}
+@media (min-width: 992px) {
+  .modal-lg {
+    width: 900px;
+  }
+}
+
+/* Default buttons (used in login, file upload)
+-------------------------------------------------- */
+
+.svy-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.svy-btn-primary {
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #2e6da4;
+}
+.svy-btn-primary:hover,
+.svy-btn-primary:focus,
+.svy-btn-primary.active {
+  color: #fff;
+  background-color: #286090;
+  border-color: #204d74;
+}
+
+.svy-btn-success {
+  color: #fff;
+  background-color: #5cb85c;
+  border-color: #4cae4c;
+}
+.svy-btn-success:hover,
+.svy-btn-success:focus,
+.svy-btn-success.active {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #398439;
+}
+
+.svy-btn-info {
+  color: #fff;
+  background-color: #5bc0de;
+  border-color: #46b8da;
+}
+.svy-btn-info:hover,
+.svy-btn-info:focus,
+.svy-btn-info.active {
+  color: #fff;
+  background-color: #31b0d5;
+  border-color: #269abc;
+}
+
+.svy-btn-danger {
+  color: #fff;
+  background-color: #d9534f;
+  border-color: #d43f3a;
+}
+.svy-btn-danger:hover,
+.svy-btn-danger:focus,
+.svy-btn-danger.active {
+  color: #fff;
+  background-color: #c9302c;
+  border-color: #ac2925;
+}
+
+.svy-btn-block {
+  display: block;
+  width: 100%;
+}
+
+/* File upload classes
+-------------------------------------------------- */
+
+.svy-upload {
+  min-height: 20px;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+}
+
+.svy-upload-header-txt {
+    font-size: 18px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}
+
+.svy-upload-table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+  border-spacing: 0;
+  border-collapse: collapse;  
+}
+.svy-upload-table > thead > tr > th,
+.svy-upload-table > tbody > tr > th,
+.svy-upload-table > tfoot > tr > th,
+.svy-upload-table > thead > tr > td,
+.svy-upload-table > tbody > tr > td,
+.svy-upload-table > tfoot > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+}
+.svy-upload-table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #ddd;  
+}
+.svy-upload-table > caption + thead > tr:first-child > th,
+.svy-upload-table > colgroup + thead > tr:first-child > th,
+.svy-upload-table > thead:first-child > tr:first-child > th,
+.svy-upload-table > caption + thead > tr:first-child > td,
+.svy-upload-table > colgroup + thead > tr:first-child > td,
+.svy-upload-table > thead:first-child > tr:first-child > td {
+  border-top: 0;
+}
+.svy-upload-table > tbody + tbody {
+  border-top: 2px solid #ddd;
+}
+
+/* Login dialog classes
+-------------------------------------------------- */
+
+.svy-login-title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 16px;
+  color: inherit;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.1;  
+}
+
+.svy-login-text-danger {
+  color: #a94442;
+}
+
+.svy-login-form-group {
+  margin-bottom: 15px;
+}
+
+.svy-login-form-control {
+  display: block;
+  width: 100%;
+  height: 34px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.svy-login-form-control:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+.svy-login-form-control::-moz-placeholder {
+  color: #999;
+  opacity: 1;
+}
+.svy-login-form-control:-ms-input-placeholder {
+  color: #999;
+}
+.svy-login-form-control::-webkit-input-placeholder {
+  color: #999;
+}
+
+.svy-login-fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+/* Dialog classes
+-------------------------------------------------- */
+
+.svy-dialog-close {
+    -webkit-appearance: none;
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;	
+    float: right;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    filter: alpha(opacity=20);
+    opacity: .2;
+}
+
+.svy-dialog * {
+	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
