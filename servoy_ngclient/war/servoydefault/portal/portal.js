@@ -94,6 +94,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			$scope.$watchCollection('model.childElements', function(newVal, oldVal) {
 				elements = $scope.model.childElements;
 				if (newVal != oldVal) {
+					for(var i=0;i<oldVal.length;i++) {
+						delete oldVal[i].model[$sabloConstants.modelChangeNotifier];
+					}
 					// either a component was added/removed/changed or the whole array changed
 					// we can optimize this in the future but for now just dump all model/api/handlers for them to get auto recreated
 					for (var someKey in rowProxyObjects)
@@ -493,7 +496,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					}
 					// attach the model change notifier from the parent column model so that all calls are relayed to the cell.
 					if (!element.model[$sabloConstants.modelChangeNotifier]) {
-						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, {value:function(property,value) {
+						Object.defineProperty(element.model,$sabloConstants.modelChangeNotifier, {configurable : true,value:function(property,value) {
 							for(var key in rowProxyObjects) {
 								// test if there is a column at this point for that index, it could be hidden and not created yet.
 								if (rowProxyObjects[key][elementIndex]) {
@@ -1213,6 +1216,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
 				delete $scope.model[$sabloConstants.modelChangeNotifier];
+				for(var i=0;i<elements.length;i++) {
+					delete elements[i].model[$sabloConstants.modelChangeNotifier];
+				}
 			});
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
