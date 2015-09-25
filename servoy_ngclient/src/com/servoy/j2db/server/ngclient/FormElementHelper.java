@@ -269,7 +269,7 @@ public class FormElementHelper
 								String elementName = fe.getName();
 								boolean hasLabelFor = false;
 								String headerCellClass = null;
-								Map<String, Object> headerAction = new HashMap<String, Object>();
+								Map<String, Object> headerAction = null;
 								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
 								while (graphicalComponents.hasNext())
 								{
@@ -282,6 +282,7 @@ public class FormElementHelper
 										headerCellClass = gc.getStyleClass();
 										if (gc.getOnActionMethodID() > 0)
 										{
+											headerAction = new HashMap<String, Object>();
 											headerAction.put("form", form.getName());
 											headerAction.put("element", gc.getName());
 
@@ -329,7 +330,7 @@ public class FormElementHelper
 									}
 								}
 								headersClasses.add(headerCellClass);
-								headersAction.add(headerAction.size() > 0 ? headerAction : null);
+								headersAction.add(headerAction);
 								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
 								feRawProperties.put("componentIndex", Integer.valueOf(children.size()));
 								feRawProperties.put("headerCellClass", headerCellClass);
