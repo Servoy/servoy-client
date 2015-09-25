@@ -88,25 +88,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 		{
 			if (object instanceof String)
 			{
-				String script = (String)object;
-				if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX) || !script.contains("."))
-				{
-					// scope method
-					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
-				}
-				else if (script.startsWith("entity."))
-				{
-					String formName = script.substring(7, script.indexOf('.', 7));
-					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
-					map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
-				}
-				else
-				{
-					// form method: formname.formmethod
-					String formName = script.substring(0, script.indexOf('.'));
-					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + script + "()"));
-					map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
-				}
+				addScriptToMap((String)object, map);
 			}
 			else if (object instanceof NativeFunction)
 			{
@@ -132,7 +114,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 			}
 			else if (object instanceof Map)
 			{
-				map = (Map<String, Object>)object;
+				map = new HashMap<String, Object>((Map<String, Object>)object);
+				if (map.get("script") instanceof String) addScriptToMap((String)map.get("script"), map);
 			}
 		}
 		catch (Exception ex)
@@ -140,6 +123,28 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 			Debug.error(ex);
 		}
 		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, clientConversion, null);
+	}
+
+	private void addScriptToMap(String script, Map<String, Object> map) throws Exception
+	{
+		if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX) || !script.contains("."))
+		{
+			// scope method
+			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
+		}
+		else if (script.startsWith("entity."))
+		{
+			String formName = script.substring(7, script.indexOf('.', 7));
+			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
+			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+		}
+		else
+		{
+			// form method: formname.formmethod
+			String formName = script.substring(0, script.indexOf('.'));
+			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + script + "()"));
+			map.put("formname", SecuritySupport.encrypt(Settings.getInstance(), formName));
+		}
 	}
 
 	@Override

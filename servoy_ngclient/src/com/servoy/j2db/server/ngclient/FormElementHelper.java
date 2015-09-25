@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.TableNode;
@@ -243,7 +244,7 @@ public class FormElementHelper
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
 				List<String> headersText = new ArrayList<>();
 				List<String> headersClasses = new ArrayList<>();
-				List<String> headersAction = new ArrayList<>();
+				List<Map<String, Object>> headersAction = new ArrayList<>();
 				propertyPath.add(portalFormElement.getName());
 				propertyPath.add("childElements");
 
@@ -268,7 +269,7 @@ public class FormElementHelper
 								String elementName = fe.getName();
 								boolean hasLabelFor = false;
 								String headerCellClass = null;
-								String headerAction = null;
+								Map<String, Object> headerAction = new HashMap<String, Object>();
 								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
 								while (graphicalComponents.hasNext())
 								{
@@ -281,13 +282,17 @@ public class FormElementHelper
 										headerCellClass = gc.getStyleClass();
 										if (gc.getOnActionMethodID() > 0)
 										{
+											headerAction.put("form", form.getName());
+											headerAction.put("element", gc.getName());
+
 											ScriptMethod scriptMethod = form.getScriptMethod(gc.getOnActionMethodID());
 											if (scriptMethod == null)
 											{
 												scriptMethod = fs.getScriptMethod(gc.getOnActionMethodID());
 												if (scriptMethod != null)
 												{
-													headerAction = "scopes." + scriptMethod.getScopeName() + '.' + scriptMethod.getName();
+													headerAction.put("script",
+														ScriptVariable.SCOPES_DOT_PREFIX + scriptMethod.getScopeName() + '.' + scriptMethod.getName());
 												}
 												else if (form.getDataSource() != null)
 												{
@@ -299,13 +304,13 @@ public class FormElementHelper
 													}
 													if (scriptMethod != null)
 													{
-														headerAction = "entity." + form.getName() + '.' + scriptMethod.getName();
+														headerAction.put("script", "entity." + form.getName() + '.' + scriptMethod.getName());
 													}
 												}
 											}
 											else
 											{
-												headerAction = form.getName() + '.' + scriptMethod.getName();
+												headerAction.put("script", form.getName() + '.' + scriptMethod.getName());
 											}
 										}
 										break;
@@ -324,7 +329,7 @@ public class FormElementHelper
 									}
 								}
 								headersClasses.add(headerCellClass);
-								headersAction.add(headerAction);
+								headersAction.add(headerAction.size() > 0 ? headerAction : null);
 								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
 								feRawProperties.put("componentIndex", Integer.valueOf(children.size()));
 								feRawProperties.put("headerCellClass", headerCellClass);
