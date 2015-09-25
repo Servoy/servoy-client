@@ -63,8 +63,8 @@ import com.servoy.j2db.util.ServoyJSONObject;
  * @author acostescu
  */
 //TODO these SabloT, SabloWT and FormElementT are improper - as for object type they can represent multiple types (a different set for each child key), but they help to avoid some bugs at compile-time
-public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends CustomJSONObjectType<SabloT, SabloWT> implements
-	IDesignToFormElement<JSONObject, Map<String, FormElementT>, Map<String, SabloT>>,
+public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends CustomJSONObjectType<SabloT, SabloWT>
+	implements IDesignToFormElement<JSONObject, Map<String, FormElementT>, Map<String, SabloT>>,
 	IFormElementToTemplateJSON<Map<String, FormElementT>, Map<String, SabloT>>, IFormElementToSabloComponent<Map<String, FormElementT>, Map<String, SabloT>>,
 	ISabloComponentToRhino<Map<String, SabloT>>, IRhinoToSabloComponent<Map<String, SabloT>>, ISupportTemplateValue<Map<String, FormElementT>>,
 	ITemplateValueUpdaterType<ChangeAwareMap<SabloT, SabloWT>>, IFindModeAwareType<Map<String, FormElementT>, Map<String, SabloT>>,
@@ -103,7 +103,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			{
 				if (!formElementValues.containsKey(pd.getName()))
 				{
-					if (pd.getDefaultValue() != null)
+					if (pd.hasDefault())
 					{
 						propertyPath.add(pd.getName());
 						formElementValues.put(pd.getName(), (FormElementT)NGConversions.INSTANCE.convertDesignToFormElementValue(pd.getDefaultValue(), pd,
@@ -113,8 +113,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 					else if (pd.getType() instanceof IDesignDefaultToFormElement< ? , ? , ? >)
 					{
 						propertyPath.add(pd.getName());
-						formElementValues.put(pd.getName(), (FormElementT)((IDesignDefaultToFormElement< ? , ? , ? >)pd.getType()).toDefaultFormElementValue(
-							pd, flattenedSolution, formElement, propertyPath));
+						formElementValues.put(pd.getName(), (FormElementT)((IDesignDefaultToFormElement< ? , ? , ? >)pd.getType()).toDefaultFormElementValue(pd,
+							flattenedSolution, formElement, propertyPath));
 						propertyPath.backOneLevel();
 					}
 				}
@@ -311,8 +311,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			// as array element property descriptions can describe multiple property values in the same bean - we won't cache those
 			if (entryPD.getType() instanceof IDataLinkedType)
 			{
-				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD,
-					flattenedSolution, formElement);
+				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD, flattenedSolution,
+					formElement);
 				formElement.getOrCreatePreprocessedPropertyInfoMap(IDataLinkedType.class).put(entryPD, entryDPs);
 				if (entryDPs != null && entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
 				{
