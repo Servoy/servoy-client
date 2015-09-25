@@ -32,7 +32,7 @@ import com.servoy.j2db.util.UUID;
  * @author lvostinar
  *
  */
-public abstract class AbstractContainer extends AbstractBase implements ISupportFormElements, ISupportUpdateableName
+public abstract class AbstractContainer extends AbstractBase implements ISupportFormElements, ISupportUpdateableName, IPersistCloneable
 {
 	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
 	{
