@@ -67,16 +67,21 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.AbstractBase#fillClone(com.servoy.j2db.persistence.AbstractBase)
+	 */
 	@Override
-	public IPersist clonePersist()
+	protected void fillClone(AbstractBase cloned)
 	{
-		Tab baseComponentClone = (Tab)super.clonePersist();
-		Dimension size = getSize();
-		if (size != null) baseComponentClone.setSize(size);
-		Point location = getLocation();
-		if (location != null) baseComponentClone.setLocation(location);
+		super.fillClone(cloned);
+		Tab clonedTab = (Tab)cloned;
 
-		return baseComponentClone;
+		Dimension size = getSize();
+		if (size != null) clonedTab.setSize(size);
+		Point location = getLocation();
+		if (location != null) clonedTab.setLocation(location);
 	}
 
 	/**

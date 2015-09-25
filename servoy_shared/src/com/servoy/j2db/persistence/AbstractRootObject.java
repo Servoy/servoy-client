@@ -29,7 +29,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Reposository tree root object
- * 
+ *
  * @author sebster
  */
 public abstract class AbstractRootObject extends AbstractBase implements IRootObject
@@ -97,7 +97,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 		return repository;
 	}
 
-	// for setting after load	
+	// for setting after load
 	public void setRepository(IRepository repository)
 	{
 		this.repository = repository;
@@ -116,6 +116,14 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 	}
 
 	@Override
+	protected void fillClone(AbstractBase cloned)
+	{
+		// clear changeHandler, the original change handler should not listen to changes in clone
+		((AbstractRootObject)cloned).changeHandler = null;
+		super.fillClone(cloned);
+	}
+
+	@Override
 	public IRootObject getRootObject()
 	{
 		return this;
@@ -123,7 +131,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 
 	/**
 	 * This method should not be called by developer only code
-	 * 
+	 *
 	 * @param name
 	 * @throws RepositoryException
 	 */
@@ -143,7 +151,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 				server = getRepository().getServer(lowerCaseBame);
 				if (server != null && !(server instanceof IServerInternal))
 				{
-					//wrap	
+					//wrap
 					server = new ServerProxy(server);
 					synchronized (proxies)
 					{
@@ -165,7 +173,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 		return serverProxies;
 	}
 
-	// for setting after load	
+	// for setting after load
 	public void setServerProxies(Map<String, IServer> serverProxies)
 	{
 		this.serverProxies = serverProxies;

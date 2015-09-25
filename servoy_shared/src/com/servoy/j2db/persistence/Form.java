@@ -2007,13 +2007,18 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		this.lastModified = lastModified;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.AbstractBase#fillClone(com.servoy.j2db.persistence.AbstractBase)
+	 */
 	@Override
-	public IPersist clonePersist()
+	protected void fillClone(AbstractBase cloned)
 	{
-		Form formClone = (Form)super.clonePersist();
+		super.fillClone(cloned);
+
 		Dimension size = getSize();
-		if (size != null) formClone.setSize(size);
-		return formClone;
+		if (size != null) ((Form)cloned).setSize(size);
 	}
 
 	public int getExtendsID()

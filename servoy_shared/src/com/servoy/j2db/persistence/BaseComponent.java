@@ -367,14 +367,19 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.AbstractBase#fillClone(com.servoy.j2db.persistence.AbstractBase)
+	 */
 	@Override
-	public IPersist clonePersist()
+	protected void fillClone(AbstractBase cloned)
 	{
-		BaseComponent baseComponentClone = (BaseComponent)super.clonePersist();
+		super.fillClone(cloned);
+
+		BaseComponent baseComponentClone = (BaseComponent)cloned;
 		if (hasProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName())) baseComponentClone.setSize(getSize());
 		if (hasProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName())) baseComponentClone.setLocation(getLocation());
-
-		return baseComponentClone;
 	}
 
 	// TODO these might be better off in AbstractBase as for example Forms can use them as well

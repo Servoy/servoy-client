@@ -219,7 +219,8 @@ public abstract class AbstractBase implements IPersist
 		else
 		{
 			if (!hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-				(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+				(this instanceof ISupportExtendsID && Utils.equalObjects(
+					Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
 					StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
 						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue())))
 			{
@@ -382,8 +383,8 @@ public abstract class AbstractBase implements IPersist
 				retval = it.next().acceptVisitor(visitor);
 			}
 		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
-			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
+			? null : retval;
 	}
 
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException
@@ -392,8 +393,8 @@ public abstract class AbstractBase implements IPersist
 		if (this instanceof ISupportChilds)
 		{
 			Iterator<IPersist> it = getAllObjects();
-			while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
-				retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
+			while (it.hasNext() &&
+				(retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
 			{
 				IPersist visitee = it.next();
 				retval = visitee.acceptVisitorDepthFirst(visitor);
@@ -403,8 +404,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			retval = visitor.visit(this);
 		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
-			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
+			? null : retval;
 	}
 
 	void clearParent()
@@ -655,36 +656,43 @@ public abstract class AbstractBase implements IPersist
 	/**
 	 * @see java.lang.Object#clone()
 	 */
-	public IPersist clonePersist()
+	public final IPersist clonePersist()
 	{
+		AbstractBase cloned;
 		try
 		{
-			AbstractBase cloned = (AbstractBase)super.clone();
-			cloned.allobjectsMap = null;
-			cloned.propertiesMap = new HashMap<String, Object>();
-			cloned.copyPropertiesMap(getPropertiesMap(), true);
-			if (cloned.allobjects != null)
-			{
-				cloned.allobjects = Collections.synchronizedList(new ArrayList<IPersist>(allobjects.size()));
-				for (IPersist persist : allobjects)
-				{
-					if (persist instanceof ICloneable)
-					{
-						IPersist clonePersist = ((ICloneable)persist).clonePersist();
-						cloned.addChild(clonePersist);
-//						cloned.allobjects.add(clonePersist);
-					}
-					else
-					{
-						cloned.allobjects.add(persist);
-					}
-				}
-			}
-			return cloned;
+			cloned = (AbstractBase)clone();
 		}
 		catch (CloneNotSupportedException e)
 		{
 			throw new RuntimeException(e);
+		}
+
+		fillClone(cloned);
+		return cloned;
+	}
+
+	protected void fillClone(AbstractBase cloned)
+	{
+		cloned.allobjectsMap = null;
+		cloned.propertiesMap = new HashMap<String, Object>();
+		cloned.copyPropertiesMap(getPropertiesMap(), true);
+		if (cloned.allobjects != null)
+		{
+			cloned.allobjects = Collections.synchronizedList(new ArrayList<IPersist>(allobjects.size()));
+			for (IPersist persist : allobjects)
+			{
+				if (persist instanceof ICloneable)
+				{
+					IPersist clonePersist = ((ICloneable)persist).clonePersist();
+					cloned.addChild(clonePersist);
+//					cloned.allobjects.add(clonePersist);
+				}
+				else
+				{
+					cloned.allobjects.add(persist);
+				}
+			}
 		}
 	}
 
