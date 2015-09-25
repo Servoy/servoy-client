@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -56,9 +57,9 @@ public interface IDataAdapterList extends ITagResolver
 
 	IWebFormController getForm();
 
-	void addRelatedForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController);
+	void addVisibleChildForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController);
 
-	void removeRelatedForm(IWebFormController form, boolean shouldUpdateParentFormController);
+	void removeVisibleChildForm(IWebFormController form, boolean firstLevel);
 
 	Map<IWebFormController, String> getRelatedForms();
 
@@ -72,7 +73,7 @@ public interface IDataAdapterList extends ITagResolver
 
 	void destroy();
 
-	void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables);
+	void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables, Set<IWebFormController> childFormsThatWereNotified);
 
 	boolean stopUIEditing(boolean looseFocus);
 }

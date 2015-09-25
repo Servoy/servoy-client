@@ -12,9 +12,11 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.border.Border;
 
@@ -219,13 +221,15 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		WebFormComponent component)
 	{
 		int counter = counterStart;
-		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) && (!fe.getName().startsWith("svy_") ||
-			(fe.getPersistIfAvailable() instanceof IFormElement) && ((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
+		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) &&
+			(!fe.getName().startsWith("svy_") || (fe.getPersistIfAvailable() instanceof IFormElement) &&
+				((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
 		{
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-			if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-				fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
-				fe.getTypeName().startsWith("servoydefault-")))
+			if (fe.isLegacy() ||
+				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+					fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
+					"servoydefault-")))
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
@@ -532,12 +536,16 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		// what to do with that state? Should it be rollbacked? Should everything be made visible again?
 		// See also WebFormComponent
 		boolean retValue = true;
+		Set<IWebFormController> childFormsThatWereNotified = new HashSet<>();
 		for (WebComponent component : components.values())
 		{
-			retValue = retValue && ((WebFormComponent)component).notifyVisible(visible, invokeLaterRunnables);
+			// childFormsThatWereNotified will be populated with forms that are notified below
+			retValue = retValue && ((WebFormComponent)component).notifyVisible(visible, invokeLaterRunnables, childFormsThatWereNotified);
 		}
 		if (retValue) setVisible(visible);
-		dataAdapterList.notifyVisible(visible, invokeLaterRunnables);
+
+		// childFormsThatWereNotified is given here to avoid double calling for example onHide on the same form if the form's onHide returns false the first time
+		dataAdapterList.notifyVisible(visible, invokeLaterRunnables, childFormsThatWereNotified);
 		return retValue;
 	}
 
@@ -774,8 +782,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
-			set.addRow(0,
-				new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
+			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
+				index + 1) });
 			currentContainer = currentForm.getParentContainer();
 		}
 		if (currentContainer instanceof String)

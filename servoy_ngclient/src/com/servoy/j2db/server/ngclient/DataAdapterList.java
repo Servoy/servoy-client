@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.json.JSONArray;
@@ -70,8 +71,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private final IWebFormController formController;
 	private final EventExecutor executor;
-	private final WeakHashMap<IWebFormController, String> relatedForms = new WeakHashMap<>();
-	private final Map<String, String> uninitializedRelatedForms = new HashMap<String, String>();
+	private final WeakHashMap<IWebFormController, String> visibleChildForms = new WeakHashMap<>();
+	private final Map<String, String> uninitializedVisibleChildForms = new HashMap<String, String>();
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
 	private IRecordInternal record;
@@ -224,10 +225,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				if (!newForms.contains(oldForm))
 				{
-					IWebFormController formController = getApplication().getFormManager().getForm(oldForm.getLeft());
+					IWebFormController fc = getApplication().getFormManager().getForm(oldForm.getLeft());
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-					formController.notifyVisible(false, invokeLaterRunnables);
+					fc.notifyVisible(false, invokeLaterRunnables);
 					Utils.invokeLater(getApplication(), invokeLaterRunnables);
+					removeVisibleChildForm(fc, true);
 				}
 			}
 		}
@@ -238,7 +240,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (!oldForms.contains(newVisibleForm))
 				{
 					IWebFormController newFormController = getApplication().getFormManager().getForm(newVisibleForm.getLeft());
-					addRelatedForm(newFormController, newVisibleForm.getRight(), true);
+					addVisibleChildForm(newFormController, newVisibleForm.getRight(), true);
 					if (newVisibleForm.getRight() != null)
 					{
 						newFormController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight(),
@@ -255,33 +257,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 			}
 		}
-		if (oldForms != null)
-		{
-			for (Pair<String, String> oldForm : oldForms)
-			{
-				if (Utils.equalObjects(uninitializedRelatedForms.get(oldForm.getLeft()), oldForm.getRight()))
-				{
-					uninitializedRelatedForms.remove(oldForm.getLeft());
-				}
-				for (IWebFormController relatedController : relatedForms.keySet())
-				{
-					if (Utils.equalObjects(relatedController.getName(), oldForm.getLeft()) &&
-						Utils.equalObjects(oldForm.getRight(), relatedForms.get(relatedController)))
-					{
-						relatedForms.remove(relatedController);
-						break;
-					}
-				}
-			}
-		}
 	}
 
 	public void addUninitializedRelatedForm(String formName, String relationName)
 	{
-		uninitializedRelatedForms.put(formName, relationName);
+		uninitializedVisibleChildForms.put(formName, relationName);
 	}
 
-	public void addRelatedForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController)
+	public void addVisibleChildForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController)
 	{
 		if (shouldUpdateParentFormController)
 		{
@@ -294,7 +277,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (relation != null)
 		{
-			for (Entry<IWebFormController, String> relatedFormEntry : relatedForms.entrySet())
+			for (Entry<IWebFormController, String> relatedFormEntry : visibleChildForms.entrySet())
 			{
 				IWebFormController relatedForm = relatedFormEntry.getKey();
 				String relatedFormRelation = relatedFormEntry.getValue();
@@ -304,25 +287,25 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					{
 						if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
 						{
-							form.getFormUI().getDataAdapterList().addRelatedForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
+							form.getFormUI().getDataAdapterList().addVisibleChildForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
 						}
 					}
 					else if (relation.startsWith(relatedFormRelation) && relation.length() > relatedFormRelation.length())
 					{
 						if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
 						{
-							relatedForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation.substring(relatedFormRelation.length() + 1), false);
+							relatedForm.getFormUI().getDataAdapterList().addVisibleChildForm(form, relation.substring(relatedFormRelation.length() + 1), false);
 						}
 					}
 				}
 			}
 		}
-		relatedForms.put(form, relation);
+		visibleChildForms.put(form, relation);
 	}
 
-	public void removeRelatedForm(IWebFormController form, boolean shouldUpdateParentFormController)
+	public void removeVisibleChildForm(IWebFormController form, boolean firstLevel)
 	{
-		if (shouldUpdateParentFormController)
+		if (firstLevel)
 		{
 			form.setParentFormController(null);
 		}
@@ -330,16 +313,25 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			form.getFormUI().getDataAdapterList().removeParentRelatedForm(getForm());
 		}
-		relatedForms.remove(form);
-		for (Object relWFC : form.getFormUI().getDataAdapterList().getParentRelatedForms().toArray())
+
+		if (!firstLevel)
 		{
-			((IWebFormController)relWFC).getFormUI().getDataAdapterList().removeRelatedForm(form, false);
+			uninitializedVisibleChildForms.remove(form.getName());
+		}
+
+		if (visibleChildForms.containsKey(form))
+		{
+			visibleChildForms.remove(form);
+			for (Object relWFC : form.getFormUI().getDataAdapterList().getParentRelatedForms().toArray())
+			{
+				((IWebFormController)relWFC).getFormUI().getDataAdapterList().removeVisibleChildForm(form, false);
+			}
 		}
 	}
 
 	public Map<IWebFormController, String> getRelatedForms()
 	{
-		return relatedForms;
+		return visibleChildForms;
 	}
 
 	public void addParentRelatedForm(IWebFormController form)
@@ -504,20 +496,21 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			settingRecord = false;
 		}
-		if (uninitializedRelatedForms.size() > 0)
+		if (uninitializedVisibleChildForms.size() > 0)
 		{
 			//a record is set, we must initialize related forms, legacy behavior from sc/wc
-			for (String formName : uninitializedRelatedForms.keySet())
+			for (String formName : uninitializedVisibleChildForms.keySet())
 			{
-				addRelatedForm(getApplication().getFormManager().getForm(formName), uninitializedRelatedForms.get(formName), true);
+				addVisibleChildForm(getApplication().getFormManager().getForm(formName), uninitializedVisibleChildForms.get(formName), true);
 			}
-			uninitializedRelatedForms.clear();
+			uninitializedVisibleChildForms.clear();
 		}
-		for (IWebFormController form : relatedForms.keySet())
+		for (IWebFormController form : visibleChildForms.keySet())
 		{
-			if (relatedForms.get(form) != null)
+			if (visibleChildForms.get(form) != null)
 			{
-				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form), ((BasicFormController)form).getDefaultSortColumns()) : null);
+				form.loadRecords(record != null ? record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns())
+					: null);
 			}
 		}
 
@@ -603,7 +596,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		if (record != null && e != null && e.getName() != null)
 		{
-			for (Entry<IWebFormController, String> relatedFormEntry : relatedForms.entrySet())
+			for (Entry<IWebFormController, String> relatedFormEntry : visibleChildForms.entrySet())
 			{
 				IWebFormController relatedForm = relatedFormEntry.getKey();
 				String relatedFormRelation = relatedFormEntry.getValue();
@@ -813,19 +806,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	@Override
-	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables)
+	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables, Set<IWebFormController> childFormsThatWereAlreadyNotified)
 	{
-		for (IWebFormController relatedController : relatedForms.keySet())
+		for (IWebFormController relatedController : visibleChildForms.keySet())
 		{
-			updateParentContainer(relatedController, relatedForms.get(relatedController), b);
-			relatedController.notifyVisible(b, invokeLaterRunnables);
+			updateParentContainer(relatedController, visibleChildForms.get(relatedController), b);
+			if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables);
 		}
 	}
 
 	public boolean stopUIEditing(boolean looseFocus)
 	{
-		for (IWebFormController relatedController : relatedForms.keySet())
+		for (IWebFormController relatedController : visibleChildForms.keySet())
 		{
 			if (!relatedController.stopUIEditing(looseFocus)) return false;
 		}
@@ -885,7 +877,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		allComponentPropertiesLinkedToData.clear();
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
-		relatedForms.clear();
-		uninitializedRelatedForms.clear();
+		visibleChildForms.clear();
+		uninitializedVisibleChildForms.clear();
 	}
 }

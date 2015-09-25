@@ -5,6 +5,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -154,10 +155,7 @@ public class WebFormComponent extends Container implements IContextProvider
 		}
 	}
 
-	/**
-	 * @param b
-	 */
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, Set<IWebFormController> childFormsThatWereNotified)
 	{
 		// TODO if there are multiply forms visible and only 1 is reporting that it can't be made invisible
 		// what to do with that state? Should it be rollbacked? Should everything be made visible again?
@@ -165,7 +163,9 @@ public class WebFormComponent extends Container implements IContextProvider
 		boolean retValue = true;
 		for (IWebFormUI webUI : visibleForms.keySet())
 		{
-			retValue = retValue && webUI.getController().notifyVisible(visible, invokeLaterRunnables);
+			IWebFormController fc = webUI.getController();
+			childFormsThatWereNotified.add(fc);
+			retValue = retValue && fc.notifyVisible(visible, invokeLaterRunnables);
 		}
 
 		if (!visible && retValue)

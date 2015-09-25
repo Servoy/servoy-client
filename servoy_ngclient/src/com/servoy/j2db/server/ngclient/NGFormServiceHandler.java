@@ -149,9 +149,10 @@ public class NGFormServiceHandler extends FormServiceHandler
 					{
 						containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 					}
+					String relation = null;
 					if (isVisible && args.has("relation") && !args.isNull("relation"))
 					{
-						String relation = args.getString("relation");
+						relation = args.getString("relation");
 						FoundSet parentFs = parentForm.getFormModel();
 						IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
 						if (selectedRecord != null)
@@ -163,7 +164,17 @@ public class NGFormServiceHandler extends FormServiceHandler
 							// no selected record, then use prototype so we can get global relations
 							controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relation));
 						}
-						parentForm.getFormUI().getDataAdapterList().addRelatedForm(controller, relation, true);
+					}
+
+					if (isVisible)
+					{
+						// was shown
+						parentForm.getFormUI().getDataAdapterList().addVisibleChildForm(controller, relation, true);
+					}
+					else
+					{
+						// was hidden
+						parentForm.getFormUI().getDataAdapterList().removeVisibleChildForm(controller, true);
 					}
 				}
 				Utils.invokeLater(getApplication(), invokeLaterRunnables);
