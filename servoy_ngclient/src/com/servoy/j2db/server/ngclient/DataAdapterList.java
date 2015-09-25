@@ -834,6 +834,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void updateParentContainer(IWebFormController relatedController, String relationName, boolean visible)
 	{
+		if (((BasicFormController)relatedController).isDestroyed()) return;
 		if (visible)
 		{
 			WebFormComponent parentContainer = null;

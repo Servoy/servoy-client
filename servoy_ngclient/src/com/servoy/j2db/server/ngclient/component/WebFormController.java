@@ -189,12 +189,13 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
 	 */
 	@Override
 	public boolean stopUIEditing(boolean looseFocus)
 	{
+		if (isDestroyed()) return true;
 		if (!getFormUI().getDataAdapterList().stopUIEditing(looseFocus)) return false;
 		if (looseFocus && form.getOnRecordEditStopMethodID() != 0)
 		{
