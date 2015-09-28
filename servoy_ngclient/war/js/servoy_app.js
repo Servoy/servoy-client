@@ -4,8 +4,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	$logProvider.debugEnabled(false);
 }).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication) {
 
-	var latestApplyCall = {};
-
 	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property) {
 
 		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, property)
@@ -196,8 +194,6 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								//size or location were changed at runtime, we need to update components with anchors
 								beanData.anchors = beanModel.anchors;
 							}
-							if (latestApplyCall && latestApplyCall.formname == formname && latestApplyCall.beanname == beanname && beanData[latestApplyCall.property] != undefined)
-								latestApplyCall = {};
 							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false)
 						}
 					}
@@ -305,14 +301,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				} else {
 					changes[property] = $sabloUtils.convertClientObject(formState.model[beanname][property]);
 				}
-				if (latestApplyCall.formname === formname && latestApplyCall.beanname === beanname && latestApplyCall.property === property && angular.equals(changes,latestApplyCall.changes)) {
-					return;
-				}
-				latestApplyCall.formname = formname;
-				latestApplyCall.beanname = beanname;
-				latestApplyCall.property = property;
-				latestApplyCall.changes = changes;
-				$sabloApplication.callService('formService', 'svyPush', latestApplyCall, true)
+				$sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
 			});
 		}
 	}
