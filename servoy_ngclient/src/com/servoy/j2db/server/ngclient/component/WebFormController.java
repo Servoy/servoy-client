@@ -187,11 +187,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#stopUIEditing(boolean)
-	 */
 	@Override
 	public boolean stopUIEditing(boolean looseFocus)
 	{
@@ -384,6 +379,14 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean recreateUI()
 	{
+		// hide all visible children; here is an example that explains why it's needed:
+		// parent form has tabpanel with child1 and child2; child2 is visible (second tab)
+		// if you recreateUI on parent, child1 would turn out visible after recreateUI without and hide event on child2 if we wouldn't do the notifyVisible below;
+		// but also when you would afterwards change tab to child2 it's onShow won't be called because it thinks it's still visible which is strange;
+		List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+		notifyVisibleOnChildren(false, invokeLaterRunnables);
+		Utils.invokeLater(application, invokeLaterRunnables);
+
 		tabSequence = null;
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		form = application.getFlattenedSolution().getFlattenedForm(f);
@@ -565,12 +568,17 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
 	{
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
-		if (notifyVisibleSuccess && getFormUI() != null)
-		{
-			// TODO should notifyVisibleSuccess be altered by this call? See WebFormUI/WebFormComponent notifyVisible calls.
-			getFormUI().notifyVisible(visible, invokeLaterRunnables);
-		}
+		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
 		return notifyVisibleSuccess;
+	}
+
+	private boolean notifyVisibleOnChildren(boolean visible, List<Runnable> invokeLaterRunnables)
+	{
+		if (getFormUI() != null)
+		{
+			return getFormUI().notifyVisible(visible, invokeLaterRunnables);
+		}
+		return true;
 	}
 
 

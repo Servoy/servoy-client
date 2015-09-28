@@ -68,9 +68,5 @@ public interface IWebFormUI extends IBasicFormUI, IView, IChangeListener
 	@Override
 	public IWebFormController getController();
 
-	/**
-	 * @param visible
-	 * @param invokeLaterRunnables
-	 */
 	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables);
 }

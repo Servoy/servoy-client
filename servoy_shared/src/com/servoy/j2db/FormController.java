@@ -345,6 +345,15 @@ public class FormController extends BasicFormController
 		// of a component on the form but
 		// onshow/onload that should be allowed
 		//if (isFormExecutingFunction()) return false;
+
+		// hide all visible children; here is an example that explains why it's needed:
+		// parent form has tabpanel with child1 and child2; child2 is visible (second tab)
+		// if you recreateUI on parent, child1 would turn out visible after recreateUI without and hide event on child2 if we wouldn't do the notifyVisible below;
+		// but also when you would afterwards change tab to child2 it's onShow won't be called because it thinks it's still visible which is strange;
+		List<Runnable> ilr = new ArrayList<Runnable>();
+		notifyVisibleOnChildren(false, ilr);
+		Utils.invokeLater(application, ilr);
+
 		getFormUI().touch();
 		Rectangle scrollPosition = null;
 		if (view != null) scrollPosition = view.getVisibleRect();
@@ -780,16 +789,21 @@ public class FormController extends BasicFormController
 
 		if (notifyVisible)
 		{
-			IDataRenderer[] array = getDataRenderers();
-			for (IDataRenderer dataRenderer : array)
-			{
-				if (dataRenderer != null)
-				{
-					dataRenderer.notifyVisible(visible, invokeLaterRunnables);
-				}
-			}
+			notifyVisibleOnChildren(visible, invokeLaterRunnables);
 		}
 		return notifyVisible;
+	}
+
+	private void notifyVisibleOnChildren(boolean visible, List<Runnable> invokeLaterRunnables)
+	{
+		IDataRenderer[] array = getDataRenderers();
+		for (IDataRenderer dataRenderer : array)
+		{
+			if (dataRenderer != null)
+			{
+				dataRenderer.notifyVisible(visible, invokeLaterRunnables);
+			}
+		}
 	}
 
 	/*
