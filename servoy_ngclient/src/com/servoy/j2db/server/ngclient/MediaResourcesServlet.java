@@ -373,7 +373,7 @@ public class MediaResourcesServlet extends HttpServlet
 					{
 						ServletFileUpload upload = new ServletFileUpload();
 						FileItemIterator iterator = upload.getItemIterator(req);
-						ArrayList<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
+						final ArrayList<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						while (iterator.hasNext())
 						{
 							FileItemStream item = iterator.next();
@@ -406,11 +406,20 @@ public class MediaResourcesServlet extends HttpServlet
 						}
 						if (aFileUploadData.size() > 0)
 						{
-							IMediaUploadCallback mediaUploadCallback = ((NGClient)wsSession.getClient()).getMediaUploadCallback();
+							final IMediaUploadCallback mediaUploadCallback = ((NGClient)wsSession.getClient()).getMediaUploadCallback();
 							if (mediaUploadCallback != null)
 							{
-								mediaUploadCallback.uploadComplete(aFileUploadData.toArray(new FileUploadData[aFileUploadData.size()]));
-								mediaUploadCallback.onSubmit();
+								// leave time for this request to finish, before executing the callback, so the file
+								// dialog can do its close
+								((NGClient)wsSession.getClient()).getScheduledExecutor().execute(new Runnable()
+								{
+									@Override
+									public void run()
+									{
+										mediaUploadCallback.uploadComplete(aFileUploadData.toArray(new FileUploadData[aFileUploadData.size()]));
+										mediaUploadCallback.onSubmit();
+									}
+								});
 							}
 						}
 					}
