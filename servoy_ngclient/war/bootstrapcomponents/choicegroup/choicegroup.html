@@ -4,7 +4,7 @@
   	 <span>Select a valuelist</span>
   </label>
 </div>
-<div ng-class='model.styleClass' ng-repeat="item in model.valuelistID">
+<div class='bts-radiogroup' ng-class='model.styleClass' ng-repeat="item in model.valuelistID">
   <label>
   	<input type="{{model.inputType}}" ng-model="selection[$index]"  
   		ng-value="item.realValue"
