@@ -851,11 +851,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			var ment = {
 					viewUrl : 'templates/maintenanceView.html',
 					redirectUrl : $window.location.href,
-					redirectTimeout : 0
+					redirectTimeout : -1
 			}
 			if(maintenanceMode.viewUrl) ment.viewUrl = mentenanceMode.viewUrl 
-			if(msg.maintenanceMode.redirectUrl)	ment.redirectUrl = maintenanceMode.redirectUrl;
-			if(msg.maintenanceMode.redirectTimeout)	ment.redirectTimeout = maintenanceMode.redirectTimeout;
+			if(maintenanceMode.redirectUrl)	ment.redirectUrl = maintenanceMode.redirectUrl;
+			if(maintenanceMode.redirectTimeout)	ment.redirectTimeout = maintenanceMode.redirectTimeout;
 
 			$solutionSettings.maintenanceMode = ment;
 			if (!$rootScope.$$phase) $rootScope.$digest();
