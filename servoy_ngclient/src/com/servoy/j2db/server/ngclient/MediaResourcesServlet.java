@@ -411,7 +411,7 @@ public class MediaResourcesServlet extends HttpServlet
 							{
 								// leave time for this request to finish, before executing the callback, so the file
 								// dialog can do its close
-								((NGClient)wsSession.getClient()).getScheduledExecutor().execute(new Runnable()
+								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
 								{
 									@Override
 									public void run()
@@ -594,7 +594,7 @@ public class MediaResourcesServlet extends HttpServlet
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException
