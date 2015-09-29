@@ -26,6 +26,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
+import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.WebComponentApiDefinition;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
@@ -132,11 +133,36 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.headlessclient.AbstractApplication#setLocale(java.util.Locale)
-	 */
+	@Override
+	public void reportInfo(final String message)
+	{
+		Runnable runnable = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("showMessage",
+						new Object[] { Utils.stringReplace(message, "\r", "") });
+				}
+				catch (IOException e)
+				{
+					Debug.error("Error sending message to client", e);
+				}
+			}
+		};
+		// make sure we report this on all windows.
+		if (CurrentWindow.exists() && CurrentWindow.get() instanceof WebsocketSessionWindows)
+		{
+			runnable.run();
+		}
+		else
+		{
+			CurrentWindow.runForWindow(new NGClientWebsocketSessionWindows(getWebsocketSession()), runnable);
+		}
+	}
+
 	@Override
 	public void setLocale(Locale l)
 	{

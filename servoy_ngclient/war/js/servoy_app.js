@@ -969,6 +969,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			return [];
 		},
+		showMessage: function(message) {
+			$window.alert(message);
+		},
 		showUrl:function(url,target,targetOptions,timeout){
 			if(!target) target ='_blank';
 			if(!timeout) timeout = 0;	    	 
