@@ -392,6 +392,17 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		form = application.getFlattenedSolution().getFlattenedForm(f);
 		getFormUI().init();
 		NGClientWindow.getCurrentWindow().updateForm(form, getName());
+
+		if (isFormVisible)
+		{
+			invokeLaterRunnables = new ArrayList<Runnable>();
+			notifyVisibleOnChildren(true, invokeLaterRunnables);
+			Utils.invokeLater(application, invokeLaterRunnables);
+		}
+
+		application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
+		application.getFlattenedSolution().registerLiveForm(form, namedInstance);
+
 		return true;
 	}
 

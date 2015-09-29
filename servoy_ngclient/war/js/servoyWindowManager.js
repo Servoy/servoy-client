@@ -458,30 +458,34 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		},
 		updateController: function(formName,controllerCode, realFormUrl, forceLoad, html) {
 			if ($log.debugEnabled) $log.debug("svy * updateController = " + formName + ", realFormUrl = " + realFormUrl);
-			if (formTemplateUrls[formName])
-			{
-				$templateCache.remove(formTemplateUrls[formName]);
+			if (formTemplateUrls[formName] !== realFormUrl) {
+				if (formTemplateUrls[formName])
+				{
+					$templateCache.remove(formTemplateUrls[formName]);
+				}
+				if (html) $templateCache.put(realFormUrl,html);
+				var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
+				$sabloApplication.clearFormState(formName)
+				eval(controllerCode);
+				formTemplateUrls[formName] = realFormUrl;
+				// if the form was already intialized and visible, then make sure it is initialized again.
+				if (formState && formState.getScope != undefined)
+				{
+					$sabloApplication.getFormState(formName).then(function (formState) {
+						if ($log.debugEnabled) $log.debug("svy * updateController; checking to see if requestInitialData is needed = " + formName + " (" + formState.initializing + ", " + formState.initialDataRequested + ")");
+						if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formName, formState);
+					});
+				}
+				// TODO can this be an else if the above if? will it always force load anyway?
+				if(forceLoad) {
+					$rootScope.updatingFormUrl = realFormUrl;
+					$rootScope.updatingFormName = formName;
+					if ($log.debugEnabled) $log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [updateController FORCED - " + formName + "]");
+				}
+				if (!$rootScope.$$phase) $rootScope.$digest();
+			} else if ($log.debugEnabled) {
+				$log.warn("svy * updateController for form '" + formName + "' was ignored as the URLs are identical and we don't want to clear all kinds of states/caches without the form getting reloaded due to URL change");
 			}
-			if (html) $templateCache.put(realFormUrl,html);
-			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formName);
-			$sabloApplication.clearFormState(formName)
-			eval(controllerCode);
-			formTemplateUrls[formName] = realFormUrl;
-			// if the form was already intialized and visible, then make sure it is initialized again.
-			if (formState && formState.getScope != undefined)
-			{
-				$sabloApplication.getFormState(formName).then(function (formState) {
-					if ($log.debugEnabled) $log.debug("svy * updateController; checking to see if requestInitialData is needed = " + formName + " (" + formState.initializing + ", " + formState.initialDataRequested + ")");
-					if (formState.initializing && !formState.initialDataRequested) $servoyInternal.requestInitialData(formName, formState);
-				});
-			}
-			// TODO can this be an else if the above if? will it always force load anyway?
-			if(forceLoad) {
-				$rootScope.updatingFormUrl = realFormUrl;
-				$rootScope.updatingFormName = formName;
-				if ($log.debugEnabled) $log.debug("svy * $rootScope.updatingFormUrl = " + $rootScope.updatingFormUrl + " [updateController FORCED - " + formName + "]");
-			}
-			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
 		requireFormLoaded: function(formName) {
 			// in case updateController was called for a form before with forceLoad == false, the form URL might not really be loaded by the bean that triggered it
