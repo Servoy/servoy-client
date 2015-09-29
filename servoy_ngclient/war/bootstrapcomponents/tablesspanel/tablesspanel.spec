@@ -7,9 +7,9 @@
 	"libraries": [],
 	"model":
 	{
-			"containedForm": { "type" :"form","tags": { "scope" :"design" }},
+			"containedForm": { "type" :"form"},
 			"relationName": "relation",
-			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
+			"styleClass" : { "type" :"styleclass"},
 			"height" : {"type":"int", "default":"500"}
 	},
 	"handlers":
