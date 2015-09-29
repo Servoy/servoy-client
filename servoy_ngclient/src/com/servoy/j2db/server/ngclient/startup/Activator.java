@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.startup;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.websocket.IWebsocketSession;
 import org.sablo.websocket.IWebsocketSessionFactory;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -27,6 +28,7 @@ import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
+import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
 /**
@@ -70,6 +72,21 @@ public class Activator implements BundleActivator
 									setClient(new NGClient(this));
 								}
 							}
+						}
+
+						@Override
+						protected IEventDispatcher createEventDispatcher()
+						{
+							// make sure that the command console thread is seen as the dispatch thread
+							// so it can executed command, that are api calls to the browser
+							return new NGEventDispatcher(getClient())
+							{
+								@Override
+								public boolean isEventDispatchThread()
+								{
+									return super.isEventDispatchThread() || Thread.currentThread().getName().equals("Debug command reader"); //$NON-NLS-1$
+								}
+							};
 						}
 					};
 					return wsSession;

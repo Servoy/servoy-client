@@ -28,9 +28,12 @@ import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.debug.DebugFrame;
 import org.mozilla.javascript.debug.DebuggableScript;
+import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 
 
 /**
@@ -145,7 +148,21 @@ public class ServoyDebugger extends DBGPDebugger
 				{
 					J2DBGlobals.setServiceProvider(client);
 				}
-				return super.eval(value);
+				boolean reset = false;
+				try
+				{
+					if (client instanceof NGClient && !CurrentWindow.exists())
+					{
+						// make sure that for an NGClient the current window is set.
+						CurrentWindow.set(new NGClientWebsocketSessionWindows(((NGClient)client).getWebsocketSession()));
+						reset = true;
+					}
+					return super.eval(value);
+				}
+				finally
+				{
+					if (reset) CurrentWindow.set(null);
+				}
 			}
 		};
 	}
