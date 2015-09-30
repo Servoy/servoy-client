@@ -27,32 +27,14 @@ import org.sablo.websocket.IWebsocketEndpoint;
 public interface INGClientWebsocketEndpoint extends IWebsocketEndpoint
 {
 
-	/**
-	 * @param formName
-	 * @param formUrl
-	 */
 	boolean addFormIfAbsent(String formName, String formUrl);
 
-	/**
-	 * @param formName
-	 */
 	void formDestroyed(String formName);
 
-	/**
-	 * @param formName
-	 * @return
-	 */
 	String getFormUrl(String formName);
 
-	/**
-	 * @param formName
-	 * @return
-	 */
 	boolean isFormCreated(String formName);
 
-	/**
-	 * @param formName
-	 */
 	void markFormCreated(String formName);
 
 }

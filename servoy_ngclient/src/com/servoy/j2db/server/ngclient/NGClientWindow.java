@@ -42,6 +42,7 @@ import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 
 /**
  * Sablo window for NGClient
@@ -125,7 +126,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + formName + ".html";
+
+		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName, getDefaultFormURLStart(form, formName), false).getLeft();
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
@@ -181,23 +183,10 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		try
 		{
-			String realUrl = formUrl;
-			FlattenedSolution fs = websocketSession.getClient().getFlattenedSolution();
-			Solution sc = fs.getSolutionCopy(false);
-			boolean copy = false;
-			if (sc != null && sc.getChild(form.getUUID()) != null)
-			{
-				realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getSession().getUuid();
-				copy = true;
-			}
-			else if (!form.getName().endsWith(realFormName))
-			{
-				realUrl = realUrl + "?lm:" + form.getLastModified() + "&sessionId=" + getSession().getUuid();
-			}
-			else
-			{
-				realUrl = realUrl + "?sessionId=" + getSession().getUuid();
-			}
+			Pair<String, Boolean> urlAndCopyState = getRealFormURLAndSeeIfItIsACopy(form, realFormName, formUrl, true);
+			String realUrl = urlAndCopyState.getLeft();
+			boolean copy = urlAndCopyState.getRight().booleanValue();
+
 			StringWriter sw = new StringWriter(512);
 			StringWriter sw2 = new StringWriter(512);
 			if (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
@@ -219,6 +208,18 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				w.flush();
 				w.close();
 			}
+
+			// update endpoint URL if needed
+			String previousURL = getEndpoint().getFormUrl(realFormName);
+			String realURLWithoutSessionId = dropSessionIdFrom(realUrl);
+			if (!realURLWithoutSessionId.equals(previousURL))
+			{
+				boolean wasFormCreated = getEndpoint().isFormCreated(realFormName);
+				getEndpoint().formDestroyed(realFormName);
+				getEndpoint().addFormIfAbsent(realFormName, realURLWithoutSessionId);
+				if (wasFormCreated) getEndpoint().markFormCreated(realFormName);
+			}
+
 			if (websocketSession.getClient().isEventDispatchThread() && forceLoad)
 			{
 				websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
@@ -237,15 +238,67 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
+	public boolean hasFormChangedSinceLastSendToClient(Form flattenedForm, String realName)
+	{
+		boolean changed = true;
+		String clientUsedFormURL = getEndpoint().getFormUrl(realName);
+		if (clientUsedFormURL != null)
+		{
+			changed = !clientUsedFormURL.equals(getRealFormURLAndSeeIfItIsACopy(flattenedForm, realName, getDefaultFormURLStart(flattenedForm, realName), false).getLeft());
+		}
+		return changed;
+	}
+
+	protected String dropSessionIdFrom(String realNewURL)
+	{
+		// drop the "?sessionId=...." or "&sessionId=..." when comparing cause those are not part of end-point kept URLs
+		return realNewURL.substring(0, realNewURL.indexOf("sessionId=") - 1);
+	}
+
+	protected Pair<String, Boolean> getRealFormURLAndSeeIfItIsACopy(Form form, String realFormName, String formUrl, boolean addSessionID)
+	{
+		FlattenedSolution fs = websocketSession.getClient().getFlattenedSolution();
+		Solution sc = fs.getSolutionCopy(false);
+		String realUrl = formUrl;
+		boolean copy = false;
+
+		if (sc != null && sc.getChild(form.getUUID()) != null)
+		{
+			realUrl = realUrl + "?lm:" + form.getLastModified() + (addSessionID ? "&sessionId=" + getSession().getUuid() : "");
+			copy = true;
+		}
+		else if (!form.getName().endsWith(realFormName))
+		{
+			realUrl = realUrl + "?lm:" + form.getLastModified() + (addSessionID ? "&sessionId=" + getSession().getUuid() : "");
+		}
+		else
+		{
+			realUrl = realUrl + (addSessionID ? "?sessionId=" + getSession().getUuid() : "");
+		}
+
+		return new Pair<String, Boolean>(realUrl, Boolean.valueOf(copy));
+	}
+
+	@Override
 	public void updateForm(Form form, String name)
 	{
-		String url = getEndpoint().getFormUrl(name);
-		if (url != null)
+		if (hasForm(name))
 		{
 			// if form was not sent to client, do not send now; this is just recreateUI
-			String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
+			String formUrl = getDefaultFormURLStart(form, name);
 			updateController(form, name, formUrl, false);
 		}
+	}
+
+	@Override
+	public boolean hasForm(String realName)
+	{
+		return getEndpoint().getFormUrl(realName) != null;
+	}
+
+	protected String getDefaultFormURLStart(Form form, String name)
+	{
+		return "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
 	}
 
 	public void destroyForm(String name)
@@ -287,4 +340,5 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 		return false;
 	}
+
 }

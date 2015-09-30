@@ -141,4 +141,18 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 		}
 	}
 
+	@Override
+	public boolean hasFormChangedSinceLastSendToClient(Form flattenedForm, String realName)
+	{
+		throw new UnsupportedOperationException(
+			"Cannot check if a form had been changed on multiple windows... Should only check for this in it's correct one.");
+	}
+
+	@Override
+	public boolean hasForm(String realName)
+	{
+		throw new UnsupportedOperationException(
+			"Cannot check if a form had been loaded on multiple windows... NGClientWebsocketSession.getWindowWithForm(String) might help for what you need.");
+	}
+
 }

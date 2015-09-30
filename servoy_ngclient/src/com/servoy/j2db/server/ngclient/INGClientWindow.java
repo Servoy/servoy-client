@@ -29,27 +29,23 @@ import com.servoy.j2db.persistence.Form;
  */
 public interface INGClientWindow extends IWindow
 {
-	/**
-	 * @param form
-	 * @param name
-	 */
-	void updateForm(Form form, String name);
+
+	boolean hasForm(String realName);
 
 	/**
-	 * @param formName
+	 * Returns true only if the form was not previously sent to client at all or if the version of the form that was sent to the client is no longer up-to-date (solution model change).
 	 */
+	boolean hasFormChangedSinceLastSendToClient(Form flattenedForm, String realName);
+
+	void updateForm(Form form, String name);
+
 	void formCreated(String formName);
 
 	void destroyForm(String name);
 
-	/**
-	 *
-	 * @param flattenedForm
-	 * @param realInstanceName
-	 * @param async
-	 */
 	void touchForm(Form flattenedForm, String realInstanceName, boolean async);
 
 	@Override
 	INGClientWebsocketSession getSession();
+
 }

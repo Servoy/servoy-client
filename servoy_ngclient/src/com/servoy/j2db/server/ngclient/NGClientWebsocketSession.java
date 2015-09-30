@@ -303,7 +303,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	/*
 	 * All windows are now closed. We shutdown the client in order to free up the license/resources for the next NGClient instantiation.
-	 * 
+	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#sessionExpired()
 	 */
 	@Override
@@ -347,14 +347,23 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}, getWindowTimeout() + 10, TimeUnit.MILLISECONDS);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sablo.websocket.IWebsocketSession#getLocale()
-	 */
 	@Override
 	public Locale getLocale()
 	{
 		return client.getLocale();
+	}
+
+	@Override
+	public INGClientWindow getWindowWithForm(String formName)
+	{
+		INGClientWindow currentWindow = NGClientWindow.getCurrentWindow();
+		if (currentWindow != null && currentWindow.hasForm(formName)) return currentWindow;
+
+		for (INGClientWindow w : getWindows())
+		{
+			if (w != currentWindow && w.hasForm(formName)) return w;
+		}
+
+		return null;
 	}
 }

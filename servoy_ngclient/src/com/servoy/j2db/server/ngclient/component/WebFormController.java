@@ -52,6 +52,7 @@ import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.NGClientWindow;
@@ -379,29 +380,47 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean recreateUI()
 	{
-		// hide all visible children; here is an example that explains why it's needed:
-		// parent form has tabpanel with child1 and child2; child2 is visible (second tab)
-		// if you recreateUI on parent, child1 would turn out visible after recreateUI without and hide event on child2 if we wouldn't do the notifyVisible below;
-		// but also when you would afterwards change tab to child2 it's onShow won't be called because it thinks it's still visible which is strange;
-		List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-		notifyVisibleOnChildren(false, invokeLaterRunnables);
-		Utils.invokeLater(application, invokeLaterRunnables);
-
-		tabSequence = null;
-		Form f = application.getFlattenedSolution().getForm(form.getName());
-		form = application.getFlattenedSolution().getFlattenedForm(f);
-		getFormUI().init();
-		NGClientWindow.getCurrentWindow().updateForm(form, getName());
-
-		if (isFormVisible)
+		INGClientWindow windowThatHasForm = NGClientWindow.getCurrentWindow().getSession().getWindowWithForm(getName());
+		if (windowThatHasForm != null)
 		{
-			invokeLaterRunnables = new ArrayList<Runnable>();
-			notifyVisibleOnChildren(true, invokeLaterRunnables);
-			Utils.invokeLater(application, invokeLaterRunnables);
-		}
+			Form f = application.getFlattenedSolution().getForm(form.getName());
+			form = application.getFlattenedSolution().getFlattenedForm(f);
 
-		application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
-		application.getFlattenedSolution().registerLiveForm(form, namedInstance);
+			if (windowThatHasForm.hasFormChangedSinceLastSendToClient(form, getName()))
+			{
+				// hide all visible children; here is an example that explains why it's needed:
+				// parent form has tabpanel with child1 and child2; child2 is visible (second tab)
+				// if you recreateUI on parent, child1 would turn out visible after recreateUI without a hide event on child2 if we wouldn't do the notifyVisible below;
+				// but also when you would afterwards change tab to child2 it's onShow won't be called because it thinks it's still visible which is strange;
+				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+				notifyVisibleOnChildren(false, invokeLaterRunnables);
+				Utils.invokeLater(application, invokeLaterRunnables);
+
+				tabSequence = null;
+				f = application.getFlattenedSolution().getForm(form.getName());
+				form = application.getFlattenedSolution().getFlattenedForm(f);
+				getFormUI().init();
+				NGClientWindow.getCurrentWindow().updateForm(form, getName());
+
+				if (isFormVisible)
+				{
+					invokeLaterRunnables = new ArrayList<Runnable>();
+					notifyVisibleOnChildren(true, invokeLaterRunnables);
+					Utils.invokeLater(application, invokeLaterRunnables);
+				}
+
+				application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
+				application.getFlattenedSolution().registerLiveForm(form, namedInstance);
+			}
+			else
+			{
+				Debug.trace("RecreateUI on form " + getName() + " was ignored because that form was not changed since last being sent to client...");
+			}
+		}
+		else
+		{
+			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form is not yet loaded in any window...");
+		}
 
 		return true;
 	}
