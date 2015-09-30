@@ -42,4 +42,7 @@ Web-Composite: True
 Name: 2screens.spec
 Web-Composite: True
 
+Name: clearfix.spec
+Web-Composite: True
+
 
