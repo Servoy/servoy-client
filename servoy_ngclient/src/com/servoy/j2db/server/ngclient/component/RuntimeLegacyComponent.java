@@ -36,10 +36,12 @@ import org.sablo.specification.WebComponentSpecification;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportName;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -478,7 +480,16 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		{
 			if (propertyName.equals("absoluteFormLocationY") && component.getFormElement().getPersistIfAvailable() instanceof IFormElement) //$NON-NLS-1$
 			{
-				return Integer.valueOf(((IFormElement)component.getFormElement().getPersistIfAvailable()).getLocation().y);
+				int y = ((Integer)scriptable.get("locationY", null)).intValue();
+				IFormElement fe = (IFormElement)component.getFormElement().getPersistIfAvailable();
+				Form f = component.getFormElement().getForm();
+				Part p = f.getPartAt(fe.getLocation().y);
+				int partStartY = 0;
+				if (p != null)
+				{
+					partStartY = f.getPartStartYPos(p.getID());
+				}
+				return Integer.valueOf(partStartY + y);
 			}
 
 			if ("clientProperty".equals(propertyName) && args != null && args.length > 0)
