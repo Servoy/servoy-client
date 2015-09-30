@@ -38,7 +38,8 @@ module.exports = function(config){
     ],
     exclude : [
 	  '../war/servoydefault/**/*_server.js',
-	  '../war/js/**/*.min.js'
+	  '../war/js/**/*.min.js',
+	  '../war/js/debug.js'
     ],
     ngHtml2JsPreprocessor: {
         // setting this option will create only a single module that contains templates
