@@ -380,12 +380,15 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean recreateUI()
 	{
+		Form oldForm = form;
+
+		// update flattened form reference cause now we probably need to use a SM modified version
+		Form f = application.getFlattenedSolution().getForm(form.getName());
+		form = application.getFlattenedSolution().getFlattenedForm(f);
+
 		INGClientWindow windowThatHasForm = NGClientWindow.getCurrentWindow().getSession().getWindowWithForm(getName());
 		if (windowThatHasForm != null)
 		{
-			Form f = application.getFlattenedSolution().getForm(form.getName());
-			form = application.getFlattenedSolution().getFlattenedForm(f);
-
 			if (windowThatHasForm.hasFormChangedSinceLastSendToClient(form, getName()))
 			{
 				// hide all visible children; here is an example that explains why it's needed:
@@ -414,11 +417,13 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 			else
 			{
+				// no need here to getFormUI().init() because flattened form has not changed
 				Debug.trace("RecreateUI on form " + getName() + " was ignored because that form was not changed since last being sent to client...");
 			}
 		}
 		else
 		{
+			if (oldForm != form) getFormUI().init(); // in case it's not already visible but it is modified by Solution Model and recreateUI is called, it's formUI needs to reinitialize as well
 			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form is not yet loaded in any window...");
 		}
 

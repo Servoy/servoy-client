@@ -127,12 +127,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
 
-		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName, getDefaultFormURLStart(form, formName), false).getLeft();
+		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName, false).getLeft();
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
 			// form is not yet on the client, send over the controller
-			updateController(form, formName, formUrl, !async);
+			updateController(form, formName, !async);
 			Debug.debug("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
 		}
 		else
@@ -179,11 +179,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 	}
 
-	protected void updateController(Form form, String realFormName, String formUrl, boolean forceLoad)
+	protected void updateController(Form form, String realFormName, boolean forceLoad)
 	{
 		try
 		{
-			Pair<String, Boolean> urlAndCopyState = getRealFormURLAndSeeIfItIsACopy(form, realFormName, formUrl, true);
+			Pair<String, Boolean> urlAndCopyState = getRealFormURLAndSeeIfItIsACopy(form, realFormName, true);
 			String realUrl = urlAndCopyState.getLeft();
 			boolean copy = urlAndCopyState.getRight().booleanValue();
 
@@ -212,7 +212,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			// update endpoint URL if needed
 			String previousURL = getEndpoint().getFormUrl(realFormName);
 			String realURLWithoutSessionId = dropSessionIdFrom(realUrl);
-			if (!realURLWithoutSessionId.equals(previousURL))
+			if (previousURL != null && !realURLWithoutSessionId.equals(previousURL))
 			{
 				boolean wasFormCreated = getEndpoint().isFormCreated(realFormName);
 				getEndpoint().formDestroyed(realFormName);
@@ -244,7 +244,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		String clientUsedFormURL = getEndpoint().getFormUrl(realName);
 		if (clientUsedFormURL != null)
 		{
-			changed = !clientUsedFormURL.equals(getRealFormURLAndSeeIfItIsACopy(flattenedForm, realName, getDefaultFormURLStart(flattenedForm, realName), false).getLeft());
+			changed = !clientUsedFormURL.equals(getRealFormURLAndSeeIfItIsACopy(flattenedForm, realName, false).getLeft());
 		}
 		return changed;
 	}
@@ -255,11 +255,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		return realNewURL.substring(0, realNewURL.indexOf("sessionId=") - 1);
 	}
 
-	protected Pair<String, Boolean> getRealFormURLAndSeeIfItIsACopy(Form form, String realFormName, String formUrl, boolean addSessionID)
+	protected Pair<String, Boolean> getRealFormURLAndSeeIfItIsACopy(Form form, String realFormName, boolean addSessionID)
 	{
 		FlattenedSolution fs = websocketSession.getClient().getFlattenedSolution();
 		Solution sc = fs.getSolutionCopy(false);
-		String realUrl = formUrl;
+		String realUrl = getDefaultFormURLStart(form, realFormName);
 		boolean copy = false;
 
 		if (sc != null && sc.getChild(form.getUUID()) != null)
@@ -285,8 +285,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (hasForm(name))
 		{
 			// if form was not sent to client, do not send now; this is just recreateUI
-			String formUrl = getDefaultFormURLStart(form, name);
-			updateController(form, name, formUrl, false);
+			updateController(form, name, false);
 		}
 	}
 
