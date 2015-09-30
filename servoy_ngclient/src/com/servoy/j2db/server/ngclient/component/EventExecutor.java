@@ -90,6 +90,25 @@ public class EventExecutor
 					f = ((GlobalScope)scope).getFunctionByName(name);
 				}
 			}
+			if (name == null && scope == null && formController.getFormModel() != null)
+			{
+				try
+				{
+					ScriptMethod method = AbstractBase.selectById(
+						formController.getApplication().getFlattenedSolution().getFoundsetMethods(formController.getTable(), false).iterator(), eventId);
+					if (method != null)
+					{
+						name = method.getName();
+						scope = formController.getFormModel();
+						f = (Function)scope.getPrototype().get(name, scope);
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+			}
+
 		}
 
 		if (args != null)
