@@ -28,14 +28,10 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.IBasicFormManager.History;
-import com.servoy.j2db.IDebugClient;
-import com.servoy.j2db.IDebugClientHandler;
-import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
@@ -224,33 +220,6 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				break;
 			}
-			case "openFormInDesigner" :
-			{
-				if (getApplication() instanceof IDebugClient)
-				{
-					IDebugClientHandler clientHandler = ApplicationServerRegistry.get().getDebugClientHandler();
-					String formName = args.optString("formname");
-					Form form = formName != null ? getApplication().getFormManager().getPossibleForm(formName) : null;
-					if (form != null && clientHandler != null && clientHandler instanceof IDesignerCallback)
-					{
-						((IDesignerCallback)clientHandler).showFormInDesigner(form);
-					}
-					else if (form == null)
-					{
-						Debug.error("Form " + formName + " was not found");
-					}
-					else
-					{
-						Debug.error("Internal error: Cannot open form " + formName + " in editor.");
-					}
-				}
-				else
-				{
-					Debug.error("Cannot open form in editor. The application was not started from the developer.");
-				}
-				break;
-			}
-
 			default :
 			{
 				return super.executeMethod(methodName, args);

@@ -10,7 +10,7 @@ angular.module('servoyApp')
 		if (parent[0] !== undefined)
 		{
 			var formname = parent[0].getAttribute('formname');
-			$sabloApplication.callService("formService", "openFormInDesigner", {'formname' : formname},true);
+			$sabloApplication.callService("developerService", "openFormInDesigner", {'formname' : formname},true);
 		}
 		else
 		{

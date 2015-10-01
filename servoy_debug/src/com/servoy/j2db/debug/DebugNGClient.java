@@ -98,6 +98,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	{
 		super(wsSession);
 		this.designerCallback = designerCallback;
+		getWebsocketSession().registerServerService("developerService", new DeveloperServiceHandler(this));
 	}
 
 	@Override
@@ -296,5 +297,10 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	public boolean isInDesigner()
 	{
 		return false;
+	}
+
+	IDesignerCallback getDesignerCallback()
+	{
+		return designerCallback;
 	}
 }
