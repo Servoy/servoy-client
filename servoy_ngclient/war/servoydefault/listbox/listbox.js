@@ -20,36 +20,21 @@ angular.module('servoydefaultListbox', [ 'servoy' ]).run([ "$templateCache", "$h
 			$compile($element.contents())($scope);
 
 			$scope.findMode = false;
-			$scope.$watch('model.dataProviderID', function() {
-				if (!$scope.model.dataProviderID) {
-					$scope.convertModel = null;
-				} else {
-					// TODO needs to be automatic
-					if (isMultiSelect) {
-						$scope.convertModel = ($scope.model.dataProviderID + '').split('\n');
-					} else {
-						$scope.convertModel = $scope.model.dataProviderID
-					}
-				}
-			})
-			$scope.$watch('convertModel', function() {
-				var oldValue = $scope.model.dataProviderID;
-				var newValue = null;
-				if (!$scope.convertModel) {
-					newValue = null;
-				} else {
-					if (isMultiSelect) {
-						newValue = $scope.convertModel.join('\n');
-					} else {
-						newValue = $scope.convertModel;
-					}
-				}
-				if (oldValue != newValue) {
-					$scope.model.dataProviderID = newValue;
-					$scope.svyServoyapi.apply('dataProviderID');
-				}
-			})
 
+			$scope.onClick = function(event) {
+				var select = $element.find('select');
+				var newValue= select.val();
+				if (isMultiSelect && newValue)
+				{
+					newValue = newValue.join('\n');
+				}	
+				$scope.model.dataProviderID = newValue;
+				$scope.svyServoyapi.apply('dataProviderID');
+				if ($scope.handlers.onActionMethodID)
+				{
+					$scope.handlers.onActionMethodID(event)
+				}
+			}
 			/**
 			 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content
 			 * NOTE: getScrollX() can be used with getScrollY() to return the current scroll location of an element; then use the X and Y coordinates with the setScroll function to set a new scroll location. 
