@@ -386,7 +386,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		form = application.getFlattenedSolution().getFlattenedForm(f);
 
-		INGClientWindow windowThatHasForm = NGClientWindow.getCurrentWindow().getSession().getWindowWithForm(getName());
+		INGClientWindow windowThatHasForm = null;
+		if (CurrentWindow.exists()) windowThatHasForm = NGClientWindow.getCurrentWindow().getSession().getWindowWithForm(getName());
 		if (windowThatHasForm != null)
 		{
 			if (windowThatHasForm.hasFormChangedSinceLastSendToClient(form, getName()))
@@ -403,7 +404,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				f = application.getFlattenedSolution().getForm(form.getName());
 				form = application.getFlattenedSolution().getFlattenedForm(f);
 				getFormUI().init();
-				NGClientWindow.getCurrentWindow().updateForm(form, getName());
+				windowThatHasForm.updateForm(form, getName());
 
 				if (isFormVisible)
 				{
@@ -423,7 +424,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		else
 		{
-			if (oldForm != form) getFormUI().init(); // in case it's not already visible but it is modified by Solution Model and recreateUI is called, it's formUI needs to reinitialize as well
+			// in case it's not already visible but it is modified by Solution Model and recreateUI is called, it's formUI needs to reinitialize as well
+			if (oldForm != form || application.isInDeveloper())
+			{
+				tabSequence = null;
+				getFormUI().init();
+			}
 			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form is not yet loaded in any window...");
 		}
 

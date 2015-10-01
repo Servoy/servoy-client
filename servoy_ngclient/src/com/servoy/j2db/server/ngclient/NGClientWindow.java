@@ -223,12 +223,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			if (websocketSession.getClient().isEventDispatchThread() && forceLoad)
 			{
 				websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad), sw2.toString() });
+					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad), sw2.toString() }, this);
 			}
 			else
 			{
 				websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad), sw2.toString() });
+					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad), sw2.toString() }, this);
 			}
 		}
 		catch (IOException e)

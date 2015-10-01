@@ -356,20 +356,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public INGClientWindow getWindowWithForm(String formName)
 	{
-		INGClientWindow currentWindow = NGClientWindow.getCurrentWindow();
-		try
-		{
-			if (currentWindow != null && currentWindow.hasForm(formName)) return currentWindow;
-		}
-		catch (UnsupportedOperationException e)
-		{
-			// if recreateUI for example gets called from a scheduled job instead of a real handler on a window/endpoint, the current window might be
-			// the NGClientWebsocketSessionWindows instance in which it makes no sense to check for 'hasForm' as it's just a proxy to all others
-		}
-
 		for (INGClientWindow w : getWindows())
 		{
-			if (w != currentWindow && w.hasForm(formName)) return w;
+			if (w.hasForm(formName)) return w;
 		}
 
 		return null;
