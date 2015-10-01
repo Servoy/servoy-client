@@ -293,18 +293,23 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		if (parentComponent.getSpecification().getProperty(property) != null && childComponent.getSpecification().getProperty(property) != null)
 		{
-			setChildProperty(property, initialValue);
-			this.parentComponent.addPropertyChangeListener(property, enabledPropertyListener = new PropertyChangeListener()
+			PropertyDescription propertyDescChild = childComponent.getSpecification().getProperty(property);
+			if (childComponent.getProperty(property) == null || !propertyDescChild.hasDefault() ||
+				childComponent.getProperty(property).equals(propertyDescChild.getDefaultValue()))
 			{
-				@Override
-				public void propertyChange(PropertyChangeEvent evt)
+				setChildProperty(property, initialValue);
+				this.parentComponent.addPropertyChangeListener(property, enabledPropertyListener = new PropertyChangeListener()
 				{
-					if (evt.getNewValue() != null)
+					@Override
+					public void propertyChange(PropertyChangeEvent evt)
 					{
-						setChildProperty(property, evt.getNewValue());
+						if (evt.getNewValue() != null)
+						{
+							setChildProperty(property, evt.getNewValue());
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 	}
 
