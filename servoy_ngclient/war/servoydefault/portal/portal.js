@@ -1014,8 +1014,9 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							$scope.gridApi.grid.columns[0].width = $scope.gridApi.grid.gridWidth - 17; //make sure possible vertical scroll does now overlap last column
 						}
 					}
+					
 					$scope.gridApi.grid.refreshCanvas(true).then(function() {
-						// make sure the columns are all rendered that are in the viewport (SVY-8638) 
+						// make sure the columns are all rendered that are in the viewport (SVY-8638)
 						$scope.gridApi.grid.redrawInPlace();
 					})
 					
@@ -1036,11 +1037,11 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					function justToIsolateScope() {
 						var minRelayoutPeriodPassed = true;
 						var pendingLayout = false;
-						var elementSize = [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ];
+						var elementSize = null;
 						var timeoutPromise = null;
 						function getNewSize() {
 							var newSize = [ gridUtil.elementWidth($element), gridUtil.elementHeight($element) ];
-							if (newSize[0] != elementSize[0] || newSize[1] != elementSize[1]){
+							if (!elementSize || (newSize[0] != elementSize[0] || newSize[1] != elementSize[1])){
 								elementSize = newSize;
 								$scope.$apply();
 							}
