@@ -114,7 +114,7 @@ public abstract class AbstractBase implements IPersist
 			}
 			else if (jsonCustomProperties != null && jsonCustomProperties.containsKey(propertyName))
 			{
-				if (jsonCustomProperties != null) jsonCustomProperties.remove(propertyName);
+				jsonCustomProperties.remove(propertyName);
 			}
 			if (bufferPropertiesMap != null)
 			{
