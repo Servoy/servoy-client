@@ -615,9 +615,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			for (int i = 0; i < dpnames.length; i++)
 			{
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
-					dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale()
-						: 0);
+				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0)
+					: ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
+						dp instanceof Column ? ((Column)dp).getScale() : 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)
@@ -1103,8 +1103,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name,
-				new QueryCustomSelect(sql_query, arguments), max_returned_rows, types, pkNames);
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name, new QueryCustomSelect(sql_query, arguments),
+				max_returned_rows, types, pkNames);
 		}
 		catch (ServoyException e)
 		{
@@ -1202,8 +1202,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
 
-		if (serverName == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND,
-			new Object[] { query.getDataSource() }));
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
 
 		QuerySelect select = query.build();
 		if (!validateQueryArguments(select))
@@ -1276,8 +1276,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name, new QueryCustomSelect(
-				sql_query, arguments), _max_returned_rows));
+			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name,
+				new QueryCustomSelect(sql_query, arguments), _max_returned_rows));
 		}
 		catch (ServoyException e)
 		{
@@ -1294,7 +1294,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
 		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
 		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
-		return ((declareIndex != -1 && declareIndex < 4) || (selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4));
+		return ((declareIndex != -1 && declareIndex < 4) || (selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) ||
+			(withIndex != -1 && withIndex < 4));
 	}
 
 
@@ -1333,8 +1334,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
 
-		if (serverName == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND,
-			new Object[] { query.getDataSource() }));
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
 		QuerySelect select = query.build();
 
 		if (!validateQueryArguments(select))
@@ -1368,8 +1369,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			{
 				try
 				{
-					Method m = so.getClass().getMethod(
-						"js_executeStoredProcedure", new Class[] { String.class, String.class, Object[].class, int[].class, int.class }); //$NON-NLS-1$
+					Method m = so.getClass().getMethod("js_executeStoredProcedure", //$NON-NLS-1$
+						new Class[] { String.class, String.class, Object[].class, int[].class, int.class });
 					return m.invoke(so, new Object[] { serverName, procedureDeclaration, args, inOutType, new Integer(maxNumberOfRowsToRetrieve) });
 				}
 				catch (Exception e)
@@ -1378,8 +1379,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 		}
-		application.reportError(
-			"Writing to file failed", "For this operation the file plugin is needed\nNote this method is deprecated, use the plugin directly in your code"); //$NON-NLS-1$ //$NON-NLS-2$
+		application.reportError("Writing to file failed", //$NON-NLS-1$
+			"For this operation the file plugin is needed\nNote this method is deprecated, use the plugin directly in your code"); //$NON-NLS-1$
 		return null;
 	}
 
@@ -1829,12 +1830,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		int idx = index;
 		if (foundset instanceof IFoundSetInternal && ((IFoundSetInternal)foundset).getTable() != null)
 		{
-			if (idx == -1)//refresh all
+			if (idx == -1) //refresh all
 			{
 				// TODO should be checked if the foundset is completely loaded and only has X records?
 				// So we only flush those records not the complete table?
-				((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(application.getFoundSetManager().getDataSource(
-					((IFoundSetInternal)foundset).getTable()));
+				((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(
+					application.getFoundSetManager().getDataSource(((IFoundSetInternal)foundset).getTable()));
 				return true;
 			}
 			else
@@ -1956,7 +1957,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						Object[] dataSetRow = dataSet.getRow(i);
 						if (dataSetRow == null)
 						{
-							Debug.warn("js_getFoundSetDataProviderAsArray - null row at index: " + i + " when getting dataprovider: " + dataprovider + " from foundset: " + foundset); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+							Debug.warn("js_getFoundSetDataProviderAsArray - null row at index: " + i + " when getting dataprovider: " + dataprovider + //$NON-NLS-1$//$NON-NLS-2$
+								" from foundset: " + foundset); //$NON-NLS-1$
 							retval[i] = null;
 						}
 						else
@@ -2339,8 +2341,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			catch (Exception ex)
 			{
-				application.handleException(
-					application.getI18NMessage("servoy.foundsetupdater.updateFailed"), new ApplicationException(ServoyException.SAVE_FAILED, ex)); //$NON-NLS-1$
+				application.handleException(application.getI18NMessage("servoy.foundsetupdater.updateFailed"), //$NON-NLS-1$
+					new ApplicationException(ServoyException.SAVE_FAILED, ex));
 			}
 			finally
 			{
@@ -3567,7 +3569,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 								}
 								catch (Exception e)
 								{
-									application.reportError("Could not copy matching field to " + dest_table.getName() + "." + c.getDataProviderID() +
+									application.reportJSError("Could not copy matching field to " + dest_table.getName() + "." + c.getDataProviderID() +
 										". The value: '" + sval + "' does not match the type of the destination.", e);
 								}
 							}
