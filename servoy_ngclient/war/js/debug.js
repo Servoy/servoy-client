@@ -1,9 +1,9 @@
 angular.module('servoyApp')
-.run(function ($applicationService,$sabloApplication)
+.run(function ($applicationService,$sabloApplication,$log)
 {
 	function ctrlLCallback(event)
 	{
-		var element = angular.element(event.srcElement);
+		var element = angular.element(event.srcElement ? event.srcElement : event.target);
 		var parent = element.closest('svy-formload');
 		if (parent[0] == undefined) parent = $(document.activeElement).closest('svy-formload');
 		if (parent[0] == undefined && element[0] == document.body) parent = element.find('svy-formload'); //main form
