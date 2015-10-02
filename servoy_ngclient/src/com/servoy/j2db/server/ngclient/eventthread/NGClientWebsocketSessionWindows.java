@@ -100,11 +100,11 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 
 
 	@Override
-	public void updateForm(Form form, String name)
+	public void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator)
 	{
 		for (INGClientWindow window : getSession().getWindows())
 		{
-			window.updateForm(form, name);
+			window.updateForm(form, name, formTemplateGenerator);
 		}
 	}
 

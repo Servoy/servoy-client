@@ -50,6 +50,7 @@ import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
@@ -60,6 +61,7 @@ import com.servoy.j2db.server.ngclient.NGRuntimeWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebListFormUI;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -386,53 +388,44 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		form = application.getFlattenedSolution().getFlattenedForm(f);
 
-		INGClientWindow windowThatHasForm = null;
-		if (CurrentWindow.exists()) windowThatHasForm = NGClientWindow.getCurrentWindow().getSession().getWindowWithForm(getName());
-		if (windowThatHasForm != null)
+		INGClientWindow allWindowsProxy = new NGClientWebsocketSessionWindows(getApplication().getWebsocketSession());
+		if (allWindowsProxy.hasFormChangedSinceLastSendToClient(form, getName()))
 		{
-			if (windowThatHasForm.hasFormChangedSinceLastSendToClient(form, getName()))
+			// hide all visible children; here is an example that explains why it's needed:
+			// parent form has tabpanel with child1 and child2; child2 is visible (second tab)
+			// if you recreateUI on parent, child1 would turn out visible after recreateUI without a hide event on child2 if we wouldn't do the notifyVisible below;
+			// but also when you would afterwards change tab to child2 it's onShow won't be called because it thinks it's still visible which is strange;
+			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+			notifyVisibleOnChildren(false, invokeLaterRunnables);
+			Utils.invokeLater(application, invokeLaterRunnables);
+
+			tabSequence = null;
+			f = application.getFlattenedSolution().getForm(form.getName());
+			form = application.getFlattenedSolution().getFlattenedForm(f);
+			getFormUI().init();
+			allWindowsProxy.updateForm(form, getName(), new FormHTMLAndJSGenerator(getApplication(), form, getName()));
+
+			if (isFormVisible)
 			{
-				// hide all visible children; here is an example that explains why it's needed:
-				// parent form has tabpanel with child1 and child2; child2 is visible (second tab)
-				// if you recreateUI on parent, child1 would turn out visible after recreateUI without a hide event on child2 if we wouldn't do the notifyVisible below;
-				// but also when you would afterwards change tab to child2 it's onShow won't be called because it thinks it's still visible which is strange;
-				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				notifyVisibleOnChildren(false, invokeLaterRunnables);
+				invokeLaterRunnables = new ArrayList<Runnable>();
+				notifyVisibleOnChildren(true, invokeLaterRunnables);
 				Utils.invokeLater(application, invokeLaterRunnables);
-
-				tabSequence = null;
-				f = application.getFlattenedSolution().getForm(form.getName());
-				form = application.getFlattenedSolution().getFlattenedForm(f);
-				getFormUI().init();
-				windowThatHasForm.updateForm(form, getName());
-
-				if (isFormVisible)
-				{
-					invokeLaterRunnables = new ArrayList<Runnable>();
-					notifyVisibleOnChildren(true, invokeLaterRunnables);
-					Utils.invokeLater(application, invokeLaterRunnables);
-				}
-
-				application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
-				application.getFlattenedSolution().registerLiveForm(form, namedInstance);
 			}
-			else
-			{
-				// no need here to getFormUI().init() because flattened form has not changed
-				Debug.trace("RecreateUI on form " + getName() + " was ignored because that form was not changed since last being sent to client...");
-			}
+
+			application.getFlattenedSolution().deregisterLiveForm(form, namedInstance);
+			application.getFlattenedSolution().registerLiveForm(form, namedInstance);
 		}
 		else
 		{
-			// in case it's not already visible but it is modified by Solution Model and recreateUI is called, it's formUI needs to reinitialize as well
-			if (oldForm != form || application.isInDeveloper())
+			// in case it's not already loaded on client side - so we can't rely on endpoint URL differeces - but it is modified by Solution Model and recreateUI is called, it's formUI needs to reinitialize as well
+			if ((oldForm != form || application.isInDeveloper()) && !allWindowsProxy.hasForm(getName()))
 			{
 				tabSequence = null;
 				getFormUI().init();
 			}
-			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form is not yet loaded in any window...");
-		}
 
+			Debug.trace("RecreateUI on form " + getName() + " was ignored because that form was not changed since last being sent to client...");
+		}
 		return true;
 	}
 

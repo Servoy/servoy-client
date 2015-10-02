@@ -18,8 +18,6 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -38,9 +36,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
-import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
-import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
-import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 
@@ -132,7 +127,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (nowSentToClient)
 		{
 			// form is not yet on the client, send over the controller
-			updateController(form, formName, !async);
+			updateController(form, formName, !async, new FormHTMLAndJSGenerator(getSession().getClient(), form, formName));
 			Debug.debug("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
 		}
 		else
@@ -179,35 +174,17 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 	}
 
-	protected void updateController(Form form, String realFormName, boolean forceLoad)
+	protected void updateController(Form form, final String realFormName, final boolean forceLoad, IFormHTMLAndJSGenerator formTemplateGenerator)
 	{
 		try
 		{
 			Pair<String, Boolean> urlAndCopyState = getRealFormURLAndSeeIfItIsACopy(form, realFormName, true);
-			String realUrl = urlAndCopyState.getLeft();
+			final String realUrl = urlAndCopyState.getLeft();
 			boolean copy = urlAndCopyState.getRight().booleanValue();
 
-			StringWriter sw = new StringWriter(512);
-			StringWriter sw2 = new StringWriter(512);
-			if (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
-			{
-				new FormTemplateGenerator(new ServoyDataConverterContext(websocketSession.getClient()), true, false).generate(form, realFormName,
-					"form_recordview_js.ftl", sw);
-
-				PrintWriter w = new PrintWriter(sw2);
-				if (form.isResponsiveLayout())
-				{
-					FormLayoutStructureGenerator.generateLayout(form, realFormName, new ServoyDataConverterContext(websocketSession.getClient()), w, false,
-						false);
-				}
-				else
-				{
-					FormLayoutGenerator.generateRecordViewForm(w, form, realFormName, new ServoyDataConverterContext(websocketSession.getClient()), false,
-						false);
-				}
-				w.flush();
-				w.close();
-			}
+			boolean needsToGenerateTemplates = (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue());
+			final String jsTemplate = (needsToGenerateTemplates ? formTemplateGenerator.generateJS() : "");
+			final String htmlTemplate = (needsToGenerateTemplates ? formTemplateGenerator.generateHTMLTemplate() : "");
 
 			// update endpoint URL if needed
 			String previousURL = getEndpoint().getFormUrl(realFormName);
@@ -220,16 +197,31 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				if (wasFormCreated) getEndpoint().markFormCreated(realFormName);
 			}
 
-			if (websocketSession.getClient().isEventDispatchThread() && forceLoad)
+			CurrentWindow.runForWindow(this, new Runnable()
 			{
-				websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad), sw2.toString() }, this);
-			}
-			else
-			{
-				websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
-					new Object[] { realFormName, sw.toString(), realUrl, Boolean.valueOf(forceLoad), sw2.toString() }, this);
-			}
+
+				@Override
+				public void run()
+				{
+					if (websocketSession.getClient().isEventDispatchThread() && forceLoad)
+					{
+						try
+						{
+							websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
+								new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate });
+						}
+						catch (IOException e)
+						{
+							Debug.error(e);
+						}
+					}
+					else
+					{
+						websocketSession.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("updateController",
+							new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate });
+					}
+				}
+			});
 		}
 		catch (IOException e)
 		{
@@ -280,12 +272,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	public void updateForm(Form form, String name)
+	public void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator)
 	{
 		if (hasForm(name))
 		{
 			// if form was not sent to client, do not send now; this is just recreateUI
-			updateController(form, name, false);
+			updateController(form, name, false, formTemplateGenerator);
 		}
 	}
 

@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.IOException;
+
 import org.sablo.websocket.IWindow;
 
 import com.servoy.j2db.persistence.Form;
@@ -30,6 +32,15 @@ import com.servoy.j2db.persistence.Form;
 public interface INGClientWindow extends IWindow
 {
 
+	public interface IFormHTMLAndJSGenerator
+	{
+
+		String generateHTMLTemplate();
+
+		String generateJS() throws IOException;
+
+	}
+
 	boolean hasForm(String realName);
 
 	/**
@@ -37,7 +48,7 @@ public interface INGClientWindow extends IWindow
 	 */
 	boolean hasFormChangedSinceLastSendToClient(Form flattenedForm, String realName);
 
-	void updateForm(Form form, String name);
+	void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator);
 
 	void formCreated(String formName);
 
