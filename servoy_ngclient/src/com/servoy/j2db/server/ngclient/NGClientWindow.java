@@ -126,6 +126,16 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
+			IWebFormUI formUI = (IWebFormUI)getForm(form.getName());
+			if (formUI.getParentContainer() == null)
+			{
+				String currentWindowName = getCurrentWindow().getName();
+				if (currentWindowName == null)
+				{
+					currentWindowName = websocketSession.getClient().getRuntimeWindowManager().getMainApplicationWindow().getName();
+				}
+				formUI.setParentWindowName(currentWindowName);
+			}
 			// form is not yet on the client, send over the controller
 			updateController(form, formName, !async, new FormHTMLAndJSGenerator(getSession().getClient(), form, formName));
 			Debug.debug("touchForm(" + async + ") - addFormIfAbsent: " + form.getName());
