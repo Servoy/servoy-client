@@ -494,7 +494,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 				 }				 			  
 			}
 			
-			function blur(){
+			var cancelNextBlur = 0;
+			function change(){
+				 cancelNextBlur+=1;// the browser just called change(), we do not want the next blur() to do anything
 				 if(!$scope.model.findmode){
 					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
 					 //blur needs this because we need to change to the display format even if the value didn't change
@@ -504,10 +506,20 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 					 })	
 				 }
 			}
+			
+			function blur(){
+				//call change so that the (view)formatting is applied even if the data was not changed - i.e. change() was not called by the browser
+				if (cancelNextBlur) cancelNextBlur = 0;
+				else {
+					cancelNextBlur=-1;//so that the next change does not count as a change event from the browser
+					change();
+				}
+			}
 			 
 			function register() {
 				element.on('focus',focus)
 				element.on('blur',blur)
+				element.on('change',change)
 				element.on('keypress',keypress)
 				 
 				 //convert data from view format to model format
