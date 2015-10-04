@@ -204,7 +204,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private void initLocaleAndTimeZone()
 	{
-		Object retValue;
+		Object retValue = null;
+
 		try
 		{
 			retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUtcOffsetsAndLocale", null);
@@ -216,6 +217,16 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 		if (retValue instanceof JSONObject)
 		{
+			String userAgent = ((JSONObject)retValue).optString("userAgent");
+			if (userAgent != null)
+			{
+				getClientInfo().addInfo("useragent:" + userAgent);
+			}
+			String platform = ((JSONObject)retValue).optString("platform");
+			if (platform != null)
+			{
+				getClientInfo().addInfo("platform:" + platform);
+			}
 			if (timeZone == null)
 			{
 				String utc = ((JSONObject)retValue).optString("utcOffset");
@@ -325,6 +336,12 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 								}
 							}
 						}
+						// if the timezone is really just the default of the server just use that one.
+						TimeZone dftZone = TimeZone.getDefault();
+						if (timeZone.getRawOffset() == dftZone.getRawOffset() && timeZone.getDSTSavings() == dftZone.getDSTSavings())
+						{
+							timeZone = dftZone;
+						}
 					}
 				}
 			}
@@ -342,8 +359,22 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					{
 						locale = new Locale(languageAndCountry[0], languageAndCountry[1]);
 					}
+					getClientInfo().addInfo("locale:" + locale);
 				}
 			}
+		}
+		if (timeZone != null)
+		{
+			getClientInfo().setTimeZone(timeZone);
+		}
+
+		try
+		{
+			getClientHost().pushClientInfo(getClientInfo().getClientId(), getClientInfo());
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
 		}
 	}
 

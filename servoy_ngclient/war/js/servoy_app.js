@@ -1014,7 +1014,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		getUtcOffsetsAndLocale:function() {
 			 var language  = this.getLanguage().split("-")[0];
 			 this.setAngularLocale(language);
-		     return {locale:this.getLanguage(),utcOffset:(new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)};
+			 var userAgent = this.getUserAgentAndPlatform()
+		     return {userAgent:userAgent.userAgent,platform:userAgent.platform,locale:this.getLanguage(),utcOffset:(new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)};
 		},
 		setAngularLocale : function(language){
 			 var fileref= $window.document.createElement('script');
