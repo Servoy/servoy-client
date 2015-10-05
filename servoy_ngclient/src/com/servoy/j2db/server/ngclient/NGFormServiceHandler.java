@@ -120,8 +120,11 @@ public class NGFormServiceHandler extends FormServiceHandler
 				IWebFormController parentForm = null;
 				IWebFormController controller = null;
 				String formName = args.optString("formname");
+
+				checkAndSetParentWindow(formName);
 				if (args.has("parentForm") && !args.isNull("parentForm"))
 				{
+					checkAndSetParentWindow(args.optString("parentForm"));
 					parentForm = getApplication().getFormManager().getFormAndSetCurrentWindow(args.optString("parentForm"));
 					controller = getApplication().getFormManager().getForm(formName);
 				}
@@ -250,6 +253,28 @@ public class NGFormServiceHandler extends FormServiceHandler
 	{
 		if ("formLoaded".equals(methodName)) return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
 		return super.getMethodEventThreadLevel(methodName, arguments, dontCareLevel);
+	}
+
+	private void checkAndSetParentWindow(String formName)
+	{
+		if (formName != null)
+		{
+			INGFormManager fm = websocketSession.getClient().getFormManager();
+			if (fm.getForm(formName) != null)
+			{
+				IWebFormUI formUI = fm.getForm(formName).getFormUI();
+				if (formUI != null && formUI.getParentContainer() == null)
+				{
+					NGRuntimeWindowManager wm = websocketSession.getClient().getRuntimeWindowManager();
+					String currentWindowName = wm.getCurrentWindow().getName();
+					if (currentWindowName == null)
+					{
+						currentWindowName = wm.getMainApplicationWindow().getName();
+					}
+					formUI.setParentWindowName(currentWindowName);
+				}
+			}
+		}
 	}
 
 }
