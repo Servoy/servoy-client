@@ -456,7 +456,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				if (NO_TITLE_TEXT.equals(titleText)) titleText = ""; //$NON-NLS-1$
 				container.setTitle(titleText);
 
-
+				fp.getFormUI().setParentWindowName(container.getContainerName());
 //				if (isNewUser)
 //				{
 //					final IMainContainer showContainer = currentContainer;

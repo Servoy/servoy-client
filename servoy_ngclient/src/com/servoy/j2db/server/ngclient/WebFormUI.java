@@ -520,6 +520,11 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void setParentWindowName(String parentWindowName)
 	{
 		cleanupListeners();
+		if (parentContainerOrWindowName instanceof WebFormComponent)
+		{
+			// this form was previously shown in container, now is shown in window; so apply its real enable state
+			setComponentEnabled(isEnabled());
+		}
 		this.parentContainerOrWindowName = parentWindowName;
 	}
 
