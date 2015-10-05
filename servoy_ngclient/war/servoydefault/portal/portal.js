@@ -1000,14 +1000,16 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									{
 										// calculate new width based on weight
 										var elemWidth = $scope.model.childElements[i].model.size.width;
-										var newWidthDelta = elemWidth * totalWidth / resizeWidth;
-										$scope.gridApi.grid.columns[i].width = elemWidth + newWidthDelta;
+										var newWidthDelta = elemWidth * totalWidth / resizeWidth;										
+										$scope.columnDefinitions[i].width = elemWidth + newWidthDelta;
+										$scope.gridApi.grid.columns[i].width = $scope.columnDefinitions[i].width;
 									}
 								}
 							}	
 						}
 						else {
-							$scope.gridApi.grid.columns[0].width = $scope.gridApi.grid.gridWidth - 17; //make sure possible vertical scroll does now overlap last column
+							$scope.columnDefinitions[0].width = $scope.gridApi.grid.gridWidth - 17;
+							$scope.gridApi.grid.columns[0].width = $scope.columnDefinitions[0].width; //make sure possible vertical scroll does now overlap last column
 						}
 					}
 					
