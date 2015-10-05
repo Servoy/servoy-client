@@ -633,13 +633,6 @@ public class TestNGClient extends NGClient
 								// TODO Auto-generated method stub
 
 							}
-
-							@Override
-							public void addPerformanceTiming(String context, String sql, long time_ms)
-							{
-								// TODO Auto-generated method stub
-
-							}
 						};
 					}
 

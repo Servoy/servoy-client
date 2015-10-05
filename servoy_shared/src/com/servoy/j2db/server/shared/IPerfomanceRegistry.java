@@ -28,8 +28,6 @@ public interface IPerfomanceRegistry
 {
 	PerformanceData getPerformanceData(String context);
 
-	void addPerformanceTiming(String context, String sql, long time_ms);
-
 	void clearPerformanceData(String context);
 
 	Map<String, PerformanceTiming[]> getActiveTimings();

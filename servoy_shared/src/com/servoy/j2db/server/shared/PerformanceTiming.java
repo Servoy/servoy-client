@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.shared;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Timing of actions like queries in the server.
@@ -26,16 +27,25 @@ import com.servoy.j2db.dataprocessing.IDataServer;
  */
 public class PerformanceTiming
 {
+	private final UUID uuid;
 	private final String action;
 	private final long start_ms;
 	private final int type;
 	private long interval_ms;
+	private final String clientUUID;
 
-	public PerformanceTiming(String action, int type, long start_ms)
+	public PerformanceTiming(String action, int type, long start_ms, String clientUUID)
 	{
+		this.uuid = UUID.randomUUID();
 		this.action = action;
 		this.type = type;
 		this.start_ms = start_ms;
+		this.clientUUID = clientUUID;
+	}
+
+	public UUID getUuid()
+	{
+		return uuid;
 	}
 
 	public String getAction()
@@ -98,6 +108,11 @@ public class PerformanceTiming
 	public long getStartTimeMS()
 	{
 		return start_ms;
+	}
+
+	public String getClientUUID()
+	{
+		return clientUUID;
 	}
 
 	public long getRunningTimeMS()

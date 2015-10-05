@@ -3,9 +3,7 @@ package com.servoy.j2db.server.shared;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
@@ -53,12 +51,16 @@ public class PerformanceData
 		action_timeObjects.clear();
 	}
 
+	public synchronized UUID startAction(String action, long start_ms, int type, String clientUUID)
+	{
+		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID);
+		startedTimings.put(timing.getUuid(), timing);
+		return timing.getUuid();
+	}
+
 	public synchronized UUID startAction(String action, long start_ms, int type)
 	{
-		UUID uuid = UUID.randomUUID();
-		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms);
-		startedTimings.put(uuid, timing);
-		return uuid;
+		return startAction(action, start_ms, type, null);
 	}
 
 	public synchronized void intervalAction(UUID uuid)
@@ -71,23 +73,6 @@ public class PerformanceData
 	{
 		PerformanceTiming timing = startedTimings.remove(uuid);
 		if (timing != null) addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType());
-	}
-
-	public synchronized void endAction(String sql)
-	{
-		if (sql != null)
-		{
-			Iterator<Entry<UUID, PerformanceTiming>> pfactions = startedTimings.entrySet().iterator();
-			while (pfactions.hasNext())
-			{
-				Entry<UUID, PerformanceTiming> entry = pfactions.next();
-				if (sql.equals(entry.getValue().getAction()))
-				{
-					endAction(entry.getKey());
-					return; // don't continue, iterator changed
-				}
-			}
-		}
 	}
 
 	private static class TimeComparator implements Comparator<PerformanceTimingAggregate>

@@ -47,6 +47,7 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.Record;
@@ -616,6 +617,7 @@ public class ScriptEngine implements IScriptSupport
 			}
 			String solutionName = application.getSolutionName();
 			methodName = scopeName + "." + methodName; //$NON-NLS-1$
+			UUID pfUuid = null;
 			try
 			{
 				if (application instanceof ISmartClientApplication)
@@ -643,9 +645,9 @@ public class ScriptEngine implements IScriptSupport
 				//run
 				if (!(application instanceof ISmartClientApplication))
 				{
-					long t1 = System.currentTimeMillis();
 					//	application.addPerformanceTiming(server, sql, 0 - t1);
-					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(solutionName, methodName, 0 - t1);
+					pfUuid = application.getApplicationServerAccess().getFunctionPerfomanceRegistry().getPerformanceData(solutionName).startAction(methodName,
+						System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID());
 
 				}
 
@@ -679,9 +681,9 @@ public class ScriptEngine implements IScriptSupport
 				{
 					((ISmartClientApplication)application).setPaintTableImmediately(true);
 				}
-				else
+				else if (pfUuid != null)
 				{
-					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(solutionName, methodName, 0);
+					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().getPerformanceData(solutionName).endAction(pfUuid);
 				}
 				Context.exit();
 			}
