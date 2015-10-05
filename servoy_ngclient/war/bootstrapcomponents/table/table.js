@@ -9,6 +9,21 @@ angular.module('bootstrapcomponentsTable',['servoy']).directive('bootstrapcompon
     	  $scope.$watch('model.foundset.serverSize', function (newValue) {
          	 $scope.model.foundset.loadRecordsAsync(0, newValue);
           });
+    	  
+    	  $scope.rowClicked = function(row) {
+    		  $scope.model.foundset.selectedRowIndexes = [row];
+    	  }
+    	  
+    	  $scope.cellClicked = function(row, column) {
+			  if ($scope.handlers.onCellClick) {
+				  $scope.handlers.onCellClick(row + 1, column + 1);
+			  }    		  
+    	  }
+
+    	  $scope.getRowStyle = function(row) {
+    		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf(row) != -1; 
+    		  return  isSelected ? $scope.model.selectionClass : "";
+    	  }
       },
       templateUrl: 'bootstrapcomponents/table/table.html'
     };
