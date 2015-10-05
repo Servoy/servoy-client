@@ -36,11 +36,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 			if (!pageSizeFactor || pageSizeFactor <= 1) pageSizeFactor = 2;
 			$scope.pageSize = 25;
 			$scope.transferFocus = function() {
-				// hack to set the lastRowCol to null
-				// so that the focus call really initializes everything again
-				// (else cellNav thinks nothing is changed and the wrong div has still focus) 
-				$scope.gridApi.grid.cellNav.lastRowCol = null;
-				$($element.find(".ui-grid-cell")[0]).find("div")[0].focus();
+				$($element.find(".ui-grid-focuser")[0]).focus();
 			}
 			
 			var EMPTY =  {viewPort:{rows:[]}};
