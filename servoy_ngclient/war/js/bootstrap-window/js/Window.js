@@ -121,17 +121,9 @@ var Window = null;
     
     Window.prototype.setSize = function(size){
     	 var winBody = this.$el.find(this.options.selectors.body);
-         var winHeadFootHeight = 0;
-			var head = this.$el.find(this.options.selectors.handle);
-         if(head){
-				winHeadFootHeight += head.outerHeight();
-         }
-         var foot = this.$el.find(this.options.selectors.footer);
-         if(foot){
-				winHeadFootHeight += foot.outerHeight();
-         }
          winBody.css('width', size.width - parseInt(this.$el.css("marginRight")) - parseInt(this.$el.css("marginLeft")) );
-         winBody.css('height', size.height - winHeadFootHeight);    	
+         // see getBodySize 
+         winBody.css('height', size.height);    	
     };
 
     Window.prototype.centerWindow = function () {
