@@ -74,7 +74,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				$timeout(function () {
 					scope.svyServoyapi.apply('dataProviderID');
 					if (scope.handlers.onActionMethodID) {
-						scope.handlers.onActionMethodID(event);
+						scope.handlers.onActionMethodID(event?event:$.Event("click"));
 					}
 				}, 0);
 			};
