@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -290,7 +291,12 @@ public class ScriptNameValidator implements IValidateName
 
 		if (searchContext.getType() == IRepository.ELEMENTS)
 		{
-			for (IPersist persist : Utils.iterate(((ISupportChilds)searchContext.getObject()).getAllObjects()))
+			Iterator< ? extends IPersist> childrenIterator = ((ISupportChilds)searchContext.getObject()).getAllObjects();
+			if (searchContext.getObject() instanceof AbstractContainer)
+			{
+				childrenIterator = ((AbstractContainer)searchContext.getObject()).getFlattenedObjects(null).iterator();
+			}
+			for (IPersist persist : Utils.iterate(childrenIterator))
 			{
 				if (persist instanceof IFormElement && persist.getID() != skip_element_id)
 				{
