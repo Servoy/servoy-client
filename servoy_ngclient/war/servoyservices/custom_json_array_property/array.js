@@ -132,21 +132,24 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 					if (typeof serverJSONValue[PUSH_TO_SERVER] !== 'undefined') internalState[PUSH_TO_SERVER] = serverJSONValue[PUSH_TO_SERVER];
 
-					for (var c in newValue) {
-						var elem = newValue[c];
-						var conversionInfo = null;
-						if (serverJSONValue.conversions) {
-							conversionInfo = serverJSONValue.conversions[c];
-						}
-
-						if (conversionInfo) {
-							internalState.conversionInfo[c] = conversionInfo;
-							newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope, componentModelGetter);
-						}
-
-						if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-							// child is able to handle it's own change mechanism
-							elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(newValue, c));
+					if(newValue.length)
+					{
+						for (var c = 0; c < newValue.length; c++) {
+							var elem = newValue[c];
+							var conversionInfo = null;
+							if (serverJSONValue.conversions) {
+								conversionInfo = serverJSONValue.conversions[c];
+							}
+	
+							if (conversionInfo) {
+								internalState.conversionInfo[c] = conversionInfo;
+								newValue[c] = elem = $sabloConverters.convertFromServerToClient(elem, conversionInfo, currentClientValue ? currentClientValue[c] : undefined, componentScope, componentModelGetter);
+							}
+	
+							if (elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+								// child is able to handle it's own change mechanism
+								elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(getChangeNotifier(newValue, c));
+							}
 						}
 					}
 				} else if (serverJSONValue && serverJSONValue[UPDATES]) {
