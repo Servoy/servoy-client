@@ -417,6 +417,10 @@ public class RepositoryHelper
 		{
 			return true;
 		}
+		if (name.equals("extendsID") && LayoutContainer.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
+		{
+			return true;
+		}
 		if (name.equals("groupID")) //$NON-NLS-1$
 		{
 			return true;
