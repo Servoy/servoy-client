@@ -35,6 +35,7 @@ import org.sablo.IChangeListener;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -272,7 +273,14 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
 				getDataProviderConfig().hasParseHtml());
 		}
-
+		if (dpPD.hasTag("typeName"))
+		{
+			IPropertyType< ? > specType = TypesRegistry.getType((String)dpPD.getTag("typeName"));
+			if (specType != null && (typeOfDP == null || !specType.getClass().isAssignableFrom(typeOfDP.getClass())))
+			{
+				typeOfDP = new PropertyDescription("Spec type hint", specType);
+			}
+		}
 		if (globalRelationName != null)
 		{
 			try

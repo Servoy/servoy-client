@@ -150,24 +150,24 @@ public class SpecGenerator
 			// @formatter:on
 		));
 		specTemplateList.add(new SpecTemplateModel(
-				"portal",
-				"Portal",
-				"portal.gif",
-				IRepository.PORTALS,
-				com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-				new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},"
-					+ "\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"},"
-					+ "\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
-				"servoydefault/portal/portal_server.js"));
-			specTemplateList.add(new SpecTemplateModel(
-				"spinner",
-				"Spinner",
-				"spinner.png",
-				IRepository.FIELDS,
-				com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
-				new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
-			specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
-				new String[0]));
+			"portal",
+			"Portal",
+			"portal.gif",
+			IRepository.PORTALS,
+			com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
+			new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},"
+				+ "\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"},"
+				+ "\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
+			"servoydefault/portal/portal_server.js"));
+		specTemplateList.add(new SpecTemplateModel(
+			"spinner",
+			"Spinner",
+			"spinner.png",
+			IRepository.FIELDS,
+			com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
+			new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
+		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
+			new String[0]));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,
 			com.servoy.j2db.ui.runtime.IRuntimeRectangle.class, new String[0]));
 
@@ -619,6 +619,9 @@ public class SpecGenerator
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), "{\"type\" :\"dimension\",  \"default\" : {\"width\":140, \"height\":140}}");
 		imageMediaMapping.put("readOnly", readOnlyEditable);
 		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{\"for\":[\"dataProviderID\"] , \"type\" :\"format\"}");
+		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
+			"{ \"type\":\"dataprovider\", \"" +WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow +
+			 "\", \"tags\": { \"scope\": \"design\", \"typeName\": \"mediaDataprovider\" }, \"ondatachange\": { \"onchange\":\"onDataChangeMethodID\", \"callback\":\"onDataChangeCallback\"}, \"displayTagsPropertyName\" : \"displaysTags\"}");
 		componentRepoTypeMappingExceptions.put("imagemedia", imageMediaMapping);
 
 		Map<String, String> labelMapping = new HashMap<>();
