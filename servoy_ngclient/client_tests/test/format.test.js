@@ -16,8 +16,8 @@ describe('servoy $formatUtils', function() {
 	    	var formatFun = $formatterUtils.format;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(formatFun(10.49,'0.000','NUMBER')).toEqual("10.490")
-	        expect(formatFun(10,'0000.000','NUMBER')).toEqual("10.000")
-	        expect(formatFun(-10,'0000.000','NUMBER')).toEqual("-10.000")
+	        expect(formatFun(10,'0000.000','NUMBER')).toEqual("0010.000")
+	        expect(formatFun(-10,'0000.000','NUMBER')).toEqual("-0010.000")
 	        expect(formatFun(10.49,'#.###','NUMBER')).toEqual("10.49")
 	        expect(formatFun(10.49,'+#.###','NUMBER')).toEqual("+10.49")
 	        expect(formatFun(1000,'#,###.00','NUMBER')).toEqual("1,000.00")
@@ -55,8 +55,8 @@ describe('servoy $formatUtils', function() {
 	    	var formatFun = $formatterUtils.format;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(formatFun(10.49,'0.000','NUMBER')).toEqual("10,490")
-	        expect(formatFun(10,'0000.000','NUMBER')).toEqual("10,000")
-	        expect(formatFun(-10,'0000.000','NUMBER')).toEqual("-10,000")
+	        expect(formatFun(10,'0000.000','NUMBER')).toEqual("0010,000")
+	        expect(formatFun(-10,'0000.000','NUMBER')).toEqual("-0010,000")
 	        expect(formatFun(10.49,'#.###','NUMBER')).toEqual("10,49")
 	        expect(formatFun(10.49,'+#.###','NUMBER')).toEqual("+10,49")
 	        expect(formatFun(1000,'#,###.00','NUMBER')).toEqual("1.000,00")
