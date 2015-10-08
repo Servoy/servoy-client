@@ -102,7 +102,36 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 		var currency = getCurrency(servoyFormat);
 		if(currency != "" && endsWith(partchedFrmt, currency))
 		partchedFrmt = (partchedFrmt.substring(0, partchedFrmt.indexOf(currency))).trim();
+		
+		// get min digits
+		var minLen = 0;
+		for(var i = 0; i < servoyFormat.length; i++) {
+			if(servoyFormat[i] == '0') {
+				minLen++;
+			}
+			else if(servoyFormat[i] == '.') {
+				break;
+			}
+		}
+		
 		var ret = numeral(data).format(partchedFrmt);
+		
+		// set min digits
+		if(minLen > 0) {
+			var retSplit = ret.split(numeral.languageData().delimiters.decimal);
+			for(var i = 0; i < retSplit[0].length; i++) {
+				if(retSplit[0][i] < '0' || retSplit[0][i] > '9') continue;
+				var nrMissing0 = minLen - (retSplit[0].length - i);
+				if(nrMissing0 > 0) {
+					ret = retSplit[0].substring(0, i);
+					for(var j = 0; j < nrMissing0; j++) ret += '0';
+					ret += retSplit[0].substring(i);
+					if(retSplit.length > 1) ret += (numeral.languageData().delimiters.decimal + retSplit[1]);
+				}
+				break;
+			}
+		}
+		
 		if(currency != ""){ 
 			if(servoyFormat.indexOf(currency) === 0)	ret = currency + ' ' + ret;
 			else ret +=  ' ' + currency;
