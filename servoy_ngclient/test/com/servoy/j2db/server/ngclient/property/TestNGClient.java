@@ -616,8 +616,7 @@ public class TestNGClient extends NGClient
 							@Override
 							public PerformanceData getPerformanceData(String context)
 							{
-								// TODO Auto-generated method stub
-								return null;
+								return new PerformanceData();
 							}
 
 							@Override
