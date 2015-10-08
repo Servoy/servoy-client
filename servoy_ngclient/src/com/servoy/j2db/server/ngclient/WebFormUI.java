@@ -468,11 +468,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
 			// set readonly state from form manager, just like in wc/sc
 			((BasicFormController)getController()).setReadOnly(formController.isReadOnly());
-			Object property = parentContainer.getProperty(ENABLED);
-			if (property instanceof Boolean)
-			{
-				setComponentEnabled(((Boolean)property).booleanValue());
-			}
 			parentEnabledListener = new PropertyChangeListener()
 			{
 				@Override
@@ -520,11 +515,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void setParentWindowName(String parentWindowName)
 	{
 		cleanupListeners();
-		if (parentContainerOrWindowName instanceof WebFormComponent)
-		{
-			// this form was previously shown in container, now is shown in window; so apply its real enable state
-			setComponentEnabled(isEnabled());
-		}
 		this.parentContainerOrWindowName = parentWindowName;
 	}
 
