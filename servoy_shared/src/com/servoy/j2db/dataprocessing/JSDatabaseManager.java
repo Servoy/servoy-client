@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -43,6 +44,7 @@ import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
@@ -3711,7 +3713,30 @@ public class JSDatabaseManager implements IJSDatabaseManager
 								Object sval = src_rec.getValue(c.getDataProviderID());
 								try
 								{
-									dest.setValue(c.getDataProviderID(), c.getAsRightType(sval, true));
+									int type = c.getType();
+									if (ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
+									{
+										IColumnConverter columnConverter = ((FoundSetManager)application.getFoundSetManager()).getColumnConverterManager().getConverter(
+											ci.getConverterName());
+										if (columnConverter instanceof ITypedColumnConverter)
+										{
+											try
+											{
+												int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(
+													ComponentFactory.<String> parseJSonProperties(ci.getConverterProperties()));
+												if (convType != Integer.MAX_VALUE)
+												{
+													type = Column.mapToDefaultType(convType);
+												}
+											}
+											catch (IOException e)
+											{
+												Debug.error("Exception loading properties for converter " + columnConverter.getName() + ", properties: " +
+													ci.getConverterProperties(), e);
+											}
+										}
+									}
+									dest.setValue(c.getDataProviderID(), Column.getAsRightType(type, c.getFlags(), sval, c.getLength(), true));
 								}
 								catch (Exception e)
 								{
