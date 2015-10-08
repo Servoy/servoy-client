@@ -1,5 +1,5 @@
 angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
-.directive('servoydefaultCombobox', ['$timeout', '$apifunctions', function ($timeout, $apifunctions) {
+.directive('servoydefaultCombobox', ['$timeout', '$apifunctions','$sabloConstants','$svyProperties', function ($timeout, $apifunctions,$sabloConstants,$svyProperties) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -83,6 +83,40 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 	    	scope.api.getHeight = $apifunctions.getHeight(element[0]);
 	    	scope.api.getLocationX = $apifunctions.getX(element[0]);
 	    	scope.api.getLocationY = $apifunctions.getY(element[0]);
+	    	
+	    	Object.defineProperty(scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
+	    		var child = element.find("span.ui-select-toggle")
+				switch(property) {
+					case "borderType":
+						$svyProperties.setBorder(child,value);
+						break;
+					case "background":
+					case "transparent":
+						$svyProperties.setCssProperty(child,"backgroundColor",scope.model.transparent?"transparent":scope.model.background);
+						break;
+					case "foreground":
+						$svyProperties.setCssProperty(child,"color",value);
+						break;
+					case "fontType":
+						$svyProperties.setCssProperty(child,"font",value);
+						break;						
+				}
+			}});
+			var destroyListenerUnreg = scope.$on("$destroy", function() {
+				destroyListenerUnreg();
+				delete scope.model[$sabloConstants.modelChangeNotifier];
+			});
+			// data can already be here, if so call the modelChange function so that it is initialized correctly.
+			function pushValues() {
+				if (element.find("span.ui-select-toggle").length > 0) {
+					var modelChangFunction = scope.model[$sabloConstants.modelChangeNotifier];
+					for (key in scope.model) {
+						modelChangFunction(key,scope.model[key]);
+					}
+				}
+				else $timeout(pushValues);
+			}
+			pushValues();
 		},
 		templateUrl: 'servoydefault/combobox/combobox.html'
 	};
