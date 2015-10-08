@@ -255,7 +255,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					name: "unique",
 					cellEditableCondition: false,
 					type: "object", // just put a type here to avoid a console warning, we don't know the type and we dont use the edit feature of ui-grid
-					allowCellFocus: true
+					allowCellFocus: allowCellFocus
 				});
 			}
 
