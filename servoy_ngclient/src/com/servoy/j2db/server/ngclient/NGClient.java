@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -1233,20 +1234,21 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			return "No websockets";
 		}
 
+		long lastPingTime = getWebsocketSession().getLastPingTime();
+		if (lastPingTime > 0)
+		{
+			// a window is in use, there is a last ping time
+			return "Websocket connected, last ping time: " + new SimpleDateFormat("EEE HH:mm:ss").format(new Date(lastPingTime));
+		}
+
+		// all windows are inactive get the last accessed.
 		long lastAccessed = Long.MIN_VALUE;
 		for (ObjectReference< ? extends IWindow> ref : refs)
 		{
-			if (ref.getRefcount() > 0)
-			{
-				// window is in use
-				return "Websocket connected";
-			}
-
-			// window is inactive
 			lastAccessed = Math.max(lastAccessed, ref.getLastAccessed());
 		}
 
-		return "Websockets disconnected since " + new Date(lastAccessed);
+		return "Websockets disconnected since " + new SimpleDateFormat("EEE HH:mm:ss").format(new Date(lastAccessed));
 	}
 
 	private class ShowUrl
