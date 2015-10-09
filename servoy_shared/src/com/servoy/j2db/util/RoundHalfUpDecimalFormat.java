@@ -51,6 +51,7 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 	public RoundHalfUpDecimalFormat(String format, Locale locale)
 	{
 		super(checkPattern(format, locale), getDecimalFormatSymbols(locale));
+		setGroupingUsed(true);
 		format = checkPattern(format, locale);
 		if (format.endsWith("-")) //$NON-NLS-1$
 		{
@@ -90,7 +91,7 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 	}
 
 	/**
-	 * 
+	 *
 	 */
 
 	@Override

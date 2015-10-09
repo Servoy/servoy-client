@@ -497,9 +497,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 					 if($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT'){
 						 $(e.target).blur()
 					 } else if(svyFormat.type == "INTEGER"){
-						 return numbersonly(e, false, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+						 var currentLanguageNumeralSymbols = numeral.languageData();
+						 return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol, svyFormat.percent, element, svyFormat.maxLength);
 					 } else if(svyFormat.type == "NUMBER" || ((svyFormat.type == "TEXT") && svyFormat.isNumberValidator)){
-						 return numbersonly(e, true, svyFormat.decimalSeparator, svyFormat.groupingSeparator, svyFormat.currencySymbol, svyFormat.percent, element, svyFormat.maxLength);
+						 var currentLanguageNumeralSymbols = numeral.languageData();
+						 return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol, svyFormat.percent, element, svyFormat.maxLength);
 					 }
 				 }
 				 return true;

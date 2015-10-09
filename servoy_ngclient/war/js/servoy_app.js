@@ -224,7 +224,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		initFormState: function(formName, beanDatas, formProperties, formScope, resolve) {
 
 			var hasFormState = $sabloApplication.hasFormState(formName);
-			
+
 			var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope,resolve);
 
 			if (state) {
@@ -418,7 +418,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					} 
 				}
 			}
-			
+
 			if (scope.model && scope.model.anchors && $solutionSettings.enableAnchoring) {
 				if (((scope.model.anchors & $anchorConstants.NORTH != 0) && (scope.model.anchors & $anchorConstants.SOUTH != 0)) || ((scope.model.anchors & $anchorConstants.EAST != 0) && (scope.model.anchors & $anchorConstants.WEST != 0)))
 				{
@@ -739,9 +739,21 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	styleSheetPath: undefined,
 	ltrOrientation : true,
 	enableAnchoring: true
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService,$rootScope,webStorage, $sabloApplication) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService, $rootScope, webStorage, $sabloApplication, $applicationService) {
 	$servoyInternal.connect();
+
+	// initialize locale client side
+	var locale = webStorage.session.get("locale");
+	if (!locale) {
+		locale = $sabloApplication.getLocale();
+	} else {
+		var array = locale.split('-');
+		locale = { language : array[0], country : array[1] };
+	}
+	$applicationService.setLocale(locale.language, locale.country, true);
+
 	$scope.solutionSettings = $solutionSettings;
+
 	$scope.getMainFormUrl = function() {
 		return $solutionSettings.mainForm.name?$windowService.getFormUrl($solutionSettings.mainForm.name):"";
 	}
@@ -869,47 +881,47 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		}
 	}
-//}]).factory("$anchoringUtils", [ function() {
+//	}]).factory("$anchoringUtils", [ function() {
 //	var NORTH = 1;
 //	var EAST = 2;
 //	var SOUTH = 4;
 //	var WEST = 8;
 //	var DEFAULT = NORTH + WEST;
 //	var ALL = NORTH + WEST + EAST + SOUTH;
-//	
+
 //	function shouldWatchSizeForAnchors(anchors) {
-//		if (!anchors) return false;
-//		return ((anchors & NORTH) && (anchors & SOUTH)) || ((anchors & EAST) && (anchors & WEST));
+//	if (!anchors) return false;
+//	return ((anchors & NORTH) && (anchors & SOUTH)) || ((anchors & EAST) && (anchors & WEST));
 //	}
-//	
+
 //	function shouldWatchLocationForAnchors(anchors) {
-//		if (!anchors) return true; // TODO change this to false for default if watch is not needed in that case (top-left)
-//		return !(anchors & WEST) || !(anchors & NORTH);
+//	if (!anchors) return true; // TODO change this to false for default if watch is not needed in that case (top-left)
+//	return !(anchors & WEST) || !(anchors & NORTH);
 //	}
-//	
+
 //	return {
-//		NORTH: NORTH,
-//		EAST: EAST,
-//		SOUTH: SOUTH,
-//		WEST: WEST,
-//		DEFAULT: DEFAULT,
-//		ALL: ALL,
-//		
-//		// depending on how a component is anchored we know if it can dynamically update it's location, in which case it needs to be watched/sent to server (for rhino access)
-//		shouldWatchLocationForAnchors: shouldWatchLocationForAnchors,
-//
-//		// depending on how a component is anchored we know if it can dynamically update it's size, in which case it needs to be watched/sent to server (for rhino access)
-//		shouldWatchSizeForAnchors: shouldWatchSizeForAnchors,
-//		
-//		getBoundsPropertiesToWatch: function getBoundsPropertiesToWatch(componentModel) {
-//			var ret = {};
-//			if (shouldWatchLocationForAnchors(componentModel.anchors)) ret['location'] = true; // deep watch
-//			if (shouldWatchSizeForAnchors(componentModel.anchors)) ret['size'] = true; // deep watch
-//			return ret;
-//		}
-//		
+//	NORTH: NORTH,
+//	EAST: EAST,
+//	SOUTH: SOUTH,
+//	WEST: WEST,
+//	DEFAULT: DEFAULT,
+//	ALL: ALL,
+
+//	// depending on how a component is anchored we know if it can dynamically update it's location, in which case it needs to be watched/sent to server (for rhino access)
+//	shouldWatchLocationForAnchors: shouldWatchLocationForAnchors,
+
+//	// depending on how a component is anchored we know if it can dynamically update it's size, in which case it needs to be watched/sent to server (for rhino access)
+//	shouldWatchSizeForAnchors: shouldWatchSizeForAnchors,
+
+//	getBoundsPropertiesToWatch: function getBoundsPropertiesToWatch(componentModel) {
+//	var ret = {};
+//	if (shouldWatchLocationForAnchors(componentModel.anchors)) ret['location'] = true; // deep watch
+//	if (shouldWatchSizeForAnchors(componentModel.anchors)) ret['size'] = true; // deep watch
+//	return ret;
+//	}
+
 //	};
-}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService', function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService) {
+}]).factory("$applicationService",['$window','$timeout','webStorage','$modal','$sabloApplication','$solutionSettings','$rootScope','$svyFileuploadUtils','$locale','$svyI18NService',"$log", function($window,$timeout,webStorage,$modal,$sabloApplication,$solutionSettings,$rootScope,$svyFileuploadUtils,$locale,$svyI18NService,$log) {
 	var showDefaultLoginWindow = function() {
 		$modal.open({
 			templateUrl: 'templates/login.html',
@@ -1012,50 +1024,83 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			return {userAgent:$window.navigator.userAgent,platform:$window.navigator.platform};
 		},
 		getUtcOffsetsAndLocale:function() {
-			 var language  = this.getLanguage().split("-")[0];
-			 this.setAngularLocale(language);
-			 var userAgent = this.getUserAgentAndPlatform()
-		     return {userAgent:userAgent.userAgent,platform:userAgent.platform,locale:this.getLanguage(),utcOffset:(new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)};
+			var locale = $sabloApplication.getLocale();
+			this.setAngularLocale(locale.language);
+			var userAgent = this.getUserAgentAndPlatform();
+			return {
+				userAgent : userAgent.userAgent,
+				platform : userAgent.platform,
+				locale : locale.full,
+				utcOffset : (new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)
+			};
 		},
 		setAngularLocale : function(language){
-			 var fileref= $window.document.createElement('script');
-		     fileref.setAttribute("type","text/javascript");
-		     fileref.setAttribute("src", "js/angular_i18n/angular-locale_"+language+".js");
-		     fileref.onload = function () {
-		    	 var localInjector = angular.injector(['ngLocale']),
-		         externalLocale = localInjector.get('$locale');
-		    	 angular.forEach(externalLocale, function(value, key) {
-		    			$locale[key] = externalLocale[key];
-		    	 });
-		     }
-		     $window.document.getElementsByTagName("head")[0].appendChild(fileref);
+			var fileref= $window.document.createElement('script');
+			fileref.setAttribute("type","text/javascript");
+			fileref.setAttribute("src", "js/angular_i18n/angular-locale_"+language+".js");
+			fileref.onload = function () {
+				var localInjector = angular.injector(['ngLocale']),
+				externalLocale = localInjector.get('$locale');
+				angular.forEach(externalLocale, function(value, key) {
+					$locale[key] = externalLocale[key];
+				});
+			}
+			$window.document.getElementsByTagName("head")[0].appendChild(fileref);
 		},
-		getLanguage:function() {
-			// this returns first one of the languages array if the browser supports this (Chrome and FF) else it falls back to language or userLanguage (IE, and IE seems to return the right one from there)
-			return $window.navigator.languages && $window.navigator.languages.length > 0 ? $window.navigator.languages[0] : ($window.navigator.language || $window.navigator.userLanguage);
-		},
-		setLocale:function(language,country) {
+		setLocale : function(language, country, initializing) {
 			try{
 				$svyI18NService.flush();
 				this.setAngularLocale(language);
 				numeral.language((language + '-' + country).toLowerCase());
-				webStorage.session.add("locale", (language + '-' + country).toLowerCase())
+				if (!initializing) webStorage.session.add("locale", (language + '-' + country).toLowerCase());
 			} catch(e) {
 				try {
 					numeral.language(language + '-' + country);
-					webStorage.session.add("locale", language + '-' + country)
+					if (!initializing) webStorage.session.add("locale", language + '-' + country);
 				} catch(e2) {
 					try {
 						//try it with just the language part
 						numeral.language(language);
-						webStorage.session.add("locale", language)
-					} catch(e3) {}
+						if (!initializing) webStorage.session.add("locale", language);
+					} catch(e3) {
+						try {
+							//try it with just the language part but lowercase
+							numeral.language(language.toLowerCase());
+							if (!initializing) webStorage.session.add("locale", language);
+						} catch(e4) {
+							try {
+								//try to duplicate the language in case it's only defined like that
+								numeral.language(language.toLowerCase() + "-" + language.toLowerCase()); // nl-nl for example is defined but browser only says 'nl' (this won't work for all languages for example "en-en" I don't think even exists)
+								if (!initializing) webStorage.session.add("locale", language);
+							} catch(e5) {
+								// we can't find a suitable locale defined in languages.js; get the needed things from server (Java knows more locales)
+								// and create the locate info from that
+								promise = $sabloApplication.callService("i18nService", "generateLocaleForNumeralJS", {'language' : language, 'country' : (country ? country : null)}, false);
+								// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and languages.js provided langs?
+								var numeralLanguage = language + (country ? '-' + country : "");
+								promise.then(function(numeralLocaleInfo) {
+									if ($log.debugEnabled) $log.debug("Locale '" + numeralLanguage + "' not found in client js lib, but it was constructed based on server Java locale-specific information: " + JSON.stringify(numeralLocaleInfo));
+									numeralLocaleInfo.ordinal = function (number) {
+										return ".";
+									};
+									numeral.language(numeralLanguage, numeralLocaleInfo);
+									numeral.language(numeralLanguage);
+									if (!initializing) {
+										webStorage.session.add("locale", numeralLanguage);
+										$sabloApplication.setLocale({ language : language, country : country });
+									}
+								}, function(reason) {
+									$log.warn("Cannot properly handle locale '" + numeralLanguage + "'. It is not available in js libs and it could not be loaded from server...");
+								});
+							}
+						}
+					}
 				}
 			}
 			var lang = webStorage.session.get("locale");
 			if (lang) {
 				var array = language.split('-');
-				$sabloApplication.setLocale( {language: array[0], country:array[1]});
+				$sabloApplication.setLocale({ language : array[0], country : array[1] });
 			}
 		},
 		showInfoPanel: function(url,w,h,t,closeText)
@@ -1096,27 +1141,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	}
 
 }])
-.run(function($window, $sabloApplication, $applicationService,webStorage) {
+.run(function($window) {
 	$window.executeInlineScript = function(formname, script, params) {
-		$sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params},true)
-	}
-	var language = webStorage.session.get("locale");
-	if (!language) language = $applicationService.getLanguage();
-	else {
-		var array = language.split('-');
-		$sabloApplication.setLocale( {language: array[0], country:array[1]});
-	}
-	// fix that only nl-nl is added but not just nl
-	numeral.language('nl',numeral.languageData('nl-nl'));
-	try{ 
-		numeral.language(language);
-	} catch(e) {
-		var index = language.indexOf("-");
-		if (index != -1) {
-			try {
-				//try it with just the language part
-				numeral.language(language.substring(0,index));
-			} catch(e2) {}
-		}
+		$sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, true)
 	}
 })

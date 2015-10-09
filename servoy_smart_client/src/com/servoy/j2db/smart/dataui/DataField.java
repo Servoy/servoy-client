@@ -136,10 +136,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
 	/**
-	 * A formatter that extends our formatter to check for the valuelist 
+	 * A formatter that extends our formatter to check for the valuelist
 	 * If the valuelist is attached then the value -> string must first get from the list (and that will then be formatter by the mask)
 	 * for string -> value what is get out of the mask will be checked if it is in the list. as a display and then the real will be given.
-	 * 
+	 *
 	 */
 	private final class ValueListMaskFormatter extends ServoyMaskFormatter
 	{
@@ -154,7 +154,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#valueToString(java.lang.Object)
 		 */
 		@Override
@@ -187,7 +187,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#stringToValue(java.lang.String)
 		 */
 		@Override
@@ -234,9 +234,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/**
 		 * Constructor for NullNumberFormatter.
-		 * 
+		 *
 		 * @param format
-		 * 
+		 *
 		 */
 		public NullNumberFormatter(NumberFormat format)
 		{
@@ -247,12 +247,12 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			super(format);
 			this.maxLength = maxLength;
-			format.setGroupingUsed(true);
+//			format.setGroupingUsed(true); // this is done now directly in RoundHalfUp...
 		}
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#install(javax.swing.JFormattedTextField)
 		 */
 		@Override
@@ -292,7 +292,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#valueToString(java.lang.Object)
 		 */
 		@Override
@@ -404,7 +404,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	/**
 	 * Interface for setting initial value to formatter.
-	 * 
+	 *
 	 * @author rgansevles
 	 */
 	public interface ISetInitialValue<T>
@@ -422,7 +422,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/**
 		 * Constructor for NullNumberFormatter.
-		 * 
+		 *
 		 * @param format
 		 */
 		public NullDateFormatter(StateFullSimpleDateFormat format)
@@ -432,7 +432,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/**
 		 * Constructor for NullNumberFormatter.
-		 * 
+		 *
 		 * @param format
 		 */
 		public NullDateFormatter(StateFullSimpleDateFormat format, boolean editFormatter)
@@ -464,7 +464,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			{
 				Action[] superActions = super.getActions();
 
-				// be able to catch the "increment"/"decrement" actions (so we can restrain the changes to only the selected field) 
+				// be able to catch the "increment"/"decrement" actions (so we can restrain the changes to only the selected field)
 				if (superActions != null)
 				{
 					for (int i = 0; i < superActions.length; i++)
@@ -511,7 +511,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#install(javax.swing.JFormattedTextField)
 		 */
 		@Override
@@ -583,9 +583,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		}
 
 		/**
-		 * @param placeHolder 
+		 * @param placeHolder
 		 * @return
-		 * @throws ParseException 
+		 * @throws ParseException
 		 */
 		public AbstractFormatter getMaskFormatter(char placeHolder) throws ParseException
 		{
@@ -673,7 +673,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#stringToValue(java.lang.String)
 		 */
 		@Override
@@ -713,7 +713,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see javax.swing.text.InternationalFormatter#valueToString(java.lang.Object)
 		 */
 		@Override
@@ -1081,7 +1081,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	public void setMaxLength(int i)
 	{
-		// do not set max length check when it has been set in setFormat() 
+		// do not set max length check when it has been set in setFormat()
 		if (list == null && editorDocument.getValidator(MAX_LENGTH_VALIDATOR) == null)
 		{
 			editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(i));

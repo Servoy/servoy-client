@@ -197,9 +197,12 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 				clientLocale = Locale.getDefault();
 			}
 			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(clientLocale);
-			map.put("decimalSeparator", String.valueOf(dfs.getDecimalSeparator()));
-			map.put("groupingSeparator", String.valueOf(dfs.getGroupingSeparator()));
-			map.put("currencySymbol", dfs.getCurrencySymbol());
+
+			// the commented out values are already available client-side in numeral.languageData(); they are taken from there now
+//			map.put("decimalSeparator", String.valueOf(dfs.getDecimalSeparator()));
+//			map.put("groupingSeparator", String.valueOf(dfs.getGroupingSeparator()));
+//			map.put("currencySymbol", dfs.getCurrencySymbol());
+
 			map.put("percent", String.valueOf(dfs.getPercent()));
 		}
 		if (format.parsedFormat.getMaxLength() != null)

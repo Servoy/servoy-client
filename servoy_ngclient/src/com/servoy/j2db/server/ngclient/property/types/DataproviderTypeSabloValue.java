@@ -86,6 +86,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private final FormElement formElement;
 
 	protected Object value;
+
 	protected Object jsonValue;
 	protected IChangeListener changeMonitor;
 	protected PropertyDescription typeOfDP;
@@ -457,34 +458,41 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (jsonValue == null)
 		{
-			if (findMode)
-			{
-				// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
-				// from scripting, then show string representation
-				jsonValue = value instanceof String ? value : (value != null ? String.valueOf(value) : "");
-			}
-			else if (typeOfDP != null)
-			{
-				EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
-				DataConversion jsonDataConversion = new DataConversion();
-				FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext);
-				if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
-				String str = ejw.toJSONString();
-				if (str == null || str.trim().length() == 0)
-				{
-					Debug.error("A dataprovider that is not able to send itself to client... (" + typeOfDP + ", " + value + ")");
-					str = "null";
-				}
-				jsonValue = new JSONStringWithConversions(str, jsonDataConversion);
-			}
-			else
-			{
-				jsonValue = value;
-			}
+			jsonValue = getValueForToJSON(value, dataConverterContext);
 		}
 
 		writer.value(jsonValue);
 		if (jsonValue instanceof IJSONStringWithConversions) clientConversion.convert(((IJSONStringWithConversions)jsonValue).getDataConversions());
+	}
+
+	protected Object getValueForToJSON(Object dpValue, IBrowserConverterContext dataConverterContext) throws JSONException
+	{
+		Object jsonValueRepresentation;
+		if (findMode)
+		{
+			// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
+			// from scripting, then show string representation
+			jsonValueRepresentation = dpValue instanceof String ? dpValue : (dpValue != null ? String.valueOf(dpValue) : "");
+		}
+		else if (typeOfDP != null)
+		{
+			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
+			DataConversion jsonDataConversion = new DataConversion();
+			FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, dpValue, typeOfDP, jsonDataConversion, dataConverterContext);
+			if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
+			String str = ejw.toJSONString();
+			if (str == null || str.trim().length() == 0)
+			{
+				Debug.error("A dataprovider that is not able to send itself to client... (" + typeOfDP + ", " + dpValue + ")");
+				str = "null";
+			}
+			jsonValueRepresentation = new JSONStringWithConversions(str, jsonDataConversion);
+		}
+		else
+		{
+			jsonValueRepresentation = dpValue;
+		}
+		return jsonValueRepresentation;
 	}
 
 	public void browserUpdateReceived(Object newJSONValue, IBrowserConverterContext dataConverterContext)
@@ -501,9 +509,22 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else value = newJSONValue;
 
-		if (oldValue != value && (oldValue == null || !oldValue.equals(value)))
+		try
 		{
-			jsonValue = null;
+			Object newValueForJSON = getValueForToJSON(value, dataConverterContext);
+			if (newValueForJSON != jsonValue || (newValueForJSON != null && !newValueForJSON.equals(jsonValue)))
+			{
+				jsonValue = newValueForJSON;
+
+				// TODO only do valueChanged() if we detect that the new server value (it's representation on client) is no longer what the client has showing; how do we do this? an special IPropertyType with a version of fromJSON that can report that the received value was altered and it needs to be resent? and we can use that in the typeOfDP.getType().fromJSON above? 
+				changeMonitor.valueChanged(); // value changed from client so why do we need this (client already has the value)?
+				// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
+				// the server will trunc/round to an INTEGER and then the client shown double value while the server DP has the int value (which are not the same) 
+			}
+		}
+		catch (JSONException e)
+		{
+			Debug.error("DP updated from browser but cannot calculate for JSON representation (" + newJSONValue + ", " + value + ", " + typeOfDP + ")", e);
 		}
 	}
 }
