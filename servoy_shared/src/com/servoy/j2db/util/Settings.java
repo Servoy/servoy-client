@@ -266,13 +266,17 @@ public final class Settings extends SortedProperties
 	private void applySystemProperties()
 	{
 		// Setting all system property entries of the settings.
-		Iterator iterator = keySet().iterator();
+		Iterator<Object> iterator = keySet().iterator();
 		while (iterator.hasNext())
 		{
-			String property = (String)iterator.next();
-			if (property.startsWith("system.property.")) //$NON-NLS-1$
+			String property = iterator.next().toString();
+			if (property.startsWith("system.property."))
 			{
 				System.setProperty(property.substring(16), getProperty(property));
+			}
+			else if (property.startsWith("sablo."))
+			{
+				System.setProperty(property, getProperty(property));
 			}
 		}
 	}
