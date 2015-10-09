@@ -121,7 +121,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			var retSplit = ret.split(numeral.languageData().delimiters.decimal);
 			for(var i = 0; i < retSplit[0].length; i++) {
 				if(retSplit[0][i] < '0' || retSplit[0][i] > '9') continue;
-				var nrMissing0 = minLen - (retSplit[0].length - i);
+				for(var j = i; j <retSplit[0].length; j++) {
+					if(retSplit[0][j] >= '0' && retSplit[0][j] <= '9') continue;
+					break;
+				}
+				var nrMissing0 = minLen - (j - i);
 				if(nrMissing0 > 0) {
 					ret = retSplit[0].substring(0, i);
 					for(var j = 0; j < nrMissing0; j++) ret += '0';
