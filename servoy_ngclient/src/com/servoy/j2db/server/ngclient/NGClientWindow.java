@@ -91,7 +91,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public void sendChanges() throws IOException
 	{
-		websocketSession.getClient().changesWillBeSend();
+		if (websocketSession.getClient() != null) websocketSession.getClient().changesWillBeSend();
 		super.sendChanges();
 	}
 
