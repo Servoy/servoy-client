@@ -369,6 +369,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			getClientInfo().setTimeZone(timeZone);
 		}
 
+		getClientInfo().addInfo("session uuid: " + getWebsocketSession().getUuid());
+
 		try
 		{
 			getClientHost().pushClientInfo(getClientInfo().getClientId(), getClientInfo());
