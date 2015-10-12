@@ -120,9 +120,12 @@ public class FormLayoutStructureGenerator
 			{
 				writer.print(" ");
 				writer.print(entry.getKey());
-				writer.print("='");
-				writer.print(entry.getValue());
-				writer.print("'");
+				if (entry.getValue() != null && entry.getValue().length() > 0)
+				{
+					writer.print("='");
+					writer.print(entry.getValue());
+					writer.print("'");
+				}
 			}
 		}
 		writer.println(">");
