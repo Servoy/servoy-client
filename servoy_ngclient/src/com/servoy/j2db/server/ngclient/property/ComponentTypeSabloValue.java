@@ -85,7 +85,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected boolean componentIsCreated = false;
 
 	protected String forFoundsetTypedPropertyName;
-	protected PropertyChangeListener forFoundsetPropertyListener, enabledPropertyListener, readonlyPropertyListener;
+	protected PropertyChangeListener forFoundsetPropertyListener, readonlyPropertyListener;
 
 	protected boolean recordBasedPropertiesChanged = false;
 	protected boolean recordBasedPropertiesChangedComparedToTemplate = false;
@@ -169,7 +169,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			}
 		}
-		if (enabledPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.ENABLED, enabledPropertyListener);
 		if (readonlyPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
 	}
 
@@ -282,7 +281,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			setDataproviderNameToFoundset();
 		}
 
-		addPropertyChangeListener(WebFormUI.ENABLED, parentComponent.getFormElement().getPropertyValue(WebFormUI.ENABLED));
 		addPropertyChangeListener(WebFormUI.READONLY, parentComponent.getProperty(WebFormUI.READONLY));
 
 
@@ -293,23 +291,18 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		if (parentComponent.getSpecification().getProperty(property) != null && childComponent.getSpecification().getProperty(property) != null)
 		{
-			PropertyDescription propertyDescChild = childComponent.getSpecification().getProperty(property);
-			if (childComponent.getProperty(property) == null || !propertyDescChild.hasDefault() ||
-				childComponent.getProperty(property).equals(propertyDescChild.getDefaultValue()))
+			setChildProperty(property, initialValue);
+			this.parentComponent.addPropertyChangeListener(property, readonlyPropertyListener = new PropertyChangeListener()
 			{
-				setChildProperty(property, initialValue);
-				this.parentComponent.addPropertyChangeListener(property, enabledPropertyListener = new PropertyChangeListener()
+				@Override
+				public void propertyChange(PropertyChangeEvent evt)
 				{
-					@Override
-					public void propertyChange(PropertyChangeEvent evt)
+					if (evt.getNewValue() != null)
 					{
-						if (evt.getNewValue() != null)
-						{
-							setChildProperty(property, evt.getNewValue());
-						}
+						setChildProperty(property, evt.getNewValue());
 					}
-				});
-			}
+				}
+			});
 		}
 	}
 

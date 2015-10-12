@@ -134,7 +134,7 @@
 		  	"callback": "function",
 		  	"name": "string",
 		  	"align": "int",
-		  	"enabled": { "type": "protected", "blockingOn": false, "default": true },
+		  	"enabled" : { "type": "enabled", "blockingOn": false, "default": true },
 		  	"visible": "visible",
 		  	"icon": "media",
 		  	"mnemonic": "string",

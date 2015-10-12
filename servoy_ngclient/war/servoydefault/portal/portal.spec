@@ -14,7 +14,7 @@
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "childElements" : { "type" : "component[]", "pushToServer": "allow", "elementConfig" : {"forFoundset": "relatedFoundset"}, "tags" : {"scope": "private"} }, 
 	        "columnHeaders" : { "type" : "tagstring[]", "tags" : {"scope": "private"} }, 
-	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["onDragEndMethodID","onDragMethodID","onDragOverMethodID","onDropMethodID"] }, 
+	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["onDragEndMethodID","onDragMethodID","onDragOverMethodID","onDropMethodID"] }, 
 	        "findmode" : { "type":"findmode", "tags":{"scope":"private"}, "for" : { "enabled":true}}, 
 	        "foreground" : "color", 
 	        "headerHeight" : {"type" :"int",  "default" : 32}, 

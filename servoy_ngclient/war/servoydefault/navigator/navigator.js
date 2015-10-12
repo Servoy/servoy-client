@@ -48,7 +48,11 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
     	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
     		  if(!newVal) return;
     	      $scope.slider_model.dataProviderID = -1*newVal;
-    	  })    	  
+    	  })  
+    	  $scope.$watch('model.enabled', function (newVal, oldVal, scope) {
+    		  if(newVal == undefined) return;
+    	      $scope.slider_model.enabled = newVal;
+    	  })  
       },
       templateUrl: 'servoydefault/navigator/navigator.html',
       replace: true
