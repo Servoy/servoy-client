@@ -60,7 +60,7 @@ public class I18NService implements IEventDispatchAwareServerService
 		else if ("generateLocaleForNumeralJS".equals(methodName))
 		{
 			String language = args.getString("language");
-			String country = args.optString("country");
+			String country = args.optString("country", null);
 			Locale locale;
 			if (country == null)
 			{
@@ -97,27 +97,27 @@ public class I18NService implements IEventDispatchAwareServerService
 //		    }
 
 			JSONObject languageInfo = new JSONObject();
-			
+
 			JSONObject delimiters = new JSONObject();
 			delimiters.put("thousands", String.valueOf(dfs.getGroupingSeparator()));
 			delimiters.put("decimal", String.valueOf(dfs.getDecimalSeparator()));
-			
+
 			JSONObject abbreviations = new JSONObject();
 			// TODO do we use these anywhere clientside? (the abbreviations) - currently they are just set identical to english
 			abbreviations.put("thousand", "k");
 			abbreviations.put("million", "m");
 			abbreviations.put("billion", "b");
 			abbreviations.put("trillion", "t");
-			
+
 			JSONObject currency = new JSONObject();
 			currency.put("symbol", String.valueOf(dfs.getCurrencySymbol()));
-			
+
 			languageInfo.put("delimiters", delimiters);
 			languageInfo.put("abbreviations", abbreviations);
 			languageInfo.put("currency", currency);
-			
+
 			// TODO "ordinal" is not set but I don't think we use it anyway; client side we generate a function that always returns '.' for "ordinal"
-			
+
 			return languageInfo;
 		}
 		return null;

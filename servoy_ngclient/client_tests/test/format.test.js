@@ -51,7 +51,7 @@ describe('servoy $formatUtils', function() {
   describe("format numbers in NL", function() {
 	    it("should corecly format numbers", function() {
 	    	inject(function($formatterUtils){
-	    	numeral.language("nl")
+	    	numeral.language("nl-nl")
 	    	var formatFun = $formatterUtils.format;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(formatFun(10.49,'0.000','NUMBER')).toEqual("10,490")
@@ -71,7 +71,7 @@ describe('servoy $formatUtils', function() {
 	    });
 	    it("should corecly UNformat  numbers", function() {
 	    	inject(function($formatterUtils){
-	    	numeral.language("nl")
+	    	numeral.language("nl-nl")
 	    	var unFormatFun = $formatterUtils.unformat;
 	    	var MILLSIGN =  '\u2030';  //�
 	        expect(unFormatFun("10,49",'0.000','NUMBER')).toEqual(10.49)

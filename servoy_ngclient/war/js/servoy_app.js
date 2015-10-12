@@ -1075,7 +1075,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							} catch(e5) {
 								// we can't find a suitable locale defined in languages.js; get the needed things from server (Java knows more locales)
 								// and create the locate info from that
-								promise = $sabloApplication.callService("i18nService", "generateLocaleForNumeralJS", {'language' : language, 'country' : (country ? country : null)}, false);
+								promise = $sabloApplication.callService("i18nService", "generateLocaleForNumeralJS", country ? {'language' : language, 'country' : country} : {'language' : language}, false);
 								// TODO should we always do this (get stuff from server side java) instead of trying first to rely on numeral.js and languages.js provided langs?
 								var numeralLanguage = language + (country ? '-' + country : "");
 								promise.then(function(numeralLocaleInfo) {
