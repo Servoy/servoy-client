@@ -121,7 +121,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					argObj = appendingArgs.get(i);
 					if (argObj instanceof JSONObject)
 					{
-						String typeHint = ((JSONObject)argObj).optString("svyType"); //$NON-NLS-1$
+						String typeHint = ((JSONObject)argObj).optString("svyType", null); //$NON-NLS-1$
 						if (typeHint != null)
 						{
 							IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
