@@ -10,7 +10,7 @@
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
 	        "containsFormID" : "form", 
-	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
+	        "enabled" : { "type": "protected", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
 	        "foreground" : "color", 
 	        "lineSize" : "int", 
 	        "location" : "point", 

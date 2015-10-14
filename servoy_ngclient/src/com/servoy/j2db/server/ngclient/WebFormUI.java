@@ -222,14 +222,14 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		int counter = counterStart;
 		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) &&
-				(!fe.getName().startsWith("svy_") || (fe.getPersistIfAvailable() instanceof IFormElement) &&
-					((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
-			{
-				RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-				if (fe.isLegacy() ||
-					((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-						fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
-						"servoydefault-")))
+			(!fe.getName().startsWith("svy_") || (fe.getPersistIfAvailable() instanceof IFormElement) &&
+				((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
+		{
+			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
+			if (fe.isLegacy() ||
+				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+					fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
+					"servoydefault-")))
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
@@ -405,16 +405,19 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public void setComponentEnabled(boolean enabled)
 	{
-		for (WebComponent component : components.values())
-		{
-			component.setEnabled(enabled);
-		}
+		propagatePropertyToAllComponents(ENABLED, enabled);
 	}
 
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
 		propagatePropertyToAllComponents(READONLY, readOnly);
+	}
+
+	@Override
+	public boolean isEnabled()
+	{
+		return ((BasicFormController)formController).isEnabled();
 	}
 
 	private void propagatePropertyToAllComponents(String property, boolean value)
@@ -775,7 +778,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
 			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
-					index + 1) });
+				index + 1) });
 			currentContainer = currentForm.getParentContainer();
 		}
 		if (currentContainer instanceof String)
