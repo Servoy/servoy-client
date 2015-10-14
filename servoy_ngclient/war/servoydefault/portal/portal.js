@@ -712,6 +712,21 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 						{
 							var rows = $scope.foundset.viewPort.rows;
 							updatingGridSelection = true;
+							
+							// need to clear else cellNav will set the selection back to lastRowCol
+							var oldSelection = $scope.gridApi.selection.getSelectedRows();
+							var isNewSelection = !oldSelection || !$scope.foundset.selectedRowIndexes || (oldSelection.length != $scope.foundset.selectedRowIndexes.length);
+							if(!isNewSelection) {
+								for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
+									newSelection = $scope.foundset.selectedRowIndexes[idx] != oldSelection[idx];
+									if(newSelection) break;
+								}
+							}
+							
+							if(isNewSelection) {
+								$scope.gridApi.grid.cellNav.lastRowCol = null;
+							}											
+							
 							if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
 								var scrolledToSelection = !scrollToSelection;
 								var oldSelection = $scope.gridApi.selection.getSelectedRows();
