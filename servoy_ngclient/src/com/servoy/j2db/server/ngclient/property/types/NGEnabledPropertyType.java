@@ -85,11 +85,7 @@ public class NGEnabledPropertyType extends EnabledPropertyType implements IFormE
 	public EnabledSabloValue toSabloComponentValue(Object rhinoValue, EnabledSabloValue previousComponentValue, PropertyDescription pd,
 		BaseWebObject componentOrService)
 	{
-		if (rhinoValue instanceof Boolean)
-		{
-			return new EnabledSabloValue((boolean)rhinoValue);
-		}
-		return null;
+		return new EnabledSabloValue((boolean)rhinoValue);
 	}
 
 
