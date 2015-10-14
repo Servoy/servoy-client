@@ -28,6 +28,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DimensionPropertyType;
+import org.sablo.specification.property.types.EnabledSabloValue;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -58,6 +59,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebGroup;
+import com.servoy.j2db.server.ngclient.property.types.NGEnabledPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
@@ -77,6 +79,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			super("form_spec", "", "", null, null, null, "", null);
 			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
+			putProperty("enabled", new PropertyDescription("enabled", NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
 		}
 	}
 
@@ -101,6 +104,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		super(formController.getName(), FORM_SPEC);
 		this.formController = formController;
 		setVisible(false);
+		setEnabled(true);
 		init();
 	}
 
@@ -221,15 +225,13 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		WebFormComponent component)
 	{
 		int counter = counterStart;
-		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) &&
-				(!fe.getName().startsWith("svy_") || (fe.getPersistIfAvailable() instanceof IFormElement) &&
-					((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
-			{
-				RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-				if (fe.isLegacy() ||
-					((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-						fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
-						"servoydefault-")))
+		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) && (!fe.getName().startsWith("svy_") ||
+			(fe.getPersistIfAvailable() instanceof IFormElement) && ((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
+		{
+			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
+			if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+				fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
+				fe.getTypeName().startsWith("servoydefault-")))
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
@@ -405,10 +407,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public void setComponentEnabled(boolean enabled)
 	{
-		for (WebComponent component : components.values())
-		{
-			component.setEnabled(enabled);
-		}
+		setEnabled(enabled);
 	}
 
 	@Override
@@ -470,7 +469,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				@Override
 				public void propertyChange(PropertyChangeEvent evt)
 				{
-					setComponentEnabled((boolean)evt.getNewValue());
+					setComponentEnabled(((EnabledSabloValue)evt.getNewValue()).getValue());
 				}
 			};
 			parentContainer.addPropertyChangeListener(ENABLED, parentEnabledListener);
@@ -774,8 +773,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
-			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
-					index + 1) });
+			set.addRow(0,
+				new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
 			currentContainer = currentForm.getParentContainer();
 		}
 		if (currentContainer instanceof String)

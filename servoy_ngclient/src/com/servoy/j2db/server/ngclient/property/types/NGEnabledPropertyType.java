@@ -114,7 +114,7 @@ public class NGEnabledPropertyType extends EnabledPropertyType implements IFormE
 	@Override
 	public Object toRhinoValue(EnabledSabloValue webComponentValue, PropertyDescription pd, BaseWebObject componentOrService, Scriptable startScriptable)
 	{
-		return Boolean.valueOf(webComponentValue.getValue());
+		return Boolean.valueOf(webComponentValue.getComponentValue());
 	}
 
 	/*
