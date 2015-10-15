@@ -509,22 +509,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else value = newJSONValue;
 
-		try
+		if (oldValue != value && (oldValue == null || !oldValue.equals(value)))
 		{
-			Object newValueForJSON = getValueForToJSON(value, dataConverterContext);
-			if (newValueForJSON != jsonValue || (newValueForJSON != null && !newValueForJSON.equals(jsonValue)))
-			{
-				jsonValue = newValueForJSON;
-
-				// TODO only do valueChanged() if we detect that the new server value (it's representation on client) is no longer what the client has showing; how do we do this? an special IPropertyType with a version of fromJSON that can report that the received value was altered and it needs to be resent? and we can use that in the typeOfDP.getType().fromJSON above? 
-				changeMonitor.valueChanged(); // value changed from client so why do we need this (client already has the value)?
-				// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
-				// the server will trunc/round to an INTEGER and then the client shown double value while the server DP has the int value (which are not the same) 
-			}
-		}
-		catch (JSONException e)
-		{
-			Debug.error("DP updated from browser but cannot calculate for JSON representation (" + newJSONValue + ", " + value + ", " + typeOfDP + ")", e);
+			jsonValue = null;
 		}
 	}
 }
