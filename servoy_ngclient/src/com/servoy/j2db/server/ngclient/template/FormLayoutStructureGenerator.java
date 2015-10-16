@@ -17,12 +17,14 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.helper.StringUtil;
 import org.sablo.specification.WebComponentPackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -72,7 +74,7 @@ public class FormLayoutStructureGenerator
 	}
 
 	private static void generateLayoutContainer(LayoutContainer container, ServoyDataConverterContext context, PrintWriter writer, boolean design,
-		boolean highlight)
+		boolean highlight) throws IOException
 	{
 		if (highlight) writer.print("<div class='highlight_element'>");
 		writer.print("<");
@@ -82,7 +84,6 @@ public class FormLayoutStructureGenerator
 			writer.print(" svy-id='");
 			writer.print(container.getUUID().toString());
 			writer.print("'");
-			WebComponentSpecProvider.getInstance().getLayoutSpecifications();
 			WebComponentPackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getInstance().getLayoutSpecifications().get(
 				container.getPackageName());
 			WebLayoutSpecification spec = null;
@@ -119,9 +120,9 @@ public class FormLayoutStructureGenerator
 			for (Entry<String, String> entry : attributes.entrySet())
 			{
 				writer.print(" ");
-				writer.print(entry.getKey());
+				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getKey(), writer);
 				writer.print("='");
-				writer.print(entry.getValue());
+				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
 				writer.print("'");
 			}
 		}
@@ -146,7 +147,6 @@ public class FormLayoutStructureGenerator
 		writer.print(">");
 		if (highlight) writer.print("</div>");
 	}
-
 //	/**
 //	 * @param form
 //	 * @param fs
