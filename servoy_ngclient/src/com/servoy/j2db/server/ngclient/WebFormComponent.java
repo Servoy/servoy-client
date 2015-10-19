@@ -263,9 +263,9 @@ public class WebFormComponent extends Container implements IContextProvider
 	{
 		boolean modified = super.flagPropertyAsDirty(key, dirty);
 		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, dirty);
-		if (getProperty(key) instanceof EnabledSabloValue)
+		if (getRawPropertyValue(key, true) instanceof EnabledSabloValue)
 		{
-			boolean enabled = ((EnabledSabloValue)getProperty(key)).getValue();
+			boolean enabled = ((EnabledSabloValue)getRawPropertyValue(key, true)).getValue();
 			for (IWebFormUI form : visibleForms.keySet())
 			{
 				if (form != getParent()) form.setComponentEnabled(enabled);
