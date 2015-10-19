@@ -122,9 +122,9 @@ public class FormLayoutStructureGenerator
 				writer.print(entry.getKey());
 				if (entry.getValue() != null && entry.getValue().length() > 0)
 				{
-					writer.print("='");
+					writer.print("=\"");
 					writer.print(entry.getValue());
-					writer.print("'");
+					writer.print("\"");
 				}
 			}
 		}
