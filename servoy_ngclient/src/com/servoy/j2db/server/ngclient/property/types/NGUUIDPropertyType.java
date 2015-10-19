@@ -23,6 +23,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -51,7 +52,8 @@ public class NGUUIDPropertyType extends DefaultPropertyType<UUID> implements ICl
 	}
 
 	@Override
-	public UUID fromJSON(Object newJSONValue, UUID previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public UUID fromJSON(Object newJSONValue, UUID previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (newJSONValue instanceof String && (previousSabloValue == null || !((String)newJSONValue).equals(previousSabloValue.toString()))) return UUID.fromString((String)newJSONValue);
 		return null;

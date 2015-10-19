@@ -28,6 +28,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -46,9 +47,9 @@ import com.servoy.j2db.util.ServoyJSONObject;
  * @author gganea
  *
  */
-public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue>
-	implements IConvertedPropertyType<FindModeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>,
-	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
+public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue> implements IConvertedPropertyType<FindModeSabloValue>,
+	IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>, ISabloComponentToRhino<FindModeSabloValue>,
+	IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
 {
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
@@ -89,7 +90,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	@Override
 	public FindModeSabloValue fromJSON(Object newJSONValue, FindModeSabloValue previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		//we do not allow changes coming in from the client
 		return previousSabloValue;
@@ -104,8 +105,8 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	}
 
 	@Override
-	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
-		DataAdapterList dataAdapterList)
+	public FindModeSabloValue toSabloComponentValue(JSONObject formElementValue, PropertyDescription pd, INGFormElement formElement,
+		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		return new FindModeSabloValue((FindModeConfig)pd.getConfig(), dataAdapterList);
 	}

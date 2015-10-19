@@ -23,6 +23,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.scripting.FormScope;
@@ -70,7 +71,8 @@ public class FormScopePropertyType extends DefaultPropertyType<FormScope> implem
 	}
 
 	@Override
-	public FormScope fromJSON(Object newJSONValue, FormScope previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public FormScope fromJSON(Object newJSONValue, FormScope previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		INGApplication app = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication();
 		if (newJSONValue instanceof String && app != null)

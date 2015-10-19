@@ -22,6 +22,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -46,7 +47,8 @@ public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> i
 	}
 
 	@Override
-	public byte[] fromJSON(Object newJSONValue, byte[] previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public byte[] fromJSON(Object newJSONValue, byte[] previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		return previousSabloValue; // not supported yet; currently MediaResourcesServlet is used to upload directly to dataProviders
 	}

@@ -37,6 +37,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
@@ -499,11 +500,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	{
 		Object oldValue = value;
 
+		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
 		if (!findMode && typeOfDP != null)
 		{
 			if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
-				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext);
+				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext,
+					serverSideValueIsNotTheSameAsClient);
 			}
 			else value = newJSONValue;
 		}
@@ -512,6 +515,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (oldValue != value && (oldValue == null || !oldValue.equals(value)))
 		{
 			jsonValue = null;
+		}
+
+		if (serverSideValueIsNotTheSameAsClient.value.booleanValue())
+		{
+			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
+			jsonValue = null;
+
+			changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
+			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
+			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
 		}
 	}
 }

@@ -29,6 +29,7 @@ import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -60,7 +61,8 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 	}
 
 	@Override
-	public IDataSet fromJSON(Object newValue, IDataSet previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public IDataSet fromJSON(Object newValue, IDataSet previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// ?
 		return null;

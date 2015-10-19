@@ -33,6 +33,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
@@ -131,7 +132,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 
 	@Override
 	public Object/* ComponentFormat */fromJSON(Object newValue, Object/* ComponentFormat */previousValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// TODO remove when these types are design-aware and we know exactly how to deal with FormElement values (a refactor is to be done soon)
 		return newValue;

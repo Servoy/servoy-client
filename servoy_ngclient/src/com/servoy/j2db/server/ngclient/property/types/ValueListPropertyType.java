@@ -29,6 +29,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -110,7 +111,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	@Override
 	public ValueListTypeSabloValue fromJSON(Object newJSONValue, ValueListTypeSabloValue previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// handle any valuelist specific websocket incomming traffic
 		if (previousSabloValue != null && newJSONValue instanceof String)

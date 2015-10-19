@@ -23,6 +23,7 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -50,7 +51,8 @@ public class RecordPropertyType extends ReferencePropertyType<Record> implements
 	}
 
 	@Override
-	public Record fromJSON(Object newJSONValue, Record previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public Record fromJSON(Object newJSONValue, Record previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (newJSONValue instanceof JSONObject)
 		{

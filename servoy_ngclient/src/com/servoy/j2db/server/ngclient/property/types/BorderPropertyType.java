@@ -42,6 +42,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.FontPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -99,7 +100,8 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	}
 
 	@Override
-	public Border fromJSON(Object newValue, Border previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public Border fromJSON(Object newValue, Border previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (newValue == null) return null;
 		JSONObject object = (JSONObject)newValue;
@@ -223,7 +225,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 						break;
 				}
 
-				Font titleFont = FontPropertyType.INSTANCE.fromJSON(object.optJSONObject("font"), null, null, dataConverterContext);//TODO previous value
+				Font titleFont = FontPropertyType.INSTANCE.fromJSON(object.optJSONObject("font"), null, null, dataConverterContext, null);//TODO previous value
 				Color titleColor = PersistHelper.createColor(object.optString("color"));
 				return BorderFactory.createTitledBorder(null, borderTitle, titleJustification, titlePosition, titleFont, titleColor);
 			}
@@ -425,7 +427,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	public Border toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return fromJSON(designValue, null, pd, null);
+		return fromJSON(designValue, null, pd, null, null);
 	}
 
 	@Override
@@ -475,7 +477,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	@Override
 	public Object toRhinoValue(Object value, PropertyDescription pd)
 	{
-		Border border = fromJSON(value, null, pd, null);
+		Border border = fromJSON(value, null, pd, null, null);
 		return ComponentFactoryHelper.createBorderString(border);
 	}
 }
