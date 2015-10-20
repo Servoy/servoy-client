@@ -32,6 +32,7 @@ import org.sablo.specification.WebComponentSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPushToServerSpecialType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
@@ -360,7 +361,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	}
 
 	public void browserUpdatesReceived(Object newJSONValue, PropertyDescription wrappedPropertyDescription, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
 
@@ -392,7 +393,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						}
 
 						Object object = update.get(PROPERTY_CHANGE);
-						YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, object, wrappedPropertyDescription, dataConverterContext);
+						YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, object, wrappedPropertyDescription, dataConverterContext,
+							returnValueAdjustedIncommingValue);
 
 						if (newWrappedValue != wrappedSabloValue)
 						{
@@ -465,7 +467,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				viewPortChangeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 				try
 				{
-					YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, value, wrappedPropertyDescription, dataConverterContext);
+					ValueReference<Boolean> returnValueAdjustedIncommingValueForRow = new ValueReference<Boolean>(Boolean.FALSE);
+					YT newWrappedValue = (YT)JSONUtils.fromJSONUnwrapped(wrappedSabloValue, value, wrappedPropertyDescription, dataConverterContext,
+						returnValueAdjustedIncommingValueForRow);
 
 					if (newWrappedValue != wrappedSabloValue)
 					{
@@ -478,6 +482,17 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 						// the full value has changed; the whole viewport might be affected
 						viewPortChangeMonitor.viewPortCompletelyChanged();
+					}
+					else if (returnValueAdjustedIncommingValueForRow.value.booleanValue())
+					{
+						FoundsetTypeViewport viewPort = foundsetPropertyValue.getViewPort();
+						int firstViewPortIndex = Math.max(viewPort.getStartIndex(), recordIndex);
+						int lastViewPortIndex = Math.min(viewPort.getStartIndex() + viewPort.getSize() - 1, recordIndex);
+						if (firstViewPortIndex <= lastViewPortIndex)
+						{
+							viewPortChangeMonitor.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
+								firstViewPortIndex, lastViewPortIndex, foundsetPropertyValue.getFoundset(), RowData.CHANGE);
+						}
 					}
 				}
 				catch (JSONException e)

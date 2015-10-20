@@ -120,7 +120,12 @@ angular.module('servoydefaultLabel',['servoy'])
     	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
     	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
     	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
-    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);          
+    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);
+    	  
+    	  $scope.hasText = function() {
+    		  var txtValue = $scope.model.dataProviderID == null || $scope.model.dataProviderID.url ? $scope.model.text : $scope.model.dataProviderID;
+    		  return (txtValue && txtValue.length > 0);
+    	  }
       }
     };
 }])

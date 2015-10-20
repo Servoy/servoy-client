@@ -411,9 +411,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					}
 					if(media.img){
 						imgStyle =parseImageOptions( media.img, mediaOptions, componentSize)
+						if(media.updateParentSize && (imgStyle.height == (componentSize.height + 'px'))) {
+							$(element[0].parentNode).css({height: imgStyle.height});
+							imgStyle['vertical-align'] = "top";
+						}
 						element.css(imgStyle)
 					}else {
 						imgStyle = null;
+						if(media.updateParentSize) {
+							$(element[0].parentNode).css({height: ''});
+						}						
 						element.css(clearStyle);
 					} 
 				}
@@ -433,7 +440,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}, true)
 
 
-			function parseImageOptions(image,mediaOptions ,componentSize){
+			function parseImageOptions(image,mediaOptions,componentSize){
 				var bgstyle = {};
 				bgstyle['background-image'] = "url('" + image + "')"; 
 				bgstyle['background-repeat'] = "no-repeat";

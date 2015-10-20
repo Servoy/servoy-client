@@ -25,6 +25,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.util.Debug;
@@ -50,7 +51,7 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 
 	@Override
 	public NativeJavaObject fromJSON(Object newJSONValue, NativeJavaObject previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// TODO Auto-generated method stub
 		return null;

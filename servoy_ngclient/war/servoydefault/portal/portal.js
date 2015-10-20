@@ -856,10 +856,38 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.ALWAYS;
 			else if ( $scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
 					$scope.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.NEVER;
+			
 
 			$scope.gridOptions.onRegisterApi = function(gridApi) {
 				var shouldCallDataLoaded = false;
 				$scope.gridApi = gridApi;
+				
+				$scope.gridApi.core.on.scrollBegin($scope, function () {
+					$scope.focusedRowId = null;
+					$scope.focusedElementId = null;
+					var focusedElement = $(':focus');
+					if(focusedElement.get(0) && focusedElement.get(0).id) {
+						$scope.focusedRowId = focusedElement.closest(".ui-grid-row").scope().row.entity._svyRowId;
+						$scope.focusedElementId = focusedElement.get(0).id;
+					}
+				});
+				
+				$scope.gridApi.core.on.scrollEnd($scope, function () {
+					if($scope.focusedRowId) {
+						for (var renderRowIndex in cellAPICaches) {
+							if (cellAPICaches[renderRowIndex].rowId == $scope.focusedRowId) {
+								var rowElement = cellAPICaches[renderRowIndex].rowElement;
+								var focusElement = rowElement.find("#" + $scope.focusedElementId);
+								focusElement.focus();
+								if(focusElement.is('input')) {
+									focusElement.select();
+								}											
+								break;
+							}
+						}
+					}
+				});
+				
 				$scope.gridApi.grid.registerDataChangeCallback(function() {
 					updateGridSelectionFromFoundset(true);
 				},[uiGridConstants.dataChange.ROW]);

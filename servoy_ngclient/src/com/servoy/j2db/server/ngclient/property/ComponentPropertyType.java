@@ -35,6 +35,7 @@ import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
@@ -300,7 +301,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	@Override
 	public ComponentTypeSabloValue fromJSON(Object newJSONValue, ComponentTypeSabloValue previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (previousSabloValue != null)
 		{

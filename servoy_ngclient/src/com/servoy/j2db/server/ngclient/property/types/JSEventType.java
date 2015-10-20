@@ -27,6 +27,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -62,7 +63,8 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 	}
 
 	@Override
-	public JSEvent fromJSON(Object newJSONValue, JSEvent previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public JSEvent fromJSON(Object newJSONValue, JSEvent previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		JSEvent event = null;
 		if (newJSONValue instanceof JSONObject)

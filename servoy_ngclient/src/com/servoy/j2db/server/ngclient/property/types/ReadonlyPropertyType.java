@@ -26,6 +26,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -66,7 +67,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 
 	@Override
 	public ReadonlySabloValue fromJSON(Object newJSONValue, ReadonlySabloValue previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		return previousSabloValue;
 	}

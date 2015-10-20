@@ -24,6 +24,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
@@ -55,7 +56,7 @@ public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWeb
 
 	@Override
 	public RuntimeWebComponent fromJSON(Object newJSONValue, RuntimeWebComponent previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		//do we need this one also?
 		return null;

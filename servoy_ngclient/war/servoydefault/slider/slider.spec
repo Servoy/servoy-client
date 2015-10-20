@@ -13,7 +13,7 @@
 	{
 		"animate": "string",
 	    "dataProviderID": { "type":"dataprovider", "pushToServer": "allow","ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}}, 
-	    "enabled" : { "type": "enabled", "blockingOn": false, "default": true },
+	   "enabled" : { "type": "enabled", "blockingOn": false, "default": true },
 	    "max": {"type":"long", "default":100},
 	    "min": {"type":"long", "default":0},
 	    "orientation": {"type":"string", "values":["horizontal", "vertical"], "default":"horizontal"},

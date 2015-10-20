@@ -129,7 +129,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 									$viewportModule.removeDataWatchesFromRows(newValue.length, internalState);
 									generateWholeViewportFromOneValue(newV);
 									updateWholeViewport();
-									$viewportModule.addDataWatchesToRows(newValue, internalState, componentScope, true);
+									$viewportModule.addDataWatchesToRows(newValue, internalState, componentScope, true, internalState[PUSH_TO_SERVER]);
 								});
 					} else if (angular.isDefined(serverJSONValue[VIEWPORT_VALUE])) {
 						internalState.recordLinked = true;

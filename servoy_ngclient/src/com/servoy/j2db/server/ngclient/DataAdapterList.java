@@ -136,7 +136,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 																																 * full support for what can be
 																																 * defined in spec file as a
 																																 * type
-																																 */, dataConverterContext));
+																																 */, dataConverterContext, null));
 								continue;
 							}
 						}

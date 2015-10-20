@@ -51,7 +51,7 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 	public Dimension toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return fromJSON(designValue, null, pd, null);
+		return fromJSON(designValue, null, pd, null, null);
 	}
 
 	@Override

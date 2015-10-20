@@ -37,6 +37,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
@@ -499,32 +500,31 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	{
 		Object oldValue = value;
 
+		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
 		if (!findMode && typeOfDP != null)
 		{
 			if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
-				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext);
+				value = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, value, typeOfDP, dataConverterContext,
+					serverSideValueIsNotTheSameAsClient);
 			}
 			else value = newJSONValue;
 		}
 		else value = newJSONValue;
 
-		try
+		if (oldValue != value && (oldValue == null || !oldValue.equals(value)))
 		{
-			Object newValueForJSON = getValueForToJSON(value, dataConverterContext);
-			if (newValueForJSON != jsonValue || (newValueForJSON != null && !newValueForJSON.equals(jsonValue)))
-			{
-				jsonValue = newValueForJSON;
-
-				// TODO only do valueChanged() if we detect that the new server value (it's representation on client) is no longer what the client has showing; how do we do this? an special IPropertyType with a version of fromJSON that can report that the received value was altered and it needs to be resent? and we can use that in the typeOfDP.getType().fromJSON above? 
-				changeMonitor.valueChanged(); // value changed from client so why do we need this (client already has the value)?
-				// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
-				// the server will trunc/round to an INTEGER and then the client shown double value while the server DP has the int value (which are not the same) 
-			}
+			jsonValue = null;
 		}
-		catch (JSONException e)
+
+		if (serverSideValueIsNotTheSameAsClient.value.booleanValue())
 		{
-			Debug.error("DP updated from browser but cannot calculate for JSON representation (" + newJSONValue + ", " + value + ", " + typeOfDP + ")", e);
+			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
+			jsonValue = null;
+
+			changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
+			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
+			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
 		}
 	}
 }

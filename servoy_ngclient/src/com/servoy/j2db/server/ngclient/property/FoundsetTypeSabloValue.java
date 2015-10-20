@@ -38,6 +38,7 @@ import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -626,7 +627,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							// our api only supports one dataproviderid sort at a time
 							JSEvent event = new JSEvent();
 							event.setFormName(fc.getName());
-							fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()),
+							fc.executeFunction(
+								String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 								Utils.arrayMerge((new Object[] { dataProviderID, Boolean.valueOf(sortAscending), event }),
 									Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
 								true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$
@@ -745,9 +747,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 									IRecordInternal record = foundset.getRecord(recordIndex);
 									// convert Dates where it's needed
 
-									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable(),
-										false); // this should be enough for when only foundset dataproviders are used
-									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, dataConverterContext);
+									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName,
+										foundset.getTable(), false); // this should be enough for when only foundset dataproviders are used
+									ValueReference<Boolean> returnValueAdjustedIncommingValueForRow = new ValueReference<Boolean>(Boolean.FALSE);
+									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, dataConverterContext,
+										returnValueAdjustedIncommingValueForRow);
 
 									changeMonitor.pauseRowUpdateListener(splitHashAndIndex.getLeft());
 									try
@@ -770,8 +774,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 									finally
 									{
 										changeMonitor.resumeRowUpdateListener();
-										// if server denies the new value as invalid and doesn't change it, send it to the client so that it doesn't keep invalid value
-										if (!Utils.equalObjects(record.getValue(dataProviderName), value))
+										// if server denies the new value as invalid and doesn't change it, send it to the client so that it doesn't keep invalid value; the same if for example a double was rounded to an int
+										if (!Utils.equalObjects(record.getValue(dataProviderName), value) ||
+											returnValueAdjustedIncommingValueForRow.value.booleanValue())
 										{
 											changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort);
 										}
@@ -786,7 +791,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 						}
 						else
 						{
-							log.error("Property (" + pd +
+							log.error("Property (" +
+								pd +
 								") that doesn't define a suitable pushToServer value (allow/shallow/deep) tried to modify foundset dataprovider value serverside. Denying and sending back full viewport!");
 							changeMonitor.viewPortCompletelyChanged();
 						}

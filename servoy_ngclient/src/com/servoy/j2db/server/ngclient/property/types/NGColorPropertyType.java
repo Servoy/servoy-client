@@ -48,7 +48,7 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 	public Color toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return fromJSON(designValue, null, pd, null);
+		return fromJSON(designValue, null, pd, null, null);
 	}
 
 	@Override

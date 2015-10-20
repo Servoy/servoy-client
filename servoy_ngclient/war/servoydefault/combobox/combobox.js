@@ -27,7 +27,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 
 			scope.$watch("model.size", function (newVal) {
 				scope.style['min-height'] = scope.model.size.height + 'px';
-				scope.style['min-width'] = scope.model.size.width + 'px';
+				scope.style['min-width'] = element.children().width() + 'px';
 			});
 			
 			/**

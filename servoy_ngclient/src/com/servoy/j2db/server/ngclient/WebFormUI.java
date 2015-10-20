@@ -231,6 +231,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
 				fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
 				fe.getTypeName().startsWith("servoydefault-")))
+
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
@@ -468,7 +469,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 				@Override
 				public void propertyChange(PropertyChangeEvent evt)
 				{
-					setComponentEnabled((Boolean)evt.getNewValue());
+					setComponentEnabled((boolean)evt.getNewValue());
 				}
 			};
 			parentContainer.addPropertyChangeListener(ENABLED, parentEnabledListener);

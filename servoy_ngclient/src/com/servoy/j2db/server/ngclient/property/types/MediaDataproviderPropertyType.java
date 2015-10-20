@@ -25,6 +25,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -52,7 +53,8 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object> i
 	}
 
 	@Override
-	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// TODO how do we know that client wants to set a Date if dp type is MEDIA? (newJSONValue would be the millis number in that case)
 		// maybe some typeHint in spec config for the DP or let the client send conversion info hint?

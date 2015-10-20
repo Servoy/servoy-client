@@ -30,6 +30,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.FunctionPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -56,7 +57,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	}
 
 	@Override
-	public Object fromJSON(Object newValue, Object previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public Object fromJSON(Object newValue, Object previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (newValue instanceof JSONObject)
 		{

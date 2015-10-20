@@ -23,6 +23,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -58,7 +59,8 @@ public class LabelForPropertyType extends DefaultPropertyType<String> implements
 	}
 
 	@Override
-	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		return (String)newJSONValue;
 	}

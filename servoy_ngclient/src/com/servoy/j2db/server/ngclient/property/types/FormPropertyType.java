@@ -26,6 +26,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -65,7 +66,8 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 	}
 
 	@Override
-	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (newJSONValue instanceof JSONObject)
 		{

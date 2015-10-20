@@ -26,6 +26,7 @@ import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -78,7 +79,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 
 	@Override
 	public MediaWrapper fromJSON(Object newValue, MediaWrapper previousValue, PropertyDescription propertyDescription,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (dataConverterContext instanceof IWrappingContext) return wrap(newValue, previousValue, propertyDescription, (IWrappingContext)dataConverterContext);
 		else return wrap(newValue, previousValue, propertyDescription, new WrappingContext(dataConverterContext.getWebObject()));

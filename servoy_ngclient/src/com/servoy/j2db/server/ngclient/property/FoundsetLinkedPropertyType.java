@@ -29,6 +29,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -69,12 +70,12 @@ import com.servoy.j2db.util.Pair;
  *
  * @author acostescu
  */
-public class FoundsetLinkedPropertyType<YF, YT>
-	implements IYieldingType<FoundsetLinkedTypeSabloValue<YF, YT>, YT>, IFormElementToTemplateJSON<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
-	ISupportTemplateValue<YF>, IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>, ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>
+public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<FoundsetLinkedTypeSabloValue<YF, YT>, YT>,
+	IFormElementToTemplateJSON<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, ISupportTemplateValue<YF>,
+	IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
+	IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>, IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
+	ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>, IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>,
+	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>
 {
 
 	protected static final String SINGLE_VALUE = "sv"; //$NON-NLS-1$
@@ -204,11 +205,12 @@ public class FoundsetLinkedPropertyType<YF, YT>
 
 	@Override
 	public FoundsetLinkedTypeSabloValue<YF, YT> fromJSON(Object newJSONValue, FoundsetLinkedTypeSabloValue<YF, YT> previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext)
+		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (previousSabloValue != null)
 		{
-			previousSabloValue.browserUpdatesReceived(newJSONValue, getConfig(pd).wrappedPropertyDescription, pd, dataConverterContext);
+			previousSabloValue.browserUpdatesReceived(newJSONValue, getConfig(pd).wrappedPropertyDescription, pd, dataConverterContext,
+				returnValueAdjustedIncommingValue);
 		}
 		// else there's nothing to do here / this type can't receive browser updates when server has no value for it
 
@@ -232,9 +234,8 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	@Override
 	public boolean isValueAvailableInRhino(FoundsetLinkedTypeSabloValue<YF, YT> webComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		if (wrappedType instanceof ISabloComponentToRhino)
-			return ((ISabloComponentToRhino<YT>)wrappedType).isValueAvailableInRhino(webComponentValue.getWrappedValue(),
-				getConfig(pd).wrappedPropertyDescription, componentOrService);
+		if (wrappedType instanceof ISabloComponentToRhino) return ((ISabloComponentToRhino<YT>)wrappedType).isValueAvailableInRhino(
+			webComponentValue.getWrappedValue(), getConfig(pd).wrappedPropertyDescription, componentOrService);
 
 		return true;
 	}
@@ -276,8 +277,8 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	public Pair<IDataLinkedPropertyValue, PropertyDescription> getWrappedDataLinkedValue(FoundsetLinkedTypeSabloValue<YF, YT> propertyValue,
 		PropertyDescription pd)
 	{
-		if (propertyValue != null && propertyValue.wrappedSabloValue instanceof IDataLinkedPropertyValue)
-			return new Pair(propertyValue.wrappedSabloValue, getConfig(pd).wrappedPropertyDescription);
+		if (propertyValue != null && propertyValue.wrappedSabloValue instanceof IDataLinkedPropertyValue) return new Pair(propertyValue.wrappedSabloValue,
+			getConfig(pd).wrappedPropertyDescription);
 		return null;
 	}
 

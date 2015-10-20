@@ -43,6 +43,7 @@ import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
@@ -85,11 +86,12 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected boolean componentIsCreated = false;
 
 	protected String forFoundsetTypedPropertyName;
-	protected PropertyChangeListener forFoundsetPropertyListener, readonlyPropertyListener;
+	protected PropertyChangeListener forFoundsetPropertyListener, enabledPropertyListener, readonlyPropertyListener;
 
 	protected boolean recordBasedPropertiesChanged = false;
 	protected boolean recordBasedPropertiesChangedComparedToTemplate = false;
 	protected ViewportDataChangeMonitor viewPortChangeMonitor;
+	protected List<Runnable> changesWhileUpdatingFoundsetBasedDPFromClient;
 
 	protected ComponentDataLinkedPropertyListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
 	protected final List<String> recordBasedProperties;
@@ -110,10 +112,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	}
 
 	@Override
-	public void attachToBaseObject(IChangeListener changeMonitor, org.sablo.BaseWebObject parentComponent)
+	public void attachToBaseObject(IChangeListener changeMonitor, org.sablo.BaseWebObject parentComp)
 	{
 		componentIsCreated = false;
-		this.parentComponent = (WebFormComponent)parentComponent;
+		this.parentComponent = (WebFormComponent)parentComp;
 		this.monitor = changeMonitor;
 
 		if (childComponent != null)
@@ -169,6 +171,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			}
 		}
+		if (enabledPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.ENABLED, enabledPropertyListener);
 		if (readonlyPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
 	}
 
@@ -212,6 +215,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 		childComponent.setDirtyPropertyListener(new IDirtyPropertyListener()
 		{
+
 			@Override
 			public void propertyFlaggedAsDirty(String propertyName, boolean dirty)
 			{
@@ -225,9 +229,21 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						{
 							// for example valuelist properties can get filtered based on client sent filter in which case the property does change without
 							// any actual change in the record; in this case we need to mark it correctly in viewport as a change
-							int idx = foundsetPropValue.getFoundset().getRecordIndex(dal.getRecord());
-							int relativeIdx = idx - foundsetPropValue.getViewPort().getStartIndex();
-							viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset());
+							IRecordInternal record = dal.getRecord();
+							Runnable queueChangeRunnable = queueCellChangeOnRecord(propertyName, record);
+
+							if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
+							{
+								// if for example a dataprovider property change does in its fromJSON a monitor.valueChanged() (for example an integer DP getting client update of 1.15 would want to send back 1.00)
+								// it will end up here; we do want to send that back to the client but as the new value is not
+								// yet pushed to the record, we don't want the new value to be reverted by a DAL.setRecord() that happens when queuing changes for a specific record index
+								// so we need to handle this change at a later time
+								changesWhileUpdatingFoundsetBasedDPFromClient.add(queueChangeRunnable);
+							}
+							else
+							{
+								queueChangeRunnable.run();
+							}
 						} // else this change was probably determined by the fact that we reuse components, changing the record in the DAL to get data for a specific row
 					}
 					else
@@ -236,6 +252,28 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						monitor.valueChanged();
 					}
 				}
+			}
+
+			private Runnable queueCellChangeOnRecord(final String propertyName, final IRecordInternal record)
+			{
+				return new Runnable()
+				{
+
+					@Override
+					public void run()
+					{
+						int idx = foundsetPropValue.getFoundset().getRecordIndex(record);
+						if (idx >= 0)
+						{
+							FoundsetTypeViewport viewPort = foundsetPropValue.getViewPort();
+							int relativeIdx = idx - viewPort.getStartIndex();
+							if (relativeIdx >= 0 && relativeIdx < viewPort.getStartIndex() + viewPort.getSize())
+							{
+								viewPortChangeMonitor.queueCellChange(relativeIdx, idx, propertyName, foundsetPropValue.getFoundset());
+							}
+						}
+					}
+				};
 			}
 		});
 
@@ -275,12 +313,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (foundsetPropValue != null)
 		{
-			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor,
-				new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent, recordBasedProperties, this));
+			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
+				recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
 		}
 
+		addPropertyChangeListener(WebFormUI.ENABLED, parentComponent.getFormElement().getPropertyValue(WebFormUI.ENABLED));
 		addPropertyChangeListener(WebFormUI.READONLY, parentComponent.getProperty(WebFormUI.READONLY));
 
 
@@ -291,18 +330,23 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		if (parentComponent.getSpecification().getProperty(property) != null && childComponent.getSpecification().getProperty(property) != null)
 		{
-			setChildProperty(property, initialValue);
-			this.parentComponent.addPropertyChangeListener(property, readonlyPropertyListener = new PropertyChangeListener()
+			PropertyDescription propertyDescChild = childComponent.getSpecification().getProperty(property);
+			if (childComponent.getProperty(property) == null || !propertyDescChild.hasDefault() ||
+				childComponent.getProperty(property).equals(propertyDescChild.getDefaultValue()))
 			{
-				@Override
-				public void propertyChange(PropertyChangeEvent evt)
+				setChildProperty(property, initialValue);
+				this.parentComponent.addPropertyChangeListener(property, enabledPropertyListener = new PropertyChangeListener()
 				{
-					if (evt.getNewValue() != null)
+					@Override
+					public void propertyChange(PropertyChangeEvent evt)
 					{
-						setChildProperty(property, evt.getNewValue());
+						if (evt.getNewValue() != null)
+						{
+							setChildProperty(property, evt.getNewValue());
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 	}
 
@@ -428,8 +472,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(changes);
 
 		boolean modelChanged = (changes.content.size() > 0);
-		boolean viewPortChanged = (forFoundsetTypedPropertyName != null &&
-			(viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+		boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
 
 		destinationJSON.object();
 		if (modelChanged || viewPortChanged)
@@ -713,22 +756,38 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
 
 					IDataAdapterList dal;
-					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
+					try
 					{
-						// changes component record and sets value
-						String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
-						updatePropertyValueForRecord(getFoundsetValue(), rowIDValue, propertyName, value);
-						dal = getFoundsetValue().getDataAdapterList();
-					}
-					else
-					{
-						childComponent.putBrowserProperty(propertyName, value);
-						IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
-						dal = formUI.getDataAdapterList();
-					}
+						if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
+						{
+							// changes component record and sets value
+							String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
+							changesWhileUpdatingFoundsetBasedDPFromClient = new ArrayList<>(); // we prevent a fromJSON on the dataprovider value that triggers valueChanged (so propertyFlaggedAsDirty) to re-apply (old) record values to DPs (effectively reverting the new value)
+							// this can happen for example with integer DPs that get a double value from the browser and they round/trunc thus need to resend the value to client
+							// we will execute the propertyFlaggedAsDirty code later, after DP value was applied
+							// TODO shouldn't we apply in one go? so apply directly the value to record instead of setting it first in the component DP property?
+							updatePropertyValueForRecord(getFoundsetValue(), rowIDValue, propertyName, value);
+							dal = getFoundsetValue().getDataAdapterList();
+						}
+						else
+						{
+							childComponent.putBrowserProperty(propertyName, value);
+							IWebFormUI formUI = parentComponent.findParent(IWebFormUI.class);
+							dal = formUI.getDataAdapterList();
+						}
 
-					// apply change to record/dp
-					dal.pushChanges(childComponent, propertyName);
+						// apply change to record/dp
+						dal.pushChanges(childComponent, propertyName);
+					}
+					finally
+					{
+						if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
+						{
+							for (Runnable r : changesWhileUpdatingFoundsetBasedDPFromClient)
+								r.run();
+							changesWhileUpdatingFoundsetBasedDPFromClient = null;
+						}
+					}
 				}
 				else if (update.has("svyStartEdit"))
 				{
@@ -804,8 +863,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				catch (JSONException e)
 				{
-					Debug.error(
-						"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.", e);
+					Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value +
+						" failed.", e);
 				}
 				finally
 				{

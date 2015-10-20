@@ -42,7 +42,7 @@ public class NGInsetsPropertyType extends InsetsPropertyType implements IDesignT
 	public Insets toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
 		PropertyPath propertyPath)
 	{
-		return fromJSON(designValue, null, pd, null);
+		return fromJSON(designValue, null, pd, null, null);
 	}
 
 	@Override
