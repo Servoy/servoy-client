@@ -838,6 +838,9 @@ uis.controller('uiSelectCtrl',
         }
       }
 
+	  if (!processed  && key == KEY.TAB) {
+	  	ctrl.open = false;
+	  }
       if (processed  && key != KEY.TAB) {
         //TODO Check si el tab selecciona aun correctamente
         //Crear test
