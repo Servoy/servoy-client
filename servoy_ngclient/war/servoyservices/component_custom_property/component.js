@@ -67,7 +67,11 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 	function addBackWatches(value, componentScope, childChangedNotifierGenerator) {
 		if (angular.isDefined(value) && value !== null) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
-			if (value[MODEL_VIEWPORT]) $viewportModule.addDataWatchesToRows(value[MODEL_VIEWPORT], iS, componentScope, false, $propertyWatchesRegistry.getPropertiesToAutoWatchForComponent(value.componentDirectiveName));
+
+			var propertiesToWatch = $propertyWatchesRegistry.getPropertiesToAutoWatchForComponent(value.componentDirectiveName);
+			if (typeof propertiesToWatch === 'undefined') propertiesToWatch = {}; // that will not add watches for any column; don't send undefined here as that would mean default (add to all)
+
+			if (value[MODEL_VIEWPORT]) $viewportModule.addDataWatchesToRows(value[MODEL_VIEWPORT], iS, componentScope, false, propertiesToWatch);
 			if (componentScope) iS.modelUnwatch = watchModel(value.componentDirectiveName, value.model, childChangedNotifierGenerator, componentScope);
 		}
 	};

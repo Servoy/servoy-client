@@ -82,7 +82,9 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		} else {
 			var columnName;
 			for (columnName in viewPort[idx]) {
-				if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope, (typeof dumbWatchMarkers === 'boolean' ? dumbWatchMarkers : (dumbWatchMarkers ? dumbWatchMarkers[columnName] : true)));
+				if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) 
+					addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope,
+							(typeof dumbWatchMarkers === 'boolean' ? dumbWatchMarkers : (dumbWatchMarkers ? dumbWatchMarkers[columnName] : true)));
 			}
 		}
 	};
