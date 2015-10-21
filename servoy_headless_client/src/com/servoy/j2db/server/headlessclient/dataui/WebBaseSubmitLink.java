@@ -76,13 +76,13 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Base class from labels with an action event. 
- * 
+ * Base class from labels with an action event.
+ *
  * @author jcompagner, jblok
  */
-public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
-	ISupportSecuritySettings, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent,
-	ISupportSimulateBoundsProvider, ISupportOnRender
+public class WebBaseSubmitLink extends SubmitLink
+	implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges, ISupportSecuritySettings, IAjaxIndicatorAware,
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -155,7 +155,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@SuppressWarnings("nls")
@@ -188,7 +188,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	 */
 	public String getAjaxIndicatorMarkupId()
 	{
-		return WebClientSession.get().hideLoadingIndicator() ? null : "indicator"; //$NON-NLS-1$ 
+		return WebClientSession.get().hideLoadingIndicator() ? null : "indicator"; //$NON-NLS-1$
 	}
 
 	/**
@@ -339,7 +339,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		if ((rolloverMedia = application.getFlattenedSolution().getMedia(rolloverMediaId)) != null)
 		{
 			addRolloverBehaviors();
-			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$ 
+			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$
 		}
 	}
 
@@ -386,7 +386,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			@Override
 			public String getObject()
 			{
-				return scriptable.isEnabled() ? "" : "filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;"; //$NON-NLS-1$  //$NON-NLS-2$ 
+				return scriptable.isEnabled() ? "" : "filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;"; //$NON-NLS-1$  //$NON-NLS-2$
 			}
 		});
 		add(enabledStyle);
@@ -854,7 +854,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
-			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$ 
+			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
 			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
 		}
 
@@ -912,9 +912,10 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			designMode = true;
 		}
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, margin, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, isAnchored(), anchor,
-			cssclass, rotation, scriptable.isEnabled()));
+		replaceComponentTagBody(markupStream, openTag,
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, margin, cssid, (char)getDisplayedMnemonic(), getMarkupId(),
+				WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, isAnchored(), anchor, cssclass, rotation,
+				scriptable.isEnabled(), openTag));
 	}
 
 	protected boolean isAnchored()
@@ -1000,7 +1001,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIcon()
 	 */
 	public MediaResource getIcon()
@@ -1010,7 +1011,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconReference()
 	 */
 	public ResourceReference getIconReference()
@@ -1020,7 +1021,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMedia()
 	 */
 	public Media getMedia()
@@ -1030,7 +1031,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMediaOptions()
 	 */
 	public int getMediaOptions()
@@ -1040,7 +1041,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconUrl()
 	 */
 	public String getIconUrl()
@@ -1050,7 +1051,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getTextUrl()
 	 */
 	public String getTextUrl()
@@ -1060,7 +1061,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverIconReference()
 	 */
 	public ResourceReference getRolloverIconReference()
@@ -1070,7 +1071,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverMedia()
 	 */
 	public Media getRolloverMedia()
@@ -1080,7 +1081,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverUrl()
 	 */
 	public String getRolloverUrl()
