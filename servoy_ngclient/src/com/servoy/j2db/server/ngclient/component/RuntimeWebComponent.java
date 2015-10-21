@@ -51,6 +51,7 @@ import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.LabelForPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
@@ -265,8 +266,15 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		List<Pair<String, String>> oldVisibleForms = getVisibleForms();
 		if (specProperties != null && specProperties.contains(name))
 		{
-			Object previousVal = component.getProperty(name);
+			Object previousVal = null;
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
+			if (pd.getType() instanceof ISabloComponentToRhino && !(pd.getType() instanceof IRhinoToSabloComponent))
+			{
+				// the it has sablo to rhino conversion but not the other way around then we should just use the
+				// value from the conversion so call get(String,Scriptable)
+				previousVal = get(name, start);
+			}
+			else previousVal = component.getProperty(name);
 			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, pd, component);
 
 			if (val != previousVal) component.setProperty(name, val);
