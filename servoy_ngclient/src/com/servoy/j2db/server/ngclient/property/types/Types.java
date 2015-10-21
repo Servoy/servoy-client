@@ -21,7 +21,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.IAdjustablePropertyType;
-import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.IPropertyTypeFactory;
 import org.sablo.specification.property.types.TypesRegistry;
 
@@ -71,8 +70,8 @@ public class Types
 		TypesRegistry.addType(HTMLStringPropertyType.INSTANCE);
 		TypesRegistry.addType(FindModePropertyType.INSTANCE);
 		TypesRegistry.addType(ReadonlyPropertyType.INSTANCE);
-		TypesRegistry.addType(EnabledPropertyType.INSTANCE);
 
+		TypesRegistry.addType(NGEnabledPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGUUIDPropertyType.NG_INSTANCE);

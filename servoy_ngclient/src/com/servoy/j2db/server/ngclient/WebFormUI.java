@@ -28,7 +28,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DimensionPropertyType;
-import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -59,6 +58,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebGroup;
+import com.servoy.j2db.server.ngclient.property.types.NGEnabledPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
@@ -78,7 +78,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			super("form_spec", "", "", null, null, null, "", null);
 			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
-			putProperty("enabled", new PropertyDescription("enabled", EnabledPropertyType.INSTANCE, PushToServerEnum.allow));
+			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
 		}
 	}
 

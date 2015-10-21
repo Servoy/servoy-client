@@ -14,7 +14,6 @@ import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.specification.property.types.EnabledSabloValue;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -186,6 +185,14 @@ public class WebFormComponent extends Container implements IContextProvider
 		return new ServoyDataConverterContext(dataAdapterList.getForm());
 	}
 
+	/**
+	 * @return the visibleForms
+	 */
+	public IWebFormUI[] getVisibleForms()
+	{
+		return visibleForms.keySet().toArray(new IWebFormUI[visibleForms.size()]);
+	}
+
 	@Override
 	public void dispose()
 	{
@@ -233,8 +240,8 @@ public class WebFormComponent extends Container implements IContextProvider
 			if (persist != null)
 			{
 				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
-				if (!((access & IRepository.ACCESSIBLE) != 0)) throw new RuntimeException("Security error. Component '" + getProperty("name") +
-						"' is not accessible.");
+				if (!((access & IRepository.ACCESSIBLE) != 0))
+					throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
 			}
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)
@@ -263,14 +270,6 @@ public class WebFormComponent extends Container implements IContextProvider
 	{
 		boolean modified = super.flagPropertyAsDirty(key, dirty);
 		if (modified && dirtyPropertyListener != null) dirtyPropertyListener.propertyFlaggedAsDirty(key, dirty);
-		if (getRawPropertyValue(key, true) instanceof EnabledSabloValue)
-		{
-			boolean enabled = ((EnabledSabloValue)getRawPropertyValue(key, true)).getValue();
-			for (IWebFormUI form : visibleForms.keySet())
-			{
-				if (form != getParent()) form.setComponentEnabled(enabled);
-			}
-		}
 		return modified;
 	}
 
