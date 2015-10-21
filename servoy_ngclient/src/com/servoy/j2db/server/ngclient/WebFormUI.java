@@ -91,8 +91,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 
 	protected DataAdapterList dataAdapterList;
 
-	private PropertyChangeListener parentEnabledListener;
-
 	private PropertyChangeListener parentReadOnlyListener;
 
 	protected List<FormElement> cachedElements = new ArrayList<FormElement>();
@@ -464,15 +462,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
 			// set readonly state from form manager, just like in wc/sc
 			((BasicFormController)getController()).setReadOnly(formController.isReadOnly());
-			parentEnabledListener = new PropertyChangeListener()
-			{
-				@Override
-				public void propertyChange(PropertyChangeEvent evt)
-				{
-					setComponentEnabled((boolean)evt.getNewValue());
-				}
-			};
-			parentContainer.addPropertyChangeListener(ENABLED, parentEnabledListener);
 		}
 	}
 
@@ -481,11 +470,10 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	 */
 	private void cleanupListeners()
 	{
-		if (parentContainerOrWindowName instanceof WebFormComponent && parentReadOnlyListener != null && parentEnabledListener != null)
+		if (parentContainerOrWindowName instanceof WebFormComponent && parentReadOnlyListener != null)
 		{
 			WebFormComponent parent = (WebFormComponent)parentContainerOrWindowName;
 			parent.removePropertyChangeListener(READONLY, parentReadOnlyListener);
-			parent.removePropertyChangeListener(ENABLED, parentEnabledListener);
 		}
 	}
 
