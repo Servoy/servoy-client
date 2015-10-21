@@ -49,8 +49,8 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class MediaPropertyType extends DefaultPropertyType<Object> implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>,
-	IFormElementToTemplateJSON<Object, Object>
+public class MediaPropertyType extends DefaultPropertyType<Object>
+	implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>, IFormElementToTemplateJSON<Object, Object>
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";
@@ -82,7 +82,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (dataConverterContext instanceof IWrappingContext) return wrap(newValue, previousValue, propertyDescription, (IWrappingContext)dataConverterContext);
-		else return wrap(newValue, previousValue, propertyDescription, new WrappingContext(dataConverterContext.getWebObject()));
+		else return wrap(newValue, previousValue, propertyDescription, new WrappingContext(dataConverterContext.getWebObject(), propertyDescription.getName()));
 	}
 
 	@Override

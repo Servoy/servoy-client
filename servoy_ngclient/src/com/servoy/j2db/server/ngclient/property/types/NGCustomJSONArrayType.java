@@ -60,10 +60,10 @@ import com.servoy.j2db.util.ServoyJSONObject;
  *
  * @author acostescu
  */
-public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT> implements IDesignToFormElement<JSONArray, Object[], Object>,
-	IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>, ISabloComponentToRhino<Object>,
-	IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>, ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>,
-	IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>
+public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<SabloT, SabloWT>
+	implements IDesignToFormElement<JSONArray, Object[], Object>, IFormElementToTemplateJSON<Object[], Object>, IFormElementToSabloComponent<Object[], Object>,
+	ISabloComponentToRhino<Object>, IRhinoToSabloComponent<Object>, ISupportTemplateValue<Object[]>,
+	ITemplateValueUpdaterType<ChangeAwareList<SabloT, SabloWT>>, IFindModeAwareType<Object[], Object>, IDataLinkedType<Object[], Object>
 {
 
 	public NGCustomJSONArrayType(PropertyDescription definition)
@@ -200,8 +200,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 
 			if (rhinoArray != null)
 			{
-				ChangeAwareList<SabloT, SabloWT> cal = wrap(rhinoArray, (ChangeAwareList<SabloT, SabloWT>)previousComponentValue, pd, new WrappingContext(
-					componentOrService));
+				ChangeAwareList<SabloT, SabloWT> cal = wrap(rhinoArray, (ChangeAwareList<SabloT, SabloWT>)previousComponentValue, pd,
+					new WrappingContext(componentOrService, pd.getName()));
 				cal.markAllChanged();
 				return cal;
 
@@ -294,8 +294,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			// if we ever need to cache these for performance we have to use something more unique (like property path) for formElement.getOrCreatePreprocessedPropertyInfoMap(...).put(...) and cache them for arrays as well
 			if (entryPD.getType() instanceof IDataLinkedType)
 			{
-				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD,
-					flattenedSolution, formElement);
+				TargetDataLinks entryDPs = ((IDataLinkedType)entryPD.getType()).getDataLinks(ServoyJSONObject.jsonNullToNull(value), entryPD, flattenedSolution,
+					formElement);
 				if (entryDPs != null && entryDPs != TargetDataLinks.NOT_LINKED_TO_DATA)
 				{
 					dps.addAll(Arrays.asList(entryDPs.dataProviderIDs));

@@ -56,8 +56,8 @@ import org.sablo.specification.property.WrappingContext;
  * @param <SabloT> the Sablo value type
  * @param <SabloWT> the Sablo wrapped value type
  */
-public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<SabloT, Object> implements IWrappedBaseListProvider, IRhinoNativeProxy,
-	IAttachAware<SabloWT>
+public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<SabloT, Object>
+	implements IWrappedBaseListProvider, IRhinoNativeProxy, IAttachAware<SabloWT>
 {
 
 	protected Map<Integer, SabloT> previousValues;
@@ -159,7 +159,8 @@ public class RhinoNativeArrayWrapperList<SabloT, SabloWT> extends ConvertedList<
 		if (elementTypeDefinition.getType() instanceof IWrapperType)
 		{
 			IWrapperType<SabloT, SabloWT> wt = (IWrapperType<SabloT, SabloWT>)elementTypeDefinition.getType();
-			return wt.wrap(value, null /* we never store the wrapped value here... */, elementTypeDefinition, new WrappingContext(componentOrService));
+			return wt.wrap(value, null /* we never store the wrapped value here... */, elementTypeDefinition,
+				new WrappingContext(componentOrService, elementTypeDefinition.getName()));
 		}
 		else return (SabloWT)value;
 	}
