@@ -545,8 +545,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 				{
 					Media media = application.getFlattenedSolution().getMedia(name);
 					if (media != null) sourceRawData = media.getMediaData();
-					else if (name.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER)) sourceRawData = MediaURLStreamHandler.getBlobLoaderMedia(application,
-						text_url);
+					else if (name.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
+						sourceRawData = MediaURLStreamHandler.getBlobLoaderMedia(application, text_url);
 				}
 				catch (Exception ex)
 				{
@@ -1008,9 +1008,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 			designMode = true;
 		}
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor,
-			cssclass, rotation, scriptable.isEnabled()));
+		replaceComponentTagBody(markupStream, openTag,
+			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid, (char)getDisplayedMnemonic(), getMarkupId(),
+				WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor, cssclass, rotation, scriptable.isEnabled(),
+				openTag));
 	}
 
 	protected boolean hasHtmlOrImage()

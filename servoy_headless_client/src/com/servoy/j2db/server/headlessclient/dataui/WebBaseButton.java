@@ -97,9 +97,9 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public abstract class WebBaseButton extends Button implements IButton, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
-	ILinkListener, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider,
-	IAnchoredComponent, ISupportOnRender
+public abstract class WebBaseButton extends Button
+	implements IButton, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges, ILinkListener, IAjaxIndicatorAware,
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider, IAnchoredComponent, ISupportOnRender
 {
 	private int mediaOptions;
 //	private int rotation;
@@ -958,11 +958,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
-		replaceComponentTagBody(
-			markupStream,
-			openTag,
+		replaceComponentTagBody(markupStream, openTag,
 			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size, true, designMode ? null : cursor, false, anchor, cssClass, rotation, scriptable.isEnabled()));
+				size, true, designMode ? null : cursor, false, anchor, cssClass, rotation, scriptable.isEnabled(), openTag));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1002,8 +1000,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
 				if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
 				{
-					imgURL = imageDisplayComponent.urlFor(imageDisplay.getIconReference()) +
-						"?id=" + imageDisplay.getMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					imgURL = imageDisplayComponent.urlFor(imageDisplay.getIconReference()) + "?id=" + imageDisplay.getMedia().getName() + "&s=" + solutionName + //$NON-NLS-1$//$NON-NLS-2$
+						"&option=" + //$NON-NLS-1$
 						imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getWebBounds().width + "&h=" + imageDisplay.getWebBounds().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						(imageDisplay.getMedia().getMediaData() != null ? +imageDisplay.getMedia().getMediaData().hashCode() : 0);
 				}
@@ -1057,16 +1055,16 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 					{
 						if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
 						{
-							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
-								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								imageDisplay.getMediaOptions() +
-								"&w=" + imageDisplay.getWebBounds().width + "&h=" + imageDisplay.getWebBounds().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) + "?id=" + imageDisplay.getRolloverMedia().getName() + //$NON-NLS-1$
+								"&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$
+								imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getWebBounds().width + "&h=" + imageDisplay.getWebBounds().height + //$NON-NLS-1$//$NON-NLS-2$
+								"&l=" + //$NON-NLS-1$
 								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
 						}
 						else
 						{
-							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
-								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) + "?id=" + imageDisplay.getRolloverMedia().getName() + //$NON-NLS-1$
+								"&s=" + solutionName + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$
 								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
 						}
 					}
@@ -1131,7 +1129,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
 		String cssid, char mnemonic, String elementID, String imgURL, Dimension size, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors,
-		String cssClass, int rotation, boolean isEnabled)
+		String cssClass, int rotation, boolean isEnabled, ComponentTag openTag)
 	{
 		boolean isElementAnchored = anchors != IAnchorConstants.DEFAULT;
 		Insets padding = null;
@@ -1180,8 +1178,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
 		StringBuffer instrumentedBodyText = new StringBuffer();
-		// how is it possible that span receives focus when you click on it? i guess weird behavior from ie; give focus to component if that happens
-		instrumentedBodyText.append("<span onfocus='this.parentNode.focus()' style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: block;"); //$NON-NLS-1$
+		String onFocus = "onfocus=\"this.parentNode.focus()\"";
+		if (openTag.getAttribute("onfocus") != null && openTag.getAttribute("onfocus").length() > 0 && openTag.getName().equals("label"))
+			onFocus = "onclick=" + "\"" + openTag.getAttribute("onfocus").replaceFirst("this", "this.parentNode") + "\"";
+		// the latest browsers (except for IE), do not trigger an onfocus neither on the span nor on the parent label element
+		// as a workaround, an onclick is added in the span of label elements that does what the parent onfocus does
+		instrumentedBodyText.append("<span " + onFocus + " style='" + //$NON-NLS-1$
+			(bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: block;");
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
@@ -1252,7 +1255,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (rotation > 0)
 		{
 			String rotationCss = "rotate(" + rotation + "deg)";
-			instrumentedBodyText.append(" -ms-transform: " + rotationCss + ";" + " -moz-transform: " + rotationCss + ";" + " -webkit-transform: " + rotationCss + ";" + " -o-transform: " + rotationCss + ";" + " transform: " + rotationCss + ";"); //$NON-NLS-1$
+			instrumentedBodyText.append(" -ms-transform: " + rotationCss + ";" + " -moz-transform: " + rotationCss + ";" + " -webkit-transform: " + //$NON-NLS-1$
+				rotationCss + ";" + " -o-transform: " + rotationCss + ";" + " transform: " + rotationCss + ";");
 		}
 
 		if (cssid != null && cssClass == null) instrumentedBodyText.append(" visibility: hidden;"); //$NON-NLS-1$
@@ -1307,7 +1311,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
 				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
 					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored && (cssClass == null) ? "visibility:hidden;" : "") + "\"").append(
-					onLoadCall).append("/>");
+						onLoadCall).append("/>");
 				sb.append("<span style=\"vertical-align:middle;\">&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
@@ -1334,16 +1338,16 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		if (border instanceof TitledBorder)
 		{
-			instrumentedBodyText = new StringBuffer(getTitledBorderOpenMarkup((TitledBorder)border) + instrumentedBodyText.toString() +
-				getTitledBorderCloseMarkup());
+			instrumentedBodyText = new StringBuffer(
+				getTitledBorderOpenMarkup((TitledBorder)border) + instrumentedBodyText.toString() + getTitledBorderCloseMarkup());
 		}
 		if (border instanceof CompoundBorder)
 		{
 			Border outside = ((CompoundBorder)border).getOutsideBorder();
 			if (outside != null && outside instanceof TitledBorder)
 			{
-				instrumentedBodyText = new StringBuffer(getTitledBorderOpenMarkup((TitledBorder)outside) + instrumentedBodyText.toString() +
-					getTitledBorderCloseMarkup());
+				instrumentedBodyText = new StringBuffer(
+					getTitledBorderOpenMarkup((TitledBorder)outside) + instrumentedBodyText.toString() + getTitledBorderCloseMarkup());
 			}
 		}
 		return instrumentedBodyText.toString();
@@ -1414,7 +1418,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIcon()
 	 */
 	public MediaResource getIcon()
@@ -1424,7 +1428,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconReference()
 	 */
 	public ResourceReference getIconReference()
@@ -1434,7 +1438,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMedia()
 	 */
 	public Media getMedia()
@@ -1444,7 +1448,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMediaOptions()
 	 */
 	public int getMediaOptions()
@@ -1454,7 +1458,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconUrl()
 	 */
 	public String getIconUrl()
@@ -1464,7 +1468,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getTextUrl()
 	 */
 	public String getTextUrl()
@@ -1474,7 +1478,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverIconReference()
 	 */
 	public ResourceReference getRolloverIconReference()
@@ -1484,7 +1488,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverMedia()
 	 */
 	public Media getRolloverMedia()
@@ -1494,7 +1498,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverUrl()
 	 */
 	public String getRolloverUrl()
