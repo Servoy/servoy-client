@@ -94,7 +94,8 @@ public class TabPanelTest extends AbstractSolutionTest
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
 
-		Assert.assertEquals("{\"\":{\"visible\":true},\"tabpanel\":{\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\"}}", stringWriter.toString());
+		Assert.assertEquals("{\"\":{\"enabled\":true,\"visible\":true},\"tabpanel\":{\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\"}}",
+			stringWriter.toString());
 		webComponent.setProperty("tabIndex", "tab2");
 
 		stringWriter = new StringWriter();
@@ -103,7 +104,8 @@ public class TabPanelTest extends AbstractSolutionTest
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
 
-		Assert.assertEquals("{\"\":{\"visible\":true},\"tabpanel\":{\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":\"tab2\"}}",
+		Assert.assertEquals(
+			"{\"\":{\"enabled\":true,\"visible\":true},\"tabpanel\":{\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":\"tab2\"}}",
 			stringWriter.toString());
 
 		webComponent.setProperty("tabIndex", Integer.valueOf(3));
@@ -114,7 +116,7 @@ public class TabPanelTest extends AbstractSolutionTest
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
 
-		Assert.assertEquals("{\"\":{\"visible\":true},\"tabpanel\":{\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":3}}",
+		Assert.assertEquals("{\"\":{\"enabled\":true,\"visible\":true},\"tabpanel\":{\"svyMarkupId\":\"2f3125f38a12029b38379b61007ef9eb\",\"tabIndex\":3}}",
 			stringWriter.toString());
 	}
 }
