@@ -19,15 +19,11 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
-import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.EnabledSabloValue;
 
-import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
@@ -50,52 +46,6 @@ public class NGEnabledPropertyType extends EnabledPropertyType implements ISablo
 			return new NGEnabledSabloValue(newValue.booleanValue(), dataConverterContext);
 		}
 		return oldValue;
-	}
-
-	class NGEnabledSabloValue extends EnabledSabloValue
-	{
-		/**
-		 * @param value
-		 * @param dataConverterContext
-		 */
-		public NGEnabledSabloValue(boolean value, IWrappingContext dataConverterContext)
-		{
-			super(value, dataConverterContext);
-		}
-
-		@Override
-		public boolean getValue()
-		{
-			boolean val = super.getValue();
-			if (val)
-			{
-				BaseWebObject webObject = context.getWebObject();
-				if (webObject instanceof IWebFormUI && ((IWebFormUI)webObject).getParentContainer() instanceof WebComponent)
-				{
-					return ((WebComponent)((IWebFormUI)webObject).getParentContainer()).isEnabled();
-				}
-			}
-			return val;
-		}
-
-		@Override
-		protected void flagChanged(BaseWebObject comp, String propName)
-		{
-			super.flagChanged(comp, propName);
-			if (comp instanceof WebFormComponent)
-			{
-				IWebFormUI[] visibleForms = ((WebFormComponent)comp).getVisibleForms();
-				for (IWebFormUI webFormUI : visibleForms)
-				{
-					flagChanged(((BaseWebObject)webFormUI), WebFormUI.ENABLED);
-				}
-			}
-		}
-
-		public boolean getComponentValue()
-		{
-			return value;
-		}
 	}
 
 	/*
