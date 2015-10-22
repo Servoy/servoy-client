@@ -3793,7 +3793,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           return;
         }
 
-        evt.preventDefault();
+        if (evt.which !== 9) evt.preventDefault();
 
         if (evt.which === 40) {
           scope.activeIdx = (scope.activeIdx + 1) % scope.matches.length;
@@ -3803,11 +3803,16 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
           scope.activeIdx = (scope.activeIdx > 0 ? scope.activeIdx : scope.matches.length) - 1;
           scope.$digest();
 
-        } else if (evt.which === 13 || evt.which === 9) {
+        }else if (evt.which === 13) {
           scope.$apply(function () {
             scope.select(scope.activeIdx);
           });
 
+        }
+        else if (evt.which === 9) {
+          resetMatches();
+          scope.$digest();
+          
         } else if (evt.which === 27) {
           evt.stopPropagation();
 
