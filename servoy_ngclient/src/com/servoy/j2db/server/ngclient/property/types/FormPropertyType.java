@@ -34,6 +34,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -43,8 +44,8 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public class FormPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>,
-	IFormElementToTemplateJSON<Object, Object>
+public class FormPropertyType extends DefaultPropertyType<Object>
+	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>
 {
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 	public static final String TYPE_NAME = "form";
@@ -137,6 +138,19 @@ public class FormPropertyType extends DefaultPropertyType<Object> implements ICo
 		if (webComponentValue instanceof Form)
 		{
 			return ((Form)webComponentValue).getName();
+		}
+		else
+		{
+			// form is stored as uuid on disk
+			UUID uuid = Utils.getAsUUID(webComponentValue, false);
+			if (uuid != null && componentOrService instanceof IContextProvider)
+			{
+				Form form = (Form)((IContextProvider)componentOrService).getDataConverterContext().getSolution().searchPersist(uuid);
+				if (form != null)
+				{
+					return form.getName();
+				}
+			}
 		}
 		return webComponentValue;
 	}
