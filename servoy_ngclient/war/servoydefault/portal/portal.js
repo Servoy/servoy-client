@@ -860,24 +860,25 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 			$scope.gridOptions.onRegisterApi = function(gridApi) {
 				var shouldCallDataLoaded = false;
+				var focusedRowId = null;
+				var focusedElementId = null;
+				
 				$scope.gridApi = gridApi;
 				
 				$scope.gridApi.core.on.scrollBegin($scope, function () {
-					$scope.focusedRowId = null;
-					$scope.focusedElementId = null;
 					var focusedElement = $(':focus');
 					if(focusedElement.get(0) && focusedElement.get(0).id) {
-						$scope.focusedRowId = focusedElement.closest(".ui-grid-row").scope().row.entity._svyRowId;
-						$scope.focusedElementId = focusedElement.get(0).id;
+						focusedRowId = focusedElement.closest(".ui-grid-row").scope().row.entity._svyRowId;
+						focusedElementId = focusedElement.get(0).id;
 					}
 				});
 				
 				$scope.gridApi.core.on.scrollEnd($scope, function () {
-					if($scope.focusedRowId) {
+					if(focusedRowId) {
 						for (var renderRowIndex in cellAPICaches) {
-							if (cellAPICaches[renderRowIndex].rowId == $scope.focusedRowId) {
+							if (cellAPICaches[renderRowIndex].rowId == focusedRowId) {
 								var rowElement = cellAPICaches[renderRowIndex].rowElement;
-								var focusElement = rowElement.find("#" + $scope.focusedElementId);
+								var focusElement = rowElement.find("#" + focusedElementId);
 								focusElement.focus();
 								if(focusElement.is('input')) {
 									focusElement.select();
