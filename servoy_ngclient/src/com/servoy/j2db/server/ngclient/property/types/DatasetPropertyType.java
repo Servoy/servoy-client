@@ -44,7 +44,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
  *
  * @author acostescu
  */
-public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implements IConvertedPropertyType<IDataSet>
+public class DatasetPropertyType extends DefaultPropertyType<IDataSet>implements IConvertedPropertyType<IDataSet>
 {
 
 	public static final DatasetPropertyType INSTANCE = new DatasetPropertyType();
@@ -112,7 +112,7 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 						if (pd.getType() instanceof IWrapperType< ? , ? >)
 						{
 							IWrappingContext c = (dataConverterContext instanceof IWrappingContext ? (IWrappingContext)dataConverterContext
-								: new WrappingContext(dataConverterContext.getWebObject()));
+								: new WrappingContext(dataConverterContext.getWebObject(), pd.getName()));
 							v = ((IWrapperType<Object, ? >)pd.getType()).wrap(row[j], null, pd, c);
 						}
 						else

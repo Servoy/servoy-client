@@ -185,6 +185,14 @@ public class WebFormComponent extends Container implements IContextProvider
 		return new ServoyDataConverterContext(dataAdapterList.getForm());
 	}
 
+	/**
+	 * @return the visibleForms
+	 */
+	public IWebFormUI[] getVisibleForms()
+	{
+		return visibleForms.keySet().toArray(new IWebFormUI[visibleForms.size()]);
+	}
+
 	@Override
 	public void dispose()
 	{
@@ -232,8 +240,8 @@ public class WebFormComponent extends Container implements IContextProvider
 			if (persist != null)
 			{
 				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID());
-				if (!((access & IRepository.ACCESSIBLE) != 0)) throw new RuntimeException("Security error. Component '" + getProperty("name") +
-					"' is not accessible.");
+				if (!((access & IRepository.ACCESSIBLE) != 0))
+					throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
 			}
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)

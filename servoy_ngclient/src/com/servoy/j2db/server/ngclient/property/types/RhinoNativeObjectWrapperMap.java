@@ -58,8 +58,8 @@ import org.sablo.specification.property.WrappingContext;
  * @param <SabloWT> the Sablo wrapped value type
  */
 //TODO these ET and WT are improper - as for object type they can represent multiple types (a different set for each child key), but they help to avoid some bugs at compile-time
-public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<SabloT, Object> implements IWrappedBaseMapProvider, IRhinoNativeProxy,
-	IAttachAware<SabloWT>
+public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<SabloT, Object>
+	implements IWrappedBaseMapProvider, IRhinoNativeProxy, IAttachAware<SabloWT>
 {
 
 	protected Map<String, IWrapperType<SabloT, SabloWT>> childPropsThatNeedWrapping;
@@ -151,7 +151,7 @@ public class RhinoNativeObjectWrapperMap<SabloT, SabloWT> extends ConvertedMap<S
 	{
 		IWrapperType<SabloT, SabloWT> wt = childPropsThatNeedWrapping.get(forKey);
 		return wt != null ? wt.wrap(value, null /* we never store the wrapped value here... */, customJSONTypeDefinition.getProperty(forKey),
-			new WrappingContext(componentOrService)) : (SabloWT)value;
+			new WrappingContext(componentOrService, forKey)) : (SabloWT)value;
 	}
 
 	/**

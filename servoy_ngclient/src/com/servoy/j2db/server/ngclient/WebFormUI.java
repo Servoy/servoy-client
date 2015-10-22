@@ -58,6 +58,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebGroup;
+import com.servoy.j2db.server.ngclient.property.types.NGEnabledPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
@@ -77,6 +78,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			super("form_spec", "", "", null, null, null, "", null);
 			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
+			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
 		}
 	}
 
@@ -89,8 +91,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 
 	protected DataAdapterList dataAdapterList;
 
-	private PropertyChangeListener parentEnabledListener;
-
 	private PropertyChangeListener parentReadOnlyListener;
 
 	protected List<FormElement> cachedElements = new ArrayList<FormElement>();
@@ -101,6 +101,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		super(formController.getName(), FORM_SPEC);
 		this.formController = formController;
 		setVisible(false);
+		setEnabled(true);
 		init();
 	}
 
@@ -221,15 +222,14 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		WebFormComponent component)
 	{
 		int counter = counterStart;
-		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) &&
-			(!fe.getName().startsWith("svy_") || (fe.getPersistIfAvailable() instanceof IFormElement) &&
-				((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
+		if (!FormElement.ERROR_BEAN.equals(componentSpec.getName()) && (!fe.getName().startsWith("svy_") ||
+			(fe.getPersistIfAvailable() instanceof IFormElement) && ((IFormElement)fe.getPersistIfAvailable()).getGroupID() != null))
 		{
 			RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-			if (fe.isLegacy() ||
-				((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-					fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
-					"servoydefault-")))
+			if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+				fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
+				fe.getTypeName().startsWith("servoydefault-")))
+
 			{
 				// add legacy behavior
 				runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
@@ -405,19 +405,13 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public void setComponentEnabled(boolean enabled)
 	{
-		propagatePropertyToAllComponents(ENABLED, enabled);
+		setEnabled(enabled);
 	}
 
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
 		propagatePropertyToAllComponents(READONLY, readOnly);
-	}
-
-	@Override
-	public boolean isEnabled()
-	{
-		return ((BasicFormController)formController).isEnabled();
 	}
 
 	private void propagatePropertyToAllComponents(String property, boolean value)
@@ -468,15 +462,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
 			// set readonly state from form manager, just like in wc/sc
 			((BasicFormController)getController()).setReadOnly(formController.isReadOnly());
-			parentEnabledListener = new PropertyChangeListener()
-			{
-				@Override
-				public void propertyChange(PropertyChangeEvent evt)
-				{
-					setComponentEnabled((boolean)evt.getNewValue());
-				}
-			};
-			parentContainer.addPropertyChangeListener(ENABLED, parentEnabledListener);
 		}
 	}
 
@@ -485,11 +470,10 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	 */
 	private void cleanupListeners()
 	{
-		if (parentContainerOrWindowName instanceof WebFormComponent && parentReadOnlyListener != null && parentEnabledListener != null)
+		if (parentContainerOrWindowName instanceof WebFormComponent && parentReadOnlyListener != null)
 		{
 			WebFormComponent parent = (WebFormComponent)parentContainerOrWindowName;
 			parent.removePropertyChangeListener(READONLY, parentReadOnlyListener);
-			parent.removePropertyChangeListener(ENABLED, parentEnabledListener);
 		}
 	}
 
@@ -777,8 +761,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			WebFormComponent currentComponent = (WebFormComponent)currentContainer;
 			int index = currentComponent.getFormIndex(currentForm);
 			currentForm = currentComponent.findParent(WebFormUI.class);
-			set.addRow(0, new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(
-				index + 1) });
+			set.addRow(0,
+				new Object[] { null, currentForm.formController.getName(), currentComponent.getName(), null, new Integer(index), new Integer(index + 1) });
 			currentContainer = currentForm.getParentContainer();
 		}
 		if (currentContainer instanceof String)

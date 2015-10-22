@@ -86,7 +86,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected boolean componentIsCreated = false;
 
 	protected String forFoundsetTypedPropertyName;
-	protected PropertyChangeListener forFoundsetPropertyListener, enabledPropertyListener, readonlyPropertyListener;
+	protected PropertyChangeListener forFoundsetPropertyListener, readonlyPropertyListener;
 
 	protected boolean recordBasedPropertiesChanged = false;
 	protected boolean recordBasedPropertiesChangedComparedToTemplate = false;
@@ -171,7 +171,6 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 			}
 		}
-		if (enabledPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.ENABLED, enabledPropertyListener);
 		if (readonlyPropertyListener != null) parentComponent.removePropertyChangeListener(WebFormUI.READONLY, readonlyPropertyListener);
 	}
 
@@ -314,12 +313,11 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (foundsetPropValue != null)
 		{
 			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
-				recordBasedProperties, this));
+					recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
 		}
 
-		addPropertyChangeListener(WebFormUI.ENABLED, parentComponent.getFormElement().getPropertyValue(WebFormUI.ENABLED));
 		addPropertyChangeListener(WebFormUI.READONLY, parentComponent.getProperty(WebFormUI.READONLY));
 
 
@@ -335,7 +333,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				childComponent.getProperty(property).equals(propertyDescChild.getDefaultValue()))
 			{
 				setChildProperty(property, initialValue);
-				this.parentComponent.addPropertyChangeListener(property, enabledPropertyListener = new PropertyChangeListener()
+				this.parentComponent.addPropertyChangeListener(property, readonlyPropertyListener = new PropertyChangeListener()
 				{
 					@Override
 					public void propertyChange(PropertyChangeEvent evt)
@@ -864,7 +862,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				catch (JSONException e)
 				{
 					Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value +
-						" failed.", e);
+							" failed.", e);
 				}
 				finally
 				{
