@@ -283,7 +283,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		WebComponent obj = (WebComponent)getRootObject().getChangeHandler().createNewObject(this, IRepository.WEBCOMPONENTS);
 		//set all the required properties
 
-		obj.setName(name == null ? "untitled" : name); //$NON-NLS-1$
+		if (name != null) obj.setName(name);
 		obj.setTypeName(type);
 
 		addChild(obj);
