@@ -21,13 +21,13 @@ Require-Bundle: servoy_shared,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
  org.junit,
- org.apache.tomcat;bundle-version="7.0.52",
- slf4j.api;bundle-version="1.6.1",
- org.apache.commons.io;bundle-version="2.4.0",
- org.jsoup;bundle-version="1.7.3",
- org.freemarker.freemarker;bundle-version="2.3.20",
- wro4j-core;bundle-version="1.7.8",
- commons-lang3;bundle-version="3.1.0"
+ org.apache.tomcat,
+ slf4j.api,
+ org.apache.commons.io,
+ org.jsoup,
+ org.freemarker.freemarker,
+ wro4j-core,
+ commons-lang3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
