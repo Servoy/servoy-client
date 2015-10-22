@@ -22,11 +22,11 @@ Bundle-ClassPath: .,
  lib/xstream.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_base;visibility:=reexport,
- slf4j.api;bundle-version="1.6.1",
- org.apache.commons.io;bundle-version="2.4.0",
- log4j;bundle-version="1.2.17",
- org.apache.commons.codec;bundle-version="1.6.0",
- jabsorb;bundle-version="1.3.1";visibility:=reexport
+ org.apache.commons.io,
+ log4j,
+ org.apache.commons.codec,
+ jabsorb;visibility:=reexport,
+ org.slf4j.api
 Export-Package: com.servoy.extension,
  com.servoy.extension.dependency,
  com.servoy.extension.hook,
