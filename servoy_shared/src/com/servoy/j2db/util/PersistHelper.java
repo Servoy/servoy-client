@@ -891,6 +891,7 @@ public class PersistHelper
 	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)
 	{
 		IPersist parentPersist = (IPersist)persist;
+		if (parentPersist instanceof ISupportExtendsID && ((ISupportExtendsID)parentPersist).getExtendsID() == IRepository.UNRESOLVED_ELEMENT) return true;
 		while (parentPersist instanceof ISupportExtendsID && isOverrideElement(((ISupportExtendsID)parentPersist)))
 		{
 			parentPersist = getSuperPersist(((ISupportExtendsID)parentPersist));
