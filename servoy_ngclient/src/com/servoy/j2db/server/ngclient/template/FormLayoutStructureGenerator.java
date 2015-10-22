@@ -121,9 +121,12 @@ public class FormLayoutStructureGenerator
 			{
 				writer.print(" ");
 				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getKey(), writer);
-				writer.print("='");
-				StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
-				writer.print("'");
+				if (entry.getValue() != null && entry.getValue().length() > 0)
+				{
+					writer.print("=\"");
+					StringEscapeUtils.ESCAPE_ECMASCRIPT.translate(entry.getValue(), writer);
+					writer.print("\"");
+				}
 			}
 		}
 		writer.println(">");
