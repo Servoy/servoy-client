@@ -43,6 +43,14 @@ div.svy-label-with-focus:focus{
 	border: thin solid black;	
 }
 
+.svy-main-window-container {
+	z-index: 1;
+}
+
+.svy-main-window-navigator-container {
+	z-index: 1;
+}
+
 /*BOOTSTRAP WINDOW CUSTOMIZATION*/
 .window .window-body,
 .window .window-header,

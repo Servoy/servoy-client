@@ -36,9 +36,9 @@ var WindowManager = null;// jshint ignore:line
     WindowManager.prototype.resortWindows = function() {
         var startZIndex = 900;
         $.each(this.windows, function(index, window) {
-
             window.setIndex(startZIndex + index*zIndexIncrement);
         });
+        
         if(this.modalStack.length>0){
 			//update modal backdrop z-index.
 			var lastWindowZindex = parseInt(this.modalStack[this.modalStack.length-1].$el.css('z-index'));
