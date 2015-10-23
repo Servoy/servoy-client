@@ -19,6 +19,9 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -221,10 +224,12 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 			WebComponent webComponent = getBaseComponent(true);
 			if (value instanceof JSMethod)
 			{
+				// should we move this into a IRhinoDesignConverter impl?
 				value = new Integer(JSBaseContainer.getMethodId(application, webComponent, ((JSMethod)value).getScriptMethod()));
 			}
 			else if (value instanceof JSValueList)
 			{
+				// should we move this into a IRhinoDesignConverter impl?
 				value = new Integer(((JSValueList)value).getValueList().getID());
 			}
 			else
@@ -234,6 +239,23 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 				{
 					value = ((IRhinoDesignConverter)pd.getType()).toDesignValue(value, pd);
+				}
+				else
+				{
+					// default - stringify what we get from rhino and convert that to org.json usable value
+					Scriptable topLevelScope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
+
+					Context cx = Context.enter();
+					try
+					{
+						String stringified = (String)ScriptableObject.callMethod(cx, (Scriptable)topLevelScope.get("JSON", topLevelScope), "stringify",
+							new Object[] { value });
+						value = new JSONObject("{ \"a\" : " + stringified + " }").get("a");
+					}
+					finally
+					{
+						Context.exit();
+					}
 				}
 			}
 			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
