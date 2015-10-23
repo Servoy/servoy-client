@@ -165,7 +165,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	function connect() {
 		// maybe do this with defer ($q)
 		var solName = decodeURIComponent((new RegExp('[?|&]s=' + '([^&;]+?)(&|#|;|$)').exec($window.location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-		if (!solName) $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec($window.location.pathname)[1];
+		if (!solName) $solutionSettings.solutionName  = /.*\/([\$\w]+)\/.*/.exec($window.location.pathname)[1];
 		else $solutionSettings.solutionName  = solName;
 		$solutionSettings.windowName = $sabloApplication.getWindowId()
 		var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, [$sabloApplication.getSessionId(), $sabloApplication.getWindowName(), $sabloApplication.getWindowId()], {solution:$solutionSettings.solutionName})
