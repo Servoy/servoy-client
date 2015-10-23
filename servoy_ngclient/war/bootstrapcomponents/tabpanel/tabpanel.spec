@@ -7,10 +7,11 @@
 	"libraries": [],
 	"model":
 	{
-			"containerStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
+			"containerStyleClass" : { "type" :"styleclass"},
 			"tabs" : {"type":"tab[]", "pushToServer": "allow","droppable":true},
-			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
-			"height" : {"type":"int", "default":"500"}
+			"styleClass" : { "type" :"styleclass"},
+			"height" : {"type":"int", "default":"500"},
+			"tabIndex" : {"type":"int", "pushToServer": "allow", "tags": { "scope" :"runtime" }},
 	},
 	"handlers":
 	{
