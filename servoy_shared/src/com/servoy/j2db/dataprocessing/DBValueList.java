@@ -380,7 +380,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		if (table == null) return null;
 
 		FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
-		List<SortColumn> sortColumns = foundSetManager.getSortColumns(table, valueList.getSortOptions());
+		// do not add the default pk-sort, only add real configured sort columns on value list
+		List<SortColumn> sortColumns = valueList.getSortOptions() == null ? null : foundSetManager.getSortColumns(table, valueList.getSortOptions());
 
 		int showValues = valueList.getShowDataProviders();
 		int returnValues = valueList.getReturnDataProviders();
@@ -497,7 +498,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see com.servoy.j2db.dataprocessing.CustomValueList#isRecordLinked()
 	 */
 	@Override
