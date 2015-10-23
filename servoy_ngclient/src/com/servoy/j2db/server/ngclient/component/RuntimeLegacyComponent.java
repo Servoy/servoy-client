@@ -293,8 +293,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			}
 		}
 		name = convertName(name);
-		if ((component.isDesignOnlyProperty(name) || component.isPrivateProperty(name)) &&
-			!StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName().equals(name))
+		if (component.isDesignOnlyProperty(name) && !StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName().equals(name))
 		{
 			// cannot set design only or private properties
 			return;

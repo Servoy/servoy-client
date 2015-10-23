@@ -386,7 +386,7 @@ public class NGConversions
 		Scriptable startScriptable)
 	{
 		if (pd == null) return webComponentValue;
-		if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) return Scriptable.NOT_FOUND;
+		if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
 
 		Object rhinoVal;
 		IPropertyType< ? > type = pd.getType();
@@ -407,7 +407,6 @@ public class NGConversions
 	 */
 	public <T> T convertRhinoToSabloComponentValue(Object rhinoValue, T previousComponentValue, PropertyDescription pd, BaseWebObject componentOrService)
 	{
-		if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) return previousComponentValue;
 		T sabloVal;
 		IPropertyType< ? > type = (pd != null ? pd.getType() : null);
 		if (type instanceof IRhinoToSabloComponent< ? >)
