@@ -31,11 +31,11 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
     	  }
     	  
     	  $scope.select = function(tab) {
-    		  if (tab && tab.containedForm)
+    		  if (tab && tab.containedForm && !tab.active)
     		  {
 					var promise =  $scope.svyServoyapi.hideForm($scope.model.tabs[$scope.model.tabIndex-1]);
 					promise.then(function(ok) {
-					  $scope.model.tabIndex = getTabIndex(tab);
+					  $scope.model.tabIndex = getTabIndex(tab)+1;
     			 	  $scope.svyServoyapi.formWillShow(tab.containedForm, tab.relationName);
     			      tab.active = true;
 					})    		  
@@ -59,16 +59,38 @@ angular.module('bootstrapcomponentsTabpanel',['servoy']).directive('bootstrapcom
 					if (newValue)
 					{ 
 						$scope.svyServoyapi.formWillShow($scope.model.tabs[newValue-1].containedForm,$scope.model.relationName);
-						$scope.model.tabs[newValue-1].active = false;
+						$scope.model.tabs[newValue-1].active = true;
 					}
 				}	
 		  });
 		  
 		   $scope.$watch("model.tabs", function(newValue,oldValue) {
-    	  		if (newValue != oldValue && $scope.model.tabIndex)
+    	  		if (newValue != oldValue)
     	  		{
-					$scope.svyServoyapi.hideForm(oldValue[$scope.model.tabIndex-1]);
-					$scope.svyServoyapi.formWillShow(newValue[$scope.model.tabIndex-1].containedForm, newValue[$scope.model.tabIndex-1].relationName);
+    	  			var oldForm = oldValue && oldValue.length > 0?  oldValue[$scope.model.tabIndex-1].containedForm : null;
+    	  			var newTabIndex = $scope.model.tabIndex;
+    	  			if (!newValue || newValue.length == 0)
+    	  			{
+    	  				newTabIndex = 0;
+    	  			}
+    	  			else if (newValue.length < newTabIndex)
+    	  			{
+    	  				newTabIndex = newValue.length -1;
+    	  			}
+    	  			else if (newValue && newValue.length > 0 && !newTabIndex)
+    	  			{
+    	  				newTabIndex = 1;
+    	  			}
+    	  			var newForm = newValue && newValue.length > 0 ?  newValue[newTabIndex-1].containedForm : null;
+    	  			if (newForm != oldForm)
+    	  			{
+	    	  			if (oldForm) $scope.svyServoyapi.hideForm(oldForm);
+						if (newForm) $scope.svyServoyapi.formWillShow(newForm, newValue[newTabIndex-1].relationName);
+    	  			}
+    	  			if (newTabIndex != $scope.model.tabIndex)
+    	  			{
+    	  				$scope.model.tabIndex = newTabIndex;
+    	  			}
 				}	
 		  });
 		  
