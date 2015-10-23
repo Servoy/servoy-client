@@ -718,8 +718,8 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 							var isNewSelection = !oldSelection || !$scope.foundset.selectedRowIndexes || (oldSelection.length != $scope.foundset.selectedRowIndexes.length);
 							if(!isNewSelection) {
 								for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
-									newSelection = $scope.foundset.selectedRowIndexes[idx] != oldSelection[idx];
-									if(newSelection) break;
+									isNewSelection = $scope.foundset.selectedRowIndexes[idx] != oldSelection[idx];
+									if(isNewSelection) break;
 								}
 							}
 							
