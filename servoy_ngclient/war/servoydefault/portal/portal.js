@@ -860,16 +860,21 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 
 			$scope.gridOptions.onRegisterApi = function(gridApi) {
 				var shouldCallDataLoaded = false;
-				var focusedRowId = null;
-				var focusedElementId = null;
+				var focusedRowId;
+				var focusedElementId;
 				
 				$scope.gridApi = gridApi;
 				
 				$scope.gridApi.core.on.scrollBegin($scope, function () {
+					focusedRowId = null;
+					focusedElementId = null;
 					var focusedElement = $(':focus');
 					if(focusedElement.get(0) && focusedElement.get(0).id) {
-						focusedRowId = focusedElement.closest(".ui-grid-row").scope().row.entity._svyRowId;
-						focusedElementId = focusedElement.get(0).id;
+						var focusedRow = focusedElement.closest(".ui-grid-row");
+						if(focusedRow.length > 0) {
+							focusedRowId = focusedElement.closest(".ui-grid-row").scope().row.entity._svyRowId;
+							focusedElementId = focusedElement.get(0).id;
+						}
 					}
 				});
 				
