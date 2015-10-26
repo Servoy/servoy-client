@@ -865,21 +865,23 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 				
 				$scope.gridApi = gridApi;
 				
-				$scope.gridApi.core.on.scrollBegin($scope, function () {
-					focusedRowId = null;
-					focusedElementId = null;
-					var focusedElement = $(':focus');
-					if(focusedElement.get(0) && focusedElement.get(0).id) {
-						var focusedRow = focusedElement.closest(".ui-grid-row");
-						if(focusedRow.length > 0) {
-							focusedRowId = focusedElement.closest(".ui-grid-row").scope().row.entity._svyRowId;
-							focusedElementId = focusedElement.get(0).id;
+				$scope.gridApi.core.on.scrollBegin($scope, function (e) {
+					if(e.sourceRowContainer == "uiGrid.scrollToIfNecessary") {
+						focusedRowId = null;
+						focusedElementId = null;
+						var focusedElement = $(':focus');
+						if(focusedElement.get(0) && focusedElement.get(0).id) {
+							var focusedRow = focusedElement.closest(".ui-grid-row");
+							if(focusedRow.length > 0) {
+								focusedRowId = focusedElement.closest(".ui-grid-row").scope().row.entity._svyRowId;
+								focusedElementId = focusedElement.get(0).id;
+							}
 						}
 					}
 				});
 				
-				$scope.gridApi.core.on.scrollEnd($scope, function () {
-					if(focusedRowId) {
+				$scope.gridApi.core.on.scrollEnd($scope, function (e) { 
+					if(e.source == "ViewPortScroll" && focusedRowId) {
 						for (var renderRowIndex in cellAPICaches) {
 							if (cellAPICaches[renderRowIndex].rowId == focusedRowId) {
 								var rowElement = cellAPICaches[renderRowIndex].rowElement;
@@ -891,6 +893,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								break;
 							}
 						}
+						focusedRowId = null;
 					}
 				});
 				
