@@ -2114,8 +2114,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					return loc.y >= startY && loc.y < endY;
 				}
 			}
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	private static String scrollBarDefinitionToOverflowAttribute(int scrollbarDefinition, boolean isScrollMode, boolean isScrollingElement, boolean emptyData)
