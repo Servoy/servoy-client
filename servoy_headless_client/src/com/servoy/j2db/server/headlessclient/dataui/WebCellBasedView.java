@@ -1780,9 +1780,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					IPersist element = components.next();
 					if (element instanceof Field || element instanceof GraphicalComponent)
 					{
-						if (element instanceof GraphicalComponent && isInView(cellview, ((GraphicalComponent)element).getLabelFor()))
+						if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
 						{
-							labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
+							if (isInView(cellview, ((GraphicalComponent)element).getLabelFor()))
+							{
+								labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
+							}
 							continue;
 						}
 						Point l = ((IFormElement)element).getLocation();
@@ -2100,9 +2103,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	private boolean isInView(AbstractBase abstractBase, String labelFor)
 	{
-		if (labelFor != null && !labelFor.equals("") && abstractBase instanceof Form)
+		if (labelFor != null && !labelFor.equals(""))
 		{
-			Form f = (Form)abstractBase;
 			Iterator<IPersist> components = abstractBase.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			while (components.hasNext())
 			{
@@ -2114,10 +2116,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					return loc.y >= startY && loc.y < endY;
 				}
 			}
-			return false;
 		}
-
-		return true;
+		return false;
 	}
 
 	private static String scrollBarDefinitionToOverflowAttribute(int scrollbarDefinition, boolean isScrollMode, boolean isScrollingElement, boolean emptyData)
@@ -2659,9 +2659,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				if (!isListViewMode())
 				{
-					if (element instanceof GraphicalComponent && isInView(cellview, ((GraphicalComponent)element).getLabelFor()))
+					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
 					{
-						labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
+						if (isInView(cellview, ((GraphicalComponent)element).getLabelFor()))
+						{
+							labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
+						}
 						continue;
 					}
 				}
