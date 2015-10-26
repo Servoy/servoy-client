@@ -216,9 +216,9 @@ angular.module('window',['servoy'])
 		},
 		generateMenu: function(items,oMenu)
 		{
+			var groupCount = 1;
 			for (var j=0;j<items.length;j++)
 			{
-				var groupCount = 1;
 				if (items[j])
 				{
 					if (items[j].visible == false) continue;
