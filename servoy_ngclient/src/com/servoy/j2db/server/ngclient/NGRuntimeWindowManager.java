@@ -211,13 +211,16 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements ISer
 			RuntimeWindow rw = we.getValue();
 			if (rw != null)
 			{
+				if (rw instanceof NGRuntimeWindow)
+				{
+					((NGRuntimeWindow)rw).setController(null);
+				}
 				if (keepMainApplicationWindow && rw.equals(getMainApplicationWindow()))
 				{
 					continue;
 				}
 				if (rw instanceof NGRuntimeWindow)
 				{
-					((NGRuntimeWindow)rw).setController(null);
 					rw.destroy();
 				}
 			}
