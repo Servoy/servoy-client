@@ -142,6 +142,20 @@ angular.module('window',['servoy'])
 					var css = {};
 					css["min-width"] = formState.properties.designSize.width+"px";
 					css["min-height"] = formState.properties.designSize.height+"px";
+					if (component)
+					{
+						var position = $('#'+component).offset();
+						//if necessary right align popup on related component
+						if (position.left + formState.properties.designSize.width > $( window ).width())
+						{
+							css["left"] = position.left - formState.properties.designSize.width + $('#'+component).outerWidth()+"px";
+						}
+						//if necessary popup on the top of the related component
+						if (position.top + $('#'+component).outerHeight() + formState.properties.designSize.height > $( window ).height())
+						{
+							css["top"] = position.top - formState.properties.designSize.height +"px";
+						}
+					}
 					$('#formpopup').css(css);
 		    	})
 			};
