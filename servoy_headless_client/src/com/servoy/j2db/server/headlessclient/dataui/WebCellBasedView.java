@@ -293,14 +293,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			StringBuffer tbodyStyle = new StringBuffer("var tbodyTop=").append(top).append(";if(tbodyTop != null) { if(tbodyTop != ").append( //$NON-NLS-1$//$NON-NLS-2$
 				scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$
-				tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
+					tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
 			tbodyStyle.append("wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);}"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			response.renderOnDomReadyJavascript(tbodyStyle.toString());
 
 			StringBuffer onLoadtBodyCheck = new StringBuffer("var tbodyTop=").append(top).append(";if((tbodyTop != null) && ((tbodyTop + 'px') != $('#").append( //$NON-NLS-1$//$NON-NLS-2$
 				tableContainerBody.getMarkupId()).append("').css('top'))) { if(tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$
-				tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
+					tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
 			onLoadtBodyCheck.append("wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);}"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			response.renderOnLoadJavascript(onLoadtBodyCheck.toString());
@@ -717,9 +717,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						else
 						{
 							// if anchoring add wrapper to the listItemChild
-							if (!(cellview instanceof Portal) &&
-								useAnchors &&
-								(((element instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)element)) || (element instanceof Bean) || ((element instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)element))))
+							if (!(cellview instanceof Portal) && useAnchors &&
+								(((element instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)element)) || (element instanceof Bean) ||
+									((element instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)element))))
 							{
 								listItemChild = WebAnchoringHelper.getWrapperComponent(comp, (IFormElement)element, listStartY, formBodySize,
 									isLeftToRightOrientation, isListViewMode());
@@ -1032,8 +1032,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							if (!isColorSetByOnRender) return rowStyle.toString();
 						}
 
-						return onRenderBorder != null ? rowStyle.toString() : rowStyle.append(
-							isSelectedEl ? "border-left: 3px solid black;" : "margin-left: 3px;").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+						return onRenderBorder != null ? rowStyle.toString()
+							: rowStyle.append(isSelectedEl ? "border-left: 3px solid black;" : "margin-left: 3px;").toString(); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 			}));
@@ -1877,29 +1877,29 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			// elementToColumnHeader will be filled up by SortableCellViewHeaders when components in it are resolved
 			headers = new SortableCellViewHeaders(form, this, "header", table, cellview, application, initialSortedColumns, new IHeaders() //$NON-NLS-1$
+			{
+
+				public void registerHeader(IPersist matchingElement, Component headerComponent)
 				{
+					SortableCellViewHeader sortableHeader = (SortableCellViewHeader)headerComponent;
+					// set headerComponent width
+					Component columnIdentifier = WebCellBasedView.this.elementToColumnIdentifierComponent.get(matchingElement);
 
-					public void registerHeader(IPersist matchingElement, Component headerComponent)
+					if (columnIdentifier instanceof IProviderStylePropertyChanges)
 					{
-						SortableCellViewHeader sortableHeader = (SortableCellViewHeader)headerComponent;
-						// set headerComponent width
-						Component columnIdentifier = WebCellBasedView.this.elementToColumnIdentifierComponent.get(matchingElement);
-
-						if (columnIdentifier instanceof IProviderStylePropertyChanges)
+						String width = ((IProviderStylePropertyChanges)columnIdentifier).getStylePropertyChanges().getJSProperty("offsetWidth"); //$NON-NLS-1$
+						if (width != null)
 						{
-							String width = ((IProviderStylePropertyChanges)columnIdentifier).getStylePropertyChanges().getJSProperty("offsetWidth"); //$NON-NLS-1$
-							if (width != null)
-							{
-								sortableHeader.setWidth(Integer.parseInt(width.substring(0, width.length() - 2)));
-							}
-							else if (matchingElement instanceof BaseComponent) sortableHeader.setWidth(((BaseComponent)matchingElement).getSize().width);
+							sortableHeader.setWidth(Integer.parseInt(width.substring(0, width.length() - 2)));
 						}
-						sortableHeader.setTabSequenceIndex(ISupportWebTabSeq.SKIP);
-						sortableHeader.setScriptExecuter(el);
-						sortableHeader.setResizeClass(columnIdentifier.getId());
-						WebCellBasedView.this.registerHeader(matchingElement, headerComponent);
+						else if (matchingElement instanceof BaseComponent) sortableHeader.setWidth(((BaseComponent)matchingElement).getSize().width);
 					}
-				});
+					sortableHeader.setTabSequenceIndex(ISupportWebTabSeq.SKIP);
+					sortableHeader.setScriptExecuter(el);
+					sortableHeader.setResizeClass(columnIdentifier.getId());
+					WebCellBasedView.this.registerHeader(matchingElement, headerComponent);
+				}
+			});
 			add(headers);
 		}
 
@@ -2116,6 +2116,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			return false;
 		}
+
 		return true;
 	}
 
@@ -2124,8 +2125,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		String overflow = "";
 		if (isScrollMode && !isScrollingElement)
 		{
-			if (emptyData &&
-				(scrollbarDefinition == 0 || (scrollbarDefinition & ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED))
+			if (emptyData && (scrollbarDefinition == 0 ||
+				(scrollbarDefinition & ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED))
 			{
 				// special situation, we have no content so the content element doesn't have scrollbars
 				// however maybe scrollbars are needed if many columns, so put auto on main element as well
@@ -2354,7 +2355,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private boolean moveColumnInSameGroup(Component headerColumn, List<Component> headerColumnsBeforeDrag, int offset)
 	{
-		String groupId = (String)dal.getFormController().getComponentProperty(getIdentifierComponent(headerColumn), ComponentFactory.GROUPID_COMPONENT_PROPERTY);
+		String groupId = (String)dal.getFormController().getComponentProperty(getIdentifierComponent(headerColumn),
+			ComponentFactory.GROUPID_COMPONENT_PROPERTY);
 		if (groupId == null)
 		{
 			return false;
@@ -2677,8 +2679,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (cellview instanceof Portal && c instanceof IScriptableProvider)
 					{
 						IScriptable s = ((IScriptableProvider)c).getScriptObject();
-						if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor() != null) ComponentFactoryHelper.addPortalOnRenderCallback(
-							(Portal)cellview, ((ISupportOnRenderCallback)s).getRenderEventExecutor(), element, fc != null ? fc.getScriptExecuter() : null);
+						if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor() != null)
+							ComponentFactoryHelper.addPortalOnRenderCallback((Portal)cellview, ((ISupportOnRenderCallback)s).getRenderEventExecutor(), element,
+								fc != null ? fc.getScriptExecuter() : null);
 					}
 
 					initializeComponent((Component)c, view, element);
@@ -2755,7 +2758,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (c instanceof IDisplayData)
 		{
 			IDisplayData cdd = (IDisplayData)c;
-			if (!(dal != null && dal.getFormScope() != null && cdd.getDataProviderID() != null && dal.getFormScope().get(cdd.getDataProviderID()) != Scriptable.NOT_FOUND)) // skip for form variables
+			if (!(dal != null && dal.getFormScope() != null && cdd.getDataProviderID() != null &&
+				dal.getFormScope().get(cdd.getDataProviderID()) != Scriptable.NOT_FOUND)) // skip for form variables
 			{
 				cdd.setValidationEnabled(validationEnabled);
 			}
@@ -2820,10 +2824,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					// check if already added
 					int replacementClassIdx = currentClass.indexOf(replacementClass);
 
-					if ((replacementClassIdx != -1) &&
-						(replacementClassIdx == 0 || currentClass.charAt(replacementClassIdx - 1) == ' ') &&
-						(replacementClassIdx == currentClass.length() - replacementClass.length() || currentClass.charAt(replacementClassIdx +
-							replacementClass.length()) == ' '))
+					if ((replacementClassIdx != -1) && (replacementClassIdx == 0 || currentClass.charAt(replacementClassIdx - 1) == ' ') &&
+						(replacementClassIdx == currentClass.length() - replacementClass.length() ||
+							currentClass.charAt(replacementClassIdx + replacementClass.length()) == ' '))
 					{
 						return currentClass.trim();
 					}
@@ -3103,8 +3106,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					// if rowPerPage changed & the selected was visible, switch to the page so it remain visible
 					int currentPage = table.getCurrentPage();
 					if (maxRowsPerPage != oldRowsPerPage && currentPage * oldRowsPerPage <= firstSelectedIndex &&
-						(currentPage + 1) * oldRowsPerPage > firstSelectedIndex) table.setCurrentPage(firstSelectedIndex < 1 ? 0 : firstSelectedIndex /
-						maxRowsPerPage);
+						(currentPage + 1) * oldRowsPerPage > firstSelectedIndex)
+						table.setCurrentPage(firstSelectedIndex < 1 ? 0 : firstSelectedIndex / maxRowsPerPage);
 				}
 			}
 			pagingNavigator.setVisible(!isScrollMode() && showPageNavigator && table.getPageCount() > 1);
@@ -3335,7 +3338,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (c instanceof IDisplayData)
 				{
 					IDisplayData cdd = (IDisplayData)c;
-					if (!(dal != null && dal.getFormScope() != null && cdd.getDataProviderID() != null && dal.getFormScope().get(cdd.getDataProviderID()) != Scriptable.NOT_FOUND)) // skip for form variables
+					if (!(dal != null && dal.getFormScope() != null && cdd.getDataProviderID() != null &&
+						dal.getFormScope().get(cdd.getDataProviderID()) != Scriptable.NOT_FOUND)) // skip for form variables
 					{
 						cdd.setValidationEnabled(validationEnabled);
 					}
@@ -3725,7 +3729,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		for (PersistColumnIdentifierComponent pci : orderedPersistColumnIdentifierComponent)
 		{
 			IComponent c = pci.getComponent();
-			if (!(c instanceof WebBaseButton || c instanceof WebBaseLabel || !c.isEnabled() || (validationEnabled && c instanceof IFieldComponent && !((IFieldComponent)c).isEditable())))
+			if (!(c instanceof WebBaseButton || c instanceof WebBaseLabel || !c.isEnabled() ||
+				(validationEnabled && c instanceof IFieldComponent && !((IFieldComponent)c).isEditable())))
 			{
 				firstFocusableColumnIdentifier = (Component)c;
 				break;
@@ -4122,11 +4127,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Record.VALIDATE_CALCS.set(Boolean.FALSE);
 					try
 					{
-						c = rec.getParentFoundSet().getCalculationValue(
-							rec,
-							rowBGColorProvider,
+						c = rec.getParentFoundSet().getCalculationValue(rec, rowBGColorProvider,
 							Utils.arrayMerge(new Object[] { new Integer(listItem.getIndex()), new Boolean(isSelected), type, cellName, Boolean.FALSE },
-								Utils.parseJSExpressions(getRowBGColorArgs())), null);
+								Utils.parseJSExpressions(getRowBGColorArgs())),
+							null);
 					}
 					finally
 					{
@@ -4138,9 +4142,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					try
 					{
 						FormController currentForm = dal.getFormController();
-						c = currentForm.executeFunction(rowBGColorProvider, Utils.arrayMerge(new Object[] { new Integer(listItem.getIndex()), new Boolean(
-							isSelected), type, cellName, currentForm.getName(), rec, Boolean.FALSE }, Utils.parseJSExpressions(getRowBGColorArgs())), false,
-							null, true, null);
+						c = currentForm.executeFunction(rowBGColorProvider,
+							Utils.arrayMerge(new Object[] { new Integer(listItem.getIndex()), new Boolean(
+								isSelected), type, cellName, currentForm.getName(), rec, Boolean.FALSE }, Utils.parseJSExpressions(getRowBGColorArgs())),
+							false, null, true, null);
 					}
 					catch (Exception ex)
 					{
@@ -4198,7 +4203,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_BGCOLOR), sbm.getBgcolor())) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
+					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_BGCOLOR), sbm.getBgcolor()))
+						sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
 					sbm.setBgcolor(sbm.getBgcolor());
 					setParentBGcolor(comp, "");
 				}
@@ -4219,7 +4225,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 				if (compFont != null)
 				{
-					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_FONT), sbm.getFont())) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FONT);
+					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_FONT), sbm.getFont()))
+						sbmRW.clearProperty(RenderableWrapper.PROPERTY_FONT);
 					sbm.setFont(compFont.toString());
 				}
 				else
@@ -4248,8 +4255,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					if (marginBorder != null)
 					{
-						newBorder = ComponentFactoryHelper.createBorderString(BorderFactory.createCompoundBorder(
-							ComponentFactoryHelper.createBorder(newBorder), marginBorder));
+						newBorder = ComponentFactoryHelper.createBorderString(
+							BorderFactory.createCompoundBorder(ComponentFactoryHelper.createBorder(newBorder), marginBorder));
 					}
 					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BORDER);
 					sbm.setBorder(newBorder);
@@ -4258,7 +4265,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_BORDER), sbm.getBorder())) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BORDER);
+					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_BORDER), sbm.getBorder()))
+						sbmRW.clearProperty(RenderableWrapper.PROPERTY_BORDER);
 					sbm.setBorder(sbm.getBorder());
 				}
 			}
@@ -4417,12 +4425,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 || cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
+			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 ||
+				cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
 		}
 		else
 		{
 			Form form = formController.getForm();
-			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0);
+			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 ||
+				form.getOnDropMethodID() > 0);
 		}
 
 		if (enableDragDrop)
@@ -4705,13 +4715,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					String value = fontCSSProp.getRight();
 					if (value == null) value = ""; //$NON-NLS-1$
 					if ("font-style".equals(key)) //$NON-NLS-1$
-					fstyle.append(value);
+						fstyle.append(value);
 					else if ("font-weight".equals(key)) //$NON-NLS-1$
-					fweight.append(value);
+						fweight.append(value);
 					else if ("font-size".equals(key)) //$NON-NLS-1$
-					fsize.append(value);
+						fsize.append(value);
 					else if ("font-family".equals(key)) //$NON-NLS-1$
-					ffamily.append(value);
+						ffamily.append(value);
 				}
 			}
 		}
@@ -4827,7 +4837,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 										// font style
 										String fontStyle = runtimeComponent.getFont();
 										StringBuilder fstyle = new StringBuilder(""), fweight = new StringBuilder(""), fsize = new StringBuilder(""), //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-										ffamily = new StringBuilder(""); //$NON-NLS-1$
+											ffamily = new StringBuilder(""); //$NON-NLS-1$
 										splitFontStyle(fontStyle, fstyle, fweight, fsize, ffamily);
 										fstyleJsAray.add(fstyle.toString());
 										fweightJsAray.add(fweight.toString());
@@ -4860,7 +4870,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 						// font styles
 						StringBuilder fstyle = new StringBuilder(""), fweight = new StringBuilder(""), fsize = new StringBuilder(""), //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-						ffamily = new StringBuilder(""); //$NON-NLS-1$
+							ffamily = new StringBuilder(""); //$NON-NLS-1$
 						splitFontStyle(selectedFont, fstyle, fweight, fsize, ffamily);
 						//border styles
 						StringBuilder bstyle = new StringBuilder(""), bwidth = new StringBuilder(""), bcolor = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -5502,8 +5512,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
 				return;
 			}
-			if (table.size() > 0 &&
-				(((ListItem<IRecordInternal>)table.get(0)).getIndex() == 0 && ((ListItem<IRecordInternal>)table.get(table.size() - 1)).getIndex() == table.size() - 1)) // check if have all the row components loaded
+			if (table.size() > 0 && (((ListItem<IRecordInternal>)table.get(0)).getIndex() == 0 &&
+				((ListItem<IRecordInternal>)table.get(table.size() - 1)).getIndex() == table.size() - 1)) // check if have all the row components loaded
 			{
 				boolean needToRenderRows = true;
 				if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false;
@@ -5673,8 +5683,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected CharSequence generateCallbackScript(final CharSequence partialCall)
 		{
-			return super.generateCallbackScript(partialCall +
-				"+'&scrollDiff='+scrollDiff+'&currentScrollTop='+currentScrollTop+'&currentScrollLeft='+currentScrollLeft"); //$NON-NLS-1$
+			return super.generateCallbackScript(
+				partialCall + "+'&scrollDiff='+scrollDiff+'&currentScrollTop='+currentScrollTop+'&currentScrollLeft='+currentScrollLeft"); //$NON-NLS-1$
 		}
 
 		@Override
@@ -5700,9 +5710,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					scriptBuilder.append(
 						"clearTimeout(Servoy.TableView.appendRowsTimer); Servoy.TableView.appendRowsTimer = setTimeout(\"var currentScrollTop = $('#").append(
-						WebCellBasedView.this.tableContainerBody.getMarkupId()).append("').scrollTop();var currentScrollLeft = $('#").append(
-						WebCellBasedView.this.tableContainerBody.getMarkupId()).append(
-						"').scrollLeft();var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('");
+							WebCellBasedView.this.tableContainerBody.getMarkupId()).append("').scrollTop();var currentScrollLeft = $('#").append(
+								WebCellBasedView.this.tableContainerBody.getMarkupId()).append(
+									"').scrollLeft();var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('");
 					scriptBuilder.append(WebCellBasedView.this.tableContainerBody.getMarkupId());
 					scriptBuilder.append("');");
 					scriptBuilder.append(script);
