@@ -377,7 +377,11 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 			else if ($solutionSettings.windowName == name) { // main window form switch
 				$solutionSettings.mainForm = form;
 				$solutionSettings.navigatorForm = navigatorForm;
-				$location.url($location.path() + '?f=' + form.name);
+				var formparam = 'f=' + form.name;
+				if (($location.url().indexOf(formparam+'&') === -1) && ($location.url().indexOf(formparam,$location.url().length - formparam.length) === -1))
+					$location.url($location.path() + '?f=' + form.name);
+				else
+					$location.url($location.url());
 			}
 			if (!$rootScope.$$phase) $rootScope.$digest();
 		},
