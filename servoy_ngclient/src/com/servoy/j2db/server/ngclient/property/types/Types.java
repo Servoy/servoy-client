@@ -59,10 +59,10 @@ public class Types
 		TypesRegistry.addType(ValueListPropertyType.INSTANCE);
 		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
-		TypesRegistry.addType(
-			new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(), DataproviderPropertyType.INSTANCE));
-		TypesRegistry.addType(
-			new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(), TagStringPropertyType.INSTANCE));
+		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(),
+			DataproviderPropertyType.INSTANCE));
+		TypesRegistry.addType(new FoundsetLinkedPropertyType<String, BasicTagStringTypeSabloValue>(TagStringPropertyType.INSTANCE.getName(),
+			TagStringPropertyType.INSTANCE));
 		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
 		TypesRegistry.addType(ServoyStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
@@ -72,6 +72,7 @@ public class Types
 		TypesRegistry.addType(ReadonlyPropertyType.INSTANCE);
 
 		TypesRegistry.addType(NGEnabledPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGFunctionPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGUUIDPropertyType.NG_INSTANCE);

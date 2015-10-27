@@ -2589,7 +2589,8 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 			methodProperty.getPropertyName());
 	}
 
-	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, int methodid, IJSParent< ? > parent, String propertyName)
+	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, int methodid, IJSParent< ? > parent,
+		String propertyName)
 	{
 		if (methodid > 0)
 		{
@@ -3329,11 +3330,6 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
@@ -3343,11 +3339,6 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{

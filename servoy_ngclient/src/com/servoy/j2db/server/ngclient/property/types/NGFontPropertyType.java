@@ -28,6 +28,8 @@ import org.sablo.specification.property.types.FontPropertyType;
 import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -62,7 +64,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	}
 
 	@Override
-	public Object toDesignValue(Object value, PropertyDescription pd)
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
 		if (value instanceof String)
 		{
@@ -80,11 +82,11 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 				Debug.error(e);
 			}
 		}
-		return value;
+		return JSWebComponent.defaultRhinoToDesignValue(value, application);
 	}
 
 	@Override
-	public Object toRhinoValue(Object value, PropertyDescription pd)
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
 		Font font = fromJSON(value, null, pd, null, null);
 		return PersistHelper.createFontString(font);

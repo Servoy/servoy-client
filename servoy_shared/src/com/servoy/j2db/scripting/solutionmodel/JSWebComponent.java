@@ -28,7 +28,6 @@ import org.mozilla.javascript.annotations.JSSetter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
-import org.sablo.specification.property.types.FunctionPropertyType;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
@@ -38,7 +37,6 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -210,11 +208,17 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	}
 
 	/**
-	 * Set a property value of the spec.
+	 * Set the design-time value for the given property. For primitive property types you can just set the value.
+	 * For more complex property types you can set a JSON value similar to what would be generated in the .frm file if you would design what you need using editor/properties view.
+	 * Some property types can be assigned values in the runtime accepted format (for example border, font typed properties have a string representation at runtime and here as well).
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * wc.setJSONProperty('mytext','Hello World!');
+	 * wc.setJSONProperty('mytext', 'Hello World!');
+	 * wc.setJSONProperty('mynumber', 1);
+	 * wc.setJSONProperty('myborder', 'LineBorder,1,#ccffcc');
+	 * wc.setJSONProperty('mydynamicfoundset', { dataproviders: { dp1: "city", dp2: "country" }, foundsetSelector: "" }); // foundset property type using
+	 *     // the parent form's foundset and providing two columns of the foundset to client; see foundset property type wiki page for more information
 	 */
 	@JSFunction
 	public void setJSONProperty(String propertyName, Object value)
@@ -238,24 +242,11 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 				PropertyDescription pd = spec.getProperty(propertyName);
 				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 				{
-					value = ((IRhinoDesignConverter)pd.getType()).toDesignValue(value, pd);
+					value = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, this);
 				}
 				else
 				{
-					// default - stringify what we get from rhino and convert that to org.json usable value
-					Scriptable topLevelScope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
-
-					Context cx = Context.enter();
-					try
-					{
-						String stringified = (String)ScriptableObject.callMethod(cx, (Scriptable)topLevelScope.get("JSON", topLevelScope), "stringify",
-							new Object[] { value });
-						value = new JSONObject("{ \"a\" : " + stringified + " }").get("a");
-					}
-					finally
-					{
-						Context.exit();
-					}
+					value = defaultRhinoToDesignValue(value, application);
 				}
 			}
 			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
@@ -268,12 +259,39 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 		}
 	}
 
+	public static Object defaultRhinoToDesignValue(Object value, IApplication application)
+	{
+		// default - stringify what we get from rhino and convert that to org.json usable value
+		Scriptable topLevelScope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
+
+		Context cx = Context.enter();
+		try
+		{
+			String stringified = (String)ScriptableObject.callMethod(cx, (Scriptable)topLevelScope.get("JSON", topLevelScope), "stringify",
+				new Object[] { value });
+			value = new JSONObject("{ \"a\" : " + stringified + " }").get("a");
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+		}
+		finally
+		{
+			Context.exit();
+		}
+		return value;
+	}
+
 	/**
-	 * Get a property value of the spec.
+	 * Get the design-time value of the given property.
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * application.output(wc.getJSONProperty('mytext'));
+	 * application.output(wc.getJSONProperty('mytext')); // will output a string value if present for a string typed property
+	 * application.output(wc.getJSONProperty('mynumber')); // getter will return a number if present
+	 * application.output(JSON.stringify(wc.getJSONProperty('mycustomtype'), null, '  ')); // getter returns an object if present for custom types is spec files
+	 * application.output(JSON.stringify(wc.getJSONProperty('myarray'), null, '  ')); // getter returns an array type if present for array types
+	 * application.output(JSON.stringify(wc.getJSONProperty('myfoundset'), null, '  '); // getter returns an object representing the design settings of the given property if present
 	 */
 	@JSFunction
 	public Object getJSONProperty(String propertyName)
@@ -285,10 +303,11 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 		if (spec != null)
 		{
 			PropertyDescription pd = spec.getProperty(propertyName);
-			if (pd != null && pd.getType() instanceof FunctionPropertyType)
+			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 			{
-				value = JSForm.getEventHandler(application, webComponent, Utils.getAsInteger(value), getJSParent(), propertyName);
+				value = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
 			}
+			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
 		}
 		return value;
 	}

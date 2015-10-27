@@ -47,6 +47,8 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -453,7 +455,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 	}
 
 	@Override
-	public Object toDesignValue(Object value, PropertyDescription pd)
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
 		if (value instanceof String)
 		{
@@ -471,11 +473,11 @@ public class BorderPropertyType extends DefaultPropertyType<Border> implements I
 				Debug.error(e);
 			}
 		}
-		return value;
+		return JSWebComponent.defaultRhinoToDesignValue(value, application);
 	}
 
 	@Override
-	public Object toRhinoValue(Object value, PropertyDescription pd)
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
 		Border border = fromJSON(value, null, pd, null, null);
 		return ComponentFactoryHelper.createBorderString(border);

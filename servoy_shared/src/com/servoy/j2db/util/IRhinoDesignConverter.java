@@ -19,13 +19,19 @@ package com.servoy.j2db.util;
 
 import org.sablo.specification.PropertyDescription;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
+
 /**
- * @author lvostinar
+ * Interface used by types that want to contribute special behavior for solutionModel usage.
  *
+ * @author lvostinar
  */
 public interface IRhinoDesignConverter
 {
-	Object toDesignValue(Object value, PropertyDescription pd);
 
-	Object toRhinoValue(Object value, PropertyDescription pd);
+	Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
+
+	Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
+
 }
