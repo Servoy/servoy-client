@@ -1,5 +1,5 @@
 angular.module('window',['servoy'])
-.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout) {
+.factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log) {
 	var scope = $services.getServiceScope('window');
 	return {
 
@@ -137,6 +137,23 @@ angular.module('window',['servoy'])
 			scope.getFormUrl = function(){
 				return $windowService.getFormUrl(form);
 			};
+			
+			function getElementById(id)
+			{
+				var defered = $q.defer();
+				var counter = 0;
+				function test() 
+				{
+					var element = $('#'+id);
+					if (element[0]) defered.resolve(element);
+					else if (counter++ < 100) $timeout(test,10);
+					else defered.reject();
+				}
+				if (!id) defered.resolve(null);
+				else test();
+				return defered.promise;
+			};
+			
 			scope.loadSize = function(){
 				$sabloApplication.getFormState(form).then(function(formState){
 					var css = {};
@@ -159,30 +176,36 @@ angular.module('window',['servoy'])
 					$('#formpopup').css(css);
 		    	})
 			};
-			var body = $('body');
-			var style = 'position:absolute;z-index:999;';
-			if (width && width > 0)
+			getElementById(component).then(function(relatedElement)
 			{
-				style+= 'width:'+width+'px;'
-			}
-			if (height && height > 0)
-			{
-				style+= 'height:'+height+'px;'
-			}
-			var left = $( window ).width() /2;
-			var top = $( window ).height() /2;
-			if (component)
-			{
-				var position = $('#'+component).offset();
-				left = position.left;
-				top = position.top+$('#'+component).outerHeight();
-			}
-			style+= 'left:'+left+'px;';
-			style+= 'top:'+top+'px;';
-			var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()" onload="loadSize()" onclick="event.stopPropagation()"></div>')(scope);
-			scope.popupElement = popup;
-			body.on('click',this.cancelFormPopup);
-			body.append(popup);
+				var body = $('body');
+				var style = 'position:absolute;z-index:999;';
+				if (width && width > 0)
+				{
+					style+= 'width:'+width+'px;'
+				}
+				if (height && height > 0)
+				{
+					style+= 'height:'+height+'px;'
+				}
+				var left = $( window ).width() /2;
+				var top = $( window ).height() /2;
+				if (component)
+				{
+					var position = relatedElement.offset();
+					left = position.left;
+					top = position.top + relatedElement.outerHeight();
+				}
+				style+= 'left:'+left+'px;';
+				style+= 'top:'+top+'px;';
+				var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()" onload="loadSize()" onclick="event.stopPropagation()"></div>')(scope);
+				scope.popupElement = popup;
+				body.on('click',this.cancelFormPopup);
+				body.append(popup);
+		 }, function()
+		 {
+			 $log.error('Cannot show form popup, the related element is not visible: form name "'+form+'".');
+		 });
 		},
 		/**
 		 * Close the current form popup panel.
