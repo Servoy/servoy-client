@@ -70,6 +70,7 @@ public class ResourceProvider implements Filter
 
 	private static final Map<String, IPackageReader> componentReaders = new ConcurrentHashMap<>();
 	private static final Map<String, IPackageReader> serviceReaders = new ConcurrentHashMap<>();
+	private static final List<String> removePackageNames = new ArrayList<String>();
 
 	/**
 	 * @param reader
@@ -150,6 +151,12 @@ public class ResourceProvider implements Filter
 		return result;
 	}
 
+	public static void setRemovedPackages(List<String> packageNames)
+	{
+		removePackageNames.clear();
+		removePackageNames.addAll(packageNames);
+	}
+
 	private synchronized static void initSpecProvider()
 	{
 		//register the session factory at the manager
@@ -167,6 +174,7 @@ public class ResourceProvider implements Filter
 		{
 			String pathPrefix = url.getPath().substring(0, url.getPath().indexOf("/META-INF/MANIFEST.MF"));
 			IPackageReader reader = new BundlePackageReader(Activator.getContext().getBundle(), url, pathPrefix);
+			if (removePackageNames.contains(reader.getPackageName())) continue;
 			if (pathPrefix.endsWith("services"))
 			{
 				servicePackages.add(reader);
