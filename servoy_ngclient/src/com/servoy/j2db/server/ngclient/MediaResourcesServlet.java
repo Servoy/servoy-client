@@ -17,13 +17,12 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,8 +34,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wicket.util.upload.FileItemIterator;
-import org.apache.wicket.util.upload.FileItemStream;
+import org.apache.wicket.markup.html.form.upload.FileUpload;
+import org.apache.wicket.util.file.FileCleaner;
+import org.apache.wicket.util.upload.DiskFileItemFactory;
+import org.apache.wicket.util.upload.FileItem;
 import org.apache.wicket.util.upload.FileUploadException;
 import org.apache.wicket.util.upload.ServletFileUpload;
 import org.sablo.websocket.CurrentWindow;
@@ -148,6 +149,7 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			deleteAll(tempDir);
 		}
+		FileCleaner.destroy();
 	}
 
 	private void deleteAll(File f)
@@ -371,18 +373,16 @@ public class MediaResourcesServlet extends HttpServlet
 						WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 					if (wsSession != null)
 					{
-						ServletFileUpload upload = new ServletFileUpload();
-						FileItemIterator iterator = upload.getItemIterator(req);
+						ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+						Iterator<FileItem> iterator = upload.parseRequest(req).iterator();
 						final ArrayList<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						while (iterator.hasNext())
 						{
-							FileItemStream item = iterator.next();
-							byte[] data = read(item.openStream());
-
+							FileItem item = iterator.next();
 							if (formName != null && elementName != null && propertyName != null)
 							{
 								final Map<String, Object> fileData = new HashMap<String, Object>();
-								fileData.put("", data);
+								fileData.put("", item.get());
 								fileData.put(IMediaFieldConstants.FILENAME, item.getName());
 								fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
 
@@ -401,7 +401,7 @@ public class MediaResourcesServlet extends HttpServlet
 							else
 							{
 								// it is a file from the built-in file selector
-								aFileUploadData.add(new FileUploadData(item.getName(), item.getContentType(), data));
+								aFileUploadData.add(new FileUploadData(new FileUpload(item)));
 							}
 						}
 						if (aFileUploadData.size() > 0)
@@ -432,25 +432,6 @@ public class MediaResourcesServlet extends HttpServlet
 		}
 	}
 
-	private byte[] read(InputStream stream) throws IOException
-	{
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		try
-		{
-			byte[] buffer = new byte[2048];
-			int len;
-			while ((len = stream.read(buffer)) != -1)
-			{
-				bos.write(buffer, 0, len);
-			}
-			bos.flush();
-			return bos.toByteArray();
-		}
-		finally
-		{
-			bos.close();
-		}
-	}
 
 	public static final class MediaInfo
 	{
@@ -555,32 +536,29 @@ public class MediaResourcesServlet extends HttpServlet
 
 	private static final class FileUploadData implements IUploadData
 	{
-		String name;
-		String contentType;
-		byte[] data;
+		private final FileUpload fu;
 
-		private FileUploadData(String name, String contentType, byte[] data)
+		private FileUploadData(FileUpload fu)
 		{
-			this.name = name;
-			this.contentType = contentType;
-			this.data = data;
+			this.fu = fu;
 		}
 
 		public String getName()
 		{
-			String fixedName = name.replace('\\', '/');
-			String[] tokenized = fixedName.split("/"); //$NON-NLS-1$
+			String name = fu.getClientFileName();
+			name = name.replace('\\', '/');
+			String[] tokenized = name.split("/"); //$NON-NLS-1$
 			return tokenized[tokenized.length - 1];
 		}
 
 		public String getContentType()
 		{
-			return contentType;
+			return fu.getContentType();
 		}
 
 		public byte[] getBytes()
 		{
-			return data;
+			return fu.getBytes();
 		}
 
 		/**
@@ -593,13 +571,11 @@ public class MediaResourcesServlet extends HttpServlet
 		}
 
 		/*
-		 * (non-Javadoc)
-		 *
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException
 		{
-			return new ByteArrayInputStream(data);
+			return fu.getInputStream();
 		}
 
 		@Override
@@ -607,6 +583,5 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			return System.currentTimeMillis();
 		}
-
 	}
 }
