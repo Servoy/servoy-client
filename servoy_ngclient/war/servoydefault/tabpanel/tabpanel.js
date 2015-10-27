@@ -182,6 +182,10 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				}
 			}
 
+			$scope.getTabsHeight = function() {
+    		  return {top:$element.find(".nav-tabs").height()+"px"};
+    	 	}
+
 			// the api defined in the spec file
 			/**
 			 * Adds a relationless or related form as a tab in a specified tabpanel.
