@@ -152,7 +152,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	}
 
 	@Override
-	public Object get(String name, final Scriptable start)
+	public Object get(final String name, final Scriptable start)
 	{
 		if (specProperties != null && specProperties.contains(name))
 		{
@@ -187,6 +187,11 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 				{
 					Object retValue = func.call(cx, scope, thisObj, args);
+					if (!(func instanceof WebComponentFunction))
+					{
+						WebComponentApiDefinition def = webComponentSpec.getApiFunctions().get(name);
+						retValue = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(retValue, def.getReturnType(), component, null);
+					}
 					updateVisibleContainers(oldVisibleForms);
 					return retValue;
 				}
