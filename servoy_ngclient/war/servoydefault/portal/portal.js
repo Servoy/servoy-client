@@ -552,7 +552,7 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 								var cellAPIToUse = getCellAPIToUse();
 								var retVal;
 								if (cellAPIToUse && !changinOrUnstableAPIPromise) retVal = cellAPIToUse.apply(cellAPI, functionArguments);
-								else {
+								else if (!cellAPIToUse){
 									// cannot find it yet - it probably didn't actually load scrolled contents yet; it just scrolled; delay a bit more
 									if ($log.debugEnabled) $log.debug("API method call - waiting for scrolled contents to load. Api call: '" + apiFunctionName + "' on column " + elementIndex);
 									var deferred = $q.defer();
@@ -573,6 +573,22 @@ angular.module('servoydefaultPortal',['sabloApp','servoy','ui.grid','ui.grid.sel
 									});
 
 									retVal = deferred.promise;
+								}
+								else
+								{
+									// wait for changinOrUnstableAPIPromise
+									function delayedExecution() {
+										if (changinOrUnstableAPIPromise) {
+											$timeout(delayedExecution, 200);
+										} 
+										else
+										{
+											cellAPIToUse = getCellAPIToUse();
+											if (cellAPIToUse) cellAPIToUse.apply(cellAPI, arguments)
+											else $log.error("Cannot find API object for first selected index (" + renderRowIndex + ") row after waiting for api initialization. Failing. Api call: '" + apiFunctionName + "' on column " + elementIndex); 
+										}
+									}
+									$timeout(delayedExecution, 200);
 								}
 								return retVal;
 							}

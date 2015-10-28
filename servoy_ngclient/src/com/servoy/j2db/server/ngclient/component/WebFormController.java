@@ -315,7 +315,23 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		do
 		{
 			component = formUI.getComponent(currentFieldName);
-			apiFunction = component.getSpecification().getApiFunction("requestFocus");
+			if (component != null) apiFunction = component.getSpecification().getApiFunction("requestFocus");
+			else
+			{
+				RuntimeWebComponent[] runtimeComponents = getWebComponentElements();
+				if (runtimeComponents != null)
+				{
+					for (RuntimeWebComponent runtimeComponent : runtimeComponents)
+					{
+						if (Utils.equalObjects(currentFieldName, runtimeComponent.getComponent().getName()))
+						{
+							component = runtimeComponent.getComponent();
+							apiFunction = runtimeComponent.getComponent().getSpecification().getApiFunction("requestFocus");
+							break;
+						}
+					}
+				}
+			}
 			if (apiFunction != null)
 			{
 				if (skipReadonly)
@@ -336,13 +352,11 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				if (counter == sequence.size()) counter = 0;
 				if (counter == start) return;
 				currentFieldName = sequence.get(counter);
-				component = formUI.getComponent(currentFieldName);
-				apiFunction = component.getSpecification().getApiFunction("requestFocus");
 			}
 		}
 		while (apiFunction == null);
 
-		component.invokeApi(apiFunction, null);
+		if (component != null) component.invokeApi(apiFunction, null);
 	}
 
 	@Override
@@ -574,7 +588,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		if (formModel != null)
 		{
-			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$
 		}
 		else
 		{
