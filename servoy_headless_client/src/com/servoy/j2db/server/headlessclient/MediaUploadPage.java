@@ -52,6 +52,9 @@ import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField;
 import com.servoy.j2db.ui.IMediaFieldConstants;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 
 /**
@@ -120,8 +123,8 @@ public class MediaUploadPage extends WebPage
 		FeedbackPanel panel = new FeedbackPanel("feedback"); //$NON-NLS-1$
 		add(panel);
 
-		add(CSSPackageResource.getHeaderContribution("/servoy-webclient/templates/" + application.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) +
-			"/servoy_web_client_default.css"));
+		add(CSSPackageResource.getHeaderContribution(
+			"/servoy-webclient/templates/" + application.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) + "/servoy_web_client_default.css"));
 	}
 
 	@SuppressWarnings({ "nls", "unchecked" })
@@ -204,7 +207,23 @@ public class MediaUploadPage extends WebPage
 					MultipartServletWebRequest multipart;
 					try
 					{
-						multipart = new MultipartServletWebRequest(req.getHttpServletRequest(), getMaxSize(), new DiskFileItemFactory()
+						Settings settings = Settings.getInstance();
+						File fileUploadDir = null;
+						String uploadDir = settings.getProperty("servoy.ng_web_client.temp.uploadir");
+						if (uploadDir != null)
+						{
+							fileUploadDir = new File(uploadDir);
+							if (!(fileUploadDir.mkdirs() && fileUploadDir.exists()))
+							{
+								fileUploadDir = null;
+								Debug.error("Couldn't use the property 'servoy.ng_web_client.temp.uploadir' value: '" + uploadDir +
+									"', directory could not be created or doesn't exists");
+							}
+						}
+						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
+
+						multipart = new MultipartServletWebRequest(req.getHttpServletRequest(), getMaxSize(),
+							new DiskFileItemFactory(tempFileThreshold, fileUploadDir)
 						{
 							private final HashSet<String> fieldNames = new HashSet<String>();
 
@@ -288,15 +307,16 @@ public class MediaUploadPage extends WebPage
 		FeedbackPanel panel = new FeedbackPanel("feedback");
 		add(panel);
 
-		add(CSSPackageResource.getHeaderContribution("/servoy-webclient/templates/" + application.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) +
-			"/servoy_web_client_default.css"));
+		add(CSSPackageResource.getHeaderContribution(
+			"/servoy-webclient/templates/" + application.getClientProperty(WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR) + "/servoy_web_client_default.css"));
 	}
 
 	public static class ServoyDiskFileItem extends DiskFileItem
 	{
 		long timestamp = 0;
 
-		public ServoyDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName, int sizeThreshold, File repository, long timestamp)
+		public ServoyDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName, int sizeThreshold, File repository,
+			long timestamp)
 		{
 			super(fieldName, contentType, isFormField, fileName, sizeThreshold, repository);
 			this.timestamp = timestamp;
@@ -326,6 +346,18 @@ public class MediaUploadPage extends WebPage
 				return ((ServoyDiskFileItem)diskItem).getLastModified();
 			}
 			return System.currentTimeMillis();
+		}
+
+		/**
+		 * @return
+		 */
+		public File getFile()
+		{
+			if (diskItem instanceof DiskFileItem)
+			{
+				return ((DiskFileItem)diskItem).getStoreLocation();
+			}
+			return null;
 		}
 	}
 	private static final class FileUploadData implements IUploadData
@@ -360,13 +392,16 @@ public class MediaUploadPage extends WebPage
 		 */
 		public File getFile()
 		{
-			// does not represent a real file object.
+			if (fu instanceof ServoyFileUpload)
+			{
+				return ((ServoyFileUpload)fu).getFile();
+			}
 			return null;
 		}
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException
@@ -381,7 +416,6 @@ public class MediaUploadPage extends WebPage
 			{
 				return ((ServoyFileUpload)fu).lastModified();
 			}
-			;
 			return System.currentTimeMillis();
 		}
 

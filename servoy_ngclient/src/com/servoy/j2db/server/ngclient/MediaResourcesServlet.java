@@ -34,10 +34,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.util.file.FileCleaner;
+import org.apache.wicket.util.string.Strings;
+import org.apache.wicket.util.upload.DiskFileItem;
 import org.apache.wicket.util.upload.DiskFileItemFactory;
 import org.apache.wicket.util.upload.FileItem;
+import org.apache.wicket.util.upload.FileUploadBase.FileSizeLimitExceededException;
 import org.apache.wicket.util.upload.FileUploadException;
 import org.apache.wicket.util.upload.ServletFileUpload;
 import org.sablo.websocket.CurrentWindow;
@@ -95,8 +97,8 @@ public class MediaResourcesServlet extends HttpServlet
 
 	public static MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
 	{
-		MediaInfo mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null)
-			: contentType, contentDisposition, mediaBytes);
+		MediaInfo mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName,
+			contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType, contentDisposition, mediaBytes);
 		dynamicMediasMap.put(mediaInfo.getName(), mediaInfo);
 		return mediaInfo;
 	}
@@ -310,7 +312,8 @@ public class MediaResourcesServlet extends HttpServlet
 	private IApplication getClient(String clientUUID)
 	{
 		// try to look it up as clientId. (solution model)
-		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT,
+			clientUUID);
 
 		IApplication client = null;
 		if (wsSession == null)
@@ -363,17 +366,33 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").startsWith("multipart/form-data"))
 			{
+				String clientID = paths[1];
+				final INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(
+					WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 				try
 				{
-					String clientID = paths[1];
 					String formName = paths.length == 5 ? paths[2] : null;
 					String elementName = paths.length == 5 ? paths[3] : null;
 					final String propertyName = paths.length == 5 ? paths[4] : null;
-					final INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(
-						WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 					if (wsSession != null)
 					{
-						ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+						Settings settings = Settings.getInstance();
+						File fileUploadDir = null;
+						String uploadDir = settings.getProperty("servoy.ng_web_client.temp.uploadir");
+						if (uploadDir != null)
+						{
+							fileUploadDir = new File(uploadDir);
+							if (!(fileUploadDir.mkdirs() && fileUploadDir.exists()))
+							{
+								fileUploadDir = null;
+								Debug.error("Couldn't use the property 'servoy.ng_web_client.temp.uploadir' value: '" + uploadDir +
+									"', directory could not be created or doesn't exists");
+							}
+						}
+						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
+						ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory(tempFileThreshold, fileUploadDir));
+						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
+						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
 						Iterator<FileItem> iterator = upload.parseRequest(req).iterator();
 						final ArrayList<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						while (iterator.hasNext())
@@ -401,7 +420,7 @@ public class MediaResourcesServlet extends HttpServlet
 							else
 							{
 								// it is a file from the built-in file selector
-								aFileUploadData.add(new FileUploadData(new FileUpload(item)));
+								aFileUploadData.add(new FileUploadData(item));
 							}
 						}
 						if (aFileUploadData.size() > 0)
@@ -423,6 +442,12 @@ public class MediaResourcesServlet extends HttpServlet
 							}
 						}
 					}
+				}
+				catch (FileSizeLimitExceededException ex)
+				{
+					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+					res.getWriter().print(
+						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1000 + "KB" }));
 				}
 				catch (FileUploadException ex)
 				{
@@ -536,16 +561,22 @@ public class MediaResourcesServlet extends HttpServlet
 
 	private static final class FileUploadData implements IUploadData
 	{
-		private final FileUpload fu;
+		private final FileItem item;
 
-		private FileUploadData(FileUpload fu)
+		private FileUploadData(FileItem item)
 		{
-			this.fu = fu;
+			this.item = item;
 		}
 
 		public String getName()
 		{
-			String name = fu.getClientFileName();
+			String name = item.getName();
+
+			// when uploading from localhost some browsers will specify the entire path, we strip it
+			// down to just the file name
+			name = Strings.lastPathComponent(name, '/');
+			name = Strings.lastPathComponent(name, '\\');
+
 			name = name.replace('\\', '/');
 			String[] tokenized = name.split("/"); //$NON-NLS-1$
 			return tokenized[tokenized.length - 1];
@@ -553,12 +584,12 @@ public class MediaResourcesServlet extends HttpServlet
 
 		public String getContentType()
 		{
-			return fu.getContentType();
+			return item.getContentType();
 		}
 
 		public byte[] getBytes()
 		{
-			return fu.getBytes();
+			return item.get();
 		}
 
 		/**
@@ -566,7 +597,10 @@ public class MediaResourcesServlet extends HttpServlet
 		 */
 		public File getFile()
 		{
-			// does not represent a real file object.
+			if (item instanceof DiskFileItem)
+			{
+				return ((DiskFileItem)item).getStoreLocation();
+			}
 			return null;
 		}
 
@@ -575,7 +609,7 @@ public class MediaResourcesServlet extends HttpServlet
 		 */
 		public InputStream getInputStream() throws IOException
 		{
-			return fu.getInputStream();
+			return item.getInputStream();
 		}
 
 		@Override
