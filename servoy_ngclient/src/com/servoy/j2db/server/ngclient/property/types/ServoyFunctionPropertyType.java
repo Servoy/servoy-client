@@ -34,21 +34,27 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScriptVariableScope;
+import com.servoy.j2db.scripting.solutionmodel.JSForm;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
  *
  */
-public class ServoyFunctionPropertyType extends FunctionPropertyType implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>
+public class ServoyFunctionPropertyType extends FunctionPropertyType implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>,
+	IRhinoDesignConverter
 {
 	public static final ServoyFunctionPropertyType INSTANCE = new ServoyFunctionPropertyType();
 
@@ -155,4 +161,18 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	{
 		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
 	}
+
+	@Override
+	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		// TODO move some code here from JSWebComponent.setJSONProperty maybe?
+		return value;
+	}
+
+	@Override
+	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), Utils.getAsInteger(value), webComponent.getJSParent(), pd.getName());
+	}
+
 }
