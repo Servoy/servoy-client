@@ -111,7 +111,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
-	 *
+	 * 
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMMethod#getShowInMenu()
 	 */
 	@JSGetter
@@ -155,9 +155,9 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getName()
-	 *
+	 * 
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
-	 *
+	 * 
 	 * @return A String holding the name of this method.
 	 */
 	@JSFunction
@@ -169,10 +169,10 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
-	 *
-	 * @sample
-	 * var methods = solutionModel.getGlobalMethods();
-	 * for (var x in methods)
+	 * 
+	 * @sample 
+	 * var methods = solutionModel.getGlobalMethods(); 
+	 * for (var x in methods) 
 	 * 	application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
 	 */
 	@JSFunction
@@ -184,7 +184,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
-	 *
+	 * 
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
 	 */
 	@JSGetter
@@ -204,21 +204,21 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/**
 	 * Gets the argument array for this method if that is set for the specific action this method is taken from.
-	 * Will return null by default. This is only for reading, you can't alter the arguments through this array,
+	 * Will return null by default. This is only for reading, you can't alter the arguments through this array, 
 	 * for that you need to create a new object through solutionModel.wrapMethodWithArguments(..) and assign it again.
-	 *
-	 * @sample
+	 * 
+	 * @sample 
 	 * var frm = solutionModel.getForm("myForm");
 	 * var button = frm.getButton("button");
 	 * // get the arguments from the button.
 	 * // NOTE: string arguments will be returned with quotes (comp.onAction.getArguments()[0] == '\'foo\' evals to true)
 	 * var arguments = button.onAction.getArguments();
-	 * if (arguments && arguments.length > 1 && arguments[1] == 10) {
+	 * if (arguments && arguments.length > 1 && arguments[1] == 10) { 
 	 * 	// change the value and assign it back to the onAction.
 	 * 	arguments[1] = 50;
 	 * 	button.onAction = solutionModel.wrapMethodWithArguments(button.onAction,arguments);
 	 * }
-	 *
+	 * 
 	 * @return Array of the arguments, null if not specified.
 	 */
 	@JSFunction
@@ -229,7 +229,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/**
 	 * Returns the UUID of the method object
-	 *
+	 * 
 	 * @sample
 	 * var method = form.newMethod('function original() { application.output("Original function."); }');
 	 * application.output(method.getUUID().toString());
@@ -240,7 +240,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 		return sm.getUUID();
 	}
 
-	public ScriptMethod getScriptMethod()
+	ScriptMethod getScriptMethod()
 	{
 		return sm;
 	}
@@ -306,7 +306,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -320,7 +320,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

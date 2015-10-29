@@ -36,8 +36,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFor
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
-import com.servoy.j2db.server.ngclient.utils.IRhinoDesignConverter;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.PersistHelper;
 
 /**

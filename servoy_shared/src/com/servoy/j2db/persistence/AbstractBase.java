@@ -317,7 +317,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getTypedProperty(TypedProperty<T> property)
+	<T> T getTypedProperty(TypedProperty<T> property)
 	{
 		return (T)getProperty(property.getPropertyName());
 	}
@@ -332,7 +332,7 @@ public abstract class AbstractBase implements IPersist
 		setPropertyInternal(property.getPropertyName(), Boolean.valueOf(value));
 	}
 
-	public <T> void setTypedProperty(TypedProperty<T> property, T value)
+	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		if (value instanceof Integer)
 		{

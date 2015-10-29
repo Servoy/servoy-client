@@ -263,4 +263,9 @@ Export-Package: com.servoy.extension,
  org.xhtmlrenderer.util
 Import-Package: javax.servlet,
  javax.servlet.http,
+ org.sablo,
+ org.sablo.specification,
+ org.sablo.specification.property,
+ org.sablo.specification.property.types,
+ org.sablo.websocket.utils,
  org.w3c.dom

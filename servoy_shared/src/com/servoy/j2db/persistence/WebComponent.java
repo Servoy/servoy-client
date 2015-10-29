@@ -17,101 +17,201 @@
 package com.servoy.j2db.persistence;
 
 
-import org.json.JSONObject;
+import java.util.Iterator;
+import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
+
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
 /**
  * @author gboros
  */
-public class WebComponent extends BaseComponent implements IBasicWebComponent, IBasicWebObject
+public class WebComponent extends BaseComponent implements IWebComponent
 {
-	public WebComponent(ISupportChilds parent, int element_id, UUID uuid)
+
+	protected transient WebObjectImpl webObjectImpl;
+
+	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
+		webObjectImpl = new WebObjectImpl(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#setTypeName(java.lang.String)
-	 */
-	@Override
-	public void setTypeName(String arg)
+	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException
 	{
+		stream.defaultWriteObject();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#getTypeName()
-	 */
-	@Override
-	public String getTypeName()
+	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
 	{
-		return null;
+		stream.defaultReadObject();
+		webObjectImpl = new WebObjectImpl(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#setJson(org.json.JSONObject)
-	 */
 	@Override
-	public void setJson(JSONObject arg)
+	public PropertyDescription getPropertyDescription()
 	{
+		return webObjectImpl.getPropertyDescription();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#setJsonSubproperty(java.lang.String, java.lang.Object)
-	 */
 	@Override
-	public void setJsonSubproperty(String key, Object value)
-	{
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#getJson()
-	 */
-	@Override
-	public JSONObject getJson()
-	{
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#getFlattenedJson()
-	 */
-	@Override
-	public JSONObject getFlattenedJson()
-	{
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#getParentComponent()
-	 */
-	@Override
-	public IBasicWebComponent getParentComponent()
+	public IWebComponent getParentComponent()
 	{
 		return this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.IBasicWebObject#updateJSON()
-	 */
+
+	@Override
+	public void clearChanged()
+	{
+		super.clearChanged();
+		for (WebCustomType x : getAllFirstLevelArrayOfOrCustomPropertiesFlattened())
+		{
+			if (x.isChanged()) x.clearChanged();
+		}
+	}
+
 	@Override
 	public void updateJSON()
 	{
+		webObjectImpl.updateCustomProperties();
 	}
+
+	@Override
+	public void setJsonSubproperty(String key, Object value)
+	{
+		webObjectImpl.setJsonSubproperty(key, value);
+	}
+
+	@Override
+	public void setProperty(String propertyName, Object val)
+	{
+		if (!webObjectImpl.setCustomProperty(propertyName, val)) super.setProperty(propertyName, val);
+	}
+
+	@Override
+	public void clearProperty(String propertyName)
+	{
+		if (!webObjectImpl.clearCustomProperty(propertyName) && !webObjectImpl.removeJsonSubproperty(propertyName)) super.clearProperty(propertyName);
+	}
+
+	@Override
+	public Object getProperty(String propertyName)
+	{
+		if (webObjectImpl == null) return super.getProperty(propertyName);
+
+		Pair<Boolean, Object> customResult = webObjectImpl.getCustomProperty(propertyName);
+		if (customResult.getLeft().booleanValue()) return customResult.getRight();
+		else return super.getProperty(propertyName);
+	}
+
+	public List<WebCustomType> getAllFirstLevelArrayOfOrCustomPropertiesFlattened()
+	{
+		return webObjectImpl.getAllCustomProperties();
+	}
+
+	public void setTypeName(String arg)
+	{
+		webObjectImpl.setTypeName(arg);
+	}
+
+	public String getTypeName()
+	{
+		return webObjectImpl.getTypeName();
+	}
+
+	public void setJson(JSONObject arg)
+	{
+		if (arg != null && !(arg instanceof ServoyJSONObject)) throw new RuntimeException("ServoyJSONObject is needed here in order to make it serializable");
+		webObjectImpl.setJson(arg);
+	}
+
+	public JSONObject getJson()
+	{
+		JSONObject x = webObjectImpl.getJson();
+		try
+		{
+			return x == null ? x : new ServoyJSONObject(x, ServoyJSONObject.getNames(x), true, true);
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+			return x;
+		}
+	}
+
+	public JSONObject getFlattenedJson()
+	{
+		JSONObject json = getJson();
+		IPersist superPersist = PersistHelper.getSuperPersist(this);
+		if (superPersist instanceof WebComponent)
+		{
+			JSONObject superJson = ((WebComponent)superPersist).getFlattenedJson();
+			if (superJson != null)
+			{
+				if (json != null)
+				{
+					Iterator it = json.keys();
+					while (it.hasNext())
+					{
+						String key = (String)it.next();
+						try
+						{
+							superJson.put(key, json.get(key));
+						}
+						catch (JSONException e)
+						{
+							Debug.error(e);
+						}
+					}
+				}
+				json = superJson;
+			}
+		}
+		return json;
+	}
+
+	@Override
+	protected void internalRemoveChild(IPersist obj)
+	{
+		webObjectImpl.internalRemoveChild(obj);
+	}
+
+	@Override
+	public void internalAddChild(IPersist obj)
+	{
+		webObjectImpl.internalAddChild(obj);
+	}
+
+	@Override
+	public Iterator<IPersist> getAllObjects()
+	{
+		return webObjectImpl.getAllObjects();
+	}
+
+	@Override
+	public <T extends IPersist> Iterator<T> getObjects(int tp)
+	{
+		return webObjectImpl.getObjects(tp);
+	}
+
+	@Override
+	public IPersist getChild(UUID childUuid)
+	{
+		return webObjectImpl.getChild(childUuid);
+	}
+
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
+	}
+
 }

@@ -80,13 +80,13 @@ public class FlattenedTabPanel extends TabPanel implements IFlattenedPersistWrap
 	}
 
 	@Override
-	public <T> T getTypedProperty(TypedProperty<T> property)
+	<T> T getTypedProperty(TypedProperty<T> property)
 	{
 		return tabPanel.getTypedProperty(property);
 	}
 
 	@Override
-	public <T> void setTypedProperty(TypedProperty<T> property, T value)
+	<T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		tabPanel.setTypedProperty(property, value);
 	}

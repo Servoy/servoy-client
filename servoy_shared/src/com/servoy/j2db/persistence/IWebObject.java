@@ -15,14 +15,17 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.persistence;
-
-import com.servoy.j2db.persistence.IBasicWebComponent;
+package com.servoy.j2db.persistence;
 
 
 /**
+ * Persists based on spec - PropertyDescriptor defined entities (web components, custom object types...).
+ *
  * @author gboros
+ *
  */
-public interface IWebComponent extends IBasicWebComponent, IWebObject
+public interface IWebObject extends IBasicWebObject, IProvidePropertyDescription
 {
+
+
 }
