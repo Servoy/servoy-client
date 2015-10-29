@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.persistence;
+package com.servoy.j2db.server.ngclient.persistence;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +36,12 @@ import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.PropertyUtils;
 
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.IBasicWebObject;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.TypeIterator;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONArray;

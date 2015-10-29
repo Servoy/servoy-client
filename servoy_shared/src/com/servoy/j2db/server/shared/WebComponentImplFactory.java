@@ -15,12 +15,30 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.persistence;
+package com.servoy.j2db.server.shared;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.WebComponent;
+import com.servoy.j2db.scripting.solutionmodel.IJSParent;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author gboros
+ *
  */
-public interface IWebComponent extends IBasicWebComponent, IWebObject
+public class WebComponentImplFactory implements IWebComponentImplFactory
 {
+	@Override
+	public WebComponent newWebComponent(ISupportChilds parent, int element_id, UUID uuid)
+	{
+		return new WebComponent(parent, element_id, uuid);
+	}
+
+	@Override
+	public JSWebComponent newJSWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
+	{
+		return new JSWebComponent(parent, baseComponent, application, isNew);
+	}
 }

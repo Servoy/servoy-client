@@ -66,13 +66,13 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	}
 
 	@Override
-	<T> T getTypedProperty(TypedProperty<T> property)
+	public <T> T getTypedProperty(TypedProperty<T> property)
 	{
 		return layoutContainer.getTypedProperty(property);
 	}
 
 	@Override
-	<T> void setTypedProperty(TypedProperty<T> property, T value)
+	public <T> void setTypedProperty(TypedProperty<T> property, T value)
 	{
 		layoutContainer.setTypedProperty(property, value);
 	}
