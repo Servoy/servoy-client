@@ -176,6 +176,7 @@ angular.module('window',['servoy'])
 					$('#formpopup').css(css);
 		    	})
 			};
+			var cancelFormPopup = this.cancelFormPopup;
 			getElementById(component).then(function(relatedElement)
 			{
 				var body = $('body');
@@ -200,7 +201,7 @@ angular.module('window',['servoy'])
 				style+= 'top:'+top+'px;';
 				var popup = $compile('<div id=\'formpopup\' style="'+style+'" ng-include="getFormUrl()" onload="loadSize()" onclick="event.stopPropagation()"></div>')(scope);
 				scope.popupElement = popup;
-				body.on('click',this.cancelFormPopup);
+				body.on('click',cancelFormPopup);
 				body.append(popup);
 		 }, function()
 		 {
