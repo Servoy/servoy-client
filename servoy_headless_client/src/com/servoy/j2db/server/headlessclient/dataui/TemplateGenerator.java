@@ -394,8 +394,8 @@ public class TemplateGenerator
 
 					Color bgColor = ComponentFactory.getPartBackground(sp, part, f);
 
-					if (part.getPartType() == Part.BODY &&
-						(viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
+					if (part.getPartType() == Part.BODY && (viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW ||
+						viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
 					{
 						layoutProvider.renderOpenTableViewHTML(html, css, part);
 						createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType, enableAnchoring);//tableview == bodypart
@@ -735,8 +735,8 @@ public class TemplateGenerator
 								{
 									bgborderstyleObj.setProperty(CSS.Attribute.FONT_WEIGHT.toString(), "normal", false);
 								}
-								if (cssBorder != null && label.getBorderType() == null) ComponentFactoryHelper.createBorderCSSProperties(
-									ComponentFactoryHelper.createBorderString(cssBorder), bgborderstyleObj);
+								if (cssBorder != null && label.getBorderType() == null)
+									ComponentFactoryHelper.createBorderCSSProperties(ComponentFactoryHelper.createBorderString(cssBorder), bgborderstyleObj);
 								else ComponentFactoryHelper.createBorderCSSProperties(label.getBorderType(), bgborderstyleObj);
 								if (headerHeight > 0) bgborderstyleObj.setProperty(CSS.Attribute.HEIGHT.toString(), headerHeight + "px");
 								html.append(bgborderstyleObj.toString());
@@ -1290,9 +1290,8 @@ public class TemplateGenerator
 						String[] colors = getGradientColors(val);
 						if (colors != null && colors.length == 2 && colors[0] != null)
 						{
-							appendValue(retval, pSelector, name,
-								"-webkit-gradient(linear, " + (val.contains("top") ? "center" : "left") + " top, " +
-									(val.contains("top") ? "center bottom" : "right top") + ", from(" + colors[0] + "), to(" + colors[1] + "))");
+							appendValue(retval, pSelector, name, "-webkit-gradient(linear, " + (val.contains("top") ? "center" : "left") + " top, " +
+								(val.contains("top") ? "center bottom" : "right top") + ", from(" + colors[0] + "), to(" + colors[1] + "))");
 							boolean hasRoundedRadius = false;
 							for (String attribute : ServoyStyleSheet.ROUNDED_RADIUS_ATTRIBUTES)
 							{
@@ -1841,10 +1840,12 @@ public class TemplateGenerator
 		styleObj.setProperty("background-color", "transparent !important");
 
 		// modal dialog
-		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close");
+		styleObj = css.addStyle(
+			"div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close");
 		styleObj.setProperty("display", "none");
 
-		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_content,div.wicket-modal div.w_undecorated div.w_content_container,div.wicket-modal div.w_undecorated div.w_content_1,div.wicket-modal div.w_undecorated div.w_content_2,div.wicket-modal div.w_undecorated div.w_content_3,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_top_1,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_bottom_1,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_left,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_right,div.wicket-modal div.w_undecorated div.w_right_1,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close,div.wicket-modal div.w_undecorated span.w_captionText");
+		styleObj = css.addStyle(
+			"div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_content,div.wicket-modal div.w_undecorated div.w_content_container,div.wicket-modal div.w_undecorated div.w_content_1,div.wicket-modal div.w_undecorated div.w_content_2,div.wicket-modal div.w_undecorated div.w_content_3,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_top_1,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_bottom_1,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_left,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_right,div.wicket-modal div.w_undecorated div.w_right_1,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close,div.wicket-modal div.w_undecorated span.w_captionText");
 		styleObj.setProperty("padding", "0px");
 		styleObj.setProperty("margin", "0px");
 		styleObj.setProperty("border-width", "0px");
@@ -1859,18 +1860,27 @@ public class TemplateGenerator
 
 		// IMAGE MEDIA action buttons style
 		styleObj = css.addStyle(".image-media-save");
+		styleObj.setProperty("position", "absolute");
+		styleObj.setProperty("top", "1px");
+		styleObj.setProperty("left", "1px");
 		styleObj.setProperty("width", "16px");
 		styleObj.setProperty("height", "16px");
 		styleObj.setProperty("cursor", "pointer");
 		styleObj.setProperty("background-color", "gray");
 		styleObj.setProperty("z-index", "1");
 		styleObj = css.addStyle(".image-media-upload");
+		styleObj.setProperty("position", "absolute");
+		styleObj.setProperty("top", "1px");
+		styleObj.setProperty("left", "17px");
 		styleObj.setProperty("width", "16px");
 		styleObj.setProperty("height", "16px");
 		styleObj.setProperty("cursor", "pointer");
 		styleObj.setProperty("background-color", "gray");
 		styleObj.setProperty("z-index", "1");
 		styleObj = css.addStyle(".image-media-remove");
+		styleObj.setProperty("position", "absolute");
+		styleObj.setProperty("top", "1px");
+		styleObj.setProperty("left", "33px");
 		styleObj.setProperty("width", "16px");
 		styleObj.setProperty("height", "16px");
 		styleObj.setProperty("cursor", "pointer");
@@ -2074,14 +2084,16 @@ public class TemplateGenerator
 				Tab tab = (Tab)it.next();
 				//				applyTextProperties(tab, styleObj);
 				html.append("\t\t<div servoy:id='tablinks'");
-				html.append("><a servoy:id='tablink' href='tab1' class='tablink'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+				html.append(
+					"><a servoy:id='tablink' href='tab1' class='tablink'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 				html.append(getSafeText(tab.getText()));
 				html.append("</span></a></div>\n");
 			}
 			else
 			{
 				html.append("\t\t<div servoy:id='tablinks'");
-				html.append("><a servoy:id='tablink' href='tab1' class='tablink'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+				html.append(
+					"><a servoy:id='tablink' href='tab1' class='tablink'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 				html.append("No tabs");
 				html.append("</span></a></div>\n");
 			}
@@ -2134,7 +2146,8 @@ public class TemplateGenerator
 				"'><div servoy:id='tabs'");
 			html.append("><h3 style='text-align:");
 			html.append(styleAlignment);
-			html.append(";' onclick='this.getElementsByTagName(\"a\")[0].click()'><a servoy:id='tablink' href='#'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+			html.append(
+				";' onclick='this.getElementsByTagName(\"a\")[0].click()'><a servoy:id='tablink' href='#'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 			html.append(getSafeText(text));
 			html.append("</span></a></h3><div servoy:id='webform' ");
 			//html.append(getCSSClassParameter("webform"));
@@ -2159,9 +2172,10 @@ public class TemplateGenerator
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
 				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
-				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div></div>"); //$NON-NLS-1$
-			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
-				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div>"); //$NON-NLS-1$
+					"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div></div>"); //$NON-NLS-1$
+			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append( //$NON-NLS-1$//$NON-NLS-2$
+				"' ").append( //$NON-NLS-1$
+					"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div>"); //$NON-NLS-1$
 		}
 		else
 		{
@@ -2414,8 +2428,10 @@ public class TemplateGenerator
 
 		Insets borderAndPadding = ins == null ? new Insets(0, 0, 0, 0) : ins.getSum();
 
-		WebAnchoringHelper.addMinSize(label.getAnchors(), sp, minSizeStyle, new Dimension(label.getSize().width - borderAndPadding.left -
-			borderAndPadding.right, label.getSize().height - borderAndPadding.top - borderAndPadding.bottom), label);
+		WebAnchoringHelper.addMinSize(label.getAnchors(), sp, minSizeStyle,
+			new Dimension(label.getSize().width - borderAndPadding.left - borderAndPadding.right,
+				label.getSize().height - borderAndPadding.top - borderAndPadding.bottom),
+			label);
 
 		if (isButton && enableAnchoring)
 		{
@@ -2428,8 +2444,8 @@ public class TemplateGenerator
 		}
 		else
 		{
-			applyLocationAndSize(label, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring, isListViewBodyElement(form, label.getLocation())
-				? new Point(-3, 0) : null);
+			applyLocationAndSize(label, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring,
+				isListViewBodyElement(form, label.getLocation()) ? new Point(-3, 0) : null);
 		}
 		if (label.getRolloverCursor() == Cursor.HAND_CURSOR)
 		{
@@ -2685,8 +2701,9 @@ public class TemplateGenerator
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
 					html.append(">"); //
-					html.append("<table cellspacing='0' cellpadding='0' border='0' width='100%' height='100%'><tr><td id='check_td' style='vertical-align: middle;'><input onmousedown='radioCheckInputMouseDown=true' onmouseup='radioCheckInputMousedDown=false' onmouseout='radioCheckInputMouseDown=false' class='radioCheckInput' style='border-width: 0px; padding: " +
-						(isRadio ? "0px" : "3px") + "; margin: 0px; vertical-align: middle;' "); //
+					html.append(
+						"<table cellspacing='0' cellpadding='0' border='0' width='100%' height='100%'><tr><td id='check_td' style='vertical-align: middle;'><input onmousedown='radioCheckInputMouseDown=true' onmouseup='radioCheckInputMousedDown=false' onmouseout='radioCheckInputMouseDown=false' class='radioCheckInput' style='border-width: 0px; padding: " +
+							(isRadio ? "0px" : "3px") + "; margin: 0px; vertical-align: middle;' "); //
 					html.append(getWicketIDParameter(form, field, "check_", ""));
 					html.append(getDataProviderIDParameter(field));
 					if (isRadio)
@@ -2744,6 +2761,8 @@ public class TemplateGenerator
 			case Field.IMAGE_MEDIA :
 			{
 				applyScrolling(styleObj, field);
+				// in tableview position is not set
+				styleObj.setProperty("position", "absolute");
 				html.append("<div ");
 				html.append(getWicketIDParameter(form, field));
 				//				html.append(getJavaScriptIDParameter(field));
@@ -2843,8 +2862,10 @@ public class TemplateGenerator
 		}
 		Insets borderAndPadding = ins == null ? new Insets(0, 0, 0, 0) : ins.getSum();
 
-		WebAnchoringHelper.addMinSize(field.getAnchors(), sp, minSizeStyle, new Dimension(field.getSize().width - borderAndPadding.left -
-			borderAndPadding.right, field.getSize().height - borderAndPadding.top - borderAndPadding.bottom), field);
+		WebAnchoringHelper.addMinSize(field.getAnchors(), sp, minSizeStyle,
+			new Dimension(field.getSize().width - borderAndPadding.left - borderAndPadding.right,
+				field.getSize().height - borderAndPadding.top - borderAndPadding.bottom),
+			field);
 
 		if (addWrapperDiv)
 		{
@@ -2855,8 +2876,8 @@ public class TemplateGenerator
 		}
 		else
 		{
-			applyLocationAndSize(field, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring, isListViewBodyElement(form, field.getLocation())
-				? new Point(-3, 0) : null);
+			applyLocationAndSize(field, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring,
+				isListViewBodyElement(form, field.getLocation()) ? new Point(-3, 0) : null);
 		}
 	}
 
@@ -2905,8 +2926,8 @@ public class TemplateGenerator
 		html.append("<div ");
 		html.append(getWicketIDParameter(form, field));
 		html.append(getDataProviderIDParameter(field));
-		html.append(getCssClassForElement(field, userCssClassAdded, field.getDisplayType() == Field.SPINNER ? "spinner"
-			: (field.getDisplayType() == Field.CALENDAR ? "field calendar" : "field")));
+		html.append(getCssClassForElement(field, userCssClassAdded,
+			field.getDisplayType() == Field.SPINNER ? "spinner" : (field.getDisplayType() == Field.CALENDAR ? "field calendar" : "field")));
 		html.append("style = 'overflow:hidden' ");
 		html.append("><table ");
 		TextualStyle inline = new TextualStyle();
@@ -2989,9 +3010,10 @@ public class TemplateGenerator
 		handler.applyBounds(component, styleObj, borderAndPadding, startY, endY, formWidth, enableAnchoring, null);
 		if (component.getSize() != null)
 		{
-			WebAnchoringHelper.addMinSize(anchors, sp, styleObj, new Dimension(component.getSize().width - borderAndPadding.left - borderAndPadding.right,
-				component.getSize().height - borderAndPadding.top - borderAndPadding.bottom), component instanceof IFormElement ? (IFormElement)component
-				: null);
+			WebAnchoringHelper.addMinSize(anchors, sp, styleObj,
+				new Dimension(component.getSize().width - borderAndPadding.left - borderAndPadding.right,
+					component.getSize().height - borderAndPadding.top - borderAndPadding.bottom),
+				component instanceof IFormElement ? (IFormElement)component : null);
 		}
 	}
 
