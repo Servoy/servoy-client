@@ -49,6 +49,9 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.WebComponent;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IServiceRegistry;
+import com.servoy.j2db.server.shared.IWebComponentImplFactory;
 import com.servoy.j2db.solutionmodel.ISMDefaults;
 import com.servoy.j2db.util.Debug;
 
@@ -690,7 +693,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 
-	static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
+	public static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
 	{
 		ISupportChilds parent = method.getParent();
 
@@ -1751,7 +1754,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			WebComponent webComponent = getContainer().createNewWebComponent(name, type);
 			webComponent.setSize(new Dimension(width, height));
 			webComponent.setLocation(new Point(x, y));
-			return new JSWebComponent((IJSParent)this, webComponent, application, true);
+			return createWebComponent((IJSParent)this, webComponent, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -1784,7 +1787,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 				WebComponent webComponent = webComponents.next();
 				if (name.equals(webComponent.getName()))
 				{
-					return new JSWebComponent((IJSParent)this, webComponent, application, false);
+					return createWebComponent((IJSParent)this, webComponent, application, false);
 				}
 			}
 		}
@@ -1850,7 +1853,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<WebComponent> iterator = form2use.getWebComponents();
 		while (iterator.hasNext())
 		{
-			webComponents.add(new JSWebComponent((IJSParent)this, iterator.next(), application, false));
+			webComponents.add(createWebComponent((IJSParent)this, iterator.next(), application, false));
 		}
 		return webComponents.toArray(new JSWebComponent[webComponents.size()]);
 	}
@@ -1874,5 +1877,11 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSWebComponent[] getWebComponents()
 	{
 		return getWebComponents(false);
+	}
+
+	private JSWebComponent createWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
+	{
+		IServiceRegistry registry = ApplicationServerRegistry.getServiceRegistry();
+		return registry.getService(IWebComponentImplFactory.class).newJSWebComponent(parent, baseComponent, application, isNew);
 	}
 }

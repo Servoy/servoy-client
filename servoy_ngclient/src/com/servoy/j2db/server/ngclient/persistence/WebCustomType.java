@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.persistence;
+package com.servoy.j2db.server.ngclient.persistence;
 
 
 import java.util.Iterator;
@@ -25,6 +25,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.IBasicWebComponent;
+import com.servoy.j2db.persistence.IBasicWebObject;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;

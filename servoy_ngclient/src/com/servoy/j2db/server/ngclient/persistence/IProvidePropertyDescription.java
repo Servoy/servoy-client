@@ -15,23 +15,16 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.util;
+package com.servoy.j2db.server.ngclient.persistence;
 
 import org.sablo.specification.PropertyDescription;
 
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
-
 /**
- * Interface used by types that want to contribute special behavior for solutionModel usage.
+ * Objects that provide sablo property descriptions can implement this.
  *
- * @author lvostinar
+ * @author acostescu
  */
-public interface IRhinoDesignConverter
+public interface IProvidePropertyDescription
 {
-
-	Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
-
-	Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent);
-
+	PropertyDescription getPropertyDescription();
 }

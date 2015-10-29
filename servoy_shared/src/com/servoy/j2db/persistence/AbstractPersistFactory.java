@@ -27,7 +27,10 @@ import java.util.Map;
 
 import org.json.JSONException;
 
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IServiceRegistry;
 import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
+import com.servoy.j2db.server.shared.IWebComponentImplFactory;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.PersistHelper;
@@ -205,7 +208,8 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				break;
 
 			case IRepository.WEBCOMPONENTS :
-				object = new WebComponent(parent, elementId, uuid);
+				IServiceRegistry registry = ApplicationServerRegistry.getServiceRegistry();
+				object = registry.getService(IWebComponentImplFactory.class).newWebComponent(parent, elementId, uuid);
 				break;
 
 			case IRepository.SOLUTIONS :

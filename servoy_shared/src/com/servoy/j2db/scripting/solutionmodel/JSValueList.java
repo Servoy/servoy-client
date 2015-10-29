@@ -69,7 +69,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 		}
 	}
 
-	ValueList getValueList()
+	public ValueList getValueList()
 	{
 		return valuelist;
 	}
@@ -789,7 +789,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -803,7 +803,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
