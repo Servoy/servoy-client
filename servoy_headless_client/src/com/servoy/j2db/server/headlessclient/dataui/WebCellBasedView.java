@@ -1446,7 +1446,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			while (!found)
 			{
 				element = markupStream.next();
-				if (element == null) throw new RuntimeException("can't find the element for the header componet: " + header); //$NON-NLS-1$
+				if (element == null) throw new RuntimeException("can't find the element for the header component: " + header); //$NON-NLS-1$
 				if ((element instanceof ComponentTag) && !markupStream.atCloseTag())
 				{
 					// Get element as tag

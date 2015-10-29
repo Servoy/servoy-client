@@ -44,11 +44,11 @@ div.svy-label-with-focus:focus{
 }
 
 .svy-main-window-container {
-	z-index: 1;
+	z-index: 0;
 }
 
 .svy-main-window-navigator-container {
-	z-index: 1;
+	z-index: 0;
 }
 
 /*BOOTSTRAP WINDOW CUSTOMIZATION*/
