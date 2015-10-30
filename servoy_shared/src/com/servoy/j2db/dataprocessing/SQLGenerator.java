@@ -494,8 +494,7 @@ public class SQLGenerator
 					}
 					else
 					{
-						Object asRightType = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false);
-						if (asRightType != null) value = asRightType;
+						value = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false);
 					}
 				}
 			}
