@@ -23,7 +23,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -35,12 +34,28 @@ import com.servoy.j2db.util.UUID;
  */
 public class WebComponent extends BaseComponent implements IWebComponent
 {
+	private static final boolean sabloLoaded;
+
+	static
+	{
+		boolean loaded = false;
+		try
+		{
+			Class.forName("org.sablo.BaseWebObject");
+			loaded = true;
+		}
+		catch (Throwable e)
+		{
+		}
+		sabloLoaded = loaded;
+	}
+
 	protected transient WebObjectBasicImpl webObjectImpl;
 
 	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
-		webObjectImpl = isSabloAvailable() ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
+		webObjectImpl = sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
 	}
 
 	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException
@@ -51,7 +66,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
 	{
 		stream.defaultReadObject();
-		webObjectImpl = isSabloAvailable() ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
+		webObjectImpl = sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
 	}
 
 	public Object getPropertyDescription()
@@ -210,19 +225,5 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	public String toString()
 	{
 		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
-	}
-
-	private boolean isSabloAvailable()
-	{
-		try
-		{
-			Class.forName("org.sablo.BaseWebObect"); //$NON-NLS-1$
-			return true;
-		}
-		catch (ClassNotFoundException ex)
-		{
-			return ApplicationServerRegistry.get().isDeveloperStartup();
-		}
-
 	}
 }
