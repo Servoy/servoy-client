@@ -23,7 +23,6 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -34,13 +33,13 @@ import com.servoy.j2db.util.UUID;
  *
  * @author gboros
  */
-public class WebCustomType extends AbstractBase implements IWebObject
+public class WebCustomType extends AbstractBase implements IBasicWebObject
 {
 	private transient final String jsonKey;
 	private transient int index;
 	protected transient final WebObjectImpl webObjectImpl;
 
-	public WebCustomType(IBasicWebObject parentWebObject, PropertyDescription propertyDescription, String jsonKey, int index, boolean isNew)
+	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew)
 	{
 		super(IRepository.WEBCUSTOMTYPES, parentWebObject, 0, UUID.randomUUID());
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
@@ -76,8 +75,7 @@ public class WebCustomType extends AbstractBase implements IWebObject
 		}
 	}
 
-	@Override
-	public PropertyDescription getPropertyDescription()
+	public Object getPropertyDescription()
 	{
 		return webObjectImpl.getPropertyDescription();
 	}

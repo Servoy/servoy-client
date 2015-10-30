@@ -21,6 +21,6 @@ package com.servoy.j2db.persistence;
 /**
  * @author gboros
  */
-public interface IWebComponent extends IBasicWebComponent, IWebObject
+public interface IWebComponent extends IBasicWebComponent, IBasicWebObject
 {
 }

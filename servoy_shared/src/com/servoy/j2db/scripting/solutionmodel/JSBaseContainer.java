@@ -1751,7 +1751,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			WebComponent webComponent = getContainer().createNewWebComponent(name, type);
 			webComponent.setSize(new Dimension(width, height));
 			webComponent.setLocation(new Point(x, y));
-			return new JSWebComponent((IJSParent)this, webComponent, application, true);
+			return createWebComponent((IJSParent)this, webComponent, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -1784,7 +1784,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 				WebComponent webComponent = webComponents.next();
 				if (name.equals(webComponent.getName()))
 				{
-					return new JSWebComponent((IJSParent)this, webComponent, application, false);
+					return createWebComponent((IJSParent)this, webComponent, application, false);
 				}
 			}
 		}
@@ -1850,7 +1850,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		Iterator<WebComponent> iterator = form2use.getWebComponents();
 		while (iterator.hasNext())
 		{
-			webComponents.add(new JSWebComponent((IJSParent)this, iterator.next(), application, false));
+			webComponents.add(createWebComponent((IJSParent)this, iterator.next(), application, false));
 		}
 		return webComponents.toArray(new JSWebComponent[webComponents.size()]);
 	}
@@ -1874,5 +1874,17 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSWebComponent[] getWebComponents()
 	{
 		return getWebComponents(false);
+	}
+
+	private JSWebComponent createWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
+	{
+		if (application.getApplicationType() == IApplication.NG_CLIENT)
+		{
+			return new JSNGWebComponent(parent, baseComponent, application, isNew);
+		}
+		else
+		{
+			return new JSWebComponent(parent, baseComponent, application, isNew);
+		}
 	}
 }

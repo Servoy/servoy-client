@@ -25,9 +25,6 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
@@ -35,8 +32,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IRhinoDesignConverter;
-import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
  * @author lvostinar
@@ -47,7 +42,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
 public class JSWebComponent extends JSComponent<WebComponent> implements IJavaScriptType
 {
 
-	private final IApplication application;
+	protected final IApplication application;
 
 	protected JSWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
 	{
@@ -223,40 +218,6 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	@JSFunction
 	public void setJSONProperty(String propertyName, Object value)
 	{
-		try
-		{
-			WebComponent webComponent = getBaseComponent(true);
-			if (value instanceof JSMethod)
-			{
-				// should we move this into a IRhinoDesignConverter impl?
-				value = new Integer(JSBaseContainer.getMethodId(application, webComponent, ((JSMethod)value).getScriptMethod()));
-			}
-			else if (value instanceof JSValueList)
-			{
-				// should we move this into a IRhinoDesignConverter impl?
-				value = new Integer(((JSValueList)value).getValueList().getID());
-			}
-			else
-			{
-				WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
-				PropertyDescription pd = spec.getProperty(propertyName);
-				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
-				{
-					value = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, this);
-				}
-				else
-				{
-					value = defaultRhinoToDesignValue(value, application);
-				}
-			}
-			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
-			jsonObject.put(propertyName, value);
-			webComponent.setJson(jsonObject);
-		}
-		catch (JSONException e)
-		{
-			Debug.error(e);
-		}
 	}
 
 	public static Object defaultRhinoToDesignValue(Object value, IApplication application)
@@ -296,19 +257,6 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	@JSFunction
 	public Object getJSONProperty(String propertyName)
 	{
-		WebComponent webComponent = getBaseComponent(false);
-		JSONObject json = webComponent.getFlattenedJson();
-		Object value = json.opt(propertyName);
-		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
-		if (spec != null)
-		{
-			PropertyDescription pd = spec.getProperty(propertyName);
-			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
-			{
-				value = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
-			}
-			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
-		}
-		return value;
+		return null;
 	}
 }

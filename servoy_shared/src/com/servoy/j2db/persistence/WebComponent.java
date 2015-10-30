@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -35,13 +34,12 @@ import com.servoy.j2db.util.UUID;
  */
 public class WebComponent extends BaseComponent implements IWebComponent
 {
-
-	protected transient WebObjectImpl webObjectImpl;
+	protected transient WebObjectBasicImpl webObjectImpl;
 
 	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
-		webObjectImpl = new WebObjectImpl(this);
+		webObjectImpl = isSabloAvailable() ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
 	}
 
 	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException
@@ -52,11 +50,10 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
 	{
 		stream.defaultReadObject();
-		webObjectImpl = new WebObjectImpl(this);
+		webObjectImpl = isSabloAvailable() ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
 	}
 
-	@Override
-	public PropertyDescription getPropertyDescription()
+	public Object getPropertyDescription()
 	{
 		return webObjectImpl.getPropertyDescription();
 	}
@@ -214,4 +211,17 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
 	}
 
+	private boolean isSabloAvailable()
+	{
+		try
+		{
+			Class.forName("org.sablo.BaseWebObect"); //$NON-NLS-1$
+			return true;
+		}
+		catch (ClassNotFoundException ex)
+		{
+			return false;
+		}
+
+	}
 }

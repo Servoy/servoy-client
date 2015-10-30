@@ -48,23 +48,23 @@ import com.servoy.j2db.util.UUID;
  *
  * @author acostescu
  */
-public class WebObjectImpl
+public class WebObjectImpl extends WebObjectBasicImpl
 {
 
 	private final Map<String, Object> customTypeProperties = new HashMap<String, Object>();
 	private boolean areCustomTypePropertiesLoaded = false;
-	private final IWebObject webObject;
 	private PropertyDescription pdUseGetterInstead;
 	private Map<UUID, IPersist> customTypePropsByUUID = null; // cached just like in AbstractBase
 
 	/**
 	 * This constructor is to be used if getTypeName is the name of a WebComponent. (so it can be used to get the component spec)
 	 */
-	public WebObjectImpl(IWebObject webObject)
+	public WebObjectImpl(IBasicWebObject webObject)
 	{
-		this.webObject = webObject;
+		super(webObject);
 	}
 
+	@Override
 	public PropertyDescription getPropertyDescription()
 	{
 		// at the time WebComponent is created the resources project is not yet loaded nor is the typeName property set; so find it when it's needed in this case
@@ -74,12 +74,13 @@ public class WebObjectImpl
 		return pdUseGetterInstead;
 	}
 
-	public WebObjectImpl(IWebObject webObject, PropertyDescription specPD)
+	public WebObjectImpl(IBasicWebObject webObject, Object specPD)
 	{
-		this.webObject = webObject;
-		this.pdUseGetterInstead = specPD;
+		super(webObject);
+		this.pdUseGetterInstead = (PropertyDescription)specPD;
 	}
 
+	@Override
 	public void updateCustomProperties()
 	{
 		if (areCustomTypePropertiesLoaded)
@@ -156,6 +157,7 @@ public class WebObjectImpl
 	/**
 	 * Returns false if it can't set is as a custom property. Then caller should set it as another standard persist property.
 	 */
+	@Override
 	public boolean setCustomProperty(String propertyName, Object val)
 	{
 		if (val instanceof WebCustomType || val instanceof WebCustomType[])
@@ -171,6 +173,7 @@ public class WebObjectImpl
 	/**
 	 * Returns false if it can't clear this as a custom property (it is something else). Then caller should just clear it as another standard persist property.
 	 */
+	@Override
 	public boolean clearCustomProperty(String propertyName)
 	{
 		Map<String, Object> customProperties = getCustomTypeProperties();
@@ -184,6 +187,7 @@ public class WebObjectImpl
 		else return false;
 	}
 
+	@Override
 	public Pair<Boolean, Object> getCustomProperty(String propertyName)
 	{
 		Map<String, Object> ctp = getCustomTypeProperties();
@@ -192,6 +196,7 @@ public class WebObjectImpl
 		return new Pair<>(Boolean.FALSE, null);
 	}
 
+	@Override
 	public List<WebCustomType> getAllCustomProperties()
 	{
 		ArrayList<WebCustomType> allCustomProperties = new ArrayList<WebCustomType>();
@@ -289,16 +294,7 @@ public class WebObjectImpl
 		}
 	}
 
-	public void setTypeName(String arg)
-	{
-		((AbstractBase)webObject).setTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME, arg);
-	}
-
-	public String getTypeName()
-	{
-		return ((AbstractBase)webObject).getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME);
-	}
-
+	@Override
 	public void setJson(JSONObject arg)
 	{
 		clearCustomPropertyCache(); // let them completely reload later when needed
@@ -310,6 +306,7 @@ public class WebObjectImpl
 		if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
 	}
 
+	@Override
 	public void setJsonSubproperty(String key, Object value)
 	{
 		setOrRemoveJsonSubproperty(key, value, false);
@@ -352,6 +349,7 @@ public class WebObjectImpl
 		return false;
 	}
 
+	@Override
 	public boolean removeJsonSubproperty(String key)
 	{
 		return setOrRemoveJsonSubproperty(key, null, true);
@@ -363,44 +361,19 @@ public class WebObjectImpl
 		customTypeProperties.clear();
 	}
 
+	@Override
 	public void setJsonInternal(JSONObject arg)
 	{
 		((AbstractBase)webObject).setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
 	}
 
-	public JSONObject getJson()
-	{
-		return ((AbstractBase)webObject).getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
-	}
-
-	// TODO should these two "name" methods be a part of something else?
-	public void setName(String arg)
-	{
-		((AbstractBase)webObject).setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
-	}
-
-	public String getName()
-	{
-		return ((AbstractBase)webObject).getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
-	}
-
 	@Override
-	public String toString()
-	{
-		String name = getName();
-		if (name == null || name.trim().length() == 0)
-		{
-			return getTypeName();
-		}
-		return name + " [" + getTypeName() + ']'; //$NON-NLS-1$
-	}
-
 	public void internalAddChild(IPersist obj)
 	{
 		if (obj instanceof WebCustomType)
 		{
 			WebCustomType customType = (WebCustomType)obj;
-			IPropertyType< ? > type = customType.getPropertyDescription().getType();
+			IPropertyType< ? > type = ((PropertyDescription)customType.getPropertyDescription()).getType();
 
 			if (getPropertyDescription().isArrayReturnType(customType.getJsonKey()))
 			{
@@ -451,6 +424,7 @@ public class WebObjectImpl
 		}
 	}
 
+	@Override
 	public void internalRemoveChild(IPersist obj)
 	{
 		if (obj instanceof WebCustomType)
@@ -486,6 +460,7 @@ public class WebObjectImpl
 	// TODO should we offer alternate implementation for AbstractBase.getAllObjectsAsList() here as well? that one is currently final
 	// and at first look I think we can leave it alone (and is not part of the IsupportChilds interface)
 
+	@Override
 	public Iterator<IPersist> getAllObjects()
 	{
 		final Iterator<Object> it1 = getCustomTypeProperties().values().iterator();
@@ -598,11 +573,7 @@ public class WebObjectImpl
 
 	}
 
-	public <T extends IPersist> Iterator<T> getObjects(int tp)
-	{
-		return new TypeIterator<T>(getAllObjects(), tp);
-	}
-
+	@Override
 	public IPersist getChild(UUID childUuid)
 	{
 		if (customTypePropsByUUID == null)
