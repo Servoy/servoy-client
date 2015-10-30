@@ -67,6 +67,10 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		        var formSize = size;
 		        if (!formSize || (formSize.width === -1 && formSize.height === -1))
 		          formSize = windowInstance.form.size;
+		        //this can happen in case of responsive forms
+		        if (formSize.width == 0) formSize.width = $(window).width()/2;
+		        if (formSize.height == 0) formSize.height = $(window).height()/2;
+		        
 
 				if(!location || (location.x <0 && location.y <0)) location = centerWindow(formSize);
 				if(!size || size.width<0 || size.height<0) size =null;
