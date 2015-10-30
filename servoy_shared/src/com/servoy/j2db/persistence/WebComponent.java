@@ -23,6 +23,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -220,7 +221,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		}
 		catch (ClassNotFoundException ex)
 		{
-			return false;
+			return ApplicationServerRegistry.get().isDeveloperStartup();
 		}
 
 	}
