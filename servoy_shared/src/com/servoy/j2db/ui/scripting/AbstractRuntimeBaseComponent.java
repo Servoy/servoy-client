@@ -409,7 +409,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesignTimeProperty#getDesignTimeProperty(java.lang.String)
 	 */
 	public Object getDesignTimeProperty(String key)
@@ -490,5 +490,18 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 			return ((IProvideFormName)application).getFormNameFor(component);
 		}
 		return null;
+	}
+
+	@Override
+	public void addStyleClassStyle(String styleName)
+	{
+		//only implemented in ngclient
+	}
+
+	@Override
+	public void removeStyleClassStyle(String styleName)
+	{
+		//only implemented in ngclient
+
 	}
 }

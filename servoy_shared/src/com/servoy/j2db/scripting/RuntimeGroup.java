@@ -416,4 +416,17 @@ public class RuntimeGroup implements IRuntimeGroup
 		}
 		return ""; //$NON-NLS-1$
 	}
+
+	@Override
+	public void addStyleClassStyle(String styleName)
+	{
+		//only implemented in ngclient
+	}
+
+	@Override
+	public void removeStyleClassStyle(String styleName)
+	{
+		//only implemented in ngclient
+
+	}
 }
