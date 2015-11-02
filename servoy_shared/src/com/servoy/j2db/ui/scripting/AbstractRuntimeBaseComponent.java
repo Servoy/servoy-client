@@ -493,13 +493,13 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	}
 
 	@Override
-	public void addStyleClassStyle(String styleName)
+	public void addStyleClass(String styleName)
 	{
 		//only implemented in ngclient
 	}
 
 	@Override
-	public void removeStyleClassStyle(String styleName)
+	public void removeStyleClass(String styleName)
 	{
 		//only implemented in ngclient
 

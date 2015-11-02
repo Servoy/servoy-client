@@ -34,20 +34,20 @@ public interface HasRuntimeStyleClass
 	 *
 	 *
 	 * @sample
-	 * %%prefix%%%%elementName%%.addStyleClassStyle('redbg');
+	 * %%prefix%%%%elementName%%.addStyleClass('redbg');
 	 *
 	 */
 	@JSFunction
-	public void addStyleClassStyle(String styleName);
+	public void addStyleClass(String styleName);
 
 	/**
 	 * Removes a style from the styleClass property. This works only for NGClient where multiple styles are supported.
 	 *
 	 *
 	 * @sample
-	 *  %%prefix%%%%elementName%%.removeStyleClassStyle('redbg');
+	 *  %%prefix%%%%elementName%%.removeStyleClass('redbg');
 	 *
 	 */
 	@JSFunction
-	public void removeStyleClassStyle(String styleName);
+	public void removeStyleClass(String styleName);
 }

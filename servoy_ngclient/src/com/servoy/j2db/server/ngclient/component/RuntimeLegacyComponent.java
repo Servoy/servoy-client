@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
@@ -190,6 +191,36 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			return putCallable;
 		}
 
+		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name))
+		{
+			final String nameFinal = name;
+			return new Callable()
+			{
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					if (webComponentSpec.getProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) != null)
+					{
+						String styleClass = (String)component.getProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName());
+						if (args != null && args.length > 0 && args[0] != null)
+						{
+							if (styleClass == null) styleClass = "";
+							if ("addStyleClass".equals(nameFinal))
+							{
+								styleClass = styleClass + " " + args[0];
+							}
+							else
+							{
+								styleClass = styleClass.replaceAll(args[0].toString(), "");
+							}
+							component.setProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), styleClass);
+						}
+					}
+					return null;
+				}
+			};
+		}
+
 		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
 		{
 			String newName = generatePropertyName(name);
@@ -271,6 +302,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		{
 			String newName = generatePropertyName(name);
 			if (webComponentSpec.getProperty(newName) != null) return true;
+		}
+		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name))
+		{
+			if (webComponentSpec.getProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) != null) return true;
 		}
 		return false;
 	}
