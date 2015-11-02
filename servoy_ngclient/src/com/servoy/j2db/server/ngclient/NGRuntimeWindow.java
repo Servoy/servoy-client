@@ -220,7 +220,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 			catch (IOException ex)
 			{
-				Debug.error(ex);
+				Debug.warn(ex);
 			}
 		}
 	}

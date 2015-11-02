@@ -213,7 +213,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 		catch (IOException e)
 		{
-			Debug.error(e);
+			Debug.warn(e);
 			return;
 		}
 		if (retValue instanceof JSONObject)
