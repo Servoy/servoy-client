@@ -127,16 +127,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 							IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
 							if (propertyType instanceof IPropertyConverterForBrowser< ? >)
 							{
-								javaArguments.add(((IPropertyConverterForBrowser< ? >)propertyType).fromJSON(argObj, null, null /*
-																																 * TODO this shouldn't be null!
-																																 * Make this better - maybe
-																																 * parse the type or just
-																																 * instantiate a property
-																																 * description if we don't want
-																																 * full support for what can be
-																																 * defined in spec file as a
-																																 * type
-																																 */, dataConverterContext, null));
+								javaArguments.add(((IPropertyConverterForBrowser< ? >)propertyType).fromJSON(argObj, null,
+									null /*
+											 * TODO this shouldn't be null! Make this better - maybe parse the type or just instantiate a property description
+											 * if we don't want full support for what can be defined in spec file as a type
+											 */, dataConverterContext, null));
 								continue;
 							}
 						}
@@ -243,8 +238,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					addVisibleChildForm(newFormController, newVisibleForm.getRight(), true);
 					if (newVisibleForm.getRight() != null)
 					{
-						newFormController.loadRecords(record != null ? record.getRelatedFoundSet(newVisibleForm.getRight(),
-							((BasicFormController)newFormController).getDefaultSortColumns()) : null);
+						newFormController.loadRecords(record != null
+							? record.getRelatedFoundSet(newVisibleForm.getRight(), ((BasicFormController)newFormController).getDefaultSortColumns()) : null);
 					}
 					updateParentContainer(newFormController, newVisibleForm.getRight(), formController.isFormVisible());
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
@@ -509,8 +504,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (visibleChildForms.get(form) != null)
 			{
-				form.loadRecords(record != null ? record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns())
-					: null);
+				form.loadRecords(
+					record != null ? record.getRelatedFoundSet(visibleChildForms.get(form), ((BasicFormController)form).getDefaultSortColumns()) : null);
 			}
 		}
 
@@ -551,7 +546,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (dataProvider == null)
 		{
 			// announce to all - we don't know exactly what changed; maybe all DPs changed
-			for (IDataLinkedPropertyValue x : allComponentPropertiesLinkedToData.toArray(new IDataLinkedPropertyValue[allComponentPropertiesLinkedToData.size()]))
+			for (IDataLinkedPropertyValue x : allComponentPropertiesLinkedToData.toArray(
+				new IDataLinkedPropertyValue[allComponentPropertiesLinkedToData.size()]))
 			{
 				x.dataProviderOrRecordChanged(record, null, isFormDP, isGlobalDP, fireChangeEvent);
 			}
@@ -652,8 +648,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		String dataProviderID = getDataProviderID(webComponent, beanProperty);
 		if (dataProviderID == null)
 		{
-			Debug.log("apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + newValue + " of component: " +
-				webComponent);
+			Debug.log(
+				"apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + newValue + " of component: " + webComponent);
 			return;
 		}
 
@@ -689,7 +685,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				v = newValue;
 			}
 			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), dataProviderID, v);
-			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChange();
+			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
+				beanProperty).getConfig()).getOnDataChange();
 			if (onDataChange != null && !Utils.equalObjects(oldValue, v) && webComponent.hasEvent(onDataChange))
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange, record.getParentFoundSet().getSelectedIndex());
@@ -704,7 +701,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					Debug.error("Error during onDataChange webComponent=" + webComponent, e);
 					exception = e;
 				}
-				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
+				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(
+					beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
 					WebComponentApiDefinition call = new WebComponentApiDefinition(onDataChangeCallback);
@@ -841,12 +839,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					for (int i = 0; i < tabsList.size(); i++)
 					{
 						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
-						String relation = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
-						Object form = tab.get("containsFormId");
-						if (Utils.equalObjects(form, relatedController.getName()) && Utils.equalObjects(relation, relationName))
+						if (tab != null)
 						{
-							parentContainer = (WebFormComponent)component;
-							break;
+							String relation = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
+							Object form = tab.get("containsFormId");
+							if (Utils.equalObjects(form, relatedController.getName()) && Utils.equalObjects(relation, relationName))
+							{
+								parentContainer = (WebFormComponent)component;
+								break;
+							}
 						}
 					}
 				}
