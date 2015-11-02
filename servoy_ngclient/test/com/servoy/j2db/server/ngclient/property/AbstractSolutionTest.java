@@ -271,13 +271,15 @@ public abstract class AbstractSolutionTest
 		if (f.isFile() && f.getName().startsWith("servoy_ngclient_") && f.getName().endsWith(".jar"))
 		{
 			ZipFile zipFile = new ZipFile(f);
-			componentsReaders = inMemPackageReader != null ? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoydefault/"), inMemPackageReader }
-				: new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoydefault/") };
+			componentsReaders = inMemPackageReader != null ? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(
+				zipFile, "war/servoydefault/"), inMemPackageReader }
+				: new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile, "war/servoydefault/") };
 			servicesReaders = new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoyservices/") };
 		}
 		else
 		{
-			componentsReaders = getReaders(new File[] { new File(f.getAbsoluteFile() + "/../war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+			componentsReaders = getReaders(new File[] { new File(f.getAbsoluteFile() + "/../war/servoycore/"), new File(f.getAbsoluteFile() +
+				"/../war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 			servicesReaders = getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null);
 		}
 
