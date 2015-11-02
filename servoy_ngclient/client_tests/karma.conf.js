@@ -3,6 +3,7 @@ module.exports = function(config){
     basePath : '.',
     
     preprocessors: {
+    	'../war/servoycore/**/*.html': ['ng-html2js'],    	
         '../war/servoydefault/**/*.html': ['ng-html2js']
     },
     files : [
@@ -20,6 +21,10 @@ module.exports = function(config){
        '../war/js/numeral.js',
        '../war/js/**/*.js',
        
+       // core components         
+       '../war/servoycore/*/*.js',
+       '../war/servoycore/*/*/*.js',       
+       
        // components
        '../war/servoydefault/*/*.js',
        '../war/servoydefault/*/*/*.js',
@@ -31,12 +36,14 @@ module.exports = function(config){
        '../war/servoyservices/foundset_viewport_module/*.js',
 
        // templates
+       '../war/servoycore/**/*.html',       
        '../war/servoydefault/**/*.html',
 
        // tests
        'test/**/*.js'
     ],
     exclude : [
+      '../war/servoycore/**/*_server.js',               
 	  '../war/servoydefault/**/*_server.js',
 	  '../war/js/**/*.min.js',
 	  '../war/js/debug.js'
@@ -47,7 +54,7 @@ module.exports = function(config){
         moduleName: 'servoy-components',
         
         cacheIdFromPath: function(filepath) {
-            return filepath.replace(/.*?\/servoydefault\/(.*)/,"servoydefault/$1");
+            return filepath.replace(/.*?\/servoydefault\/(.*)/,"servoydefault/$1").replace(/.*?\/servoycore\/(.*)/,"servoycore/$1");
         },
     },
 
