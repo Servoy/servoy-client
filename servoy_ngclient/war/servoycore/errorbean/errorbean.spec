@@ -1,7 +1,7 @@
 {
-	"name": "servoydefault-errorbean",
+	"name": "servoycore-errorbean",
 	"displayName": "Error Bean",
-	"definition": "servoydefault/errorbean/errorbean.js",
+	"definition": "servoycore/errorbean/errorbean.js",
 	"libraries": [],
 	"model":
 	{

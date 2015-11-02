@@ -79,7 +79,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 {
 
 	public static final String DROPPABLE = "droppable";
-	public static final String ERROR_BEAN = "servoydefault-errorbean";
+	public static final String ERROR_BEAN = "servoycore-errorbean";
 	public static final String SVY_NAME_PREFIX = "svy_";
 
 	private final Form form;
@@ -122,11 +122,15 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		if (willTurnIntoErrorBean)
 		{
-			map.put("error",
+			map.put(
+				"error",
 				"Please remove and insert this component again. Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). See log file for details.");
 
-			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
-				(this.form != null ? "' on the form '" + this.form.getName() : "") + "'. Type: " + FormTemplateGenerator.getComponentTypeName(persist) +
+			Debug.warn("Please remove and insert again the component with name '" +
+				persist.getName() +
+				(this.form != null ? "' on the form '" + this.form.getName() : "") +
+				"'. Type: " +
+				FormTemplateGenerator.getComponentTypeName(persist) +
 				". Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). Properties: " +
 				map.get("beanXML")); // so Bean persist used for custom components is no longer working properly - now it uses WebComponent
 		}
@@ -135,8 +139,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
-	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
-		boolean inDesigner)
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
+		PropertyPath propertyPath, boolean inDesigner)
 	{
 		this.inDesigner = inDesigner;
 		this.persistImpl = null;
@@ -382,12 +386,12 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (form != null && !form.isResponsiveLayout())
 		{
 			WebComponentSpecification spec = getWebComponentSpec();
-			if (spec.getProperty("location") == null)
-				spec.putProperty("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
-			if (spec.getProperty("size") == null)
-				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
-			if (spec.getProperty("anchors") == null)
-				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+			if (spec.getProperty("location") == null) spec.putProperty("location",
+				new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
+			if (spec.getProperty("size") == null) spec.putProperty("size",
+				new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
+			if (spec.getProperty("anchors") == null) spec.putProperty("anchors",
+				new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
 		}
 	}
 
@@ -768,9 +772,9 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		ArrayList<String> result = new ArrayList<String>();
 		// TODO:maybe we can add this kind of info to the spec ?
 		// or maybe have a list of 'allowed' components ?
-		if ("servoydefault-portal".equals(getTypeName()))
+		if ("servoycore-portal".equals(getTypeName()))
 		{
-			result.add("servoydefault-portal");
+			result.add("servoycore-portal");
 			result.add("servoydefault-tabpanel");
 			result.add("servoydefault-splitpane");
 		}

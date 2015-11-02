@@ -1,4 +1,4 @@
-angular.module('servoydefaultErrorbean',['servoy']).directive('servoydefaultErrorbean', function(formatFilterFilter) {  
+angular.module('servoycoreErrorbean',['servoy']).directive('servoycoreErrorbean', function(formatFilterFilter) {  
     return {
       restrict: 'E',
       scope: {
@@ -6,7 +6,7 @@ angular.module('servoydefaultErrorbean',['servoy']).directive('servoydefaultErro
       },
       controller: function($scope, $element, $attrs) {
       },
-      templateUrl: 'servoydefault/errorbean/errorbean.html'
+      templateUrl: 'servoycore/errorbean/errorbean.html'
     };
   })
   

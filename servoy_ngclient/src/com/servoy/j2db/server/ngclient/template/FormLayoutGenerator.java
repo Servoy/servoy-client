@@ -363,7 +363,7 @@ public class FormLayoutGenerator
 	 */
 	private static String getDesignId(FormElement fe)
 	{
-		return (fe.getDesignId() == null && fe.getTypeName().equals("servoydefault-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
+		return (fe.getDesignId() == null && fe.getTypeName().equals("servoycore-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
 	}
 
 	private static String getDirectEditProperty(FormElement fe)
@@ -381,6 +381,6 @@ public class FormLayoutGenerator
 
 	private static boolean isNotSelectable(FormElement fe)
 	{
-		return (fe.getDesignId() == null && fe.getTypeName().equals("servoydefault-portal"));
+		return (fe.getDesignId() == null && fe.getTypeName().equals("servoycore-portal"));
 	}
 }

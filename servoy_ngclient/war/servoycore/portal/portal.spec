@@ -1,13 +1,13 @@
 {
-	"name": "servoydefault-portal",
+	"name": "servoycore-portal",
 	"displayName": "Portal",
 	"version": 1,
-	"icon": "servoydefault/portal/portal.gif",
-	"definition": "servoydefault/portal/portal.js",
-	"serverscript": "servoydefault/portal/portal_server.js",
-	"libraries": [{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoydefault/portal/js/ui-grid.js", "mimetype":"text/javascript"},
-				{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoydefault/portal/css/ui-grid.min.css", "mimetype":"text/css"},
-				{"name":"svy-portal", "version":"1", "url":"servoydefault/portal/portal.css", "mimetype":"text/css"}],
+	"icon": "servoycore/portal/portal.gif",
+	"definition": "servoycore/portal/portal.js",
+	"serverscript": "servoycore/portal/portal_server.js",
+	"libraries": [{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoycore/portal/js/ui-grid.js", "mimetype":"text/javascript"},
+				{"name":"ui-grid", "version":"v3.0.0-rc.12", "url":"servoycore/portal/css/ui-grid.min.css", "mimetype":"text/css"},
+				{"name":"svy-portal", "version":"1", "url":"servoycore/portal/portal.css", "mimetype":"text/css"}],
 	"model":
 	{
 	        "background" : "color", 

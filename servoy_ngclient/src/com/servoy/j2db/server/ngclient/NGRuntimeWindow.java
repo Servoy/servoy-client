@@ -500,7 +500,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				break;
 			case Form.NAVIGATOR_DEFAULT :
 			{
-				navigatorForm.put("name", "servoydefault/navigator/default_navigator_container.html");
+				navigatorForm.put("name", "servoycore/navigator/default_navigator_container.html");
 				Map<String, Integer> navSize = new HashMap<>();
 				navSize.put("width", 70);
 				navigatorForm.put("size", navSize);

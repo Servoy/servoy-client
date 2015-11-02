@@ -6,7 +6,7 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class DefaultNavigator extends Bean
 {
-	public final static String BEAN_CLASSNAME = "servoydefault-navigator";
+	public final static String BEAN_CLASSNAME = "servoycore-navigator";
 	public final static String NAME_PROP_VALUE = "svy_default_navigator";
 	public final static String MAXINDEX_PROP = "maxIndex";
 	public final static String MININDEX_PROP = "minIndex";

@@ -123,8 +123,8 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal)
-				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
+			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
+				designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -224,7 +224,7 @@ public class FormElementHelper
 
 				PropertyPath propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
-				FormElement portalFormElement = new FormElement("servoydefault-portal", portal, form, name, fs, propertyPath, isInDesigner);
+				FormElement portalFormElement = new FormElement("servoycore-portal", portal, form, name, fs, propertyPath, isInDesigner);
 				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
 				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
 				if (pd == null)
@@ -260,8 +260,7 @@ public class FormElementHelper
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos > loc.y)
 						{
-							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
-								continue;
+							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 							propertyPath.add(children.size());
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
@@ -292,8 +291,8 @@ public class FormElementHelper
 												scriptMethod = fs.getScriptMethod(gc.getOnActionMethodID());
 												if (scriptMethod != null)
 												{
-													headerAction.put("script",
-														ScriptVariable.SCOPES_DOT_PREFIX + scriptMethod.getScopeName() + '.' + scriptMethod.getName());
+													headerAction.put("script", ScriptVariable.SCOPES_DOT_PREFIX + scriptMethod.getScopeName() + '.' +
+														scriptMethod.getName());
 												}
 												else if (form.getDataSource() != null)
 												{
@@ -345,8 +344,7 @@ public class FormElementHelper
 								String tabSeqPropertyName = tabSeqProperty.getName();
 								Integer tabSeqVal = (Integer)fe.getPropertyValue(tabSeqPropertyName);
 								if (tabSeqVal == null) tabSeqVal = Integer.valueOf(0); // default is 0 == DEFAULT tab sequence
-								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0))
-									minBodyPortalTabSeq = tabSeqVal.intValue();
+								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0)) minBodyPortalTabSeq = tabSeqVal.intValue();
 							}
 						}
 

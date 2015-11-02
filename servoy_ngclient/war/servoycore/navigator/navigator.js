@@ -1,4 +1,4 @@
-angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servoydefaultNavigator', function() {  
+angular.module('servoycoreNavigator',['servoy','ui.slider']).directive('servoycoreNavigator', function() {  
     return {
       restrict: 'E',
       scope: {
@@ -50,7 +50,7 @@ angular.module('servoydefaultNavigator',['servoy','ui.slider']).directive('servo
     	      $scope.slider_model.dataProviderID = -1*newVal;
     	  })    	  
       },
-      templateUrl: 'servoydefault/navigator/navigator.html',
+      templateUrl: 'servoycore/navigator/navigator.html',
       replace: true
       
     };

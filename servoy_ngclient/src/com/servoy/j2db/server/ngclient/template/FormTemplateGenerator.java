@@ -180,7 +180,7 @@ public class FormTemplateGenerator
 			}
 			if (persist instanceof Portal)
 			{
-				return "servoydefault-portal";
+				return "servoycore-portal";
 			}
 			if (persist instanceof RectShape)
 			{
@@ -218,13 +218,13 @@ public class FormTemplateGenerator
 				IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
 				FlattenedSolution fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
 					((Solution)persist.getRootObject()).getName(), IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
+				{
+					@Override
+					public IRepository getRepository()
 					{
-						@Override
-						public IRepository getRepository()
-						{
-							return ApplicationServerRegistry.get().getLocalRepository();
-						}
-					});
+						return ApplicationServerRegistry.get().getLocalRepository();
+					}
+				});
 
 				ValueList valuelist = fs.getValueList(field.getValuelistID());
 				return isSingleValue(valuelist);

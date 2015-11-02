@@ -17,7 +17,7 @@ describe("Test portal suite", function() {
 	beforeEach(module('ui.grid.infiniteScroll'));
 	beforeEach(module('ui.grid.cellNav'));
 
-	beforeEach(module('servoydefaultPortal'));
+	beforeEach(module('servoycorePortal'));
 
 	var sabloConverters;
 	var componentModelGetter;
@@ -109,7 +109,7 @@ describe("Test portal suite", function() {
 			}
 		};
 
-		var template = '<servoydefault-portal svy-model="model" svy-api="api" ></servoydefault-portal>';
+		var template = '<servoycore-portal svy-model="model" svy-api="api" ></servoycore-portal>';
 		element = $compile(template)(scope);
 		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"servoydefault-button" : { "dataProviderID" : true,  "relatedFoundset":true}});
 		
@@ -196,7 +196,7 @@ describe("Test portal suite", function() {
 	it("should have column definitions for multiline portal", function() {
 
 		scope.model.multiLine = true;
-		var newtemplate = '<servoydefault-portal svy-model="model" svy-api="api"></servoydefault-portal>';
+		var newtemplate = '<servoycore-portal svy-model="model" svy-api="api"></servoycore-portal>';
 		$compile(newtemplate)(scope); //need to compile it again so that angular calls link and creates a multiline portal
 		scope.$apply();
 		portalScope = scope.$$childTail;
