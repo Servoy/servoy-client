@@ -193,9 +193,9 @@ var Menu = {
 	
 	getItemIndexByText: function(text)
 	{
-		for (var i = 0; i < items.length; i++)
+		for (var i = 0; i < this.items.length; i++)
 		{
-			if (items[i] && items[i].text == text)
+			if (this.items[i] && this.items[i].text == text)
 				return i;
 		}
 	},
