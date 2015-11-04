@@ -17,7 +17,9 @@
 package com.servoy.j2db.persistence;
 
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Identifies a SQL server table obj.
@@ -52,4 +54,107 @@ public interface ITable
 	public String[] getDataProviderIDs();
 
 	public Iterator<String> getRowIdentColumnNames();
+
+	/**
+	 * @return
+	 */
+	public boolean getExistInDB();
+
+	/**
+	 * @param b
+	 */
+	public void setExistInDB(boolean b);
+
+	/**
+	 *
+	 */
+	public void acquireWriteLock();
+
+	/**
+	 * @param columnListener
+	 */
+	public void removeIColumnListener(IColumnListener columnListener);
+
+	/**
+	 * @param columnName
+	 * @return
+	 */
+	public IColumn getColumn(String columnName);
+
+	/**
+	 * @param column
+	 */
+	public void removeColumn(IColumn column);
+
+	/**
+	 * @return
+	 */
+	public boolean isMarkedAsHiddenInDeveloper();
+
+	/**
+	 * @return
+	 */
+	public boolean isMarkedAsMetaData();
+
+	/**
+	 * @return
+	 */
+	public Collection<IColumn> getIColumns();
+
+	/**
+	 * @param columnListener
+	 */
+	public void addIColumnListener(IColumnListener columnListener);
+
+	/**
+	 * @return
+	 */
+	public int getRowIdentColumnsCount();
+
+	/**
+	 * @param b
+	 */
+	public void setHiddenInDeveloperBecauseNoPk(boolean b);
+
+	/**
+	 * @return
+	 */
+	public boolean isHiddenInDeveloperBecauseNoPk();
+
+	/**
+	 * @return
+	 */
+	public int getColumnCount();
+
+
+	/**
+	 * @return
+	 */
+	public List<Column> getRowIdentColumns();
+
+	/**
+	 * @param nameValidator
+	 * @param newName
+	 * @param type
+	 * @param length
+	 * @return
+	 */
+	public IColumn createNewIColumn(IValidateName nameValidator, String newName, int type, int length) throws RepositoryException;
+
+	/**
+	 * @return
+	 */
+	public Iterator<IColumn> getColumnsSortedByName();
+
+	/**
+	 * @param selection
+	 */
+	public void setMarkedAsMetaData(boolean selection);
+
+	/**
+	 * @param selection
+	 */
+	public void setMarkedAsHiddenInDeveloperInternal(boolean selection);
+
+
 }

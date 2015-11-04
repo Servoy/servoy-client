@@ -850,7 +850,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void updateDataProviderID(IValidateName validator, String dpid) throws RepositoryException
 	{
 		String ndpid = Ident.generateNormalizedName(dpid);
-		Column other = table.getColumn(ndpid);
+		Column other = (Column)table.getColumn(ndpid);
 		if (other != null && other != this)
 		{
 			throw new RepositoryException("A column on table " + table.getName() + " with name/dataProviderID " + ndpid + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

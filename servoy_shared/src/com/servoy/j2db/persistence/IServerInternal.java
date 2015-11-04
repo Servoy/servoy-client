@@ -48,7 +48,7 @@ public interface IServerInternal
 
 	boolean hasTable(String tableName) throws RepositoryException;
 
-	String[] syncTableObjWithDB(Table t, boolean createMissingServoySequences, boolean createMissingDBSequences, Table templateTable)
+	String[] syncTableObjWithDB(ITable table, boolean createMissingServoySequences, boolean createMissingDBSequences, Table templateTable)
 		throws RepositoryException, SQLException;
 
 	void syncWithExternalTable(String tableName, Table externalTable) throws RepositoryException;
@@ -59,7 +59,7 @@ public interface IServerInternal
 
 	ServerConfig getConfig();
 
-	String[] removeTable(Table t) throws SQLException, RepositoryException;
+	String[] removeTable(ITable t) throws SQLException, RepositoryException;
 
 	void removeTable(String tableName) throws SQLException, RepositoryException;
 
@@ -130,7 +130,7 @@ public interface IServerInternal
 
 	String[] getMissingDBSequences(Table table) throws SQLException, RepositoryException;
 
-	String[] createMissingDBSequences(Table table) throws SQLException, RepositoryException;
+	String[] createMissingDBSequences(ITable table) throws SQLException, RepositoryException;
 
 	String getDialectClassName();
 
@@ -153,7 +153,7 @@ public interface IServerInternal
 	/**
 	 * Tells if a table is marked as 'hidden' in developer.
 	 * If the table's structure has not yet been read from DB this will not need to load it.
-	 * 
+	 *
 	 * @param tableName the name of the table
 	 * @return if it is hidden or not.
 	 */

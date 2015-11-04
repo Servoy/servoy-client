@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -30,7 +31,6 @@ import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.query.CompareCondition;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Utility class for loading/saving i18n texts in the repository
- * 
+ *
  * @author gboros
  */
 public class I18NUtil
@@ -91,7 +91,7 @@ public class I18NUtil
 
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
 		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, String filterName, String[] filterValue, FoundSetManager fm)
-		throws Exception
+			throws Exception
 	{
 		writeMessagesToRepository(i18NServerName, i18NTableName, repository, dataServer, clientID, messages, noUpdates, noRemoves, null, filterName,
 			filterValue, fm);
@@ -102,8 +102,8 @@ public class I18NUtil
 		String[] filterValue, IFoundSetManagerInternal fm) throws Exception
 	{
 		// get remote messages snapshot
-		if (remoteMessages == null) remoteMessages = loadSortedMessagesFromRepository(repository, dataServer, clientID, i18NServerName, i18NTableName,
-			filterName, filterValue, fm);
+		if (remoteMessages == null)
+			remoteMessages = loadSortedMessagesFromRepository(repository, dataServer, clientID, i18NServerName, i18NTableName, filterName, filterValue, fm);
 
 		if (remoteMessages != null)
 		{
@@ -181,7 +181,7 @@ public class I18NUtil
 							}
 						}
 
-						Column filterColumn = i18NTable.getColumn(filterName);
+						Column filterColumn = (Column)i18NTable.getColumn(filterName);
 						if (filterColumn != null && filterValue != null && filterValue.length > 0)
 						{
 							insertColumns = Utils.arrayAdd(insertColumns, new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
@@ -197,24 +197,24 @@ public class I18NUtil
 					{
 						QueryUpdate update = new QueryUpdate(messagesTable);
 						update.addValue(msgVal, value);
-						update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
-						update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, lang));
+						update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
+						update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgLang, lang));
 
 						if (filterName != null)
 						{
-							Column filterColumn = i18NTable.getColumn(filterName);
+							Column filterColumn = (Column)i18NTable.getColumn(filterName);
 							if (filterColumn != null && filterValue != null && filterValue.length > 0)
 							{
 								QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
 									filterColumn.getType(), filterColumn.getLength());
-								CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0],
-									null));
+								CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter,
+									new QueryColumnValue(filterValue[0], null));
 								update.addCondition("FILTER", cc); //$NON-NLS-1$
 							}
 						}
 
-						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, null, update, fm != null
-							? fm.getTableFilterParams(i18NServerName, update) : null));
+						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, null, update,
+							fm != null ? fm.getTableFilterParams(i18NServerName, update) : null));
 					}
 				}
 
@@ -234,24 +234,24 @@ public class I18NUtil
 							String messageKey = remoteMessageEntry.getValue().getKey();
 
 							QueryDelete delete = new QueryDelete(messagesTable);
-							delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
-							delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, lang));
+							delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
+							delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgLang, lang));
 
 							if (filterName != null)
 							{
-								Column filterColumn = i18NTable.getColumn(filterName);
+								Column filterColumn = (Column)i18NTable.getColumn(filterName);
 								if (filterColumn != null && filterValue != null && filterValue.length > 0)
 								{
 									QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
 										filterColumn.getType(), filterColumn.getLength());
-									CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(
-										filterValue[0], null));
+									CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter,
+										new QueryColumnValue(filterValue[0], null));
 									delete.addCondition(cc);
 								}
 							}
 
-							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, null, delete, fm != null
-								? fm.getTableFilterParams(i18NServerName, delete) : null));
+							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, null, delete,
+								fm != null ? fm.getTableFilterParams(i18NServerName, delete) : null));
 
 						}
 					}
@@ -290,12 +290,12 @@ public class I18NUtil
 
 				if (filterName != null)
 				{
-					Column filterColumn = i18NTable.getColumn(filterName);
+					Column filterColumn = (Column)i18NTable.getColumn(filterName);
 					if (filterColumn != null && filterValue != null && filterValue.length > 0)
 					{
 						QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
 							filterColumn.getLength());
-						CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0], null));
+						CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0], null));
 						sql.addCondition("FILTER", cc); //$NON-NLS-1$
 					}
 				}

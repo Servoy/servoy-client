@@ -17,7 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
-import com.servoy.base.persistence.constants.IRepositoryConstants;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -25,7 +25,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * A so called aggregate
- * 
+ *
  * @author jblok
  */
 public class AggregateVariable extends AbstractBase implements IColumn, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals
@@ -69,7 +69,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void setName(String arg)
@@ -79,7 +79,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
@@ -97,7 +97,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Get the name
-	 * 
+	 *
 	 * @return the name
 	 */
 	public String getName()
@@ -107,7 +107,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the type
-	 * 
+	 *
 	 * @param arg the type
 	 */
 	public void setType(int arg)
@@ -117,7 +117,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Get the type
-	 * 
+	 *
 	 * @return the type
 	 */
 	public int getType()
@@ -127,7 +127,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the dataProviderIDToAggregate
-	 * 
+	 *
 	 * @param arg the dataProviderIDToAggregate
 	 */
 	public void setDataProviderIDToAggregate(String arg)
@@ -137,7 +137,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Get the dataProviderIDToAggregate
-	 * 
+	 *
 	 * @return the dataProviderIDToAggregate
 	 */
 	public String getDataProviderIDToAggregate()
@@ -267,9 +267,105 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 		if (obj instanceof AggregateVariable)
 		{
 			AggregateVariable other = (AggregateVariable)obj;
-			return (getDataProviderID().equals(other.getDataProviderID()) && getType() == other.getType() && getDataProviderIDToAggregate().equals(
-				other.getDataProviderIDToAggregate()));
+			return (getDataProviderID().equals(other.getDataProviderID()) && getType() == other.getType() &&
+				getDataProviderIDToAggregate().equals(other.getDataProviderIDToAggregate()));
 		}
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getColumnInfo()
+	 */
+	@Override
+	public ColumnInfo getColumnInfo()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getExistInDB()
+	 */
+	@Override
+	public boolean getExistInDB()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getAllowNull()
+	 */
+	@Override
+	public boolean getAllowNull()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getConfiguredColumnType()
+	 */
+	@Override
+	public ColumnType getConfiguredColumnType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#removeColumnInfo()
+	 */
+	@Override
+	public void removeColumnInfo()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getSequenceType()
+	 */
+	@Override
+	public int getSequenceType()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IColumn#setAllowNull(boolean)
+	 */
+	@Override
+	public void setAllowNull(boolean allowNull)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IColumn#setDatabasePK(boolean)
+	 */
+	@Override
+	public void setDatabasePK(boolean pkColumn)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

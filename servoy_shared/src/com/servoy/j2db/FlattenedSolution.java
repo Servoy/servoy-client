@@ -133,7 +133,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	private volatile ConcurrentMap<Object, Integer> securityAccess;
 
-	private volatile ConcurrentMap<Table, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
+	private volatile ConcurrentMap<ITable, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
 	private final ConcurrentMap<String, IDataProvider> globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16); //global -> dp ,runtime var
 
 	// concurrent caches.
@@ -238,8 +238,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				{
 					newParent.removeChild(clone);
 				}
-				throw new RuntimeException("name '" + newName + "' invalid for the clone of " + ((ISupportName)persist).getName() + ", error: " +
-					e.getMessage());
+				throw new RuntimeException(
+					"name '" + newName + "' invalid for the clone of " + ((ISupportName)persist).getName() + ", error: " + e.getMessage());
 			}
 		}
 
@@ -619,7 +619,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						solutionAndModuleMetaDatas.add(moduleMetaData);
 					}
 
-					Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
+					Solution[] mods = activeSolutionHandler.loadActiveSolutions(
+						solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
 					setSolutionAndModules(mainSolutionMetaData.getName(), mods);
 				}
 			}
@@ -1394,7 +1395,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(Table table) throws RepositoryException
 	{
 		if (table == null) return null;
-		if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<Table, Map<String, IDataProvider>>(64, 0.9f, 16);
+		if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<ITable, Map<String, IDataProvider>>(64, 0.9f, 16);
 
 		Map<String, IDataProvider> dataProvidersMap = allProvidersForTable.get(table);
 		if (dataProvidersMap == null)
@@ -1459,7 +1460,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	public synchronized void flushDataProvidersForTable(Table table)
+	public synchronized void flushDataProvidersForTable(ITable table)
 	{
 		if (table != null && allProvidersForTable != null)
 		{
@@ -2268,8 +2269,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean addGlobalsWhenPrimary,
 		boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
-			onlyGlobalsWhenForeign, onlyLiteralsWhenForeign);
+		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary, onlyGlobalsWhenForeign,
+			onlyLiteralsWhenForeign);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
@@ -2648,8 +2649,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return null;
 		}
 
-		String relationName = Relation.INTERNAL_PREFIX +
-			"VL-" + callingTable.getDataSource() + '-' + dataProviderID + relationPrefix + '-' + valueList.getName() + '-'; //$NON-NLS-1$
+		String relationName = Relation.INTERNAL_PREFIX + "VL-" + callingTable.getDataSource() + '-' + dataProviderID + relationPrefix + '-' + //$NON-NLS-1$
+			valueList.getName() + '-';
 
 		synchronized (this)
 		{
@@ -2752,10 +2753,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 
 				// add condition for return dp id
-				lastJoin.getCondition().addCondition(
-					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(),
-						destColumn.getType(), destColumn.getLength()), new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(),
-						callingColumn.getType(), callingColumn.getLength())));
+				lastJoin.getCondition().addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR,
+					new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(), destColumn.getType(), destColumn.getLength()),
+					new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(), callingColumn.getType(), callingColumn.getLength())));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
 					ISQLJoin.LEFT_OUTER_JOIN);

@@ -30,9 +30,9 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AggregateVariable;
-import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.Relation;
@@ -223,7 +223,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	{
 		List<String> al = new ArrayList<String>();
 		if (table == null) return al;
-		Iterator<Column> columns = table.getColumnsSortedByName();
+		Iterator<IColumn> columns = table.getColumnsSortedByName();
 		try
 		{
 			while (columns.hasNext())
@@ -329,7 +329,8 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) || "allvariables".equals(name)) return true; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) || //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+			"allvariables".equals(name)) return true; //$NON-NLS-1$
 
 		return super.has(name, start);
 	}

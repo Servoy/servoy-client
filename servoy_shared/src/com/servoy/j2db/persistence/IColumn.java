@@ -17,11 +17,12 @@
 package com.servoy.j2db.persistence;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.j2db.query.ColumnType;
 
 
 /**
  * Tagging interface on dataprovider for use in ColumnWrapper with isAggregate test function
- * 
+ *
  * @author jblok
  */
 public interface IColumn extends IBaseColumn, IDataProvider, IColumnTypes
@@ -33,4 +34,49 @@ public interface IColumn extends IBaseColumn, IDataProvider, IColumnTypes
 	public Table getTable() throws RepositoryException;
 
 	public String getTypeAsString();
+
+	/**
+	 * @return
+	 */
+	public ColumnInfo getColumnInfo();
+
+	/**
+	 * @return
+	 */
+	public boolean getExistInDB();
+
+	/**
+	 * @return
+	 */
+	public boolean getAllowNull();
+
+	/**
+	 * @return
+	 */
+	public ColumnType getConfiguredColumnType();
+
+	/**
+	 *
+	 */
+	public void removeColumnInfo();
+
+	/**
+	 * @return
+	 */
+	public int getSequenceType();
+
+	/**
+	 * @param allowNull
+	 */
+	public void setAllowNull(boolean allowNull);
+
+	/**
+	 * @param pkColumn
+	 */
+	public void setDatabasePK(boolean pkColumn);
+
+//	/**
+//	 *
+//	 */
+//	public void removeColumnInfo();
 }

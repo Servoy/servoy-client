@@ -31,7 +31,9 @@ import org.json.JSONObject;
 
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
@@ -48,9 +50,9 @@ import com.servoy.j2db.util.XMLUtils;
 
 /**
  * Methods for handling table meta data.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  *
  */
@@ -62,16 +64,16 @@ public class MetaDataUtils
 	public static final String METADATA_MODIFICATION_COLUMN = "modification_date";
 	public static final String METADATA_DELETION_COLUMN = "deletion_date";
 
-	public static boolean canBeMarkedAsMetaData(Table table)
+	public static boolean canBeMarkedAsMetaData(ITable table)
 	{
-		for (Column column : table.getRowIdentColumns())
+		for (IColumn column : table.getRowIdentColumns())
 		{
 			if (column.getColumnInfo() == null || !column.getColumnInfo().hasFlag(Column.UUID_COLUMN))
 			{
 				return false;
 			}
 		}
-		Column column = table.getColumn(METADATA_MODIFICATION_COLUMN);
+		IColumn column = table.getColumn(METADATA_MODIFICATION_COLUMN);
 		if (column == null || column.getDataProviderType() != IColumnTypes.DATETIME) return false;
 		column = table.getColumn(METADATA_DELETION_COLUMN);
 		if (column == null || column.getDataProviderType() != IColumnTypes.DATETIME) return false;
@@ -139,7 +141,7 @@ public class MetaDataUtils
 
 	/**
 	 * Deserialize table contents string to of buffered dataset to a string, includes column names and type info
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 * @throws JSONException
@@ -187,7 +189,7 @@ public class MetaDataUtils
 				else if (Column.mapToDefaultType(columnTypes[i].getSqlType()) == IColumnTypes.DATETIME && val instanceof String)
 				{
 					Date parsed = ServoyJSONObject.parseDate((String)val);
-					row[i] = parsed == null ? val : parsed; // convert when possible, otherwise leave to driver (fails on mysql) 
+					row[i] = parsed == null ? val : parsed; // convert when possible, otherwise leave to driver (fails on mysql)
 				}
 				else
 				{
@@ -206,8 +208,8 @@ public class MetaDataUtils
 
 		QuerySelect query = createTableMetadataQuery(table, qColumns);
 
-		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerRegistry.get().getDataServer().performQuery(
-			ApplicationServerRegistry.get().getClientId(), table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
+		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerRegistry.get().getDataServer().performQuery(ApplicationServerRegistry.get().getClientId(),
+			table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
 		// not too much data?
 		if (dataSet.hadMoreRows())
 		{
@@ -230,10 +232,10 @@ public class MetaDataUtils
 	{
 		QuerySelect query = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		LinkedHashMap<Column, QueryColumn> qColumns = queryColumns == null ? new LinkedHashMap<Column, QueryColumn>() : queryColumns; // LinkedHashMap to keep order for column names
-		Iterator<Column> columns = table.getColumnsSortedByName();
+		Iterator<IColumn> columns = table.getColumnsSortedByName();
 		while (columns.hasNext())
 		{
-			Column column = columns.next();
+			Column column = (Column)columns.next();
 			if (!column.hasFlag(Column.EXCLUDED_COLUMN))
 			{
 				QueryColumn qColumn = new QueryColumn(query.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
@@ -271,8 +273,8 @@ public class MetaDataUtils
 		}
 		if (missingColumns != null)
 		{
-			StringBuilder message = new StringBuilder("Missing columns from meta data for table '").append(table.getName()).append("'").append(" in server '").append(
-				table.getServerName()).append("' : ");
+			StringBuilder message = new StringBuilder("Missing columns from meta data for table '").append(table.getName()).append("'").append(
+				" in server '").append(table.getServerName()).append("' : ");
 			for (String name : missingColumns)
 			{
 				message.append('\'').append(name).append("' ");
@@ -285,7 +287,7 @@ public class MetaDataUtils
 		ApplicationServerRegistry.get().getDataServer().performUpdates(ApplicationServerRegistry.get().getClientId(),
 			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null, //
 				new QueryDelete(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()))) // delete entire table
-			});
+		});
 		// insert the data
 		ApplicationServerRegistry.get().getDataServer().insertDataSet(ApplicationServerRegistry.get().getClientId(), dataSet, table.getDataSource(),
 			table.getServerName(), table.getName(), null, null, null);

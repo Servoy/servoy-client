@@ -18,9 +18,9 @@ package com.servoy.j2db.persistence;
 
 /**
  * Interface for repository component that manages the column info.
- * 
+ *
  * @author jblok
- * 
+ *
  */
 public interface IColumnInfoManager extends IColumnInfoProvider
 {
@@ -28,7 +28,7 @@ public interface IColumnInfoManager extends IColumnInfoProvider
 
 	public void removeColumnInfo(Column c) throws RepositoryException;
 
-	public void removeAllColumnInfo(Table t) throws RepositoryException;
+	public void removeAllColumnInfo(ITable t) throws RepositoryException;
 
 	public void updateAllColumnInfo(Table t) throws RepositoryException;
 }

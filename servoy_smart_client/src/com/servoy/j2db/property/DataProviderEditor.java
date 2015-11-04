@@ -51,6 +51,7 @@ import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ITable;
@@ -58,7 +59,6 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.smart.J2DBClient;
@@ -66,7 +66,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * Make it possible to set a dataprovider on element
- * 
+ *
  * @author jblok
  */
 public class DataProviderEditor extends JPanel implements IOptimizedPropertyEditor, ItemListener
@@ -342,10 +342,10 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 				}
 				if (table != null)
 				{
-					Iterator<Column> it = table.getColumnsSortedByName();
+					Iterator<IColumn> it = table.getColumnsSortedByName();
 					while (it.hasNext())
 					{
-						Column c = it.next();
+						IColumn c = it.next();
 
 						ColumnInfo ci = c.getColumnInfo();
 						if (ci != null && ci.isExcluded())
@@ -625,7 +625,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 
 	/**
 	 * Sets the definedTable.
-	 * 
+	 *
 	 * @param definedTable The definedTable to set
 	 */
 	public void setDefinedTable(ITable definedTable)
@@ -637,7 +637,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 
 	/**
 	 * Sets the returnValueAsString.
-	 * 
+	 *
 	 * @param returnValueAsString The returnValueAsString to set
 	 */
 	public void setReturnValueAsString(boolean returnValueAsString)

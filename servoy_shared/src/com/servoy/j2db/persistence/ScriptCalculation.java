@@ -19,13 +19,14 @@ package com.servoy.j2db.persistence;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFormat;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
  * This class is a calculated script variable, which can use multiple other dataproviders in it's calculation<br>
  * It also can store the result of the calculation (a so called stored calculation)
- * 
+ *
  * @author jblok
  */
 public class ScriptCalculation extends AbstractScriptProvider implements IDataProvider, IColumn, ISupportHTMLToolTipText, ICloneable
@@ -112,7 +113,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	public int getDataProviderType()
 	{
 		try
-		//if stored calc type is enforced to be the same 
+		//if stored calc type is enforced to be the same
 		{
 			Table table = getTable();
 			Column c = table.getColumn(getName());
@@ -144,7 +145,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 
 	/**
 	 * Returns the type.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getType()
@@ -159,14 +160,14 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 
 	/**
 	 * Sets the type.
-	 * 
+	 *
 	 * @param type The type to set
 	 */
 	public void setTypeAndCheck(int arg, IServiceProvider application)
 	{
 		int dpType = arg;
 		try
-		//if stored calc type is enforced to be the same 
+		//if stored calc type is enforced to be the same
 		{
 			Table table = getTable();
 			if (table != null)
@@ -185,5 +186,101 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 			Debug.error(e);
 		}
 		setType(dpType);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getColumnInfo()
+	 */
+	@Override
+	public ColumnInfo getColumnInfo()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getExistInDB()
+	 */
+	@Override
+	public boolean getExistInDB()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getAllowNull()
+	 */
+	@Override
+	public boolean getAllowNull()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getConfiguredColumnType()
+	 */
+	@Override
+	public ColumnType getConfiguredColumnType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#removeColumnInfo()
+	 */
+	@Override
+	public void removeColumnInfo()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IColumn#getSequenceType()
+	 */
+	@Override
+	public int getSequenceType()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IColumn#setAllowNull(boolean)
+	 */
+	@Override
+	public void setAllowNull(boolean allowNull)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IColumn#setDatabasePK(boolean)
+	 */
+	@Override
+	public void setDatabasePK(boolean pkColumn)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

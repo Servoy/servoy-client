@@ -286,10 +286,10 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	 */
 	public int getColumnType(String cname)
 	{
-		Column column = getColumn(cname);
+		IColumn column = getColumn(cname);
 		if (column != null)
 		{
-			return Column.mapToDefaultType(column.getType());
+			return Column.mapToDefaultType(((Column)column).getType());
 		}
 		return 0;
 	}
@@ -374,9 +374,9 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return columns.values();
 	}
 
-	public Iterator<Column> getColumnsSortedByName()
+	public Iterator<IColumn> getColumnsSortedByName()
 	{
-		SortedList<Column> newList = new SortedList<Column>(ColumnComparator.INSTANCE, getColumns());
+		SortedList<IColumn> newList = new SortedList<IColumn>(ColumnComparator.INSTANCE, getColumns());
 		return newList.iterator();
 	}
 
@@ -402,12 +402,16 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return c;
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull, boolean pkColumn)
-		throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull, boolean pkColumn) throws RepositoryException
 	{
 		Column c = createNewColumn(validator, colname, type, length, 0, allowNull);
 		c.setDatabasePK(pkColumn);
 		return c;
+	}
+
+	public IColumn createNewIColumn(IValidateName validator, String colname, int type, int length) throws RepositoryException
+	{
+		return createNewColumn(validator, colname, type, length);
 	}
 
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length) throws RepositoryException
@@ -471,12 +475,13 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 
 	private transient List<Column> deleteColumns;
 
-	public void removeColumn(Column c)
+	public void removeColumn(IColumn c)
 	{
-		if (existInDB && c.getExistInDB())
+
+		if (existInDB && ((Column)c).getExistInDB())
 		{
 			if (deleteColumns == null) deleteColumns = new ArrayList<Column>();
-			deleteColumns.add(c);
+			deleteColumns.add((Column)c);
 		}
 		keyColumns.remove(c);//just to make sure
 		columns.remove(c.getName());
@@ -604,7 +609,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	{
 		String[] dataProviderIDs = new String[columns.size()];
 		int i = 0;
-		for (Column column : columns.values())
+		for (IColumn column : columns.values())
 		{
 			dataProviderIDs[i++] = column.getDataProviderID();
 		}
@@ -667,5 +672,18 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		}
 		return "<unknown>"; //$NON-NLS-1$
 	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#getIColumns()
+	 */
+	@Override
+	public Collection<IColumn> getIColumns()
+	{
+		return getIColumns();
+	}
+
 
 }

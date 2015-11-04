@@ -57,10 +57,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
@@ -185,7 +185,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		}
 	}
 
-	public void refreshDebugClients(Table table)
+	public void refreshDebugClients(ITable table)
 	{
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null)
 		{
