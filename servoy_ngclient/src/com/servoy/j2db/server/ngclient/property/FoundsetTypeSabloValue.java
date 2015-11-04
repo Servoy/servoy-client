@@ -75,7 +75,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 {
 
 	protected static final Logger log = LoggerFactory.getLogger(CustomJSONPropertyType.class.getCanonicalName());
-	public static final String FOUNDSET_SELECTOR = "foundsetSelector";
 	protected static final String PUSH_TO_SERVER = "w";
 
 	/**
@@ -149,7 +148,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		// nothing to do here; foundset is not initialized until it's attached to a component
 		linkedChildComponentToColumn = new HashMap<String, String>();
 		// foundsetSelector as defined in component design XML.
-		foundsetSelector = ((JSONObject)designJSONValue).optString(FOUNDSET_SELECTOR);
+		foundsetSelector = ((JSONObject)designJSONValue).optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
 		initializeDataproviders(((JSONObject)designJSONValue).optJSONObject("dataproviders"));
 	}
 
@@ -257,6 +256,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			{
 				// if we want to use this type on services as well we need extra code here to get the application
 				newFoundset = (IFoundSetInternal)getFoundSetManager().getFoundSet(foundsetSelector);
+				if (((JSONObject)designJSONValue).optBoolean(FoundsetPropertyType.LOAD_ALL_RECORDS_FOR_SEPARATE, false))
+				{
+					newFoundset.loadAllRecords();
+				}
 			}
 			catch (ServoyException e)
 			{

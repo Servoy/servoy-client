@@ -59,6 +59,9 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 
 	public static final String TYPE_NAME = "foundset";
 
+	public static final String FOUNDSET_SELECTOR = "foundsetSelector";
+	public static final String LOAD_ALL_RECORDS_FOR_SEPARATE = "loadAllRecords";
+
 	public FoundsetPropertyType(PropertyDescription definition)
 	{
 		super("foundset", definition);
