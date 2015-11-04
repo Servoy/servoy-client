@@ -682,7 +682,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	@Override
 	public Collection<IColumn> getIColumns()
 	{
-		return getIColumns();
+		return new ArrayList<IColumn>(columns.values());
 	}
 
 

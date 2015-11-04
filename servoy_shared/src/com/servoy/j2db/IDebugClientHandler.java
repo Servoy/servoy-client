@@ -27,6 +27,7 @@ import org.apache.wicket.protocol.http.WebSession;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
@@ -81,6 +82,8 @@ public interface IDebugClientHandler
 	public void refreshDebugClientsI18N(boolean recreateForms);
 
 	void refreshDebugClients(Collection<IPersist> changes);
+
+	void refreshDebugClients(ITable table);
 
 	boolean isClientStarted();
 
