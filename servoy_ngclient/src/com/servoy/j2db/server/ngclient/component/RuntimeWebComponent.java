@@ -157,7 +157,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (specProperties != null && specProperties.contains(name))
 		{
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
-			if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) return Scriptable.NOT_FOUND;
+			if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 		}
 		if ("getFormName".equals(name))
@@ -480,7 +480,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		for (String name : specProperties)
 		{
 			PropertyDescription pd = webComponentSpec.getProperty(name);
-			if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) continue;
+			if (WebFormComponent.isDesignOnlyProperty(pd)) continue;
 			IPropertyType< ? > type = pd.getType();
 			if (!(type instanceof ISabloComponentToRhino< ? >) ||
 				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component))
