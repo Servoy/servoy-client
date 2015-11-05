@@ -234,4 +234,10 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	{
 		return PersistHelper.getFlattenedPropertiesMap(this);
 	}
+
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + " -> " + getPackageName() + " [" + getSpecName() + "]";
+	}
 }
