@@ -342,7 +342,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 				}
 				if (table != null)
 				{
-					Iterator<IColumn> it = table.getColumnsSortedByName();
+					Iterator<Column> it = table.getColumnsSortedByName();
 					while (it.hasNext())
 					{
 						IColumn c = it.next();

@@ -23,12 +23,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
 
 /**
  * JavaScript wrapper object around {@link IServer}
- * 
+ *
  * @author jblok
  * @see IServer
  */
@@ -72,14 +71,14 @@ public class JSServer
 	 * }
 	 *
 	 * @param tableName The name of the table to create.
-	 * 
+	 *
 	 * @return JSTableObject created table.
 	 */
 	public JSTableObject js_createNewTable(String tableName)
 	{
 		try
 		{
-			Table t = ((IServerInternal)server).createNewTable(null, tableName, false);
+			ITable t = ((IServerInternal)server).createNewTable(null, tableName, false);
 			if (t != null)
 			{
 				return new JSTableObject(t, server);
@@ -108,7 +107,7 @@ public class JSServer
 	 * }
 	 *
 	 * @param tableName The name of the table to retrieve.
-	 * 
+	 *
 	 * @return JSTableObject table.
 	 */
 	public JSTableObject js_getTable(String tableName)
@@ -131,18 +130,18 @@ public class JSServer
 	 * @sampleas js_createNewTable(String)
 	 *
 	 * @param table A JSTableObject instance that should be synchronized.
-	 * 
+	 *
 	 * @return boolean success.
 	 */
 	public boolean js_synchronizeWithDB(JSTableObject table)
 	{
-		String tableName = "N/A"; //$NON-NLS-1$ // for logging exceptions 
+		String tableName = "N/A"; //$NON-NLS-1$ // for logging exceptions
 		try
 		{
 			if (table != null)
 			{
 				tableName = table.getTable().getName();
-				((IServerInternal)server).syncTableObjWithDB((Table)table.getTable(), true, true, null);
+				((IServerInternal)server).syncTableObjWithDB(table.getTable(), true, true, null);
 				return true;
 			}
 		}
@@ -155,9 +154,9 @@ public class JSServer
 
 	/**
 	 * Reloads the datamodel from the database, if changed externally or via rawSQL plugin.
-	 * 
+	 *
 	 * This call is not needed after a call to synchronizeWithDB().
-	 * 
+	 *
 	 * @sample
 	 * var server = plugins.maintenance.getServer("example_data");
 	 * var result = plugins.rawSQL.executeSQL("example_data", null, 'CREATE TABLE raw_table (raw_table_id INTEGER)');
@@ -187,7 +186,7 @@ public class JSServer
 		}
 		catch (Exception e)
 		{
-			Debug.error("Exception while reloading datamodel from server '" + serverName + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$ 
+			Debug.error("Exception while reloading datamodel from server '" + serverName + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -205,7 +204,7 @@ public class JSServer
 	 * }
 	 *
 	 * @param tableName The name of the table to drop.
-	 * 
+	 *
 	 * @return boolean success.
 	 */
 	public boolean js_dropTable(String tableName)
@@ -215,7 +214,7 @@ public class JSServer
 			ITable t = ((IServerInternal)server).getTable(tableName);
 			if (t != null)
 			{
-				((IServerInternal)server).removeTable((Table)t);
+				((IServerInternal)server).removeTable(t);
 				return true;
 			}
 		}
@@ -240,7 +239,7 @@ public class JSServer
 	 * else {
 	 * 	plugins.dialogs.showInfoDialog("Attention","Server 'example_data' cannot be found.","OK");
 	 * }
-	 * 
+	 *
 	 * @return Array of String table names.
 	 */
 	public String[] js_getTableNames()
@@ -267,7 +266,7 @@ public class JSServer
 	 * if (!server.isValid()) {
 	 * 	application.output("Server not valid!");
 	 * }
-	 * 
+	 *
 	 * @return boolean valid state.
 	 */
 	public boolean js_isValid()
@@ -294,7 +293,7 @@ public class JSServer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -310,7 +309,7 @@ public class JSServer
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

@@ -75,6 +75,11 @@ public interface IColumn extends IBaseColumn, IDataProvider, IColumnTypes
 	 */
 	public void setDatabasePK(boolean pkColumn);
 
+	/**
+	 * @param sequenceType
+	 */
+	public void setSequenceType(int sequenceType);
+
 //	/**
 //	 *
 //	 */

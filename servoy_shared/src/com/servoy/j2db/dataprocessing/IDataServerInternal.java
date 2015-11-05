@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 
 import com.servoy.j2db.persistence.IServerManagerInternal;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLSelect;
@@ -34,7 +35,8 @@ public interface IDataServerInternal
 {
 	public static final int MAX_ROWS_TO_RETRIEVE = 49999999;
 
-	void doInserts(String client_id, String transaction_id, Table table, IDataSet resultWithColumnNames, ArrayList<TableFilter> filters) throws ServoyException;
+	void doInserts(String client_id, String transaction_id, ITable table, IDataSet resultWithColumnNames, ArrayList<TableFilter> filters)
+		throws ServoyException;
 
 	void doI18NUpdates(String client_id, String transaction_id, Table table, BufferedDataSet resultWithColumnNames, boolean onlyInserts) throws ServoyException;
 

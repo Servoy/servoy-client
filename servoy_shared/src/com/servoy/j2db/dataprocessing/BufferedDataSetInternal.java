@@ -20,13 +20,13 @@ package com.servoy.j2db.dataprocessing;
 import java.util.List;
 
 import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Debug;
 
 /**
  * Factory to create data sets using internal api.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -56,7 +56,7 @@ public class BufferedDataSetInternal
 	 * @param table
 	 * @return
 	 */
-	public static IDataSet convertPksToRightType(IDataSet pks, Table table)
+	public static IDataSet convertPksToRightType(IDataSet pks, ITable table)
 	{
 		if (pks == null || pks.getRowCount() == 0 || table == null)
 		{

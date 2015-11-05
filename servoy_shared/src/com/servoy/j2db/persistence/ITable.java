@@ -79,12 +79,12 @@ public interface ITable
 	 * @param columnName
 	 * @return
 	 */
-	public IColumn getColumn(String columnName);
+	public Column getColumn(String columnName);
 
 	/**
 	 * @param column
 	 */
-	public void removeColumn(IColumn column);
+	public void removeColumn(Column column);
 
 	/**
 	 * @return
@@ -99,7 +99,7 @@ public interface ITable
 	/**
 	 * @return
 	 */
-	public Collection<IColumn> getIColumns();
+	public Collection<Column> getColumns();
 
 	/**
 	 * @param columnListener
@@ -144,7 +144,7 @@ public interface ITable
 	/**
 	 * @return
 	 */
-	public Iterator<IColumn> getColumnsSortedByName();
+	public Iterator<Column> getColumnsSortedByName();
 
 	/**
 	 * @param selection
@@ -155,6 +155,75 @@ public interface ITable
 	 * @param selection
 	 */
 	public void setMarkedAsHiddenInDeveloperInternal(boolean selection);
+
+	/**
+	 *
+	 */
+	public void releaseWriteLock();
+
+	/**
+	 *
+	 */
+	public void updateDataproviderIDsIfNeeded();
+
+	/**
+	 * @return
+	 */
+	public int getPKColumnTypeRowIdentCount();
+
+	/**
+	 * @param changedColumns
+	 */
+	public void fireIColumnsChanged(Collection<IColumn> changedColumns);
+
+	/**
+	 *
+	 */
+	public void acquireReadLock();
+
+	/**
+	 *
+	 */
+	public void releaseReadLock();
+
+	/**
+	 * @param columnName
+	 */
+	public void removeColumn(String columnName);
+
+	/**
+	 * @param validator
+	 * @param name
+	 * @param sqlType
+	 * @param length
+	 * @param scale
+	 * @return
+	 */
+	public Column createNewColumn(IValidateName validator, String name, int sqlType, int length, int scale) throws RepositoryException;
+
+	/**
+	 * @param validator
+	 * @param string
+	 * @param integer
+	 * @param i
+	 * @param j
+	 * @param b
+	 * @param c
+	 * @return
+	 * @throws RepositoryException
+	 */
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull, boolean pkColumn)
+		throws RepositoryException;
+
+	/**
+	 * @param validator
+	 * @param string
+	 * @param varchar
+	 * @param i
+	 * @param j
+	 * @param b
+	 */
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull) throws RepositoryException;
 
 
 }

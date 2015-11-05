@@ -262,7 +262,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IColumn#setAllowNull(boolean)
 	 */
 	@Override
@@ -274,11 +274,23 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IColumn#setDatabasePK(boolean)
 	 */
 	@Override
 	public void setDatabasePK(boolean pkColumn)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IColumn#setSequenceType(int)
+	 */
+	@Override
+	public void setSequenceType(int sequenceType)
 	{
 		// TODO Auto-generated method stub
 

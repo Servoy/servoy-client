@@ -35,7 +35,6 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
@@ -202,7 +201,7 @@ public class MetaDataUtils
 		return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, rows, false);
 	}
 
-	public static String generateMetaDataFileContents(Table table, int max) throws RemoteException, ServoyException, JSONException, TooManyRowsException
+	public static String generateMetaDataFileContents(ITable table, int max) throws RemoteException, ServoyException, JSONException, TooManyRowsException
 	{
 		LinkedHashMap<Column, QueryColumn> qColumns = new LinkedHashMap<Column, QueryColumn>(); // LinkedHashMap to keep order for column names
 
@@ -228,14 +227,14 @@ public class MetaDataUtils
 	}
 
 
-	public static QuerySelect createTableMetadataQuery(Table table, LinkedHashMap<Column, QueryColumn> queryColumns)
+	public static QuerySelect createTableMetadataQuery(ITable table, LinkedHashMap<Column, QueryColumn> queryColumns)
 	{
 		QuerySelect query = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		LinkedHashMap<Column, QueryColumn> qColumns = queryColumns == null ? new LinkedHashMap<Column, QueryColumn>() : queryColumns; // LinkedHashMap to keep order for column names
-		Iterator<IColumn> columns = table.getColumnsSortedByName();
+		Iterator<Column> columns = table.getColumnsSortedByName();
 		while (columns.hasNext())
 		{
-			Column column = (Column)columns.next();
+			Column column = columns.next();
 			if (!column.hasFlag(Column.EXCLUDED_COLUMN))
 			{
 				QueryColumn qColumn = new QueryColumn(query.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
@@ -253,7 +252,7 @@ public class MetaDataUtils
 		return query;
 	}
 
-	public static int loadMetadataInTable(Table table, String json) throws IOException, ServoyException, JSONException
+	public static int loadMetadataInTable(ITable table, String json) throws IOException, ServoyException, JSONException
 	{
 		// parse dataset
 		BufferedDataSet dataSet = MetaDataUtils.deserializeTableMetaDataContents(json);

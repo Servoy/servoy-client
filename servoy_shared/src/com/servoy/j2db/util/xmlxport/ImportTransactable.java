@@ -24,20 +24,20 @@ import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.persistence.IServerInternal;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITransactable;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
 
 public class ImportTransactable implements ITransactable
 {
-	Map<IServerInternal, List<Table>> tablesByServer = new HashMap<IServerInternal, List<Table>>();
+	Map<IServerInternal, List<ITable>> tablesByServer = new HashMap<IServerInternal, List<ITable>>();
 
-	public void addTable(IServerInternal server, Table table)
+	public void addTable(IServerInternal server, ITable table)
 	{
-		List<Table> tableList = tablesByServer.get(server);
+		List<ITable> tableList = tablesByServer.get(server);
 		if (tableList == null)
 		{
-			tableList = new ArrayList<Table>();
+			tableList = new ArrayList<ITable>();
 			tablesByServer.put(server, tableList);
 		}
 		tableList.add(table);
@@ -50,12 +50,12 @@ public class ImportTransactable implements ITransactable
 
 	public void processPostRollBack()
 	{
-		Iterator<Map.Entry<IServerInternal, List<Table>>> iterator = tablesByServer.entrySet().iterator();
+		Iterator<Map.Entry<IServerInternal, List<ITable>>> iterator = tablesByServer.entrySet().iterator();
 		while (iterator.hasNext())
 		{
-			Map.Entry<IServerInternal, List<Table>> entry = iterator.next();
+			Map.Entry<IServerInternal, List<ITable>> entry = iterator.next();
 			IServerInternal server = entry.getKey();
-			List<Table> tableList = entry.getValue();
+			List<ITable> tableList = entry.getValue();
 			try
 			{
 				server.flushTables(tableList);
@@ -67,7 +67,7 @@ public class ImportTransactable implements ITransactable
 		}
 	}
 
-	public Map<IServerInternal, List<Table>> getTablesByServer()
+	public Map<IServerInternal, List<ITable>> getTablesByServer()
 	{
 		return tablesByServer;
 	}

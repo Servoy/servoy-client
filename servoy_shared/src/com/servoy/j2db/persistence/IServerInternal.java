@@ -36,13 +36,13 @@ import com.servoy.j2db.util.ITransactionConnection;
  */
 public interface IServerInternal
 {
-	void flushTables(List<Table> tabelList) throws RepositoryException;
+	void flushTables(List<ITable> tabelList) throws RepositoryException;
 
-	Table createNewTable(IValidateName validator, String tableName) throws RepositoryException;
+	ITable createNewTable(IValidateName validator, String tableName) throws RepositoryException;
 
-	Table createNewTable(IValidateName validator, String nm, boolean testSQL) throws RepositoryException;
+	ITable createNewTable(IValidateName validator, String nm, boolean testSQL) throws RepositoryException;
 
-	Table createNewTable(IValidateName validator, Table otherServerTable) throws RepositoryException;
+	ITable createNewTable(IValidateName validator, ITable otherServerTable) throws RepositoryException;
 
 	void reloadTables() throws RepositoryException;
 
@@ -53,7 +53,7 @@ public interface IServerInternal
 
 	void syncWithExternalTable(String tableName, Table externalTable) throws RepositoryException;
 
-	void syncColumnSequencesWithDB(Table t) throws RepositoryException;
+	void syncColumnSequencesWithDB(ITable t) throws RepositoryException;
 
 	String getServerURL();
 
@@ -77,7 +77,7 @@ public interface IServerInternal
 
 	boolean updateColumnInfo(QueryColumn queryColumn) throws RepositoryException;
 
-	void updateAllColumnInfo(Table table) throws RepositoryException;
+	void updateAllColumnInfo(ITable table) throws RepositoryException;
 
 	void refreshTable(String name) throws RepositoryException;
 
@@ -101,7 +101,7 @@ public interface IServerInternal
 
 	List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException;
 
-	Table getTable(String tableName) throws RepositoryException;
+	ITable getTable(String tableName) throws RepositoryException;
 
 	IRepository createRepositoryTables() throws RepositoryException;
 
@@ -109,13 +109,13 @@ public interface IServerInternal
 
 	Table getRepositoryTable(String name) throws RepositoryException;
 
-	Table createNewTable(IValidateName nameValidator, Table selectedTable, String tableName) throws RepositoryException;
+	Table createNewTable(IValidateName nameValidator, ITable selectedTable, String tableName) throws RepositoryException;
 
 	boolean isTableListLoaded();
 
 	boolean isTableLoaded(String tableName);
 
-	void reloadTableColumnInfo(Table t) throws RepositoryException;
+	void reloadTableColumnInfo(ITable t) throws RepositoryException;
 
 	void reloadServerInfo();
 
@@ -128,7 +128,7 @@ public interface IServerInternal
 	QuerySet getSQLQuerySet(ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, boolean forceQualifyColumns)
 		throws RepositoryException;
 
-	String[] getMissingDBSequences(Table table) throws SQLException, RepositoryException;
+	String[] getMissingDBSequences(ITable table) throws SQLException, RepositoryException;
 
 	String[] createMissingDBSequences(ITable table) throws SQLException, RepositoryException;
 

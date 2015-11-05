@@ -30,9 +30,9 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AggregateVariable;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.Relation;
@@ -223,7 +223,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	{
 		List<String> al = new ArrayList<String>();
 		if (table == null) return al;
-		Iterator<IColumn> columns = table.getColumnsSortedByName();
+		Iterator<Column> columns = table.getColumnsSortedByName();
 		try
 		{
 			while (columns.hasNext())

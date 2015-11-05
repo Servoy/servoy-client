@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
@@ -354,8 +355,9 @@ public class SQLGenerator
 					else if (column instanceof AggregateVariable)
 					{
 						AggregateVariable aggregate = (AggregateVariable)column;
-						queryColumn = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
-							aggregate.getDataProviderType(), aggregate.getLength()), aggregate.getName());
+						queryColumn = new QueryAggregate(aggregate.getType(),
+							new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
+							aggregate.getName());
 
 						// there has to be a group-by clause for all selected fields
 						List<IQuerySelectValue> columns = sqlSelect.getColumns();
@@ -369,8 +371,9 @@ public class SQLGenerator
 						}
 
 						// if the aggregate has not been selected yet, add it and skip it in the result
-						QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1,
-							aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()), aggregate.getName(), null, true);
+						QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(),
+							new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
+							aggregate.getName(), null, true);
 						if (!columns.contains(skippedAggregate))
 						{
 							sqlSelect.addColumn(skippedAggregate);
@@ -394,7 +397,8 @@ public class SQLGenerator
 					}
 					else
 					{
-						Debug.log("Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.log(
+							"Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 			}
@@ -417,8 +421,8 @@ public class SQLGenerator
 	/**
 	 * Join clause for this relation.
 	 */
-	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable,
-		BaseQueryTable foreignTable, final IGlobalValueEntry provider) throws RepositoryException
+	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
+		final IGlobalValueEntry provider) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -477,7 +481,8 @@ public class SQLGenerator
 				primaryColumn = (Column)primary[x];
 			}
 
-			QueryColumn foreignColumn = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(), foreign[x].getLength());
+			QueryColumn foreignColumn = new QueryColumn(foreignTable, foreign[x].getID(), foreign[x].getSQLName(), foreign[x].getType(),
+				foreign[x].getLength());
 			Object value;
 			if (primaryColumn == null)
 			{
@@ -497,7 +502,8 @@ public class SQLGenerator
 					{
 						if (((Placeholder)value).getKey() instanceof ObjectPlaceholderKey< ? >)
 						{
-							((ObjectPlaceholderKey)((Placeholder)value).getKey()).setObject(new int[] { primary[x].getDataProviderType(), primary[x].getFlags() });
+							((ObjectPlaceholderKey)((Placeholder)value).getKey()).setObject(
+								new int[] { primary[x].getDataProviderType(), primary[x].getFlags() });
 						}
 					}
 					else
@@ -616,7 +622,8 @@ public class SQLGenerator
 	{
 		List<Object[]> data = new ArrayList<Object[]>();
 		data.add(new Object[] { "c1||c2", application.getI18NMessage("servoy.client.findModeHelp.orGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
-		data.add(new Object[] { application.getI18NMessage("servoy.client.findModeHelp.formatDateCol1"), application.getI18NMessage("servoy.client.findModeHelp.formatDateCol2") }); //$NON-NLS-1$ //$NON-NLS-2$
+		data.add(new Object[] { application.getI18NMessage("servoy.client.findModeHelp.formatDateCol1"), application.getI18NMessage( //$NON-NLS-1$
+			"servoy.client.findModeHelp.formatDateCol2") }); //$NON-NLS-1$
 		data.add(new Object[] { "!c", application.getI18NMessage("servoy.client.findModeHelp.notGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
 		data.add(new Object[] { "#c", application.getI18NMessage("servoy.client.findModeHelp.modifiedCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
 		data.add(new Object[] { "^", application.getI18NMessage("servoy.client.findModeHelp.nullGeneralCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
@@ -648,7 +655,8 @@ public class SQLGenerator
 		data.add(new Object[] { "\\_", application.getI18NMessage("servoy.client.findModeHelp.containsUnderscoreCondition") }); //$NON-NLS-1$ //$NON-NLS-2$
 
 		BufferedDataSet set = new BufferedDataSet(
-			new String[] { application.getI18NMessage("servoy.client.findModeHelp.generalCol1"), application.getI18NMessage("servoy.client.findModeHelp.generalCol2") }, //$NON-NLS-1$ //$NON-NLS-2$
+			new String[] { application.getI18NMessage("servoy.client.findModeHelp.generalCol1"), application.getI18NMessage( //$NON-NLS-1$
+				"servoy.client.findModeHelp.generalCol2") }, //$NON-NLS-1$
 			data);
 		JSDataSet ds = new JSDataSet(application, set);
 		return "<html><body>" + ds.js_getAsHTML(Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -838,8 +846,8 @@ public class SQLGenerator
 			}
 			catch (Exception e)
 			{
-				IllegalArgumentException illarg = new IllegalArgumentException("Could not convert value '" + obj + "' for dataprovider '" + dataProviderID +
-					"'", e); //$NON-NLS-1$
+				IllegalArgumentException illarg = new IllegalArgumentException(
+					"Could not convert value '" + obj + "' for dataprovider '" + dataProviderID + "'", e); //$NON-NLS-3$
 				if (throwOnFail)
 				{
 					throw illarg;
@@ -1002,8 +1010,8 @@ public class SQLGenerator
 						}
 
 						columnNames[i] = colname;
-						columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : ColumnType.getInstance(qcol.getColumnType().getSqlType(),
-							qcol.getColumnType().getLength(), qcol.getColumnType().getScale());
+						columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0)
+							: ColumnType.getInstance(qcol.getColumnType().getSqlType(), qcol.getColumnType().getLength(), qcol.getColumnType().getScale());
 					}
 
 					return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
@@ -1023,8 +1031,9 @@ public class SQLGenerator
 		{
 			AggregateVariable aggregate = it.next();
 			QuerySelect sql = new QuerySelect(queryTable);
-			sql.addColumn(new QueryAggregate(aggregate.getType(), new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(),
-				aggregate.getDataProviderType(), aggregate.getLength()), aggregate.getName()));
+			sql.addColumn(new QueryAggregate(aggregate.getType(),
+				new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
+				aggregate.getName()));
 			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);
 		}
 	}
@@ -1287,8 +1296,8 @@ public class SQLGenerator
 					}
 				}
 			}
-			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues, maskedOp != IBaseSQLCondition.NOT_OPERATOR ||
-				maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR);
+			filterWhere = new SetCondition(op, new IQuerySelectValue[] { qColumn }, inValues,
+				maskedOp != IBaseSQLCondition.NOT_OPERATOR || maskedOp != IBaseSQLCondition.NOT_IN_OPERATOR);
 		}
 		else if (maskedOp == IBaseSQLCondition.BETWEEN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_BETWEEN_OPERATOR)
 		{
@@ -1421,8 +1430,8 @@ public class SQLGenerator
 
 		if (insert != null)
 		{
-			insert.setColumnValues(insertColumns.toArray(new QueryColumn[insertColumns.size()]), new Placeholder(new TablePlaceholderKey(queryTable,
-				PLACEHOLDER_INSERT_KEY)));
+			insert.setColumnValues(insertColumns.toArray(new QueryColumn[insertColumns.size()]),
+				new Placeholder(new TablePlaceholderKey(queryTable, PLACEHOLDER_INSERT_KEY)));
 		}
 		return queryColumns;
 	}
@@ -1443,7 +1452,7 @@ public class SQLGenerator
 	 * @return
 	 */
 
-	public static QuerySelect createAggregateSelect(int aggregateType, Table table, Object aggregee)
+	public static QuerySelect createAggregateSelect(int aggregateType, ITable table, Object aggregee)
 	{
 		Column column = null;
 		if (aggregee instanceof Column)
@@ -1452,9 +1461,12 @@ public class SQLGenerator
 		}
 
 		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
-		select.addColumn(new QueryAggregate(aggregateType, (column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee,
-			"n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
-			: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()), "maxval")); //$NON-NLS-1$
+		select.addColumn(
+			new QueryAggregate(aggregateType,
+				(column == null)
+					? (IQuerySelectValue)new QueryColumnValue(aggregee, "n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
+					: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()),
+				"maxval")); //$NON-NLS-1$
 		return select;
 
 	}

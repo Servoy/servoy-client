@@ -347,7 +347,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IColumn#setAllowNull(boolean)
 	 */
 	@Override
@@ -359,11 +359,23 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IColumn#setDatabasePK(boolean)
 	 */
 	@Override
 	public void setDatabasePK(boolean pkColumn)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IColumn#setSequenceType(int)
+	 */
+	@Override
+	public void setSequenceType(int sequenceType)
 	{
 		// TODO Auto-generated method stub
 

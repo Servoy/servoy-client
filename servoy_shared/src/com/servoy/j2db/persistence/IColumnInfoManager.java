@@ -30,5 +30,5 @@ public interface IColumnInfoManager extends IColumnInfoProvider
 
 	public void removeAllColumnInfo(ITable t) throws RepositoryException;
 
-	public void updateAllColumnInfo(Table t) throws RepositoryException;
+	public void updateAllColumnInfo(ITable t) throws RepositoryException;
 }

@@ -374,9 +374,9 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return columns.values();
 	}
 
-	public Iterator<IColumn> getColumnsSortedByName()
+	public Iterator<Column> getColumnsSortedByName()
 	{
-		SortedList<IColumn> newList = new SortedList<IColumn>(ColumnComparator.INSTANCE, getColumns());
+		SortedList<Column> newList = new SortedList<Column>(ColumnComparator.INSTANCE, getColumns());
 		return newList.iterator();
 	}
 
@@ -475,13 +475,13 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 
 	private transient List<Column> deleteColumns;
 
-	public void removeColumn(IColumn c)
+	public void removeColumn(Column c)
 	{
 
-		if (existInDB && ((Column)c).getExistInDB())
+		if (existInDB && c.getExistInDB())
 		{
 			if (deleteColumns == null) deleteColumns = new ArrayList<Column>();
-			deleteColumns.add((Column)c);
+			deleteColumns.add(c);
 		}
 		keyColumns.remove(c);//just to make sure
 		columns.remove(c.getName());
@@ -672,18 +672,4 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		}
 		return "<unknown>"; //$NON-NLS-1$
 	}
-
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#getIColumns()
-	 */
-	@Override
-	public Collection<IColumn> getIColumns()
-	{
-		return new ArrayList<IColumn>(columns.values());
-	}
-
-
 }
