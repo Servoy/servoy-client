@@ -678,13 +678,16 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						if (update.has("rowId"))
 						{
 							String rowId = update.getString("rowId");
-							FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
-							if (foundsetValue != null)
+							if (!"null".equals(rowId))
 							{
-								if (!foundsetValue.setEditingRowByPkHash(rowId))
+								FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
+								if (foundsetValue != null)
 								{
-									Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
-									selectionOk = false;
+									if (!foundsetValue.setEditingRowByPkHash(rowId))
+									{
+										Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
+										selectionOk = false;
+									}
 								}
 							}
 						}

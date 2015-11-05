@@ -62,8 +62,8 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
-public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue> implements
-	IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
+public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue>
+	implements IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
 	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>
@@ -238,6 +238,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		{
 			writer.key("componentIndex").value(componentFormElementContext.getFormElement().getPropertyValue("componentIndex"));
 		}
+		if (componentFormElementContext.getFormElement().getPropertyValue("headerIndex") != null)
+		{
+			writer.key("headerIndex").value(componentFormElementContext.getFormElement().getPropertyValue("headerIndex"));
+		}
 
 		writer.key("model");
 		try
@@ -247,7 +251,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		catch (JSONException | IllegalArgumentException e)
 		{
 			Debug.error(
-				"Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.", e);
+					"Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.", e);
 			throw e;
 		}
 
