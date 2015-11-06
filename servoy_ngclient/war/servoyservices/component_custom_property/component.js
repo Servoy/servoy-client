@@ -153,8 +153,8 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						delete serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 					}
 
-					var executeHandler = function(type,event,row) {
-						var newargs = $sabloUtils.getEventArgs(event,type);
+					var executeHandler = function(type,args,row) {
+						var newargs = $sabloUtils.getEventArgs(args,type);
 						internalState.requests.push({ handlerExec: {
 							eventType: type,
 							args:newargs,
