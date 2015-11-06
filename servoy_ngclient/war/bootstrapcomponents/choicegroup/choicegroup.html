@@ -9,7 +9,8 @@
   	<input type="{{model.inputType}}" ng-model="selection[$index]"  
   		ng-value="item.realValue"
   		ng-click="itemClicked($event,$index)"
-        svy-click='handlers.onActionMethodID($event)'/>
+        svy-click='handlers.onActionMethodID($event)'
+        ng-disabled="!model.enabled"/>
   	 <span ng-bind='item.displayValue'></span>
   </label>
 </div>

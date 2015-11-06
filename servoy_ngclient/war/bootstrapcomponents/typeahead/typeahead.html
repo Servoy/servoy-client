@@ -9,4 +9,6 @@
        			  for value in model.valuelistID.filterList($viewValue)"
        typeahead-input-formatter="formatLabel($model)"
        ng-blur="doSvyApply()" 
-       ng-show='model.visible'/>
+       ng-show='model.visible'
+       ng-disabled="!model.enabled"
+	   ng-readonly="model.readOnly"/>

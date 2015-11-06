@@ -7,5 +7,7 @@
 	   	svy-rightclick='handlers.onRightClickMethodID($event)'
        	svy-autoapply
        	ng-show='model.visible'
+       	ng-disabled="!model.enabled"
+	    ng-readonly="model.readOnly"
 	    >
 </textarea>	    

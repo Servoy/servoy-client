@@ -4,6 +4,7 @@
 			    ng-model ="selection"
 				ng-click="checkBoxClicked()"
 				svy-click='handlers.onActionMethodID($event)'
+				ng-disabled="!model.enabled"
 				/>
 		 <span ng-bind="model.text"/>
 	</label>
