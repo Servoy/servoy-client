@@ -10,7 +10,8 @@
 			"containedForm": { "type" :"form"},
 			"relationName": "relation",
 			"styleClass" : { "type" :"styleclass"},
-			"height" : {"type":"int", "default":"500"}
+			"height" : {"type":"int", "default":"500"},
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

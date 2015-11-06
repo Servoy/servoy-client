@@ -1,9 +1,9 @@
-<div ng-class='model.styleClass' ng-show='!model.tabs || model.tabs.length == 0'>
+<div ng-class='model.styleClass' ng-show='!model.tabs || model.tabs.length == 0' ng-show='model.visible'>
   <label>
   	 <span>Select contained form</span>
   </label>
 </div>
-<tabset  class='bts-tabpanel' ng-class='model.styleClass' style="position: relative;">
+<tabset  class='bts-tabpanel' ng-class='model.styleClass' style="position: relative;" ng-show='model.visible'>
     <tab ng-repeat="tab in model.tabs" active="tab.active" select="select(tab)" >
       <tab-heading>
         <span  ng-bind='tab.text'></span>

@@ -1,4 +1,4 @@
-<div class="table-responsive">
+<div class="table-responsive" ng-show='model.visible'>
 <table class='bts-table' ng-class="model.styleClass">
   <tr>
     <th ng-repeat="column in model.columns"><div ng-bind='column.headerText'></div></th>
@@ -13,7 +13,7 @@
   </tr>
 </table>
 </div>
-<div ng-class='model.styleClass' ng-show='!model.columns || model.columns.length == 0'>
+<div ng-class='model.styleClass' ng-show='!model.columns || model.columns.length == 0' ng-show='model.visible'>
   <label>
   	 <span>Drop table columns from pallette</span>
   </label>

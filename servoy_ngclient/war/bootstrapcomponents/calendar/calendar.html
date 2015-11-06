@@ -1,5 +1,6 @@
 <div class='input-group date'
-    ng-model="model.dataProviderID">
+    ng-model="model.dataProviderID"
+    ng-show='model.visible'>
 	<input type="text" 
 	   svy-enter='handlers.onActionMethodID($event)'
 	   ng-class='model.styleClass'/>

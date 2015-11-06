@@ -10,7 +10,8 @@
 		"columns":  { "type":"column[]", "droppable": true },
 		"foundset": { "type": "foundset", "pushToServer": "allow" },
 		"styleClass" : { "type": "styleclass", "tags": { "scope": "design" }, "default": "table", "values": ["table", "table-striped", "table-bordered", "table-hover", "table-condensed"] },
-		"selectionClass" : { "type": "styleclass", "default": "table-bootstrapcomponent-selected "}
+		"selectionClass" : { "type": "styleclass", "default": "table-bootstrapcomponent-selected "},
+	    "visible" : "visible"
 	},
 	"types": 
 	{
