@@ -17,16 +17,20 @@
 
 package com.servoy.j2db.persistence.memory;
 
+import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.IServerManagerInternal;
 import com.servoy.j2db.persistence.ITable;
@@ -41,11 +45,14 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.util.ITransactionConnection;
 
 /**
- * @author george
+ * @author gganea
  *
  */
-public class MemServer implements IServerInternal
+public class MemServer implements IServerInternal, IServer
 {
+
+	public static final String SERVER_NAME = "mem"; //$NON-NLS-1$
+	private final Map<String, ITable> tables = new HashMap<String, ITable>();
 
 	/*
 	 * (non-Javadoc)
@@ -55,7 +62,6 @@ public class MemServer implements IServerInternal
 	@Override
 	public void flushTables(List<ITable> tabelList) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -65,10 +71,14 @@ public class MemServer implements IServerInternal
 	 * @see com.servoy.j2db.persistence.IServerInternal#createNewTable(com.servoy.j2db.persistence.IValidateName, java.lang.String)
 	 */
 	@Override
-	public Table createNewTable(IValidateName validator, String tableName) throws RepositoryException
+	public ITable createNewTable(IValidateName validator, String tableName) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (!tables.containsKey(tableName))
+		{
+			ITable table = new MemTable(tableName);
+			tables.put(tableName, table);
+		}
+		return tables.get(tableName);
 	}
 
 	/*
@@ -79,7 +89,6 @@ public class MemServer implements IServerInternal
 	@Override
 	public Table createNewTable(IValidateName validator, String nm, boolean testSQL) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -393,8 +402,7 @@ public class MemServer implements IServerInternal
 	@Override
 	public String getName()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return SERVER_NAME;
 	}
 
 	/*
@@ -439,10 +447,9 @@ public class MemServer implements IServerInternal
 	 * @see com.servoy.j2db.persistence.IServerInternal#getTable(java.lang.String)
 	 */
 	@Override
-	public Table getTable(String tableName) throws RepositoryException
+	public ITable getTable(String tableName) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return tables.get(tableName);
 	}
 
 	/*
@@ -755,6 +762,78 @@ public class MemServer implements IServerInternal
 	 */
 	@Override
 	public Table createClientStatsTable() throws RepositoryException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IServer#getTableBySqlname(java.lang.String)
+	 */
+	@Override
+	public ITable getTableBySqlname(String tableSQLName) throws RepositoryException, RemoteException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IServer#getInitializedTables()
+	 */
+	@Override
+	public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IServer#getTableType(java.lang.String)
+	 */
+	@Override
+	public int getTableType(String tableName) throws RepositoryException, RemoteException
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IServer#getDatabaseProductName()
+	 */
+	@Override
+	public String getDatabaseProductName() throws RepositoryException, RemoteException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IServer#getQuotedIdentifier(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RepositoryException, RemoteException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IServer#getDataModelClonesFrom()
+	 */
+	@Override
+	public String[] getDataModelClonesFrom() throws RemoteException
 	{
 		// TODO Auto-generated method stub
 		return null;
