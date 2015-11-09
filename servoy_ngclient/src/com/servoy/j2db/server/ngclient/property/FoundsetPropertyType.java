@@ -206,7 +206,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						public Object[] getIds()
 						{
 							return webComponentValue.dataproviders.keySet().toArray();
-						};
+						}
 					};
 					return dataproviders;
 				}
