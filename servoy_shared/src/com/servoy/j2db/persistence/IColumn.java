@@ -31,7 +31,7 @@ public interface IColumn extends IBaseColumn, IDataProvider, IColumnTypes
 
 	public boolean isAggregate();
 
-	public Table getTable() throws RepositoryException;
+	public ITable getTable() throws RepositoryException;
 
 	public String getTypeAsString();
 

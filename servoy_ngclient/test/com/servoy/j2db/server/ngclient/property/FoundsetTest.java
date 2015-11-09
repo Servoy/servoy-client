@@ -46,6 +46,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.ISequenceProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
@@ -251,6 +252,13 @@ public class FoundsetTest extends AbstractSolutionTest
 				return null;
 			}
 
+			@Override
+			public ISequenceProvider getSequenceProvider()
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
 		});
 		solution.setServerProxies(serverProxies);
 
@@ -305,7 +313,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		// fake an update
 		endpoint.incoming(
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
-				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
+				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
+			true);
 
 		Assert.assertEquals("value4", form.getFormModel().getRecord(1).getValue("test2")); // not value 5 cause pushToServer is rejected!
 	}
@@ -355,7 +364,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		// fake an update
 		endpoint.incoming(
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundsetWithAllow\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
-				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
+				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
+			true);
 
 		Assert.assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));
 	}
@@ -367,8 +377,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebFormComponent webComponent = form.getFormUI().getWebComponent("mydynamiccustombean");
 		FoundsetTypeSabloValue property = (FoundsetTypeSabloValue)webComponent.getProperty("myfoundset");
 		JSONArray json = new JSONArray("[{" + FoundsetTypeSabloValue.PREFERRED_VIEWPORT_SIZE + ":1}]");
-		property.browserUpdatesReceived(json, webComponent.getSpecification().getProperty("myfoundset"), new BrowserConverterContext(webComponent,
-			PushToServerEnum.allow));
+		property.browserUpdatesReceived(json, webComponent.getSpecification().getProperty("myfoundset"),
+			new BrowserConverterContext(webComponent, PushToServerEnum.allow));
 
 
 		Assert.assertNotNull(form);

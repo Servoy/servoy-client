@@ -314,13 +314,13 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return serverName;
 	}
 
-	void addRowIdentColumn(Column c)
+	public void addRowIdentColumn(Column c)
 	{
 		if (!keyColumns.contains(c)) keyColumns.add(c);
 		Collections.sort(keyColumns, NameComparator.INSTANCE);
 	}
 
-	void removeRowIdentColumn(Column c)
+	public void removeRowIdentColumn(Column c)
 	{
 		keyColumns.remove(c);
 	}
@@ -409,11 +409,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return c;
 	}
 
-	public IColumn createNewIColumn(IValidateName validator, String colname, int type, int length) throws RepositoryException
-	{
-		return createNewColumn(validator, colname, type, length);
-	}
-
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length) throws RepositoryException
 	{
 		return createNewColumn(validator, colname, type, length, 0);
@@ -434,7 +429,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	}
 
 	//while creating a new table, name changes are possible
-	void columnNameChange(IValidateName validator, String oldName, String newName) throws RepositoryException
+	public void columnNameChange(IValidateName validator, String oldName, String newName) throws RepositoryException
 	{
 		if (oldName != null && newName != null && !oldName.equals(newName))
 		{

@@ -133,15 +133,6 @@ public interface ITable
 	public List<Column> getRowIdentColumns();
 
 	/**
-	 * @param nameValidator
-	 * @param newName
-	 * @param type
-	 * @param length
-	 * @return
-	 */
-	public IColumn createNewIColumn(IValidateName nameValidator, String newName, int type, int length) throws RepositoryException;
-
-	/**
 	 * @return
 	 */
 	public Iterator<Column> getColumnsSortedByName();
@@ -224,6 +215,42 @@ public interface ITable
 	 * @param b
 	 */
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull) throws RepositoryException;
+
+	/**
+	 * @param nameValidator
+	 * @param colname
+	 * @param text
+	 * @param i
+	 * @return
+	 */
+	public Column createNewColumn(IValidateName nameValidator, String colname, int type, int length) throws RepositoryException;
+
+	/**
+	 * @param oldDataProviderID
+	 */
+	public void columnDataProviderIDChanged(String oldDataProviderID);
+
+	/**
+	 * @param column
+	 */
+	public void fireIColumnChanged(IColumn column);
+
+	/**
+	 * @param validator
+	 * @param oldSQLName
+	 * @param newName
+	 */
+	public void columnNameChange(IValidateName validator, String oldSQLName, String newName) throws RepositoryException;
+
+	/**
+	 * @param column
+	 */
+	public void addRowIdentColumn(Column column);
+
+	/**
+	 * @param column
+	 */
+	public void removeRowIdentColumn(Column column);
 
 
 }

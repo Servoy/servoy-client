@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * Remote interface to a database server
- * 
+ *
  * @author jblok
  */
 public interface IServer extends Remote
@@ -57,7 +57,7 @@ public interface IServer extends Remote
 	/**
 	 * Get quoted identifier according to the server dialect when needed, return original when no quoting is needed. When both args are used , the qualified
 	 * name is returned.
-	 * 
+	 *
 	 * @param tableSqlName table or column name
 	 * @param columnSqlName column name when qualified with quoted table name, otherwise null
 	 * @throws RepositoryException
@@ -66,4 +66,9 @@ public interface IServer extends Remote
 	public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RepositoryException, RemoteException;
 
 	public String[] getDataModelClonesFrom() throws RemoteException;
+
+	/**
+	 * @return
+	 */
+	public ISequenceProvider getSequenceProvider();
 }

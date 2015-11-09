@@ -1373,7 +1373,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	/**
 	 * Returns script calculations and aggregates and columns
 	 */
-	public IDataProvider getDataProviderForTable(Table table, String dataProviderID) throws RepositoryException
+	public IDataProvider getDataProviderForTable(ITable table, String dataProviderID) throws RepositoryException
 	{
 		if (table == null || dataProviderID == null) return null;
 		// check for calculations first because of stored calculations
@@ -1392,7 +1392,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return null;
 	}
 
-	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(Table table) throws RepositoryException
+	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(ITable table) throws RepositoryException
 	{
 		if (table == null) return null;
 		if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<ITable, Map<String, IDataProvider>>(64, 0.9f, 16);

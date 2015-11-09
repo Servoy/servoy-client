@@ -17,16 +17,23 @@
 
 package com.servoy.j2db.persistence.memory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ColumnComparator;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnListener;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.IValidateName;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ValidatorSearchContext;
+import com.servoy.j2db.util.SortedList;
 
 /**
  * @author gganea
@@ -37,6 +44,12 @@ public class MemTable implements ITable
 
 
 	private final String name;
+	private final Set<Column> columns = new HashSet<Column>();
+	//TODO rowIdentColumns* api should be refactored out because it is copied from Table
+	private final List<Column> keyColumns = new ArrayList<Column>();
+
+	// listeners
+	protected transient List<IColumnListener> tableListeners;
 
 	public MemTable(String name)
 	{
@@ -169,8 +182,25 @@ public class MemTable implements ITable
 	@Override
 	public Iterator<String> getRowIdentColumnNames()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new Iterator<String>()
+		{
+			Iterator<Column> intern = keyColumns.iterator();
+
+			public void remove()
+			{
+				throw new UnsupportedOperationException("Can't remove row ident columns"); //$NON-NLS-1$
+			}
+
+			public String next()
+			{
+				return intern.next().getName();
+			}
+
+			public boolean hasNext()
+			{
+				return intern.hasNext();
+			}
+		};
 	}
 
 	/*
@@ -277,8 +307,7 @@ public class MemTable implements ITable
 	@Override
 	public Collection<Column> getColumns()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return columns;
 	}
 
 	/*
@@ -287,10 +316,13 @@ public class MemTable implements ITable
 	 * @see com.servoy.j2db.persistence.ITable#addIColumnListener(com.servoy.j2db.persistence.IColumnListener)
 	 */
 	@Override
-	public void addIColumnListener(IColumnListener columnListener)
+	public void addIColumnListener(IColumnListener listener)
 	{
-		// TODO Auto-generated method stub
-
+		if (listener != null)
+		{
+			if (tableListeners == null) tableListeners = new ArrayList<IColumnListener>();
+			if (!tableListeners.contains(listener)) tableListeners.add(listener);
+		}
 	}
 
 	/*
@@ -337,8 +369,7 @@ public class MemTable implements ITable
 	@Override
 	public int getColumnCount()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return columns.size();
 	}
 
 	/*
@@ -349,20 +380,7 @@ public class MemTable implements ITable
 	@Override
 	public List<Column> getRowIdentColumns()
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#createNewIColumn(com.servoy.j2db.persistence.IValidateName, java.lang.String, int, int)
-	 */
-	@Override
-	public IColumn createNewIColumn(IValidateName nameValidator, String newName, int type, int length) throws RepositoryException
-	{
-		// TODO Auto-generated method stub
-		return null;
+		return keyColumns;
 	}
 
 	/*
@@ -373,8 +391,8 @@ public class MemTable implements ITable
 	@Override
 	public Iterator<Column> getColumnsSortedByName()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		SortedList<Column> newList = new SortedList<Column>(ColumnComparator.INSTANCE, columns);
+		return newList.iterator();
 	}
 
 	/*
@@ -486,15 +504,32 @@ public class MemTable implements ITable
 	}
 
 	/*
-	 * (non-Javadoc)
+	 * //TODO createNewColumn* API should be refactored out as it is copied from Table (non-Javadoc)
+	 *
 	 *
 	 * @see com.servoy.j2db.persistence.ITable#createNewColumn(com.servoy.j2db.persistence.IValidateName, java.lang.String, int, int, int)
 	 */
 	@Override
-	public Column createNewColumn(IValidateName validator, String name, int sqlType, int length, int scale) throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+		Column c = new Column(this, colname, type, length, scale, false);
+		columns.add(c);
+		fireIColumnCreated(c);
+		return c;
+	}
+
+	/**
+	 * //TODO refactor tableListeners out of MemTable and Table as they do the same thing
+	 * @param c
+	 */
+	private void fireIColumnCreated(Column c)
+	{
+		if (tableListeners == null) return;
+		for (IColumnListener columnListener : tableListeners)
+		{
+			columnListener.iColumnCreated(c);
+		}
 	}
 
 	/*
@@ -506,8 +541,9 @@ public class MemTable implements ITable
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull, boolean pkColumn)
 		throws RepositoryException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Column c = createNewColumn(validator, colname, type, length, scale, allowNull);
+		c.setDatabasePK(pkColumn);
+		return c;
 	}
 
 	/*
@@ -518,8 +554,78 @@ public class MemTable implements ITable
 	@Override
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull) throws RepositoryException
 	{
+		Column c = createNewColumn(validator, colname, type, length, scale);
+		c.setAllowNull(allowNull);
+		return c;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#createNewColumn(com.servoy.j2db.persistence.IValidateName, java.lang.String, int, int)
+	 */
+	@Override
+	public Column createNewColumn(IValidateName nameValidator, String colname, int type, int length) throws RepositoryException
+	{
+		return createNewColumn(nameValidator, colname, type, length, 0);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#columnDataProviderIDChanged(java.lang.String)
+	 */
+	@Override
+	public void columnDataProviderIDChanged(String oldDataProviderID)
+	{
 		// TODO Auto-generated method stub
-		return null;
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#fireIColumnChanged(com.servoy.j2db.persistence.IColumn)
+	 */
+	@Override
+	public void fireIColumnChanged(IColumn column)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#columnNameChange(com.servoy.j2db.persistence.IValidateName, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void columnNameChange(IValidateName validator, String oldSQLName, String newName) throws RepositoryException
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#addRowIdentColumn(com.servoy.j2db.persistence.Column)
+	 */
+	@Override
+	public void addRowIdentColumn(Column column)
+	{
+		keyColumns.add(column);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#removeRowIdentColumn(com.servoy.j2db.persistence.Column)
+	 */
+	@Override
+	public void removeRowIdentColumn(Column column)
+	{
+		keyColumns.remove(column);
 	}
 
 }

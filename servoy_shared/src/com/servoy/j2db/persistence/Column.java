@@ -75,7 +75,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public static final int[] allDefinedRowIdents = new int[] { NORMAL_COLUMN, PK_COLUMN, USER_ROWID_COLUMN };
 	public static final int[] allDefinedOtherFlags = new int[] { UUID_COLUMN, EXCLUDED_COLUMN };
 
-	private final Table table;
+	private final ITable table;
 	private String plainSQLName;
 	private ColumnType columnType; // as returned by current database, columnInfo holds column type as configured by developer
 	private boolean existInDB;
@@ -87,7 +87,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public Column(Table db, String theSQLName, int type, int length, int scale, boolean existInDB)
+	public Column(ITable db, String theSQLName, int type, int length, int scale, boolean existInDB)
 	{
 		table = db;
 		this.plainSQLName = theSQLName;
@@ -785,7 +785,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 	}
 
-	public Table getTable()
+	public ITable getTable()
 	{
 		return table;
 	}
@@ -850,7 +850,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void updateDataProviderID(IValidateName validator, String dpid) throws RepositoryException
 	{
 		String ndpid = Ident.generateNormalizedName(dpid);
-		Column other = (Column)table.getColumn(ndpid);
+		Column other = table.getColumn(ndpid);
 		if (other != null && other != this)
 		{
 			throw new RepositoryException("A column on table " + table.getName() + " with name/dataProviderID " + ndpid + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

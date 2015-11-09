@@ -24,9 +24,9 @@ public interface IDataProviderHandler
 {
 	public IDataProviderLookup getDataproviderLookup(IFoundSetManagerInternal foundSetManager, final IPersist p);
 
-	public IDataProvider getDataProviderForTable(Table table, String dataProviderID) throws RepositoryException;
+	public IDataProvider getDataProviderForTable(ITable table, String dataProviderID) throws RepositoryException;
 
 	public IDataProvider getGlobalDataProvider(String id) throws RepositoryException;
 
-	public Map getAllDataProvidersForTable(Table table) throws RepositoryException;
+	public Map getAllDataProvidersForTable(ITable table) throws RepositoryException;
 }

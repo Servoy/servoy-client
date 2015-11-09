@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISequenceProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.IServerManagerInternal;
@@ -53,6 +54,7 @@ public class MemServer implements IServerInternal, IServer
 
 	public static final String SERVER_NAME = "mem"; //$NON-NLS-1$
 	private final Map<String, ITable> tables = new HashMap<String, ITable>();
+	private volatile ISequenceProvider sequenceManager;
 
 	/*
 	 * (non-Javadoc)
@@ -837,6 +839,25 @@ public class MemServer implements IServerInternal, IServer
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.IServer#getSequenceProvider()
+	 */
+	@Override
+	public ISequenceProvider getSequenceProvider()
+	{
+		return sequenceManager;
+	}
+
+	/**
+	 * @param sequenceManager the sequenceManager to set
+	 */
+	public void setSequenceProvider(ISequenceProvider sequenceManager)
+	{
+		this.sequenceManager = sequenceManager;
 	}
 
 }

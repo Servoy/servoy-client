@@ -30,7 +30,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Class for client side cache to prevent recurring network calls
- * 
+ *
  * @author jblok
  */
 public class ServerProxy implements IServer, Serializable
@@ -40,14 +40,14 @@ public class ServerProxy implements IServer, Serializable
 	//local cache
 	private String serverName;
 	private String databaseProductName;
-	// handle serialization of ConcurrentHashMap in writeObject/readObject (tables transient) because in a terracotta environment serialization of 
+	// handle serialization of ConcurrentHashMap in writeObject/readObject (tables transient) because in a terracotta environment serialization of
 	// ConcurrentHashMap is broken, See http://jira.terracotta.org/jira/browse/CDV-1377
 	private volatile transient Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
 
 	public ServerProxy(IServer a_server)
 	{
 		server = a_server;
-		// we cannot load all tables with columns from database, it to slow on big databases (1000+ tables)		
+		// we cannot load all tables with columns from database, it to slow on big databases (1000+ tables)
 	}
 
 	private void writeObject(java.io.ObjectOutputStream s) throws IOException
@@ -128,7 +128,7 @@ public class ServerProxy implements IServer, Serializable
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IServer#getTables(boolean)
 	 */
 	public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException
@@ -164,8 +164,8 @@ public class ServerProxy implements IServer, Serializable
 
 	public boolean isValid() throws RemoteException
 	{
-		// cache the valid state when the server was valid on the servoy server. 
-		// If this toggles for a client then we have other problems anyway. 
+		// cache the valid state when the server was valid on the servoy server.
+		// If this toggles for a client then we have other problems anyway.
 		if (!valid)
 		{
 			valid = server.isValid();
@@ -228,5 +228,17 @@ public class ServerProxy implements IServer, Serializable
 	public String[] getDataModelClonesFrom() throws RemoteException
 	{
 		return server.getDataModelClonesFrom();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.IServer#getSequenceProvider()
+	 */
+	@Override
+	public ISequenceProvider getSequenceProvider()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
