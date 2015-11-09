@@ -3936,7 +3936,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return;
 		}
-		if (!hasAccess(IRepository.DELETE))
+		if (!hasAccess(IRepository.DELETE) && (state == null || state.existInDataSource()))
 		{
 			throw new ApplicationException(ServoyException.NO_DELETE_ACCESS);
 		}
