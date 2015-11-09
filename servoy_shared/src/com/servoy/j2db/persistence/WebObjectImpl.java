@@ -326,7 +326,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 			else
 			{
-				jsonObject.put(key, value);
+				if (value != null)
+				{
+					jsonObject.put(key, value);
+				}
+				else
+				{
+					jsonObject.put(key, JSONObject.NULL);
+				}
 			}
 			setJsonInternal(jsonObject);
 			((AbstractBase)webObject).flagChanged();
@@ -377,7 +384,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 			if (getPropertyDescription().isArrayReturnType(customType.getJsonKey()))
 			{
-				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
+				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+					customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
 				{
 					Object children = getCustomTypeProperties().get(customType.getJsonKey());
 					if (children == null) children = new WebCustomType[0];
@@ -400,7 +408,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				else
 				{
 					Debug.error("Element type (" +
-						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
+						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+							customType.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
 						") does not match persist-to-add type: " + type + " - " + webObject);
 				}
 			}
