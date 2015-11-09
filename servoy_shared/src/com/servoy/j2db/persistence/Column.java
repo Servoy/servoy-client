@@ -708,7 +708,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return plainSQLName;
 	}
 
-	void setSQLName(String name)
+	public void setSQLName(String name)
 	{
 		plainSQLName = name;
 		hasBadName = null; // clear notify, so checks are run again

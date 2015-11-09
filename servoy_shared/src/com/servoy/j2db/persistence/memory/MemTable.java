@@ -19,10 +19,11 @@ package com.servoy.j2db.persistence.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnComparator;
@@ -34,6 +35,7 @@ import com.servoy.j2db.persistence.IValidateName;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author gganea
@@ -44,7 +46,7 @@ public class MemTable implements ITable
 
 
 	private final String name;
-	private final Set<Column> columns = new HashSet<Column>();
+	private final Map<String, Column> columns = new HashMap<String, Column>();
 	//TODO rowIdentColumns* api should be refactored out because it is copied from Table
 	private final List<Column> keyColumns = new ArrayList<Column>();
 
@@ -307,7 +309,7 @@ public class MemTable implements ITable
 	@Override
 	public Collection<Column> getColumns()
 	{
-		return columns;
+		return columns.values();
 	}
 
 	/*
@@ -333,8 +335,7 @@ public class MemTable implements ITable
 	@Override
 	public int getRowIdentColumnsCount()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return keyColumns.size();
 	}
 
 	/*
@@ -391,7 +392,7 @@ public class MemTable implements ITable
 	@Override
 	public Iterator<Column> getColumnsSortedByName()
 	{
-		SortedList<Column> newList = new SortedList<Column>(ColumnComparator.INSTANCE, columns);
+		SortedList<Column> newList = new SortedList<Column>(ColumnComparator.INSTANCE, columns.values());
 		return newList.iterator();
 	}
 
@@ -461,9 +462,13 @@ public class MemTable implements ITable
 	 * @see com.servoy.j2db.persistence.ITable#fireIColumnsChanged(java.util.Collection)
 	 */
 	@Override
-	public void fireIColumnsChanged(Collection<IColumn> changedColumns)
+	public void fireIColumnsChanged(Collection<IColumn> cols)
 	{
-		// TODO Auto-generated method stub
+		if (tableListeners == null || cols == null || cols.size() == 0) return;
+		for (IColumnListener columnListener : tableListeners)
+		{
+			columnListener.iColumnsChanged(cols);
+		}
 
 	}
 
@@ -513,8 +518,11 @@ public class MemTable implements ITable
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale) throws RepositoryException
 	{
 		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+
+		if (columns.containsKey(colname)) return columns.get(colname);
+
 		Column c = new Column(this, colname, type, length, scale, false);
-		columns.add(c);
+		columns.put(colname, c);
 		fireIColumnCreated(c);
 		return c;
 	}
@@ -590,8 +598,7 @@ public class MemTable implements ITable
 	@Override
 	public void fireIColumnChanged(IColumn column)
 	{
-		// TODO Auto-generated method stub
-
+		fireIColumnsChanged(Collections.singletonList(column));
 	}
 
 	/*
@@ -600,9 +607,25 @@ public class MemTable implements ITable
 	 * @see com.servoy.j2db.persistence.ITable#columnNameChange(com.servoy.j2db.persistence.IValidateName, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void columnNameChange(IValidateName validator, String oldSQLName, String newName) throws RepositoryException
+	public void columnNameChange(IValidateName validator, String oldName, String newName) throws RepositoryException
 	{
-		// TODO Auto-generated method stub
+		if (oldName != null && newName != null && !oldName.equals(newName))
+		{
+			if (columns.containsKey(Utils.toEnglishLocaleLowerCase(newName)))
+			{
+				throw new RepositoryException("A column on table " + getName() + " with name/dataProviderID " + newName + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+
+			validator.checkName(newName, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+			Column c = columns.get(Utils.toEnglishLocaleLowerCase(oldName));
+			if (c != null)
+			{
+				c.setSQLName(newName);
+				columns.remove(Utils.toEnglishLocaleLowerCase(oldName));
+				columns.put(Utils.toEnglishLocaleLowerCase(newName), c);
+				fireIColumnChanged(c);
+			}
+		}
 
 	}
 
