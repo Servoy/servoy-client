@@ -605,4 +605,14 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		return o == JSONObject.NULL ? null : o;
 	}
 
+	/**
+	 * This method is useful as optString in parent implementation is flawed.
+	 * If you set a null (JSONObject.NULL) value it optString(key) would return "null" which is unexpected. Null would have been expected...
+	 */
+	public static String optString(String key, JSONObject jsonObject, String defaultValue)
+	{
+		Object v = jsonNullToNull(jsonObject.opt(key));
+		return v != null ? v.toString() : defaultValue;
+	}
+
 }

@@ -63,6 +63,7 @@ import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -98,6 +99,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public static final String MULTI_SELECT = "multiSelect";
 	public static final String VIEW_PORT = "viewPort";
 	public static final String COLUMN_FORMATS = "columnFormats";
+	public static final String HAS_MORE_ROWS = "hasMoreRows";
 	public static final String START_INDEX = "startIndex";
 	public static final String SIZE = "size";
 	public static final String PREFERRED_VIEWPORT_SIZE = "preferredViewportSize";
@@ -161,7 +163,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			while (keys.hasNext())
 			{
 				String key = (String)keys.next();
-				dataproviders.put(key, dataProvidersJSON.optString(key));
+				dataproviders.put(key, ServoyJSONObject.optString(key, dataProvidersJSON, null));
 			}
 		}
 	}
@@ -267,7 +269,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			}
 		}
 		updateFoundset(newFoundset);
-
 	}
 
 	protected IFoundSetManagerInternal getFoundSetManager()
@@ -291,6 +292,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			viewPort.setFoundset(foundset);
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
+			changeMonitor.checkHadMoreRows();
 
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
 
@@ -356,6 +358,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
 		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false); // TODO listener and granular changes for this as well?
+		destinationJSON.key(HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false); // TODO listener and granular changes for this as well?
 
 		writeColumnFormatsIfNeededAndAvailable(destinationJSON, dataConverterContext, false);
 
@@ -457,6 +460,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 				somethingChanged = true;
 			}
+			if (changeMonitor.shouldSendHadMoreRows())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false);
+				somethingChanged = true;
+			}
 			if (changeMonitor.shouldSendSelectedIndexes())
 			{
 				if (!somethingChanged) destinationJSON.object();
@@ -556,7 +565,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		{
 			Entry<String, String> entry = it.next();
 			String dataProvider = entry.getValue();
-			Object value = record.getValue(dataProvider);
+			Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
 			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
 
 			// currently all that NGUtils.getDataProviderPropertyDescription can return is IConvertedProperty type or default types; so we don't need any special value pre-processing (like IWrapperType or IServoyAwareValue or others would need)

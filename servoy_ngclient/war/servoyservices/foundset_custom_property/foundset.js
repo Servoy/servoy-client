@@ -14,6 +14,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var SEND_SELECTION_RESPONSE = "selectionResponse";
 	var SEND_SELECTION_REQUESTID = "selectionRequestID";
 	var MULTI_SELECT = "multiSelect";
+	var HAS_MORE_ROWS = "hasMoreRows";
 	var VIEW_PORT = "viewPort";
 	var START_INDEX = "startIndex";
 	var SIZE = "size";
@@ -74,7 +75,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
 					updates = true;
 				}
-				
+				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS])) {
+					currentClientValue[HAS_MORE_ROWS] = serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS];
+					updates = true;
+				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS])) {
 					currentClientValue[COLUMN_FORMATS] = serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS];
 					updates = true;
