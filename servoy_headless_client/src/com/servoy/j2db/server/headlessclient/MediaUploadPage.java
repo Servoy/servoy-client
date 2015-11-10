@@ -213,7 +213,7 @@ public class MediaUploadPage extends WebPage
 						if (uploadDir != null)
 						{
 							fileUploadDir = new File(uploadDir);
-							if (!(fileUploadDir.mkdirs() && fileUploadDir.exists()))
+							if (!fileUploadDir.exists() && !fileUploadDir.mkdirs())
 							{
 								fileUploadDir = null;
 								Debug.error("Couldn't use the property 'servoy.ng_web_client.temp.uploadir' value: '" + uploadDir +
