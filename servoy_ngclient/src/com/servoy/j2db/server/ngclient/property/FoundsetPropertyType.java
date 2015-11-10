@@ -79,6 +79,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(0);
 		writer.key(FoundsetTypeSabloValue.SELECTED_ROW_INDEXES).array().endArray();
 		writer.key(FoundsetTypeSabloValue.MULTI_SELECT).value(false);
+		writer.key(FoundsetTypeSabloValue.HAS_MORE_ROWS).value(false);
 
 		// viewPort
 		writer.key(FoundsetTypeSabloValue.VIEW_PORT).object().key(FoundsetTypeSabloValue.START_INDEX).value(0).key(FoundsetTypeSabloValue.SIZE).value(0).key(

@@ -94,10 +94,10 @@ public class FoundsetTypeViewport
 		int oldStartIndex = this.startIndex;
 		int oldSize = this.size;
 
-		correctViewportBoundsIfNeededInternal();
 		if (positiveOrNegativeRecordNo >= 0)
 		{
-			this.size = Math.min(size + positiveOrNegativeRecordNo, foundset.getSize());
+			this.size = size + positiveOrNegativeRecordNo;
+			correctViewportBoundsIfNeededInternal();
 			changeMonitor.recordsInserted(this.startIndex + oldSize, this.startIndex + this.size - 1, this, true);
 		}
 		else
@@ -106,7 +106,6 @@ public class FoundsetTypeViewport
 			this.size += (oldStartIndex - startIndex);
 			changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
 		}
-
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
 	}
@@ -133,34 +132,26 @@ public class FoundsetTypeViewport
 	{
 		if (foundset != null)
 		{
-			try
+			IRecordInternal firstRec = foundset.getRecord(startIndex); // this can trigger a query for more records if foundset hadMoreRows is true; that in turn can update through listener serverSize and hadMoreRows related flags on the change monitor
+			if (firstRec != null)
 			{
-				foundset.removeFoundSetEventListener(getFoundsetEventListener());
-				IRecordInternal firstRec = foundset.getRecord(startIndex);
-				if (firstRec != null)
+				if (size > 0)
 				{
-					if (size > 0)
+					IRecordInternal lastRec = foundset.getRecord(startIndex + size - 1); // this can trigger a query for more records if foundset hadMoreRows is true; that in turn can update through listener serverSize and hadMoreRows related flags on the change monitor
+					if (lastRec == null)
 					{
-						IRecordInternal lastRec = foundset.getRecord(startIndex + size - 1);
-						if (lastRec == null)
-						{
-							size = foundset.getSize() - startIndex;
-						}
-					}
-					else
-					{
-						size = 0;
+						size = foundset.getSize() - startIndex;
 					}
 				}
 				else
 				{
-					startIndex = 0;
 					size = 0;
 				}
 			}
-			finally
+			else
 			{
-				foundset.addFoundSetEventListener(getFoundsetEventListener());
+				startIndex = 0;
+				size = 0;
 			}
 		}
 		else
@@ -202,6 +193,7 @@ public class FoundsetTypeViewport
 						{
 							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this);
 						}
+						changeMonitor.checkHadMoreRows();
 					}
 				}
 			};
