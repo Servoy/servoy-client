@@ -125,8 +125,7 @@ public class MemTable implements ITable
 	@Override
 	public String getSQLName()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
 	/*
@@ -137,7 +136,6 @@ public class MemTable implements ITable
 	@Override
 	public String getDataSource()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -149,7 +147,7 @@ public class MemTable implements ITable
 	@Override
 	public String getServerName()
 	{
-		return MemServer.SERVER_NAME;
+		return "mem";
 	}
 
 	/*
@@ -214,7 +212,7 @@ public class MemTable implements ITable
 	public boolean getExistInDB()
 	{
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	/*
@@ -517,7 +515,6 @@ public class MemTable implements ITable
 	@Override
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale) throws RepositoryException
 	{
-		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
 
 		if (columns.containsKey(colname)) return columns.get(colname);
 
