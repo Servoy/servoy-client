@@ -726,7 +726,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			}
 			var updateGridSelectionFromFoundset = function(scrollToSelection) {
-				$scope.$evalAsync(function () {
+				$timeout(function () {
 					try {
 						if ($scope.foundset)
 						{
@@ -738,7 +738,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							var isNewSelection = !oldSelection || !$scope.foundset.selectedRowIndexes || (oldSelection.length != $scope.foundset.selectedRowIndexes.length);
 							if(!isNewSelection) {
 								for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
-									isNewSelection = $scope.foundset.selectedRowIndexes[idx] != oldSelection[idx];
+									isNewSelection = rows[$scope.foundset.selectedRowIndexes[idx]]._svyRowId != oldSelection[idx]._svyRowId;
 									if(isNewSelection) break;
 								}
 							}
@@ -900,7 +900,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 					}
 				});
 				
-				$scope.gridApi.core.on.scrollEnd($scope, function (e) { 
+				$scope.gridApi.core.on.scrollEnd($scope, function (e) {
 					if(e.source == "ViewPortScroll" && focusedRowId) {
 						for (var renderRowIndex in cellAPICaches) {
 							if (cellAPICaches[renderRowIndex].rowId == focusedRowId) {
