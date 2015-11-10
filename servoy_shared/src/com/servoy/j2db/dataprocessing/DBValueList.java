@@ -46,7 +46,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Table based valuelist
- * 
+ *
  * @author jblok
  */
 public class DBValueList extends CustomValueList implements ITableChangeListener
@@ -227,7 +227,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				fs.addFilterParam("valueList.nameColumn", NAME_COLUMN, "=", valueList.getName()); //$NON-NLS-1$
 			}
 
-			fs.browseAll(false);//we do nothing with related foundsets so don't touch these 
+			fs.browseAll(false);//we do nothing with related foundsets so don't touch these
 
 			// browse all could trigger also a fill
 			if (isLoaded) return;
@@ -276,8 +276,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							tableFilterParams = new ArrayList<TableFilter>();
 						}
-						tableFilterParams.add(new TableFilter(
-							"dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
+						tableFilterParams.add(new TableFilter("dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
 							IBaseSQLCondition.EQUALS_OPERATOR, valueList.getName()));
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
@@ -300,8 +299,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					for (int i = 0; i < set.getRowCount(); i++)
 					{
 						Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
-						if (displayFormat != null) addElement(handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString());
-						else addElement(handleRowData(valueList, concatShowValues, showValues, row, application).toString());
+						Object displayValue = null;
+						if (displayFormat != null)
+						{
+							displayValue = handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
+						}
+						else
+						{
+							displayValue = handleRowData(valueList, concatShowValues, showValues, row, application);
+						}
+						addElement(displayValue != null ? displayValue.toString() : displayValue);
 						realValues.add(handleRowData(valueList, concatReturnValues, returnValues, row, application));
 					}
 				}
@@ -346,8 +353,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	{
 		if (valueList != null && application != null && application.getFlattenedSolution() != null)
 		{
-			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) || checkIfCalc(
-				valueList.getDataProviderID3(), t));
+			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) ||
+				checkIfCalc(valueList.getDataProviderID3(), t));
 		}
 	}
 
@@ -396,7 +403,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		{
 			for (SortColumn sc : sortColumns)
 			{
-				orderColumns.add(new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
+				orderColumns.add(
+					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
 			}
 		}
 
