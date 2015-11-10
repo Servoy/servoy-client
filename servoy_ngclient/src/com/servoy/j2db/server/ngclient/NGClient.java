@@ -1081,8 +1081,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		try
 		{
 			mediaUploadCallback = callback;
+			String key = multiSelect ? "servoy.filechooser.upload.addFiles" : "servoy.filechooser.upload.addFile";
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("showFileOpenDialog",
-				new Object[] { dialogTitle == null ? Messages.getString("servoy.filechooser.title") : dialogTitle, Boolean.valueOf(multiSelect) });
+				new Object[] { dialogTitle == null ? getI18NMessage(key) : dialogTitle, Boolean.valueOf(multiSelect) });
 		}
 		catch (IOException ex)
 		{
