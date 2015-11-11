@@ -34,7 +34,7 @@ import com.servoy.j2db.util.EnablePanel;
 
 /**
  * This class represents a split pane in the smart client
- * 
+ *
  * @author gboros
  */
 public class SplitPane extends JSplitPane implements ISupportReadOnly
@@ -59,17 +59,31 @@ public class SplitPane extends JSplitPane implements ISupportReadOnly
 
 	public void setLeftForm(FormLookupPanel flp)
 	{
-		flp.setOpaque(isOpaque());
+		if (flp != null) flp.setOpaque(isOpaque());
 		int dividerLoc = getDividerLocation();
-		setLeftComponent(flp);
+		if (flp != null)
+		{
+			setLeftComponent(flp);
+		}
+		else
+		{
+			setLeftComponent(new JLabel(""));
+		}
 		setDividerLocation(dividerLoc);
 	}
 
 	public void setRightForm(FormLookupPanel flp)
 	{
-		flp.setOpaque(isOpaque());
+		if (flp != null) flp.setOpaque(isOpaque());
 		int dividerLoc = getDividerLocation();
-		setRightComponent(flp);
+		if (flp != null)
+		{
+			setRightComponent(flp);
+		}
+		else
+		{
+			setRightComponent(new JLabel(""));
+		}
 		setDividerLocation(dividerLoc);
 	}
 

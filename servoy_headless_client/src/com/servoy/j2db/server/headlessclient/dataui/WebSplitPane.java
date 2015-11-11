@@ -652,7 +652,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'padding', 0);"); //$NON-NLS-1$
 			resizeScript.append(
 				"this.getProxyEl().innerHTML = '<div style = \"filter: alpha(opacity=50); opacity: 0.5; -moz-opacity: 0.5; position: absolute; left: 0; right: 0; top: 0; bottom: 0; border-").append(orient == TabPanel.SPLIT_HORIZONTAL ? "right" : "bottom").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				":").append(dividerSize).append("px solid ").append(dividerBg != null ? dividerBg : "#7D98B8").append("\"></div>';"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						":").append(dividerSize).append("px solid ").append(dividerBg != null ? dividerBg : "#7D98B8").append("\"></div>';"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			resizeScript.append("});"); //$NON-NLS-1$
 
 		}
@@ -955,6 +955,22 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 				paneChanged[bLeftForm ? 0 : 1] = true;
 			}
 			return bNotifyVisibleForm;
+		}
+		else if (form == null)
+		{
+			IFormLookupPanel replacedForm = bLeftForm ? getLeftForm() : getRightForm();
+			if (replacedForm != null)
+			{
+				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(0);
+				boolean bNotifyVisibleForm = notifyVisibleForm(false, bLeftForm ? 0 : 1, invokeLaterRunnables);
+				Utils.invokeLater(application, invokeLaterRunnables);
+				if (!bNotifyVisibleForm) return false;
+			}
+
+			splitComponents[bLeftForm ? 0 : 1].replace(new Label("webform", new Model<String>("")));
+			webTabs[bLeftForm ? 0 : 1] = null;
+			paneChanged[bLeftForm ? 0 : 1] = true;
+			return true;
 		}
 		return false;
 	}

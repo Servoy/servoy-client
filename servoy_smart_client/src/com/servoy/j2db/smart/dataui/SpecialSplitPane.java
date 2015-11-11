@@ -57,8 +57,8 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.AutoTransferFocusListener;
 
 
-public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDisplayRelatedData, ISupportSecuritySettings, IFocusCycleRoot<Component>,
-	ISupportFocusTransfer, ListSelectionListener
+public class SpecialSplitPane extends EnablePanel
+	implements ISplitPane, IDisplayRelatedData, ISupportSecuritySettings, IFocusCycleRoot<Component>, ISupportFocusTransfer, ListSelectionListener
 {
 	private final IApplication application;
 	private final SplitPane splitPane;
@@ -558,6 +558,21 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 			boolean bNotifyVisibleForm = notifyVisibleForm(true, flp, invokeLaterRunnables);
 			Utils.invokeLater(application, invokeLaterRunnables);
 			return bNotifyVisibleForm;
+		}
+		else if (form == null)
+		{
+			IFormLookupPanel replacedForm = bLeftForm ? getLeftForm() : getRightForm();
+			if (replacedForm != null)
+			{
+				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(0);
+				boolean bNotifyVisibleForm = notifyVisibleForm(false, (FormLookupPanel)replacedForm, invokeLaterRunnables);
+				Utils.invokeLater(application, invokeLaterRunnables);
+				if (!bNotifyVisibleForm) return false;
+			}
+
+			if (bLeftForm) setLeftForm(null);
+			else setRightForm(null);
+			return true;
 		}
 		return false;
 	}
