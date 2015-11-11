@@ -52,6 +52,7 @@ public class MemTable implements ITable
 
 	// listeners
 	protected transient List<IColumnListener> tableListeners;
+	private boolean initialized;
 
 	public MemTable(String name)
 	{
@@ -646,6 +647,28 @@ public class MemTable implements ITable
 	public void removeRowIdentColumn(Column column)
 	{
 		keyColumns.remove(column);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#setInitialized(boolean)
+	 */
+	@Override
+	public void setInitialized(boolean initialized)
+	{
+		this.initialized = initialized;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ITable#isInitialized()
+	 */
+	@Override
+	public boolean isInitialized()
+	{
+		return initialized;
 	}
 
 }

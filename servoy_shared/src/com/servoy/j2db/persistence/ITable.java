@@ -252,5 +252,9 @@ public interface ITable
 	 */
 	public void removeRowIdentColumn(Column column);
 
+	public void setInitialized(boolean initialized);
+
+	public boolean isInitialized();
+
 
 }
