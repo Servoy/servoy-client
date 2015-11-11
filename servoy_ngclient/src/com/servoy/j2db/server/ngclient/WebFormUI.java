@@ -294,7 +294,27 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public WebFormComponent getWebComponent(String compname)
 	{
-		return (WebFormComponent)super.getComponent(compname);
+		WebComponent wc = findChildComponent(compname, this);
+
+		return wc instanceof WebFormComponent ? (WebFormComponent)wc : null;
+	}
+
+	private static WebComponent findChildComponent(String compname, WebComponent rootComponent)
+	{
+		if (compname.equals(rootComponent.getName())) return rootComponent;
+		if (rootComponent instanceof Container)
+		{
+			Collection<WebComponent> childComponents = ((Container)rootComponent).getComponents();
+			if (childComponents.size() > 0)
+			{
+				for (WebComponent wc : childComponents)
+				{
+					WebComponent foundChildComponent = findChildComponent(compname, wc);
+					if (foundChildComponent != null) return foundChildComponent;
+				}
+			}
+		}
+		return null;
 	}
 
 	public Collection<WebComponent> getScriptableComponents()
