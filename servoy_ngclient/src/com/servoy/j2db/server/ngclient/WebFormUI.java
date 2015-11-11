@@ -483,10 +483,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
 			// set readonly state from form manager, just like in wc/sc
 			((BasicFormController)getController()).setReadOnly(formController.isReadOnly());
-
-			NGEnabledSabloValue ngSabloValue = (NGEnabledSabloValue)getRawPropertyValue(ENABLED, false);
-			ngSabloValue.flagChanged(this, ENABLED);
 		}
+		NGEnabledSabloValue ngSabloValue = (NGEnabledSabloValue)getRawPropertyValue(ENABLED, false);
+		ngSabloValue.flagChanged(this, ENABLED);
 	}
 
 	/**
@@ -524,6 +523,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		cleanupListeners();
 		this.parentContainerOrWindowName = parentWindowName;
+		NGEnabledSabloValue ngSabloValue = (NGEnabledSabloValue)getRawPropertyValue(ENABLED, false);
+		ngSabloValue.flagChanged(this, ENABLED);
 	}
 
 	@Override
