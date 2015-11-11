@@ -522,10 +522,15 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		return $windowService.getFormUrl(windowInstance.form.name)
 	}
 	$scope.getNavigatorFormUrl = function() {
-		if (windowInstance.navigatorForm.templateURL && windowInstance.navigatorForm.templateURL.lastIndexOf("default_navigator_container.html") == -1) {
-			return $windowService.getFormUrl(windowInstance.navigatorForm.templateURL);
-		}
-		return windowInstance.navigatorForm.templateURL;
+		if (windowInstance.navigatorForm && windowInstance.navigatorForm.name)
+		{
+			if (windowInstance.navigatorForm.name.lastIndexOf("default_navigator_container.html") > 0)
+			{
+				return windowInstance.navigatorForm.name;
+			}	
+			return $windowService.getFormUrl(windowInstance.navigatorForm.name);
+		}	
+		return null;
 	}
 
 	$scope.isUndecorated = function(){
