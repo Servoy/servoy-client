@@ -263,15 +263,72 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				});
 			}
 
+			
+			function layoutColumnsAndGrid() {
+				$scope.gridApi.grid.gridWidth = gridUtil.elementWidth($element);
+				$scope.gridApi.grid.gridHeight = gridUtil.elementHeight($element);
+				if (($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
+				{
+					if(!$scope.model.multiLine) {
+						var totalWidth = 0;
+						var resizeWidth = 0;
+						for(var i = 0; i < $scope.model.childElements.length; i++)
+						{
+							if(!$scope.model.childElements[i].model.visible) continue;
+							totalWidth += $scope.model.childElements[i].model.size.width;
+							var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
+							if (isResizable)
+							{
+								resizeWidth += $scope.model.childElements[i].model.size.width;
+							}
+						}
+						totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;							
+					    totalWidth = totalWidth - 17; //make sure possible vertical scroll does now overlap last column
+					    
+						if (resizeWidth > 0 && totalWidth > 0)
+						{
+							for(var i = 0; i < $scope.model.childElements.length; i++)
+							{
+								if(!$scope.model.childElements[i].model.visible) continue;
+								var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
+								if (isResizable)
+								{
+									// calculate new width based on weight
+									var elemWidth = $scope.model.childElements[i].model.size.width;
+									var newWidthDelta = elemWidth * totalWidth / resizeWidth;										
+									$scope.columnDefinitions[i].width = elemWidth + newWidthDelta;
+									if($scope.gridApi.grid.columns[i]) $scope.gridApi.grid.columns[i].width = $scope.columnDefinitions[i].width;
+								}
+							}
+						}	
+					}
+					else {
+						$scope.columnDefinitions[0].width = $scope.gridApi.grid.gridWidth - 17;
+						if($scope.gridApi.grid.columns[0]) $scope.gridApi.grid.columns[0].width = $scope.columnDefinitions[0].width; //make sure possible vertical scroll does now overlap last column
+					}
+				}
+				
+				$scope.gridApi.grid.refreshCanvas(true).then(function() {
+					// make sure the columns are all rendered that are in the viewport (SVY-8638)
+					$scope.gridApi.grid.redrawInPlace();
+				})
+				
+			}			
+			
+			
 			function updateColumnDefinition(scope, idx) {
 				scope.$watch('model.childElements[' + idx + '].model.visible', function (newVal, oldVal) {
 					scope.columnDefinitions[idx].visible = scope.model.childElements[idx].model.visible;
+					layoutColumnsAndGrid();
+					scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
 				}, false);
 
 				scope.$watch('model.childElements[' + idx + '].model.size.width', function (newVal, oldVal) {
 					if(newVal !== oldVal)
 					{
 						scope.columnDefinitions[idx].width = scope.model.childElements[idx].model.size.width;
+						layoutColumnsAndGrid();
+						scope.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);						
 					}
 				}, false);
 
@@ -1041,55 +1098,6 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							}
 						}
 					}
-				}
-
-				function layoutColumnsAndGrid() {
-					$scope.gridApi.grid.gridWidth = gridUtil.elementWidth($element);
-					$scope.gridApi.grid.gridHeight = gridUtil.elementHeight($element);
-					if (($scope.model.scrollbars & $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER) == $scrollbarConstants.HORIZONTAL_SCROLLBAR_NEVER)
-					{
-						if(!$scope.model.multiLine) {
-							var totalWidth = 0;
-							var resizeWidth = 0;
-							for(var i = 0; i < $scope.model.childElements.length; i++)
-							{
-								totalWidth += $scope.model.childElements[i].model.size.width;
-								var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
-								if (isResizable)
-								{
-									resizeWidth += $scope.model.childElements[i].model.size.width;
-								}
-							}
-							totalWidth = $scope.gridApi.grid.gridWidth - totalWidth;							
-						    totalWidth = totalWidth - 17; //make sure possible vertical scroll does now overlap last column
-						    
-							if (resizeWidth > 0 && totalWidth > 0)
-							{
-								for(var i = 0; i < $scope.model.childElements.length; i++)
-								{
-									var isResizable = (($scope.model.childElements[i].model.anchors & $anchorConstants.EAST) != 0) && (($scope.model.childElements[i].model.anchors & $anchorConstants.WEST) != 0);
-									if (isResizable)
-									{
-										// calculate new width based on weight
-										var elemWidth = $scope.model.childElements[i].model.size.width;
-										var newWidthDelta = elemWidth * totalWidth / resizeWidth;										
-										$scope.columnDefinitions[i].width = elemWidth + newWidthDelta;
-										$scope.gridApi.grid.columns[i].width = $scope.columnDefinitions[i].width;
-									}
-								}
-							}	
-						}
-						else {
-							$scope.columnDefinitions[0].width = $scope.gridApi.grid.gridWidth - 17;
-							$scope.gridApi.grid.columns[0].width = $scope.columnDefinitions[0].width; //make sure possible vertical scroll does now overlap last column
-						}
-					}
-					
-					$scope.gridApi.grid.refreshCanvas(true).then(function() {
-						// make sure the columns are all rendered that are in the viewport (SVY-8638)
-						$scope.gridApi.grid.redrawInPlace();
-					})
-					
 				}
 
 				$timeout(function(){
