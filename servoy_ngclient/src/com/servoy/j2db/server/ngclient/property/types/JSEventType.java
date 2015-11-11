@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.awt.Point;
+import java.sql.Timestamp;
 import java.util.WeakHashMap;
 
 import org.json.JSONException;
@@ -48,7 +50,7 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
  * @author gboros
  *
  */
-public class JSEventType extends ReferencePropertyType<JSEvent> implements IPropertyConverterForBrowser<JSEvent>, IClassPropertyType<JSEvent>
+public class JSEventType extends ReferencePropertyType<JSEvent>implements IPropertyConverterForBrowser<JSEvent>, IClassPropertyType<JSEvent>
 {
 	public static final JSEventType INSTANCE = new JSEventType();
 	public static final String TYPE_NAME = "JSEvent"; //$NON-NLS-1$
@@ -106,6 +108,10 @@ public class JSEventType extends ReferencePropertyType<JSEvent> implements IProp
 						}
 					}
 				}
+				event.setTimestamp(new Timestamp(jsonObject.optLong("timestamp")));
+				if (jsonObject.has("x")) event.setLocation(new Point(jsonObject.optInt("x"), jsonObject.optInt("y")));
+				if (jsonObject.has("modifiers")) event.setModifiers(jsonObject.optInt("modifiers"));
+				if (jsonObject.has("data")) event.setData(jsonObject.opt("data"));
 			}
 		}
 		return event;
