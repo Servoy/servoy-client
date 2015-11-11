@@ -29,7 +29,6 @@ angular.module('servoyextraOnrenderlabel',['servoy'])
     	  
 			var tooltipState = null;
 			var className = null;
-			var classExpresion = null;
 			var element = $element.children().first();
 			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
 				switch(property) {
@@ -49,11 +48,6 @@ angular.module('servoyextraOnrenderlabel',['servoy'])
 						className = value;
 						if(className) element.addClass(className);
 						break;
-					case "styleClassExpression":
-						if (classExpresion) element.removeClass(classExpresion);
-						classExpresion = value;
-						if(classExpresion) element.addClass(classExpresion);
-						break;
 					case "toolTipText":
 						if (tooltipState)
 							tooltipState(value);
@@ -70,6 +64,12 @@ angular.module('servoyextraOnrenderlabel',['servoy'])
 			for (key in $scope.model) {
 				modelChangFunction(key,$scope.model[key]);
 			}
+			var classExpresion = null;
+			$scope.$watch("model.styleClassExpression",function(value){
+				if (classExpresion) element.removeClass(classExpresion);
+				classExpresion = value;
+				if(classExpresion) element.addClass(classExpresion);
+			})
       }
     };
 }])
