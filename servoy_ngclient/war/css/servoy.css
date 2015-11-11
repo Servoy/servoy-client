@@ -288,7 +288,7 @@ div.svy-label-with-focus:focus{
 .modal-backdrop {
   height: 100%;
   opacity: .5;
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   left: 0;
