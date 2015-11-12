@@ -616,6 +616,18 @@ public class TestNGClient extends NGClient
 								return null;
 							}
 
+							/*
+							 * (non-Javadoc)
+							 * 
+							 * @see com.servoy.j2db.server.shared.IPerfomanceRegistry#getLastCleared(java.lang.String)
+							 */
+							@Override
+							public Date getLastCleared(String context)
+							{
+								// TODO Auto-generated method stub
+								return null;
+							}
+
 							@Override
 							public PerformanceData getPerformanceData(String context)
 							{

@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.shared;
 
+import java.util.Date;
 import java.util.Map;
 
 
@@ -27,6 +28,8 @@ import java.util.Map;
 public interface IPerfomanceRegistry
 {
 	PerformanceData getPerformanceData(String context);
+
+	Date getLastCleared(String context);
 
 	void clearPerformanceData(String context);
 
