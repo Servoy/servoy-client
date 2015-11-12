@@ -310,7 +310,7 @@ public class FoundsetTypeChangeMonitor
 		else if (viewPort.getSize() > propertyValue.getFoundset().getSize())
 		{
 			// if it will already send the whole viewport then the size needs to be in sync with the foundset.
-			viewPort.correctViewportBoundsIfNeededInternal();
+			viewPort.correctAndSetViewportBoundsInternal(viewPort.getStartIndex(), viewPort.getSize());
 		}
 		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
 	}
