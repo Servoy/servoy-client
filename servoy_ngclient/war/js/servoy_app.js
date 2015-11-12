@@ -363,27 +363,25 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			attrs.$observe('src', function(newVal) {
-				element.on('load', function(event) {
-					var alignStyle = {top: '0px', left: '0px'};
-					var horizontalAlignment = scope.$eval('model.horizontalAlignment');
-					var imageHeight = element[0].clientHeight;
-					var imageWidth = element[0].clientWidth;
-					// vertical align cennter
-					var height = element[0].parentNode.clientHeight;
-					if (height > imageHeight) alignStyle.top = (height - imageHeight) / 2+'px';
-					// horizontal align (default left)
-					var width = element[0].parentNode.clientWidth;
-					if (width > imageWidth) {
-						if (horizontalAlignment == 0 /*SwingConstants.CENTER*/) alignStyle.left = (width - imageWidth) / 2+'px';
-						else if (horizontalAlignment == 4 /*SwingConstants.RIGHT*/) alignStyle.left = (width - imageWidth)+'px';
-						else
-						{
-							if ((element[0].parentNode.childNodes > 1) && (imageHeight + 34 < height)) alignStyle.left ='51px';
-						}
+			element.on('load', function(event) {
+				var alignStyle = {top: '0px', left: '0px'};
+				var horizontalAlignment = scope.$eval('model.horizontalAlignment');
+				var imageHeight = element[0].clientHeight;
+				var imageWidth = element[0].clientWidth;
+				// vertical align cennter
+				var height = element[0].parentNode.clientHeight;
+				if (height > imageHeight) alignStyle.top = (height - imageHeight) / 2+'px';
+				// horizontal align (default left)
+				var width = element[0].parentNode.clientWidth;
+				if (width > imageWidth) {
+					if (horizontalAlignment == 0 /*SwingConstants.CENTER*/) alignStyle.left = (width - imageWidth) / 2+'px';
+					else if (horizontalAlignment == 4 /*SwingConstants.RIGHT*/) alignStyle.left = (width - imageWidth)+'px';
+					else
+					{
+						if ((element[0].parentNode.childNodes > 1) && (imageHeight + 34 < height)) alignStyle.left ='51px';
 					}
-					element.css(alignStyle);
-				});
+				}
+				element.css(alignStyle);
 			});
 		}
 	};
