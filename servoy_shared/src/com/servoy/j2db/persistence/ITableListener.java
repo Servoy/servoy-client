@@ -25,7 +25,7 @@ public interface ITableListener
 	 * This happens when the server "discovers" tables. This can happen when user creates tables, when server initially loads set of existing tables, when a
 	 * server reload is triggered and so on.<BR>
 	 * So whenever a table is added to the server's table list. So be careful, it does not only happen when user creates a table.
-	 * 
+	 *
 	 * @param server server that generated this event.
 	 * @param tableNames the names of the added tables.
 	 */
@@ -35,12 +35,12 @@ public interface ITableListener
 	 * This happens when the server no longer contains a set of tables. This can happen when user deletes tables, when a server reload is triggered and so
 	 * on.<BR>
 	 * So whenever a table is removed from the server's table list. So be careful, it does not only happen when user deletes a table.
-	 * 
+	 *
 	 * @param server the server that generated the event.
 	 * @param tables the tables that disappeared.
 	 * @param deleted if this happened due to the user really deleting a table.
 	 */
-	void tablesRemoved(IServerInternal server, Table[] tables, boolean deleted);
+	void tablesRemoved(IServerInternal server, ITable[] tables, boolean deleted);
 
 	/**
 	 * This happens when the hiddenInDeveloper flag of a Table changes value.
