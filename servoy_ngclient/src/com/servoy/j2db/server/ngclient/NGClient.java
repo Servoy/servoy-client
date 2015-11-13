@@ -1144,6 +1144,21 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			case "autosave" :
 				getFoundSetManager().getEditRecordList().stopEditing(false);
 				break;
+			case "callServerSideApi" :
+			{
+				String serviceName = args.getString("service");
+				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
+				Object service = scope.get(serviceName, scope);
+				if (service instanceof WebServiceScriptable)
+				{
+					return ((WebServiceScriptable)service).executeScopeFunction(args.getString("methodName"), args.getJSONArray("args"));
+				}
+				else
+				{
+					Debug.warn("callServerSideApi for unknown service '" + serviceName + "'");
+				}
+				break;
+			}
 		}
 
 		return null;

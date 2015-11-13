@@ -31,6 +31,7 @@ import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
@@ -220,6 +221,46 @@ public class NGFormServiceHandler extends FormServiceHandler
 				else
 				{
 					Debug.error("Form " + formName + " was not found");
+				}
+				break;
+			}
+			case "callServerSideApi" :
+			{
+				String formName = args.getString("formname");
+				IWebFormUI form = (IWebFormUI)NGClientWindow.getCurrentWindow().getForm(formName);
+				if (form != null)
+				{
+					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
+					if (webComponent != null)
+					{
+						RuntimeWebComponent runtimeComponent = null;
+						RuntimeWebComponent[] webComponentElements = form.getController().getWebComponentElements();
+						for (RuntimeWebComponent runtimeWebComponent : webComponentElements)
+						{
+							if (runtimeWebComponent.getComponent() == webComponent)
+							{
+								runtimeComponent = runtimeWebComponent;
+								break;
+							}
+						}
+
+						if (runtimeComponent != null)
+						{
+							return runtimeComponent.executeScopeFunction(args.getString("methodName"), args.getJSONArray("args"));
+						}
+						else
+						{
+							log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+						}
+					}
+					else
+					{
+						log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+					}
+				}
+				else
+				{
+					log.warn("callServerSideApi for unknown form '" + formName + "'");
 				}
 				break;
 			}

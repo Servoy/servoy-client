@@ -287,6 +287,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 		// used by form template js
 		sendChanges: sendChanges,
+		
+		callServerSideApi: function(formname, beanname, methodName, args) {
+			return $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args})
+		},
 
 		pushDPChange: function(formname, beanname, property) {
 			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);

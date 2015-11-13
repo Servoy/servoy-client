@@ -26,12 +26,15 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.debug.Debugger;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
@@ -110,13 +113,14 @@ public class WebServiceScriptable implements Scriptable
 
 	/**
 	 * Compiles the server side script, enabled debugging if possible.
+	 * It returns the $scope object
 	 *
 	 * @param serverScript
 	 * @param app
 	 */
 	public static Scriptable compileServerScript(URL serverScript, Scriptable model, IApplication app)
 	{
-		Scriptable apiObject = null;
+		Scriptable scopeObject = null;
 		Context context = Context.enter();
 		try
 		{
@@ -127,9 +131,10 @@ public class WebServiceScriptable implements Scriptable
 				Debug.log("toplevel object not found for creating serverside script: " + serverScript);
 				topLevel = context.initStandardObjects();
 			}
+			Scriptable apiObject = null;
 			Scriptable execScope = context.newObject(topLevel);
 			execScope.setParentScope(topLevel);
-			Scriptable scopeObject = context.newObject(execScope);
+			scopeObject = context.newObject(execScope);
 			apiObject = context.newObject(execScope);
 			scopeObject.put("api", scopeObject, apiObject);
 			scopeObject.put("model", scopeObject, model);
@@ -148,7 +153,7 @@ public class WebServiceScriptable implements Scriptable
 		{
 			Context.exit();
 		}
-		return apiObject;
+		return scopeObject;
 	}
 
 	private final INGApplication application;
@@ -156,6 +161,7 @@ public class WebServiceScriptable implements Scriptable
 	private Scriptable prototype;
 	private Scriptable parent;
 	private Scriptable apiObject;
+	private Scriptable scopeObject;
 
 	/**
 	 * @param ngClient
@@ -170,7 +176,41 @@ public class WebServiceScriptable implements Scriptable
 		URL serverScript = serviceSpecification.getServerScript();
 		if (serverScript != null)
 		{
-			apiObject = compileServerScript(serverScript, this, application);
+			scopeObject = compileServerScript(serverScript, this, application);
+			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
+		}
+	}
+
+	public Object executeScopeFunction(String function, JSONArray args)
+	{
+		Object object = scopeObject.get(function, scopeObject);
+		if (object instanceof Function)
+		{
+			Context context = Context.enter();
+			try
+			{
+				Object[] array = new Object[args.length()];
+				for (int i = 0; i < args.length(); i++)
+				{
+					array[i] = args.get(i);
+				}
+				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+				return retValue == Undefined.instance ? null : retValue;
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+				return null;
+			}
+			finally
+			{
+				Context.exit();
+			}
+		}
+		else
+		{
+			throw new RuntimeException(
+				"trying to call a function '" + function + "' that does not exists on a the service with spec: " + serviceSpecification.getName());
 		}
 	}
 

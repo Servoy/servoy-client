@@ -76,6 +76,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 			},
 			apply: function(propertyName) {
 				$servoyInternal.pushDPChange("${name}", beanname, propertyName);
+			},
+			callServerSideApi: function(methodName,args) {
+				return $servoyInternal.callServerSideApi("${name}", beanname, methodName, args);
 			}
 		}
 	}
