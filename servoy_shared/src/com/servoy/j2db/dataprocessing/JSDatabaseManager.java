@@ -1305,7 +1305,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Performs a sql query with a query builder object.
 	 * Will throw an exception if anything did go wrong when executing the query.
 	 *
-	 * Using this variation of getDataSetByQuery any Tablefilter on the involved tables will be taken into account.
+	 * Using this variation of getDataSetByQuery any Tablefilter on the involved tables will not be taken into account.
 	 *
 	 * @sample
 	 * // use the query froma foundset and add a condition
@@ -3586,7 +3586,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 											catch (IOException e)
 											{
 												Debug.error("Exception loading properties for converter " + columnConverter.getName() + ", properties: " +
-													ci.getConverterProperties(), e);
+														ci.getConverterProperties(), e);
 											}
 										}
 									}
