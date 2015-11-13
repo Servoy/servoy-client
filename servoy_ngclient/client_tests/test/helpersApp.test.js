@@ -49,11 +49,15 @@ describe('styles helpers', function() {
 		template.data('$isolateScope',isolatedScope);
 		var myDiv = $compile(template)(isolatedScope);
 		isolatedScope.$digest();
-		expect($(myDiv[0].firstElementChild).css('background-image')).toContain('image1.png');
+		$timeout(function() {
+			expect($(myDiv[0].firstElementChild).css('background-image')).toContain('image1.png');
+		});
 		// change image at runtime
 		isolatedScope.myModel = {img: 'image2.png?imageWidth=121&imageHeight=92', componentSize:{width: 16, height: 16},rollOverImg:null,visible:true};
 		isolatedScope.$digest();
-		expect($(myDiv[0].firstElementChild).css('background-image')).toContain('image2.png');
+		$timeout(function() {
+			expect($(myDiv[0].firstElementChild).css('background-image')).toContain('image2.png');
+		});
 	});
 
 }); 
