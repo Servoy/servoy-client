@@ -289,20 +289,19 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		sendChanges: sendChanges,
 
 		pushDPChange: function(formname, beanname, property) {
-			$sabloApplication.getFormStateWithData(formname).then(function (formState) {
-				var changes = {}
+			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
+			var changes = {}
 
-				// default model, simple direct form child component
-				var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo()
-				var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
+			// default model, simple direct form child component
+			var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo()
+			var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
 
-				if (conversionInfo && conversionInfo[property]) {
-					changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], conversionInfo[property], undefined);
-				} else {
-					changes[property] = $sabloUtils.convertClientObject(formState.model[beanname][property]);
-				}
-				$sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
-			});
+			if (conversionInfo && conversionInfo[property]) {
+				changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], conversionInfo[property], undefined);
+			} else {
+				changes[property] = $sabloUtils.convertClientObject(formState.model[beanname][property]);
+			}
+			$sabloApplication.callService('formService', 'svyPush', {formname:formname,beanname:beanname,property:property,changes:changes}, true)
 		}
 	}
 }).factory("$formService",function($sabloApplication,$servoyInternal,$rootScope,$log) {
