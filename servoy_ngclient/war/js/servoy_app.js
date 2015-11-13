@@ -435,7 +435,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			scope.$watch(attrs.svyImagemediaid,function(newVal) {
 				media = newVal;
-				angular.element(element[0]).ready(setImageStyle);
+				angular.element(element[0]).ready($timeout(function() { setImageStyle(); }));
 			}, true)
 
 
