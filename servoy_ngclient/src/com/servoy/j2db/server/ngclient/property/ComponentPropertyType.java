@@ -62,8 +62,8 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
-public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue>
-	implements IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
+public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue> implements
+	IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
 	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>
@@ -220,7 +220,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 				writer.endObject();
 			}
 
-		}, formElementValue.recordBasedProperties);
+		}, formElementValue.recordBasedProperties, true);
 
 		writer.endObject();
 
@@ -228,7 +228,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
-		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties) throws JSONException
+		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties, boolean writeViewportIfFoundsetBased)
+		throws JSONException
 	{
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 		writer.key("componentDirectiveName").value(componentFormElementContext.getFormElement().getTypeName());
@@ -251,7 +252,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		catch (JSONException | IllegalArgumentException e)
 		{
 			Debug.error(
-					"Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.", e);
+				"Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.", e);
 			throw e;
 		}
 
@@ -268,7 +269,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 		if (forFoundsetPropertyType != null)
 		{
-			writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
+			if (writeViewportIfFoundsetBased) writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
 			writer.key(FOUNDSET_CONFIG_PROPERTY_NAME).object();
 			if (recordBasedProperties != null)
 			{

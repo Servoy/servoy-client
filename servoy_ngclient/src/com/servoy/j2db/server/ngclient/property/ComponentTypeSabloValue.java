@@ -313,7 +313,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (foundsetPropValue != null)
 		{
 			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
-					recordBasedProperties, this));
+				recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
 		}
@@ -620,7 +620,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				writer.endObject();
 			}
 
-		}, recordBasedProperties);
+		}, recordBasedProperties, false);
 		recordBasedPropertiesChanged = false;
 
 		writeWholeViewportToJSON(writer);
@@ -865,7 +865,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				catch (JSONException e)
 				{
 					Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value +
-							" failed.", e);
+						" failed.", e);
 				}
 				finally
 				{
