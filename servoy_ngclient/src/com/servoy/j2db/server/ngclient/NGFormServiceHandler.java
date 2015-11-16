@@ -264,6 +264,18 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				break;
 			}
+			case "performFind" :
+				String formName = args.optString("formname");
+				boolean clear = args.optBoolean("clear");
+				boolean reduce = args.optBoolean("reduce");
+				boolean showDialogOnNoResults = args.optBoolean("showDialogOnNoResults");
+				IWebFormController controller = getApplication().getFormManager().getForm(formName);
+				if (controller != null)
+				{
+					controller.performFind(clear, reduce, showDialogOnNoResults);
+				}
+				break;
+
 			default :
 			{
 				return super.executeMethod(methodName, args);

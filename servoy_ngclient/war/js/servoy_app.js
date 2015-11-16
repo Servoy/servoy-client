@@ -2,7 +2,7 @@ var controllerProvider;
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager','pasvaz.bindonce', 'ngSanitize']).config(function($controllerProvider,$logProvider) {
 	controllerProvider = $controllerProvider;
 	$logProvider.debugEnabled(false);
-}).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication) {
+}).factory('$servoyInternal', function ($rootScope, webStorage, $anchorConstants, $q, $solutionSettings, $window, $sessionService, $sabloConverters, $sabloUtils, $sabloApplication, $utils) {
 
 	var getComponentChanges = function(now, prev, beanConversionInfo, beanLayout, parentSize, property) {
 
@@ -178,6 +178,46 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				// this can happen with a refresh on the browser.
 				$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo));
 			}
+			
+			function setFindMode(beanData)
+			{
+				if (beanData['findmode'])
+				{
+					if (window.shortcut.all_shortcuts['ENTER'] !== undefined)
+					{
+						beanData.hasEnterShortcut = true; 
+					}
+					else
+					{
+						function performFind(event)
+						{
+							var element = angular.element(event.srcElement ? event.srcElement : event.target);									
+							if(element && element.attr('ng-model'))
+							{
+								var dataproviderString = element.attr('ng-model');
+								var index = dataproviderString.indexOf('.');
+								if (index > 0) 
+								{
+									var modelString = dataproviderString.substring(0,index);
+									var propertyname = dataproviderString.substring(index+1);
+									var svyServoyApi = $utils.findAttribute(element, element.scope(), "svy-servoyApi");
+									if (svyServoyApi && svyServoyApi.apply) 
+									{
+										svyServoyApi.apply(propertyname);
+									}
+								}
+							}
+							
+							$sabloApplication.callService("formService", "performFind", {'formname' : formname, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
+						}
+						window.shortcut.add('ENTER', performFind);
+					}
+				}
+				else if (beanData['findmode'] == false && !beanData.hasEnterShortcut)
+				{
+					window.shortcut.remove('ENTER');
+				}
+			}
 
 			function getFormMessageHandler(formname, msg, conversionInfo) {
 				return function (formState) {
@@ -187,8 +227,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 					for (var beanname in newFormData) {
 						// copy over the changes, skip for form properties (beanname empty)
+						var beanData = newFormData[beanname];
 						if (beanname != '') {
-							var beanData = newFormData[beanname];
 							var beanModel = formModel[beanname];
 							if (beanModel != undefined && (beanData.size != undefined ||  beanData.location != undefined)) {	
 								//size or location were changed at runtime, we need to update components with anchors
@@ -196,6 +236,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 							}
 							applyBeanLayout(beanModel, layout[beanname],beanData, formState.properties.designSize, false)
 						}
+						else if (beanData['findmode'] !== undefined)
+						{
+							setFindMode(beanData);
+						}
+
 					}
 				}
 			}

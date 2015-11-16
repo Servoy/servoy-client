@@ -27,6 +27,7 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
@@ -80,6 +81,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
+			putProperty("findmode", new PropertyDescription("findmode", BooleanPropertyType.INSTANCE, PushToServerEnum.allow));
 		}
 	}
 
@@ -103,6 +105,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		this.formController = formController;
 		setVisible(false);
 		setEnabled(true);
+		setProperty("findmode", Boolean.FALSE);
 		init();
 	}
 
