@@ -78,7 +78,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
 	private IRecordInternal record;
-//	private boolean findMode;
+	private boolean findMode = false;
 	private boolean settingRecord;
 
 	private boolean isFormScopeListener;
@@ -799,11 +799,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public void setFindMode(boolean findMode)
 	{
-//		this.findMode = findMode;
-		((BaseWebObject)formController.getFormUI()).setProperty("findmode", findMode);
-		for (IFindModeAwarePropertyValue x : findModeAwareProperties)
+		if (this.findMode != findMode)
 		{
-			x.findModeChanged(findMode);
+			this.findMode = findMode;
+			((BaseWebObject)formController.getFormUI()).setProperty("findmode", findMode);
+			for (IFindModeAwarePropertyValue x : findModeAwareProperties)
+			{
+				x.findModeChanged(findMode);
+			}
 		}
 	}
 
