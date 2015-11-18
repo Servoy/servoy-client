@@ -606,6 +606,16 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 	}
 
 	/**
+	 * Can be used in places where a java 'null' actually means a JSON null instead of 'not defined'.
+	 *
+	 * @return JSONObject.NULL in case of null. The given object otherwise. Note that normally a java return value of null is equivalent to the javascript undefined from org.json point of view.
+	 */
+	public static Object nullToJsonNull(Object o)
+	{
+		return o == null ? JSONObject.NULL : o;
+	}
+
+	/**
 	 * This method is useful as optString in parent implementation is flawed.
 	 * If you set a null (JSONObject.NULL) value it optString(key) would return "null" which is unexpected. Null would have been expected...
 	 */
