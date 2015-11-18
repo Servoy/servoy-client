@@ -19,18 +19,13 @@ package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.util.AliasKeyMap;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -39,7 +34,7 @@ import com.servoy.j2db.util.keyword.Ident;
  *
  * @author jblok
  */
-public class Table implements ITable, Serializable, ISupportUpdateableName
+public class Table extends AbstractTable implements ITable, Serializable, ISupportUpdateableName
 {
 	public static final long serialVersionUID = -5229736429539207132L;
 
@@ -53,7 +48,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private String plainSQLName;
 	private final int tableType;
 
-	private transient volatile boolean initialized = false;
 	private volatile boolean hiddenInDeveloper = false;
 	private volatile boolean hiddenBecauseNoPk = false;
 
@@ -61,12 +55,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	 * Flag to mark this table as meta data, meta data will be included in export files
 	 */
 	private volatile boolean isMetaData = false;
-
-	private final AliasKeyMap<String, String, Column> columns = new AliasKeyMap<String, String, Column>(new LinkedHashMap<String, Column>());
-	private final List<Column> keyColumns = new ArrayList<Column>();
-
-	// listeners
-	protected transient List<IColumnListener> tableListeners;
 
 	// retrieved from driver
 	private String catalog;
@@ -188,16 +176,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return this.tableType;
 	}
 
-	public void setInitialized(boolean initialized)
-	{
-		this.initialized = initialized;
-	}
-
-	public boolean isInitialized()
-	{
-		return initialized;
-	}
-
 	/**
 	 * NOTE: use {@link IServerInternal#isTableMarkedAsHiddenInDeveloper(String)} if you do not want to load (init) table columns from DB by getting the Table object.<br><br>
 	 *
@@ -314,30 +292,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return serverName;
 	}
 
-	public void addRowIdentColumn(Column c)
-	{
-		if (!keyColumns.contains(c)) keyColumns.add(c);
-		Collections.sort(keyColumns, NameComparator.INSTANCE);
-	}
-
-	public void removeRowIdentColumn(Column c)
-	{
-		keyColumns.remove(c);
-	}
-
-	/**
-	 * Get all key Columns
-	 */
-	public List<Column> getRowIdentColumns()
-	{
-		return keyColumns;
-	}
-
-	public int getRowIdentColumnsCount()
-	{
-		return keyColumns.size();
-	}
-
 	public int getPKColumnTypeRowIdentCount()
 	{
 		int retval = 0;
@@ -353,46 +307,19 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return retval;
 	}
 
-	public void addColumn(Column c)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.AbstractTable#validateNewColumn(com.servoy.j2db.persistence.IValidateName, java.lang.String)
+	 */
+	@Override
+	protected void validateNewColumn(IValidateName validator, String colname) throws RepositoryException
 	{
-		columns.put(c.getName(), c);
-	}
-
-	public Column getColumn(String colname)
-	{
-		return getColumn(colname, true);
-	}
-
-	public Column getColumn(String colname, boolean ignoreCase)
-	{
-		if (colname == null) return null;
-		return columns.get(ignoreCase ? Utils.toEnglishLocaleLowerCase(colname) : colname);
-	}
-
-	public Collection<Column> getColumns()
-	{
-		return columns.values();
-	}
-
-	public Iterator<Column> getColumnsSortedByName()
-	{
-		SortedList<Column> newList = new SortedList<Column>(ColumnComparator.INSTANCE, getColumns());
-		return newList.iterator();
-	}
-
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull) throws RepositoryException
-	{
-		Column c = createNewColumn(validator, colname, type, length, scale);
-		c.setAllowNull(allowNull);
-		return c;
-	}
-
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull, boolean pkColumn)
-		throws RepositoryException
-	{
-		Column c = createNewColumn(validator, colname, type, length, scale, allowNull);
-		c.setDatabasePK(pkColumn);
-		return c;
+		if (columns.containsKey(Utils.toEnglishLocaleLowerCase(colname)))
+		{
+			throw new RepositoryException("A column on table " + getName() + "/server " + getServerName() + " with name " + colname + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		}
+		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
 	}
 
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull) throws RepositoryException
@@ -409,47 +336,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return c;
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length) throws RepositoryException
-	{
-		return createNewColumn(validator, colname, type, length, 0);
-	}
-
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale) throws RepositoryException
-	{
-		if (columns.containsKey(Utils.toEnglishLocaleLowerCase(colname)))
-		{
-			throw new RepositoryException("A column on table " + getName() + "/server " + getServerName() + " with name " + colname + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		}
-
-		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
-		Column c = new Column(this, colname, type, length, scale, false);
-		addColumn(c);
-		fireIColumnCreated(c);
-		return c;
-	}
-
-	//while creating a new table, name changes are possible
-	public void columnNameChange(IValidateName validator, String oldName, String newName) throws RepositoryException
-	{
-		if (oldName != null && newName != null && !oldName.equals(newName))
-		{
-			if (columns.containsKey(Utils.toEnglishLocaleLowerCase(newName)))
-			{
-				throw new RepositoryException("A column on table " + getName() + " with name/dataProviderID " + newName + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			}
-
-			validator.checkName(newName, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
-			Column c = columns.get(Utils.toEnglishLocaleLowerCase(oldName));
-			if (c != null)
-			{
-				c.setSQLName(newName);
-				columns.remove(Utils.toEnglishLocaleLowerCase(oldName));
-				columns.put(Utils.toEnglishLocaleLowerCase(newName), c);
-				fireIColumnChanged(c);
-			}
-		}
-	}
-
 	/**
 	 * Called when the dataProviderID of a column might have changed - the special double-keyed map we use should get updated.
 	 * For example after an import into the repository, an already initialized table might use new aliases for columns. Or after changing the active solution in developer.
@@ -461,11 +347,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 			// just in case column info dataprovider ID changed
 			columns.put(entry.getKey(), entry.getValue());
 		}
-	}
-
-	public void columnDataProviderIDChanged(String oldDataProviderID)
-	{
-		columns.updateAlias(oldDataProviderID);
 	}
 
 	private transient List<Column> deleteColumns;
@@ -535,38 +416,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return existInDB;
 	}
 
-	public int getColumnCount()
-	{
-		return columns.size();
-	}
-
-	public void addIColumnListener(IColumnListener listener)
-	{
-		if (listener != null)
-		{
-			if (tableListeners == null) tableListeners = new ArrayList<IColumnListener>();
-			if (!tableListeners.contains(listener)) tableListeners.add(listener);
-		}
-	}
-
-	public void removeIColumnListener(IColumnListener listener)
-	{
-		if (listener != null)
-		{
-			if (tableListeners == null) tableListeners = new ArrayList<IColumnListener>();
-			tableListeners.remove(listener);
-		}
-	}
-
-	protected void fireIColumnCreated(IColumn column)
-	{
-		if (tableListeners == null) return;
-		for (IColumnListener columnListener : tableListeners)
-		{
-			columnListener.iColumnCreated(column);
-		}
-	}
-
 	// How to call these ones?? deletes/changes are not through solution.
 	protected void fireIColumnRemoved(IColumn column)
 	{
@@ -575,64 +424,6 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		{
 			columnListener.iColumnRemoved(column);
 		}
-	}
-
-	public void fireIColumnChanged(IColumn column)
-	{
-		fireIColumnsChanged(Collections.singletonList(column));
-	}
-
-	public void fireIColumnsChanged(Collection<IColumn> cols)
-	{
-		if (tableListeners == null || cols == null || cols.size() == 0) return;
-		for (IColumnListener columnListener : tableListeners)
-		{
-			columnListener.iColumnsChanged(cols);
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.persistence.ITable#getColumnNames()
-	 */
-	public String[] getColumnNames()
-	{
-		return columns.keySet().toArray(new String[columns.keySet().size()]);
-	}
-
-	@Override
-	public String[] getDataProviderIDs()
-	{
-		String[] dataProviderIDs = new String[columns.size()];
-		int i = 0;
-		for (IColumn column : columns.values())
-		{
-			dataProviderIDs[i++] = column.getDataProviderID();
-		}
-
-		return dataProviderIDs;
-	}
-
-	public Iterator<String> getRowIdentColumnNames()
-	{
-		return new Iterator<String>()
-		{
-			Iterator<Column> intern = keyColumns.iterator();
-
-			public void remove()
-			{
-				throw new UnsupportedOperationException("Can't remove row ident columns"); //$NON-NLS-1$
-			}
-
-			public String next()
-			{
-				return intern.next().getName();
-			}
-
-			public boolean hasNext()
-			{
-				return intern.hasNext();
-			}
-		};
 	}
 
 	public int getColumnInfoID(String columnName)
