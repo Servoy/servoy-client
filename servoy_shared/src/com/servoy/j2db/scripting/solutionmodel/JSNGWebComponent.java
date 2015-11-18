@@ -47,12 +47,8 @@ public class JSNGWebComponent extends JSWebComponent
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-			if (value instanceof JSMethod)
-			{
-				// should we move this into a IRhinoDesignConverter impl?
-				value = new Integer(JSBaseContainer.getMethodId(application, webComponent, ((JSMethod)value).getScriptMethod()));
-			}
-			else if (value instanceof JSValueList)
+
+			if (value instanceof JSValueList)
 			{
 				// should we move this into a IRhinoDesignConverter impl?
 				value = new Integer(((JSValueList)value).getValueList().getID());
@@ -61,6 +57,7 @@ public class JSNGWebComponent extends JSWebComponent
 			{
 				WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 				PropertyDescription pd = spec.getProperty(propertyName);
+				if (pd == null) pd = spec.getHandler(propertyName);
 				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 				{
 					value = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, this);
@@ -98,4 +95,26 @@ public class JSNGWebComponent extends JSWebComponent
 		}
 		return value;
 	}
+
+	@Override
+	public void setHandler(String handlerName, Object value)
+	{
+		WebComponent webComponent = getBaseComponent(false);
+		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		if (spec != null)
+		{
+			if (spec.getHandler(handlerName) != null)
+			{
+				setJSONProperty(handlerName, value);
+			}
+			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
+		}
+	}
+
+	@Override
+	public Object getHandler(String handlerName)
+	{
+		return getJSONProperty(handlerName);
+	}
+
 }

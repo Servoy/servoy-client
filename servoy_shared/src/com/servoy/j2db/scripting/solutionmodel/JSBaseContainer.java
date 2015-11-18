@@ -690,7 +690,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 
-	static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
+	public static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
 	{
 		ISupportChilds parent = method.getParent();
 

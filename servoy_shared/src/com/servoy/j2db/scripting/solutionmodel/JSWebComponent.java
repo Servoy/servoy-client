@@ -220,6 +220,31 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	{
 	}
 
+	/**
+	 * Set the JSMethod handler for the given handler name. The handlerName is checked for existence in the component spec file, if the component does not declare this handler, an error is thrown.
+	 * If the handler is already set, it will be replaced with the new JSMethod.
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent');
+	 * wc.setHandler('onActionMethodID', form.getJSMethod('onAction'));
+	 */
+	@JSFunction
+	public void setHandler(String handlerName, Object value)
+	{
+	}
+
+	/**
+	 * Returns the JSMethod handler with the given name.
+	 *
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent');
+	 * var handler = wc.getHandler('onActionMethodID');
+	 */
+	@JSFunction
+	public Object getHandler(String handlerName)
+	{
+		return null;
+	}
+
 	public static Object defaultRhinoToDesignValue(Object value, IApplication application)
 	{
 		// default - stringify what we get from rhino and convert that to org.json usable value
