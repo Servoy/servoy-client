@@ -228,7 +228,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * wc.setHandler('onActionMethodID', form.getJSMethod('onAction'));
 	 */
 	@JSFunction
-	public void setHandler(String handlerName, Object value)
+	public void setHandler(String handlerName, JSMethod value)
 	{
 	}
 
@@ -240,7 +240,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * var handler = wc.getHandler('onActionMethodID');
 	 */
 	@JSFunction
-	public Object getHandler(String handlerName)
+	public JSMethod getHandler(String handlerName)
 	{
 		return null;
 	}

@@ -87,6 +87,7 @@ public class JSNGWebComponent extends JSWebComponent
 		if (spec != null)
 		{
 			PropertyDescription pd = spec.getProperty(propertyName);
+			if (pd == null) pd = spec.getHandler(propertyName);
 			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 			{
 				value = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
@@ -97,7 +98,7 @@ public class JSNGWebComponent extends JSWebComponent
 	}
 
 	@Override
-	public void setHandler(String handlerName, Object value)
+	public void setHandler(String handlerName, JSMethod value)
 	{
 		WebComponent webComponent = getBaseComponent(false);
 		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
@@ -112,9 +113,11 @@ public class JSNGWebComponent extends JSWebComponent
 	}
 
 	@Override
-	public Object getHandler(String handlerName)
+	public JSMethod getHandler(String handlerName)
 	{
-		return getJSONProperty(handlerName);
+		Object jsonProperty = getJSONProperty(handlerName);
+		if (jsonProperty instanceof JSMethod) return (JSMethod)jsonProperty;
+		else return null;
 	}
 
 }

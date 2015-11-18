@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScriptVariableScope;
+import com.servoy.j2db.scripting.solutionmodel.IJSParent;
 import com.servoy.j2db.scripting.solutionmodel.JSBaseContainer;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
@@ -177,7 +178,12 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	@Override
 	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
-		return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), Utils.getAsInteger(value), webComponent.getJSParent(), pd.getName());
+		IJSParent< ? > jsParent = webComponent.getJSParent();
+		while (!(jsParent instanceof JSForm) && (jsParent != null))
+		{
+			jsParent = jsParent.getJSParent();
+		}
+		return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), Utils.getAsInteger(value), jsParent, pd.getName());
 	}
 
 }
