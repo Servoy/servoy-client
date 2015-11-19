@@ -222,6 +222,14 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
+	protected void fillClone(AbstractBase cloned)
+	{
+		if (cloned instanceof WebComponent)
+			((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned) : new WebObjectBasicImpl((WebComponent)cloned);
+		super.fillClone(cloned);
+	}
+
+	@Override
 	public String toString()
 	{
 		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
