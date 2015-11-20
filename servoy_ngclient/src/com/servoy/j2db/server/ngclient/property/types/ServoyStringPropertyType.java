@@ -56,7 +56,7 @@ public class ServoyStringPropertyType extends StringPropertyType
 		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		if (formElementContext != null && formElementContext.getContext() != null)
+		if (formElementContext != null && formElementContext.getContext() != null && formElementContext.getContext().getApplication() != null)
 		{
 			formElementValue = formElementContext.getContext().getApplication().getI18NMessageIfPrefixed(formElementValue);
 		}
