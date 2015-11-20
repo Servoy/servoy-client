@@ -104,6 +104,11 @@ public class WebObjectBasicImpl
 		return null;
 	}
 
+	public boolean hasCustomProperty(String propertyName)
+	{
+		return false;
+	}
+
 	public Pair<Boolean, Object> getCustomProperty(String propertyName)
 	{
 		return new Pair<>(Boolean.FALSE, null);
@@ -148,4 +153,5 @@ public class WebObjectBasicImpl
 	public void updateCustomProperties()
 	{
 	}
+
 }

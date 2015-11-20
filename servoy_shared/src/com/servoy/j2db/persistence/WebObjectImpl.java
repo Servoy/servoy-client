@@ -100,7 +100,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 				for (Map.Entry<String, Object> wo : getCustomTypeProperties().entrySet())
 				{
-					if (wo.getValue() instanceof WebCustomType)
+					if (wo.getValue() == null) entireModel.put(wo.getKey(), JSONObject.NULL);
+					else if (wo.getValue() instanceof WebCustomType)
 					{
 						entireModel.put(wo.getKey(), ((WebCustomType)wo.getValue()).getJson());
 					}
@@ -132,23 +133,26 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	protected boolean isCustomJSONOrArrayOfCustomJSON(String key)
 	{
 		PropertyDescription childPd = getPropertyDescription().getProperty(key);
-		IPropertyType< ? > propertyType = childPd.getType();
-
-		if (PropertyUtils.isCustomJSONProperty(propertyType))
+		if (childPd != null)
 		{
-			boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
-			if (arrayReturnType)
+			IPropertyType< ? > propertyType = childPd.getType();
+
+			if (PropertyUtils.isCustomJSONProperty(propertyType))
 			{
-				PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >) ? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition()
-					: null;
-				if (elementPD != null && PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+				boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
+				if (arrayReturnType)
+				{
+					PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >) ? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition()
+						: null;
+					if (elementPD != null && PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+					{
+						return true;
+					}
+				}
+				else
 				{
 					return true;
 				}
-			}
-			else
-			{
-				return true;
 			}
 		}
 		return false;
@@ -160,7 +164,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public boolean setCustomProperty(String propertyName, Object val)
 	{
-		if (val instanceof WebCustomType || val instanceof WebCustomType[])
+		if ((val == null || val instanceof WebCustomType || val instanceof WebCustomType[]) && isCustomJSONOrArrayOfCustomJSON(propertyName))
 		{
 			getCustomTypeProperties().put(propertyName, val);
 			customTypePropsByUUID = null;
@@ -179,12 +183,18 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		Map<String, Object> customProperties = getCustomTypeProperties();
 		if (customProperties.containsKey(propertyName))
 		{
-			getCustomTypeProperties().remove(propertyName);
+			customProperties.remove(propertyName);
 			customTypePropsByUUID = null;
 			updateCustomProperties();
 			return true;
 		}
 		else return false;
+	}
+
+	@Override
+	public boolean hasCustomProperty(String propertyName)
+	{
+		return getCustomTypeProperties().containsKey(propertyName);
 	}
 
 	@Override
@@ -206,7 +216,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			{
 				allCustomProperties.addAll(Arrays.asList((WebCustomType[])wo));
 			}
-			else
+			else if (wo != null)
 			{
 				allCustomProperties.add((WebCustomType)wo);
 			}
@@ -228,7 +238,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					JSONObject beanJSON = getJson();
 					try
 					{
-
 						for (String beanJSONKey : ServoyJSONObject.getNames(beanJSON))
 						{
 							Object object = beanJSON.get(beanJSONKey);
@@ -256,35 +265,48 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			String simpleTypeName = PropertyUtils.getSimpleNameOfCustomJSONTypeProperty(propertyType);
 			if (PropertyUtils.isCustomJSONProperty(propertyType))
 			{
-				boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
-				if (!arrayReturnType)
+				if (ServoyJSONObject.isJavascriptUndefined(object))
 				{
-					WebCustomType webCustomType = new WebCustomType(webObject, childPd, beanJSONKey, -1, false);
-					webCustomType.setTypeName(simpleTypeName);
-					customTypeProperties.put(beanJSONKey, webCustomType);
+					customTypeProperties.remove(beanJSONKey);
 					customTypePropsByUUID = null;
 				}
-				else if (object instanceof JSONArray)
+				else if (ServoyJSONObject.isJavascriptNull(object))
 				{
-					PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >) ? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition()
-						: null;
-					if (elementPD != null && PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
-					{
-						ArrayList<WebCustomType> webCustomTypes = new ArrayList<WebCustomType>();
-						for (int i = 0; i < ((JSONArray)object).length(); i++)
-						{
-							WebCustomType webCustomType = new WebCustomType(webObject, ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition(),
-								beanJSONKey, i, false);
-							webCustomType.setTypeName(simpleTypeName);
-							webCustomTypes.add(webCustomType);
-						}
-						customTypeProperties.put(beanJSONKey, webCustomTypes.toArray(new WebCustomType[webCustomTypes.size()]));
-						customTypePropsByUUID = null;
-					}
+					customTypeProperties.put(beanJSONKey, null);
+					customTypePropsByUUID = null;
 				}
 				else
 				{
-					Debug.error("Custom type value is not JSONArray although in spec it is defined as array... " + this + " - " + object);
+					boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
+					if (!arrayReturnType)
+					{
+						WebCustomType webCustomType = new WebCustomType(webObject, childPd, beanJSONKey, -1, false);
+						webCustomType.setTypeName(simpleTypeName);
+						customTypeProperties.put(beanJSONKey, webCustomType);
+						customTypePropsByUUID = null;
+					}
+					else if (object instanceof JSONArray)
+					{
+						PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >)
+							? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition() : null;
+						if (elementPD != null && PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+						{
+							ArrayList<WebCustomType> webCustomTypes = new ArrayList<WebCustomType>();
+							for (int i = 0; i < ((JSONArray)object).length(); i++)
+							{
+								WebCustomType webCustomType = new WebCustomType(webObject, ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition(),
+									beanJSONKey, i, false);
+								webCustomType.setTypeName(simpleTypeName);
+								webCustomTypes.add(webCustomType);
+							}
+							customTypeProperties.put(beanJSONKey, webCustomTypes.toArray(new WebCustomType[webCustomTypes.size()]));
+							customTypePropsByUUID = null;
+						}
+					}
+					else
+					{
+						Debug.error("Custom type value is not JSONArray although in spec it is defined as array... " + this + " - " + object);
+					}
 				}
 			}
 		}
@@ -326,7 +348,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 			else
 			{
-				jsonObject.put(key, ServoyJSONObject.nullToJsonNull(value));
+				jsonObject.put(key, value);
 			}
 			setJsonInternal(jsonObject);
 			((AbstractBase)webObject).flagChanged();

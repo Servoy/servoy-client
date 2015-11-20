@@ -125,6 +125,19 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		else return super.getProperty(propertyName);
 	}
 
+	@Override
+	public boolean hasProperty(String propertyName)
+	{
+		boolean hasIt = false;
+		if (webObjectImpl == null) hasIt = super.hasProperty(propertyName);
+		else
+		{
+			hasIt = webObjectImpl.hasCustomProperty(propertyName);
+			if (!hasIt) hasIt = super.hasProperty(propertyName);
+		}
+		return hasIt;
+	}
+
 	public List<WebCustomType> getAllFirstLevelArrayOfOrCustomPropertiesFlattened()
 	{
 		return webObjectImpl.getAllCustomProperties();

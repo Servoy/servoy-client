@@ -330,11 +330,25 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 			if (value instanceof ServoyJSONObject)
 			{
 				ServoyJSONObject svjson = (ServoyJSONObject)value;
-				appendtoString(sb, new JSONWrapperMap(svjson), svjson.noQuotes, svjson.newLines, noBrackets /* use settings from context */);
+				appendtoString(sb, new JSONWrapperMap(svjson)
+				{
+					@Override
+					protected Object toJava(Object o)
+					{
+						return o;
+					}
+				}, svjson.noQuotes, svjson.newLines, noBrackets /* use settings from context */);
 			}
 			else
 			{
-				appendtoString(sb, new JSONWrapperMap((JSONObject)value), noQuotes, newLines, noBrackets);
+				appendtoString(sb, new JSONWrapperMap((JSONObject)value)
+				{
+					@Override
+					protected Object toJava(Object o)
+					{
+						return o;
+					}
+				}, noQuotes, newLines, noBrackets);
 			}
 		}
 		else if (value instanceof Map)
@@ -380,7 +394,7 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		}
 		else if (value instanceof Collection)
 		{
-			appendtoString(sb, new ServoyJSONArray((Collection)value), noQuotes, newLines, false);
+			appendtoString(sb, new ServoyJSONArray((Collection< ? >)value), noQuotes, newLines, false);
 		}
 		else if (value.getClass().isArray())
 		{
