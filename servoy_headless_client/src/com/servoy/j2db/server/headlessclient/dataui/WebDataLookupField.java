@@ -448,10 +448,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			public void renderHead(IHeaderResponse response)
 			{
-				settings.setShowListOnEmptyInput(Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application,
-					IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)));
-				settings.setShowListOnFocusGain(Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application,
-					IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)));
+				settings.setShowListOnEmptyInput(
+					Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)));
+				settings.setShowListOnFocusGain(
+					Boolean.TRUE.equals(UIUtils.getUIProperty(getScriptObject(), application, IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, Boolean.TRUE)));
 				if (!getScriptObject().isReadOnly() && getScriptObject().isEnabled())
 				{
 					super.renderHead(response);
@@ -474,6 +474,12 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			}
 		};
 		add(beh);
+	}
+
+	@Override
+	protected boolean needsFormatOnchange()
+	{
+		return true;
 	}
 
 	@Override
