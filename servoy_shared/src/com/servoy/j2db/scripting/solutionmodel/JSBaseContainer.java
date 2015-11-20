@@ -836,7 +836,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSPortal getPortal(String name)
 	{
-		return getPortal(name, false);
+		return getPortal(name, true);
 	}
 
 	/**
@@ -1020,7 +1020,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSTabPanel getTabPanel(String name)
 	{
-		return getTabPanel(name, false);
+		return getTabPanel(name, true);
 	}
 
 	/**
@@ -1167,7 +1167,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	public JSField getField(String name)
 	{
-		return getField(name, false);
+		return getField(name, true);
 	}
 
 	/**
@@ -1304,7 +1304,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSButton getButton(String name)
 	{
-		return getButton(name, false);
+		return getButton(name, true);
 	}
 
 	/**
@@ -1485,7 +1485,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSBean getBean(String name)
 	{
-		return getBean(name, false);
+		return getBean(name, true);
 	}
 
 	/**
@@ -1748,7 +1748,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSLabel getLabel(String name)
 	{
-		return getLabel(name, false);
+		return getLabel(name, true);
 	}
 
 	/**
@@ -1932,7 +1932,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSWebComponent getWebComponent(String name)
 	{
-		return getWebComponent(name, false);
+		return getWebComponent(name, true);
 	}
 
 	/**
