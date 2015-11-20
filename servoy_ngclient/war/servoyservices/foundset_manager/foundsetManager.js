@@ -39,7 +39,7 @@ angular.module('foundset_manager',['sabloApp'])
 		updateFoundSetRow: function(foundsethash, rowid, dataproviderid, value) {
 			return $sabloApplication.callService("$foundsetManager", "updateFoundSetRow", {foundsethash: foundsethash, rowid: rowid, dataproviderid: dataproviderid, value: value}, false);
 		},
-		addFoundSetChangeCallback(foundsethash, callback) {
+		addFoundSetChangeCallback: function(foundsethash, callback) {
 			if(scope.model.foundsets) {
 				for(var i = 0; i < scope.model.foundsets.length; i++) {
 					if(scope.model.foundsets[i].foundsethash == foundsethash) {
