@@ -4,12 +4,14 @@
 	"version": 1,
 	"definition": "servoyservices/foundset_manager/foundsetManager.js",
 	"libraries": [],
-	"model": {},
+	"model":
+	{
+		"foundsets" : "foundsetinfo[]"
+	},
 	"api": 
 	{
 		"getFoundSet": 
 		{
-			"returns": "foundset",
 			"parameters": 
 			[
 				{
@@ -25,11 +27,10 @@
 					"type": "string"
 				}
 			]
-		},
-	
-		"getRelatedFoundSet": 
+		},		
+		"getRelatedFoundSetHash": 
 		{
-			"returns": "foundset",
+			"returns": "int",
 			"parameters": 
 			[
 				{
@@ -70,5 +71,11 @@
 				}				
 			]
 		}
-	}
+	},
+	"types": {
+	  "foundsetinfo": {
+	  		"foundset": "foundset",
+	  		"foundsethash": "int"
+	  }
+	}	
 }

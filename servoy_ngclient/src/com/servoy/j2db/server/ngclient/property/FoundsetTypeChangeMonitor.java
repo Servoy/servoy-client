@@ -195,7 +195,7 @@ public class FoundsetTypeChangeMonitor
 	public void findModeChanged(boolean newFindMode)
 	{
 		allChanged();
-		propertyValue.getDataAdapterList().setFindMode(newFindMode);
+		if (propertyValue.getDataAdapterList() != null) propertyValue.getDataAdapterList().setFindMode(newFindMode);
 	}
 
 	/**
@@ -362,8 +362,8 @@ public class FoundsetTypeChangeMonitor
 		{
 			int oldChangeFlags = changeFlags;
 			boolean viewPortRecordChangesUpdated = false;
-			if (propertyValue.getDataAdapterList() != null && !shouldSendAll() && !shouldSendWholeViewPort() &&
-				!propertyValue.getDataAdapterList().isQuietRecordChangeInProgress())
+			if ((propertyValue.getDataAdapterList() == null || !propertyValue.getDataAdapterList().isQuietRecordChangeInProgress()) && !shouldSendAll() &&
+				!shouldSendWholeViewPort())
 			{
 				// get the rows that are changed.
 				int firstViewPortIndex = Math.max(viewPort.getStartIndex(), firstRow);
