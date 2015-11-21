@@ -47,7 +47,8 @@ import com.servoy.j2db.util.keyword.Ident;
  */
 public class DataSourceUtils extends DataSourceUtilsBase
 {
-	public static final String INMEM_DATASOURCE_SCHEME_COLON = "mem:"; //$NON-NLS-1$
+	public static final String INMEM_DATASOURCE = "mem"; //$NON-NLS-1$
+	public static final String INMEM_DATASOURCE_SCHEME_COLON = INMEM_DATASOURCE + ':';
 
 	private DataSourceUtils()
 	{

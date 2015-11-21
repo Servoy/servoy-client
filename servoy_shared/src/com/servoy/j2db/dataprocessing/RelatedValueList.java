@@ -27,6 +27,7 @@ import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -376,9 +377,8 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
-		IDataSet dataSet = application.getDataServer().performQuery(application.getClientID(), serverName, foundSetManager.getTransactionID(serverName),
-			select, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY,
-			trackingInfo);
+		IDataSet dataSet = application.getDataServer().performQuery(application.getClientID(), serverName, foundSetManager.getTransactionID(serverName), select,
+			foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 		try
 		{
 			startBundlingEvents();
@@ -398,7 +398,8 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				Object[] row = CustomValueList.processRow(dataSet.getRow(i), showValues, returnValues);
 
 				Object element = null;
-				if (displayFormat != null) element = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString();
+				if (displayFormat != null)
+					element = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString();
 				else element = CustomValueList.handleRowData(valueList, concatShowValues, showValues, row, application);
 				if (showAndReturnAreSame && indexOf(element) != -1) continue;
 
@@ -445,12 +446,13 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		}
 
 		BaseQueryTable lastTable = select.getTable();
-		Table foreignTable = relations[0].getForeignTable();
+		ITable foreignTable = relations[0].getForeignTable();
 		for (int i = 1; i < relations.length; i++)
 		{
 			foreignTable = relations[i].getForeignTable();
-			ISQLTableJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable, new QueryTable(foreignTable.getSQLName(),
-				foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()), scopesScopeProvider);
+			ISQLTableJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable,
+				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()),
+				scopesScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();
 		}

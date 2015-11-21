@@ -29,4 +29,6 @@ public interface IDataProviderHandler
 	public IDataProvider getGlobalDataProvider(String id) throws RepositoryException;
 
 	public Map getAllDataProvidersForTable(ITable table) throws RepositoryException;
+
+	public ITable getTable(String dataSource);
 }

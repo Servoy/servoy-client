@@ -183,7 +183,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/*
 	 * Flush locally in the current client, for client plugins
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IDatabaseManager#notifyDataChange(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, int)
 	 */
 	public boolean notifyDataChange(String dataSource, IDataSet pks, int action)
@@ -359,7 +359,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetManagerInternal#reloadFoundsetMethod(java.lang.String, com.servoy.j2db.persistence.IScriptProvider)
 	 */
 	public void reloadFoundsetMethod(String dataSource, IScriptProvider scriptMethod)
@@ -597,7 +597,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (sr != null)
 			{
 				retval = sr.get();
-				if (retval == null && Debug.tracing()) Debug.trace("-----------CacheMiss for related founset " + relationName + " for keys " + relatedArguments.hash); //$NON-NLS-1$ //$NON-NLS-2$
+				if (retval == null && Debug.tracing())
+					Debug.trace("-----------CacheMiss for related founset " + relationName + " for keys " + relatedArguments.hash); //$NON-NLS-1$ //$NON-NLS-2$
 				//else Debug.trace("-----------CacheHit!! for related foundset " + relID + " for keys " + calcPKHashKey);
 			}
 		}
@@ -759,7 +760,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		boolean isNull = true;
 		IDataProvider[] args = relation.getPrimaryDataProviders(application.getFlattenedSolution());
-		Column[] columns = relation.getForeignColumns();
+		Column[] columns = relation.getForeignColumns(application.getFlattenedSolution());
 		Object[] array = new Object[args.length];
 		for (int i = 0; i < args.length; i++)
 		{
@@ -1240,7 +1241,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				TableFilter f = iterator.next();
 				if (filterName == null || filterName.equals(f.getName()))
 				{
-					result.add(new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
+					result.add(
+						new Object[] { f.getTableName(), f.getDataprovider(), RelationItem.getOperatorAsString(f.getOperator()), f.getValue(), f.getName() });
 				}
 			}
 		}
@@ -2073,11 +2075,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		try
 		{
 			long time = System.currentTimeMillis();
-			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect, includeFilters
-				? getTableFilterParams(serverName, sqlSelect) : null, 0, maxNumberOfRowsToRetrieve);
+			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect,
+				includeFilters ? getTableFilterParams(serverName, sqlSelect) : null, 0, maxNumberOfRowsToRetrieve);
 			if (Debug.tracing())
 			{
-				Debug.trace("Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				Debug.trace(
+					"Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			}
 		}
 		catch (RemoteException e)
@@ -2124,9 +2127,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 
 			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
-				useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY,
-				dataSource, table == null ? IServer.INMEM_SERVER : table.getServerName(),
-				table == null ? null : table.getName() /* create temp table when null */, targetTid, types, pkNames);
+				useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource,
+				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
+				targetTid, types, pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
@@ -2179,7 +2182,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			try
 			{
 				// Convert the pk dataset to the column type of the pk columns
-				newPks = BufferedDataSetInternal.convertPksToRightType(pks, (Table)getTable(ds));
+				newPks = BufferedDataSetInternal.convertPksToRightType(pks, getTable(ds));
 			}
 			catch (RepositoryException e)
 			{
@@ -2189,8 +2192,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			for (int i = 0; i < fnewPks.getRowCount(); i++)
 			{
-				boolean b = rm.changeByOther(RowManager.createPKHashKey(fnewPks.getRow(i)), action, insertColumnData, insertedRows == null ? null
-					: insertedRows.get(i));
+				boolean b = rm.changeByOther(RowManager.createPKHashKey(fnewPks.getRow(i)), action, insertColumnData,
+					insertedRows == null ? null : insertedRows.get(i));
 				didHaveRowAndIsUpdated = (didHaveRowAndIsUpdated || b);
 			}
 			final boolean didHaveDataCached = didHaveRowAndIsUpdated;
@@ -2206,12 +2209,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						{
 							try
 							{
-								application.getScriptEngine().getScopesScope().executeGlobalFunction(
-									sm.getScopeName(),
-									sm.getName(),
+								application.getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
 									Utils.arrayMerge(
 										new Object[] { ds, new Integer(action), new JSDataSet(application, fnewPks), Boolean.valueOf(didHaveDataCached) },
-										Utils.parseJSExpressions(solution.getInstanceMethodArguments("onDataBroadcastMethodID"))), false, false); //$NON-NLS-1$
+										Utils.parseJSExpressions(solution.getInstanceMethodArguments("onDataBroadcastMethodID"))), //$NON-NLS-1$
+									false, false);
 							}
 							catch (Exception e1)
 							{
@@ -2633,8 +2635,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		String serverName = DataSourceUtils.getDataSourceServerName(select.getDataSource());
 
-		if (serverName == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND,
-			new Object[] { select.getDataSource() }));
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { select.getDataSource() }));
 
 		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows);
 	}

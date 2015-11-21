@@ -293,7 +293,7 @@ public class SQLGenerator
 		return retval;
 	}
 
-	public void addSorts(QuerySelect sqlSelect, BaseQueryTable selectTable, IGlobalValueEntry provider, Table table, List<SortColumn> orderByFields,
+	public void addSorts(QuerySelect sqlSelect, BaseQueryTable selectTable, IGlobalValueEntry provider, ITable table, List<SortColumn> orderByFields,
 		boolean includeRelated) throws RepositoryException
 	{
 		List<Column> unusedRowidentColumns = new ArrayList<Column>(table.getRowIdentColumns());
@@ -333,7 +333,7 @@ public class SQLGenerator
 
 						if (join == null)
 						{
-							Table foreignTable = relation.getForeignTable();
+							ITable foreignTable = relation.getForeignTable();
 							foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 								foreignTable.getSchema());
 						}
@@ -461,7 +461,7 @@ public class SQLGenerator
 
 		// build a join from the relation items
 		IDataProvider[] primary = relation.getPrimaryDataProviders(flattenedSolution);
-		Column[] foreign = relation.getForeignColumns();
+		Column[] foreign = relation.getForeignColumns(flattenedSolution);
 		int[] operators = relation.getOperators();
 
 		AndCondition joinCondition = new AndCondition();
@@ -893,7 +893,7 @@ public class SQLGenerator
 		BaseQueryTable prevTable = existsSelect.getTable();
 		for (IRelation relation : relations)
 		{
-			Table foreignTable = relation.getForeignTable();
+			ITable foreignTable = relation.getForeignTable();
 			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 				foreignTable.getSchema());
 			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, provider));
@@ -1165,7 +1165,7 @@ public class SQLGenerator
 			{
 				return;
 			}
-			Table ft = r.getForeignTable();
+			ITable ft = r.getForeignTable();
 			if (ft == null)
 			{
 				return;
@@ -1176,7 +1176,7 @@ public class SQLGenerator
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
 			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
-			Column[] relcols = r.getForeignColumns();
+			Column[] relcols = r.getForeignColumns(application.getFlattenedSolution());
 			for (Column column : relcols)
 			{
 				parentRequiredDataProviderIDs.add(column.getDataProviderID());
@@ -1209,7 +1209,7 @@ public class SQLGenerator
 	public static ISQLCondition createRelatedCondition(IServiceProvider app, Relation relation, QueryTable foreignTable) throws RepositoryException
 	{
 		IDataProvider[] primary = relation.getPrimaryDataProviders(app.getFlattenedSolution());
-		Column[] foreign = relation.getForeignColumns();
+		Column[] foreign = relation.getForeignColumns(app.getFlattenedSolution());
 		int[] operators = relation.getOperators();
 
 		QueryColumn[] keys = new QueryColumn[primary.length];

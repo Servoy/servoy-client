@@ -308,7 +308,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 	{
 		try
 		{
-			Table table = null;
+			ITable table = null;
 			if (definedTable == null)
 			{
 				FormManager fm = (FormManager)application.getFormManager();

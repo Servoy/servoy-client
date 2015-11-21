@@ -246,11 +246,11 @@ public class SQLSheet
 				relation = app.getFlattenedSolution().getRelation(relationName);
 				if (relation != null)
 				{
-					fcols = relation.getForeignColumns();
+					fcols = relation.getForeignColumns(app.getFlattenedSolution());
 
 					QuerySelect creationSQLString = fs.getCreationSqlSelect();
-					Placeholder ph = creationSQLString.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSQLString.getTable(),
-						relation.getName()));
+					Placeholder ph = creationSQLString.getPlaceholder(
+						SQLGenerator.createRelationKeyPlaceholderKey(creationSQLString.getTable(), relation.getName()));
 					if (ph != null && ph.isSet())
 					{
 						// a matrix as wide as the relation keys and 1 deep
@@ -387,17 +387,15 @@ public class SQLSheet
 				}
 				catch (Exception e)
 				{
-					throw new IllegalArgumentException(
-						Messages.getString(
-							"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e); //$NON-NLS-1$
+					throw new IllegalArgumentException(Messages.getString("servoy.record.error.settingDataprovider", //$NON-NLS-1$
+						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e);
 				}
 
 				int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
 				if (valueLen > 0 && variableInfo.length > 0 && valueLen > variableInfo.length) // insufficient space to save value
 				{
-					throw new IllegalArgumentException(
-						Messages.getString(
-							"servoy.record.error.columnSizeTooSmall", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$
+					throw new IllegalArgumentException(Messages.getString("servoy.record.error.columnSizeTooSmall", //$NON-NLS-1$
+						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }));
 				}
 			}
 
@@ -450,8 +448,8 @@ public class SQLSheet
 			catch (Exception e)
 			{
 				Debug.error(e);
-				throw new IllegalArgumentException(Messages.getString(
-					"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$
+				throw new IllegalArgumentException(Messages.getString("servoy.record.error.settingDataprovider", //$NON-NLS-1$
+					new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }));
 			}
 		}
 
@@ -495,14 +493,14 @@ public class SQLSheet
 					catch (Exception e)
 					{
 						Debug.error(e);
-						throw new IllegalArgumentException(Messages.getString(
-							"servoy.record.error.gettingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }), e); //$NON-NLS-1$
+						throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
+							new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }), e);
 					}
 				}
 				else
 				{
-					throw new IllegalArgumentException(Messages.getString(
-						"servoy.record.error.gettingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) })); //$NON-NLS-1$
+					throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
+						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }));
 				}
 			}
 		}

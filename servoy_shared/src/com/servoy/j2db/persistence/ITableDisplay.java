@@ -17,13 +17,12 @@
 package com.servoy.j2db.persistence;
 
 
-
 /**
  * @author jblok
  */
 public interface ITableDisplay
 {
-	public Table getTable() throws RepositoryException;
+	public ITable getTable() throws RepositoryException;
 
 	public String getInitialSort();
 }

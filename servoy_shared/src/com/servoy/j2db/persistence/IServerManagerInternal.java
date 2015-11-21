@@ -115,10 +115,4 @@ public interface IServerManagerInternal extends IServerManager
 	void setServerEnableListener(IServerEnableListener iServerEnableListener);
 
 	void close();
-
-	/**
-	 * returns the in memory "server" that holds the inmemory data tables
-	 * @return
-	 */
-	IServerInternal getMemServer();
 }

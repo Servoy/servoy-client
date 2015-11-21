@@ -33,9 +33,9 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.IRelation;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
@@ -658,7 +658,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 					BaseQueryTable foreignQTable;
 					if (existingJoin == null)
 					{
-						Table foreignTable = relation.getForeignTable();
+						ITable foreignTable = relation.getForeignTable();
 						foreignQTable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 							foreignTable.getSchema());
 					}

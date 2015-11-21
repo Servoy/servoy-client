@@ -20,16 +20,16 @@ package com.servoy.j2db.persistence;
 /**
  * Relation interface.
  * This interface is created to enable calling of certain engine code from test classes without creating real relations and repository.
- * 
+ *
  * @author rgansevles
  */
 public interface IRelation extends ISupportName
 {
 	IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException;
 
-	Table getForeignTable() throws RepositoryException;
+	Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException;
 
-	Column[] getForeignColumns() throws RepositoryException;
+	ITable getForeignTable() throws RepositoryException;
 
 	int[] getOperators();
 

@@ -457,7 +457,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/*
 	 * _____________________________________________________________ Methods for ScriptCalculation/TableNode handling
 	 */
-	public Iterator<ScriptCalculation> getScriptCalculations(Table basedOnTable, boolean sort) throws RepositoryException
+	public Iterator<ScriptCalculation> getScriptCalculations(ITable basedOnTable, boolean sort) throws RepositoryException
 	{
 		return getScriptCalculations(getTableNodes(basedOnTable), sort).iterator();
 	}
@@ -743,7 +743,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);

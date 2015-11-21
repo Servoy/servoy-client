@@ -1335,7 +1335,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				if (missingSrv) return null;
 			}
 
-			Column[] cols = r.getForeignColumns();
+			Column[] cols = r.getForeignColumns(this);
 			if (cols == null || cols.length == 0) return null;
 
 			IDataProvider c = getDataProviderForTable(r.getForeignTable(), col);
@@ -1547,7 +1547,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 			else if (p instanceof Portal)
 			{
-				Table t = null;
+				ITable t = null;
 				try
 				{
 					Relation[] relations = getRelationSequence(((Portal)p).getRelationName());
@@ -2721,7 +2721,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						}
 						else
 						{
-							Table relForeignTable = r.getForeignTable();
+							ITable relForeignTable = r.getForeignTable();
 							if (relForeignTable == null)
 							{
 								return null;
@@ -3047,5 +3047,29 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		Solution solution = getSolution();
 		return solution != null ? solution.getName() : null;
+	}
+
+	@Override
+	public ITable getTable(String dataSource)
+	{
+		try
+		{
+			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+			if (snt != null)
+			{
+				return getSolution().getServer(snt[0]).getTable(snt[1]);
+			}
+
+			// not a server/table combi, ask the current clients foundset manager
+			if (J2DBGlobals.getServiceProvider() != null)
+			{
+				return J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return null;
 	}
 }

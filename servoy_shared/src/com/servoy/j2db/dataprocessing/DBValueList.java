@@ -276,8 +276,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							tableFilterParams = new ArrayList<TableFilter>();
 						}
-						tableFilterParams.add(new TableFilter(
-							"dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
+						tableFilterParams.add(new TableFilter("dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
 							IBaseSQLCondition.EQUALS_OPERATOR, valueList.getName()));
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
@@ -300,7 +299,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					for (int i = 0; i < set.getRowCount(); i++)
 					{
 						Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
-						if (displayFormat != null) addElement(handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString());
+						if (displayFormat != null)
+							addElement(handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString());
 						else addElement(handleRowData(valueList, concatShowValues, showValues, row, application).toString());
 						realValues.add(handleRowData(valueList, concatReturnValues, returnValues, row, application));
 					}
@@ -342,21 +342,21 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		}
 	}
 
-	protected void setContainsCalculationFlag(Table t)
+	protected void setContainsCalculationFlag(ITable t)
 	{
 		if (valueList != null && application != null && application.getFlattenedSolution() != null)
 		{
-			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) || checkIfCalc(
-				valueList.getDataProviderID3(), t));
+			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) ||
+				checkIfCalc(valueList.getDataProviderID3(), t));
 		}
 	}
 
-	private boolean checkIfCalc(String dp, Table t)
+	private boolean checkIfCalc(String dp, ITable t)
 	{
 		return dp != null && application.getFlattenedSolution().getScriptCalculation(dp, t) != null;
 	}
 
-	public static IQuerySelectValue getQuerySelectValue(Table table, BaseQueryTable queryTable, String dataprovider)
+	public static IQuerySelectValue getQuerySelectValue(ITable table, BaseQueryTable queryTable, String dataprovider)
 	{
 		if (dataprovider != null && table != null)
 		{
@@ -397,7 +397,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		{
 			for (SortColumn sc : sortColumns)
 			{
-				orderColumns.add(new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
+				orderColumns.add(
+					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
 			}
 		}
 
@@ -498,7 +499,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.CustomValueList#isRecordLinked()
 	 */
 	@Override

@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
@@ -56,7 +57,7 @@ public class EditRecordList
 	private final List<IPrepareForSave> prepareForSaveListeners = new ArrayList<IPrepareForSave>(2);
 	private final List<IGlobalEditListener> editListeners = new ArrayList<IGlobalEditListener>();
 
-	private final Map<Table, Integer> accessMap = Collections.synchronizedMap(new HashMap<Table, Integer>());//per table (could be per column in future)
+	private final Map<ITable, Integer> accessMap = Collections.synchronizedMap(new HashMap<ITable, Integer>());//per table (could be per column in future)
 	private boolean autoSave = true;
 
 	private ConcurrentMap<FoundSet, int[]> fsEventMap;
@@ -469,7 +470,8 @@ public class EditRecordList
 							{
 								if (!((FoundSet)record.getParentFoundSet()).executeFoundsetTriggerBreakOnFalse(new Object[] { record },
 									record.existInDataSource() ? StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID
-										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true)) // throws ServoyException when trigger method throws exception
+										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID,
+									true)) // throws ServoyException when trigger method throws exception
 								{
 									// just directly return if one returns false.
 									return ISaveConstants.VALIDATION_FAILED;
@@ -584,7 +586,8 @@ public class EditRecordList
 							for (int l = 0; l < values.length; l++)
 							{
 								// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
-								if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != updateInfo.getRow()) && pks.containsKey(l)) continue;
+								if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != updateInfo.getRow()) && pks.containsKey(l))
+									continue;
 
 								boolean same = values[l] == pkObject;
 								if (!same && values[l] != null)
@@ -789,7 +792,8 @@ public class EditRecordList
 					rowUpdateInfoRecord = rowUpdateInfo.getRecord();
 					((FoundSet)rowUpdateInfoRecord.getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfoRecord },
 						rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION ? StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID
-							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, true);
+							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID,
+						true);
 				}
 				catch (ServoyException e)
 				{
@@ -1149,7 +1153,7 @@ public class EditRecordList
 		accessMap.clear();
 	}
 
-	public boolean hasAccess(Table table, int flag)
+	public boolean hasAccess(ITable table, int flag)
 	{
 		if (table == null)
 		{
@@ -1166,8 +1170,8 @@ public class EditRecordList
 				{
 					String cname = it.next();
 					//access is based on columns, but we don't yet use that fine grained level, its table only
-					access = Integer.valueOf(fsm.getApplication().getFlattenedSolution().getSecurityAccess(
-						Utils.getDotQualitfied(table.getServerName(), table.getName(), cname)));
+					access = Integer.valueOf(
+						fsm.getApplication().getFlattenedSolution().getSecurityAccess(Utils.getDotQualitfied(table.getServerName(), table.getName(), cname)));
 				}
 				else
 				{

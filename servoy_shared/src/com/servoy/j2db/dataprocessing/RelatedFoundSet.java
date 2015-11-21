@@ -172,8 +172,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		cleanSelect.setColumns(AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getColumnsClone()));
 
 		//copy the where (is foreign where)
-		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION,
-			AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(), relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
+		cleanSelect.setCondition(SQLGenerator.CONDITION_RELATION, AbstractBaseQuery.relinkTable(relationSelect.getTable(), cleanSelect.getTable(),
+			relationSelect.getConditionClone(SQLGenerator.CONDITION_RELATION)));
 
 		TablePlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(cleanSelect.getTable(), relation.getName());
 
@@ -215,7 +215,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			if (!whereArgsIsEmpty(whereArgs))
 			{
 				Row cachedRow = null;
-				if (relation.isFKPKRef())
+				if (relation.isFKPKRef(fsm.getApplication().getFlattenedSolution()))
 				{
 					// optimize for FK->PK relation, if the data is already cached, do not query
 					RowManager rowManager = fsm.getRowManager(relation.getForeignDataSource());
@@ -244,16 +244,16 @@ public abstract class RelatedFoundSet extends FoundSet
 						trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
-					queryDatas.add(new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.initialRelatedChunkSize,
-						IDataServer.RELATION_QUERY, trackingInfo));
+					queryDatas.add(new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY,
+						trackingInfo));
 					queryIndex.add(Integer.valueOf(i));
 
 					QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
 					if (aggregateSelect != null)
 					{
 						// Note: see note about clone above.
-						queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect), fsm.getTableFilterParams(sheet.getServerName(),
-							aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
+						queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect),
+							fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
 						queryIndex.add(Integer.valueOf(i)); // same index for aggregates
 						aggregateSelects[i] = aggregateSelect;
 					}
@@ -429,8 +429,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		{
 			if (!findMode)
 			{
-				Debug.error(
-					"RelatedFoundset, creation args not found\nplaceholder=" + ph + "\nrelation=" + getRelationName() + "\ncreationSqlSelect=" + creationSqlSelect, new RuntimeException("RelatedFoundset, creation args not found!!")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Debug.error("RelatedFoundset, creation args not found\nplaceholder=" + ph + "\nrelation=" + getRelationName() + "\ncreationSqlSelect=" + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					creationSqlSelect, new RuntimeException("RelatedFoundset, creation args not found!!"));
 			}
 			return null; // how can this happen (other then in find mode) ??
 		}
@@ -445,7 +445,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		Column[] columns;
 		try
 		{
-			columns = relation.getForeignColumns();
+			columns = relation.getForeignColumns(fsm.getApplication().getFlattenedSolution());
 		}
 		catch (RepositoryException e)
 		{
@@ -587,9 +587,8 @@ public abstract class RelatedFoundSet extends FoundSet
 				else
 				{
 					if ((e.getType() == RowEvent.UPDATE //
-						|| (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null)) // pk was updated by another client (oldpkhash is filled when updated by self)
-						&&
-						getPksAndRecords().getPks() != null)
+					|| (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null)) // pk was updated by another client (oldpkhash is filled when updated by self)
+					&& getPksAndRecords().getPks() != null)
 					{
 						if (r == null || (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null))
 						{
@@ -636,7 +635,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 			try
 			{
-				Column[] foreignColumns = relation.getForeignColumns();
+				Column[] foreignColumns = relation.getForeignColumns(fsm.getApplication().getFlattenedSolution());
 				for (Column column : foreignColumns)
 				{
 					for (Object columnName : changedColumnNames)
@@ -671,8 +670,8 @@ public abstract class RelatedFoundSet extends FoundSet
 			throw new IllegalStateException("Relation not found for related foundset: " + relationName); //$NON-NLS-1$
 		}
 
-		Placeholder whereArgsPlaceholder = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(),
-			relation.getName()));
+		Placeholder whereArgsPlaceholder = creationSqlSelect.getPlaceholder(
+			SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
 		if (whereArgsPlaceholder == null || !whereArgsPlaceholder.isSet())
 		{
 			Debug.error("creationSqlSelect = " + creationSqlSelect); //$NON-NLS-1$
@@ -874,10 +873,11 @@ public abstract class RelatedFoundSet extends FoundSet
 					return;
 				}
 				//check the foreign key if they match, if so it will fall in this foundset
-				Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+				Placeholder ph = creationSqlSelect.getPlaceholder(
+					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
 				if (ph == null || !ph.isSet())
 				{
-					Column[] cols = relation.getForeignColumns();
+					Column[] cols = relation.getForeignColumns(fsm.getApplication().getFlattenedSolution());
 					StringBuilder columns = new StringBuilder();
 					columns.append("(");
 					if (cols != null && cols.length > 0)
@@ -895,7 +895,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 				// foreignData is a matrix as wide as the relation keys and 1 deep
 				Object[][] foreignData = (Object[][])ph.getValue(); // Really get only the where params not all of them (like table filter)
-				Column[] cols = relation.getForeignColumns();
+				Column[] cols = relation.getForeignColumns(fsm.getApplication().getFlattenedSolution());
 				if (foreignData.length != cols.length)
 				{
 					StringBuilder columns = new StringBuilder();
@@ -933,7 +933,8 @@ public abstract class RelatedFoundSet extends FoundSet
 					}
 					data.append(")");
 
-					Debug.error("RelatedFoundset check for relation:" + relationName + " for new row, creation args " + columns + " and relation args " + data + "  are not the same!!"); //$NON-NLS-1$
+					Debug.error("RelatedFoundset check for relation:" + relationName + " for new row, creation args " + columns + " and relation args " + data + //$NON-NLS-1$
+						"  are not the same!!");
 					return;//how can this happen??
 				}
 
@@ -1001,8 +1002,8 @@ public abstract class RelatedFoundSet extends FoundSet
 					IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
 				{
-					Debug.trace(Thread.currentThread().getName() +
-						": Related CheckForUpdate DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + ", SQL: " + sqlSelect.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Debug.trace(Thread.currentThread().getName() + ": Related CheckForUpdate DB time: " + (System.currentTimeMillis() - time) + " pks: " + //$NON-NLS-1$//$NON-NLS-2$
+						pks.getRowCount() + ", SQL: " + sqlSelect.toString()); //$NON-NLS-1$
 				}
 
 				// optimistic locking, if the query has been changed in the mean time forget about the refresh
@@ -1056,7 +1057,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_removeFoundSetFilterParam(java.lang.String)
 	 */
 	@Override
