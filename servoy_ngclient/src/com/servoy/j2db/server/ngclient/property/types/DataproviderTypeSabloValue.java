@@ -51,8 +51,10 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
+import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.Relation;
@@ -103,6 +105,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	private ListSelectionListener relatedFoundsetSelectionListener;
 	private ArrayList<IFoundSetInternal> relatedFoundsets = new ArrayList<IFoundSetInternal>();
+	private IModificationListener relatedRecordModificationListener;
+	private ArrayList<IRecordInternal> relatedRecords = new ArrayList<IRecordInternal>();
 	private String relationName;
 
 	public DataproviderTypeSabloValue(String dataProviderID, DataAdapterList dataAdapterList, WebFormComponent component, PropertyDescription dpPD)
@@ -138,6 +142,14 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			relatedFoundsetSelectionListener = new ListSelectionListener()
 			{
 				public void valueChanged(ListSelectionEvent e)
+				{
+					dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
+				}
+			};
+			relatedRecordModificationListener = new IModificationListener()
+			{
+				@Override
+				public void valueChanged(ModificationEvent e)
 				{
 					dataProviderOrRecordChanged(DataproviderTypeSabloValue.this.dataAdapterList.getRecord(), null, false, false, true);
 				}
@@ -330,6 +342,33 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				Debug.error(ex);
 			}
 		}
+		if (relatedRecordModificationListener != null)
+		{
+			try
+			{
+				ArrayList<IRecordInternal> newRelatedRecords = getRelatedRecords(record, relationName);
+
+				if (!newRelatedRecords.equals(relatedRecords))
+				{
+					for (IRecordInternal relatedRecord : relatedRecords)
+					{
+						relatedRecord.removeModificationListener(relatedRecordModificationListener);
+					}
+
+					relatedRecords = newRelatedRecords;
+
+					for (IRecordInternal relatedRecord : relatedRecords)
+					{
+						relatedRecord.addModificationListener(relatedRecordModificationListener);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+
 
 		String dpID = dataProviderID;
 		if (dpLookup != null)
@@ -391,6 +430,30 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 
 		return returnRelatedFoundsets;
+	}
+
+	private ArrayList<IRecordInternal> getRelatedRecords(IRecordInternal record, String relName)
+	{
+		ArrayList<IRecordInternal> returnRelatedRecords = new ArrayList<IRecordInternal>();
+		if (record != null)
+		{
+			// get the new records were are depending on
+			IRecordInternal currRecord = record;
+			String[] parts = relName.split("\\."); //$NON-NLS-1$
+
+			for (int i = 0; currRecord != null && i < parts.length; i++)
+			{
+				Object v = currRecord.getValue(parts[i]);
+				if (v instanceof ISwingFoundSet)
+				{
+					currRecord = ((ISwingFoundSet)v).getRecord(((ISwingFoundSet)v).getSelectedIndex());
+					if (currRecord == null) currRecord = ((ISwingFoundSet)v).getPrototypeState();
+					returnRelatedRecords.add(currRecord);
+				}
+			}
+		}
+
+		return returnRelatedRecords;
 	}
 
 	/**
