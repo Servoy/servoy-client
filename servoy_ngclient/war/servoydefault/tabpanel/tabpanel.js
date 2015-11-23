@@ -13,7 +13,9 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				var groupHeaderHeight = 39;
 				var activeGroupHeaderHeight = 37;
 				var scrollHeight = 15;
-				$scope.viewportStyle = {height: ($scope.model.size.height - ($scope.model.tabs.length - 1) * groupHeaderHeight - activeGroupHeaderHeight - scrollHeight) + "px"};
+				$scope.$watch("model.size", function (newVal) {
+					$scope.viewportStyle = {height: ($element.children(0).height() - ($scope.model.tabs.length - 1) * groupHeaderHeight - activeGroupHeaderHeight - scrollHeight) + "px"};
+				})
 			}
 			$scope.bgstyle = {}
 			$scope.waitingForServerVisibility = {}
