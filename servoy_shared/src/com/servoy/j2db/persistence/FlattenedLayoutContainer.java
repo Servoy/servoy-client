@@ -35,7 +35,14 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		List<IPersist> children = PersistHelper.getHierarchyChildren(layoutContainer);
 		for (IPersist child : children)
 		{
-			internalAddChild(child);
+			if (child instanceof LayoutContainer && ((LayoutContainer)child).getExtendsID() > 0)
+			{
+				internalAddChild(new FlattenedLayoutContainer((LayoutContainer)child));
+			}
+			else
+			{
+				internalAddChild(child);
+			}
 		}
 	}
 
