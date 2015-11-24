@@ -1919,6 +1919,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 
 	/**
 	 * Returns a JSWebComponent that has the given name.
+	 * The searched component can be in a parent form.
 	 *
 	 * @sample
 	 * var btn = myForm.getWebComponent("mycomponent");
