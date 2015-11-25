@@ -793,19 +793,22 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 							var rows = $scope.foundset.viewPort.rows;
 							updatingGridSelection = true;
 							
-							// need to clear else cellNav will set the selection back to lastRowCol
-							var oldSelection = $scope.gridApi.selection.getSelectedRows();
-							var isNewSelection = !oldSelection || !$scope.foundset.selectedRowIndexes || (oldSelection.length != $scope.foundset.selectedRowIndexes.length);
-							if(!isNewSelection) {
-								for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
-									isNewSelection = rows[$scope.foundset.selectedRowIndexes[idx]]._svyRowId != oldSelection[idx]._svyRowId;
-									if(isNewSelection) break;
+							// need to set row to new selection else cellNav will set the selection back to lastRowCol
+							if ($scope.gridApi.grid.cellNav.lastRowCol && $scope.foundset.selectedRowIndexes && $scope.foundset.selectedRowIndexes.length > 0)
+							{
+								var oldSelection = $scope.gridApi.selection.getSelectedRows();
+								var isNewSelection = !oldSelection || !$scope.foundset.selectedRowIndexes || (oldSelection.length != $scope.foundset.selectedRowIndexes.length);
+								if(!isNewSelection) {
+									for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
+										isNewSelection = rows[$scope.foundset.selectedRowIndexes[idx]]._svyRowId != oldSelection[idx]._svyRowId;
+										if(isNewSelection) break;
+									}
 								}
-							}
-							
-							if(isNewSelection) {
-								$scope.gridApi.grid.cellNav.lastRowCol = null;
-							}											
+								
+								if(isNewSelection) {
+									$scope.gridApi.grid.cellNav.lastRowCol.row = $scope.gridApi.grid.getRow(rows[$scope.foundset.selectedRowIndexes[0]]);
+								}
+							}	
 							
 							if (rows.length > 0 && $scope.foundset.selectedRowIndexes.length > 0) {
 								var scrolledToSelection = !scrollToSelection;
