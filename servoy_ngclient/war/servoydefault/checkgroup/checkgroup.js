@@ -31,6 +31,14 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
              for(var i=0;i< $scope.selection.length ;i++){
             	 if($scope.selection[i]==true) checkedTotal++;            	 
              }
+             var allowMultiselect = typeof $scope.model.dataProviderID ==="string";
+             if (!allowMultiselect && checkedTotal > 1)
+             {
+            	 for(var i=0;i< $scope.selection.length ;i++){
+                	 if($scope.selection[i]==true) $scope.selection[i] = false;            	 
+                 }
+            	 $scope.selection[$index] = true; 
+             }
             // prevent unselection of the last element if 'allow null' is not set                                          
             if(checkedTotal==0 && allowNullinc ==0){
                $scope.selection[$index] = true;
@@ -134,7 +142,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
           function setSelectionFromDataprovider(){
             if(!$scope.model.dataProviderID) return
             $scope.selection =[]
-            var arr = $scope.model.dataProviderID.split('\n')
+            var arr = (typeof $scope.model.dataProviderID ==="string") ? $scope.model.dataProviderID.split('\n') : [$scope.model.dataProviderID];
             arr.forEach(function(element, index, array){
                 for(var i=0;i<$scope.model.valuelistID.length;i++){
                   var item= $scope.model.valuelistID[i];
@@ -144,13 +152,22 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
           }
           
           function getDataproviderFromSelection(){
-            var ret ="";
+        	var allowMultiselect = typeof $scope.model.dataProviderID ==="string";
+            var ret = allowMultiselect ? "" : null;
             $scope.selection.forEach(function(element, index, array){
                // if(index == array.length-allowNullinc) return;
-                if(element == true) ret+= $scope.model.valuelistID[index+allowNullinc].realValue+'\n';
+                if(element == true)
+                	if (allowMultiselect)
+                	{
+                		ret+= $scope.model.valuelistID[index+allowNullinc].realValue+'\n';
+                	}
+                	else
+                	{
+                		ret = $scope.model.valuelistID[index+allowNullinc].realValue
+                	}
             });
-              ret = ret.replace(/\n$/, "");//remove the last \n
-              if(ret =="") ret = null
+              if (allowMultiselect) ret = ret.replace(/\n$/, "");//remove the last \n
+              if(ret === "") ret = null
               return ret;
           }
           
