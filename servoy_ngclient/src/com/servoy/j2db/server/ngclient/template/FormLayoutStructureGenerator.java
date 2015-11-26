@@ -99,11 +99,9 @@ public class FormLayoutStructureGenerator
 				writer.print(" svy-layoutname='");
 				writer.print(spec.getName());
 				writer.print("'");
-				if (spec.getDesignStyleClass() != null)
+				if (spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0)
 				{
-					writer.print(" svy-designclass='");
-					writer.print(spec.getDesignStyleClass());
-					writer.print("'");
+					writer.print(" ng-class='{" + spec.getDesignStyleClass() + ": showWireframe==true}'");
 				}
 			}
 
