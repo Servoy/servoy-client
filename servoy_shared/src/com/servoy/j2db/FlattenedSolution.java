@@ -1335,6 +1335,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				if (missingSrv) return null;
 			}
 
+			// TODO if this is refactord out to be resolved outside the relation also look at the DataProviderConverter
+			// the call from that class to flattenedSolution.getGlobalDataProvider(value);
 			Column[] cols = r.getForeignColumns(this);
 			if (cols == null || cols.length == 0) return null;
 

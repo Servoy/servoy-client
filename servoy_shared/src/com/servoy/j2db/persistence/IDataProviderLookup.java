@@ -20,5 +20,5 @@ public interface IDataProviderLookup
 {
 	public IDataProvider getDataProvider(String id) throws RepositoryException;
 
-	public Table getTable() throws RepositoryException;
+	public ITable getTable() throws RepositoryException;
 }

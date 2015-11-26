@@ -44,10 +44,10 @@ import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -91,8 +91,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 * @param formObjects , map with IPersist -> IDisplay
 	 * @param displays may provide map with dataProviderID -> IDataAdapter for already created adapters, or null/empty if none
 	 */
-	public DataAdapterList(IApplication app, IDataProviderLookup dataProviderLookup, Map<IPersist, ? extends Object> formObjects,
-		FormController formController, LinkedHashMap<String, IDataAdapter> dataAdapters, ControllerUndoManager undoManager) throws RepositoryException
+	public DataAdapterList(IApplication app, IDataProviderLookup dataProviderLookup, Map<IPersist, ? extends Object> formObjects, FormController formController,
+		LinkedHashMap<String, IDataAdapter> dataAdapters, ControllerUndoManager undoManager) throws RepositoryException
 	{
 		application = app;
 		this.formController = formController;
@@ -121,7 +121,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		this.dataProviderLookup = dataProviderLookup;
 
 		RelatedFieldHolder rfh = null;
-		Table table = null;
+		ITable table = null;
 		if (dataProviderLookup != null)
 		{
 			table = dataProviderLookup.getTable();
@@ -896,7 +896,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			{
 				if (record == null)
 				{
-					return fs.getFormController().getApplication().getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
+					return fs.getFormController().getApplication().getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft()).put(scope.getRight(),
+						obj);
 				}
 				//does an additional fire in foundset!
 				return record.getParentFoundSet().setDataProviderValue(dataProviderID, obj);

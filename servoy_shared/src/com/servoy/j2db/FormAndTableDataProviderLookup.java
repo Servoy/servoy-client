@@ -26,7 +26,6 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 
 public class FormAndTableDataProviderLookup implements IDataProviderLookup
 {
@@ -78,8 +77,8 @@ public class FormAndTableDataProviderLookup implements IDataProviderLookup
 	/**
 	 * get the table (may be null)
 	 */
-	public Table getTable() throws RepositoryException
+	public ITable getTable() throws RepositoryException
 	{
-		return (Table)tableDisplay;
+		return tableDisplay;
 	}
 }
