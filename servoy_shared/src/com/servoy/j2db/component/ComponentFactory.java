@@ -106,6 +106,7 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptableProvider;
@@ -371,7 +372,9 @@ public class ComponentFactory
 			case IRepository.BEANS :
 				comp = createBean(application, form, (Bean)meta, null);
 				break;
-
+			case IRepository.WEBCOMPONENTS :
+				comp = createWebComponentPlaceholder(application, form, (WebComponent)meta);
+				break;
 			default :
 				Debug.error("ComponentFactory:unkown type " + meta.getTypeID() + ", uuid: " + meta.getUUID() + ", parent:" + meta.getParent());
 				IStandardLabel label = application.getItemFactory().createLabel(getWebID(form, meta), "ComponentFactory:unkown type " + meta.getTypeID());
@@ -2415,5 +2418,16 @@ public class ComponentFactory
 	public static boolean isButton(GraphicalComponent label)
 	{
 		return label.getOnActionMethodID() != 0 && label.getShowClick();
+	}
+
+	protected static IComponent createWebComponentPlaceholder(IApplication application, Form form, WebComponent webComponent)
+	{
+		RuntimeScriptLabel scriptable = new RuntimeScriptLabel(application.getItemFactory().createChangesRecorder(), application);
+		ILabel label = application.getItemFactory().createScriptLabel(scriptable, getWebID(form, webComponent), false);
+		scriptable.setComponent(label, webComponent);
+		label.setName(webComponent.getName());
+		label.setText("WebComponent '" + webComponent.getName() + "' placeholder");
+		label.setSize(new Dimension(200, 20));
+		return label;
 	}
 }
