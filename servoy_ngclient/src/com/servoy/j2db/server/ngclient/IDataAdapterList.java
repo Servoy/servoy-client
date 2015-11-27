@@ -57,6 +57,8 @@ public interface IDataAdapterList extends ITagResolver
 
 	IWebFormController getForm();
 
+	String getDataProviderID(WebFormComponent webComponent, String beanProperty);
+
 	void addVisibleChildForm(IWebFormController form, String relation, boolean shouldUpdateParentFormController);
 
 	void removeVisibleChildForm(IWebFormController form, boolean firstLevel);
@@ -70,6 +72,8 @@ public interface IDataAdapterList extends ITagResolver
 	List<IWebFormController> getParentRelatedForms();
 
 	IRecordInternal getRecord();
+
+	Object getValueObject(IRecord recordToUse, String dataProviderId);
 
 	void destroy();
 
