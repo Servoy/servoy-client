@@ -13,7 +13,7 @@
 		    	 <div ng-if="win.navigatorForm.name" ng-style="{'width':win.navigatorForm.size.width+'px'}"
 					  ng-include="getNavigatorFormUrl()"></div>
 		    	 <div ng-include="getFormUrl()"  
-		    	      ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':win.navigatorForm.size.width+'px'}" ></div>	    	 
+		    	      ng-style="{'display':shouldDisplay,'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':win.navigatorForm.size.width+'px'}" ></div>	    	 
 		    </div>    
 			<div class="window-footer"
 				 bo-style="{'display':isUndecorated()? 'none':'block'}"></div>
