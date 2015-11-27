@@ -636,7 +636,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	 * Get the dataProviderID from the runtime property.
 	 * NOTE: it's not taken directly from FormElement because 'beanProperty' might contain dots (a dataprovider nested somewhere in another property) - and BaseWebObject deals with that correctly.
 	 */
-	protected String getDataProviderID(WebFormComponent webComponent, String beanProperty)
+	public String getDataProviderID(WebFormComponent webComponent, String beanProperty)
 	{
 		Object propertyValue = webComponent.getProperty(beanProperty);
 		if (propertyValue instanceof DataproviderTypeSabloValue) return ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();

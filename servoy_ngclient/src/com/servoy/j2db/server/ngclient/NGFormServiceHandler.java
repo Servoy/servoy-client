@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONException;
@@ -80,9 +81,28 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				else
 				{
-					dataPush(args);
+					JSONObject changes = args.getJSONObject("changes");
 					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
-					form.getDataAdapterList().pushChanges(webComponent, args.getString("property"));
+					if (changes.length() > 0)
+					{
+						Iterator<String> keys = changes.keys();
+						while (keys.hasNext())
+						{
+							String key = keys.next();
+							Object value = changes.get(key);
+							if ("".equals(value) && form.getDataAdapterList().getValueObject(form.getDataAdapterList().getRecord(),
+								form.getDataAdapterList().getDataProviderID(webComponent, args.getString("property"))) == null)
+							{
+								keys.remove();
+							}
+						}
+						args.put("changes", changes);
+					}
+					if (changes.length() > 0)
+					{
+						dataPush(args);
+						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"));
+					}
 				}
 				break;
 			}
