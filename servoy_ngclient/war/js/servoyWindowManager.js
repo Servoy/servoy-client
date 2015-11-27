@@ -513,7 +513,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 	DIALOG:0,
 	MODAL_DIALOG:1,
 	WINDOW:2
-}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$windowService, $servoyInternal,$sabloApplication,$formService) {
+}).controller("DialogInstanceCtrl", function ($scope, windowInstance,$timeout,$windowService, $servoyInternal,$sabloApplication,$formService) {
 
 	// these scope variables can be accessed by child scopes
 	// for example the default navigator watches 'win' to see if it changed the current form
@@ -544,8 +544,14 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 		if(!win.size && win.navigatorForm.size){
 			width += win.navigatorForm.size.width;
 		}
+		if ($scope.shouldDisplay  == "none") {
+			$timeout(function(){
+				$scope.shouldDisplay = "block"
+			});
+		}
 		return {'width':width+'px','height':height+'px'}
 	}
+	$scope.shouldDisplay = "none" 
 
 	$formService.formWillShow(windowInstance.form.name, false);
 
