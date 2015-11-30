@@ -484,7 +484,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 			scope.$watch(attrs.svyImagemediaid,function(newVal) {
 				media = newVal;
-				angular.element(element[0]).ready($timeout(function() { setImageStyle(); }));
+				var componentSize = {width: element[0].parentNode.parentNode.offsetWidth,height: element[0].parentNode.parentNode.offsetHeight};
+				if (componentSize.width > 0 && componentSize.height > 0 )
+					angular.element(element[0]).ready(setImageStyle);
+				else if (media && media.visible) { 
+					angular.element(element[0]).ready($timeout(function(){setImageStyle();},0,false));
+				}
 			}, true)
 
 
