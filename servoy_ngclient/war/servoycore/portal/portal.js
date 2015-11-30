@@ -782,8 +782,11 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 				updateGridSelectionFromFoundset(false);
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			}
+			var updateSelectionTimeout= null;
 			var updateGridSelectionFromFoundset = function(scrollToSelection) {
-				$timeout(function () {
+				if (updateSelectionTimeout) $timeout.cancel(updateSelectionTimeout)
+				updateSelectionTimeout = $timeout(function () {
+					updateSelectionTimeout = null;
 					try {
 						if ($scope.foundset)
 						{
@@ -892,7 +895,7 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 						deferredAPICallExecution = undefined;
 						throw e;
 					}
-				});
+				},25);
 				// it is important that at the end of this function, the two arrays are in sync; otherwise, watch loops may happen
 			};
 			$scope.$watchCollection('foundset.selectedRowIndexes', function() {
