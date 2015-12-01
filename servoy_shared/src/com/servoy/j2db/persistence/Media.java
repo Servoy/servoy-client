@@ -23,7 +23,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * Media is binary data tagged with a mime type
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.MEDIA)
@@ -32,11 +32,20 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 	public static final long serialVersionUID = 468097341226347599L;
 
 	private transient byte[] media_data;
+	private transient long lastModifiedTime = -1;
 	byte[] perm_media_data; //only used in runtime/application server
 
 	Media(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.MEDIA, parent, element_id, uuid);
+	}
+
+	/**
+	 * @return the lastModifiedTime
+	 */
+	public long getLastModifiedTime()
+	{
+		return lastModifiedTime;
 	}
 
 	public int getBlobId()
@@ -110,7 +119,7 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 
 	/**
 	 * The MIME type of the Media object.
-	 * 
+	 *
 	 * Some examples are: 'image/jpg', 'image/png', etc.
 	 */
 	public String getMimeType()
@@ -136,6 +145,7 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 	{
 		perm_media_data = fileContent;
 		media_data = null;
+		lastModifiedTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -146,10 +156,10 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 
 	/**
 	 * The encapsulation mode of this Media. The following can be used:
-	 * 
+	 *
 	 * - Public (available in both scripting and designer from any module)
 	 * - Module Scope - available in both scripting and designer but only in the same module.
-	 * 
+	 *
 	 * @return the encapsulation mode/level of the persist.
 	 */
 	@Override
