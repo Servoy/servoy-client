@@ -50,8 +50,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  *
  * @author acostescu
  */
-public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue> implements
-	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
+public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue>
+	implements IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
 	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
 	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
 {
@@ -224,6 +224,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				{
 					if (value instanceof IFoundSetInternal) webComponentValue.updateFoundset((IFoundSetInternal)value);
 					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
+					break;
 				}
 				case "dataproviders" :
 				{
@@ -242,6 +243,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						webComponentValue.notifyDataProvidersUpdated();
 					}
 					else throw new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName());
+					break;
 				}
 			}
 		}
