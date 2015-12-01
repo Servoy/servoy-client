@@ -134,7 +134,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				{
 					$timeout(function() {
 						$scope.handlers.onChangeMethodID($scope.getTabIndex(oldSelected),event !=null?event : $.Event("change"));
-					});
+					},0,false);
 				} 
 			}
 
