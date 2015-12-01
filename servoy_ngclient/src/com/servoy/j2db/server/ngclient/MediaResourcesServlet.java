@@ -97,8 +97,8 @@ public class MediaResourcesServlet extends HttpServlet
 
 	public static MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
 	{
-		MediaInfo mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null)
-			: contentType, contentDisposition, mediaBytes);
+		MediaInfo mediaInfo = new MediaInfo(UUID.randomUUID().toString(), fileName,
+			contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType, contentDisposition, mediaBytes);
 		dynamicMediasMap.put(mediaInfo.getName(), mediaInfo);
 		return mediaInfo;
 	}
@@ -281,16 +281,11 @@ public class MediaResourcesServlet extends HttpServlet
 	{
 		if (ApplicationServerRegistry.get().isDeveloperStartup())
 		{
-			// Set standard HTTP/1.1 no-cache headers.
-			response.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
-			// Set standard HTTP/1.0 no-cache header.
-			response.setHeader("Pragma", "no-cache");
+			response.setHeader("Cache-Control", "max-age=0, must-revalidate, proxy-revalidate");
 		}
-		else
-		{
-			// cache resources on client until changed
-			if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime())) return true;
-		}
+		// cache resources on client until changed
+		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
+			return true;
 
 		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName(), null);
 	}
@@ -322,7 +317,8 @@ public class MediaResourcesServlet extends HttpServlet
 	private IApplication getClient(String clientUUID)
 	{
 		// try to look it up as clientId. (solution model)
-		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT,
+			clientUUID);
 
 		IApplication client = null;
 		if (wsSession == null)
