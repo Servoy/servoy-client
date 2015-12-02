@@ -65,7 +65,7 @@ public class FormLayoutStructureGenerator
 						highlight);
 				}
 			}
-			FormLayoutGenerator.generateFormEndTag(writer);
+			FormLayoutGenerator.generateFormEndTag(writer, design);
 		}
 		catch (Exception e)
 		{

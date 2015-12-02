@@ -125,11 +125,11 @@ public class FormLayoutGenerator
 					}
 					if (fe == null)
 					{
-						fe = FormElementHelper.INSTANCE.getFormElement(bc, context, null);
+						fe = FormElementHelper.INSTANCE.getFormElement(bc, context.getSolution(), null, design);
 					}
 
 					generateFormElementWrapper(writer, fe, design, form);
-					generateFormElement(writer, fe, false, highlight);
+					generateFormElement(writer, fe, design, highlight);
 					generateEndDiv(writer);
 				}
 
@@ -137,12 +137,13 @@ public class FormLayoutGenerator
 			}
 		}
 
-		generateFormEndTag(writer);
+		generateFormEndTag(writer, design);
 	}
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
 	{
-		writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
+		if (design) writer.print("<div ng-controller=\"DesignForm\" ");
+		else writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
 			writer.print(String.format("data-svy-name=\"%1$s\" ", realFormName));
@@ -184,10 +185,10 @@ public class FormLayoutGenerator
 		writer.println("</div>");
 	}
 
-	public static void generateFormEndTag(PrintWriter writer)
+	public static void generateFormEndTag(PrintWriter writer, boolean design)
 	{
 		generateEndDiv(writer);
-		writer.println("</svy-formload>");
+		if (!design) writer.println("</svy-formload>");
 	}
 
 	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form)
@@ -306,48 +307,64 @@ public class FormLayoutGenerator
 			writer.print(fe.getForm().getName() + "." + elementName);
 			writer.print("'");
 		}
-		writer.print(" svy-model='model.");
-		writer.print(fe.getName());
-		writer.print("'");
-		writer.print(" svy-api='api.");
-		writer.print(fe.getName());
-		writer.print("'");
-		writer.print(" svy-handlers='handlers.");
-		writer.print(fe.getName());
-		writer.print("'");
 		if (design)
 		{
-			writer.print(" svy-id='");
-			writer.print(fe.getDesignId());
-			writer.print("'");
-			if (fe.getForm().isResponsiveLayout())
-			{
-				List<String> typeNames = fe.getSvyTypesNames();
-				if (typeNames.size() > 0)
-				{
-					writer.print(" svy-types='");
-					writer.print("[" + StringUtil.join(typeNames, ",") + "]");
-					writer.print("'");
-				}
-				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
-				if (forbiddenComponentNames.size() > 0)
-				{
-					writer.print(" svy-forbidden-components='");
-					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
-					writer.print("'");
-				}
-			}
-			String directEditPropertyName = getDirectEditProperty(fe);
-			if (directEditPropertyName != null)
-			{
-				writer.print(" directEditPropertyName='");
-				writer.print(directEditPropertyName);
-				writer.print("'");
-			}
+//			writer.print(" svy-id='");
+//			writer.print(fe.getDesignId());
+//			writer.print("'");
+//			if (fe.getForm().isResponsiveLayout())
+//			{
+//				List<String> typeNames = fe.getSvyTypesNames();
+//				if (typeNames.size() > 0)
+//				{
+//					writer.print(" svy-types='");
+//					writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+//					writer.print("'");
+//				}
+//				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
+//				if (forbiddenComponentNames.size() > 0)
+//				{
+//					writer.print(" svy-forbidden-components='");
+//					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
+//					writer.print("'");
+//				}
+//			}
+//			String directEditPropertyName = getDirectEditProperty(fe);
+//			if (directEditPropertyName != null)
+//			{
+//				writer.print(" directEditPropertyName='");
+//				writer.print(directEditPropertyName);
+//				writer.print("'");
+//			}
+			writer.print(" svy-model='model(");
+			writer.print(fe.getName());
+			writer.print(")'");
+			writer.print(" svy-api='api(");
+			writer.print(fe.getName());
+			writer.print(")'");
+			writer.print(" svy-handlers='handlers(");
+			writer.print(fe.getName());
+			writer.print(")'");
+			writer.print(" svy-servoyApi='servoyApi(");
+			writer.print(fe.getName());
+			writer.print(")'");
 		}
-		writer.print(" svy-servoyApi='handlers.");
-		writer.print(fe.getName());
-		writer.print(".svy_servoyApi'");
+		else
+		{
+			writer.print(" svy-model='model.");
+			writer.print(fe.getName());
+			writer.print("'");
+			writer.print(" svy-api='api.");
+			writer.print(fe.getName());
+			writer.print("'");
+			writer.print(" svy-handlers='handlers.");
+			writer.print(fe.getName());
+			writer.print("'");
+			writer.print(" svy-servoyApi='handlers.");
+			writer.print(fe.getName());
+			writer.print(".svy_servoyApi'");
+		}
+
 		writer.println(">");
 		writer.print("</");
 		writer.print(fe.getTagname());
