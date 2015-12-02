@@ -792,34 +792,6 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		}
 	}
 
-	/**
-	 * Returns a JSPortal that has the given name.
-	 *
-	 * @sample
-	 * var frm = solutionModel.getForm("myForm");
-	 * var portal = frm.getPortal("myPortal");
-	 * portal.initialSort = 'my_table_text desc';
-	 *
-	 * @param name the specified name of the portal
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
-	 *
-	 * @return a JSPortal object
-	 */
-	@JSFunction
-	public JSPortal getPortal(String name, boolean returnInheritedElements)
-	{
-		if (name == null) return null;
-		Iterator<Portal> portals = (returnInheritedElements ? getFlattenedContainer() : getContainer()).getPortals();
-		while (portals.hasNext())
-		{
-			Portal portal = portals.next();
-			if (name.equals(portal.getName()))
-			{
-				return new JSPortal((IJSParent)this, portal, application, false);
-			}
-		}
-		return null;
-	}
 
 	/**
 	 * Returns a JSPortal that has the given name.
@@ -836,7 +808,17 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	@JSFunction
 	public JSPortal getPortal(String name)
 	{
-		return getPortal(name, true);
+		if (name == null) return null;
+		Iterator<Portal> portals = getFlattenedContainer().getPortals();
+		while (portals.hasNext())
+		{
+			Portal portal = portals.next();
+			if (name.equals(portal.getName()))
+			{
+				return new JSPortal((IJSParent)this, portal, application, false);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -983,15 +965,14 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 *	application.output("Tab " + i + " has text " + tabs[i].text);
 	 *
 	 * @param name the specified name of the tabpanel
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 *
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
-	public JSTabPanel getTabPanel(String name, boolean returnInheritedElements)
+	public JSTabPanel getTabPanel(String name)
 	{
 		if (name == null) return null;
-		Iterator<TabPanel> tabPanels = (returnInheritedElements ? getFlattenedContainer() : getContainer()).getTabPanels();
+		Iterator<TabPanel> tabPanels = getFlattenedContainer().getTabPanels();
 		while (tabPanels.hasNext())
 		{
 			TabPanel tabPanel = tabPanels.next();
@@ -1001,26 +982,6 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Returns a JSTabPanel that has the given name.
-	 *
-	 * @sample
-	 * var frm = solutionModel.getForm("myForm");
-	 * var tabPanel = frm.getTabPanel("myTabPanel");
-	 * var tabs = tabPanel.getTabs();
-	 * for (var i=0; i<tabs.length; i++)
-	 *	application.output("Tab " + i + " has text " + tabs[i].text);
-	 *
-	 * @param name the specified name of the tabpanel
-	 *
-	 * @return a JSTabPanel object
-	 */
-	@JSFunction
-	public JSTabPanel getTabPanel(String name)
-	{
-		return getTabPanel(name, true);
 	}
 
 	/**
@@ -1129,17 +1090,16 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * application.output(field.dataProviderID);
 	 *
 	 * @param name the specified name of the field
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 *
 	 * @return a JSField object
 	 */
 	@JSFunction
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	public JSField getField(String name, boolean returnInheritedElements)
+	public JSField getField(String name)
 	{
 		if (name == null) return null;
 
-		Iterator<Field> fields = (returnInheritedElements ? getFlattenedContainer() : getContainer()).getFields();
+		Iterator<Field> fields = getFlattenedContainer().getFields();
 		while (fields.hasNext())
 		{
 			Field field = fields.next();
@@ -1149,25 +1109,6 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * The field with the specified name.
-	 *
-	 * @sample
-	 * var form = solutionModel.getForm("myForm");
-	 * var field = form.getField("myField");
-	 * application.output(field.dataProviderID);
-	 *
-	 * @param name the specified name of the field
-	 *
-	 * @return a JSField object
-	 */
-	@JSFunction
-	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	public JSField getField(String name)
-	{
-		return getField(name, true);
 	}
 
 	/**
@@ -1267,17 +1208,16 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * application.output(btn.text);
 	 *
 	 * @param name the specified name of the button
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 *
 	 * @return a JSButton object
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
-	public JSButton getButton(String name, boolean returnInheritedElements)
+	public JSButton getButton(String name)
 	{
 		if (name == null) return null;
 
-		Iterator<GraphicalComponent> graphicalComponents = (returnInheritedElements ? getFlattenedContainer() : getContainer()).getGraphicalComponents();
+		Iterator<GraphicalComponent> graphicalComponents = getFlattenedContainer().getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
@@ -1287,24 +1227,6 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Returns a JSButton that has the given name.
-	 *
-	 * @sample
-	 * var btn = myForm.getButton("hello");
-	 * application.output(btn.text);
-	 *
-	 * @param name the specified name of the button
-	 *
-	 * @return a JSButton object
-	 */
-	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	@JSFunction
-	public JSButton getButton(String name)
-	{
-		return getButton(name, true);
 	}
 
 	/**
@@ -1441,19 +1363,18 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * application.output(mybean.className);
 	 *
 	 * @param name the specified name of the bean
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 *
 	 * @return a JSBean object
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
-	public JSBean getBean(String name, boolean returnInheritedElements)
+	public JSBean getBean(String name)
 	{
 		if (name == null) return null;
 
 		try
 		{
-			Iterator<Bean> beans = (returnInheritedElements ? getFlattenedContainer() : getContainer()).getBeans();
+			Iterator<Bean> beans = getFlattenedContainer().getBeans();
 			while (beans.hasNext())
 			{
 				Bean bean = beans.next();
@@ -1468,24 +1389,6 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			Debug.log(ex);
 		}
 		return null;
-	}
-
-	/**
-	 * Returns a JSBean that has the given name.
-	 *
-	 * @sample
-	 * var btn = myForm.getBean("mybean");
-	 * application.output(mybean.className);
-	 *
-	 * @param name the specified name of the bean
-	 *
-	 * @return a JSBean object
-	 */
-	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	@JSFunction
-	public JSBean getBean(String name)
-	{
-		return getBean(name, true);
 	}
 
 	/**
@@ -1702,19 +1605,18 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * application.output(label.text);
 	 *
 	 * @param name the specified name of the label
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 *
 	 * @return a JSLabel object (or null if the label with the specified name does not exist)
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
-	public JSLabel getLabel(String name, boolean returnInheritedElements)
+	public JSLabel getLabel(String name)
 	{
 		if (name == null) return null;
 
 		try
 		{
-			Iterator<GraphicalComponent> graphicalComponents = (returnInheritedElements ? getFlattenedContainer() : getContainer()).getGraphicalComponents();
+			Iterator<GraphicalComponent> graphicalComponents = getFlattenedContainer().getGraphicalComponents();
 			while (graphicalComponents.hasNext())
 			{
 				GraphicalComponent label = graphicalComponents.next();
@@ -1729,26 +1631,6 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			Debug.error(ex);
 		}
 		return null;
-	}
-
-
-	/**
-	 * Returns a JSLabel that has the given name.
-	 *
-	 * @sample
-	 * var frm = solutionModel.getForm("myForm");
-	 * var label = frm.getLabel("myLabel");
-	 * application.output(label.text);
-	 *
-	 * @param name the specified name of the label
-	 *
-	 * @return a JSLabel object (or null if the label with the specified name does not exist)
-	 */
-	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	@JSFunction
-	public JSLabel getLabel(String name)
-	{
-		return getLabel(name, true);
 	}
 
 	/**
@@ -1888,19 +1770,18 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	 * application.output(mybean.typeName);
 	 *
 	 * @param name the specified name of the web component
-	 * @param returnInheritedElements boolean true to also return the elements from parent form
 	 *
 	 * @return a JSWebComponent object
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
-	public JSWebComponent getWebComponent(String name, boolean returnInheritedElements)
+	public JSWebComponent getWebComponent(String name)
 	{
 		if (name == null) return null;
 
 		try
 		{
-			Iterator<WebComponent> webComponents = (returnInheritedElements ? getFlattenedContainer() : getContainer()).getWebComponents();
+			Iterator<WebComponent> webComponents = getFlattenedContainer().getWebComponents();
 			while (webComponents.hasNext())
 			{
 				WebComponent webComponent = webComponents.next();
@@ -1915,24 +1796,6 @@ public abstract class JSBaseContainer /* implements IJSParent */
 			Debug.log(ex);
 		}
 		return null;
-	}
-
-	/**
-	 * Returns a JSWebComponent that has the given name.
-	 *
-	 * @sample
-	 * var btn = myForm.getWebComponent("mycomponent");
-	 * application.output(mybean.typeName);
-	 *
-	 * @param name the specified name of the web component
-	 *
-	 * @return a JSWebComponent object
-	 */
-	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
-	@JSFunction
-	public JSWebComponent getWebComponent(String name)
-	{
-		return getWebComponent(name, true);
 	}
 
 	/**
