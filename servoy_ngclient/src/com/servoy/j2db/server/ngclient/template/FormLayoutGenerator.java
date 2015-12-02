@@ -193,9 +193,19 @@ public class FormLayoutGenerator
 
 	public static void generateFormElementWrapper(PrintWriter writer, FormElement fe, boolean design, Form form)
 	{
-		writer.print("<div ng-style=\"layout.");
-		writer.print(fe.getName());
-		writer.print("\"");
+		if (design)
+		{
+			writer.print("<div ng-style=\"layout('");
+			writer.print(fe.getName());
+			writer.print("')\"");
+
+		}
+		else
+		{
+			writer.print("<div ng-style=\"layout.");
+			writer.print(fe.getName());
+			writer.print("\"");
+		}
 		if (!form.isResponsiveLayout() && fe.getPersistIfAvailable() instanceof BaseComponent)
 		{
 			BaseComponent bc = (BaseComponent)fe.getPersistIfAvailable();
@@ -336,18 +346,18 @@ public class FormLayoutGenerator
 //				writer.print(directEditPropertyName);
 //				writer.print("'");
 //			}
-			writer.print(" svy-model='model(");
+			writer.print(" svy-model='model(\"");
 			writer.print(fe.getName());
-			writer.print(")'");
-			writer.print(" svy-api='api(");
+			writer.print("\")'");
+			writer.print(" svy-api='api(\"");
 			writer.print(fe.getName());
-			writer.print(")'");
-			writer.print(" svy-handlers='handlers(");
+			writer.print("\")'");
+			writer.print(" svy-handlers='handlers(\"");
 			writer.print(fe.getName());
-			writer.print(")'");
-			writer.print(" svy-servoyApi='servoyApi(");
+			writer.print("\")'");
+			writer.print(" svy-servoyApi='servoyApi(\"");
 			writer.print(fe.getName());
-			writer.print(")'");
+			writer.print("\")'");
 		}
 		else
 		{
