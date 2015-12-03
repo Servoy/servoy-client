@@ -71,7 +71,7 @@ import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
  * Factory implementation for Wicket GUI
- * 
+ *
  * @author jcompagner
  */
 public class WebItemFactory implements ItemFactory
@@ -170,13 +170,13 @@ public class WebItemFactory implements ItemFactory
 	}
 
 	public IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,
-		boolean isRadioList)
+		boolean isRadioList, boolean multiselect)
 	{
 		if (isRadioList)
 		{
 			return new WebDataRadioChoice(application, scriptable, name, list);
 		}
-		return new WebDataCheckBoxChoice(application, scriptable, name, list);
+		return new WebDataCheckBoxChoice(application, scriptable, name, list, multiselect);
 	}
 
 	public IFieldComponent createDataComboBox(RuntimeDataCombobox scriptable, String name, IValueList list)
@@ -315,7 +315,7 @@ public class WebItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ItemFactory#createChangesRecorder()
 	 */
 	public IStylePropertyChangesRecorder createChangesRecorder()
@@ -325,7 +325,7 @@ public class WebItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ItemFactory#createListBox(com.servoy.j2db.ui.scripting.RuntimeListBox, java.lang.String,
 	 * com.servoy.j2db.dataprocessing.IValueList, boolean)
 	 */
