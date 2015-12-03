@@ -767,7 +767,7 @@ public class ComponentFactory
 		if (dim != null) c.setSize(bc.getSize());
 
 		javax.swing.border.Border border = ComponentFactoryHelper.createBorder(bc.getBorderType());
-		if ((c instanceof JCheckBox/* DataCheckBox */|| c instanceof JRadioButton/* DataRadioButton */) && (border != null || isBorderStyle))
+		if ((c instanceof JCheckBox/* DataCheckBox */ || c instanceof JRadioButton/* DataRadioButton */) && (border != null || isBorderStyle))
 		{
 			((AbstractButton)c).setBorderPainted(true);
 			if (c instanceof JCheckBox)
@@ -981,7 +981,7 @@ public class ComponentFactory
 		}
 		IValueList list = null;
 		if (valuelist != null &&
-			(valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES || (valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
+				(valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES || (valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
 		{
 			WeakHashMap<UUID, Object> hmValueLists = null;
 			if (application != null)
@@ -1054,18 +1054,18 @@ public class ComponentFactory
 						List<String> lst = ((CustomValueList)list).getDataProviders();
 
 						StringBuffer message = new StringBuffer("The valuelist was already created for type: " +
-							Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
-						message.append("\n for the dataproviders: ");
-						for (int i = 0; i < lst.size(); i++)
-						{
-							String previousProviders = lst.get(i);
-							message.append(previousProviders);
-							message.append(",");
-						}
-						message.setLength(message.length() - 1);
-						message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
-						message.append("\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
-							valuelist.getName() + " so that they have the same type.");
+								Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
+							message.append("\n for the dataproviders: ");
+							for (int i = 0; i < lst.size(); i++)
+							{
+								String previousProviders = lst.get(i);
+								message.append(previousProviders);
+								message.append(",");
+							}
+							message.setLength(message.length() - 1);
+							message.append("\nSo it can't be used also for type: " + Column.getDisplayTypeString(type) + " for the dataprovider: " + dataprovider);
+							message.append("\nPlease edit these dataprovider(s) (using table editor for database column or Edit variable context menu action for variables) of this valuelist: " +
+								valuelist.getName() + " so that they have the same type.");
 						application.reportError("Valuelist: " + list.getName() + " used with different types", message);
 					}
 				}
@@ -1214,7 +1214,8 @@ public class ComponentFactory
 					else
 					{
 						scriptable = so = new RuntimeCheckBoxChoice(jsChangeRecorder, application);
-						fl = application.getItemFactory().createDataChoice((RuntimeCheckBoxChoice)so, getWebID(form, field), list, false);
+						fl = application.getItemFactory().createDataChoice((RuntimeCheckBoxChoice)so, getWebID(form, field), list, false,
+							fieldFormat == null || fieldFormat.dpType == IColumnTypes.TEXT);
 						if (fl instanceof IScrollPane)
 						{
 							applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1244,7 +1245,7 @@ public class ComponentFactory
 				else
 				{
 					scriptable = so = new RuntimeRadioChoice(jsChangeRecorder, application);
-					fl = application.getItemFactory().createDataChoice((RuntimeRadioChoice)so, getWebID(form, field), list, true);
+					fl = application.getItemFactory().createDataChoice((RuntimeRadioChoice)so, getWebID(form, field), list, true, false);
 					if (fl instanceof IScrollPane)
 					{
 						applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1295,7 +1296,7 @@ public class ComponentFactory
 					scriptable = (AbstractRuntimeField< ? extends IFieldComponent>)fl.getScriptObject();
 					break;
 				}
-				if (dp != null && dp.getColumnWrapper() != null && dp.getColumnWrapper().getRelations() == null)//only allow plain columns
+				if (dp != null && dp.getColumnWrapper() != null && dp.getColumnWrapper().getRelations() == null) //only allow plain columns
 				{
 					RuntimeDataLookupField so;
 					scriptable = so = new RuntimeDataLookupField(jsChangeRecorder, application);
@@ -1336,7 +1337,7 @@ public class ComponentFactory
 				break;
 			}
 
-			// else treat as the default case: TEXT_FIELD
+				// else treat as the default case: TEXT_FIELD
 			default ://Field.TEXT_FIELD
 				if (field.getValuelistID() > 0)
 				{
@@ -1416,7 +1417,7 @@ public class ComponentFactory
 				"onFocusLostMethodID");
 			if (cmds != null) fl.setLeaveCmds((String[])cmds[0], (Object[][])cmds[1]);
 			if (field.getOnActionMethodID() > 0) fl.setActionCmd(Integer.toString(field.getOnActionMethodID()),
-				Utils.parseJSExpressions(field.getInstanceMethodArguments("onActionMethodID")));
+					Utils.parseJSExpressions(field.getInstanceMethodArguments("onActionMethodID")));
 			if (field.getOnDataChangeMethodID() > 0) fl.setChangeCmd(Integer.toString(field.getOnDataChangeMethodID()),
 				Utils.parseJSExpressions(field.getInstanceMethodArguments("onDataChangeMethodID")));
 			if (field.getOnRightClickMethodID() > 0) fl.setRightClickCommand(Integer.toString(field.getOnRightClickMethodID()),
@@ -1536,7 +1537,7 @@ public class ComponentFactory
 				{
 					IValueList secondLookup = getFallbackValueList(application, field.getDataProviderID(), type, format, valuelist);
 					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup, format != null ? format.getDisplayFormat()
-						: null);
+							: null);
 					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
 				}
 				catch (Exception e1)
@@ -1579,7 +1580,7 @@ public class ComponentFactory
 				try
 				{
 					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, dataProviderID, type, format,
-						fallbackValueList), format != null ? format.getDisplayFormat() : null);
+							fallbackValueList), format != null ? format.getDisplayFormat() : null);
 				}
 				catch (Exception e)
 				{

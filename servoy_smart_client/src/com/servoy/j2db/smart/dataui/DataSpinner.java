@@ -54,7 +54,7 @@ public class DataSpinner extends DataChoice
 
 	public DataSpinner(IApplication app, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, IValueList vl)
 	{
-		super(app, scriptable, vl, Field.SPINNER);
+		super(app, scriptable, vl, Field.SPINNER, false);
 
 		super.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener()
@@ -164,7 +164,7 @@ public class DataSpinner extends DataChoice
 
 			public void contentsChanged(ListDataEvent e)
 			{
-				// wait for selection changed (-1) event 
+				// wait for selection changed (-1) event
 				if (e.getIndex0() == e.getIndex1() && e.getIndex0() >= 0) return;
 				ensureSelectedIsVisible(false);
 			}
@@ -259,12 +259,6 @@ public class DataSpinner extends DataChoice
 		applyScrollBarPolicy();
 	}
 
-	@Override
-	protected void setMultiValueSelect()
-	{
-		list.setMultiValueSelect(false);
-	}
-
 	protected void ensureSelectedIsVisible(boolean force)
 	{
 		// avoid doing this needlessly, currently this method gets called at least once for each list item when selection changes from outside the component
@@ -352,21 +346,21 @@ public class DataSpinner extends DataChoice
 					public void intervalRemoved(ListDataEvent e)
 					{
 						ListDataEvent myE = new ListDataEvent(this, e.getType(), e.getIndex0() >= 0 ? e.getIndex0() + 1 : e.getIndex0(), e.getIndex1() >= 0
-							? e.getIndex1() + 1 : e.getIndex1());
-						l.intervalRemoved(myE);
-					}
+								? e.getIndex1() + 1 : e.getIndex1());
+							l.intervalRemoved(myE);
+						}
 
-					public void intervalAdded(ListDataEvent e)
-					{
-						ListDataEvent myE = new ListDataEvent(this, e.getType(), e.getIndex0() >= 0 ? e.getIndex0() + 1 : e.getIndex0(), e.getIndex1() >= 0
-							? e.getIndex1() + 1 : e.getIndex1());
-						l.intervalAdded(myE);
-					}
+						public void intervalAdded(ListDataEvent e)
+						{
+							ListDataEvent myE = new ListDataEvent(this, e.getType(), e.getIndex0() >= 0 ? e.getIndex0() + 1 : e.getIndex0(), e.getIndex1() >= 0
+								? e.getIndex1() + 1 : e.getIndex1());
+							l.intervalAdded(myE);
+						}
 
-					public void contentsChanged(ListDataEvent e)
-					{
-						ListDataEvent myE = new ListDataEvent(this, e.getType(), e.getIndex0() >= 0 ? e.getIndex0() + 1 : e.getIndex0(), e.getIndex1() >= 0
-							? e.getIndex1() + 1 : e.getIndex1());
+						public void contentsChanged(ListDataEvent e)
+						{
+							ListDataEvent myE = new ListDataEvent(this, e.getType(), e.getIndex0() >= 0 ? e.getIndex0() + 1 : e.getIndex0(), e.getIndex1() >= 0
+								? e.getIndex1() + 1 : e.getIndex1());
 						l.contentsChanged(myE);
 					}
 				};
