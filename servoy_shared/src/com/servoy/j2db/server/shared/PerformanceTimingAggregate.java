@@ -20,7 +20,7 @@ package com.servoy.j2db.server.shared;
 
 /**
  * Timing of actions like queries in the server.
- * 
+ *
  * @author jblok
  */
 public class PerformanceTimingAggregate
@@ -40,6 +40,18 @@ public class PerformanceTimingAggregate
 		this.type = type;
 	}
 
+	public PerformanceTimingAggregate(PerformanceTimingAggregate copy)
+	{
+		this.action = copy.getAction();
+		this.type = copy.getType();
+		this.min_ms = copy.getMinTimeMS();
+		this.max_ms = copy.getMaxTimeMS();
+		this.s2 = copy.getS2();
+		this.count = copy.getCount();
+		this.xtotal_ms = copy.getTotalTimeMS();
+		this.total_interval_ms = copy.getTotalIntervalTimeMS();
+	}
+
 	public void updateTime(long interval_ms, long running_ms)
 	{
 		total_interval_ms += interval_ms;
@@ -48,6 +60,16 @@ public class PerformanceTimingAggregate
 		max_ms = count == 0 ? running_ms : Math.max(max_ms, running_ms);
 		s2 += (running_ms * running_ms);
 		count++;
+	}
+
+	public void updateTime(long total_interval_ms, long running_ms, long min_ms, long max_ms, long s2, int count)
+	{
+		this.total_interval_ms += total_interval_ms;
+		this.xtotal_ms += running_ms;
+		this.min_ms = Math.min(this.min_ms, min_ms);
+		this.max_ms = Math.max(this.max_ms, max_ms);
+		this.s2 += s2;
+		this.count += count;
 	}
 
 	public String getAction()
@@ -114,5 +136,10 @@ public class PerformanceTimingAggregate
 	public int getCount()
 	{
 		return count;
+	}
+
+	public long getS2()
+	{
+		return s2;
 	}
 }
