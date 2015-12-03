@@ -1,4 +1,4 @@
-angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window, $log, $apifunctions,$timeout) {  
+angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window, $log, $apifunctions,$timeout,$anchorConstants) {  
 	return {
 		restrict: 'E',
 		transclude: true,
@@ -16,6 +16,13 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				$scope.$watch("model.size", function (newVal) {
 					$scope.viewportStyle = {height: ($element.children(0).height() - ($scope.model.tabs.length - 1) * groupHeaderHeight - activeGroupHeaderHeight - scrollHeight) + "px"};
 				})
+				if ((($scope.model.anchors & $anchorConstants.NORTH != 0) && ($scope.model.anchors & $anchorConstants.SOUTH != 0)) || (($scope.model.anchors & $anchorConstants.EAST != 0) && ($scope.model.anchors & $anchorConstants.WEST != 0)))
+				{
+					// window resize doesn't update the model size
+					$window.addEventListener('resize',function() { 
+						$scope.viewportStyle = {height: ($element.children(0).height() - ($scope.model.tabs.length - 1) * groupHeaderHeight - activeGroupHeaderHeight - scrollHeight) + "px"};
+					});
+				}
 			}
 			$scope.bgstyle = {}
 			$scope.waitingForServerVisibility = {}
