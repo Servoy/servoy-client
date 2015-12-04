@@ -9,6 +9,9 @@
 .svy-nowrap {
 	white-space:nowrap;
 }
+.svy-nomargin {
+	margin:0px;
+}
 .svy-combobox .btn {
 	padding: 1px 5px;
 }
