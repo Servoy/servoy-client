@@ -376,7 +376,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter, $l
 			    	var format = null;
 			    	var type = svyFormat ? svyFormat.type: null;
 			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
-			    	if(element.is(":focus"))format = svyFormat.edit	
+			    	if(element.is(":focus") && svyFormat.edit)format = svyFormat.edit	
 			    	try{
 			      	  var data =  formatUtils.unformat(viewValue,format,type);
 			    	}catch(e){
