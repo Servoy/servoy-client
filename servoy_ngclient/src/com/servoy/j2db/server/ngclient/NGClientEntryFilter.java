@@ -247,23 +247,23 @@ public class NGClientEntryFilter extends WebEntry
 									if (html && form.isResponsiveLayout())
 									{
 										((HttpServletResponse)servletResponse).setContentType("text/html");
-										FormLayoutStructureGenerator.generateLayout(form, formName, wsSession != null ? new ServoyDataConverterContext(
-												wsSession.getClient()) : new ServoyDataConverterContext(fs), w, Utils.getAsBoolean(request.getParameter("design")),
-												Utils.getAsBoolean(request.getParameter("highlight")));
-										}
-										else if (uri.endsWith(".html"))
-										{
-											((HttpServletResponse)servletResponse).setContentType("text/html");
-											FormLayoutGenerator.generateRecordViewForm(w, form, formName, wsSession != null ? new ServoyDataConverterContext(
-												wsSession.getClient()) : new ServoyDataConverterContext(fs), Utils.getAsBoolean(request.getParameter("design")),
-												Utils.getAsBoolean(request.getParameter("highlight")));
-										}
-										else if (uri.endsWith(".js"))
-										{
-											((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
-											new FormTemplateGenerator(wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
-												: new ServoyDataConverterContext(fs), false, Utils.getAsBoolean(request.getParameter("design"))).generate(form,
-												formName, "form_recordview_js.ftl", w);
+										FormLayoutStructureGenerator.generateLayout(form, formName,
+											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), w,
+											Utils.getAsBoolean(request.getParameter("design")), Utils.getAsBoolean(request.getParameter("highlight")));
+									}
+									else if (uri.endsWith(".html"))
+									{
+										((HttpServletResponse)servletResponse).setContentType("text/html");
+										FormLayoutGenerator.generateRecordViewForm(w, form, formName,
+											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
+											Utils.getAsBoolean(request.getParameter("design")), Utils.getAsBoolean(request.getParameter("highlight")));
+									}
+									else if (uri.endsWith(".js"))
+									{
+										((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
+										new FormTemplateGenerator(
+											wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs),
+											false, Utils.getAsBoolean(request.getParameter("design"))).generate(form, formName, "form_recordview_js.ftl", w);
 									}
 									w.flush();
 									return;
