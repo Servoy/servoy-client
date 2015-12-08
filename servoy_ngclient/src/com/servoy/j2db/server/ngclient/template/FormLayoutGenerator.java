@@ -388,7 +388,7 @@ public class FormLayoutGenerator
 	 * @param fe
 	 * @return
 	 */
-	private static String getDesignId(FormElement fe)
+	public static String getDesignId(FormElement fe)
 	{
 		return (fe.getDesignId() == null && fe.getTypeName().equals("servoycore-portal")) ? fe.getForm().getUUID().toString() : fe.getDesignId();
 	}
