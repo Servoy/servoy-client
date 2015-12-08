@@ -800,7 +800,15 @@ angular.module('servoycorePortal',['sabloApp','servoy','ui.grid','ui.grid.select
 								var isNewSelection = !oldSelection || !$scope.foundset.selectedRowIndexes || (oldSelection.length != $scope.foundset.selectedRowIndexes.length);
 								if(!isNewSelection) {
 									for (var idx = 0;  idx < $scope.foundset.selectedRowIndexes.length; idx++) {
-										isNewSelection = rows[$scope.foundset.selectedRowIndexes[idx]]._svyRowId != oldSelection[idx]._svyRowId;
+										if ($scope.foundset.selectedRowIndexes[idx] < rows.length)
+										{
+											isNewSelection = rows[$scope.foundset.selectedRowIndexes[idx]]._svyRowId != oldSelection[idx]._svyRowId;
+										}
+										else
+										{
+											//selection not loaded yet
+											break;
+										}	
 										if(isNewSelection) break;
 									}
 								}
