@@ -369,6 +369,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
+		if (config == null) return null;
 		String tmp = config.optString("forFoundset");
 		return tmp == null || tmp.length() == 0 ? null : new ComponentTypeConfig(tmp);
 	}
