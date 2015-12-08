@@ -142,7 +142,7 @@ public class FormLayoutGenerator
 
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
 	{
-		if (design) writer.print("<div ng-controller=\"DesignForm\" ");
+		if (design) writer.print("<div ng-controller='DesignForm' id='svyDesignForm' ");
 		else writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
 		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 		{
