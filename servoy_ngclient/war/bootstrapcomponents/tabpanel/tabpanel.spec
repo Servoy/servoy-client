@@ -12,6 +12,7 @@
 			"styleClass" : { "type" :"styleclass"},
 			"height" : {"type":"int", "default":"500"},
 			"tabIndex" : {"type":"int", "pushToServer": "allow", "tags": { "scope" :"runtime" }},
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

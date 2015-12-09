@@ -797,4 +797,34 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (designerCallback != null) designerCallback.addURLStreamHandler(protocolName, handler);
 
 	}
+
+	public void setSolution(Solution solution)
+	{
+		currentSolution = solution;
+		if (debugJ2DBClient != null)
+		{
+			debugJ2DBClient.shutDown(true);
+			debugJ2DBClient = null;
+		}
+		if (debugWebClient != null)
+		{
+			debugWebClient.shutDown(true);
+			debugWebClient = null;
+		}
+		if (debugNGClient != null)
+		{
+			debugNGClient.shutDown(true);
+			debugNGClient = null;
+		}
+		if (debugHeadlessClient != null)
+		{
+			debugHeadlessClient.shutDown(true);
+			debugHeadlessClient = null;
+		}
+		for (IDebugClient c : customDebugClients.values())
+		{
+			c.shutDown(true);
+		}
+		customDebugClients.clear();
+	}
 }

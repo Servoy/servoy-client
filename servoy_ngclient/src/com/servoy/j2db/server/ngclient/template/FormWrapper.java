@@ -90,7 +90,7 @@ public class FormWrapper
 	{
 		return form.getStyleClass();
 	}
-	
+
 	public String getName()
 	{
 		return realName == null ? form.getName() : realName;
@@ -205,7 +205,7 @@ public class FormWrapper
 		properties.put("designSize", form.getSize());
 		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW) &&
 			FormElementHelper.INSTANCE.hasExtraParts(form));
-		if (design)
+		if (design && !form.isResponsiveLayout())
 		{
 			properties.put(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName(),
 				Integer.valueOf(ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER + ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER));

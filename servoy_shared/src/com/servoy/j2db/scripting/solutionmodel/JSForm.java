@@ -588,7 +588,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 					if (test < testHeight)
 					{
 						throw new RuntimeException(
-							"Illegal lowerbound " + height + " for the part " + Part.getDisplayName(partType) + " it must be greater than the previous part lowerbound " + testHeight); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								"Illegal lowerbound " + height + " for the part " + Part.getDisplayName(partType) + " it must be greater than the previous part lowerbound " + testHeight); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
 					testHeight = test;
 				}
@@ -2680,7 +2680,7 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 	{
 		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
 		persist.putInstanceMethodParameters(methodProperty.getPropertyName(),
-		//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
+			//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
 			new ArrayList(), method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
 	}
 
@@ -3384,5 +3384,16 @@ public class JSForm extends JSBaseContainer implements IJSScriptParent<Form>, IC
 			formScope.updateProviderswithCopy(form, form);
 			formScope.reload();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSBaseContainer#getFlattenedContainer()
+	 */
+	@Override
+	public AbstractContainer getFlattenedContainer()
+	{
+		return application.getFlattenedSolution().getFlattenedForm(form);
 	}
 }

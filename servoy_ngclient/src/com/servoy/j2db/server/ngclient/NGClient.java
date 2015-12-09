@@ -1081,8 +1081,9 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		try
 		{
 			mediaUploadCallback = callback;
+			String key = multiSelect ? "servoy.filechooser.upload.addFiles" : "servoy.filechooser.upload.addFile";
 			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("showFileOpenDialog",
-				new Object[] { dialogTitle == null ? Messages.getString("servoy.filechooser.title") : dialogTitle, Boolean.valueOf(multiSelect) });
+				new Object[] { dialogTitle == null ? getI18NMessage(key) : dialogTitle, Boolean.valueOf(multiSelect) });
 		}
 		catch (IOException ex)
 		{
@@ -1143,6 +1144,21 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			case "autosave" :
 				getFoundSetManager().getEditRecordList().stopEditing(false);
 				break;
+			case "callServerSideApi" :
+			{
+				String serviceName = args.getString("service");
+				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
+				Object service = scope.get(serviceName, scope);
+				if (service instanceof WebServiceScriptable)
+				{
+					return ((WebServiceScriptable)service).executeScopeFunction(args.getString("methodName"), args.getJSONArray("args"));
+				}
+				else
+				{
+					Debug.warn("callServerSideApi for unknown service '" + serviceName + "'");
+				}
+				break;
+			}
 		}
 
 		return null;

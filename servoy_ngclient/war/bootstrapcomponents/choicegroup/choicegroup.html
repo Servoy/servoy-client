@@ -1,15 +1,16 @@
-<div ng-class='model.styleClass' ng-show='model.valuelistID== null || model.valuelistID.length == 0'>
+<div ng-class='model.styleClass' ng-show='model.valuelistID== null || model.valuelistID.length == 0' ng-show='model.visible'>
   <label>
   	<input type="{{model.inputType}}"'/>
   	 <span>Select a valuelist</span>
   </label>
 </div>
-<div class='bts-radiogroup' ng-class='model.styleClass' ng-repeat="item in model.valuelistID">
+<div class='bts-radiogroup' ng-class='model.styleClass' ng-repeat="item in model.valuelistID" ng-show='model.visible'>
   <label>
   	<input type="{{model.inputType}}" ng-model="selection[$index]"  
   		ng-value="item.realValue"
   		ng-click="itemClicked($event,$index)"
-        svy-click='handlers.onActionMethodID($event)'/>
+        svy-click='handlers.onActionMethodID($event)'
+        ng-disabled="!model.enabled"/>
   	 <span ng-bind='item.displayValue'></span>
   </label>
 </div>

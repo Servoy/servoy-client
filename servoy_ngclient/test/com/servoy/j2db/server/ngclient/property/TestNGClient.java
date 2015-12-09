@@ -34,6 +34,7 @@ import com.servoy.j2db.ClientLogin;
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.dataprocessing.Blob;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
+import com.servoy.j2db.dataprocessing.BufferedDataSetInternal;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -69,6 +70,7 @@ import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
+import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -213,8 +215,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys)
-				throws RemoteException, RepositoryException
+			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException,
+				RepositoryException
 			{
 				// TODO Auto-generated method stub
 				return false;
@@ -243,8 +245,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array)
-				throws ServoyException, RemoteException
+			public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException,
+				RemoteException
 			{
 				if (array.length > 0)
 				{
@@ -274,8 +276,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-				int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
+				Object[] questiondata, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
@@ -288,16 +290,16 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-				int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
+				Object[] questiondata, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
-					throws ServoyException, RemoteException
+				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException,
+				RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -311,8 +313,9 @@ public class TestNGClient extends NGClient
 				if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getColumns().size() == 1)
 				{
 					// pk select
-					BufferedDataSet ds = new BufferedDataSet();
-					for (int i = 0; i < set.getRowCount(); i++)
+					int lastRow = Math.min(set.getRowCount(), startRow + rowsToRetrieve);
+					BufferedDataSet ds = BufferedDataSetInternal.createBufferedDataSet(null, null, new SafeArrayList<Object[]>(0), lastRow < set.getRowCount());
+					for (int i = startRow; i < lastRow; i++)
 					{
 						ds.addRow(new Object[] { set.getRow(i)[0] });
 					}
@@ -322,8 +325,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-				int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql,
+				Object[] questiondata, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the datasource, just return the first dataset
 			}
@@ -608,6 +611,18 @@ public class TestNGClient extends NGClient
 
 							@Override
 							public PerformanceTimingAggregate[] getPerformanceTiming(String string)
+							{
+								// TODO Auto-generated method stub
+								return null;
+							}
+
+							/*
+							 * (non-Javadoc)
+							 * 
+							 * @see com.servoy.j2db.server.shared.IPerfomanceRegistry#getLastCleared(java.lang.String)
+							 */
+							@Override
+							public Date getLastCleared(String context)
 							{
 								// TODO Auto-generated method stub
 								return null;

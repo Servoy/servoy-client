@@ -312,8 +312,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (foundsetPropValue != null)
 		{
-			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor, new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent,
-					recordBasedProperties, this));
+			viewPortChangeMonitor = new ViewportDataChangeMonitor(monitor,
+				new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent, recordBasedProperties, this));
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
 		}
@@ -470,7 +470,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(changes);
 
 		boolean modelChanged = (changes.content.size() > 0);
-		boolean viewPortChanged = (forFoundsetTypedPropertyName != null && (viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
+		boolean viewPortChanged = (forFoundsetTypedPropertyName != null &&
+			(viewPortChangeMonitor.shouldSendWholeViewport() || viewPortChangeMonitor.getViewPortChanges().size() > 0));
 
 		destinationJSON.object();
 		if (modelChanged || viewPortChanged)
@@ -620,7 +621,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				writer.endObject();
 			}
 
-		}, recordBasedProperties);
+		}, recordBasedProperties, false);
 		recordBasedPropertiesChanged = false;
 
 		writeWholeViewportToJSON(writer);
@@ -677,14 +678,17 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						boolean selectionOk = true;
 						if (update.has("rowId"))
 						{
-							String rowId = update.getString("rowId");
-							FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
-							if (foundsetValue != null)
+							String rowId = update.optString("rowId");
+							if (rowId != null)
 							{
-								if (!foundsetValue.setEditingRowByPkHash(rowId))
+								FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
+								if (foundsetValue != null)
 								{
-									Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
-									selectionOk = false;
+									if (!foundsetValue.setEditingRowByPkHash(rowId))
+									{
+										Debug.error("Cannot select row when event was fired; row identifier: " + rowId);
+										selectionOk = false;
+									}
 								}
 							}
 						}
@@ -861,8 +865,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				catch (JSONException e)
 				{
-					Debug.error("Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value +
-							" failed.", e);
+					Debug.error(
+						"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.", e);
 				}
 				finally
 				{

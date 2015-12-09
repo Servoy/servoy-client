@@ -1,4 +1,13 @@
 angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileupload','ui.bootstrap'])
+.config(["$provide", function ($provide) {
+	var decorator = function($delegate,$injector) {
+		$delegate.callServerSideApi = function(serviceName,methodName,args) {
+        	return $injector.get("$sabloApplication").callService('applicationServerService', 'callServerSideApi', {service:serviceName,methodName:methodName,args:args})
+        };
+        return $delegate;
+    };
+    $provide.decorator("$services", decorator);
+}])
 .value("$anchorConstants", {
 	NORTH : 1,
 	EAST : 2,

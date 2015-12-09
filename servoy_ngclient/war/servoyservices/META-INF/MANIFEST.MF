@@ -5,9 +5,6 @@ Created-By: 1.7.0_05-b06 (Oracle Corporation)
 Name: window/window.spec
 Web-Service: True
 
-Name: dialogs/dialogs.spec
-Web-Service: True
-
 Name: valuelist_property/valuelist.spec
 Web-Service: True
 

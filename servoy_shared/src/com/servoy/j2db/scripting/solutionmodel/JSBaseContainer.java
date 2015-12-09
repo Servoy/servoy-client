@@ -70,6 +70,8 @@ public abstract class JSBaseContainer /* implements IJSParent */
 
 	public abstract AbstractContainer getContainer();
 
+	public abstract AbstractContainer getFlattenedContainer();
+
 	/**
 	 * Creates a new JSField object on the form - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 *
@@ -690,7 +692,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 
-	static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
+	public static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
 	{
 		ISupportChilds parent = method.getParent();
 
@@ -790,6 +792,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 		}
 	}
 
+
 	/**
 	 * Returns a JSPortal that has the given name.
 	 *
@@ -806,7 +809,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSPortal getPortal(String name)
 	{
 		if (name == null) return null;
-		Iterator<Portal> portals = application.getFlattenedSolution().getFlattenedForm(getContainer()).getPortals();
+		Iterator<Portal> portals = getFlattenedContainer().getPortals();
 		while (portals.hasNext())
 		{
 			Portal portal = portals.next();
@@ -877,7 +880,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSPortal[] getPortals(boolean returnInheritedElements)
 	{
 		List<JSPortal> portals = new ArrayList<JSPortal>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		AbstractContainer form2use = returnInheritedElements ? getFlattenedContainer() : getContainer();
 		Iterator<Portal> iterator = form2use.getPortals();
 		while (iterator.hasNext())
 		{
@@ -969,7 +972,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSTabPanel getTabPanel(String name)
 	{
 		if (name == null) return null;
-		Iterator<TabPanel> tabPanels = application.getFlattenedSolution().getFlattenedForm(getContainer()).getTabPanels();
+		Iterator<TabPanel> tabPanels = getFlattenedContainer().getTabPanels();
 		while (tabPanels.hasNext())
 		{
 			TabPanel tabPanel = tabPanels.next();
@@ -1045,7 +1048,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSTabPanel[] getTabPanels(boolean returnInheritedElements)
 	{
 		List<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		AbstractContainer form2use = returnInheritedElements ? getFlattenedContainer() : getContainer();
 		Iterator<TabPanel> iterator = form2use.getTabPanels();
 		while (iterator.hasNext())
 		{
@@ -1096,7 +1099,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return null;
 
-		Iterator<Field> fields = application.getFlattenedSolution().getFlattenedForm(getContainer()).getFields();
+		Iterator<Field> fields = getFlattenedContainer().getFields();
 		while (fields.hasNext())
 		{
 			Field field = fields.next();
@@ -1165,7 +1168,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSField[] getFields(boolean returnInheritedElements)
 	{
 		List<JSField> fields = new ArrayList<JSField>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		AbstractContainer form2use = returnInheritedElements ? getFlattenedContainer() : getContainer();
 		Iterator<Field> iterator = form2use.getFields();
 		while (iterator.hasNext())
 		{
@@ -1214,7 +1217,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	{
 		if (name == null) return null;
 
-		Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(getContainer()).getGraphicalComponents();
+		Iterator<GraphicalComponent> graphicalComponents = getFlattenedContainer().getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
@@ -1282,7 +1285,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSButton[] getButtons(boolean returnInheritedElements)
 	{
 		List<JSButton> buttons = new ArrayList<JSButton>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		AbstractContainer form2use = returnInheritedElements ? getFlattenedContainer() : getContainer();
 		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
@@ -1371,7 +1374,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 
 		try
 		{
-			Iterator<Bean> beans = application.getFlattenedSolution().getFlattenedForm(getContainer()).getBeans();
+			Iterator<Bean> beans = getFlattenedContainer().getBeans();
 			while (beans.hasNext())
 			{
 				Bean bean = beans.next();
@@ -1438,7 +1441,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSBean[] getBeans(boolean returnInheritedElements)
 	{
 		List<JSBean> beans = new ArrayList<JSBean>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		AbstractContainer form2use = returnInheritedElements ? getFlattenedContainer() : getContainer();
 		Iterator<Bean> iterator = form2use.getBeans();
 		while (iterator.hasNext())
 		{
@@ -1613,7 +1616,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 
 		try
 		{
-			Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(getContainer()).getGraphicalComponents();
+			Iterator<GraphicalComponent> graphicalComponents = getFlattenedContainer().getGraphicalComponents();
 			while (graphicalComponents.hasNext())
 			{
 				GraphicalComponent label = graphicalComponents.next();
@@ -1688,7 +1691,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSLabel[] getLabels(boolean returnInheritedElements)
 	{
 		List<JSLabel> labels = new ArrayList<JSLabel>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		AbstractContainer form2use = returnInheritedElements ? getFlattenedContainer() : getContainer();
 		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
@@ -1778,7 +1781,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 
 		try
 		{
-			Iterator<WebComponent> webComponents = application.getFlattenedSolution().getFlattenedForm(getContainer()).getWebComponents();
+			Iterator<WebComponent> webComponents = getFlattenedContainer().getWebComponents();
 			while (webComponents.hasNext())
 			{
 				WebComponent webComponent = webComponents.next();
@@ -1846,7 +1849,7 @@ public abstract class JSBaseContainer /* implements IJSParent */
 	public JSWebComponent[] getWebComponents(boolean returnInheritedElements)
 	{
 		List<JSWebComponent> webComponents = new ArrayList<JSWebComponent>();
-		AbstractContainer form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(getContainer()) : getContainer();
+		AbstractContainer form2use = returnInheritedElements ? getFlattenedContainer() : getContainer();
 		Iterator<WebComponent> iterator = form2use.getWebComponents();
 		while (iterator.hasNext())
 		{

@@ -14818,7 +14818,7 @@ module.filter('px', function() {
            * Since the focus event doesn't include key press information we can't use it
            * as our primary source of the event.
            */
-          $elm.on('mousedown', preventMouseDown);
+          //$elm.on('mousedown', preventMouseDown);
 
           //turn on and off for edit events
           if (uiGridCtrl.grid.api.edit) {

@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
@@ -47,12 +48,8 @@ public class JSNGWebComponent extends JSWebComponent
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-			if (value instanceof JSMethod)
-			{
-				// should we move this into a IRhinoDesignConverter impl?
-				value = new Integer(JSBaseContainer.getMethodId(application, webComponent, ((JSMethod)value).getScriptMethod()));
-			}
-			else if (value instanceof JSValueList)
+
+			if (value instanceof JSValueList)
 			{
 				// should we move this into a IRhinoDesignConverter impl?
 				value = new Integer(((JSValueList)value).getValueList().getID());
@@ -61,6 +58,7 @@ public class JSNGWebComponent extends JSWebComponent
 			{
 				WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 				PropertyDescription pd = spec.getProperty(propertyName);
+				if (pd == null) pd = spec.getHandler(propertyName);
 				if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 				{
 					value = ((IRhinoDesignConverter)pd.getType()).fromRhinoToDesignValue(value, pd, application, this);
@@ -81,21 +79,72 @@ public class JSNGWebComponent extends JSWebComponent
 	}
 
 	@Override
+	public void resetJSONProperty(String propertyName)
+	{
+		// TODO we could do some checks here that it's really a property not a handler
+		try
+		{
+			WebComponent webComponent = getBaseComponent(true);
+
+			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
+			jsonObject.remove(propertyName);
+			webComponent.setJson(jsonObject);
+		}
+		catch (JSONException e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	@Override
 	public Object getJSONProperty(String propertyName)
 	{
 		WebComponent webComponent = getBaseComponent(false);
 		JSONObject json = webComponent.getFlattenedJson();
+		if (json == null) return Context.getUndefinedValue();
+
 		Object value = json.opt(propertyName);
 		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			PropertyDescription pd = spec.getProperty(propertyName);
+			if (pd == null) pd = spec.getHandler(propertyName);
 			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 			{
-				value = ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
+				return ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
 			}
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
 		}
-		return value;
+		return value == null ? Context.getUndefinedValue() : ServoyJSONObject.jsonNullToNull(value);
 	}
+
+	@Override
+	public void setHandler(String handlerName, JSMethod value)
+	{
+		WebComponent webComponent = getBaseComponent(false);
+		WebComponentSpecification spec = WebComponentSpecProvider.getInstance().getWebComponentSpecification(webComponent.getTypeName());
+		if (spec != null)
+		{
+			if (spec.getHandler(handlerName) != null)
+			{
+				setJSONProperty(handlerName, value);
+			}
+			else Debug.log("Error: component " + webComponent.getTypeName() + " does not declare a handler named " + handlerName + ".");
+		}
+	}
+
+	@Override
+	public void resetHandler(String handlerName)
+	{
+		resetJSONProperty(handlerName); // TODO we could do some checks here that it's really a handler not a property
+	}
+
+	@Override
+	public JSMethod getHandler(String handlerName)
+	{
+		Object jsonProperty = getJSONProperty(handlerName);
+		if (jsonProperty instanceof JSMethod) return (JSMethod)jsonProperty;
+		else return null;
+	}
+
 }

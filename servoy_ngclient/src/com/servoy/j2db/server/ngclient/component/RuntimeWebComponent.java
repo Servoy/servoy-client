@@ -26,11 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentApiDefinition;
@@ -70,6 +73,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 	private final Map<String, Function> apiFunctions;
 	private final WebComponentSpecification webComponentSpec;
 	private Scriptable parentScope;
+	private Scriptable scopeObject;
 
 	public RuntimeWebComponent(WebFormComponent component, WebComponentSpecification webComponentSpec)
 	{
@@ -83,7 +87,8 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		Scriptable apiObject = null;
 		if (serverScript != null)
 		{
-			apiObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
+			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
+			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
 		}
 		if (webComponentSpec != null)
 		{
@@ -114,6 +119,39 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 					specProperties.add(propName);
 				}
 			}
+		}
+	}
+
+	public Object executeScopeFunction(String function, JSONArray args)
+	{
+		Object object = scopeObject.get(function, scopeObject);
+		if (object instanceof Function)
+		{
+			Context context = Context.enter();
+			try
+			{
+				Object[] array = new Object[args.length()];
+				for (int i = 0; i < args.length(); i++)
+				{
+					array[i] = args.get(i);
+				}
+				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+				return retValue == Undefined.instance ? null : retValue;
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+				return null;
+			}
+			finally
+			{
+				Context.exit();
+			}
+		}
+		else
+		{
+			throw new RuntimeException("trying to call a function '" + function + "' that does not exists on a component '" + component.getName() +
+				" with spec: " + webComponentSpec.getName());
 		}
 	}
 
@@ -157,7 +195,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		if (specProperties != null && specProperties.contains(name))
 		{
 			PropertyDescription pd = webComponentSpec.getProperties().get(name);
-			if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) return Scriptable.NOT_FOUND;
+			if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
 		}
 		if ("getFormName".equals(name))
@@ -480,7 +518,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf
 		for (String name : specProperties)
 		{
 			PropertyDescription pd = webComponentSpec.getProperty(name);
-			if (WebFormComponent.isDesignOnlyProperty(pd) || WebFormComponent.isPrivateProperty(pd)) continue;
+			if (WebFormComponent.isDesignOnlyProperty(pd)) continue;
 			IPropertyType< ? > type = pd.getType();
 			if (!(type instanceof ISabloComponentToRhino< ? >) ||
 				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component))

@@ -152,8 +152,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		String parentWindowName = getFormUI().getParentWindowName();
 		NGRuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentWindowName);
-		// only show a navigator if it is the main window and this controller is the windows controller
-		if (window != null && window.getParent() == null && window.getController() == this)
+		if (window != null && window.getController() == this)
 		{
 			IFormController currentNavigator = window.getNavigator();
 			int form_id = form.getNavigatorID();

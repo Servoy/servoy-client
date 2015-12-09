@@ -220,8 +220,65 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	{
 	}
 
+	/**
+	 * Reset the design-time value of the given property.
+	 * This makes it as if it was never set. It can be useful when working with form inheritance.
+	 *
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent'); // form is extending another form who's 'mycomponent' has property 'mytext' set to something...
+	 * wc.setJSONProperty('mytext', 'Hello World Extended!');
+	 * // hmm I changed my mind - I like simple 'Hello World' better
+	 * wc.resetJSONProperty('mytext');
+	 */
+	@JSFunction
+	public void resetJSONProperty(String propertyName)
+	{
+	}
+
+	/**
+	 * Set the JSMethod handler for the given handler name. The handlerName is checked for existence in the component spec file, if the component does not declare this handler, an error is thrown.
+	 * If the handler is already set, it will be replaced with the new JSMethod.
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent');
+	 * wc.setHandler('onActionMethodID', form.getJSMethod('onAction'));
+	 */
+	@JSFunction
+	public void setHandler(String handlerName, JSMethod value)
+	{
+	}
+
+	/**
+	 * Similar to resetJSONProperty but for handlers.
+	 *
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent'); // form is extending another form who's 'onActionMethodID' does something nice
+	 * wc.setHandler('onActionMethodID', form.getJSMethod('onCoolerAction'));
+	 * // hmm, I changed my mind - I like 'nice' action better
+	 * wc.resetHandler('onActionMethodID');
+	 */
+	@JSFunction
+	public void resetHandler(String handlerName)
+	{
+	}
+
+	/**
+	 * Returns the JSMethod handler with the given name.
+	 *
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent');
+	 * var handler = wc.getHandler('onActionMethodID');
+	 */
+	@JSFunction
+	public JSMethod getHandler(String handlerName)
+	{
+		return null;
+	}
+
 	public static Object defaultRhinoToDesignValue(Object value, IApplication application)
 	{
+		if (value == null) return JSONObject.NULL;
+		if (value == Scriptable.NOT_FOUND) return null; // unfortunately this never happens because Rhino translates it to null directly; see NativeJavaObject line 506; this is why I added the reset... call(s)
+
 		// default - stringify what we get from rhino and convert that to org.json usable value
 		Scriptable topLevelScope = ScriptableObject.getTopLevelScope(application.getScriptEngine().getSolutionScope());
 

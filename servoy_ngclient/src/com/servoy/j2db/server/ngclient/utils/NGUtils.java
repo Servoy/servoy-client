@@ -18,6 +18,8 @@
 package com.servoy.j2db.server.ngclient.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
@@ -165,12 +167,23 @@ public abstract class NGUtils
 		return w.toString();
 	}
 
+	public static WebComponentSpecification[] getAllNonServoyWebServiceSpecifications()
+	{
+		return getAllWebServiceSpecifications(new String[] { "sablo", "servoyservices", "servoydefaultservices" });
+	}
+
 	public static WebComponentSpecification[] getAllPublicWebServiceSpecifications()
 	{
+		return getAllWebServiceSpecifications(new String[] { "sablo", "servoyservices" });
+	}
+
+	private static WebComponentSpecification[] getAllWebServiceSpecifications(String[] ignore)
+	{
 		ArrayList<WebComponentSpecification> allPublicWebServiceSpecifications = new ArrayList<WebComponentSpecification>();
+		List<String> ignoreList = Arrays.asList(ignore);
 		for (WebComponentSpecification spec : WebServiceSpecProvider.getInstance().getAllWebServiceSpecifications())
 		{
-			if (!"sablo".equals(spec.getPackageName()) && !"servoyservices".equals(spec.getPackageName())) //$NON-NLS-1$ //$NON-NLS-2$
+			if (ignoreList.indexOf(spec.getPackageName()) == -1)
 			{
 				allPublicWebServiceSpecifications.add(spec);
 			}

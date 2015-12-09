@@ -284,4 +284,15 @@ public class JSLayoutContainer extends JSBaseContainer implements IJSParent<Layo
 		checkModification();
 		layoutContainer.setLocation(new Point(layoutContainer.getLocation().x, y));
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSBaseContainer#getFlattenedContainer()
+	 */
+	@Override
+	public AbstractContainer getFlattenedContainer()
+	{
+		return layoutContainer;
+	}
 }

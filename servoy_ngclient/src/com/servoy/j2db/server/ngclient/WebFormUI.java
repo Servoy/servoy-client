@@ -27,6 +27,7 @@ import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
@@ -80,6 +81,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			putProperty("size", new PropertyDescription("size", DimensionPropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty("visible", new PropertyDescription("visible", VisiblePropertyType.INSTANCE, PushToServerEnum.allow));
 			putProperty(WebFormUI.ENABLED, new PropertyDescription(WebFormUI.ENABLED, NGEnabledPropertyType.NG_INSTANCE, PushToServerEnum.allow));
+			putProperty("findmode", new PropertyDescription("findmode", BooleanPropertyType.INSTANCE, PushToServerEnum.allow));
 		}
 	}
 
@@ -103,6 +105,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		this.formController = formController;
 		setVisible(false);
 		setEnabled(true);
+		setProperty("findmode", Boolean.FALSE);
 		init();
 	}
 
@@ -294,7 +297,27 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public WebFormComponent getWebComponent(String compname)
 	{
-		return (WebFormComponent)super.getComponent(compname);
+		WebComponent wc = findChildComponent(compname, this);
+
+		return wc instanceof WebFormComponent ? (WebFormComponent)wc : null;
+	}
+
+	private static WebComponent findChildComponent(String compname, WebComponent rootComponent)
+	{
+		if (compname.equals(rootComponent.getName())) return rootComponent;
+		if (rootComponent instanceof Container)
+		{
+			Collection<WebComponent> childComponents = ((Container)rootComponent).getComponents();
+			if (childComponents.size() > 0)
+			{
+				for (WebComponent wc : childComponents)
+				{
+					WebComponent foundChildComponent = findChildComponent(compname, wc);
+					if (foundChildComponent != null) return foundChildComponent;
+				}
+			}
+		}
+		return null;
 	}
 
 	public Collection<WebComponent> getScriptableComponents()
@@ -463,10 +486,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			parentContainer.addPropertyChangeListener(READONLY, parentReadOnlyListener);
 			// set readonly state from form manager, just like in wc/sc
 			((BasicFormController)getController()).setReadOnly(formController.isReadOnly());
-
-			NGEnabledSabloValue ngSabloValue = (NGEnabledSabloValue)getRawPropertyValue(ENABLED, false);
-			ngSabloValue.flagChanged(this, ENABLED);
 		}
+		NGEnabledSabloValue ngSabloValue = (NGEnabledSabloValue)getRawPropertyValue(ENABLED, false);
+		ngSabloValue.flagChanged(this, ENABLED);
 	}
 
 	/**
@@ -504,6 +526,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	{
 		cleanupListeners();
 		this.parentContainerOrWindowName = parentWindowName;
+		NGEnabledSabloValue ngSabloValue = (NGEnabledSabloValue)getRawPropertyValue(ENABLED, false);
+		ngSabloValue.flagChanged(this, ENABLED);
 	}
 
 	@Override

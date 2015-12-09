@@ -75,10 +75,7 @@ public class FoundsetTypeViewport
 		int oldStartIndex = this.startIndex;
 		int oldSize = this.size;
 
-		this.startIndex = startIndex;
-		this.size = size;
-
-		correctViewportBoundsIfNeededInternal();
+		correctAndSetViewportBoundsInternal(startIndex, size);
 
 		if (oldStartIndex != this.startIndex || oldSize != this.size) changeMonitor.viewPortCompletelyChanged();
 	}
@@ -94,10 +91,9 @@ public class FoundsetTypeViewport
 		int oldStartIndex = this.startIndex;
 		int oldSize = this.size;
 
-		correctViewportBoundsIfNeededInternal();
 		if (positiveOrNegativeRecordNo >= 0)
 		{
-			this.size = Math.min(size + positiveOrNegativeRecordNo, foundset.getSize());
+			correctAndSetViewportBoundsInternal(oldStartIndex, oldSize + positiveOrNegativeRecordNo);
 			changeMonitor.recordsInserted(this.startIndex + oldSize, this.startIndex + this.size - 1, this, true);
 		}
 		else
@@ -107,60 +103,46 @@ public class FoundsetTypeViewport
 			changeMonitor.recordsInserted(this.startIndex, oldStartIndex - 1, this, true);
 		}
 
-
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
 	}
 
-//
-//	/**
-//	 * If client requested invalid bounds or due to foundset changes the previous bounds
-//	 * are no longer valid, correct them.
-//	 */
-//	public void correctViewportBoundsIfNeeded()
-//	{
-//		int oldStartIndex = startIndex;
-//		int oldSize = size;
-//
-//		correctViewportBoundsIfNeededInternal();
-//
-//		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortCompletelyChanged();
-//	}
-
 	/**
-	 * Corrects bounds without firing any change notifications.
+	 * Corrects bounds given new bounds to be valid and then applies the to current viewport.
+	 *
+	 * This method can also load more records into the foundset (thus firing foundset events) in case of large foundsets with 'hadMoreRecords' true,
+	 * in case the give new bounds require new records.
 	 */
-	protected void correctViewportBoundsIfNeededInternal()
+	protected void correctAndSetViewportBoundsInternal(int newStartIndex, int newSize)
 	{
 		if (foundset != null)
 		{
-			try
+			IRecordInternal firstRec = foundset.getRecord(newStartIndex); // this can trigger a query for more records if foundset hadMoreRows is true; that in turn can update through listener serverSize and hadMoreRows related flags on the change monitor
+
+			if (firstRec != null)
 			{
-				foundset.removeFoundSetEventListener(getFoundsetEventListener());
-				IRecordInternal firstRec = foundset.getRecord(startIndex);
-				if (firstRec != null)
+				if (newSize > 0)
 				{
-					if (size > 0)
+					IRecordInternal lastRec = foundset.getRecord(newStartIndex + newSize - 1); // this can trigger a query for more records if foundset hadMoreRows is true; that in turn can update through listener serverSize and hadMoreRows related flags on the change monitor
+					startIndex = newStartIndex; // do this after getRecord above would potentially load more records, trigger inserted event and potentially wrongly adjust current viewport bounds
+					if (lastRec == null)
 					{
-						IRecordInternal lastRec = foundset.getRecord(startIndex + size - 1);
-						if (lastRec == null)
-						{
-							size = foundset.getSize() - startIndex;
-						}
+						size = foundset.getSize() - startIndex;
 					}
 					else
 					{
-						size = 0;
+						size = newSize;
 					}
 				}
 				else
 				{
-					startIndex = 0;
+					startIndex = newStartIndex;
 					size = 0;
 				}
 			}
-			finally
+			else
 			{
-				foundset.addFoundSetEventListener(getFoundsetEventListener());
+				startIndex = 0;
+				size = 0;
 			}
 		}
 		else
@@ -202,6 +184,7 @@ public class FoundsetTypeViewport
 						{
 							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this);
 						}
+						changeMonitor.checkHadMoreRows();
 					}
 				}
 			};
@@ -225,8 +208,7 @@ public class FoundsetTypeViewport
 		int oldStartIndex = startIndex;
 		int oldSize = size;
 
-		startIndex += delta;
-		correctViewportBoundsIfNeededInternal();
+		correctAndSetViewportBoundsInternal(oldStartIndex + delta, oldSize);
 
 		if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
 	}

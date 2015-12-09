@@ -63,6 +63,7 @@ import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -98,6 +99,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	public static final String MULTI_SELECT = "multiSelect";
 	public static final String VIEW_PORT = "viewPort";
 	public static final String COLUMN_FORMATS = "columnFormats";
+	public static final String HAS_MORE_ROWS = "hasMoreRows";
 	public static final String START_INDEX = "startIndex";
 	public static final String SIZE = "size";
 	public static final String PREFERRED_VIEWPORT_SIZE = "preferredViewportSize";
@@ -148,8 +150,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		// nothing to do here; foundset is not initialized until it's attached to a component
 		linkedChildComponentToColumn = new HashMap<String, String>();
 		// foundsetSelector as defined in component design XML.
-		foundsetSelector = ((JSONObject)designJSONValue).optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
-		initializeDataproviders(((JSONObject)designJSONValue).optJSONObject("dataproviders"));
+		if (designJSONValue != null)
+		{
+			foundsetSelector = ((JSONObject)designJSONValue).optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
+			initializeDataproviders(((JSONObject)designJSONValue).optJSONObject("dataproviders"));
+		}
 	}
 
 	public void initializeDataproviders(JSONObject dataProvidersJSON)
@@ -161,7 +166,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			while (keys.hasNext())
 			{
 				String key = (String)keys.next();
-				dataproviders.put(key, dataProvidersJSON.optString(key));
+				dataproviders.put(key, ServoyJSONObject.optString(key, dataProvidersJSON, null));
 			}
 		}
 	}
@@ -207,11 +212,14 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 //			dataProviders: 'dataprovider[]'
 //		}
 		updateFoundset((IRecordInternal)null);
-		JSONObject spec = (JSONObject)designJSONValue;
-		JSONObject dataProvidersJSON = spec.optJSONObject("dataproviders");
-		if (dataProvidersJSON != null)
+		if (designJSONValue != null)
 		{
-			changeMonitor.dataProvidersChanged();
+			JSONObject spec = (JSONObject)designJSONValue;
+			JSONObject dataProvidersJSON = spec.optJSONObject("dataproviders");
+			if (dataProvidersJSON != null)
+			{
+				changeMonitor.dataProvidersChanged();
+			}
 		}
 
 		// register parent record changed listener
@@ -267,7 +275,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			}
 		}
 		updateFoundset(newFoundset);
-
 	}
 
 	protected IFoundSetManagerInternal getFoundSetManager()
@@ -291,6 +298,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 			viewPort.setFoundset(foundset);
 			if (oldServerSize != newServerSize) changeMonitor.newFoundsetSize();
 			changeMonitor.selectionChanged();
+			changeMonitor.checkHadMoreRows();
 
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
 
@@ -356,6 +364,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
 		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false); // TODO listener and granular changes for this as well?
+		destinationJSON.key(HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false); // TODO listener and granular changes for this as well?
 
 		writeColumnFormatsIfNeededAndAvailable(destinationJSON, dataConverterContext, false);
 
@@ -457,6 +466,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 				destinationJSON.key(UPDATE_PREFIX + SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 				somethingChanged = true;
 			}
+			if (changeMonitor.shouldSendHadMoreRows())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false);
+				somethingChanged = true;
+			}
 			if (changeMonitor.shouldSendSelectedIndexes())
 			{
 				if (!somethingChanged) destinationJSON.object();
@@ -556,7 +571,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 		{
 			Entry<String, String> entry = it.next();
 			String dataProvider = entry.getValue();
-			Object value = record.getValue(dataProvider);
+			Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
 			PropertyDescription pd = NGUtils.getDataProviderPropertyDescription(dataProvider, foundset.getTable(), false);
 
 			// currently all that NGUtils.getDataProviderPropertyDescription can return is IConvertedProperty type or default types; so we don't need any special value pre-processing (like IWrapperType or IServoyAwareValue or others would need)
@@ -630,8 +645,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 							// our api only supports one dataproviderid sort at a time
 							JSEvent event = new JSEvent();
 							event.setFormName(fc.getName());
-							fc.executeFunction(
-								String.valueOf(fc.getForm().getOnSortCmdMethodID()),
+							fc.executeFunction(String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 								Utils.arrayMerge((new Object[] { dataProviderID, Boolean.valueOf(sortAscending), event }),
 									Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
 								true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$
@@ -750,8 +764,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 									IRecordInternal record = foundset.getRecord(recordIndex);
 									// convert Dates where it's needed
 
-									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName,
-										foundset.getTable(), false); // this should be enough for when only foundset dataproviders are used
+									PropertyDescription dataProviderPropDesc = NGUtils.getDataProviderPropertyDescription(dataProviderName, foundset.getTable(),
+										false); // this should be enough for when only foundset dataproviders are used
 									ValueReference<Boolean> returnValueAdjustedIncommingValueForRow = new ValueReference<Boolean>(Boolean.FALSE);
 									value = JSONUtils.fromJSONUnwrapped(null, value, dataProviderPropDesc, dataConverterContext,
 										returnValueAdjustedIncommingValueForRow);
@@ -794,8 +808,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 						}
 						else
 						{
-							log.error("Property (" +
-								pd +
+							log.error("Property (" + pd +
 								") that doesn't define a suitable pushToServer value (allow/shallow/deep) tried to modify foundset dataprovider value serverside. Denying and sending back full viewport!");
 							changeMonitor.viewPortCompletelyChanged();
 						}
@@ -817,7 +830,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	{
 		// this method gets called by linked component type property/properties
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
-		if (dataAdapterList == null && webObject != null)
+		if (dataAdapterList == null && webObject instanceof WebComponent)
 		{
 			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
 		}

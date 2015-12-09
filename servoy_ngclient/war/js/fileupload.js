@@ -17,26 +17,32 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     	var idx = $scope.uploadFiles.indexOf(f);
     	$scope.uploadFiles.splice(idx, 1);
     	progress = 0;
+    	$scope.errorText = "";
     }
     
     $scope.i18n_upload = "Upload"
-	$scope.i18n_chooseFiles = "Add more files"
+	$scope.i18n_chooseFiles = "Select a file"
 	$scope.i18n_cancel = "Cancel"
 	$scope.i18n_selectedFiles =	"Selected files"
 	$scope.i18n_nothingSelected = "Nothing selected, yet"
 	$scope.i18n_remove = "Remove" 
 	$scope.i18n_name = "Name" 
+	var genericError = "";
 		
     
-    var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addMoreFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel")
+    var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addFile","servoy.filechooser.upload.addFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel", "servoy.filechooser.error")
     x.then(function(result) {
     	$scope.i18n_upload = result["servoy.filechooser.button.upload"];
-    	$scope.i18n_chooseFiles = result["servoy.filechooser.upload.addMoreFiles"];
+    	if ($scope.isMultiSelect())
+    		$scope.i18n_chooseFiles = result["servoy.filechooser.upload.addFiles"];
+    	else
+    		$scope.i18n_chooseFiles = result["servoy.filechooser.upload.addFile"];
     	$scope.i18n_cancel = result["servoy.button.cancel"];
     	$scope.i18n_selectedFiles = result["servoy.filechooser.selected.files"];
     	$scope.i18n_nothingSelected = result["servoy.filechooser.nothing.selected"];
     	$scope.i18n_remove = result["servoy.filechooser.button.remove"];
     	$scope.i18n_name = result["servoy.filechooser.label.name"];
+    	genericError = result["servoy.filechooser.error"];
     })
     
     $scope.errorText = "";
@@ -49,17 +55,24 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
     }
     
     $scope.doUpload = function() {
+    	$scope.errorText = "";
+    	progress = 0;
     	if($scope.isFileSelected()) {
     		$scope.upload = $upload.upload({
     			url: $svyFileuploadUtils.getUploadUrl(),
     			file: $scope.uploadFiles
     		}).progress(function(evt) {
-    			progress  = parseInt(100.0 * evt.loaded / evt.total);
+    			var current = parseInt(100.0 * evt.loaded / evt.total);
+    			if (current < progress) {
+    				$scope.upload.abort();
+    			}
+    			else progress  = current;
     		}).success(function(data, status, headers, config) {
     			// file is uploaded successfully
     			$scope.dismiss();
     		}).error(function(status,status2){
-    			$scope.errorText = status; 
+    			if (status) $scope.errorText = status;
+    			else $scope.errorText = genericError;
     		});
     	} 	        	
     };
@@ -75,7 +88,7 @@ angular.module('servoyfileupload',['angularFileUpload', 'sabloApp'])
 			uploadUrl = url;
 			titleText = title;
 			isMultiSelect = multiselect;
-			var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addMoreFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel")
+			var x = $svyI18NService.getI18NMessages("servoy.filechooser.button.upload","servoy.filechooser.upload.addFile","servoy.filechooser.upload.addFiles","servoy.filechooser.selected.files","servoy.filechooser.nothing.selected","servoy.filechooser.button.remove","servoy.filechooser.label.name","servoy.button.cancel", "servoy.filechooser.error")
 		    x.then(function(result) {
 				$modal.open({
 		        	templateUrl: 'templates/upload.html',

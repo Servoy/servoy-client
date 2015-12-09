@@ -264,7 +264,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	{
 		if (arg != null)
 		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.ELEMENTS), false);
+			validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), IRepository.ELEMENTS), false);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
@@ -367,11 +367,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.AbstractBase#fillClone(com.servoy.j2db.persistence.AbstractBase)
-	 */
 	@Override
 	protected void fillClone(AbstractBase cloned)
 	{

@@ -26,9 +26,9 @@ import org.json.JSONObject;
 
 /**
  * Map interface wrapper on JSONObject.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class JSONWrapperMap<T> extends AbstractMap<String, T>
 {
@@ -50,7 +50,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 
 	/**
 	 * Method to get the json object in a lazy way, postpone parsing of the json if possible.
-	 * 
+	 *
 	 * @return
 	 */
 	protected JSONObject getJson()
@@ -106,12 +106,17 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 		return false;
 	}
 
+	protected Object toJava(Object o)
+	{
+		return ServoyJSONObject.toJava(o);
+	}
+
 	@Override
 	public T get(Object key)
 	{
 		if (key instanceof String)
 		{
-			return (T)ServoyJSONObject.toJava(getJson().opt((String)key));
+			return (T)toJava(getJson().opt((String)key));
 		}
 		return null;
 	}
@@ -121,7 +126,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 	{
 		if (key instanceof String)
 		{
-			return (T)ServoyJSONObject.toJava(getJson().remove((String)key));
+			return (T)toJava(getJson().remove((String)key));
 		}
 		return null;
 	}
@@ -133,7 +138,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 		{
 			Object old = getJson().opt(key);
 			getJson().put(key, value);
-			return (T)ServoyJSONObject.toJava(old);
+			return (T)toJava(old);
 		}
 		catch (JSONException e)
 		{
@@ -158,7 +163,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 		return source;
 	}
 
-	public static class JSONWrapperMapEntry implements Entry<String, Object>
+	public class JSONWrapperMapEntry implements Entry<String, Object>
 	{
 
 		private final String key;
@@ -181,7 +186,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 			{
 				try
 				{
-					return ServoyJSONObject.toJava(json.get(key));
+					return toJava(json.get(key));
 				}
 				catch (JSONException e)
 				{
@@ -195,7 +200,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 		{
 			try
 			{
-				return ServoyJSONObject.toJava(json.put(key, value));
+				return toJava(json.put(key, value));
 			}
 			catch (JSONException e)
 			{
@@ -206,7 +211,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 
 	/**
 	 * merge 2 maps into 1, map2 overrides values in map1
-	 * 
+	 *
 	 * @param map1
 	 * @param map2
 	 * @return

@@ -50,8 +50,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  *
  * @author acostescu
  */
-public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue> implements
-	IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
+public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSabloValue>
+	implements IFormElementToTemplateJSON<JSONObject, FoundsetTypeSabloValue>, IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
 	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, ISupportsGranularUpdates<FoundsetTypeSabloValue>,
 	IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType
 {
@@ -79,6 +79,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(0);
 		writer.key(FoundsetTypeSabloValue.SELECTED_ROW_INDEXES).array().endArray();
 		writer.key(FoundsetTypeSabloValue.MULTI_SELECT).value(false);
+		writer.key(FoundsetTypeSabloValue.HAS_MORE_ROWS).value(false);
 
 		// viewPort
 		writer.key(FoundsetTypeSabloValue.VIEW_PORT).object().key(FoundsetTypeSabloValue.START_INDEX).value(0).key(FoundsetTypeSabloValue.SIZE).value(0).key(
@@ -206,7 +207,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						public Object[] getIds()
 						{
 							return webComponentValue.dataproviders.keySet().toArray();
-						};
+						}
 					};
 					return dataproviders;
 				}
@@ -223,6 +224,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 				{
 					if (value instanceof IFoundSetInternal) webComponentValue.updateFoundset((IFoundSetInternal)value);
 					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
+					break;
 				}
 				case "dataproviders" :
 				{
@@ -241,6 +243,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						webComponentValue.notifyDataProvidersUpdated();
 					}
 					else throw new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName());
+					break;
 				}
 			}
 		}

@@ -63,7 +63,7 @@ describe("Test component_custom_property suite", function() {
 
 	it("should add requests when we call a handler", function() {
 		expect(converted.__internalState.isChanged()).toBe(false);
-		converted.handlers.onActionMethodID([{ dog: 'S' }],123);
+		converted.handlers.onActionMethodID.selectRecordHandler(123)({ dog: 'S' });
 		expect(converted.__internalState.isChanged()).toBe(true);
 		expect(converted.__internalState.requests[0].handlerExec.eventType).toBe('onActionMethodID');
 		expect(converted.__internalState.requests[0].handlerExec.rowId).toBe(123);

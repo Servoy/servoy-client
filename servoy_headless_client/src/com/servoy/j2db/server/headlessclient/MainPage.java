@@ -73,6 +73,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.util.time.Duration;
@@ -117,6 +118,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.server.headlessclient.tinymce.TinyMCELoader;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -1432,7 +1434,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				String url = showUrlInfo.url;
 				if (showUrlInfo.useIFrame)
 				{
-					url = RequestUtils.toAbsolutePath(url);
+					url = HCUtils.replaceForwardedHost(RequestUtils.toAbsolutePath(url), ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest());
 				}
 				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + "," +
 					showUrlInfo.pageExpiredRedirect + ");";

@@ -41,24 +41,28 @@ public class FoundsetTypeChangeMonitor
 	/**
 	 * The whole foundset property needs to get sent to the client.
 	 */
-	protected static final int SEND_ALL = 0b00000001;
+	protected static final int SEND_ALL = 0b000000001;
 	/**
 	 * Only the bounds of the viewPort changed, data is the same; for example records were added/removed before startIndex of viewPort,
 	 * or even inside the viewPort but will be combined by incremental updates (adds/deletes).
 	 */
-	protected static final int SEND_VIEWPORT_BOUNDS = 0b00000010;
+	protected static final int SEND_VIEWPORT_BOUNDS = 0b000000010;
 	/**
 	 * Foundset size changed (add/remove of records).
 	 */
-	protected static final int SEND_FOUNDSET_SIZE = 0b00001000;
+	protected static final int SEND_FOUNDSET_SIZE = 0b000001000;
 
-	protected static final int SEND_SELECTED_INDEXES = 0b00010000;
+	protected static final int SEND_SELECTED_INDEXES = 0b000010000;
 
-	protected static final int SEND_SELECTION_DENIED = 0b00100000;
+	protected static final int SEND_SELECTION_DENIED = 0b000100000;
 
-	protected static final int SEND_SELECTION_ACCEPTED = 0b01000000;
+	protected static final int SEND_SELECTION_ACCEPTED = 0b001000000;
 
-	protected static final int SEND_COLUMN_FORMATS = 0b10000000;
+	protected static final int SEND_COLUMN_FORMATS = 0b010000000;
+
+	protected static final int SEND_HAD_MORE_ROWS = 0b100000000;
+
+	protected boolean lastHadMoreRecords = false;
 
 	protected IChangeListener changeNotifier;
 	protected int changeFlags = 0;
@@ -191,7 +195,7 @@ public class FoundsetTypeChangeMonitor
 	public void findModeChanged(boolean newFindMode)
 	{
 		allChanged();
-		propertyValue.getDataAdapterList().setFindMode(newFindMode);
+		if (propertyValue.getDataAdapterList() != null) propertyValue.getDataAdapterList().setFindMode(newFindMode);
 	}
 
 	/**
@@ -306,7 +310,7 @@ public class FoundsetTypeChangeMonitor
 		else if (viewPort.getSize() > propertyValue.getFoundset().getSize())
 		{
 			// if it will already send the whole viewport then the size needs to be in sync with the foundset.
-			viewPort.correctViewportBoundsIfNeededInternal();
+			viewPort.correctAndSetViewportBoundsInternal(viewPort.getStartIndex(), viewPort.getSize());
 		}
 		if (oldChangeFlags != changeFlags || viewPortRecordChangesUpdated) notifyChange();
 	}
@@ -358,8 +362,8 @@ public class FoundsetTypeChangeMonitor
 		{
 			int oldChangeFlags = changeFlags;
 			boolean viewPortRecordChangesUpdated = false;
-			if (propertyValue.getDataAdapterList() != null && !shouldSendAll() && !shouldSendWholeViewPort() &&
-				!propertyValue.getDataAdapterList().isQuietRecordChangeInProgress())
+			if ((propertyValue.getDataAdapterList() == null || !propertyValue.getDataAdapterList().isQuietRecordChangeInProgress()) && !shouldSendAll() &&
+				!shouldSendWholeViewPort())
 			{
 				// get the rows that are changed.
 				int firstViewPortIndex = Math.max(viewPort.getStartIndex(), firstRow);
@@ -406,6 +410,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendFoundsetSize()
 	{
 		return (changeFlags & SEND_FOUNDSET_SIZE) != 0;
+	}
+
+	public boolean shouldSendHadMoreRows()
+	{
+		return (changeFlags & SEND_HAD_MORE_ROWS) != 0;
 	}
 
 	public boolean shouldSendColumnFormats()
@@ -548,6 +557,23 @@ public class FoundsetTypeChangeMonitor
 			int oldChangeFlags = changeFlags;
 			changeFlags = changeFlags | SEND_COLUMN_FORMATS;
 			if (oldChangeFlags != changeFlags) notifyChange();
+		}
+	}
+
+	public void checkHadMoreRows()
+	{
+		if (propertyValue.getFoundset() != null)
+		{
+			boolean newHadMoreRows = propertyValue.getFoundset().hadMoreRows();
+			boolean changed = (newHadMoreRows != lastHadMoreRecords);
+			lastHadMoreRecords = newHadMoreRows;
+
+			if (changed && !shouldSendAll())
+			{
+				int oldChangeFlags = changeFlags;
+				changeFlags = changeFlags | SEND_HAD_MORE_ROWS;
+				if (oldChangeFlags != changeFlags) notifyChange();
+			}
 		}
 	}
 

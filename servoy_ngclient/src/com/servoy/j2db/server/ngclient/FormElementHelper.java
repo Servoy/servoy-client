@@ -51,11 +51,8 @@ import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.persistence.ScriptMethod;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabSeqComparator;
-import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -124,7 +121,7 @@ public class FormElementHelper
 				propertyPath.setShouldAddElementName();
 			}
 			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-				designer);
+					designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -242,9 +239,7 @@ public class FormElementHelper
 				// now put real child component form element values in "childElements"
 				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
-				List<String> headersText = new ArrayList<>();
-				List<String> headersClasses = new ArrayList<>();
-				List<Map<String, Object>> headersAction = new ArrayList<>();
+				List<IPersist> labelFors = new ArrayList<>();
 				propertyPath.add(portalFormElement.getName());
 				propertyPath.add("childElements");
 
@@ -260,79 +255,30 @@ public class FormElementHelper
 						Point loc = ((IFormElement)persist).getLocation();
 						if (startPos <= loc.y && endPos > loc.y)
 						{
-							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
+								continue;
 							propertyPath.add(children.size());
 							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
 							if (listViewPortal.isTableview())
 							{
 								String elementName = fe.getName();
-								boolean hasLabelFor = false;
-								String headerCellClass = null;
-								Map<String, Object> headerAction = null;
 								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
+								boolean hasLabelFor = false;
 								while (graphicalComponents.hasNext())
 								{
 									GraphicalComponent gc = graphicalComponents.next();
 									if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
 										endPos > gc.getLocation().y)
 									{
-										headersText.add(gc.getText());
+										labelFors.add(gc);
 										hasLabelFor = true;
-										headerCellClass = gc.getStyleClass();
-										if (gc.getOnActionMethodID() > 0)
-										{
-											headerAction = new HashMap<String, Object>();
-											headerAction.put("form", form.getName());
-											headerAction.put("element", gc.getName());
-
-											ScriptMethod scriptMethod = form.getScriptMethod(gc.getOnActionMethodID());
-											if (scriptMethod == null)
-											{
-												scriptMethod = fs.getScriptMethod(gc.getOnActionMethodID());
-												if (scriptMethod != null)
-												{
-													headerAction.put("script", ScriptVariable.SCOPES_DOT_PREFIX + scriptMethod.getScopeName() + '.' +
-														scriptMethod.getName());
-												}
-												else if (form.getDataSource() != null)
-												{
-													Iterator<TableNode> tableNodes = fs.getTableNodes(form.getDataSource());
-													while (tableNodes.hasNext())
-													{
-														scriptMethod = tableNodes.next().getFoundsetMethod(gc.getOnActionMethodID());
-														if (scriptMethod != null) break;
-													}
-													if (scriptMethod != null)
-													{
-														headerAction.put("script", "entity." + form.getName() + '.' + scriptMethod.getName());
-													}
-												}
-											}
-											else
-											{
-												headerAction.put("script", form.getName() + '.' + scriptMethod.getName());
-											}
-										}
 										break;
 									}
 								}
-								if (!hasLabelFor)
-								{
-									if (fe.getPropertyValue("text") != null)
-									{
-										// legacy behavior, take text property
-										headersText.add(fe.getPropertyValue("text").toString());
-									}
-									else
-									{
-										headersText.add(null);
-									}
-								}
-								headersClasses.add(headerCellClass);
-								headersAction.add(headerAction);
+
 								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
 								feRawProperties.put("componentIndex", Integer.valueOf(children.size()));
-								feRawProperties.put("headerCellClass", headerCellClass);
+								if (hasLabelFor) feRawProperties.put("headerIndex", Integer.valueOf(labelFors.size() - 1));
 								fe.updatePropertyValuesDontUse(feRawProperties);
 							}
 							children.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
@@ -355,9 +301,21 @@ public class FormElementHelper
 				portalFormElementProperties.put("childElements", children.toArray());
 				if (listViewPortal.isTableview())
 				{
-					portalFormElementProperties.put("columnHeaders", headersText.toArray());
-					portalFormElementProperties.put("headersClasses", headersClasses.toArray());
-					portalFormElementProperties.put("headersAction", headersAction.toArray());
+					propertyPath.add("headers");
+					List<Object> headers = new ArrayList<>();
+					for (IPersist persist : labelFors)
+					{
+						if (persist instanceof IFormElement)
+						{
+							propertyPath.add(headers.size());
+							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
+							headers.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
+							propertyPath.backOneLevel();
+						}
+					}
+					propertyPath.backOneLevel();
+					propertyPath.backOneLevel();
+					portalFormElementProperties.put("headers", headers.toArray());
 				}
 
 				portalFormElementProperties.put("tabSeq", Integer.valueOf(minBodyPortalTabSeq)); // table view tab seq. is the minimum of it's children tabSeq'es

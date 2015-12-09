@@ -1,6 +1,6 @@
-<div ng-class='model.styleClass' ng-show='!model.containedForm'>
+<div ng-class='model.styleClass' ng-show='!model.containedForm' ng-show='model.visible'>
   <label>
   	 <span>Select contained form</span>
   </label>
 </div>
-<div class='bts-tablesspanel'  ng-include="getActiveTabUrl()" ng-class="model.styleClass" ng-style='getContainerStyle()'></div>
+<div class='bts-tablesspanel'  ng-include="getActiveTabUrl()" ng-class="model.styleClass" ng-style='getContainerStyle()' ng-show='model.visible'></div>

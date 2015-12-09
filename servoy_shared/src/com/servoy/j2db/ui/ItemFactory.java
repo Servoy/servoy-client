@@ -54,8 +54,8 @@ import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
  * Factory interface to create elements
- * The implementation of this factory may deliver different GUI components for different frameworks (like Swing, or Wicket) 
- * 
+ * The implementation of this factory may deliver different GUI components for different frameworks (like Swing, or Wicket)
+ *
  * @author jcompagner
  */
 public interface ItemFactory
@@ -93,7 +93,7 @@ public interface ItemFactory
 	IRect createRect(RuntimeRectangle scriptable, String name, int type);
 
 	/**
-	 * 
+	 *
 	 * @param scriptable
 	 * @param name
 	 * @param orient
@@ -188,10 +188,11 @@ public interface ItemFactory
 	 * @param name TODO
 	 * @param list
 	 * @param b
+	 * @param multiselect
 	 * @return
 	 */
 	IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,
-		boolean b);
+		boolean b, boolean multiselect);
 
 
 	IFieldComponent createListBox(RuntimeListBox scriptable, String name, IValueList list, boolean multiSelect);
@@ -245,7 +246,7 @@ public interface ItemFactory
 
 	/**
 	 * Set a property on the runtime component
-	 * 
+	 *
 	 * @param component
 	 * @param key
 	 * @param value
@@ -254,13 +255,13 @@ public interface ItemFactory
 
 	/**
 	 * Get a property from the runtime component
-	 * 
+	 *
 	 * @param component
 	 * @param key
 	 */
 	Serializable getComponentProperty(Object component, Object key);
 
-	/** 
+	/**
 	 * Create the changes recorder for the runtime component.
 	 */
 	IStylePropertyChangesRecorder createChangesRecorder();

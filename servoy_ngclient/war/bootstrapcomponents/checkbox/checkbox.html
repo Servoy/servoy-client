@@ -1,9 +1,10 @@
-<div class='bts-check' ng-class='model.styleClass'>
+<div class='bts-check' ng-class='model.styleClass' ng-show='model.visible'>
 	<label>	
 		<input type="checkbox"
 			    ng-model ="selection"
 				ng-click="checkBoxClicked()"
 				svy-click='handlers.onActionMethodID($event)'
+				ng-disabled="!model.enabled"
 				/>
 		 <span ng-bind="model.text"/>
 	</label>

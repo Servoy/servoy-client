@@ -15,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.BaseWebObject;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
@@ -55,6 +56,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 
@@ -76,7 +78,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>();
 
 	private IRecordInternal record;
-//	private boolean findMode;
+	private boolean findMode = false;
 	private boolean settingRecord;
 
 	private boolean isFormScopeListener;
@@ -118,7 +120,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				try
 				{
-					argObj = appendingArgs.get(i);
+					argObj = ServoyJSONObject.jsonNullToNull(appendingArgs.get(i));
 					if (argObj instanceof JSONObject)
 					{
 						String typeHint = ((JSONObject)argObj).optString("svyType", null); //$NON-NLS-1$
@@ -634,7 +636,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	 * Get the dataProviderID from the runtime property.
 	 * NOTE: it's not taken directly from FormElement because 'beanProperty' might contain dots (a dataprovider nested somewhere in another property) - and BaseWebObject deals with that correctly.
 	 */
-	protected String getDataProviderID(WebFormComponent webComponent, String beanProperty)
+	public String getDataProviderID(WebFormComponent webComponent, String beanProperty)
 	{
 		Object propertyValue = webComponent.getProperty(beanProperty);
 		if (propertyValue instanceof DataproviderTypeSabloValue) return ((DataproviderTypeSabloValue)propertyValue).getDataProviderID();
@@ -797,10 +799,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public void setFindMode(boolean findMode)
 	{
-//		this.findMode = findMode;
-		for (IFindModeAwarePropertyValue x : findModeAwareProperties)
+		if (this.findMode != findMode)
 		{
-			x.findModeChanged(findMode);
+			this.findMode = findMode;
+			((BaseWebObject)formController.getFormUI()).setProperty("findmode", findMode);
+			for (IFindModeAwarePropertyValue x : findModeAwareProperties)
+			{
+				x.findModeChanged(findMode);
+			}
 		}
 	}
 

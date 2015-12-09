@@ -29,14 +29,17 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 
 /**
  * @author lvostinar
  *
  */
-public class ServoyStringPropertyType extends StringPropertyType implements IConvertedPropertyType<String>, IRhinoToSabloComponent<String>
+public class ServoyStringPropertyType extends StringPropertyType
+	implements IConvertedPropertyType<String>, IRhinoToSabloComponent<String>, IFormElementToTemplateJSON<String, String>
 {
 
 	public static final ServoyStringPropertyType INSTANCE = new ServoyStringPropertyType();
@@ -46,6 +49,19 @@ public class ServoyStringPropertyType extends StringPropertyType implements ICon
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		return (String)newJSONValue;
+	}
+
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
+		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	{
+		JSONUtils.addKeyIfPresent(writer, key);
+		if (formElementContext != null && formElementContext.getContext() != null && formElementContext.getContext().getApplication() != null)
+		{
+			formElementValue = formElementContext.getContext().getApplication().getI18NMessageIfPrefixed(formElementValue);
+		}
+		writer.value(formElementValue);
+		return writer;
 	}
 
 	@Override

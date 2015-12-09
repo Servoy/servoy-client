@@ -330,11 +330,25 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 			if (value instanceof ServoyJSONObject)
 			{
 				ServoyJSONObject svjson = (ServoyJSONObject)value;
-				appendtoString(sb, new JSONWrapperMap(svjson), svjson.noQuotes, svjson.newLines, noBrackets /* use settings from context */);
+				appendtoString(sb, new JSONWrapperMap(svjson)
+				{
+					@Override
+					protected Object toJava(Object o)
+					{
+						return o;
+					}
+				}, svjson.noQuotes, svjson.newLines, noBrackets /* use settings from context */);
 			}
 			else
 			{
-				appendtoString(sb, new JSONWrapperMap((JSONObject)value), noQuotes, newLines, noBrackets);
+				appendtoString(sb, new JSONWrapperMap((JSONObject)value)
+				{
+					@Override
+					protected Object toJava(Object o)
+					{
+						return o;
+					}
+				}, noQuotes, newLines, noBrackets);
 			}
 		}
 		else if (value instanceof Map)
@@ -380,7 +394,7 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		}
 		else if (value instanceof Collection)
 		{
-			appendtoString(sb, new ServoyJSONArray((Collection)value), noQuotes, newLines, false);
+			appendtoString(sb, new ServoyJSONArray((Collection< ? >)value), noQuotes, newLines, false);
 		}
 		else if (value.getClass().isArray())
 		{
@@ -603,6 +617,26 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 	public static Object jsonNullToNull(Object o)
 	{
 		return o == JSONObject.NULL ? null : o;
+	}
+
+	/**
+	 * Can be used in places where a java 'null' actually means a JSON null instead of 'not defined'.
+	 *
+	 * @return JSONObject.NULL in case of null. The given object otherwise. Note that normally a java return value of null is equivalent to the javascript undefined from org.json point of view.
+	 */
+	public static Object nullToJsonNull(Object o)
+	{
+		return o == null ? JSONObject.NULL : o;
+	}
+
+	/**
+	 * This method is useful as optString in parent implementation is flawed.
+	 * If you set a null (JSONObject.NULL) value it optString(key) would return "null" which is unexpected. Null would have been expected...
+	 */
+	public static String optString(String key, JSONObject jsonObject, String defaultValue)
+	{
+		Object v = jsonNullToNull(jsonObject.opt(key));
+		return v != null ? v.toString() : defaultValue;
 	}
 
 }

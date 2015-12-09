@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONException;
@@ -31,6 +32,7 @@ import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
@@ -79,9 +81,28 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				else
 				{
-					dataPush(args);
+					JSONObject changes = args.getJSONObject("changes");
 					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
-					form.getDataAdapterList().pushChanges(webComponent, args.getString("property"));
+					if (changes.length() > 0)
+					{
+						Iterator<String> keys = changes.keys();
+						while (keys.hasNext())
+						{
+							String key = keys.next();
+							Object value = changes.get(key);
+							if ("".equals(value) && form.getDataAdapterList().getValueObject(form.getDataAdapterList().getRecord(),
+								form.getDataAdapterList().getDataProviderID(webComponent, args.getString("property"))) == null)
+							{
+								keys.remove();
+							}
+						}
+						args.put("changes", changes);
+					}
+					if (changes.length() > 0)
+					{
+						dataPush(args);
+						form.getDataAdapterList().pushChanges(webComponent, args.getString("property"));
+					}
 				}
 				break;
 			}
@@ -223,6 +244,58 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				break;
 			}
+			case "callServerSideApi" :
+			{
+				String formName = args.getString("formname");
+				IWebFormUI form = (IWebFormUI)NGClientWindow.getCurrentWindow().getForm(formName);
+				if (form != null)
+				{
+					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
+					if (webComponent != null)
+					{
+						RuntimeWebComponent runtimeComponent = null;
+						RuntimeWebComponent[] webComponentElements = form.getController().getWebComponentElements();
+						for (RuntimeWebComponent runtimeWebComponent : webComponentElements)
+						{
+							if (runtimeWebComponent.getComponent() == webComponent)
+							{
+								runtimeComponent = runtimeWebComponent;
+								break;
+							}
+						}
+
+						if (runtimeComponent != null)
+						{
+							return runtimeComponent.executeScopeFunction(args.getString("methodName"), args.getJSONArray("args"));
+						}
+						else
+						{
+							log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+						}
+					}
+					else
+					{
+						log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+					}
+				}
+				else
+				{
+					log.warn("callServerSideApi for unknown form '" + formName + "'");
+				}
+				break;
+			}
+			case "performFind" :
+				String formName = args.optString("formname");
+				boolean clear = args.optBoolean("clear");
+				boolean reduce = args.optBoolean("reduce");
+				boolean showDialogOnNoResults = args.optBoolean("showDialogOnNoResults");
+				IWebFormController controller = getApplication().getFormManager().getForm(formName);
+				if (controller != null)
+				{
+					controller.performFind(clear, reduce, showDialogOnNoResults);
+				}
+				break;
+
 			default :
 			{
 				return super.executeMethod(methodName, args);

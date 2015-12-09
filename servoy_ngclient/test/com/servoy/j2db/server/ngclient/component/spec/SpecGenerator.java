@@ -562,8 +562,7 @@ public class SpecGenerator
 		portalTypeMapping.put("relatedFoundset", "{\"type\" :\"foundset\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\"}");
 		portalTypeMapping.put("headerHeight", "{\"type\" :\"int\",  \"default\" : 32}");
 		portalTypeMapping.put("childElements", "{ \"type\" : \"component[]\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"elementConfig\" : {\"forFoundset\": \"relatedFoundset\"}, \"tags\" : {\"scope\": \"private\"} }");
-		portalTypeMapping.put("columnHeaders", "{ \"type\" : \"tagstring[]\", \"tags\" : {\"scope\": \"private\"} }");
-		portalTypeMapping.put("headersClasses", "{ \"type\" : \"string[]\", \"tags\" : {\"scope\": \"private\"} }");
+		portalTypeMapping.put("headers", "{ \"type\" : \"component[]\", \"" + WebComponentSpecification.PUSH_TO_SERVER_KEY + "\": \"" + PushToServerEnum.allow + "\", \"tags\" : {\"scope\": \"private\"} }");
 		portalTypeMapping.put(StaticContentSpecLoader.PROPERTY_ENABLED.getPropertyName(), "{ \"type\": \"enabled\", \"blockingOn\": false, \"default\": true, \"for\": [\"" + StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName()+"\",\""

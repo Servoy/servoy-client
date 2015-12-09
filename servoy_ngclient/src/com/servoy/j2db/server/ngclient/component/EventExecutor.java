@@ -110,6 +110,7 @@ public class EventExecutor
 			}
 
 		}
+		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null;
 
 		if (args != null)
 		{
@@ -143,9 +144,9 @@ public class EventExecutor
 								FormElement fe = ((WebFormComponent)component).getFormElement();
 								RuntimeWebComponent runtimeComponent = new RuntimeWebComponent((WebFormComponent)component, component.getSpecification());
 								if (fe.isLegacy() ||
-									((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-										fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
-										"svy-")))
+										((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+											fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) && fe.getTypeName().startsWith(
+											"svy-")))
 								{
 									// add legacy behavior
 									runtimeComponent.setPrototype(new RuntimeLegacyComponent((WebFormComponent)component));

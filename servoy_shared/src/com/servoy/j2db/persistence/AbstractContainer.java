@@ -32,7 +32,7 @@ import com.servoy.j2db.util.UUID;
  * @author lvostinar
  *
  */
-public abstract class AbstractContainer extends AbstractBase implements ISupportFormElements, ISupportUpdateableName, IPersistCloneable
+public abstract class AbstractContainer extends AbstractBase implements ISupportFormElements, ISupportUpdateableName, IPersistCloneable, ICloneable
 {
 	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
 	{
@@ -57,7 +57,7 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(this, IRepository.FORMS), false);
+		validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), IRepository.FORMS), false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
@@ -348,9 +348,6 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		return getAllObjectsAsList();
 	}
 
-	/**
-	 * @return
-	 */
 	public List<IFormElement> getFlattenedObjects(Comparator< ? super IFormElement> comparator)
 	{
 		List<IFormElement> flattenedPersists = new ArrayList<IFormElement>();

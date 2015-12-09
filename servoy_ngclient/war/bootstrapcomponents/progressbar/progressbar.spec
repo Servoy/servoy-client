@@ -11,7 +11,8 @@
 			"type": {"type": "string", "default":"info","values":["info", "success", "warning", "danger"]},
 			"animate": {"type":"boolean", "default":true},
 			"showValue" : {"type":"boolean", "default":true},
-			"max" : {"type":"int", "default":100}
+			"max" : {"type":"int", "default":100},
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

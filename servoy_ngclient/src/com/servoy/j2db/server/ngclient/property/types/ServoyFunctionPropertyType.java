@@ -39,7 +39,10 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScriptVariableScope;
+import com.servoy.j2db.scripting.solutionmodel.IJSParent;
+import com.servoy.j2db.scripting.solutionmodel.JSBaseContainer;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
+import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -53,8 +56,8 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class ServoyFunctionPropertyType extends FunctionPropertyType implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>,
-	IRhinoDesignConverter
+public class ServoyFunctionPropertyType extends FunctionPropertyType
+	implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter
 {
 	public static final ServoyFunctionPropertyType INSTANCE = new ServoyFunctionPropertyType();
 
@@ -165,14 +168,22 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType implements 
 	@Override
 	public Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
-		// TODO move some code here from JSWebComponent.setJSONProperty maybe?
+		if (value instanceof JSMethod)
+		{
+			return new Integer(JSBaseContainer.getMethodId(application, webComponent.getBaseComponent(false), ((JSMethod)value).getScriptMethod()));
+		}
 		return value;
 	}
 
 	@Override
 	public Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
 	{
-		return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), Utils.getAsInteger(value), webComponent.getJSParent(), pd.getName());
+		IJSParent< ? > jsParent = webComponent.getJSParent();
+		while (!(jsParent instanceof JSForm) && (jsParent != null))
+		{
+			jsParent = jsParent.getJSParent();
+		}
+		return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), Utils.getAsInteger(value), jsParent, pd.getName());
 	}
 
 }

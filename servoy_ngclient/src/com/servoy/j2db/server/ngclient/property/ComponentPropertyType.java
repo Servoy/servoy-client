@@ -41,6 +41,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.ChildWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -71,11 +72,9 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType(null);
 
-	public static final String TYPE_NAME = "component";
+	public static final String TYPE_NAME = ChildWebComponent.COMPONENT_PROPERTY_TYPE_NAME;
 
 	// START keys and values used in JSON
-	public final static String TYPE_NAME_KEY = "typeName";
-	public final static String DEFINITION_KEY = "definition";
 	public final static String API_CALL_TYPES_KEY = "apiCallTypes";
 	public final static String FUNCTION_NAME_KEY = "functionName";
 
@@ -102,13 +101,20 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
+	public String getName()
+	{
+		return TYPE_NAME;
+	}
+
+	@Override
 	public ComponentTypeFormElementValue toFormElementValue(JSONObject designValue, PropertyDescription pd, FlattenedSolution flattenedSolution,
 		INGFormElement fe, PropertyPath propertyPath)
 	{
 		try
 		{
-			FormElement element = new FormElement((String)designValue.get(TYPE_NAME_KEY), (JSONObject)designValue.get(DEFINITION_KEY), fe.getForm(),
-				fe.getName() + (uniqueId++), flattenedSolution, propertyPath, fe.getDesignId() != null);
+			FormElement element = new FormElement((String)designValue.get(ChildWebComponent.TYPE_NAME_KEY),
+				(JSONObject)designValue.get(ChildWebComponent.DEFINITION_KEY), fe.getForm(), fe.getName() + (uniqueId++), flattenedSolution, propertyPath,
+				fe.getDesignId() != null);
 
 			return getFormElementValue(designValue.optJSONArray(API_CALL_TYPES_KEY), pd, propertyPath, element, flattenedSolution);
 		}
@@ -220,7 +226,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 				writer.endObject();
 			}
 
-		}, formElementValue.recordBasedProperties);
+		}, formElementValue.recordBasedProperties, true);
 
 		writer.endObject();
 
@@ -228,7 +234,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
-		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties) throws JSONException
+		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties, boolean writeViewportIfFoundsetBased)
+		throws JSONException
 	{
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 		writer.key("componentDirectiveName").value(componentFormElementContext.getFormElement().getTypeName());
@@ -237,6 +244,10 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (componentFormElementContext.getFormElement().getPropertyValue("componentIndex") != null)
 		{
 			writer.key("componentIndex").value(componentFormElementContext.getFormElement().getPropertyValue("componentIndex"));
+		}
+		if (componentFormElementContext.getFormElement().getPropertyValue("headerIndex") != null)
+		{
+			writer.key("headerIndex").value(componentFormElementContext.getFormElement().getPropertyValue("headerIndex"));
 		}
 
 		writer.key("model");
@@ -264,7 +275,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 		if (forFoundsetPropertyType != null)
 		{
-			writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
+			if (writeViewportIfFoundsetBased) writer.key(MODEL_VIEWPORT_KEY).array().endArray(); // this will contain record based properties for the foundset's viewPort
 			writer.key(FOUNDSET_CONFIG_PROPERTY_NAME).object();
 			if (recordBasedProperties != null)
 			{
@@ -364,6 +375,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
+		if (config == null) return null;
+
 		String tmp = config.optString("forFoundset");
 		return tmp == null || tmp.length() == 0 ? null : new ComponentTypeConfig(tmp);
 	}

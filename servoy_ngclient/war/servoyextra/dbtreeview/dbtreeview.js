@@ -1,4 +1,4 @@
-angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).directive('servoyextraDbtreeview', ['$timeout', '$window', '$foundsetManager', '$applicationService', function($timeout, $window, $foundsetManager, $applicationService) {
+angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).directive('servoyextraDbtreeview', ['$timeout', '$window', 'foundset_manager', '$applicationService', '$q', function($timeout, $window, foundset_manager, $applicationService, $q) {
     return {
       restrict: 'E',
       scope: {
@@ -7,9 +7,13 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       },
       link: function($scope, $element, $attrs) {    	  
     	$scope.expandedNodes = [];
+    	$scope.activeNodes = [];
     	var theTree;
     	var clickTimeout;
-    	
+    	var theTreeDefer = $q.defer();
+  	
+    	var foundsetChangeWatches = {};
+  
     	var treeReloadTimeout;
     	function reloadTree() {
     		if(theTree) {
@@ -35,7 +39,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 					} else if ("string" == data.node.data.checkboxvaluedataprovidertype) {
 						v = v ? 'true' : 'false'
 					}
-					$foundsetManager.updateFoundSetRow(
+					foundset_manager.updateFoundSetRow(
 							parseInt(data.node.key.substring(0, data.node.key.indexOf('_'))),
 							data.node.data._svyRowId,
 							data.node.data.checkboxvaluedataprovider,
@@ -72,7 +76,10 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 								data.node.data.methodToCallOnDoubleClick.script,
 								[data.node.data.methodToCallOnDoubleClickParamValue]);
 					}
-				},				
+				},
+				init: function() {
+		      		if(theTree) theTreeDefer.resolve(theTree);
+				}
  			});
       		theTree = theTree.fancytree("getTree");
      	}
@@ -136,10 +143,16 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     	
     	function getRelatedFoundSetCallback(item, sort, level) {
     		return function(rfoundsetinfo) {
-				$foundsetManager.getFoundSet(
+				foundset_manager.getFoundSet(
 						rfoundsetinfo.foundsethash,
 						getDataproviders(rfoundsetinfo.foundsetdatasource, rfoundsetinfo.foundsetpk), sort).then(
 								function(rfoundset) {
+									if(foundsetChangeWatches[rfoundsetinfo.foundsethash] != undefined) {
+										foundsetChangeWatches[rfoundsetinfo.foundsethash]();
+									}
+									foundsetChangeWatches[rfoundsetinfo.foundsethash] = foundset_manager.addFoundSetChangeCallback(rfoundsetinfo.foundsethash, function() {
+										$scope.api.refresh();
+									});									
 									item.children = getChildren(rfoundset, rfoundsetinfo.foundsethash, rfoundsetinfo.foundsetpk, getBinding(rfoundsetinfo.foundsetdatasource), level);
 									if(item.children.length > 0) {
 										item.folder = "true";
@@ -171,6 +184,10 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     				item.expanded = true;
     			}
     			
+    			if($scope.activeNodes.indexOf(item.key) != -1) {
+    				item.active = true;
+    			}    			
+    			
     			item.data = {}
     			item.data._svyRowId = foundset.viewPort.rows[i]._svyRowId;
     			
@@ -198,7 +215,7 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
     			returnChildren.push(item);
     			if(binding.nrelationname) {
     				var sort = binding.childsortdataprovider ? foundset.viewPort.rows[i][binding.childsortdataprovider]: null
-					$foundsetManager.getRelatedFoundSetHash(
+					foundset_manager.getRelatedFoundSetHash(
 							foundsethash,
 							foundset.viewPort.rows[i]._svyRowId,
 							binding.nrelationname).then(getRelatedFoundSetCallback(item, sort, level + 1));
@@ -231,16 +248,27 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
 			if($scope.model.roots && $scope.model.roots.length > 0) {
 				
 				$scope.expandedNodes.length = 0;
+				$scope.activeNodes.length = 0;
 				if(theTree) {	  			
 		  			theTree.getRootNode().visit(function(node){
 		  				if(node.isExpanded()) {
 		  					$scope.expandedNodes.push(node.key);
 		  				}
+		  				if(node.isActive()) {
+		  					$scope.activeNodes.push(node.key);
+		  				}		  				
 			        });
 	      		}
 				
-				$foundsetManager.getFoundSet($scope.model.roots[0].foundsethash, getDataproviders($scope.model.roots[0].foundsetdatasource, $scope.model.roots[0].foundsetpk)).then(
-						function(foundset) {			
+				foundset_manager.getFoundSet($scope.model.roots[0].foundsethash, getDataproviders($scope.model.roots[0].foundsetdatasource, $scope.model.roots[0].foundsetpk)).then(
+						function(foundset) {
+							if(foundsetChangeWatches[$scope.model.roots[0].foundsethash] != undefined) {
+								foundsetChangeWatches[$scope.model.roots[0].foundsethash]();
+							}							
+							foundsetChangeWatches[$scope.model.roots[0].foundsethash] = foundset_manager.addFoundSetChangeCallback($scope.model.roots[0].foundsethash, function() {
+								$scope.api.refresh();
+							});
+
 							$scope.treeJSON = getChildren(foundset, $scope.model.roots[0].foundsethash, $scope.model.roots[0].foundsetpk, getBinding($scope.model.roots[0].foundsetdatasource), 1);
 							if(theTree) {
 								reloadTree();
@@ -263,13 +291,13 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       	}
 
       	$scope.api.setExpandNode = function(pk, state) {
-      		if(theTree) {	  			
+      		theTreeDefer.promise.then(function(theTree) {
 	  			var node = findNode(theTree.getRootNode(), pk, 0);
 	  			if(node) {
 	  				node.makeVisible();
 	  				node.setExpanded(state);
-	  			}
-      		}      		
+	  			}      			
+      		});      		
       	}      	
 
       	function expandChildNodes(node, level, state) {
@@ -294,6 +322,31 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       		if(theTree) {	  			
       			expandChildNodes(theTree.getRootNode(), level, state);
       		}
+      	}
+      	
+      	$scope.api.setSelectionPath = function(pk) {
+      		theTreeDefer.promise.then(function(theTree) {
+	  			var node = findNode(theTree.getRootNode(), pk, 0);
+	  			if(node) {
+	  				node.makeVisible();
+	  				node.setActive(true);
+	  			}      			
+      		});
+      	}
+      	
+      	$scope.api.getSelectionPath = function() {
+      		var selectionPath = new Array();
+      		if(theTree) {	  			
+      			var activeNode = theTree.getActiveNode();
+      			if(activeNode) {
+      				for(var i = 0; i < activeNode.getParentList().length; i++) {
+      					var parentNode = activeNode.getParentList()[i];
+      					selectionPath.push(parentNode.data.callbackinfoParamValue);
+      				}
+      				selectionPath.push(activeNode.data.callbackinfoParamValue);
+      			}
+      		}
+      		return selectionPath;
       	}
       	
   		$scope.$watch('model.roots', function(newValue) {

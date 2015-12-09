@@ -69,7 +69,7 @@ import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 
 /**
  * Factory implementation for Swing GUI
- * 
+ *
  * @author jcompagner
  */
 public class SwingItemFactory implements ItemFactory
@@ -77,7 +77,7 @@ public class SwingItemFactory implements ItemFactory
 	private final IApplication application;
 
 	/**
-	 * 
+	 *
 	 */
 	public SwingItemFactory(IApplication application)
 	{
@@ -87,7 +87,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createPanel()
 	 */
 	public IComponent createPanel()
@@ -97,7 +97,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createLabel(java.lang.String)
 	 */
 	public IStandardLabel createLabel(String name, String txt)
@@ -139,7 +139,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createPortalComponent(com.servoy.j2db.persistence.Portal, com.servoy.j2db.persistence.IDataProviderLookup,
 	 * com.servoy.j2db.IScriptExecuter, boolean)
 	 */
@@ -151,7 +151,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataButton()
 	 */
 	public IButton createDataButton(RuntimeDataButton scriptable, String name)
@@ -163,7 +163,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createScriptButton()
 	 */
 	public IButton createScriptButton(RuntimeScriptButton scriptable, String name)
@@ -175,7 +175,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createScriptLabel()
 	 */
 	public ILabel createScriptLabel(RuntimeScriptLabel scriptable, String name, boolean hasActionListener)
@@ -187,7 +187,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataLabel()
 	 */
 	public ILabel createDataLabel(RuntimeDataLabel scriptable, String name, boolean hasActionListener)
@@ -199,7 +199,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataPassword()
 	 */
 	public IFieldComponent createDataPassword(RuntimeDataPassword scriptable, String name)
@@ -211,7 +211,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataTextEditor(int)
 	 */
 	public IFieldComponent createDataTextEditor(AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String name, int type,
@@ -224,7 +224,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataTextArea()
 	 */
 	public IFieldComponent createDataTextArea(RuntimeTextArea scriptable, String name)
@@ -250,20 +250,20 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataChoice(com.servoy.j2db.dataprocessing.IValueList, boolean)
 	 */
 	public IFieldComponent createDataChoice(AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String name, IValueList list,
-		boolean isRadio)
+		boolean isRadio, boolean multiselect)
 	{
-		DataChoice dc = new DataChoice(application, scriptable, list, isRadio ? Field.RADIOS : Field.CHECKS);
+		DataChoice dc = new DataChoice(application, scriptable, list, isRadio ? Field.RADIOS : Field.CHECKS, multiselect);
 		dc.setName(name);
 		return dc;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataComboBox(com.servoy.j2db.dataprocessing.IValueList)
 	 */
 	public IFieldComponent createDataComboBox(RuntimeDataCombobox scriptable, String name, IValueList list)
@@ -275,7 +275,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataCalendar()
 	 */
 	public IFieldComponent createDataCalendar(RuntimeDataCalendar scriptable, String name)
@@ -287,7 +287,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataImgMediaField()
 	 */
 	public IFieldComponent createDataImgMediaField(RuntimeMediaField scriptable, String name)
@@ -299,7 +299,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ItemFactory#createDataField()
 	 */
 	public IFieldComponent createDataField(RuntimeDataField scriptable, String name)
@@ -311,7 +311,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ItemFactory#createDataLookupField(java.lang.String, com.servoy.j2db.dataprocessing.LookupValueList)
 	 */
 	public IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String name, LookupValueList lookupValueList)
@@ -323,7 +323,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ItemFactory#createDataLookupField(java.lang.String, com.servoy.j2db.dataprocessing.CustomValueList)
 	 */
 	public IFieldComponent createDataLookupField(RuntimeDataLookupField scriptable, String name, CustomValueList list)
@@ -376,7 +376,7 @@ public class SwingItemFactory implements ItemFactory
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ItemFactory#createChangesRecorder()
 	 */
 	public IStylePropertyChangesRecorder createChangesRecorder()
@@ -386,7 +386,7 @@ public class SwingItemFactory implements ItemFactory
 
 	public IFieldComponent createListBox(RuntimeListBox scriptable, String name, IValueList list, boolean multiSelect)
 	{
-		DataChoice dc = new DataChoice(application, scriptable, list, multiSelect ? Field.MULTISELECT_LISTBOX : Field.LIST_BOX);
+		DataChoice dc = new DataChoice(application, scriptable, list, multiSelect ? Field.MULTISELECT_LISTBOX : Field.LIST_BOX, multiSelect);
 		dc.setName(name);
 		return dc;
 	}

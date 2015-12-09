@@ -299,9 +299,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					for (int i = 0; i < set.getRowCount(); i++)
 					{
 						Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
+						Object displayValue = null;
 						if (displayFormat != null)
-							addElement(handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString());
-						else addElement(handleRowData(valueList, concatShowValues, showValues, row, application).toString());
+						{
+							displayValue = handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
+						}
+						else
+						{
+							displayValue = handleRowData(valueList, concatShowValues, showValues, row, application);
+						}
+						addElement(displayValue != null ? displayValue.toString() : displayValue);
 						realValues.add(handleRowData(valueList, concatReturnValues, returnValues, row, application));
 					}
 				}

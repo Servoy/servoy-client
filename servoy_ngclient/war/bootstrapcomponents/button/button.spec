@@ -9,7 +9,8 @@
 	{
 			"imageStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" },"default": "btn btn-default", "values" :["btn","btn-default","btn-lg","btn-sm","btn-xs"]},
-	        "text" : {"type":"tagstring" , "default":"Button"}
+	        "text" : {"type":"tagstring" , "default":"Button"},
+	        "visible" : "visible"
 	},
 	"handlers":
 	{

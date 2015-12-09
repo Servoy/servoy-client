@@ -43,8 +43,8 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok,jcompagner
  */
-public class Form extends AbstractContainer implements ITableDisplay, ISupportScrollbars, ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID,
-	ISupportEncapsulation, ISupportDeprecated
+public class Form extends AbstractContainer
+	implements ITableDisplay, ISupportScrollbars, ISupportSize, ISupportScriptProviders, ISupportExtendsID, ISupportEncapsulation, ISupportDeprecated
 {
 	/**
 	 * @sameas getNavigatorID()
@@ -2009,7 +2009,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.AbstractBase#fillClone(com.servoy.j2db.persistence.AbstractBase)
 	 */
 	@Override

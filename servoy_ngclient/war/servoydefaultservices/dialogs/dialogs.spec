@@ -2,27 +2,27 @@
 	"name": "dialogs",
 	"displayName": "Servoy Dialogs plugin",
 	"version": 1,
-	"definition": "servoyservices/dialogs/dialogs.js",
+	"definition": "servoydefaultservices/dialogs/dialogs.js",
 	"libraries": 
 	[
 		
 		{
 			"name": "bootstrap",
 			"version": "3.3.4",
-			"url": "servoyservices/dialogs/bootstrap.min.js",
+			"url": "servoydefaultservices/dialogs/bootstrap.min.js",
 			"mimetype": "text/javascript"
 		},
 		{
 			"name": "bootbox",
 			"version": "4.3.0",
-			"url": "servoyservices/dialogs/bootbox.js",
+			"url": "servoydefaultservices/dialogs/bootbox.js",
 			"mimetype": "text/javascript"
 		},
 
 		{
 			"name": "dialogscss",
 			"version": "1",
-			"url": "servoyservices/dialogs/dialogs.css",
+			"url": "servoydefaultservices/dialogs/dialogs.css",
 			"mimetype": "text/css"
 		}
 	],
