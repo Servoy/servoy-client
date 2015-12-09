@@ -528,7 +528,7 @@ public abstract class AbstractBase implements IPersist
 		return getAllObjectsAsList().iterator();
 	}
 
-	public final List<IPersist> getAllObjectsAsList()
+	public List<IPersist> getAllObjectsAsList()
 	{
 		return allobjects == null ? Collections.<IPersist> emptyList() : Collections.unmodifiableList(allobjects);
 	}
@@ -731,7 +731,7 @@ public abstract class AbstractBase implements IPersist
 			if (deep && allobjects != null)
 			{
 				clone.allobjects = Collections.synchronizedList(new ArrayList<IPersist>(allobjects.size()));
-				Iterator<IPersist> it = this.getAllObjects();
+				Iterator<IPersist> it = Collections.unmodifiableList(this.allobjects).iterator();
 				while (it.hasNext())
 				{
 					IPersist element = it.next();

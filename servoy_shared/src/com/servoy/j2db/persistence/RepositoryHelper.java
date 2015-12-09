@@ -72,8 +72,17 @@ public class RepositoryHelper
 	static Map<String, Method> getSettersViaIntrospection(Object obj) throws IntrospectionException
 	{
 		if (obj == null) return Collections.<String, Method> emptyMap();
+		return getSettersViaIntrospection(obj.getClass());
+	}
 
-		Class< ? > clazz = obj.getClass();
+	/**
+	 * Get all the setMethods on the specified class via introspection
+	 *
+	 * @param clazz the class
+	 * @return a map with name -> java.lang.reflect.Method
+	 */
+	static Map<String, Method> getSettersViaIntrospection(Class< ? > clazz) throws IntrospectionException
+	{
 		Map<String, Method> retval = setterCache.get(clazz);
 		if (retval == null)
 		{
@@ -325,7 +334,7 @@ public class RepositoryHelper
 			return true;
 		}
 		if (persistClass.equals(Field.class) &&
-				name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
+			name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
 			(displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR || displayType == Field.COMBOBOX || displayType == Field.PASSWORD ||
 				displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
 		{
@@ -585,15 +594,15 @@ public class RepositoryHelper
 			return false;
 		}
 		if (ValueList.class.isAssignableFrom(persistClass) &&
-				!"name".equals(name) && !StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name) && !StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name)) //$NON-NLS-1$
+			!"name".equals(name) && !StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name) && !StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name)) //$NON-NLS-1$
 		{
 			return false;
 		}
 		if (name.equals(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) &&
-				(Portal.class.isAssignableFrom(persistClass) || TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) ||
-					WebComponent.class.isAssignableFrom(persistClass) || Field.class.isAssignableFrom(persistClass) ||
-					GraphicalComponent.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass) ||
-			Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
+			(Portal.class.isAssignableFrom(persistClass) || TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) ||
+				WebComponent.class.isAssignableFrom(persistClass) || Field.class.isAssignableFrom(persistClass) ||
+				GraphicalComponent.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass) ||
+				Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}
@@ -605,8 +614,8 @@ public class RepositoryHelper
 		}
 
 		if (name.equals(StaticContentSpecLoader.PROPERTY_SCROLLBARS.getPropertyName()) &&
-				(displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR || displayType == Field.COMBOBOX || displayType == Field.PASSWORD ||
-					displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
+			(displayType == Field.TEXT_FIELD || displayType == Field.CALENDAR || displayType == Field.COMBOBOX || displayType == Field.PASSWORD ||
+				displayType == Field.SPINNER || displayType == Field.TYPE_AHEAD))
 		{
 			return false;
 		}

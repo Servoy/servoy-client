@@ -29,7 +29,7 @@ package com.servoy.j2db.server.ngclient.property;
 public class ComponentTypeConfig
 {
 
-	final String forFoundset;
+	public final String forFoundset;
 
 	public ComponentTypeConfig(String forFoundsetTypedPropertyName)
 	{
