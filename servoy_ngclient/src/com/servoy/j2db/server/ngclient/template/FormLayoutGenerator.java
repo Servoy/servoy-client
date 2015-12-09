@@ -129,7 +129,7 @@ public class FormLayoutGenerator
 					}
 
 					generateFormElementWrapper(writer, fe, design, form);
-					generateFormElement(writer, fe, design, highlight);
+					generateFormElement(writer, fe, form, design, highlight);
 					generateEndDiv(writer);
 				}
 
@@ -297,9 +297,9 @@ public class FormLayoutGenerator
 //		return false;
 //	}
 
-	public static void generateFormElement(PrintWriter writer, FormElement fe, boolean design, boolean highlight)
+	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, boolean design, boolean highlight)
 	{
-		if (highlight) writer.print("<div class='highlight_element" + (fe.getForm().isResponsiveLayout() ? "" : " inherit_size") + "'>");
+		if (highlight) writer.print("<div class='highlight_element" + (form.isResponsiveLayout() ? "" : " inherit_size") + "'>");
 
 		writer.print("<");
 		writer.print(fe.getTagname());
@@ -314,7 +314,7 @@ public class FormLayoutGenerator
 				elementName = "svy_" + fe.getPersistIfAvailable().getUUID().toString();
 			}
 			writer.print(" data-svy-name='");
-			writer.print(fe.getForm().getName() + "." + elementName);
+			writer.print(form.getName() + "." + elementName);
 			writer.print("'");
 		}
 		if (design)
@@ -322,7 +322,7 @@ public class FormLayoutGenerator
 //			writer.print(" svy-id='");
 //			writer.print(fe.getDesignId());
 //			writer.print("'");
-//			if (fe.getForm().isResponsiveLayout())
+//			if (form.isResponsiveLayout())
 //			{
 //				List<String> typeNames = fe.getSvyTypesNames();
 //				if (typeNames.size() > 0)

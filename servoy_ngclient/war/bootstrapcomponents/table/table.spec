@@ -8,7 +8,9 @@
 	"model":
 	{
 		"columns":  { "type":"column[]", "droppable": true },
+		"currentPage":  { "type":"int", "default" : 1, "tags": { "scope": "runtime" } },
 		"foundset": { "type": "foundset", "pushToServer": "allow" },
+		"pageSize" : { "type":"int", "default" : 20},
 		"styleClass" : { "type": "styleclass", "tags": { "scope": "design" }, "default": "table", "values": ["table", "table-striped", "table-bordered", "table-hover", "table-condensed"] },
 		"selectionClass" : { "type": "styleclass", "default": "table-bootstrapcomponent-selected "},
 	    "visible" : "visible"

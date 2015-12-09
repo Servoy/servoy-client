@@ -17,65 +17,56 @@
 package com.servoy.j2db.persistence;
 
 
+import java.beans.IntrospectionException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  *
  * @author gboros
  */
-public class WebCustomType extends AbstractBase implements IBasicWebObject
+public class WebCustomType extends AbstractBase implements IChildWebObject
 {
+
+	protected static Set<String> purePersistPropertyNames;
+	{
+		try
+		{
+			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebComponent.class).keySet();
+		}
+		catch (IntrospectionException e)
+		{
+			purePersistPropertyNames = new HashSet<String>();
+			Debug.error(e);
+		}
+	}
+
 	private transient final String jsonKey;
 	private transient int index;
 	protected transient final WebObjectImpl webObjectImpl;
 
-	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew)
+	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
 	{
-		super(IRepository.WEBCUSTOMTYPES, parentWebObject, 0, UUID.randomUUID());
+		super(IRepository.WEBCUSTOMTYPES, parentWebObject, id, uuid);
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
 
 		this.jsonKey = jsonKey;
 		this.index = index;
 
-		try
-		{
-			JSONObject entireModel = (parentWebObject.getJson() != null ? parentWebObject.getJson() : new ServoyJSONObject());
-			if (!isNew && entireModel.has(jsonKey))
-			{
-				Object v = entireModel.get(jsonKey);
-				JSONObject obj = null;
-				if (v instanceof JSONArray)
-				{
-					obj = ((JSONArray)v).optJSONObject(index);
-				}
-				else
-				{
-					obj = entireModel.getJSONObject(jsonKey);
-				}
-				webObjectImpl.setJsonInternal(obj);
-			}
-			else
-			{
-				webObjectImpl.setJsonInternal(new ServoyJSONObject());
-			}
-		}
-		catch (JSONException e)
-		{
-			Debug.error(e);
-		}
+		JSONObject fullJSONInFrmFile = WebObjectImpl.getFullJSONInFrmFile(this, isNew);
+		if (fullJSONInFrmFile != null) webObjectImpl.setJsonInternal(fullJSONInFrmFile);
 	}
 
-	public Object getPropertyDescription()
+	public PropertyDescription getPropertyDescription()
 	{
 		return webObjectImpl.getPropertyDescription();
 	}
@@ -84,7 +75,7 @@ public class WebCustomType extends AbstractBase implements IBasicWebObject
 	public void clearChanged()
 	{
 		super.clearChanged();
-		for (WebCustomType x : getAllFirstLevelArrayOfOrCustomPropertiesFlattened())
+		for (IChildWebObject x : getAllPersistMappedProperties())
 		{
 			if (x.isChanged()) x.clearChanged();
 		}
@@ -93,7 +84,7 @@ public class WebCustomType extends AbstractBase implements IBasicWebObject
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updateCustomProperties();
+		webObjectImpl.updatePersistMappedPropeties();
 		getParent().updateJSON();
 	}
 
@@ -106,28 +97,33 @@ public class WebCustomType extends AbstractBase implements IBasicWebObject
 	@Override
 	public void setProperty(String propertyName, Object val)
 	{
-		if (!webObjectImpl.setCustomProperty(propertyName, val)) super.setProperty(propertyName, val);
+		if (!webObjectImpl.setProperty(propertyName, val))
+		{
+			// see if it's not a direct persist property as well such as size, location, anchors... if it is set it here as well anyway so that they are in sync with spec properties
+			if (purePersistPropertyNames.contains(propertyName)) super.setProperty(propertyName, val);
+		}
+		else super.setProperty(propertyName, val);
 	}
 
 	@Override
 	public void clearProperty(String propertyName)
 	{
-		if (!webObjectImpl.clearCustomProperty(propertyName)) super.clearProperty(propertyName);
+		if (!webObjectImpl.clearProperty(propertyName)) super.clearProperty(propertyName);
 	}
 
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		if (webObjectImpl == null) return super.getProperty(propertyName);
-
-		Pair<Boolean, Object> customResult = webObjectImpl.getCustomProperty(propertyName);
-		if (customResult.getLeft().booleanValue()) return customResult.getRight();
-		else return super.getProperty(propertyName);
+		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) return super.getProperty(propertyName);
+		return webObjectImpl.getProperty(propertyName);
 	}
 
-	public List<WebCustomType> getAllFirstLevelArrayOfOrCustomPropertiesFlattened()
+	/**
+	 * Returns all direct child typed properties or array of such typed properties.
+	 */
+	public List<IChildWebObject> getAllPersistMappedProperties()
 	{
-		return webObjectImpl.getAllCustomProperties();
+		return webObjectImpl.getAllPersistMappedProperties();
 	}
 
 	// TODO is this still really needed? we now work with the property description based on specs...
@@ -248,6 +244,12 @@ public class WebCustomType extends AbstractBase implements IBasicWebObject
 	}
 
 	@Override
+	public List<IPersist> getAllObjectsAsList()
+	{
+		return Utils.asList(getAllObjects());
+	}
+
+	@Override
 	public <T extends IPersist> Iterator<T> getObjects(int tp)
 	{
 		return webObjectImpl.getObjects(tp);
@@ -257,6 +259,12 @@ public class WebCustomType extends AbstractBase implements IBasicWebObject
 	public IPersist getChild(UUID childUuid)
 	{
 		return webObjectImpl.getChild(childUuid);
+	}
+
+	@Override
+	public JSONObject getFullJsonInFrmFile()
+	{
+		return getJson();
 	}
 
 }
