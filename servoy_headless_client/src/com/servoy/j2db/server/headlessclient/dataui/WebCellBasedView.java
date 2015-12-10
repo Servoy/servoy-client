@@ -5522,26 +5522,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false;
 
 				if (needToRenderRows)
-				{// this block handles the case where there is not need to render new rows , only to scroll into viewPort
+				{// this block handles the case where there is not need to render new rows, only to scroll into viewPort
 					int cellHeight = getCellHeight();
 					int cellScroll = cellHeight * (selectedIndex.intValue() + 1);
+					String tableMarkupId = WebCellBasedView.this.tableContainerBody.getMarkupId();
 					if (cellScroll > currentScrollTop && (cellScroll < currentScrollTop + bodyHeightHint))
 					{
 						needToRenderRows = false;
 					}
 					else if (isKeepLoadedRowsInScrollMode && (cellScroll < viewSize * cellHeight))
 					{
-						Boolean alignWithTop = cellScroll < currentScrollTop;
 						//selection was in the loaded rows but not visible in the viewport, scroll without loading records
-						target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
+						cellScroll -= cellHeight; // this is to compensate for the +1 in 'cellHeight * (selectedIndex.intValue() + 1)' so that the cell really is into view
+						target.appendJavascript("Servoy.TableView.scrollIntoView('" + tableMarkupId + "',0," + cellScroll + ");");
 						needToRenderRows = false;
 					}
 					else if (!isKeepLoadedRowsInScrollMode &&
 						(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
 					{
-						Boolean alignWithTop = cellScroll < currentScrollTop;
 						//selection was within the loaded viewSize
-						target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
+						cellScroll -= cellHeight; // this is to compensate for the +1 in 'cellHeight * (selectedIndex.intValue() + 1)' so that the cell really is into view
+						target.appendJavascript("Servoy.TableView.scrollIntoView('" + tableMarkupId + "',0," + cellScroll + ");");
 						needToRenderRows = false;
 					}
 				}
@@ -5602,8 +5603,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						sb.append('\n').append(rowsBuffer[0]);
 					}
 				}
-
-				sb.append("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "');");
+				int cellHeight = getCellHeight();
+				int cellScroll = cellHeight * (selectedIndex.intValue());
+				sb.append("Servoy.TableView.scrollIntoView('" + WebCellBasedView.this.tableContainerBody.getMarkupId() + "',0," + cellScroll + ");");
 				target.appendJavascript(sb.toString());
 			}
 
