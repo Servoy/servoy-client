@@ -26,6 +26,16 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 				processDivLocation();
 			} 
 			
+			function getHandlerElement()
+			{
+				var splitter = $element.children(0).children(0);
+				if (splitter.children().length == 3)
+				{
+					return $(splitter.children()[1]);
+				}
+				return $();
+			}
+			
 			function initDivLocation(newValue) {
 				if ($scope.model.divLocation === -1) {
 					$scope.model.divLocation = Math.round(newValue / 2);
@@ -35,14 +45,13 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			
 			function processDivLocation() {
 				if(!splitPane1 || !splitPane2) return;
-				var jqueryDivEl = $element[0].querySelector(".split-handler");
-				if (!jqueryDivEl) {
-					$timeout(processDivLocation,1);
+				var jqueryDivEl = getHandlerElement();
+				if (jqueryDivEl.length == 0) {
+					$timeout(processDivLocation,10);
 					return;
 				}
 				initDivLocation($scope.model.tabOrientation == -2?$scope.model.size.width:$scope.model.size.height);
 
-				var dividerEl = angular.element(jqueryDivEl);
 				var pos = $scope.model.divLocation;
 				var divSize = $scope.model.divSize;
 				if (!divSize || divSize <1) divSize = 5;
@@ -50,7 +59,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					if(pos < 1) {
 						pos = $scope.model.size.height * pos;
 					}
-					dividerEl.css('top', pos + 'px');
+					jqueryDivEl.css('top', pos + 'px');
 					splitPane1.css('height', pos + 'px');
 					splitPane2.css('top', (pos+divSize) + 'px');
 				}
@@ -58,7 +67,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 					if(pos < 1) {
 						pos = $scope.model.size.width * pos;
 					}
-					dividerEl.css('left', pos + 'px');
+					jqueryDivEl.css('left', pos + 'px');
 					splitPane1.css('width', pos + 'px');
 					splitPane2.css('left', (pos+divSize) + 'px');
 				}
@@ -108,7 +117,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			});
 
 			$scope.$watch('model.divSize', function(newValue, oldValue){
-				var dividerEl = angular.element($element[0].querySelector(".split-handler"));
+				var dividerEl = getHandlerElement();
 				if($scope.model.tabOrientation == -3) {
 					dividerEl.css('height', $scope.model.divSize + 'px'); 
 				} else {
@@ -143,7 +152,7 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 			}
 
 			function getBrowserDividerLocation() {
-				var dividerEl = angular.element($element[0].querySelector(".split-handler"));
+				var dividerEl = getHandlerElement();
 				var dividerLocation;
 				if($scope.model.tabOrientation == -3) {
 					dividerLocation = dividerEl.css('top'); 
