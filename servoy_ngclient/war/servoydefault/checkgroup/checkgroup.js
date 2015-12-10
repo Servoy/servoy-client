@@ -250,7 +250,7 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
 			// data can already be here, if so call the modelChange function so
 			// that it is initialized correctly.
 			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];
-			for (key in $scope.model) {
+			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
       },
