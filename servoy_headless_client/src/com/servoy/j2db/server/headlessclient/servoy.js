@@ -1007,22 +1007,22 @@ if (typeof(Servoy.TableView) == "undefined")
 			return Servoy.TableView.isAppendingRows ? nrRows : 0;
 		},
 		
-		scrollIntoView : function (markupId, delay,alignWithTop){
+		scrollIntoView : function (rowContainerBodyId, delay, scroll){
 			delay = typeof delay !== 'undefined' ? delay : 1000;
-			alignWithTop = typeof alignWithTop !== 'undefined' ? alignWithTop : true;
 			if(Servoy.TableView.selectIndexTimer) clearTimeout(Servoy.TableView.selectIndexTimer);
-			Servoy.TableView.selectIndexTimer = setTimeout(function (){$('#'+markupId)[0].scrollIntoView(alignWithTop);} , delay);
+			Servoy.TableView.selectIndexTimer = setTimeout(function (){$('#'+rowContainerBodyId).scrollTop(scroll);} , delay);
 		},
+		
 		scrollToTop: function(rowContainerBodyId)
 		{
-			if(Servoy.TableView.currentScrollTop[rowContainerBodyId] > 0)
-			{
-				if(Servoy.TableView.topPhHeight[rowContainerBodyId])
-				{
-					$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + Servoy.TableView.topPhHeight[rowContainerBodyId] + "'></tr>");
-				}
-				$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
-			}
+        		if(Servoy.TableView.currentScrollTop[rowContainerBodyId] > 0)
+        		{
+        			if(Servoy.TableView.topPhHeight[rowContainerBodyId])
+        			{
+        				$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + Servoy.TableView.topPhHeight[rowContainerBodyId] + "'></tr>");
+        			}
+        			$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
+        		}
 		},
 
 		scrollHeader: function(headerId, rowContainerBodyId)
