@@ -826,7 +826,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue
 	{
 		// this method gets called by linked component type property/properties
 		// that means here we are working with components, not with services - so we can cast webObject and create a new data adapter list
-		if (dataAdapterList == null && webObject instanceof WebComponent)
+		if (dataAdapterList == null && webObject != null)
 		{
 			dataAdapterList = new FoundsetDataAdapterList(getFormUI().getController());
 		}

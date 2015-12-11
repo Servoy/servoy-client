@@ -17,14 +17,10 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.WeakHashMap;
 
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.ChangeAwareList;
-import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.TypedData;
 
@@ -33,6 +29,7 @@ import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetFactory;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FoundsetReferencePropertyType;
@@ -44,7 +41,7 @@ import com.servoy.j2db.util.Pair;
  */
 public class NGFoundSetManager extends FoundSetManager implements IServerService
 {
-	public static final String FOUNDSET_SERVICE = "$foundsetManager"; //$NON-NLS-1$
+	public static final String FOUNDSET_SERVICE = "$foundsetService"; //$NON-NLS-1$
 
 	/**
 	 * @param application
@@ -67,33 +64,9 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 			{
 				foundset.setSort(sort);
 			}
-
 			FoundsetTypeSabloValue value = getFoundsetTypeSabloValue(foundset, args.optJSONObject("dataproviders"));
-
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
-			if (foundsets == null)
-			{
-				foundsets = new ChangeAwareList<ChangeAwareMap<String, Object>, Object>(new ArrayList<ChangeAwareMap<String, Object>>());
-				((NGClient)getApplication()).getWebsocketSession().getClientService("foundset_manager").setProperty("foundsets", foundsets);
-			}
-
-			boolean newFoundsetInfo = true;
-			for (ChangeAwareMap<String, Object> foundsetInfoMap : foundsets)
-			{
-				if (foundsetInfoMap.containsValue(value))
-				{
-					newFoundsetInfo = false;
-					break;
-				}
-			}
-			if (newFoundsetInfo)
-			{
-				HashMap<String, Object> foundsetinfoMap = new HashMap<String, Object>();
-				foundsetinfoMap.put("foundset", value);
-				foundsetinfoMap.put("foundsethash", Integer.valueOf(args.optInt("foundsethash")));
-				foundsets.add(new ChangeAwareMap(foundsetinfoMap));
-			}
+			PropertyDescription foundsetProperty = new PropertyDescription("", FoundsetPropertyType.INSTANCE);
+			return new TypedData<FoundsetTypeSabloValue>(value, foundsetProperty);
 		}
 		else if ("getRelatedFoundSetHash".equals(methodName))
 		{
@@ -139,39 +112,6 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		return null;
 	}
 
-	public void removeFoundSetTypeSabloValue(IFoundSetInternal foundset)
-	{
-		if (foundset != null)
-		{
-			FoundsetTypeSabloValue value = foundsetTypeSabloValueMap.remove(foundset);
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
-			if (foundsets != null)
-			{
-				int i = 0;
-				for (; i < foundsets.size(); i++)
-				{
-					ChangeAwareMap<String, Object> foundsetInfoMap = foundsets.get(i);
-					if (foundsetInfoMap.containsValue(value)) break;
-				}
-				if (i < foundsets.size())
-				{
-					foundsets.remove(i);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void flushCachedItems()
-	{
-		for (IFoundSetInternal foundset : foundsetTypeSabloValueMap.keySet().toArray(new IFoundSetInternal[foundsetTypeSabloValueMap.size()]))
-		{
-			foundsetTypeSabloValueMap.remove(foundset);
-		}
-		super.flushCachedItems();
-	}
-
 	private final WeakHashMap<IFoundSetInternal, FoundsetTypeSabloValue> foundsetTypeSabloValueMap = new WeakHashMap<IFoundSetInternal, FoundsetTypeSabloValue>();
 
 	private FoundsetTypeSabloValue getFoundsetTypeSabloValue(IFoundSetInternal foundset, JSONObject dataproviders)
@@ -179,17 +119,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		FoundsetTypeSabloValue foundsetTypeSabloValue = foundsetTypeSabloValueMap.get(foundset);
 		if (foundsetTypeSabloValue == null)
 		{
-			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, new FoundsetPropertyTypeConfig(false, false, null))
-			{
-				@Override
-				protected void updateFoundset(IRecordInternal record)
-				{
-					if (record != null)
-					{
-						super.updateFoundset(record);
-					}
-				}
-			};
+			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, new FoundsetPropertyTypeConfig(false, false, null));
 			foundsetTypeSabloValue.updateFoundset(foundset);
 			foundsetTypeSabloValueMap.put(foundset, foundsetTypeSabloValue);
 		}

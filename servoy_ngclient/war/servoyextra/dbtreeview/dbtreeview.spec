@@ -9,7 +9,8 @@
 	{
 	    "roots": "foundsetref[]",
 	    "bindings" : "binding[]",
-	    "visible" : {"type":"boolean", "default":true}
+	    "visibleNodeLevel" : "int",
+	    "visibleNodeState" : "boolean"
 	},	
 	"api":
 	{
@@ -24,6 +25,7 @@
         "removeAllRoots": {
         },
         "refresh": {
+        	"delayUntilFormLoad": true
         },  
         "isNodeExpanded": {
 			"parameters":[
@@ -32,7 +34,8 @@
 							"type": "object[]"
 		                	}
 						 ],
-			"returns": "boolean"
+			"returns": "boolean",
+			"delayUntilFormLoad": true
         },
         "setExpandNode": {
 			"parameters":[
@@ -44,7 +47,8 @@
 							"name":"state",
 							"type": "boolean"
 		                	}		                	
-						 ]						 
+						 ],
+			"delayUntilFormLoad": true						 
         },
         "setNodeLevelVisible": {
 			"parameters":[
@@ -56,7 +60,8 @@
 							"name":"visible",
 							"type": "boolean"
 		                	}		                	
-						 ]
+						 ],
+			"delayUntilFormLoad": true
         },
         "setTextDataprovider": {
 			"parameters":[
@@ -189,18 +194,7 @@
 							"type": "string"
 		                	}
 						 ]
-        },
-		"setSelectionPath": {
-			"parameters":[
-							{                                                                 
-							"name":"pk",
-							"type": "object[]"
-		                	}
-						 ]
-        },
-		"getSelectionPath": {
-			"returns": "object[]"
-        }      
+        }
 	},
 	"types": {
 	  "callback": {
