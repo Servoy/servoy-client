@@ -1437,7 +1437,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		private void renderColumnCell(int columnIdx, final MarkupStream markupStream)
 		{
-			Component header = orderedHeaders.get(columnIdx);
+			String headerID = orderedHeaderIds.get(columnIdx);
 
 			markupStream.setCurrentIndex(headerMarkupStartIdx);
 			boolean found = false;
@@ -1446,7 +1446,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			while (!found)
 			{
 				element = markupStream.next();
-				if (element == null) throw new RuntimeException("can't find the element for the header component: " + header); //$NON-NLS-1$
+				if (element == null) throw new RuntimeException("can't find the element for the header component: " + headerID); //$NON-NLS-1$
 				if ((element instanceof ComponentTag) && !markupStream.atCloseTag())
 				{
 					// Get element as tag
@@ -1463,7 +1463,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						if (component instanceof CellContainer || component instanceof IComponent)
 						{
-							if (component.getId().startsWith(header.getId()))
+							if (component.getId().startsWith(headerID))
 							{
 								if (component instanceof CellContainer)
 								{
