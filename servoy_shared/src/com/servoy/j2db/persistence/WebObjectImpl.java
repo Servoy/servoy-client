@@ -84,8 +84,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			gettingTypeName = true;
 			try
 			{
-				pdUseGetterInstead = WebComponentSpecProvider.getInstance() != null ? WebComponentSpecProvider.getInstance().getWebComponentSpecification(
-					getTypeName()) : null;
+				pdUseGetterInstead = WebComponentSpecProvider.getInstance() != null
+					? WebComponentSpecProvider.getInstance().getWebComponentSpecification(getTypeName()) : null;
 			}
 			finally
 			{
@@ -288,17 +288,16 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public boolean hasProperty(String propertyName)
 	{
 		boolean hasIt = getPersistMappedProperties().containsKey(propertyName);
-		// TODO CONVERSION uncomment this when refactoring to add conversion (see comments at beginning of this class)
-//		if (!hasIt && getPropertyDescription() != null)
-//		{
-//			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
-//			if (childPd != null)
-//			{
-//				// it is a json property defined in spec, but it's not mapping to a persist
-//				JSONObject json = getJson();
-//				hasIt = (json != null && json.has(propertyName));
-//			}
-//		}
+		if (!hasIt && getPropertyDescription() != null)
+		{
+			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd != null)
+			{
+				// it is a json property defined in spec, but it's not mapping to a persist
+				JSONObject json = getJson();
+				hasIt = (json != null && json.has(propertyName));
+			}
+		}
 		return hasIt;
 	}
 
@@ -435,8 +434,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 								for (int i = 0; i < ((JSONArray)object).length(); i++)
 								{
 									Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
-									WebCustomType webCustomType = new WebCustomType(webObject, elementPD, beanJSONKey, i, false,
-										idAndUUID.getLeft().intValue(), idAndUUID.getRight());
+									WebCustomType webCustomType = new WebCustomType(webObject, elementPD, beanJSONKey, i, false, idAndUUID.getLeft().intValue(),
+										idAndUUID.getRight());
 									webCustomType.setTypeName(simpleTypeName);
 									persistMappedPropertyArray.add(webCustomType);
 								}
@@ -552,7 +551,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 			if (getPropertyDescription().isArrayReturnType(persistMappedPropertyValue.getJsonKey()))
 			{
-				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(persistMappedPropertyValue.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
+				if (type == ((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+					persistMappedPropertyValue.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType())
 				{
 					Object children = getPersistMappedProperties().get(persistMappedPropertyValue.getJsonKey());
 					if (children == null) children = new IChildWebObject[0];
@@ -575,7 +575,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				else
 				{
 					Debug.error("Element type (" +
-						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(persistMappedPropertyValue.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
+						((CustomJSONArrayType< ? , ? >)getPropertyDescription().getProperty(
+							persistMappedPropertyValue.getJsonKey()).getType()).getCustomJSONTypeDefinition().getType() +
 						") does not match persist-to-add type: " + type + " - " + webObject);
 				}
 			}
