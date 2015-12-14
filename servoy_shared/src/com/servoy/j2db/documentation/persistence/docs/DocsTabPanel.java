@@ -26,7 +26,7 @@ import com.servoy.j2db.persistence.TabPanel;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author acostache
  *
  */
@@ -34,6 +34,9 @@ import com.servoy.j2db.persistence.TabPanel;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsTabPanel extends TabPanel implements IBaseDocsComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	DocsTabPanel()
 	{
 		super(null, 0, null);

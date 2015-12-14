@@ -40,9 +40,12 @@ import com.servoy.j2db.util.Utils;
 public class WebComponent extends BaseComponent implements IWebComponent
 {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final boolean sabloLoaded;
 
 	protected static Set<String> purePersistPropertyNames;
+
 	{
 		try
 		{
@@ -276,8 +279,8 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	protected void fillClone(AbstractBase cloned)
 	{
-		if (cloned instanceof WebComponent) ((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned)
-			: new WebObjectBasicImpl((WebComponent)cloned);
+		if (cloned instanceof WebComponent)
+			((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned) : new WebObjectBasicImpl((WebComponent)cloned);
 		super.fillClone(cloned);
 	}
 

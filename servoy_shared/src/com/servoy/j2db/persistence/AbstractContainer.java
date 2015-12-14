@@ -34,6 +34,9 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractContainer extends AbstractBase implements ISupportFormElements, ISupportUpdateableName, IPersistCloneable, ICloneable
 {
+
+	private static final long serialVersionUID = 1L;
+
 	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(type, parent, element_id, uuid);

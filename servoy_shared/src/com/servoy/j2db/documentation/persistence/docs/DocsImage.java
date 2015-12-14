@@ -24,7 +24,7 @@ import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
- *  
+ *
  * @author acostache
  *
  */
@@ -32,6 +32,9 @@ import com.servoy.j2db.persistence.IRepository;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsImage extends BaseDocsGraphicalComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	DocsImage()
 	{
 		super();

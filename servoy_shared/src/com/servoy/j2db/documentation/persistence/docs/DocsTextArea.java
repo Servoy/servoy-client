@@ -24,13 +24,16 @@ import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextArea", scriptingName = "TextArea", displayType = Field.TEXT_AREA, realClass = Field.class, typeCode = IRepository.FIELDS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsTextArea extends BaseDocsField
 {
+
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public String getFormat()

@@ -26,13 +26,15 @@ import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
 {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Label (header) size property.

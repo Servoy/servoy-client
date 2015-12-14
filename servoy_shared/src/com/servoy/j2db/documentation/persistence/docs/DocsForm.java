@@ -26,7 +26,7 @@ import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author acostache
  *
  */
@@ -34,6 +34,8 @@ import com.servoy.j2db.persistence.IRepository;
 @ServoyClientSupport(mc = true, sc = true, wc = true)
 public class DocsForm extends Form implements IBaseDocsComponent
 {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @param parent

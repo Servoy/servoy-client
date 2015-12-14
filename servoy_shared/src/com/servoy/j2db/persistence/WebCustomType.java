@@ -37,7 +37,10 @@ import com.servoy.j2db.util.Utils;
 public class WebCustomType extends AbstractBase implements IChildWebObject
 {
 
+//	private static final long serialVersionUID = 1L; // this shouldn't get serialized anyway for now; parent WebComponent just serializes it's json
+
 	protected static Set<String> purePersistPropertyNames;
+
 	{
 		try
 		{

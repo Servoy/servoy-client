@@ -21,11 +21,14 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * a rectangular drawing
- * 
+ *
  * @author jblok
  */
 public class RectShape extends BaseComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final int BORDER_PANEL = 0;
 	public static final int RECTANGLE = 1;
 	public static final int ROUNDED_RECTANGLE = 2;
@@ -58,7 +61,7 @@ public class RectShape extends BaseComponent
  */
 	/**
 	 * Set the roundedRadius
-	 * 
+	 *
 	 * @param arg the roundedRadius
 	 */
 	public void setRoundedRadius(int arg)
@@ -76,7 +79,7 @@ public class RectShape extends BaseComponent
 
 	/**
 	 * Set the lineSize
-	 * 
+	 *
 	 * @param arg the lineSize
 	 */
 	public void setLineSize(int arg)
@@ -95,7 +98,7 @@ public class RectShape extends BaseComponent
 
 	/**
 	 * Set the containsFormID
-	 * 
+	 *
 	 * @param arg the containsFormID
 	 */
 	public void setContainsFormID(int arg)
@@ -105,7 +108,7 @@ public class RectShape extends BaseComponent
 
 	/**
 	 * The form that is displayed inside the shape.
-	 * 
+	 *
 	 */
 	public int getContainsFormID()
 	{
@@ -122,7 +125,7 @@ public class RectShape extends BaseComponent
 
 	/**
 	 * Sets the type.
-	 * 
+	 *
 	 * @param type The type to set
 	 */
 	public void setShapeType(int type)

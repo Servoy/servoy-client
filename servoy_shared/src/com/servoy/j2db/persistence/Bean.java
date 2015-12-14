@@ -36,6 +36,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructor I
 	 */

@@ -35,6 +35,9 @@ import com.servoy.j2db.util.UUID;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneable, ISupportUpdateableName, ISupportMedia, ICloneable, ISupportExtendsID
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private java.awt.Dimension dimension;
 
 	/**

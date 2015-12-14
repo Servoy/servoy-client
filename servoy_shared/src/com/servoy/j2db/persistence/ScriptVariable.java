@@ -34,7 +34,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A so called script variable used as global under solution and as form variable used under form objects
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Variable", typeCode = IRepository.SCRIPTVARIABLES)
@@ -42,9 +42,12 @@ import com.servoy.j2db.util.Utils;
 public class ScriptVariable extends AbstractBase implements IVariable, IDataProvider, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
 	IPersistCloneable, ICloneable, ISupportScope, ISupportDeprecatedAnnotation
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private String prefixedName = null;
 
-	public static final String GLOBAL_SCOPE = "globals"; //$NON-NLS-1$ 
+	public static final String GLOBAL_SCOPE = "globals"; //$NON-NLS-1$
 	public static final String GLOBALS_DOT_PREFIX = GLOBAL_SCOPE + '.';
 	public static final String SCOPES = "scopes"; //$NON-NLS-1$
 	public static final String SCOPES_DOT_PREFIX = SCOPES + '.';
@@ -63,7 +66,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	/**
 	 * update the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void setName(String arg)
@@ -74,7 +77,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
@@ -96,7 +99,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	/**
 	 * Property for setting and getting the jsdoc text (comment) of the script variable.
-	 * 
+	 *
 	 * @return the value of the jsdoc text (comment) of the script variable
 	 */
 	public String getComment()
@@ -105,7 +108,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	}
 
 	/**
-	 * @param arg the jsdoc text value for the script variable 
+	 * @param arg the jsdoc text value for the script variable
 	 */
 	public void setComment(String arg)
 	{
@@ -134,7 +137,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	/**
 	 * Set the variableType
-	 * 
+	 *
 	 * @param arg the variableType
 	 */
 	@SuppressWarnings("nls")
@@ -154,7 +157,8 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		}
 		if (!hit)
 		{
-			Debug.error("unknown variable type " + variableType + " for variable " + getName() + " reverting to previous or MEDIA type", new RuntimeException());
+			Debug.error("unknown variable type " + variableType + " for variable " + getName() + " reverting to previous or MEDIA type",
+				new RuntimeException());
 			if (getVariableType() == 0)
 			{
 				variableType = IColumnTypes.MEDIA;
@@ -325,8 +329,8 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		if (obj instanceof ScriptVariable)
 		{
 			ScriptVariable other = (ScriptVariable)obj;
-			return (getDataProviderID().equals(other.getDataProviderID()) && getVariableType() == other.getVariableType() && Utils.equalObjects(
-				getDefaultValue(), other.getDefaultValue()));
+			return (getDataProviderID().equals(other.getDataProviderID()) && getVariableType() == other.getVariableType() &&
+				Utils.equalObjects(getDefaultValue(), other.getDefaultValue()));
 		}
 		return false;
 	}

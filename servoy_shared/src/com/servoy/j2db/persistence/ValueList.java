@@ -36,35 +36,38 @@ import com.servoy.j2db.util.UUID;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.VALUELISTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable,
-ISupportDeprecated
+public class ValueList extends AbstractBase
+	implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable, ISupportDeprecated
 {
 
-/**
- * Constructor I
- */
-ValueList(ISupportChilds parent, int element_id, UUID uuid)
-{
-	super(IRepository.VALUELISTS, parent, element_id, uuid);
-}
+	private static final long serialVersionUID = 1L;
+
+
+	/**
+	 * Constructor I
+	 */
+	ValueList(ISupportChilds parent, int element_id, UUID uuid)
+	{
+		super(IRepository.VALUELISTS, parent, element_id, uuid);
+	}
 
 /*
  * _____________________________________________________________ Methods from this class
  */
 
 //the repository element id can differ!
-public boolean contentEquals(Object obj)
-{
-	if (obj instanceof ValueList)
+	public boolean contentEquals(Object obj)
 	{
-		ValueList other = (ValueList)obj;
-		return (("" + getName()).equals(other.getName()) && //$NON-NLS-1$
-			getValueListType() == other.getValueListType() && getValueListType() == CUSTOM_VALUES && ("" + getCustomValues()).equals(other.getCustomValues()) //$NON-NLS-1$
-		);
+		if (obj instanceof ValueList)
+		{
+			ValueList other = (ValueList)obj;
+			return (("" + getName()).equals(other.getName()) && //$NON-NLS-1$
+				getValueListType() == other.getValueListType() && getValueListType() == CUSTOM_VALUES &&
+				("" + getCustomValues()).equals(other.getCustomValues()) //$NON-NLS-1$
+			);
+		}
+		return false;
 	}
-	return false;
-}
-
 
 
 	public void updateName(IValidateName validator, String arg) throws RepositoryException

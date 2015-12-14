@@ -28,6 +28,9 @@ import com.servoy.j2db.util.PersistHelper;
  */
 public class FlattenedTabPanel extends TabPanel implements IFlattenedPersistWrapper<TabPanel>
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private final TabPanel tabPanel;
 
 	public FlattenedTabPanel(TabPanel tabPanel)

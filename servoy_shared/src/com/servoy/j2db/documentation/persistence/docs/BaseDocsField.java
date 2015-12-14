@@ -25,16 +25,19 @@ import com.servoy.j2db.persistence.Field;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
- * NOTES: 
+ *
+ * NOTES:
  * - we do not have to document this class, as all field types have corresponding classes;
  * - adding only the needed mobile specific annotations on members
- *  
- * 
+ *
+ *
  * @author rgansevles
  */
 public class BaseDocsField extends Field implements IComponentWithTitle, IBaseDocsComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	BaseDocsField()
 	{
 		super(null, 0, null);
@@ -57,9 +60,9 @@ public class BaseDocsField extends Field implements IComponentWithTitle, IBaseDo
 	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
 	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
 	 * are a set of predefined tags that are made available by the system.
-	 * 
+	 *
 	 * See the "Merging data" section for more details about tags.
-	 * 
+	 *
 	 * The default value of this flag is "false", that is merging of data is disabled by default.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)

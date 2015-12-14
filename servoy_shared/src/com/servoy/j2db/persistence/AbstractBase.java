@@ -55,6 +55,8 @@ import com.servoy.j2db.util.Utils;
 public abstract class AbstractBase implements IPersist
 {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final String[] OVERRIDE_PATH = new String[] { "override" }; //$NON-NLS-1$
 	public static final int DEFAULT_INT = ContentSpec.ZERO.intValue(); // == ContentSpec.getJavaClassMemberDefaultValue(IRepository.INTEGER)
 
@@ -219,8 +221,7 @@ public abstract class AbstractBase implements IPersist
 		else
 		{
 			if (!hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-				(this instanceof ISupportExtendsID && Utils.equalObjects(
-					Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+				(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
 					StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
 						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue())))
 			{
@@ -383,8 +384,8 @@ public abstract class AbstractBase implements IPersist
 				retval = it.next().acceptVisitor(visitor);
 			}
 		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-			? null : retval;
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
 	}
 
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException
@@ -393,8 +394,8 @@ public abstract class AbstractBase implements IPersist
 		if (this instanceof ISupportChilds)
 		{
 			Iterator<IPersist> it = getAllObjects();
-			while (it.hasNext() &&
-				(retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
+			while (it.hasNext() && (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+				retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP))
 			{
 				IPersist visitee = it.next();
 				retval = visitee.acceptVisitorDepthFirst(visitor);
@@ -404,8 +405,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			retval = visitor.visit(this);
 		}
-		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP)
-			? null : retval;
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
 	}
 
 	void clearParent()

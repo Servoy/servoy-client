@@ -21,12 +21,12 @@ import java.io.Serializable;
 
 /**
  * Represents a like html stylesheet
- * 
+ *
  * @author jblok
  */
 public class Style extends StringResource implements Serializable
 {
-	public static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	public Style(IRepository repository, RootObjectMetaData metaData)
 	{

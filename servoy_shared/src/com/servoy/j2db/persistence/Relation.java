@@ -40,7 +40,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * A relation (between 2 tables on one or more key column pairs)
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.RELATIONS)
@@ -48,6 +48,9 @@ import com.servoy.j2db.util.UUID;
 public class Relation extends AbstractBase implements ISupportChilds, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
 	ISupportEncapsulation, ICloneable, IRelation, ISupportDeprecated
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final String INTERNAL_PREFIX = "-int-";
 
 	public static RuntimeProperty<ISQLTableJoin> RELATION_JOIN = new RuntimeProperty<ISQLTableJoin>()
@@ -190,7 +193,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				{
 					return false;
 				}
-				return (getName().equals(other.getName()) && getDeleteRelatedRecords() == other.getDeleteRelatedRecords() && getAllowCreationRelatedRecords() == other.getAllowCreationRelatedRecords());
+				return (getName().equals(other.getName()) && getDeleteRelatedRecords() == other.getDeleteRelatedRecords() &&
+					getAllowCreationRelatedRecords() == other.getAllowCreationRelatedRecords());
 			}
 			catch (Exception e)
 			{
@@ -215,7 +219,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void setName(String arg)
@@ -224,7 +228,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * The name of the relation. 
+	 * The name of the relation.
 	 */
 	public String getName()
 	{
@@ -267,7 +271,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Set the serverName1
-	 * 
+	 *
 	 * @param arg the serverName1
 	 */
 	public void setPrimaryServerName(String arg)
@@ -303,7 +307,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Set the foreignServerName
-	 * 
+	 *
 	 * @param arg the foreignServerName
 	 */
 	public void setForeignServerName(String arg)
@@ -339,7 +343,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Set the tableName1
-	 * 
+	 *
 	 * @param arg the tableName1
 	 */
 	public void setPrimaryTableName(String arg)
@@ -401,7 +405,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Set the foreignTableName
-	 * 
+	 *
 	 * @param arg the foreignTableName
 	 */
 	public void setForeignTableName(String arg)
@@ -438,7 +442,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	/**
 	 * A String which specified a set of sort options for the initial sorting of data
 	 * retrieved through this relation.
-	 * 
+	 *
 	 * Has the form "column_name asc, another_column_name desc, ...".
 	 */
 	public String getInitialSort()
@@ -448,7 +452,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Sets the sortOptions.
-	 * 
+	 *
 	 * @param initialSort The sortOptions to set
 	 */
 	public void setInitialSort(String arg)
@@ -459,7 +463,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Gets the duplicateRelatedRecords.
-	 * 
+	 *
 	 * @return Returns a boolean
 	 */
 	public boolean getDuplicateRelatedRecords()
@@ -469,7 +473,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Sets the duplicateRelatedRecords.
-	 * 
+	 *
 	 * @param duplicateRelatedRecords The options to set
 	 */
 	public void setDuplicateRelatedRecords(boolean arg)
@@ -479,7 +483,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Set the deleteRelatedRecords
-	 * 
+	 *
 	 * @param arg the deleteRelatedRecords
 	 */
 	public void setDeleteRelatedRecords(boolean arg)
@@ -489,7 +493,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Flag that tells if related records should be deleted or not when a parent record is deleted.
-	 * 
+	 *
 	 * The default value of this flag is "false".
 	 */
 	public boolean getDeleteRelatedRecords()
@@ -499,7 +503,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Set the existsInDB
-	 * 
+	 *
 	 * @param arg the existsInDB
 	 */
 	public void setExistsInDB(boolean arg)
@@ -509,7 +513,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Get the existsInDB
-	 * 
+	 *
 	 * @return the existsInDB
 	 */
 	public boolean getExistsInDB()
@@ -524,7 +528,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Flag that tells if related records can be created through this relation.
-	 * 
+	 *
 	 * The default value of this flag is "false".
 	 */
 	public boolean getAllowCreationRelatedRecords()
@@ -539,7 +543,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Flag that tells if the parent record can be deleted while it has related records.
-	 * 
+	 *
 	 * The default value of this flag is "true".
 	 */
 	public boolean getAllowParentDeleteWhenHavingRelatedRecords()
@@ -686,8 +690,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				}
 				else if (exception == null)
 				{
-					exception = new RepositoryException(Messages.getString(
-						"servoy.relation.error.dataproviderDoesntExist", new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() })); //$NON-NLS-1$
+					exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
+						new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
 				}
 			}
 			else if (pdp != null && pdp.startsWith(LiteralDataprovider.LITERAL_PREFIX))
@@ -710,15 +714,14 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					}
 					else if (exception == null)
 					{
-						exception = new RepositoryException(
-							Messages.getString(
-								"servoy.relation.error.dataproviderDoesntExist", new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() })); //$NON-NLS-1$
+						exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
+							new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
 					}
 				}
 				else if (exception == null)
 				{
-					exception = new RepositoryException(Messages.getString(
-						"servoy.relation.error.tableDoesntExist", new Object[] { getPrimaryTableName(), getForeignTableName(), getName() })); //$NON-NLS-1$
+					exception = new RepositoryException(
+						Messages.getString("servoy.relation.error.tableDoesntExist", new Object[] { getPrimaryTableName(), getForeignTableName(), getName() })); //$NON-NLS-1$
 				}
 			}
 		}
@@ -852,7 +855,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * Does the relation always relate to the same record?
-	 * 
+	 *
 	 * @return true if the relation is a FK->PK relation on the same data source.
 	 * @throws RepositoryException
 	 */
@@ -860,13 +863,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	{
 		String primaryDataSource = getPrimaryDataSource();
 		return primaryDataSource != null && primaryDataSource.equals(getForeignDataSource()) // same data source
-			&& isFKPKRef() // FK to itself
-			&& Arrays.equals(getPrimaryDataProviders(dataProviderHandler), getForeignColumns());
+		&& isFKPKRef() // FK to itself
+		&& Arrays.equals(getPrimaryDataProviders(dataProviderHandler), getForeignColumns());
 	}
 
 	/**
 	 * Does the relation define a FK->PK relation?
-	 * 
+	 *
 	 * @throws RepositoryException
 	 */
 	public boolean isFKPKRef() throws RepositoryException
@@ -920,8 +923,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					catch (Exception e)
 					{
 					}
-					return Messages.getString(
-						"servoy.relation.error.literalInvalidForColumn", new Object[] { ((LiteralDataprovider)primary[i]).getLiteral(), foreign[i].getDataProviderID() }); //$NON-NLS-1$
+					return Messages.getString("servoy.relation.error.literalInvalidForColumn", //$NON-NLS-1$
+						new Object[] { ((LiteralDataprovider)primary[i]).getLiteral(), foreign[i].getDataProviderID() });
 				}
 
 				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
@@ -941,8 +944,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				}
 				if (primaryType != foreignType)
 				{
-					return Messages.getString(
-						"servoy.relation.error.typeDoesntMatch", new Object[] { primary[i].getDataProviderID(), foreign[i].getDataProviderID() }); //$NON-NLS-1$
+					return Messages.getString("servoy.relation.error.typeDoesntMatch", //$NON-NLS-1$
+						new Object[] { primary[i].getDataProviderID(), foreign[i].getDataProviderID() });
 				}
 			}
 		}
@@ -1118,11 +1121,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	/**
 	 * The encapsulation mode of this Relation. The following can be used/checked:
-	 * 
+	 *
 	 * - Public (not a separate option - if none of the below options are selected)
 	 * - Hide in scripting; Module Scope - not available in scripting from any other context except the form itself. Available in designer for the same module.
 	 * - Module Scope - available in both scripting and designer but only in the same module.
-	 * 
+	 *
 	 * @return the encapsulation mode/level of the persist.
 	 */
 	@Override

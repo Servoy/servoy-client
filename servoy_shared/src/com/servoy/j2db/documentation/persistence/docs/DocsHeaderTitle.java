@@ -26,13 +26,16 @@ import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "HeaderTitle", scriptingName = "HeaderTitle", realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsHeaderTitle extends BaseDocsGraphicalComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	DocsHeaderTitle()
 	{
 		super();
