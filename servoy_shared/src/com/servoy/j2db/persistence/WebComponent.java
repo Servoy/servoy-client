@@ -93,7 +93,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
 	{
 		stream.defaultReadObject();
-		createWebObjectImpl();
+		webObjectImpl = createWebObjectImpl();
 	}
 
 	public PropertyDescription getPropertyDescription()
