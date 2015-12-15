@@ -70,6 +70,7 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
@@ -110,7 +111,14 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 			usesPersistTypedProperties(WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()));
 
 		this.componentType = willTurnIntoErrorBean ? FormElement.ERROR_BEAN : FormTemplateGenerator.getComponentTypeName(persist);
-		this.uniqueIdWithinForm = String.valueOf(persist.getID());
+		IFormElement superPersist = persist;
+		String uniqueId = String.valueOf(superPersist.getID());
+		while (inDesigner && superPersist != null)
+		{
+			superPersist = (IFormElement)PersistHelper.getSuperPersist(superPersist);
+			if (superPersist != null) uniqueId = String.valueOf(superPersist.getID());
+		}
+		this.uniqueIdWithinForm = uniqueId;
 
 		propertyValues = new HashMap<String, Object>();
 		propertyValues.put(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), persist.getName());
@@ -124,15 +132,11 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		if (willTurnIntoErrorBean)
 		{
-			map.put(
-				"error",
+			map.put("error",
 				"Please remove and insert this component again. Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). See log file for details.");
 
-			Debug.warn("Please remove and insert again the component with name '" +
-				persist.getName() +
-				(this.form != null ? "' on the form '" + this.form.getName() : "") +
-				"'. Type: " +
-				FormTemplateGenerator.getComponentTypeName(persist) +
+			Debug.warn("Please remove and insert again the component with name '" + persist.getName() +
+				(this.form != null ? "' on the form '" + this.form.getName() : "") + "'. Type: " + FormTemplateGenerator.getComponentTypeName(persist) +
 				". Components which define custom types in their spec file will not work properly due to some changes in 8.0 beta2/beta3 versions (for solutions created with previous beta/alpha versions). Properties: " +
 				map.get("beanXML")); // so Bean persist used for custom components is no longer working properly - now it uses WebComponent
 		}
@@ -141,8 +145,8 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (addNameToPath) propertyPath.backOneLevel();
 	}
 
-	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs,
-		PropertyPath propertyPath, boolean inDesigner)
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
+		boolean inDesigner)
 	{
 		this.inDesigner = inDesigner;
 		this.persistImpl = null;
@@ -388,12 +392,12 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 		if (form != null && !form.isResponsiveLayout())
 		{
 			WebComponentSpecification spec = getWebComponentSpec();
-			if (spec.getProperty("location") == null) spec.putProperty("location",
-				new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
-			if (spec.getProperty("size") == null) spec.putProperty("size",
-				new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
-			if (spec.getProperty("anchors") == null) spec.putProperty("anchors",
-				new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
+			if (spec.getProperty("location") == null)
+				spec.putProperty("location", new PropertyDescription("location", TypesRegistry.getType(PointPropertyType.TYPE_NAME)));
+			if (spec.getProperty("size") == null)
+				spec.putProperty("size", new PropertyDescription("size", TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)));
+			if (spec.getProperty("anchors") == null)
+				spec.putProperty("anchors", new PropertyDescription("anchors", TypesRegistry.getType(IntPropertyType.TYPE_NAME)));
 		}
 	}
 
@@ -801,9 +805,10 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		for (PropertyDescription x : pd.getCustomJSONProperties().values())
 		{
-			if (PropertyUtils.isCustomJSONObjectProperty(x.getType()) ||
-				x.getType() instanceof ComponentPropertyType ||
-				(PropertyUtils.isCustomJSONArrayPropertyType(x.getType()) && usesPersistTypedProperties(((ICustomType< ? >)x.getType()).getCustomJSONTypeDefinition()))) return true;
+			if (PropertyUtils.isCustomJSONObjectProperty(x.getType()) || x.getType() instanceof ComponentPropertyType ||
+				(PropertyUtils.isCustomJSONArrayPropertyType(x.getType()) &&
+					usesPersistTypedProperties(((ICustomType< ? >)x.getType()).getCustomJSONTypeDefinition())))
+				return true;
 		}
 
 		return false;
