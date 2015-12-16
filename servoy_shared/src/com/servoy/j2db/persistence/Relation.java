@@ -802,7 +802,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public void setValid(boolean b)
 	{
-		if (b)//clear so they are checked again
+		if (b) //clear so they are checked again
 		{
 			flushCashedItems();
 		}
@@ -1149,6 +1149,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	@Override
 	public void setDeprecated(String deprecatedInfo)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, "".equals(deprecatedInfo) ? null : deprecatedInfo);
 	}
 }
