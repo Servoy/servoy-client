@@ -17,11 +17,6 @@
 package com.servoy.j2db.persistence;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -31,12 +26,10 @@ public class ChangeHandler
 {
 	protected IPersistFactory factory;
 	protected AbstractRootObject rootObject;
-	protected List<IPersistListener> persistListeners;
 
 	public ChangeHandler(IPersistFactory factory)
 	{
 		this.factory = factory;
-		persistListeners = Collections.synchronizedList(new ArrayList<IPersistListener>());
 	}
 
 	void setRootObject(AbstractRootObject rootObject)
@@ -86,78 +79,35 @@ public class ChangeHandler
 		return true;
 	}
 
-	public void addIPersistListener(IPersistListener listener)
+	public void addIPersistListener(IItemChangeListener<IPersist> listener)
 	{
-		if (listener != null)
-		{
-			if (!persistListeners.contains(listener))
-			{
-				persistListeners.add(listener);
-			}
-		}
+		PersistChangeHandler.getInstance().add(this, listener);
 	}
 
-	public void removeIPersistListener(IPersistListener listener)
+	public void removeIPersistListener(IItemChangeListener<IPersist> listener)
 	{
-		if (listener != null)
-		{
-			persistListeners.remove(listener);
-		}
+		PersistChangeHandler.getInstance().add(this, listener);
 	}
 
 	protected void fireIPersistCreated(IPersist persist)
 	{
-		for (int i = 0; i < persistListeners.size(); i++)
-		{
-			try
-			{
-				persistListeners.get(i).iPersistCreated(persist);
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);//an exception should never interupt the process
-			}
-		}
+		PersistChangeHandler.getInstance().fireItemCreated(this, persist);
 	}
 
 	protected void fireIPersistRemoved(IPersist persist)
 	{
-		for (int i = 0; i < persistListeners.size(); i++)
-		{
-			try
-			{
-				persistListeners.get(i).iPersistRemoved(persist);
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);//an exception should never interupt the process
-			}
-		}
+		PersistChangeHandler.getInstance().fireItemRemoved(this, persist);
 	}
 
 	public void fireIPersistChanged(IPersist persist)
 	{
-		for (int i = 0; i < persistListeners.size(); i++)
-		{
-			try
-			{
-				persistListeners.get(i).iPersistChanged(persist);
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);//an exception should never interupt the process
-			}
-		}
+		PersistChangeHandler.getInstance().fireItemChanged(this, persist);
+
 		if (persist.getParent() instanceof ISupportChilds)
 		{
 			// also let the parent know this one is changed. above doesn't have to be called..
 			fireIPersistChanged(persist.getParent());
 		}
-	}
-
-	public void clearAllPersistListeners()
-	{
-		persistListeners.clear();
 	}
 
 	public void rootObjectIsFlushed()

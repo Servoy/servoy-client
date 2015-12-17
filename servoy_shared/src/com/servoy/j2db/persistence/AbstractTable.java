@@ -36,7 +36,6 @@ public abstract class AbstractTable implements ITable
 {
 	protected final List<Column> keyColumns = new ArrayList<Column>();
 	protected final AliasKeyMap<String, String, Column> columns = new AliasKeyMap<String, String, Column>(new LinkedHashMap<String, Column>());
-	protected transient List<IColumnListener> tableListeners;// listeners
 	private transient volatile boolean initialized = false;
 
 	public Iterator<String> getRowIdentColumnNames()
@@ -88,11 +87,7 @@ public abstract class AbstractTable implements ITable
 
 	protected void fireIColumnCreated(IColumn column)
 	{
-		if (tableListeners == null) return;
-		for (IColumnListener columnListener : tableListeners)
-		{
-			columnListener.iColumnCreated(column);
-		}
+		ColumnChangeHandler.getInstance().fireItemCreated(this, column);
 	}
 
 	public void columnDataProviderIDChanged(String oldDataProviderID)
@@ -107,11 +102,7 @@ public abstract class AbstractTable implements ITable
 
 	public void fireIColumnsChanged(Collection<IColumn> cols)
 	{
-		if (tableListeners == null || cols == null || cols.size() == 0) return;
-		for (IColumnListener columnListener : tableListeners)
-		{
-			columnListener.iColumnsChanged(cols);
-		}
+		ColumnChangeHandler.getInstance().fireItemChanged(this, cols);
 	}
 
 	/*
@@ -120,22 +111,14 @@ public abstract class AbstractTable implements ITable
 	 * @see com.servoy.j2db.persistence.ITable#addIColumnListener(com.servoy.j2db.persistence.IColumnListener)
 	 */
 	@Override
-	public void addIColumnListener(IColumnListener listener)
+	public void addIColumnListener(IItemChangeListener<IColumn> listener)
 	{
-		if (listener != null)
-		{
-			if (tableListeners == null) tableListeners = new ArrayList<IColumnListener>();
-			if (!tableListeners.contains(listener)) tableListeners.add(listener);
-		}
+		ColumnChangeHandler.getInstance().add(this, listener);
 	}
 
-	public void removeIColumnListener(IColumnListener listener)
+	public void removeIColumnListener(IItemChangeListener<IColumn> listener)
 	{
-		if (listener != null)
-		{
-			if (tableListeners == null) tableListeners = new ArrayList<IColumnListener>();
-			tableListeners.remove(listener);
-		}
+		ColumnChangeHandler.getInstance().remove(this, listener);
 	}
 
 	public void addColumn(Column c)

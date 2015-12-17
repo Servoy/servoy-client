@@ -16,7 +16,9 @@
  */
 package com.servoy.j2db.persistence;
 
-public interface ITableListener
+import java.util.Collection;
+
+public interface ITableListener extends IItemChangeListener<ITable>
 {
 	public static final int ENABLED = 0x01;
 	public static final int VALID = 0x02;
@@ -60,6 +62,22 @@ public interface ITableListener
 
 	public static abstract class TableListener implements ITableListener
 	{
+		public void itemCreated(ITable item)
+		{
+		}
+
+		public void itemRemoved(ITable item)
+		{
+		}
+
+		public void itemChanged(ITable item)
+		{
+		}
+
+		public void itemChanged(Collection<ITable> items)
+		{
+		}
+
 		public void tablesAdded(IServerInternal server, String[] tableNames)
 		{
 		}

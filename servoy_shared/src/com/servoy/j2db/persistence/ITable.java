@@ -73,7 +73,7 @@ public interface ITable
 	/**
 	 * @param columnListener
 	 */
-	public void removeIColumnListener(IColumnListener columnListener);
+	public void removeIColumnListener(IItemChangeListener<IColumn> columnListener);
 
 	/**
 	 * @param columnName
@@ -104,7 +104,7 @@ public interface ITable
 	/**
 	 * @param columnListener
 	 */
-	public void addIColumnListener(IColumnListener columnListener);
+	public void addIColumnListener(IItemChangeListener<IColumn> columnListener);
 
 	/**
 	 * @return

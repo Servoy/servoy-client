@@ -57,9 +57,9 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IMediaProvider;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IPersistListener;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRelationProvider;
 import com.servoy.j2db.persistence.IRepository;
@@ -117,7 +117,7 @@ import com.servoy.j2db.util.keyword.Ident;
  *
  * @author jcompagner,jblok
  */
-public class FlattenedSolution implements IPersistListener, IDataProviderHandler, IRelationProvider, ISupportScriptProviders, IMediaProvider
+public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataProviderHandler, IRelationProvider, ISupportScriptProviders, IMediaProvider
 {
 	private static RuntimeProperty<AbstractBase> CLONE_PROPERTY = new RuntimeProperty<AbstractBase>()
 	{
@@ -1792,7 +1792,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return null;
 	}
 
-	public void iPersistChanged(IPersist persist)
+	public void itemChanged(IPersist persist)
 	{
 		flush(persist);
 		if (persist instanceof Form)
@@ -1812,7 +1812,15 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	public void iPersistCreated(IPersist persist)
+	public void itemChanged(Collection<IPersist> persists)
+	{
+		for (IPersist persist : persists)
+		{
+			itemChanged(persist);
+		}
+	}
+
+	public void itemCreated(IPersist persist)
 	{
 		flush(persist);
 		if (persist instanceof Form)
@@ -1825,7 +1833,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	public void iPersistRemoved(IPersist persist)
+	public void itemRemoved(IPersist persist)
 	{
 		flush(persist);
 	}

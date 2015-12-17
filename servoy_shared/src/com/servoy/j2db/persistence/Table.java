@@ -419,11 +419,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	// How to call these ones?? deletes/changes are not through solution.
 	protected void fireIColumnRemoved(IColumn column)
 	{
-		if (tableListeners == null) return;
-		for (IColumnListener columnListener : tableListeners)
-		{
-			columnListener.iColumnRemoved(column);
-		}
+		ColumnChangeHandler.getInstance().fireItemRemoved(this, column);
 	}
 
 	public int getColumnInfoID(String columnName)
