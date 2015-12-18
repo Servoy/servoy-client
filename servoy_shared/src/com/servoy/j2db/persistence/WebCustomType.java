@@ -41,6 +41,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 
 	protected static Set<String> purePersistPropertyNames;
 
+	static
 	{
 		try
 		{

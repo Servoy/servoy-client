@@ -46,7 +46,20 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	protected static Set<String> purePersistPropertyNames;
 
+	static
 	{
+		boolean loaded = false;
+		try
+		{
+			Class.forName("org.sablo.BaseWebObject");
+			loaded = true;
+		}
+		catch (ClassNotFoundException e)
+		{
+			// it's not found so sablo is not loaded
+		}
+		sabloLoaded = loaded;
+
 		try
 		{
 			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebComponent.class).keySet();
@@ -56,20 +69,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			purePersistPropertyNames = new HashSet<String>();
 			Debug.error(e);
 		}
-	}
-
-	static
-	{
-		boolean loaded = false;
-		try
-		{
-			Class.forName("org.sablo.BaseWebObject");
-			loaded = true;
-		}
-		catch (Throwable e)
-		{
-		}
-		sabloLoaded = loaded;
 	}
 
 	protected transient WebObjectBasicImpl webObjectImpl;
