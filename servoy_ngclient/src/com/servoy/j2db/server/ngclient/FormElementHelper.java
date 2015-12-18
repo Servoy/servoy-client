@@ -120,8 +120,8 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-					designer);
+			if (formElement instanceof BodyPortal)
+				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
@@ -290,7 +290,8 @@ public class FormElementHelper
 								String tabSeqPropertyName = tabSeqProperty.getName();
 								Integer tabSeqVal = (Integer)fe.getPropertyValue(tabSeqPropertyName);
 								if (tabSeqVal == null) tabSeqVal = Integer.valueOf(0); // default is 0 == DEFAULT tab sequence
-								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0)) minBodyPortalTabSeq = tabSeqVal.intValue();
+								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0))
+									minBodyPortalTabSeq = tabSeqVal.intValue();
 							}
 						}
 
@@ -480,10 +481,10 @@ public class FormElementHelper
 						Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 						if (properties != null && properties.size() > 0)
 						{
-							JSONObject json = ((IBasicWebComponent)persist).getJson();
+							IBasicWebComponent webComponent = (IBasicWebComponent)persist;
 							for (PropertyDescription tabSeqProperty : properties)
 							{
-								int tabseq = json != null ? json.optInt(tabSeqProperty.getName()) : 0;
+								int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
 								if (tabseq >= 0)
 								{
 									selected.add(new TabSeqProperty((IFormElement)persist, tabSeqProperty.getName()));
@@ -551,12 +552,7 @@ public class FormElementHelper
 					PropertyDescription property = specification.getProperty(propertyName);
 					if (property != null)
 					{
-						JSONObject json = ((IBasicWebComponent)element).getJson();
-						if (json != null)
-						{
-							return json.optInt(propertyName);
-						}
-						return 0;
+						return Utils.getAsInteger(((IBasicWebComponent)element).getProperty(propertyName));
 					}
 				}
 			}

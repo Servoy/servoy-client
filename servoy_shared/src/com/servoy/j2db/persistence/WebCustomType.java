@@ -141,20 +141,10 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 		return webObjectImpl.getTypeName();
 	}
 
-	public void setJson(JSONObject arg)
-	{
-		webObjectImpl.setJson(arg);
-	}
-
-	public JSONObject getJson()
-	{
-		return webObjectImpl.getJson();
-	}
-
 	@Override
 	public JSONObject getFlattenedJson()
 	{
-		return getJson();
+		return webObjectImpl.getJson();
 	}
 
 	@Override
@@ -268,7 +258,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public JSONObject getFullJsonInFrmFile()
 	{
-		return getJson();
+		return webObjectImpl.getJson();
 	}
 
 }

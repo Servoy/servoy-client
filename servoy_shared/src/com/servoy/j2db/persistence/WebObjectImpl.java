@@ -33,7 +33,14 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.ColorPropertyType;
+import org.sablo.specification.property.types.DimensionPropertyType;
+import org.sablo.specification.property.types.FontPropertyType;
+import org.sablo.specification.property.types.InsetsPropertyType;
+import org.sablo.specification.property.types.PointPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.util.Debug;
@@ -53,19 +60,43 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	private final Map<String, Object> persistMappedPropeties = new HashMap<String, Object>(); // value can be IChildWebObject or IChildWebObject[] (ChildWebComponents or WebCustomTypes)
 
-	// TODO should we have a map that contains all values from the JSON not only the above for IChildWebObject - or at least get/set/clear/has should handle all json values, not just persist mapped one (see commented out code in those methods)
+	// TODO should we have a map that contains all values from the JSON not only the above for IChildWebObject - or at least get/set/clear/has should handle all json values,
+	//	not just persist mapped one (see commented out code in those methods)
 	// we can have property type based conversions implemented here as well (from JSON to Persist property values and vice-versa); there is also currently a case in this area: SVY-9142
 	// so then all conversions that are done now via com.servoy.eclipse.ui.property.WebComponentPropertyHandler.jsonConverters could be done here I think
-	// and then all json properties could be accessed through direct persist getters/setters only that WebComponent/WebCustomType have and the direct JSON operations can be tucked away in this class only;
-	// one thing we should look at thoroughly at if we use the normal persist (WebComponent/WebCustomType) get/set/clear for properties in json, then what about iterating on all? do we add a separate method just for getting all
-	// or if we do return them in the usual persist method for iterating - won't that break cloning/copying of persists (that in this case really only should work on the root persist properties like "json" instead of the contents of subproperties inside the "json" property)
-	// Currently there is some code commented out for making get/set of persist work with json properties as well - but that can only work when enabling conversions there; see comments with // TODO CONVERSION below
+	// and then all json properties could be accessed through direct persist getters/setters only that WebComponent/WebCustomType have
+	// and the direct JSON operations can be tucked away in this class only;
+	// one thing we should look at thoroughly at if we use the normal persist (WebComponent/WebCustomType) get/set/clear for properties in json,
+	// then what about iterating on all? do we add a separate method just for getting all
+	// or if we do return them in the usual persist method for iterating - won't that break cloning/copying of persists
+	//(that in this case really only should work on the root persist properties like "json" instead of the contents of subproperties inside the "json" property)
+	// Currently there is some code commented out for making get/set of persist work with json properties as well -
+	// but that can only work when enabling conversions there; see comments with // TODO CONVERSION below
 
 	private boolean arePersistMappedPropetiesLoaded = false;
 	private PropertyDescription pdUseGetterInstead;
 	private Map<UUID, IPersist> persistMappedPropetiesByUUID = null; // cached just like in AbstractBase
 
 	private boolean gettingTypeName;
+
+	// this map can be filled by an extension point if we support 3rd party types.
+	// TODO extension point + maybe use another interface as values - something like IDesignValueConverter - cause this conversion is not related to what the javadoc in IPropertyConverter describes and it can be confusing
+	private static final Map<IPropertyType< ? >, IPropertyConverterForBrowser< ? extends Object>> jsonConverters = new HashMap<IPropertyType< ? >, IPropertyConverterForBrowser< ? extends Object>>();
+
+	static
+	{
+		jsonConverters.put(TypesRegistry.getType(PointPropertyType.TYPE_NAME),
+			(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(PointPropertyType.TYPE_NAME));
+		jsonConverters.put(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME),
+			(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(DimensionPropertyType.TYPE_NAME));
+		jsonConverters.put(TypesRegistry.getType(ColorPropertyType.TYPE_NAME),
+			(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(ColorPropertyType.TYPE_NAME));
+		jsonConverters.put(TypesRegistry.getType(FontPropertyType.TYPE_NAME),
+			(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(FontPropertyType.TYPE_NAME));
+		jsonConverters.put(TypesRegistry.getType(InsetsPropertyType.TYPE_NAME),
+			(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(InsetsPropertyType.TYPE_NAME));
+		jsonConverters.put(TypesRegistry.getType("border"), (IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType("border"));
+	}
 
 	/**
 	 * This constructor is to be used if getTypeName is the name of a WebComponent. (so it can be used to get the component spec)
@@ -243,13 +274,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					updatePersistMappedPropeties();
 					return true;
 				}
-				// TODO CONVERSION uncomment this when refactoring to add conversion (see comments at beginning of this class)
-//				else
-//				{
-//					// it is a json property defined in spec, but it's not mapping to a persist
-//					setOrRemoveJsonSubproperty(propertyName, val, false);
-//					return true;
-//				}
+				else
+				{
+					// it is a json property defined in spec, but it's not mapping to a persist
+					setOrRemoveJsonSubproperty(propertyName, val, false);
+					return true;
+				}
 			}
 		}
 		return false; // typeName is not yet set (so normally typed properties are not yet accessed) or it's not a typed property
@@ -307,17 +337,16 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		Map<String, Object> ctp = getPersistMappedProperties();
 		if (ctp.containsKey(propertyName)) return ctp.get(propertyName);
 
-		// TODO CONVERSION uncomment this when refactoring to add conversion (see comments at beginning of this class)
-//		if (getPropertyDescription() != null)
-//		{
-//			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
-//			if (childPd != null)
-//			{
-//				// it is a json property defined in spec, but it's not mapping to a persist
-//				JSONObject json = getJson();
-//				return json != null ? json.opt(propertyName) : null;
-//			}
-//		}
+		if (getPropertyDescription() != null)
+		{
+			PropertyDescription childPd = getPropertyDescription().getProperty(propertyName);
+			if (childPd != null)
+			{
+				// it is a json property defined in spec, but it's not mapping to a persist
+				JSONObject json = getJson();
+				return json != null ? json.opt(propertyName) : null;
+			}
+		}
 
 		return null;
 	}
@@ -788,18 +817,14 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		IBasicWebObject parentWebObject = webObject.getParent();
 		try
 		{
-			JSONObject entireModel = (parentWebObject.getJson() != null ? parentWebObject.getJson() : new ServoyJSONObject());
-			if (!isNew && entireModel.has(webObject.getJsonKey()))
+			//TODO make sure this is correct
+			Object v = parentWebObject.getProperty(webObject.getJsonKey());
+			if (!isNew && v != null)
 			{
-				Object v = entireModel.get(webObject.getJsonKey());
 				JSONObject obj = null;
 				if (v instanceof JSONArray)
 				{
 					obj = ((JSONArray)v).optJSONObject(webObject.getIndex());
-				}
-				else
-				{
-					obj = entireModel.getJSONObject(webObject.getJsonKey());
 				}
 				return obj;
 			}

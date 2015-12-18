@@ -102,19 +102,18 @@ public class FoundsetTest extends AbstractSolutionTest
 		{
 			Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
 			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
-			bean.setJson(new ServoyJSONObject(
-				"{myfoundset:{dataproviders:{firstname:'test1',lastname:'test2'}}, myfoundsetWithAllow:{dataproviders:{firstname:'test1',lastname:'test2'}}}",
-				false));
+			bean.setJsonSubproperty("myfoundset", new ServoyJSONObject("{dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+			bean.setJsonSubproperty("myfoundsetWithAllow", new ServoyJSONObject("{dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 
 			WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
-			bean1.setJson(new ServoyJSONObject(
-				"{myfoundset:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}, myfoundsetWithAllow:{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}}",
-				false));
+			bean1.setJsonSubproperty("myfoundset",
+				new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
+			bean1.setJsonSubproperty("myfoundsetWithAllow",
+				new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
 
 			WebComponent bean2 = form.createNewWebComponent("mycustomseparatefoundsetbean", "my-component");
-			bean2.setJson(new ServoyJSONObject(
-				"{myfoundset:{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}}",
-				false));
+			bean2.setJsonSubproperty("myfoundset", new ServoyJSONObject(
+				"{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 		}
 		catch (JSONException e)
 		{
@@ -318,7 +317,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		// fake an update
 		endpoint.incoming(
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundset\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
-				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
+				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
+			true);
 
 		Assert.assertEquals("value4", form.getFormModel().getRecord(1).getValue("test2")); // not value 5 cause pushToServer is rejected!
 	}
@@ -368,7 +368,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		// fake an update
 		endpoint.incoming(
 			"{\"methodname\":\"dataPush\",\"args\":{\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"myfoundsetWithAllow\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
-				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}", true);
+				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
+			true);
 
 		Assert.assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));
 	}
@@ -380,8 +381,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebFormComponent webComponent = form.getFormUI().getWebComponent("mydynamiccustombean");
 		FoundsetTypeSabloValue property = (FoundsetTypeSabloValue)webComponent.getProperty("myfoundset");
 		JSONArray json = new JSONArray("[{" + FoundsetTypeSabloValue.PREFERRED_VIEWPORT_SIZE + ":1}]");
-		property.browserUpdatesReceived(json, webComponent.getSpecification().getProperty("myfoundset"), new BrowserConverterContext(webComponent,
-			PushToServerEnum.allow));
+		property.browserUpdatesReceived(json, webComponent.getSpecification().getProperty("myfoundset"),
+			new BrowserConverterContext(webComponent, PushToServerEnum.allow));
 
 
 		Assert.assertNotNull(form);

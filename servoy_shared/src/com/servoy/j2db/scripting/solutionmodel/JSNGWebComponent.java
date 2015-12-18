@@ -75,9 +75,7 @@ public class JSNGWebComponent extends JSWebComponent
 					value = defaultRhinoToDesignValue(value, application);
 				}
 			}
-			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
-			jsonObject.put(propertyName, value);
-			webComponent.setJson(jsonObject);
+			webComponent.setProperty(propertyName, value);
 		}
 		catch (JSONException e)
 		{
@@ -92,10 +90,7 @@ public class JSNGWebComponent extends JSWebComponent
 		try
 		{
 			WebComponent webComponent = getBaseComponent(true);
-
-			JSONObject jsonObject = webComponent.getJson() == null ? new ServoyJSONObject(true, true) : webComponent.getJson();
-			jsonObject.remove(propertyName);
-			webComponent.setJson(jsonObject);
+			webComponent.setProperty(propertyName, null);//TODO check
 		}
 		catch (JSONException e)
 		{
