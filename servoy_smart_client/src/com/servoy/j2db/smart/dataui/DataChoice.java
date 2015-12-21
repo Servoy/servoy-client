@@ -56,8 +56,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
-import sun.java2d.SunGraphics2D;
-
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -99,6 +97,8 @@ import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
+import sun.java2d.SunGraphics2D;
+
 /**
  * Runtime swing radio/check box choice component
  * @author jblok, jcompagner
@@ -123,7 +123,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	private Format format;
 	private AbstractCell cellEditor;
 
-	public DataChoice(IApplication app, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, IValueList vl, int choiceType)
+	public DataChoice(IApplication app, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, IValueList vl, int choiceType, boolean multiselect)
 	{
 		super();
 		setHorizontalAlignment(SwingConstants.LEFT);
@@ -172,8 +172,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			enclosedComponent.setCellEditor(cellEditor);
 		}
 
-		setMultiValueSelect();
-
+		setMultiValueSelect(multiselect);
 		this.scriptable = scriptable;
 		if (scriptable instanceof AbstractRuntimeScrollableValuelistComponent< ? , ? >)
 		{
@@ -226,8 +225,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 						format = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
 						break;
 					case IColumnTypes.DATETIME :
-						format = new StateFullSimpleDateFormat(displayFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
-							IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
+						format = new StateFullSimpleDateFormat(displayFormat,
+							Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
 						// format = new SimpleDateFormat(formatString);
 						break;
 					default :
@@ -271,7 +270,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 
 	}
 
-	protected void setMultiValueSelect()
+	protected void setMultiValueSelect(boolean multiselect)
 	{
 		if (choiceType == Field.RADIOS || choiceType == Field.LIST_BOX)
 		{
@@ -279,7 +278,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		}
 		else
 		{
-			list.setMultiValueSelect(true);
+			list.setMultiValueSelect(multiselect);
 		}
 	}
 

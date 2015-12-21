@@ -32,6 +32,9 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class LayoutContainer extends AbstractContainer implements ISupportBounds, ISupportExtendsID
 {
+
+	private static final long serialVersionUID = 1L;
+
 	protected LayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.LAYOUTCONTAINERS, parent, element_id, uuid);

@@ -9,13 +9,10 @@ import com.servoy.j2db.util.PersistHelper;
 public class FlattenedLayoutContainer extends LayoutContainer implements IFlattenedPersistWrapper<LayoutContainer>
 {
 
+	private static final long serialVersionUID = 1L;
+
 	private final LayoutContainer layoutContainer;
 
-	/**
-	 * @param parent
-	 * @param element_id
-	 * @param uuid
-	 */
 	public FlattenedLayoutContainer(LayoutContainer layoutContainer)
 	{
 		super(layoutContainer.getParent(), layoutContainer.getID(), layoutContainer.getUUID());
@@ -35,7 +32,14 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		List<IPersist> children = PersistHelper.getHierarchyChildren(layoutContainer);
 		for (IPersist child : children)
 		{
-			internalAddChild(child);
+			if (child instanceof LayoutContainer && ((LayoutContainer)child).getExtendsID() > 0)
+			{
+				internalAddChild(new FlattenedLayoutContainer((LayoutContainer)child));
+			}
+			else
+			{
+				internalAddChild(child);
+			}
 		}
 	}
 

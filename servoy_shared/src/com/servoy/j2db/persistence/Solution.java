@@ -44,12 +44,13 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A solution also root object for meta data
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.SOLUTIONS)
 public class Solution extends AbstractRootObject implements ISupportChilds, ICloneable, ISupportUpdateableName, IMediaProvider
 {
+
 	// iterating & changing this map's contents will happen in synchronize blocks (the easier way would
 	// be using the ConcurrentHashMap as before, but a bug in Terracotta does not allow ConcurrentHashMaps to be serialized/deserialized); when the bug is solved
 	// sync blocks can be reverted to using ConcurrentHashMap. See http://jira.terracotta.org/jira/browse/CDV-1377
@@ -173,7 +174,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Get all relations.
-	 * 
+	 *
 	 * @param childs
 	 * @param sort
 	 */
@@ -242,7 +243,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Get relations based on the table. When basedOnTable is null and isPrimaryTable is true only global relations are returned.
-	 * 
+	 *
 	 * @param childs
 	 * @param basedOnTable
 	 * @param isPrimaryTable
@@ -258,7 +259,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Get relations based on the table. When basedOnTable is null and isPrimaryTable is true only global relations are returned.
-	 * 
+	 *
 	 * @param childs
 	 * @param basedOnTable
 	 * @param isPrimaryTable
@@ -496,8 +497,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return createNewTableNode(dataSource);
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String dataSource, String name, String userTemplate)
-		throws RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String dataSource, String name, String userTemplate) throws RepositoryException
 	{
 		return getOrCreateTableNode(dataSource).createNewScriptCalculation(validator, name, userTemplate);
 	}
@@ -715,7 +715,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * SECURITY
-	 * 
+	 *
 	 * Notes: These methods do not need to use the solution transaction to read the data.
 	 */
 
@@ -733,7 +733,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Sets the mustAuthenticate.
-	 * 
+	 *
 	 * @return Returns a boolean
 	 */
 	// Needed for solution properties editing
@@ -744,7 +744,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -906,7 +906,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Add the login solution as module by first removing exiting login solutions from the modules list
-	 * @throws RepositoryException 
+	 * @throws RepositoryException
 	 */
 	public void setLoginSolutionName(String loginSolutionName) throws RepositoryException
 	{
@@ -942,7 +942,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Get the first module that is also a login solution.
-	 * @throws RepositoryException 
+	 * @throws RepositoryException
 	 */
 	public String getLoginSolutionName() throws RepositoryException
 	{
@@ -1021,7 +1021,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * The first form that loads when a solution is deployed.
-	 * 
+	 *
 	 * NOTE: If the Login form is specified, then the firstForm is the first form that will load next after the loginForm.
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
@@ -1032,7 +1032,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * The method that is executed when a solution closes. The default is -none-.
-	 * 
+	 *
 	 * @templatedescription Callback method for when solution is closed, force boolean argument tells if this is a force (not stoppable) close or not.
 	 * @templatename onSolutionClose
 	 * @templatetype Boolean
@@ -1047,8 +1047,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * The method that is executed when a solution opens. The default is -none-. 
-	 * 
+	 * The method that is executed when a solution opens. The default is -none-.
+	 *
 	 * @templatedescription Callback method for when solution is opened
 	 * When deeplinking into solutions, the argument part of the deeplink url will be passed in as the first argument
 	 * All query parameters + the argument of the deeplink url will be passed in as the second argument
@@ -1099,7 +1099,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * The method that is executed when a solution opens and an error occurs. The default is -none.
-	 * 
+	 *
 	 * @templatedescription Callback method for when an error occurred (the error can be a JavaScript or Servoy Java error).
 	 * @templatename onError
 	 * @templatetype Boolean
@@ -1250,9 +1250,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * The direction that text is displayed. 
-	 * 
-	 * Options include: 
+	 * The direction that text is displayed.
+	 *
+	 * Options include:
 	 * DEFAULT
 	 * left to right
 	 * right to left
@@ -1271,7 +1271,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Method that is executed when data broadcast occurs. The default is -none-.
-	 * 
+	 *
 	 * @templatedescription Callback method for data broadcast
 	 * @templatename onDataBroadcast
 	 * @templateparam String dataSource table data source

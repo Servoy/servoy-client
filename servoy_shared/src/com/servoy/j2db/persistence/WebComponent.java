@@ -17,24 +17,34 @@
 package com.servoy.j2db.persistence;
 
 
+import java.beans.IntrospectionException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author gboros
  */
 public class WebComponent extends BaseComponent implements IWebComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private static final boolean sabloLoaded;
+
+	protected static Set<String> purePersistPropertyNames;
 
 	static
 	{
@@ -44,10 +54,21 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			Class.forName("org.sablo.BaseWebObject");
 			loaded = true;
 		}
-		catch (Throwable e)
+		catch (ClassNotFoundException e)
 		{
+			// it's not found so sablo is not loaded
 		}
 		sabloLoaded = loaded;
+
+		try
+		{
+			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebComponent.class).keySet();
+		}
+		catch (IntrospectionException e)
+		{
+			purePersistPropertyNames = new HashSet<String>();
+			Debug.error(e);
+		}
 	}
 
 	protected transient WebObjectBasicImpl webObjectImpl;
@@ -55,7 +76,12 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
-		webObjectImpl = sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
+		webObjectImpl = createWebObjectImpl();
+	}
+
+	protected WebObjectBasicImpl createWebObjectImpl()
+	{
+		return sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
 	}
 
 	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException
@@ -66,12 +92,17 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
 	{
 		stream.defaultReadObject();
-		webObjectImpl = sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
+		webObjectImpl = createWebObjectImpl();
 	}
 
-	public Object getPropertyDescription()
+	public PropertyDescription getPropertyDescription()
 	{
-		return webObjectImpl.getPropertyDescription();
+		return getSpecification();
+	}
+
+	public WebComponentSpecification getSpecification()
+	{
+		return (WebComponentSpecification)webObjectImpl.getPropertyDescription();
 	}
 
 	@Override
@@ -80,12 +111,11 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return this;
 	}
 
-
 	@Override
 	public void clearChanged()
 	{
 		super.clearChanged();
-		for (WebCustomType x : getAllFirstLevelArrayOfOrCustomPropertiesFlattened())
+		for (IChildWebObject x : getAllPersistMappedProperties())
 		{
 			if (x.isChanged()) x.clearChanged();
 		}
@@ -94,7 +124,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updateCustomProperties();
+		webObjectImpl.updatePersistMappedPropeties();
 	}
 
 	@Override
@@ -106,23 +136,25 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void setProperty(String propertyName, Object val)
 	{
-		if (!webObjectImpl.setCustomProperty(propertyName, val)) super.setProperty(propertyName, val);
+		if (webObjectImpl.setProperty(propertyName, val))
+		{
+			// see if it's not a direct persist property as well such as size, location, anchors... if it is set it here as well anyway so that they are in sync with spec properties
+			if (purePersistPropertyNames.contains(propertyName)) super.setProperty(propertyName, val);
+		}
+		else super.setProperty(propertyName, val);
 	}
 
 	@Override
 	public void clearProperty(String propertyName)
 	{
-		if (!webObjectImpl.clearCustomProperty(propertyName) && !webObjectImpl.removeJsonSubproperty(propertyName)) super.clearProperty(propertyName);
+		if (!webObjectImpl.clearProperty(propertyName)) super.clearProperty(propertyName);
 	}
 
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		if (webObjectImpl == null) return super.getProperty(propertyName);
-
-		Pair<Boolean, Object> customResult = webObjectImpl.getCustomProperty(propertyName);
-		if (customResult.getLeft().booleanValue()) return customResult.getRight();
-		else return super.getProperty(propertyName);
+		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) return super.getProperty(propertyName);
+		return webObjectImpl.getProperty(propertyName);
 	}
 
 	@Override
@@ -132,15 +164,18 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		if (webObjectImpl == null) hasIt = super.hasProperty(propertyName);
 		else
 		{
-			hasIt = webObjectImpl.hasCustomProperty(propertyName);
+			hasIt = webObjectImpl.hasProperty(propertyName);
 			if (!hasIt) hasIt = super.hasProperty(propertyName);
 		}
 		return hasIt;
 	}
 
-	public List<WebCustomType> getAllFirstLevelArrayOfOrCustomPropertiesFlattened()
+	/**
+	 * Returns all direct child typed properties or array of such typed properties.
+	 */
+	public List<IChildWebObject> getAllPersistMappedProperties()
 	{
-		return webObjectImpl.getAllCustomProperties();
+		return webObjectImpl.getAllPersistMappedProperties();
 	}
 
 	public void setTypeName(String arg)
@@ -220,6 +255,12 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	public Iterator<IPersist> getAllObjects()
 	{
 		return webObjectImpl.getAllObjects();
+	}
+
+	@Override
+	public List<IPersist> getAllObjectsAsList()
+	{
+		return Utils.asList(getAllObjects());
 	}
 
 	@Override

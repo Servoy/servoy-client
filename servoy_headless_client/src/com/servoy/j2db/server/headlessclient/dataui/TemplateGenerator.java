@@ -398,7 +398,7 @@ public class TemplateGenerator
 						viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
 					{
 						layoutProvider.renderOpenTableViewHTML(html, css, part);
-						createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType, enableAnchoring);//tableview == bodypart
+						createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType, enableAnchoring, startY, endY);//tableview == bodypart
 						layoutProvider.renderCloseTableViewHTML(html);
 					}
 					else
@@ -489,7 +489,7 @@ public class TemplateGenerator
 	}
 
 	private static void createCellBasedView(AbstractBase obj, Form form, StringBuffer html, TextualCSS css, boolean addHeaders, int startY, int endY,
-		Color bgColor, IServiceProvider sp, int viewType, boolean enableAnchoring) throws RepositoryException
+		Color bgColor, IServiceProvider sp, int viewType, boolean enableAnchoring, int partStartY, int partEndY) throws RepositoryException
 	{
 		try
 		{
@@ -555,7 +555,7 @@ public class TemplateGenerator
 				sortable = p.getSortable();
 				TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, p));
 				BorderAndPadding ins = applyBaseComponentProperties(p, form, styleObj, null, null, sp);
-				applyLocationAndSize(p, styleObj, ins, startY, endY, form.getSize().width, true, p.getAnchors(), sp);
+				applyLocationAndSize(p, styleObj, ins, partStartY, partEndY, form.getSize().width, true, p.getAnchors(), sp);
 				html.append("<div style='overflow: auto' ");
 				html.append(getWicketIDParameter(form, p));
 //				html.append(getJavaScriptIDParameter(p));
@@ -2204,7 +2204,7 @@ public class TemplateGenerator
 		Color portalBgColor = meta.getBackground();
 		if (portalBgColor == null) portalBgColor = formPartBgColor;
 		createCellBasedView(meta, form, html, css, !meta.getMultiLine(), meta.getLocation().y, meta.getLocation().y + meta.getSize().height, portalBgColor, sp,
-			-1, false);
+			-1, false, startY, endY);
 	}
 
 	private static void createShapeHTML(Shape shape, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,

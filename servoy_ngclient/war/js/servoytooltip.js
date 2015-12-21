@@ -69,26 +69,26 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 	  	}
 
 	  	var tDiv = getTooltipDiv();
-		tDiv.style.left = x + 20  + "px";	
-		tDiv.style.top = y - 4 + "px";		
+		tDiv.style.left = x + 10  + "px";	
+		tDiv.style.top = y + 10 + "px";		
 		tDiv.style.display = "block";
-		var tooltipOffsetWidth = x + 20 + tDiv.offsetWidth; 
+		var tooltipOffsetWidth = x + 10 + tDiv.offsetWidth; 
 
 		if(wWidth < tooltipOffsetWidth)
 		{
-			var newLeft = x - 20 - tDiv.offsetWidth;
+			var newLeft = x - 10 - tDiv.offsetWidth;
 			if(newLeft < 0)
 			{
 				newLeft = 0;
-				tDiv.style.width = x - 20 + "px";
+				tDiv.style.width = x - 10 + "px";
 			}
 			tDiv.style.left = newLeft  + "px";
 		}
 
-		var tooltipOffsetHeight = y - 4 + tDiv.offsetHeight
+		var tooltipOffsetHeight = y + 10 + tDiv.offsetHeight
 		if(wHeight < tooltipOffsetHeight)
 		{
-			var newTop = y - 4 - tDiv.offsetHeight;
+			var newTop = y - 10 - tDiv.offsetHeight;
 			tDiv.style.top = newTop  + "px";
 		}
 		tipTimeout = setTimeout(function() { _hideTooltip(); }, dismissDelay);

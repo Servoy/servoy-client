@@ -156,21 +156,31 @@ angular.module('window',['servoy'])
 			
 			scope.loadSize = function(){
 				$sabloApplication.getFormState(form).then(function(formState){
+					var popupwidth = width;
+					if (!popupwidth || popupwidth<=0)
+					{
+						popupwidth = formState.properties.designSize.width;
+					}
+					var popupheight = height;
+					if (!popupheight || popupheight<=0)
+					{
+						popupheight = formState.properties.designSize.height;
+					}
 					var css = {};
-					css["min-width"] = formState.properties.designSize.width+"px";
-					css["min-height"] = formState.properties.designSize.height+"px";
+					css["width"] = popupwidth+"px";
+					css["height"] = popupheight+"px";
 					if (component)
 					{
 						var position = $('#'+component).offset();
 						//if necessary right align popup on related component
-						if (position.left + formState.properties.designSize.width > $( window ).width())
+						if (position.left + popupwidth > $( window ).width())
 						{
-							css["left"] = position.left - formState.properties.designSize.width + $('#'+component).outerWidth()+"px";
+							css["left"] = position.left - popupwidth + $('#'+component).outerWidth()+"px";
 						}
 						//if necessary popup on the top of the related component
-						if (position.top + $('#'+component).outerHeight() + formState.properties.designSize.height > $( window ).height())
+						if (position.top + $('#'+component).outerHeight() + popupheight > $( window ).height())
 						{
-							css["top"] = position.top - formState.properties.designSize.height +"px";
+							css["top"] = position.top - popupheight +"px";
 						}
 					}
 					$('#formpopup').css(css);

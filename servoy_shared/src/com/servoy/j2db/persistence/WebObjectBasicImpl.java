@@ -24,7 +24,6 @@ import java.util.List;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 
@@ -84,14 +83,14 @@ public class WebObjectBasicImpl
 	/**
 	 * Returns false if it can't clear this as a custom property (it is something else). Then caller should just clear it as another standard persist property.
 	 */
-	public boolean clearCustomProperty(String propertyName)
+	public boolean clearProperty(String propertyName)
 	{
 		return false;
 	}
 
-	public List<WebCustomType> getAllCustomProperties()
+	public List<IChildWebObject> getAllPersistMappedProperties()
 	{
-		return new ArrayList<WebCustomType>(0);
+		return new ArrayList<IChildWebObject>(0);
 	}
 
 	public Iterator<IPersist> getAllObjects()
@@ -104,14 +103,14 @@ public class WebObjectBasicImpl
 		return null;
 	}
 
-	public boolean hasCustomProperty(String propertyName)
+	public boolean hasProperty(String propertyName)
 	{
 		return false;
 	}
 
-	public Pair<Boolean, Object> getCustomProperty(String propertyName)
+	public Object getProperty(String propertyName)
 	{
-		return new Pair<>(Boolean.FALSE, null);
+		return null;
 	}
 
 	public <T extends IPersist> Iterator<T> getObjects(int tp)
@@ -137,7 +136,7 @@ public class WebObjectBasicImpl
 		return false;
 	}
 
-	public boolean setCustomProperty(String propertyName, Object val)
+	public boolean setProperty(String propertyName, Object val)
 	{
 		return false;
 	}
@@ -150,7 +149,7 @@ public class WebObjectBasicImpl
 	{
 	}
 
-	public void updateCustomProperties()
+	public void updatePersistMappedPropeties()
 	{
 	}
 

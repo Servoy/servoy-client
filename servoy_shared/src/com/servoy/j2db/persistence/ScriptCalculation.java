@@ -25,12 +25,15 @@ import com.servoy.j2db.util.UUID;
 /**
  * This class is a calculated script variable, which can use multiple other dataproviders in it's calculation<br>
  * It also can store the result of the calculation (a so called stored calculation)
- * 
+ *
  * @author jblok
  */
 public class ScriptCalculation extends AbstractScriptProvider implements IDataProvider, IColumn, ISupportHTMLToolTipText, ICloneable
 
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructor I
 	 */
@@ -112,7 +115,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	public int getDataProviderType()
 	{
 		try
-		//if stored calc type is enforced to be the same 
+		//if stored calc type is enforced to be the same
 		{
 			Table table = getTable();
 			Column c = table.getColumn(getName());
@@ -144,7 +147,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 
 	/**
 	 * Returns the type.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getType()
@@ -159,14 +162,14 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 
 	/**
 	 * Sets the type.
-	 * 
+	 *
 	 * @param type The type to set
 	 */
 	public void setTypeAndCheck(int arg, IServiceProvider application)
 	{
 		int dpType = arg;
 		try
-		//if stored calc type is enforced to be the same 
+		//if stored calc type is enforced to be the same
 		{
 			Table table = getTable();
 			if (table != null)

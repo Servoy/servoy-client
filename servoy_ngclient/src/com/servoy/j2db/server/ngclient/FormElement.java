@@ -37,6 +37,7 @@ import org.sablo.IWebComponentInitializer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
+import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.AggregatedPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
@@ -58,6 +59,7 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IFindModeAwareType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -105,7 +107,7 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 
 		boolean willTurnIntoErrorBean = inDesigner && persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()) &&
 			WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()) != null &&
-			PropertyUtils.usesCustomJSONObjectTypes(WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()));
+			usesPersistTypedProperties(WebComponentSpecProvider.getInstance().getWebComponentSpecification(((Bean)persist).getBeanClassName()));
 
 		this.componentType = willTurnIntoErrorBean ? FormElement.ERROR_BEAN : FormTemplateGenerator.getComponentTypeName(persist);
 		this.uniqueIdWithinForm = String.valueOf(persist.getID());
@@ -785,4 +787,27 @@ public final class FormElement implements IWebComponentInitializer, INGFormEleme
 	{
 		return fs;
 	}
+
+	/**
+	 * Returns true if the give property description makes use of types that are turned into persists when used in persist properties.
+	 * For example component property types, component array, custom object and custom object arrays return Persist instances when accessed through WebComponent.getProperty(...)
+	 *
+	 * @param pd the property description to look in.
+	 * @return see description.
+	 */
+	public static boolean usesPersistTypedProperties(PropertyDescription pd)
+	{
+		if (pd == null) return false;
+
+		for (PropertyDescription x : pd.getCustomJSONProperties().values())
+		{
+			if (PropertyUtils.isCustomJSONObjectProperty(x.getType()) ||
+				x.getType() instanceof ComponentPropertyType ||
+				(PropertyUtils.isCustomJSONArrayPropertyType(x.getType()) && usesPersistTypedProperties(((ICustomType< ? >)x.getType()).getCustomJSONTypeDefinition()))) return true;
+		}
+
+		return false;
+	}
+
+
 }

@@ -428,10 +428,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 		}
 		if (id > 0)
 		{
-			UUID uuid = uuid_element_id_map.getKey(new Integer(id));
+			UUID uuid = resolveUUIDForElementId(id);
 			if (uuid == null)
 			{
-				uuid = resolveUUIDForElementId(id);
+				uuid = uuid_element_id_map.getKey(new Integer(id));
 			}
 			return uuid;
 		}

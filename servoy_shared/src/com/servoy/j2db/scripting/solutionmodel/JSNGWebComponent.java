@@ -25,10 +25,13 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebComponentSpecification;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author gboros
@@ -53,6 +56,10 @@ public class JSNGWebComponent extends JSWebComponent
 			{
 				// should we move this into a IRhinoDesignConverter impl?
 				value = new Integer(((JSValueList)value).getValueList().getID());
+			}
+			else if (value instanceof JSForm)
+			{
+				value = ((JSForm)value).getName();
 			}
 			else
 			{
@@ -112,6 +119,23 @@ public class JSNGWebComponent extends JSWebComponent
 			if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 			{
 				return ((IRhinoDesignConverter)pd.getType()).fromDesignToRhinoValue(value, pd, application, this);
+			}
+			if (value != null && "form".equals(pd.getType().getName()))
+			{
+				Form form = null;
+				UUID uuid = Utils.getAsUUID(value, false);
+				if (uuid != null)
+				{
+					form = (Form)application.getFlattenedSolution().searchPersist(uuid);
+				}
+				if (value instanceof String && form == null)
+				{
+					form = application.getFlattenedSolution().getForm((String)value);
+				}
+				if (form != null)
+				{
+					return application.getScriptEngine().getSolutionModifier().instantiateForm(form, false);
+				}
 			}
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
 		}

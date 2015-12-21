@@ -34,6 +34,9 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractRootObject extends AbstractBase implements IRootObject
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private transient IRepository repository;
 
 	// Because this map can be accessed from multiple places at once and changed from multiple places at once,

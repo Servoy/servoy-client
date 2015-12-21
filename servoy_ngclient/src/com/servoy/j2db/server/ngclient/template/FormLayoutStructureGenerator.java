@@ -57,12 +57,12 @@ public class FormLayoutStructureGenerator
 				IPersist component = components.next();
 				if (component instanceof LayoutContainer)
 				{
-					generateLayoutContainer((LayoutContainer)component, context, writer, design, highlight);
+					generateLayoutContainer((LayoutContainer)component, form, context, writer, design, highlight);
 				}
 				else if (component instanceof IFormElement)
 				{
-					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), design,
-						highlight);
+					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), form,
+						design, highlight);
 				}
 			}
 			FormLayoutGenerator.generateFormEndTag(writer);
@@ -73,7 +73,7 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
-	private static void generateLayoutContainer(LayoutContainer container, ServoyDataConverterContext context, PrintWriter writer, boolean design,
+	private static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design,
 		boolean highlight) throws IOException
 	{
 		if (highlight) writer.print("<div class='highlight_element'>");
@@ -99,11 +99,9 @@ public class FormLayoutStructureGenerator
 				writer.print(" svy-layoutname='");
 				writer.print(spec.getName());
 				writer.print("'");
-				if (spec.getDesignStyleClass() != null)
+				if (spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0)
 				{
-					writer.print(" svy-designclass='");
-					writer.print(spec.getDesignStyleClass());
-					writer.print("'");
+					writer.print(" ng-class='{" + spec.getDesignStyleClass() + ": showWireframe==true}'");
 				}
 			}
 
@@ -137,11 +135,11 @@ public class FormLayoutStructureGenerator
 			IPersist component = components.next();
 			if (component instanceof LayoutContainer)
 			{
-				generateLayoutContainer((LayoutContainer)component, context, writer, design, highlight);
+				generateLayoutContainer((LayoutContainer)component, form, context, writer, design, highlight);
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), design,
+				FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), form, design,
 					highlight);
 			}
 		}

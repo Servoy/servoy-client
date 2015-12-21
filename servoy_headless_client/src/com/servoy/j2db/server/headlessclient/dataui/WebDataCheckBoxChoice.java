@@ -83,9 +83,9 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner
  */
-public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
-	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent,
-	ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
+public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
+	implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject, IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds,
+	IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -107,9 +107,10 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	private int vScrollPolicy;
 	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable;
 	private FormatConverter converter;
+	private final boolean multiselect;
 
 	public WebDataCheckBoxChoice(IApplication application, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String id,
-		IValueList vl)
+		IValueList vl, boolean multiselect)
 	{
 		super(id);
 		this.application = application;
@@ -120,8 +121,9 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(vl, true, false);
-		list.setMultiValueSelect(true);
+		list.setMultiValueSelect(multiselect);
 		setChoices(list);
+		this.multiselect = multiselect;
 
 		setChoiceRenderer(new WebChoiceRenderer(this, list));
 
@@ -151,7 +153,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		{
 			case IColumnTypes.DATETIME :
 				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
-				null, application.getLocale(), true), cf.parsedFormat);
+					null, application.getLocale(), true), cf.parsedFormat);
 				break;
 
 			case IColumnTypes.INTEGER :
@@ -489,6 +491,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		}
 	}
 
+
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListener()
 	 */
@@ -579,6 +582,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		return null;
 	}
 
+
 	/**
 	 * @see wicket.markup.html.form.ListMultipleChoice#updateModel()
 	 */
@@ -593,9 +597,17 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		else
 		{
 			boolean b = getStylePropertyChanges().isChanged();
+			if (!multiselect && ci instanceof List && ((List)ci).size() > 0)
+			{
+				//remove the previously selected value if it's not multiselect
+				List l = (List)ci;
+				l.remove(list.getRealElementAt(list.getSelectedRow()));
+				list.setElementAt(Boolean.FALSE, list.getSelectedRow());
+				getStylePropertyChanges().setValueChanged();
+			}
 			setModelObject(ci);
 			// if before updating the model the changed flag was false make sure it stays that way.
-			if (!b)
+			if (!b && multiselect)
 			{
 				getStylePropertyChanges().setRendered();
 			}
@@ -1041,7 +1053,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -1053,7 +1065,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -1064,7 +1076,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override

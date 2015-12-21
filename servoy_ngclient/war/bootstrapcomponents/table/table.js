@@ -7,21 +7,71 @@ angular.module('bootstrapcomponentsTable',['servoy']).directive('bootstrapcompon
       },
       link: function($scope, $element, $attrs) {
     	  $scope.$watch('model.foundset.serverSize', function (newValue) {
-         	 $scope.model.foundset.loadRecordsAsync(0, newValue);
+    		  if (newValue)
+    		  {
+    			  if (!$scope.showPagination())
+    			  {
+    				  $scope.model.foundset.loadRecordsAsync(0, newValue);
+    			  }
+    			  else
+    			  {
+    				  $scope.model.foundset.loadRecordsAsync($scope.model.pageSize * ($scope.model.currentPage -1), $scope.model.pageSize);
+    			  }	  
+    		  }	  
           });
     	  
+    	  $scope.$watch('model.currentPage', function (newValue) {
+    		  if (newValue &&  $scope.showPagination())
+    		  {
+    			  $scope.model.foundset.loadRecordsAsync($scope.model.pageSize * (newValue -1), $scope.model.pageSize);
+    		  }	  
+          });
+    	  
+    	  $scope.$watch('model.pageSize', function (newValue,oldValue) {
+    		  if (oldValue && newValue &&  $scope.showPagination())
+    		  {
+    			  $scope.model.foundset.loadRecordsAsync($scope.model.pageSize * ($scope.model.currentPage -1), $scope.model.pageSize);
+    		  }	  
+          });
+    	  
+    	  $scope.hasNext = function() {
+      		 return $scope.model.currentPage < Math.ceil($scope.model.foundset.serverSize / $scope.model.pageSize); 
+      	  }
+    	  
+    	  $scope.showPagination = function() {
+     		 return $scope.model.pageSize && $scope.model.foundset.serverSize > $scope.model.pageSize; 
+     	  }
+    	  
+    	  $scope.modifyPage = function(count) {
+    		var pages = Math.ceil($scope.model.foundset.serverSize / $scope.model.pageSize)
+    		var newPage = $scope.model.currentPage + count;
+    		if (newPage >= 1 && newPage <= pages)
+    		{
+    			$scope.model.currentPage = newPage;
+    		}	
+    	  }
+    	  
+    	  $scope.getRealRow = function(row) {
+    		  var realRow = row;
+    		  if ($scope.showPagination())
+    		  {
+    			  realRow = realRow + $scope.model.pageSize * ($scope.model.currentPage -1);
+    		  }	
+    		  return realRow;
+    	  }
+    	  
     	  $scope.rowClicked = function(row) {
-    		  $scope.model.foundset.selectedRowIndexes = [row];
+    		  $scope.model.foundset.selectedRowIndexes = [$scope.getRealRow(row)];
     	  }
     	  
     	  $scope.cellClicked = function(row, column) {
 			  if ($scope.handlers.onCellClick) {
-				  $scope.handlers.onCellClick(row + 1, column + 1);
+				  $scope.handlers.onCellClick($scope.getRealRow(row) + 1, column + 1);
 			  }    		  
     	  }
 
     	  $scope.getRowStyle = function(row) {
-    		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf(row) != -1; 
+    		  var isSelected = $scope.model.foundset.selectedRowIndexes && $scope.model.foundset.selectedRowIndexes.indexOf($scope.getRealRow(row)) != -1; 
     		  return  isSelected ? $scope.model.selectionClass : "";
     	  }
       },

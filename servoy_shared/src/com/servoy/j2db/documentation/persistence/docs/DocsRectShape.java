@@ -26,7 +26,7 @@ import com.servoy.j2db.persistence.RectShape;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author acostache
  *
  */
@@ -34,6 +34,9 @@ import com.servoy.j2db.persistence.RectShape;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsRectShape extends RectShape implements IBaseDocsComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	DocsRectShape()
 	{
 		super(null, 0, null);

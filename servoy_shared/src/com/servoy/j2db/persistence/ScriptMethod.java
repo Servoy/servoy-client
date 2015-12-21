@@ -24,7 +24,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * A script method
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Method", typeCode = IRepository.METHODS)
@@ -32,6 +32,9 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private transient Boolean isPrivate;
 	private transient Boolean isProtected;
 	private transient Boolean isConstructor;

@@ -26,7 +26,7 @@ import com.servoy.j2db.persistence.Portal;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author acostache
  *
  */
@@ -34,6 +34,9 @@ import com.servoy.j2db.persistence.Portal;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsPortal extends Portal implements IBaseDocsComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	DocsPortal()
 	{
 		super(null, 0, null);
