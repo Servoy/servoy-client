@@ -17,7 +17,6 @@
 package com.servoy.j2db.persistence;
 
 
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.Set;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
-import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -521,68 +519,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			makeForeignColumns(dataProviderHandler);
 		}
 		return foreign;
-	}
-
-	private ITable getTable(String dataSource) throws RepositoryException
-	{
-		if (dataSource == null)
-		{
-			return null;
-		}
-		String[] stn = DataSourceUtilsBase.getDBServernameTablename(dataSource);
-		if (stn != null)
-		{
-			try
-			{
-				IServer server = getRootObject().getServer(stn[0]);
-				if (server == null)
-				{
-					valid = Boolean.FALSE;
-					throw new RepositoryException(Messages.getString("servoy.exception.serverNotFound", new Object[] { stn[0] })); //$NON-NLS-1$
-				}
-				return server.getTable(stn[1]);
-			}
-			catch (RemoteException e)
-			{
-				Debug.error(e);
-				return null;
-			}
-		}
-
-		// not a server/table combi, ask the current clients foundset manager
-		if (J2DBGlobals.getServiceProvider() != null)
-		{
-			return J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
-		}
-
-		// developer
-		return null;
-	}
-
-	private ITable getForeignTable() throws RepositoryException
-	{
-		return getTable(getForeignDataSource());
-	}
-
-	private IServer getForeignServer() throws RepositoryException, RemoteException
-	{
-		String foreignDataSource = getForeignDataSource();
-		if (foreignDataSource == null)
-		{
-			return null;
-		}
-		String[] stn = DataSourceUtilsBase.getDBServernameTablename(foreignDataSource);
-		if (stn != null)
-		{
-			return getRootObject().getServer(stn[0]);
-		}
-
-		ITable foreignTable = getForeignTable();
-		if (foreignTable != null)
-		{
-			return getRootObject().getServer(foreignTable.getServerName());
-		}
-		return null;
 	}
 
 	public boolean isUsableInSort()
