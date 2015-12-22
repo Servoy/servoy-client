@@ -612,7 +612,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return getTable(getForeignDataSource());
 	}
 
-	public IServer getForeignServer() throws RepositoryException, RemoteException
+	private IServer getForeignServer() throws RepositoryException, RemoteException
 	{
 		String foreignDataSource = getForeignDataSource();
 		if (foreignDataSource == null)

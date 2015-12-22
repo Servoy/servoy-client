@@ -18,7 +18,6 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.lang.reflect.Array;
-import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +35,7 @@ import com.servoy.base.dataprocessing.IValueConverter;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.FindState.RelatedFindState;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
@@ -305,106 +305,100 @@ public class SQLGenerator
 
 			Relation[] relations = sc.getRelations();
 			// compare on server objects, relation.foreignServerName may be different in case of duplicates
-			try
+			boolean doRelatedJoin = (includeRelated && relations != null);
+			if (doRelatedJoin)
 			{
-				boolean doRelatedJoin = (includeRelated && relations != null);
-				if (doRelatedJoin)
+				FlattenedSolution fs = application.getFlattenedSolution();
+				for (Relation relation : relations)
 				{
-					for (Relation relation : relations)
+					if (relation.isMultiServer() && !fs.getTable(relation.getForeignDataSource()).getServerName().equals(table.getServerName()))
 					{
-						if (relation.isMultiServer() && !relation.getForeignServer().getName().equals(table.getServerName()))
-						{
-							doRelatedJoin = false;
-							break;
-						}
-					}
-				}
-				if (doRelatedJoin)
-				// related sort, cannot join across multiple servers
-				{
-					BaseQueryTable primaryQtable = selectTable;
-					BaseQueryTable foreignQtable = null;
-					for (Relation relation : relations)
-					{
-						// join must be re-created as it is possible to have globals involved;
-						// first remove, then create it
-						ISQLTableJoin join = (ISQLTableJoin)sqlSelect.getJoin(primaryQtable, relation.getName());
-						if (join != null) sqlSelect.getJoins().remove(join);
-
-						if (join == null)
-						{
-							ITable foreignTable = application.getFlattenedSolution().getTable(relation.getForeignDataSource());
-							foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
-								foreignTable.getSchema());
-						}
-						else
-						{
-							foreignQtable = join.getForeignTable();
-						}
-
-						sqlSelect.addJoin(createJoin(application.getFlattenedSolution(), relation, primaryQtable, foreignQtable, provider));
-						primaryQtable = foreignQtable;
-					}
-					IQuerySelectValue queryColumn;
-					if (column instanceof Column)
-					{
-						queryColumn = new QueryColumn(foreignQtable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(),
-							column.getLength());
-						unusedRowidentColumns.remove(column);
-					}
-					else if (column instanceof AggregateVariable)
-					{
-						AggregateVariable aggregate = (AggregateVariable)column;
-						queryColumn = new QueryAggregate(aggregate.getType(),
-							new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
-							aggregate.getName());
-
-						// there has to be a group-by clause for all selected fields
-						List<IQuerySelectValue> columns = sqlSelect.getColumns();
-						for (IQuerySelectValue selectVal : columns)
-						{
-							List<IQuerySelectValue> groupBy = sqlSelect.getGroupBy();
-							if (selectVal instanceof QueryColumn && (groupBy == null || !groupBy.contains(selectVal)))
-							{
-								sqlSelect.addGroupBy(selectVal);
-							}
-						}
-
-						// if the aggregate has not been selected yet, add it and skip it in the result
-						QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(),
-							new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
-							aggregate.getName(), null, true);
-						if (!columns.contains(skippedAggregate))
-						{
-							sqlSelect.addColumn(skippedAggregate);
-						}
-					}
-					else
-					{
-						Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
-						continue;
-					}
-					sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == SortColumn.ASCENDING));
-				}
-				else
-				{
-					// make sure an invalid sort is not possible
-					if (column instanceof Column && column.getTable().getName().equals(table.getName()))
-					{
-						sqlSelect.addSort(new QuerySort(new QueryColumn(selectTable, ((Column)column).getID(), ((Column)column).getSQLName(),
-							((Column)column).getType(), column.getLength()), sc.getSortOrder() == SortColumn.ASCENDING));
-						unusedRowidentColumns.remove(column);
-					}
-					else
-					{
-						Debug.log(
-							"Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+						doRelatedJoin = false;
+						break;
 					}
 				}
 			}
-			catch (RemoteException e)
+			if (doRelatedJoin)
+			// related sort, cannot join across multiple servers
 			{
-				throw new RepositoryException(e);
+				BaseQueryTable primaryQtable = selectTable;
+				BaseQueryTable foreignQtable = null;
+				for (Relation relation : relations)
+				{
+					// join must be re-created as it is possible to have globals involved;
+					// first remove, then create it
+					ISQLTableJoin join = (ISQLTableJoin)sqlSelect.getJoin(primaryQtable, relation.getName());
+					if (join != null) sqlSelect.getJoins().remove(join);
+
+					if (join == null)
+					{
+						ITable foreignTable = application.getFlattenedSolution().getTable(relation.getForeignDataSource());
+						foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
+							foreignTable.getSchema());
+					}
+					else
+					{
+						foreignQtable = join.getForeignTable();
+					}
+
+					sqlSelect.addJoin(createJoin(application.getFlattenedSolution(), relation, primaryQtable, foreignQtable, provider));
+					primaryQtable = foreignQtable;
+				}
+				IQuerySelectValue queryColumn;
+				if (column instanceof Column)
+				{
+					queryColumn = new QueryColumn(foreignQtable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(),
+						column.getLength());
+					unusedRowidentColumns.remove(column);
+				}
+				else if (column instanceof AggregateVariable)
+				{
+					AggregateVariable aggregate = (AggregateVariable)column;
+					queryColumn = new QueryAggregate(aggregate.getType(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
+						aggregate.getName());
+
+					// there has to be a group-by clause for all selected fields
+					List<IQuerySelectValue> columns = sqlSelect.getColumns();
+					for (IQuerySelectValue selectVal : columns)
+					{
+						List<IQuerySelectValue> groupBy = sqlSelect.getGroupBy();
+						if (selectVal instanceof QueryColumn && (groupBy == null || !groupBy.contains(selectVal)))
+						{
+							sqlSelect.addGroupBy(selectVal);
+						}
+					}
+
+					// if the aggregate has not been selected yet, add it and skip it in the result
+					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()),
+						aggregate.getName(), null, true);
+					if (!columns.contains(skippedAggregate))
+					{
+						sqlSelect.addColumn(skippedAggregate);
+					}
+				}
+				else
+				{
+					Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
+					continue;
+				}
+				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == SortColumn.ASCENDING));
+			}
+			else
+			{
+				// make sure an invalid sort is not possible
+				if (column instanceof Column && column.getTable().getName().equals(table.getName()))
+				{
+					sqlSelect.addSort(new QuerySort(
+						new QueryColumn(selectTable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(), column.getLength()),
+						sc.getSortOrder() == SortColumn.ASCENDING));
+					unusedRowidentColumns.remove(column);
+				}
+				else
+				{
+					Debug.log("Skipping sort on unrelated column " + column.getName() + '.' + column.getTable().getName() + " for table " + table.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 		}
 
