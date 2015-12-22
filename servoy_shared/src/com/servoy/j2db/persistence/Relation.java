@@ -374,7 +374,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return primaryTable == null ? null : primaryTable.getName();
 	}
 
-	public ITable getPrimaryTable() throws RepositoryException
+	private ITable getPrimaryTable() throws RepositoryException
 	{
 		return getTable(getPrimaryDataSource());
 	}
