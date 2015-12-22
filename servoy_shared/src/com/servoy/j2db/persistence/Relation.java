@@ -379,7 +379,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return getTable(getPrimaryDataSource());
 	}
 
-	public IServer getPrimaryServer() throws RepositoryException, RemoteException
+	private IServer getPrimaryServer() throws RepositoryException, RemoteException
 	{
 		String primaryDataSource = getPrimaryDataSource();
 		if (primaryDataSource == null)
