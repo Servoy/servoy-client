@@ -3075,4 +3075,28 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		return null;
 	}
+
+	@Override
+	public IServer getServer(String dataSource)
+	{
+		try
+		{
+			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+			if (snt != null)
+			{
+				return getSolution().getServer(snt[0]);
+			}
+
+			String inMemTableName = DataSourceUtils.getInmemDataSourceName(dataSource);
+			if (inMemTableName != null)
+			{
+				return getSolution().getServer(IServer.INMEM_SERVER);
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return null;
+	}
 }

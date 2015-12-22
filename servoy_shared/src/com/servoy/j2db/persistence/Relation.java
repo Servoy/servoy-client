@@ -288,18 +288,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return snt[0];
 		}
-
-		// data source is not a server/table combi
-		ITable primaryTable = null;
-		try
+		if (DataSourceUtils.getInmemDataSourceName(primaryDataSource) != null)
 		{
-			primaryTable = getPrimaryTable();
+			return IServer.INMEM_SERVER;
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		return primaryTable == null ? null : primaryTable.getServerName();
+		// can return null if it is not a db server/table combi
+		return null;
 	}
 
 	/**
@@ -324,18 +318,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return stn[0];
 		}
-
-		// data source is not a server/table combi
-		ITable foreignTable = null;
-		try
+		if (DataSourceUtils.getInmemDataSourceName(foreignDataSource) != null)
 		{
-			foreignTable = getForeignTable();
+			return IServer.INMEM_SERVER;
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		return foreignTable == null ? null : foreignTable.getServerName();
+		// can return null if it is not a DB server/table combi
+		return null;
 	}
 
 	/**
@@ -360,43 +348,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return tableName;
 		}
-
-		// data source is not a server/table combi
-		ITable primaryTable = null;
-		try
+		String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(primaryDataSource);
+		if (inmemDataSourceName != null)
 		{
-			primaryTable = getPrimaryTable();
+			return inmemDataSourceName;
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		return primaryTable == null ? null : primaryTable.getName();
-	}
-
-	private ITable getPrimaryTable() throws RepositoryException
-	{
-		return getTable(getPrimaryDataSource());
-	}
-
-	private IServer getPrimaryServer() throws RepositoryException, RemoteException
-	{
-		String primaryDataSource = getPrimaryDataSource();
-		if (primaryDataSource == null)
-		{
-			return null;
-		}
-		String[] stn = DataSourceUtilsBase.getDBServernameTablename(primaryDataSource);
-		if (stn != null)
-		{
-			return getRootObject().getServer(stn[0]);
-		}
-
-		ITable primaryTable = getPrimaryTable();
-		if (primaryTable != null)
-		{
-			return getRootObject().getServer(primaryTable.getServerName());
-		}
+		// will return null when data source is not a server/table combi
 		return null;
 	}
 
@@ -422,18 +379,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return tableName;
 		}
-
-		// data source is not a server/table combi
-		ITable foreignTable = null;
-		try
+		String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(foreignDataSource);
+		if (inmemDataSourceName != null)
 		{
-			foreignTable = getForeignTable();
+			return inmemDataSourceName;
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		return foreignTable == null ? null : foreignTable.getName();
+		// can return null when data source is not a server/table combi
+		return null;
 	}
 
 	/**
@@ -659,8 +611,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public boolean isMultiServer()
 	{
-		String primaryServerName = getPrimaryServerName();
-		return (primaryServerName == null || !primaryServerName.equals(getForeignServerName()));
+		return !DataSourceUtils.isSameServer(getPrimaryDataSource(), getForeignDataSource());
 	}
 
 	//creates real object relations also does some checks
@@ -777,13 +728,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		}
 	}
 
-	private boolean isValid()
-	{
-		if (valid != null) return valid.booleanValue();
-		// default true
-		return true;
-	}
-
 	public Boolean valid = null;
 
 	public void setValid(boolean b)
@@ -793,6 +737,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			flushCashedItems();
 		}
 		valid = Boolean.valueOf(b);
+	}
+
+	private boolean isValid()
+	{
+		if (valid != null) return valid.booleanValue();
+		// default true
+		return true;
 	}
 
 	public void flushCashedItems()

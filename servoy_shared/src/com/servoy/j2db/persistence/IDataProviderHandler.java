@@ -31,4 +31,6 @@ public interface IDataProviderHandler
 	public Map getAllDataProvidersForTable(ITable table) throws RepositoryException;
 
 	public ITable getTable(String dataSource);
+
+	public IServer getServer(String dataSource);
 }
