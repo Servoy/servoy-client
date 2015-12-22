@@ -25,11 +25,10 @@ public class DataSourceUtilsBase
 
 	public static final String DB_DATASOURCE_SCHEME = "db"; //$NON-NLS-1$
 	public static final String DB_DATASOURCE_SCHEME_COLON_SLASH = DB_DATASOURCE_SCHEME + ":/"; //$NON-NLS-1$
-	public static final int DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH = DB_DATASOURCE_SCHEME_COLON_SLASH.length();
 
 	/**
 	 * Get the server and table name from the datasource (when is is a db datasource)
-	 * 
+	 *
 	 * @param dataSource the dataSource
 	 * @return the server and table name (or null if not a db datasource)
 	 */
@@ -38,19 +37,19 @@ public class DataSourceUtilsBase
 		// db:/srv/tab
 		if (dataSource != null && dataSource.startsWith(DB_DATASOURCE_SCHEME_COLON_SLASH))
 		{
-			int slash = dataSource.indexOf('/', DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH);
+			int slash = dataSource.indexOf('/', DB_DATASOURCE_SCHEME_COLON_SLASH.length());
 			return new String[] {
 				// serverName
-			(slash <= DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH) ? null : dataSource.substring(DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH, slash),
+				(slash <= DB_DATASOURCE_SCHEME_COLON_SLASH.length()) ? null : dataSource.substring(DB_DATASOURCE_SCHEME_COLON_SLASH.length(), slash),
 				// tableName
-			(slash < 0 || slash == dataSource.length() - 1) ? null : dataSource.substring(slash + 1) };
+				(slash < 0 || slash == dataSource.length() - 1) ? null : dataSource.substring(slash + 1) };
 		}
 		return null;
 	}
 
 	/**
 	 * Create the a database data source string from server and table
-	 * 
+	 *
 	 * @param serverName the serverName
 	 * @param tableName the tableName
 	 * @return the datasource

@@ -74,8 +74,8 @@ public class ScriptNameValidator implements IValidateName
 		{
 			if (searchContext.getType() == IRepository.COLUMNS || searchContext.getType() == IRepository.SCRIPTCALCULATIONS ||
 				searchContext.getType() == IRepository.RELATIONS || searchContext.getType() == IRepository.SCRIPTVARIABLES ||
-				searchContext.getType() == IRepository.METHODS) throw new RepositoryException(nameToCheck +
-				" is a reserved window object word in the (mobile)browser"); //$NON-NLS-1$
+				searchContext.getType() == IRepository.METHODS)
+				throw new RepositoryException(nameToCheck + " is a reserved window object word in the (mobile)browser"); //$NON-NLS-1$
 		}
 
 		Object obj = findDuplicate(nameToCheck, skip_element_id, searchContext);
@@ -97,8 +97,8 @@ public class ScriptNameValidator implements IValidateName
 			}
 			if (searchContext.getObject() instanceof TableNode)
 			{
-				throw new RepositoryException(
-					"The method with name '" + nameToCheck + "' already exists as a foundset method for data source " + ((TableNode)searchContext.getObject()).getDataSource()); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new RepositoryException("The method with name '" + nameToCheck + "' already exists as a foundset method for data source " + //$NON-NLS-1$//$NON-NLS-2$
+					((TableNode)searchContext.getObject()).getDataSource());
 			}
 			throw new RepositoryException("The name '" + nameToCheck + "' already exists as a scope method"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -163,7 +163,7 @@ public class ScriptNameValidator implements IValidateName
 		//Test for script calculations
 		if (searchContext.getObject() instanceof TableNode || searchContext.getObject() instanceof Table)
 		{
-			Table table;
+			ITable table;
 			if (searchContext.getObject() instanceof Table)
 			{
 				table = (Table)searchContext.getObject();
@@ -335,7 +335,7 @@ public class ScriptNameValidator implements IValidateName
 	 * @param b
 	 * @param b1
 	 */
-	private Object testTableProviders(Table table, String next, int id, boolean isColumn, boolean isCalculation) throws RepositoryException
+	private Object testTableProviders(ITable table, String next, int id, boolean isColumn, boolean isCalculation) throws RepositoryException
 	{
 		if (table == null) return null;
 		String dataProviderID = null;

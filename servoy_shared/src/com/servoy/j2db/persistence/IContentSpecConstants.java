@@ -190,6 +190,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_MODULESNAMES = "modulesNames";
 	public static final String PROPERTY_NAMEDFOUNDSET = "namedFoundSet";
 	public static final String PROPERTY_NAME = "name";
+	public static final String PROPERTY_COLUMNS = "columns";
 	public static final String PROPERTY_PARAMETERS = "parameters";
 	public static final String PROPERTY_POINTS = "points";
 	public static final String PROPERTY_PRIMARYDATAPROVIDERID = "primaryDataProviderID";

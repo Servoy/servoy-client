@@ -1449,7 +1449,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			try
 			{
-				Table table = tableNode.getTable();
+				ITable table = tableNode.getTable();
 				if (table != null)
 				{
 					allProvidersForTable.remove(table);

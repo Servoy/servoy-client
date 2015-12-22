@@ -23,6 +23,8 @@ import java.util.HashMap;
 
 import org.json.JSONObject;
 
+import com.servoy.j2db.util.ServoyJSONObject;
+
 
 /**
  * @author jblok
@@ -243,6 +245,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_MODULESNAMES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_MODULESNAMES);
 	public static final TypedProperty<String> PROPERTY_NAMEDFOUNDSET = new TypedProperty<String>(IContentSpecConstants.PROPERTY_NAMEDFOUNDSET);
 	public static final TypedProperty<String> PROPERTY_NAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_NAME);
+	public static final TypedProperty<ServoyJSONObject> PROPERTY_COLUMNS = new TypedProperty<ServoyJSONObject>(IContentSpecConstants.PROPERTY_COLUMNS);
 	public static final TypedProperty<String> PROPERTY_PARAMETERS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PARAMETERS);
 	public static final TypedProperty<String> PROPERTY_POINTS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_POINTS);
 	public static final TypedProperty<String> PROPERTY_PRIMARYDATAPROVIDERID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PRIMARYDATAPROVIDERID);
@@ -873,6 +876,10 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		if (old_repository_version < 47)
 		{
 			cs.new Element(434, IRepository.LAYOUTCONTAINERS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+		}
+		if (old_repository_version < 48)
+		{
+			cs.new Element(435, IRepository.TABLENODES, PROPERTY_COLUMNS.getPropertyName(), IRepository.JSON, null);
 		}
 		//##add property adds here
 		return cs;

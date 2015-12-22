@@ -45,6 +45,7 @@ public class ItemChangeHandler<E, I>
 			if (itemListeners == null)
 			{
 				itemListeners = new ArrayList<IItemChangeListener<I>>();
+				listeners.put(element, itemListeners);
 			}
 			if (!itemListeners.contains(listener))
 			{
@@ -81,7 +82,9 @@ public class ItemChangeHandler<E, I>
 
 	public void fireItemChanged(E element, I item)
 	{
-		fireItemOperation(element, OPERATION.CHANGED, item, null);
+		Collection<I> items = new ArrayList<I>(1);
+		items.add(item);
+		fireItemOperation(element, OPERATION.CHANGED, null, items);
 	}
 
 	public void fireItemChanged(E element, Collection<I> items)
@@ -94,7 +97,7 @@ public class ItemChangeHandler<E, I>
 	{
 		if (element != null)
 		{
-			List<IItemChangeListener<I>> itemListeners = listeners.get(item);
+			List<IItemChangeListener<I>> itemListeners = listeners.get(element);
 			if (itemListeners != null)
 			{
 				for (IItemChangeListener<I> listener : itemListeners)

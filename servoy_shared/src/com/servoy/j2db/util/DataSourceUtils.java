@@ -62,7 +62,11 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	 */
 	public static String[] getDBServernameTablename(String dataSource)
 	{
-		return DataSourceUtilsBase.getDBServernameTablename(dataSource);
+		String[] dbServernameTablename = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+		if (dbServernameTablename != null) return dbServernameTablename;
+		if (dataSource != null && dataSource.startsWith(INMEM_DATASOURCE_SCHEME_COLON))
+			return new String[] { INMEM_DATASOURCE, dataSource.substring(INMEM_DATASOURCE_SCHEME_COLON.length()) };
+		return null;
 	}
 
 	/**

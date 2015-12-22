@@ -21,16 +21,16 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
 /**
  * This class is a repository node for storing scriptcalculations under, because jaleman said that there easily are 300-1000 calcs in a solution
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Table", typeCode = IRepository.TABLENODES)
@@ -66,7 +66,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 		obj.setName(name);
 		MethodTemplate template = MethodTemplate.getTemplate(ScriptCalculation.class, null);
-		obj.setDeclaration(template.getMethodDeclaration(name, "\treturn 1;", userTemplate)); //$NON-NLS-1$  
+		obj.setDeclaration(template.getMethodDeclaration(name, "\treturn 1;", userTemplate)); //$NON-NLS-1$
 		addChild(obj);
 		return obj;
 	}
@@ -132,8 +132,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
  */
 	public void setDataSource(String arg)
 	{
+		Object old = getProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
-		table = null;
+		if (old == null || !old.equals(arg)) table = null;
 	}
 
 	/**
@@ -151,7 +152,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getTableName()
 	{
-		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[1];
 	}
 
@@ -162,13 +163,13 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getServerName()
 	{
-		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 
-	private transient Table table = null;
+	private transient ITable table = null;
 
-	public Table getTable() throws RepositoryException
+	public ITable getTable() throws RepositoryException
 	{
 		if (table == null)
 		{
@@ -177,7 +178,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 			{
 				return null;
 			}
-			String[] stn = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+			String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
 			if (stn != null)
 			{
 				try
@@ -187,7 +188,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 					{
 						throw new RepositoryException(Messages.getString("servoy.exception.serverNotFound", new Object[] { stn[0] })); //$NON-NLS-1$
 					}
-					table = (Table)server.getTable(stn[1]);
+					table = server.getTable(stn[1]);
 				}
 				catch (RemoteException e)
 				{
@@ -199,7 +200,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 				// not a server/table combi, ask the current clients foundset manager
 				if (J2DBGlobals.getServiceProvider() != null)
 				{
-					table = (Table)J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
+					table = J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
 				}
 			}
 		}
@@ -228,8 +229,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed before an insert operation. The method can block the insert operation by returning false.
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Record pre-insert trigger
 	 * Validate the record to be inserted.
 	 * When false is returned the record will not be inserted in the database.
@@ -240,13 +241,13 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that will be inserted
 	 * @templateaddtodo
 	 * @templatecode
-	 * 
+	 *
 	 * var not_valid = false;
 	 * // test if it is valid.
-	 * 
+	 *
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
 	 * if (not_valid) throw 'cannot insert'
-	 * 
+	 *
 	 * // return boolean to indicate success
 	 * return true
 	 */
@@ -262,8 +263,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed before an update operation. A method can block the update by returning false.
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Record pre-update trigger
 	 * Validate the record to be updated.
 	 * When false is returned the record will not be updated in the database.
@@ -274,13 +275,13 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that will be updated
 	 * @templateaddtodo
 	 * @templatecode
-	 * 
+	 *
 	 * var not_valid = false;
 	 * // test if it is valid.
-	 * 
+	 *
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
 	 * if (not_valid) throw 'cannot update'
-	 * 
+	 *
 	 * // return boolean to indicate success
 	 * return true
 	 */
@@ -296,8 +297,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed before a delete operation. The method can block the delete operation by returning false.
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Record pre-delete trigger
 	 * Validate the record to be deleted.
 	 * When false is returned the record will not be deleted in the database.
@@ -308,13 +309,13 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that will be deleted
 	 * @templateaddtodo
 	 * @templatecode
-	 * 
+	 *
 	 * var not_valid = false;
 	 * // test if it is valid.
-	 * 
+	 *
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
 	 * if (not_valid) throw 'cannot delete'
-	 * 
+	 *
 	 * // return boolean to indicate success
 	 * return true
 	 */
@@ -330,7 +331,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed after an insert operation.
-	 * 
+	 *
 	 * @templatedescription Record after-insert trigger
 	 * @templatename afterRecordInsert
 	 * @templateparam JSRecord<${dataSource}> record record that is inserted
@@ -348,7 +349,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed after an update operation.
-	 * 
+	 *
 	 * @templatedescription Record after-update trigger
 	 * @templatename afterRecordUpdate
 	 * @templateparam JSRecord<${dataSource}> record record that is updated
@@ -366,7 +367,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed after a delete operation.
-	 * 
+	 *
 	 * @templatedescription Record after-delete trigger
 	 * @templatename afterRecordDelete
 	 * @templateparam JSRecord<${dataSource}> record record that is deleted
@@ -384,15 +385,15 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed before a record is created. The method can block the creation by returning false.
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Record pre-create trigger
 	 * When false is returned the record will not be created in the foundset.
 	 * @templatename onFoundSetRecordCreate
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
-	 * 
+	 *
 	 * // return true so that the record can be created
 	 * return true
 	 */
@@ -408,15 +409,15 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed before a foundset is going into find mode. The method can block the mode change.
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Foundset pre-find trigger
 	 * When false is returned the foundset will not go into find mode.
 	 * @templatename onFoundSetFind
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
-	 * 
+	 *
 	 * // return true so that it will go into find mode.
 	 * return true
 	 */
@@ -432,8 +433,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed after a foundset has switched to find mode.
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Foundset post-find trigger
 	 * @templatename afterFoundSetFind
 	 * @templateaddtodo
@@ -451,8 +452,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed before search() is called on a foundset in find mode. The method can block the search (foundset will stay in find mode).
-	 * 
-	 * @templatedescription 
+	 *
+	 * @templatedescription
 	 * Foundset pre-search trigger
 	 * When false is returned the search will not be executed and the foundset will stay in find mode.
 	 * @templatename onFoundSetSearch
@@ -461,7 +462,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatetype Boolean
 	 * @templateaddtodo
 	 * @templatecode
-	 * 
+	 *
 	 * // return true so that the search will go on.
 	 * return true
 	 */
@@ -477,7 +478,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed after a search is executed for a foundset.
-	 * @templatedescription 
+	 * @templatedescription
 	 * Foundset post-search trigger
 	 * @templatename afterFoundSetSearch
 	 * @templateaddtodo
@@ -495,7 +496,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	/**
 	 * A method that is executed after a new record is created.
-	 * 
+	 *
 	 * @templatedescription Record after-create trigger
 	 * @templatename afterFoundSetRecordCreate
 	 * @templateparam JSRecord<${dataSource}> record record that is created
@@ -539,5 +540,22 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		if (name == null) return null;
 		return AbstractBase.selectByName(new TypeIterator<ScriptMethod>(getAllObjects(), IRepository.METHODS), name);
+	}
+
+	/**
+	 * Set the design time in memory table columns definitions for this TableNode
+	 * @param iTable
+	 */
+	public void setITable(ITable iTable)
+	{
+		this.table = iTable;
+	}
+
+	/**
+	 * @param contents
+	 */
+	public void setColumns(ServoyJSONObject contents)
+	{
+		this.setTypedProperty(StaticContentSpecLoader.PROPERTY_COLUMNS, contents);
 	}
 }

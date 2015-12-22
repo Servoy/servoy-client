@@ -115,7 +115,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 		try
 		//if stored calc type is enforced to be the same
 		{
-			Table table = getTable();
+			ITable table = getTable();
 			Column c = table.getColumn(getName());
 			if (c != null)
 			{
@@ -137,7 +137,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	/**
 	 * @see com.servoy.j2db.persistence.IColumn#getTable()
 	 */
-	public Table getTable() throws RepositoryException
+	public ITable getTable() throws RepositoryException
 	{
 		TableNode node = (TableNode)getParent();
 		return node.getTable();
@@ -169,7 +169,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 		try
 		//if stored calc type is enforced to be the same
 		{
-			Table table = getTable();
+			ITable table = getTable();
 			if (table != null)
 			{
 				Column c = table.getColumn(getName());
@@ -286,7 +286,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IColumn#setSequenceType(int)
 	 */
 	@Override

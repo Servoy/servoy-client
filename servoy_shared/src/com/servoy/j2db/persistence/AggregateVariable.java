@@ -84,7 +84,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		Table table = getTable();
+		ITable table = getTable();
 		if (table == null)
 		{
 			TableNode node = (TableNode)getParent();
@@ -255,7 +255,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	/**
 	 * @see com.servoy.j2db.persistence.IColumn#getTable()
 	 */
-	public Table getTable() throws RepositoryException
+	public ITable getTable() throws RepositoryException
 	{
 		TableNode node = (TableNode)getParent();
 		return node.getTable();
@@ -371,7 +371,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.IColumn#setSequenceType(int)
 	 */
 	@Override
