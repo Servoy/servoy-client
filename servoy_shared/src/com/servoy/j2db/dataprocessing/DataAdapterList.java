@@ -32,6 +32,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ControllerUndoManager;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ServoyBeanState;
@@ -127,6 +128,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			table = dataProviderLookup.getTable();
 		}
 		//add
+		FlattenedSolution fs = application.getFlattenedSolution();
 		for (Object obj : formObjects.values())
 		{
 			if (obj instanceof IDisplayData)
@@ -148,13 +150,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 					int idx = dataProviderID.lastIndexOf('.');
 					if (idx != -1) //handle related fields
 					{
-						Relation[] relations = application.getFlattenedSolution().getRelationSequence(dataProviderID.substring(0, idx));
+						Relation[] relations = fs.getRelationSequence(dataProviderID.substring(0, idx));
 						boolean ok = relations != null;
 						if (ok)
 						{
 							for (Relation relation : relations)
 							{
-								ok &= relation.isValid();
+								ok &= Relation.isValid(relation, fs);
 							}
 						}
 						if (ok)
@@ -211,12 +213,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 						{
 							try
 							{
-								Relation[] relations = application.getFlattenedSolution().getRelationSequence(lookup.substring(0, index));
+								Relation[] relations = fs.getRelationSequence(lookup.substring(0, index));
 								if (relations != null && relations.length > 0)
 								{
 									// add a RelookupAdapter for the last relation
 									Relation relation = relations[relations.length - 1];
-									IDataProvider[] dps = relation.getPrimaryDataProviders(application.getFlattenedSolution());
+									IDataProvider[] dps = relation.getPrimaryDataProviders(fs);
 									if (dps != null)
 									{
 										IDataAdapter la = this.dataAdapters.get("LA:" + lookup); //$NON-NLS-1$

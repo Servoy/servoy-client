@@ -542,7 +542,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private RelatedFoundSet getRelatedFoundSetWhenLoaded(IRecordInternal state, Relation relation) throws RepositoryException
 	{
-		if (state == null || relation == null || !relation.isValid())
+		if (state == null || Relation.isValid(relation, application.getFlattenedSolution()))
 		{
 			return null;
 		}
@@ -574,7 +574,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		IFoundSetInternal retval = null;
 		Relation relation = application.getFlattenedSolution().getRelation(relationName);
-		if (relation == null || !relation.isValid())
+		if (Relation.isValid(relation, application.getFlattenedSolution()))
 		{
 			return null;
 		}
@@ -1646,9 +1646,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				reason = "relation '" + split[i] + "' not found";
 			}
-			else if (!r.isUsableInSort())
+			else if (!Relation.isValid(r, application.getFlattenedSolution()) || !r.isUsableInSort())
 			{
-				if (!r.isValid()) reason = "relation '" + split[i] + "' not valid";
+				if (!Relation.isValid(r, application.getFlattenedSolution())) reason = "relation '" + split[i] + "' not valid";
 				else if (r.isMultiServer()) reason = "relation '" + split[i] + "' is cross server, sorting is not supported";
 				else if (r.isGlobal()) reason = "relation '" + split[i] + "' is global, sorting is not supported";
 				else reason = "relation '" + split[i] + "' is outer join with or null modifier, sorting is not supported";

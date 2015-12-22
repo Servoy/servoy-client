@@ -31,6 +31,7 @@ import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
@@ -492,7 +493,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		IFoundSetInternal rfs = relatedStates.get(partName);
 		if (rfs == null)
 		{
-			Relation r = parent.getFoundSetManager().getApplication().getFlattenedSolution().getRelation(partName);
+			FlattenedSolution fs = parent.getFoundSetManager().getApplication().getFlattenedSolution();
+			Relation r = fs.getRelation(partName);
 			if (r == null) return null; //safety
 			try
 			{
@@ -508,7 +510,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 						String reason = "";
 						if (r.isGlobal()) reason = "global relation";
 						else if (r.isMultiServer()) reason = "multi server";
-						else if (!r.isValid()) reason = "server/table not valid/loaded";
+						else if (!Relation.isValid(r, fs)) reason = "server/table not valid/loaded";
 						else
 						{
 							reason = "relation primary datasource: " + r.getPrimaryDataSource() + " != findstate primary datasource: " + parent.getDataSource();

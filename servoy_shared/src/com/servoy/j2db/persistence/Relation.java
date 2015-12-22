@@ -777,22 +777,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		}
 	}
 
-	public boolean isValid()
+	private boolean isValid()
 	{
-		if (valid == null && getForeignDataSource() != null)
-		{
-			try
-			{
-				IServer server = getForeignServer();
-				valid = Boolean.valueOf(server != null && server.isValid() && getForeignTable() != null);
-			}
-			catch (Exception e)
-			{
-				valid = Boolean.FALSE;
-			}
-		}
-		// default to true
-		return valid == null || valid.booleanValue();
+		if (valid != null) return valid.booleanValue();
+		// default true
+		return true;
 	}
 
 	public Boolean valid = null;
@@ -1147,5 +1136,27 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	public void setDeprecated(String deprecatedInfo)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
+	}
+
+	public static boolean isValid(Relation relation, IDataProviderHandler handler)
+	{
+		if (relation == null) return false;
+		// TODO can this valid really be stored in the relation.
+		// can we have the same relation that is valid in 1 client but not in the other?
+		if (relation.valid == null && relation.getForeignDataSource() != null)
+		{
+			try
+			{
+				IServer server = handler.getServer(relation.getForeignDataSource());
+				ITable table = handler.getTable(relation.getForeignDataSource());
+				relation.valid = Boolean.valueOf(server != null && server.isValid() && table != null);
+			}
+			catch (Exception e)
+			{
+				relation.valid = Boolean.FALSE;
+			}
+		}
+		// default to true
+		return relation.valid == null || relation.valid.booleanValue();
 	}
 }

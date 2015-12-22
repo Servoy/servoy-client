@@ -1155,11 +1155,12 @@ public class SQLGenerator
 
 		try
 		{
-			if (!r.isValid() || r.isParentRef())
+			FlattenedSolution fs = application.getFlattenedSolution();
+			if (!Relation.isValid(r, fs) || r.isParentRef())
 			{
 				return;
 			}
-			ITable ft = application.getFlattenedSolution().getTable(r.getForeignDataSource());
+			ITable ft = fs.getTable(r.getForeignDataSource());
 			if (ft == null)
 			{
 				return;
@@ -1170,7 +1171,7 @@ public class SQLGenerator
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
 			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
-			Column[] relcols = r.getForeignColumns(application.getFlattenedSolution());
+			Column[] relcols = r.getForeignColumns(fs);
 			for (Column column : relcols)
 			{
 				parentRequiredDataProviderIDs.add(column.getDataProviderID());

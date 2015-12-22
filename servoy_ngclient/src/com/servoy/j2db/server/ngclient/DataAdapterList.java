@@ -375,7 +375,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					{
 						for (Relation relation : relations)
 						{
-							if (relation.isValid() && relation.isGlobal())
+							if (Relation.isValid(relation, getApplication().getFlattenedSolution()) && relation.isGlobal())
 							{
 								try
 								{
