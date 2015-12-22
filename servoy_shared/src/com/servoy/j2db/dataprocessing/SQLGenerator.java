@@ -333,7 +333,7 @@ public class SQLGenerator
 
 						if (join == null)
 						{
-							ITable foreignTable = relation.getForeignTable();
+							ITable foreignTable = application.getFlattenedSolution().getTable(relation.getForeignDataSource());
 							foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 								foreignTable.getSchema());
 						}
@@ -893,7 +893,7 @@ public class SQLGenerator
 		BaseQueryTable prevTable = existsSelect.getTable();
 		for (IRelation relation : relations)
 		{
-			ITable foreignTable = relation.getForeignTable();
+			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
 			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 				foreignTable.getSchema());
 			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, provider));
@@ -1165,7 +1165,7 @@ public class SQLGenerator
 			{
 				return;
 			}
-			ITable ft = r.getForeignTable();
+			ITable ft = application.getFlattenedSolution().getTable(r.getForeignDataSource());
 			if (ft == null)
 			{
 				return;

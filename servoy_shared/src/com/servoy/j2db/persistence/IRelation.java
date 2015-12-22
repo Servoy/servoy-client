@@ -29,8 +29,6 @@ public interface IRelation extends ISupportName
 
 	Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException;
 
-	ITable getForeignTable() throws RepositoryException;
-
 	int[] getOperators();
 
 	int getJoinType();

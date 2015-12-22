@@ -48,7 +48,6 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -69,9 +68,9 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public class FormatPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>/* <ComponentFormat> */,
-	ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>, ISabloComponentToRhino<Object> /* <ComponentFormat */,
-	IRhinoToSabloComponent<Object> /* <ComponentFormat */
+public class FormatPropertyType extends DefaultPropertyType<Object>
+	implements IConvertedPropertyType<Object>/* <ComponentFormat> */, ISupportTemplateValue<Object>, IFormElementDefaultValueToSabloComponent<Object, Object>,
+	ISabloComponentToRhino<Object> /* <ComponentFormat */, IRhinoToSabloComponent<Object> /* <ComponentFormat */
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -125,13 +124,13 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 	}
 
 	@Override
-	public Object/* ComponentFormat */defaultValue(PropertyDescription pd)
+	public Object/* ComponentFormat */ defaultValue(PropertyDescription pd)
 	{
 		return DESIGN_DEFAULT;
 	}
 
 	@Override
-	public Object/* ComponentFormat */fromJSON(Object newValue, Object/* ComponentFormat */previousValue, PropertyDescription pd,
+	public Object/* ComponentFormat */ fromJSON(Object newValue, Object/* ComponentFormat */ previousValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		// TODO remove when these types are design-aware and we know exactly how to deal with FormElement values (a refactor is to be done soon)
@@ -287,7 +286,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 									if (val.getRelationName() != null)
 									{
 										Relation[] relations = application.getFlattenedSolution().getRelationSequence(val.getRelationName());
-										table = relations[relations.length - 1].getForeignTable();
+										table = application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource());
 									}
 									else
 									{
@@ -313,7 +312,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 
 										if (dp != null)
 										{
-											dataProvider = application.getFlattenedSolution().getDataProviderForTable((Table)table, dp);
+											dataProvider = application.getFlattenedSolution().getDataProviderForTable(table, dp);
 										}
 										if (dataProvider != null)
 										{
@@ -340,11 +339,10 @@ public class FormatPropertyType extends DefaultPropertyType<Object> implements I
 					}
 				}
 			}
-			ComponentFormat format = ComponentFormat.getComponentFormat(
-				(String)formElementValue,
-				dataproviderId,
+			ComponentFormat format = ComponentFormat.getComponentFormat((String)formElementValue, dataproviderId,
 				application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(),
-					component.getDataConverterContext().getForm().getForm()), application, true);
+					component.getDataConverterContext().getForm().getForm()),
+				application, true);
 			return format;
 		}
 		return formElementValue;

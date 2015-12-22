@@ -24,12 +24,12 @@ import java.util.List;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -65,14 +65,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
 		if (relations != null && relations.length > 0)
 		{
-			try
-			{
-				setContainsCalculationFlag(relations[relations.length - 1].getForeignTable());
-			}
-			catch (RepositoryException e)
-			{
-				Debug.error(e);
-			}
+			setContainsCalculationFlag(application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource()));
 		}
 
 		//more than one value -> concat
@@ -86,24 +79,18 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 	{
 		if (registered && valueList.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES)
 		{
-			try
+			FlattenedSolution fs = application.getFlattenedSolution();
+			Relation[] relations = fs.getRelationSequence(valueList.getRelationName());
+			if (relations != null)
 			{
-				Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
-				if (relations != null)
+				for (Relation relation : relations)
 				{
-					for (Relation relation : relations)
+					if (!relation.isGlobal())
 					{
-						if (!relation.isGlobal())
-						{
-							//if changes are performed on the data refresh this list.
-							((FoundSetManager)application.getFoundSetManager()).removeTableListener(relation.getForeignTable(), this);
-						}
+						//if changes are performed on the data refresh this list.
+						((FoundSetManager)application.getFoundSetManager()).removeTableListener(fs.getTable(relation.getForeignDataSource()), this);
 					}
 				}
-			}
-			catch (RepositoryException e)
-			{
-				Debug.error(e);
 			}
 		}
 		registered = false;
@@ -155,6 +142,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				// check if all relations go to the same server
 				boolean sameServer = true;
 				String serverName = relations[0].getForeignServerName();
+				FlattenedSolution fs = application.getFlattenedSolution();
 				for (Relation relation : relations)
 				{
 					//if changes are performed on the data refresh this list.
@@ -162,7 +150,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 					{
 						if (!registered)
 						{
-							((FoundSetManager)application.getFoundSetManager()).addTableListener(relation.getForeignTable(), this);
+							((FoundSetManager)application.getFoundSetManager()).addTableListener(fs.getTable(relation.getForeignDataSource()), this);
 						}
 						if (sameServer)
 						{
@@ -176,9 +164,9 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 				stopBundlingEvents(); // to be on the safe side
 				removeAllElements();
-				for (IFoundSetInternal fs : related)
+				for (IFoundSetInternal fsi : related)
 				{
-					fs.removeFoundSetEventListener(this);
+					fsi.removeFoundSetEventListener(this);
 				}
 				related.clear();
 				realValues = new SafeArrayList<Object>();
@@ -368,10 +356,12 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		int returnValues = valueList.getReturnDataProviders();
 		boolean showAndReturnAreSame = showValues == returnValues;
 
+
 		// perform the query
 		String serverName = relations[0].getForeignServerName();
 		SQLStatement trackingInfo = null;
-		if (foundSetManager.getEditRecordList().hasAccess(relations[relations.length - 1].getForeignTable(), IRepository.TRACKING_VIEWS))
+		if (foundSetManager.getEditRecordList().hasAccess(application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource()),
+			IRepository.TRACKING_VIEWS))
 		{
 			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, serverName, pair.getRight().getName(), null, null);
 			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
@@ -445,11 +435,13 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			return null;
 		}
 
+		FlattenedSolution fs = application.getFlattenedSolution();
+
 		BaseQueryTable lastTable = select.getTable();
-		ITable foreignTable = relations[0].getForeignTable();
+		ITable foreignTable = fs.getTable(relations[0].getForeignDataSource());
 		for (int i = 1; i < relations.length; i++)
 		{
-			foreignTable = relations[i].getForeignTable();
+			foreignTable = fs.getTable(relations[i].getForeignDataSource());
 			ISQLTableJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable,
 				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()),
 				scopesScopeProvider);

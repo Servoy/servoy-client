@@ -29,6 +29,7 @@ import javax.swing.event.ListDataListener;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
@@ -36,7 +37,6 @@ import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.CompareCondition;
@@ -115,22 +115,16 @@ public class LookupValueList implements IValueList
 		if (table != null && showValues != returnValues && tableListener == null)
 		{
 			//register
-			try
+			tableListener = new TableChangeListener();
+			if (table != null)
 			{
-				tableListener = new TableChangeListener();
-				if (table != null)
-				{
-					((FoundSetManager)application.getFoundSetManager()).addTableListener(table, tableListener);
+				((FoundSetManager)application.getFoundSetManager()).addTableListener(table, tableListener);
 
-					for (int i = 0; relations != null && i < relations.length - 1; i++)
-					{
-						((FoundSetManager)application.getFoundSetManager()).addTableListener(relations[i].getForeignTable(), tableListener);
-					}
+				FlattenedSolution fs = application.getFlattenedSolution();
+				for (int i = 0; relations != null && i < relations.length - 1; i++)
+				{
+					((FoundSetManager)application.getFoundSetManager()).addTableListener(fs.getTable(relations[i].getForeignDataSource()), tableListener);
 				}
-			}
-			catch (RepositoryException e)
-			{
-				Debug.error("Error registering table", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -230,7 +224,8 @@ public class LookupValueList implements IValueList
 						String[] displayFormats = getDisplayFormat();
 						for (Object[] element : data)
 						{
-							DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormats, concatShowValues, showValues, element, application);
+							DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormats, concatShowValues, showValues, element,
+								application);
 							if (obj != null && !obj.equals("")) //$NON-NLS-1$
 							{
 								alDisplay.add(obj);
@@ -520,19 +515,13 @@ public class LookupValueList implements IValueList
 		clear();
 		if (tableListener != null && table != null)
 		{
+			FlattenedSolution fs = application.getFlattenedSolution();
 			((FoundSetManager)application.getFoundSetManager()).removeTableListener(table, tableListener);
 
 			Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
 			for (int i = 0; relations != null && i < relations.length - 1; i++)
 			{
-				try
-				{
-					((FoundSetManager)application.getFoundSetManager()).removeTableListener(relations[i].getForeignTable(), tableListener);
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error("Error deregistering table", e); //$NON-NLS-1$
-				}
+				((FoundSetManager)application.getFoundSetManager()).removeTableListener(fs.getTable(relations[i].getForeignDataSource()), tableListener);
 			}
 			tableListener = null;
 		}

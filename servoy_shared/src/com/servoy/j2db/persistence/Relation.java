@@ -607,7 +607,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return null;
 	}
 
-	public ITable getForeignTable() throws RepositoryException
+	private ITable getForeignTable() throws RepositoryException
 	{
 		return getTable(getForeignDataSource());
 	}

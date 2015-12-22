@@ -222,20 +222,12 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 		ComponentFactory.applyBasicComponentProperties(application, this, meta, ComponentFactory.getStyleForBasicComponent(application, meta, form));
 
-		try
+		Relation[] relations = application.getFlattenedSolution().getRelationSequence(meta.getRelationName());
+		if (relations != null)
 		{
-			Relation[] relations = application.getFlattenedSolution().getRelationSequence(meta.getRelationName());
-			if (relations != null)
-			{
-				relationName = meta.getRelationName();
-				defaultSort = ((FoundSetManager)app.getFoundSetManager()).getSortColumns(relations[relations.length - 1].getForeignTable(),
-					meta.getInitialSort());
-			}
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-			defaultSort = new ArrayList<SortColumn>(1);
+			relationName = meta.getRelationName();
+			defaultSort = ((FoundSetManager)app.getFoundSetManager()).getSortColumns(
+				application.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource()), meta.getInitialSort());
 		}
 
 		setFocusCycleRoot(true);
@@ -428,7 +420,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 		IFoundSetInternal relatedFoundSet = state == null ? null : state.getRelatedFoundSet(relationName, getDefaultSort());
 
-		if (currentData == relatedFoundSet) return;//if is same changes are seen by model listener	
+		if (currentData == relatedFoundSet) return;//if is same changes are seen by model listener
 
 		if (currentData != null)
 		{
@@ -917,7 +909,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	@Override
 	public String toString()
 	{
-		return "PortalComponent[" + getName() + ":" + getBounds();//$NON-NLS-1$ //$NON-NLS-2$ 
+		return "PortalComponent[" + getName() + ":" + getBounds();//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getId()

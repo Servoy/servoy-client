@@ -338,7 +338,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 				}
 				else
 				{
-					table = ((Relation)o).getForeignTable();
+					table = application.getFlattenedSolution().getTable(((Relation)o).getForeignDataSource());
 				}
 				if (table != null)
 				{

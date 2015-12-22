@@ -1340,7 +1340,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			Column[] cols = r.getForeignColumns(this);
 			if (cols == null || cols.length == 0) return null;
 
-			IDataProvider c = getDataProviderForTable(r.getForeignTable(), col);
+			IDataProvider c = getDataProviderForTable(getTable(r.getForeignDataSource()), col);
 
 			if (r != null && c instanceof IColumn)
 			{
@@ -1550,19 +1550,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			else if (p instanceof Portal)
 			{
 				ITable t = null;
-				try
+				Relation[] relations = getRelationSequence(((Portal)p).getRelationName());
+				if (relations == null)
 				{
-					Relation[] relations = getRelationSequence(((Portal)p).getRelationName());
-					if (relations == null)
-					{
-						return null;
-					}
-					t = relations[relations.length - 1].getForeignTable();
+					return null;
 				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
-				}
+				t = getTable(relations[relations.length - 1].getForeignDataSource());
 				retval = new FormAndTableDataProviderLookup(this, (Form)p.getParent(), t);
 			}
 			else
@@ -2731,7 +2724,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 						}
 						else
 						{
-							ITable relForeignTable = r.getForeignTable();
+							ITable relForeignTable = getTable(r.getForeignDataSource());
 							if (relForeignTable == null)
 							{
 								return null;

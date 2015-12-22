@@ -279,11 +279,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			{
 				setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			}
-			if ((((ISupportScrollbars)cellview).getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
+			if ((((ISupportScrollbars)cellview).getScrollbars() &
+				ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
 			{
 				setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			}
-			if ((((ISupportScrollbars)cellview).getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+			if ((((ISupportScrollbars)cellview).getScrollbars() &
+				ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 			{
 				setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			}
@@ -397,18 +399,11 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				height = p.getSize().height;
 				if (p.getInitialSort() != null)
 				{
-					try
+					Relation[] relations = app.getFlattenedSolution().getRelationSequence(p.getRelationName());
+					if (relations != null && relations.length > 0)
 					{
-						Relation[] relations = app.getFlattenedSolution().getRelationSequence(p.getRelationName());
-						if (relations != null && relations.length > 0)
-						{
-							initialSort = ((FoundSetManager)app.getFoundSetManager()).getSortColumns(relations[relations.length - 1].getForeignTable(),
-								p.getInitialSort());
-						}
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
+						initialSort = ((FoundSetManager)app.getFoundSetManager()).getSortColumns(
+							app.getFlattenedSolution().getTable(relations[relations.length - 1].getForeignDataSource()), p.getInitialSort());
 					}
 				}
 			}
@@ -450,15 +445,15 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						{
 							IScriptable scriptable = ((IScriptableProvider)editor).getScriptObject();
 							if (scriptable instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
-								((ISupportOnRenderCallback)scriptable).getRenderEventExecutor() != null) ComponentFactoryHelper.addPortalOnRenderCallback(
-								(Portal)cellview, ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor(), obj, fc != null ? fc.getScriptExecuter()
-									: null);
+								((ISupportOnRenderCallback)scriptable).getRenderEventExecutor() != null)
+								ComponentFactoryHelper.addPortalOnRenderCallback((Portal)cellview,
+									((ISupportOnRenderCallback)scriptable).getRenderEventExecutor(), obj, fc != null ? fc.getScriptExecuter() : null);
 						}
 
 						if (dragMouseListener != null && editor instanceof JComponent)
 						{
 							if (editor instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)editor).clearTransferHandler();
-							else ((JComponent)editor).setTransferHandler(null);
+							else((JComponent)editor).setTransferHandler(null);
 							editor.addMouseListener(dragMouseListener);
 							editor.addMouseMotionListener(dragMouseListener);
 						}
@@ -518,15 +513,15 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						{
 							IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
 							if (scriptable instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
-								((ISupportOnRenderCallback)scriptable).getRenderEventExecutor() != null) ComponentFactoryHelper.addPortalOnRenderCallback(
-								(Portal)cellview, ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor(), obj, fc != null ? fc.getScriptExecuter()
-									: null);
+								((ISupportOnRenderCallback)scriptable).getRenderEventExecutor() != null)
+								ComponentFactoryHelper.addPortalOnRenderCallback((Portal)cellview,
+									((ISupportOnRenderCallback)scriptable).getRenderEventExecutor(), obj, fc != null ? fc.getScriptExecuter() : null);
 						}
 
 						if (dragMouseListener != null && renderer instanceof JComponent)
 						{
 							if (renderer instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)renderer).clearTransferHandler();
-							else ((JComponent)renderer).setTransferHandler(null);
+							else((JComponent)renderer).setTransferHandler(null);
 							editor.addMouseListener(dragMouseListener);
 							editor.addMouseMotionListener(dragMouseListener);
 						}
@@ -727,7 +722,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				String name = String.valueOf(ca.getIdentifier());
 				GraphicalComponent gc = (GraphicalComponent)labelsFor.get(name);
 				LFAwareSortableHeaderRenderer tcr = new LFAwareSortableHeaderRenderer(app, this, ca, arrowUp, arrowDown, gc, formForStyles);
-				if (gc != null) ComponentFactory.applyBasicComponentProperties(app, tcr, gc, ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles));
+				if (gc != null)
+					ComponentFactory.applyBasicComponentProperties(app, tcr, gc, ComponentFactory.getStyleForBasicComponent(app, gc, formForStyles));
 				ca.setHeaderRenderer(tcr);
 			}
 		}
@@ -991,9 +987,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							public void run()
 							{
 								ToolTipManager.sharedInstance().unregisterComponent((JComponent)cellAdapter.getRenderer());
-								cellAdapter.getRenderer().dispatchEvent(
-									new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_ENTERED, e.getWhen(), e.getModifiers(), e.getX(), e.getY(), 0,
-										false));
+								cellAdapter.getRenderer().dispatchEvent(new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_ENTERED, e.getWhen(),
+									e.getModifiers(), e.getX(), e.getY(), 0, false));
 								TableView.this.repaint(getCellRect(newrow, newcolumn, false));
 							}
 						});
@@ -2060,12 +2055,14 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 || cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
+			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 ||
+				cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
 		}
 		else
 		{
 			Form form = fc.getForm();
-			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0);
+			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 ||
+				form.getOnDropMethodID() > 0);
 		}
 
 		if (enableDragDrop && !GraphicsEnvironment.isHeadless())
@@ -2198,8 +2195,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		this.headerStyle = headerStyle;
 
 		// if we have border css styling ignore table lines
-		if (styleSheet != null &&
-			((oddStyle != null && styleSheet.hasBorder(oddStyle)) || (evenStyle != null && styleSheet.hasBorder(evenStyle)) || (selectedStyle != null && styleSheet.hasBorder(selectedStyle))))
+		if (styleSheet != null && ((oddStyle != null && styleSheet.hasBorder(oddStyle)) || (evenStyle != null && styleSheet.hasBorder(evenStyle)) ||
+			(selectedStyle != null && styleSheet.hasBorder(selectedStyle))))
 		{
 			setShowHorizontalLines(false);
 			setShowVerticalLines(false);
