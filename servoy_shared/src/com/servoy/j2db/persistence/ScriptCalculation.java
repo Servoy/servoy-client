@@ -139,6 +139,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	 */
 	public ITable getTable() throws RepositoryException
 	{
+		// TODO this uses state in the persist..
 		TableNode node = (TableNode)getParent();
 		return node.getTable();
 	}

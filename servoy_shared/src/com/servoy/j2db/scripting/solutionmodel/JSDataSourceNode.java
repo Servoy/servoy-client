@@ -43,7 +43,7 @@ import com.servoy.j2db.solutionmodel.ISMDataSourceNode;
 
 /**
  * Solution model holder for calculations and foundset methods.
- * 
+ *
  * @author rgansevles
  */
 @SuppressWarnings("nls")
@@ -88,10 +88,10 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Get the data source for this node.
-	 * 
+	 *
 	 * @sample
 	 * var nodeDataSource = solutionModel.getDataSourceNode("db:/example_data/customers").getDataSource();
-	 * 
+	 *
 	 * @return the dataSource
 	 */
 	@JSFunction
@@ -117,11 +117,11 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Get an existing calculation for the datasource node.
-	 * 
+	 *
 	 * @param name The name of the calculation
-	 * 
+	 *
 	 * @sampleas newCalculation(String, int)
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSCalculation getCalculation(String name)
@@ -136,7 +136,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Gets all the calculations for the datasource node.
-	 * 
+	 *
 	 * @sampleas newCalculation(String, int)
 	 */
 	@JSFunction
@@ -154,11 +154,11 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	/**
 	 * Creates a new calculation for the given code, the type will be the column where it could be build on (if name is a column name),
 	 * else it will default to JSVariable.TEXT;
-	 * 
+	 *
 	 * @param code The code of the calculation, this must be a full function declaration.
-	 * 
+	 *
 	 * @sampleas newCalculation(String, int)
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSCalculation newCalculation(String code)
@@ -168,23 +168,23 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Creates a new calculation for the given code and the type, if it builds on a column (name is a column name) then type will be ignored.
-	 * 
+	 *
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 * @param type The type of the calculation, one of the JSVariable types.
-	 * 
+	 *
 	 * @sample
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER);
 	 * var calc2 = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation2() { return '20'; }");
 	 * var calc3 = solutionModel.getDataSourceNode("db:/example_data/employees").newCalculation("function myCalculation3() { return 'Hello World!'; }",	JSVariable.TEXT);
-	 * 
+	 *
 	 * var c = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation");
 	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
-	 * 
+	 *
 	 * var allCalcs = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculations();
 	 * for (var i = 0; i < allCalcs.length; i++) {
 	 * 	application.output(allCalcs[i]);
 	 * }
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSCalculation newCalculation(String code, int type)
@@ -195,7 +195,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 			TableNode tablenode = fs.getSolutionCopyTableNode(dataSource);
 
 			String name = JSMethod.parseName(code);
-			ScriptCalculation scriptCalculation = tablenode.createNewScriptCalculation(new ScriptNameValidator(fs), name, null);
+			ScriptCalculation scriptCalculation = tablenode.createNewScriptCalculation(new ScriptNameValidator(fs), name, null, fs.getTable(dataSource));
 			scriptCalculation.setDeclaration(code);
 			scriptCalculation.setTypeAndCheck(type, application);
 			TableScope tableScope = (TableScope)application.getScriptEngine().getTableScope(scriptCalculation.getTable());
@@ -215,27 +215,27 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Removes the calculation specified by name.
-	 * 
+	 *
 	 * @sample
 	 * var calc1 = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation1() { return 123; }", JSVariable.INTEGER);
 	 * var calc2 = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation2() { return '20'; }");
-	 * 
+	 *
 	 * var c = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation1");
 	 * application.output("Name: " + c.getName() + ", Stored: " + c.isStored());
-	 * 
+	 *
 	 * solutionModel.getDataSourceNode("db:/example_data/customers").removeCalculation("myCalculation1");
 	 * c = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation1");
 	 * if (c != null) {
 	 * 	application.output("myCalculation could not be removed.");
 	 * }
-	 * 
+	 *
 	 * var allCalcs = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculations();
 	 * for (var i = 0; i < allCalcs.length; i++) {
 	 * 	application.output(allCalcs[i]);
 	 * }
-	 * 
+	 *
 	 * @param name the name of the calculation to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
@@ -272,13 +272,13 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	/**
 	 * Creates a new foundset method with the specified code.
 	 *
-	 * @sample 
+	 * @sample
 	 * var method = solutionModel.getDataSourceNode("db:/example_data/orders").newMethod("function doubleSize() { return 2*getSize(); }");
-	 * 
+	 *
 	 * application.output('Doubled orders for this customer: '+customers_to_orders.doubleSize())
 	 *
 	 * @param code the specified code for the foundset method
-	 * 
+	 *
 	 * @return a JSMethod object
 	 */
 	@JSFunction
@@ -305,11 +305,11 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Get an existing foundset method for the datasource node.
-	 * 
+	 *
 	 * @param name The name of the method
-	 * 
+	 *
 	 * @sampleas newMethod(String)
-	 * 
+	 *
 	 */
 	@JSFunction
 	public JSMethod getMethod(String name)
@@ -324,7 +324,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Gets all the foundset methods for the datasource node.
-	 * 
+	 *
 	 * @sampleas newMethod(String)
 	 */
 	@JSFunction
@@ -341,26 +341,26 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/**
 	 * Removes the foundset method specified by name.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var method1 = solutionModel.getDataSourceNode("db:/example_data/customers").newMethod("function myFoundsetMethod1() { return 123; }");
 	 * var method2 = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myFoundsetMethod2() { return '20'; }");
-	 * 
+	 *
 	 * var m = solutionModel.getDataSourceNode("db:/example_data/customers").getMethod("myFoundsetMethod1");
 	 * application.output("Name: " + m.getName());
-	 * 
+	 *
 	 * solutionModel.getDataSourceNode("db:/example_data/customers").removeMethod("myFoundsetMethod1");
 	 * m = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myFoundsetMethod1");
 	 * if (m != null) { application.output("myFoundsetMethod1 could not be removed."); }
-	 * 
+	 *
 	 * var allMethods = solutionModel.getDataSourceNode("db:/example_data/customers").getMethod();
 	 * for (var i = 0; i < allMethods; i++)
 	 * {
 	 * 	application.output(allMethods[i]);
 	 * }
-	 * 
+	 *
 	 * @param name the name of the method to be removed
-	 * 
+	 *
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
@@ -404,7 +404,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -418,7 +418,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

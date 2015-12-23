@@ -1447,17 +1447,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		TableNode tableNode = (TableNode)persist.getAncestor(IRepository.TABLENODES);
 		if (tableNode != null && tableNode.getDataSource() != null) // it might reach this code from the persist created event - where data source is not yet set
 		{
-			try
+			ITable table = getTable(tableNode.getDataSource());
+			if (table != null)
 			{
-				ITable table = tableNode.getTable();
-				if (table != null)
-				{
-					allProvidersForTable.remove(table);
-				}
-			}
-			catch (RepositoryException e)
-			{
-				Debug.log(e);
+				allProvidersForTable.remove(table);
 			}
 		}
 	}

@@ -170,7 +170,7 @@ public class ScriptNameValidator implements IValidateName
 			}
 			else
 			{
-				table = ((TableNode)searchContext.getObject()).getTable();
+				table = solutionRoot.getTable(((TableNode)searchContext.getObject()).getDataSource());
 			}
 
 			Object obj = testRelations(nameToCheck, skip_element_id);

@@ -257,6 +257,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	 */
 	public ITable getTable() throws RepositoryException
 	{
+		// TODO this uses state in the persist..
 		TableNode node = (TableNode)getParent();
 		return node.getTable();
 	}

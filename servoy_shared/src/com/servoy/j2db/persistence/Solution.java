@@ -496,9 +496,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return createNewTableNode(dataSource);
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String dataSource, String name, String userTemplate) throws RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, ITable table, String name, String userTemplate) throws RepositoryException
 	{
-		return getOrCreateTableNode(dataSource).createNewScriptCalculation(validator, name, userTemplate);
+		return getOrCreateTableNode(table.getDataSource()).createNewScriptCalculation(validator, name, userTemplate, table);
 	}
 
 	public ScriptMethod createNewFoundsetMethod(IValidateName validator, String dataSource, String name, String userTemplate) throws RepositoryException
@@ -529,10 +529,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return retval;
 	}
 
-	public AggregateVariable createNewAggregateVariable(IValidateName validator, String dataSource, String name, int aggType, String dataProviderIDToAggregate)
+	public AggregateVariable createNewAggregateVariable(IValidateName validator, ITable table, String name, int aggType, String dataProviderIDToAggregate)
 		throws RepositoryException
 	{
-		return getOrCreateTableNode(dataSource).createNewAggregateVariable(validator, name, aggType, dataProviderIDToAggregate);
+		return getOrCreateTableNode(table.getDataSource()).createNewAggregateVariable(validator, name, aggType, dataProviderIDToAggregate, table);
 	}
 
 	public Iterator<AggregateVariable> getAggregateVariables(ITable basedOnTable, boolean sort) throws RepositoryException

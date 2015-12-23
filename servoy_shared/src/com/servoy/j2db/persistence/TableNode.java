@@ -21,8 +21,7 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.Messages;
+import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -53,12 +52,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return getObjects(IRepository.SCRIPTCALCULATIONS);
 	}
 
-	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String calcName, String userTemplate) throws RepositoryException
+	public ScriptCalculation createNewScriptCalculation(IValidateName validator, String calcName, String userTemplate, ITable table) throws RepositoryException
 	{
 		String name = calcName == null ? "untitled" : calcName; //$NON-NLS-1$
 
 		//check if name is in use
-		ValidatorSearchContext ft = new ValidatorSearchContext(getTable(), IRepository.SCRIPTCALCULATIONS);
+		ValidatorSearchContext ft = new ValidatorSearchContext(table, IRepository.SCRIPTCALCULATIONS);
 		validator.checkName(name, 0, ft, false);
 
 		ScriptCalculation obj = (ScriptCalculation)getRootObject().getChangeHandler().createNewObject(this, IRepository.SCRIPTCALCULATIONS);
@@ -98,13 +97,13 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return getObjects(IRepository.AGGREGATEVARIABLES);
 	}
 
-	AggregateVariable createNewAggregateVariable(IValidateName validator, String calcName, int atype, String dataProviderIDToAggregate)
+	AggregateVariable createNewAggregateVariable(IValidateName validator, String calcName, int atype, String dataProviderIDToAggregate, ITable table)
 		throws RepositoryException
 	{
 		String name = calcName == null ? "untitled" : calcName; //$NON-NLS-1$
 
 		//check if name is in use
-		ValidatorSearchContext ft = new ValidatorSearchContext(getTable(), IRepository.AGGREGATEVARIABLES);
+		ValidatorSearchContext ft = new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES);
 		validator.checkName(name, 0, ft, true);
 
 		AggregateVariable obj = (AggregateVariable)getRootObject().getChangeHandler().createNewObject(this, IRepository.AGGREGATEVARIABLES);
@@ -134,7 +133,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		Object old = getProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
-		if (old == null || !old.equals(arg)) table = null;
 	}
 
 	/**
@@ -167,49 +165,32 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return stn == null ? null : stn[0];
 	}
 
-	private transient ITable table = null;
-
-	public ITable getTable() throws RepositoryException
+	ITable getTable() throws RepositoryException
 	{
-		if (table == null)
+		// can we exact this out of this class?
+		// aggregates and script calculations are depending on this (IColumn.getTable())
+		String dataSource = getDataSource();
+		String[] dbServernameTablename = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+		try
 		{
-			String dataSource = getDataSource();
-			if (dataSource == null)
+			// does it have a sql server/table
+			if (dbServernameTablename != null)
 			{
-				return null;
+				IServer server = getRootObject().getServer(dbServernameTablename[0]);
+				return server != null ? server.getTable(dbServernameTablename[1]) : null;
 			}
-			String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
-			if (stn != null)
+			// or is it a in memory datasource
+			String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
+			if (inmemDataSourceName != null)
 			{
-				try
-				{
-					IServer server = getRootObject().getServer(stn[0]);
-					if (server == null)
-					{
-						throw new RepositoryException(Messages.getString("servoy.exception.serverNotFound", new Object[] { stn[0] })); //$NON-NLS-1$
-					}
-					table = server.getTable(stn[1]);
-				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
-				}
-			}
-			else
-			{
-				// not a server/table combi, ask the current clients foundset manager
-				if (J2DBGlobals.getServiceProvider() != null)
-				{
-					table = J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
-				}
+				return getRootObject().getServer(IServer.INMEM_SERVER).getTable(inmemDataSourceName);
 			}
 		}
-		return table;
-	}
-
-	public void clearTable()
-	{
-		table = null;
+		catch (RemoteException e)
+		{
+			throw new RepositoryException(e);
+		}
+		return null;
 	}
 
 	@Override
@@ -540,15 +521,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	{
 		if (name == null) return null;
 		return AbstractBase.selectByName(new TypeIterator<ScriptMethod>(getAllObjects(), IRepository.METHODS), name);
-	}
-
-	/**
-	 * Set the design time in memory table columns definitions for this TableNode
-	 * @param iTable
-	 */
-	public void setITable(ITable iTable)
-	{
-		this.table = iTable;
 	}
 
 	/**
