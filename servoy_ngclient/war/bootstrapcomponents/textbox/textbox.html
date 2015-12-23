@@ -1,4 +1,4 @@
-<input type="{{model.inputType}}" 
+<input type="{{model.inputType}}"
 	    ng-class='model.styleClass' class='bts-textbox'
 	    ng-model="model.dataProviderID"
 	    ng-disabled="!model.enabled"
@@ -8,6 +8,7 @@
 	   	svy-focuslost='handlers.onFocusLostMethodID($event)'
 	   	svy-enter='handlers.onActionMethodID($event)'
 	   	svy-rightclick='handlers.onRightClickMethodID($event)'
-       	svy-autoapply
-       	ng-show='model.visible'
+      	svy-autoapply
+      	ng-show='model.visible'
+		sablo-tabseq='model.tabSeq'
 	    />

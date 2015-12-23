@@ -3,7 +3,7 @@
   	 <span>Select contained form</span>
   </label>
 </div>
-<tabset  class='bts-tabpanel' ng-class='model.styleClass' style="position: relative;" ng-show='model.visible'>
+<tabset  class='bts-tabpanel' ng-class='model.styleClass' style="position: relative;" ng-show='model.visible' sablo-tabseq='model.tabSeq'>
     <tab ng-repeat="tab in model.tabs" active="tab.active" select="select(tab)" >
       <tab-heading>
         <span  ng-bind='tab.text'></span>

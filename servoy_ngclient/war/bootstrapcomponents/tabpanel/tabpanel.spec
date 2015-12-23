@@ -12,15 +12,16 @@
 			"styleClass" : { "type" :"styleclass"},
 			"height" : {"type":"int", "default":"500"},
 			"tabIndex" : {"type":"int", "pushToServer": "allow", "tags": { "scope" :"runtime" }},
-	        "visible" : "visible"
+			"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
+	    	"visible" : "visible"
 	},
 	"handlers":
 	{
-	
+
 	},
 	"api":
 	{
-	        
+
 	},
 	"types": {
   	 "tab": {
@@ -30,5 +31,5 @@
   		"relationName": "relation"
   		}
 	}
-	 
+
 }

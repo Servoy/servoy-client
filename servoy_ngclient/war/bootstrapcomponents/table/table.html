@@ -1,5 +1,5 @@
 <div class="table-responsive" ng-show='model.visible'>
-<table class='bts-table' ng-class="model.styleClass">
+<table class='bts-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq'>
   <tr>
     <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns"><div ng-bind='column.headerText'></div></th>
   </tr>

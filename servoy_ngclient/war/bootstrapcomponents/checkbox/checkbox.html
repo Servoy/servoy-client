@@ -1,11 +1,12 @@
 <div class='bts-check' ng-class='model.styleClass' ng-show='model.visible'>
-	<label>	
+	<label>
 		<input type="checkbox"
-			    ng-model ="selection"
-				ng-click="checkBoxClicked()"
-				svy-click='handlers.onActionMethodID($event)'
-				ng-disabled="!model.enabled"
-				/>
+				   ng-model ="selection"
+					 sablo-tabseq='model.tabSeq'
+					 ng-click="checkBoxClicked()"
+					 svy-click='handlers.onActionMethodID($event)'
+					 ng-disabled="!model.enabled"
+					/>
 		 <span ng-bind="model.text"/>
 	</label>
 </div>

@@ -1,11 +1,12 @@
-<progressbar 
+<progressbar
 	ng-class="model.styleClass"
-	value="model.value" 
+	value="model.value"
 	type={{model.type}}
 	animate="model.animate"
 	max="model.max"
 	ng-show='model.visible'
+	sablo-tabseq='model.tabSeq'
 	>
 	<b ng-show="model.showValue">{{model.value}}%</b>
-	
+
 </progressbar>
