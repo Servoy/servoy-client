@@ -20,7 +20,8 @@
 		"column": 
 		{
 			"dataprovider": {	"type": "dataprovider",	"forFoundset": "foundset" },
-			"format" : {"for":["valuelist","dataprovider"] , "type" :"format"}, 
+			"format" : {"for":["valuelist","dataprovider"] , "type" :"format"},
+			"headerStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }}, 
 			"headerText": {"type" :"string", "default" : "header"},
 			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 			"valuelist" : { "type" : "valuelist", "tags": { "scope" :"design" }, "for": "dataprovider"} 
