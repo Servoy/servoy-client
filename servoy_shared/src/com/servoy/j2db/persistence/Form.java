@@ -18,7 +18,6 @@ package com.servoy.j2db.persistence;
 
 
 import java.awt.Dimension;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -31,7 +30,6 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.SortedList;
@@ -249,7 +247,6 @@ public class Form extends AbstractContainer
 		{
 			setTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE, arg);
 		}
-		table = null;//clear any cached table
 	}
 
 	/**
@@ -258,14 +255,6 @@ public class Form extends AbstractContainer
 	public String getStyleName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLENAME);
-	}
-
-	/**
-	 * Clears the form table.
-	 */
-	public void clearTable()
-	{
-		table = null;
 	}
 
 	/**
@@ -287,33 +276,7 @@ public class Form extends AbstractContainer
 		return stn == null ? null : stn[1];
 	}
 
-	private transient Table table;//local cache
 	private long lastModified = System.currentTimeMillis();
-
-	/**
-	 * The table associated with this form.
-	 *
-	 * @exclude
-	 */
-	public Table getTable() throws RepositoryException
-	{
-		if (table == null && getDataSource() != null)
-		{
-			try
-			{
-				IServer s = getSolution().getServer(getServerName());
-				if (s != null && s.isValid())
-				{
-					table = (Table)s.getTable(getTableName());
-				}
-			}
-			catch (RemoteException ex)
-			{
-				Debug.error(ex);
-			}
-		}
-		return table;
-	}
 
 	/**
 	 * Set the view.

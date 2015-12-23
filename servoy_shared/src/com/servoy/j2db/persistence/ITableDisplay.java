@@ -22,7 +22,7 @@ package com.servoy.j2db.persistence;
  */
 public interface ITableDisplay
 {
-	public ITable getTable() throws RepositoryException;
+	public String getDataSource();
 
 	public String getInitialSort();
 }

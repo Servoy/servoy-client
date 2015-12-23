@@ -250,7 +250,7 @@ public class ScriptNameValidator implements IValidateName
 			if (obj != null) return obj;
 
 			// Test table dataproviders
-			obj = testTableProviders(((Form)searchContext.getObject()).getTable(), nameToCheck, skip_element_id, false, false);
+			obj = testTableProviders(solutionRoot.getTable(((Form)searchContext.getObject()).getDataSource()), nameToCheck, skip_element_id, false, false);
 			if (obj != null) return obj;
 		}
 

@@ -384,7 +384,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				{
 					try
 					{
-						initialSort = ((FoundSetManager)app.getFoundSetManager()).getSortColumns(form.getTable(), form.getInitialSort());
+						initialSort = ((FoundSetManager)app.getFoundSetManager()).getSortColumns(app.getFlattenedSolution().getTable(form.getDataSource()),
+							form.getInitialSort());
 					}
 					catch (Exception ex)
 					{

@@ -158,7 +158,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * When basedOnTable is specified it also returns global relations (based entirely on globals)
 	 */
-	public Iterator<Relation> getRelations(Table basedOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
+	public Iterator<Relation> getRelations(ITable basedOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
 	{
 		return getRelations(getRepository(), getAllObjectsAsList(), basedOnTable, isPrimaryTable, sort);
 	}
@@ -743,7 +743,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);

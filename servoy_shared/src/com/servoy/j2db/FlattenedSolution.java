@@ -1534,7 +1534,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				{
 					if (foundSetManager == null)
 					{
-						t = ((Form)p).getTable();
+						t = getTable(((Form)p).getDataSource());
 					}
 					else
 					{

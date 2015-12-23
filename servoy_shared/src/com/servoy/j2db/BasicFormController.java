@@ -105,8 +105,8 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public abstract class BasicFormController implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener,
-	IPrepareForSave
+public abstract class BasicFormController
+	implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener, IPrepareForSave
 {
 	private static final int PIN_VISIBLE = 1; // 1 is higher prio then 2
 	private static final int PIN_HIDDEN = 2;
@@ -146,8 +146,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		if (!application.getFlattenedSolution().formCanBeInstantiated(getForm()))
 		{
 			// abstract form
-			application.reportJSWarning("Form '" + namedInstance +
-				"' is abstract (no parts),and should not be created/touched because the elements are not there");
+			application.reportJSWarning(
+				"Form '" + namedInstance + "' is abstract (no parts),and should not be created/touched because the elements are not there");
 		}
 	}
 
@@ -161,8 +161,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		ITable formTable = application.getFoundSetManager().getTable(form.getDataSource());
 		if (newModel != null && ((formTable == null && newModel.getTable() != null) || (formTable != null && !formTable.equals(newModel.getTable()))))
 		{
-			throw new IllegalArgumentException(application.getI18NMessage(
-				"servoy.formPanel.error.wrongFoundsetTable", new Object[] { newModel.getTable() == null //$NON-NLS-1$
+			throw new IllegalArgumentException(
+				application.getI18NMessage("servoy.formPanel.error.wrongFoundsetTable", new Object[] { newModel.getTable() == null //$NON-NLS-1$
 					? "NONE" : newModel.getTable().getName(), form.getTableName() })); //$NON-NLS-1$
 		}
 
@@ -701,8 +701,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			try
 			{
 				runningExecuteOnRecordEditStop = true;
-				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record },
-					Boolean.TRUE, true, true));
+				boolean ret = !Boolean.FALSE.equals(
+					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record }, Boolean.TRUE, true, true));
 				if (ret && getApplication().getFoundSetManager() != null)
 				{
 					// for this record, record edit saved is called successfully shouldn't happen the second time.
@@ -960,7 +960,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	@SuppressWarnings("nls")
 	protected Object executeFunction(Function f, Object[] args, Scriptable scope, Scriptable thisObject, boolean saveData, Object src, boolean testFindMode,
 		boolean focusEvent, String methodKey, boolean executeWhenFieldValidationFailed, boolean useFormAsEventSourceEventually, boolean throwException)
-		throws Exception
+			throws Exception
 	{
 		if (!(testFindMode && isInFindMode())) //only run certain methods in find
 		{
@@ -1087,7 +1087,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IForm#getFoundSet()
 	 */
 	@Override
@@ -1164,15 +1164,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	public ITable getTable()
 	{
-		try
-		{
-			return form.getTable();
-		}
-		catch (RepositoryException ex)
-		{
-			Debug.error(ex);
-			return null;
-		}
+		return getApplication().getFlattenedSolution().getTable(getDataSource());
 	}
 
 	public String getDataSource()
@@ -1254,8 +1246,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			try
 			{
 				List<String> invalidRangeConditions = null;
-				count = formModel.performFind(clearLastResult, reduceSearch, !showDialogOnNoResults, false, showDialogOnNoResults
-					? invalidRangeConditions = new ArrayList<String>() : null);
+				count = formModel.performFind(clearLastResult, reduceSearch, !showDialogOnNoResults, false,
+					showDialogOnNoResults ? invalidRangeConditions = new ArrayList<String>() : null);
 				if (application.getCmdManager() instanceof ICmdManagerInternal)
 				{
 					((ICmdManagerInternal)application.getCmdManager()).ableFormRelatedFindActions(false);
@@ -1937,8 +1929,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 		else if (isInFindMode())
 		{
-			Object o = executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID,
-				new Object[] { Boolean.valueOf(clear), Boolean.valueOf(reduce) }, Boolean.FALSE, true, true);
+			Object o = executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID, new Object[] { Boolean.valueOf(clear), Boolean.valueOf(reduce) },
+				Boolean.FALSE, true, true);
 			if (o instanceof Number)
 			{
 				return ((Number)o).intValue();
@@ -2137,9 +2129,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	{
 		if (form.getOnDeleteAllRecordsCmdMethodID() == 0)
 		{
-			int but = JOptionPane.showConfirmDialog(
-				(Component)getFormUI(),
-				application.getI18NMessage("servoy.formPanel.deleteall.warning"), application.getI18NMessage("servoy.formPanel.deleteall.text"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+			int but = JOptionPane.showConfirmDialog((Component)getFormUI(), application.getI18NMessage("servoy.formPanel.deleteall.warning"), //$NON-NLS-1$
+				application.getI18NMessage("servoy.formPanel.deleteall.text"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //$NON-NLS-1$
 			if (but == JOptionPane.YES_OPTION)
 			{
 				try
@@ -3344,8 +3335,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			checkDestroyed();
 			if (name != null)
 			{
-				IDataProvider dp = formController.getApplication().getFlattenedSolution().getDataproviderLookup(
-					formController.application.getFoundSetManager(), formController.getForm()).getDataProvider(name);
+				IDataProvider dp = formController.getApplication().getFlattenedSolution().getDataproviderLookup(formController.application.getFoundSetManager(),
+					formController.getForm()).getDataProvider(name);
 				if (dp != null)
 				{
 					return dp.getLength();
@@ -3620,7 +3611,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		{
 			checkDestroyed();
 			int nfound = formController.performFindImpl(clearLastResults, reduceSearch, false);
-			return nfound < 0 ? 0/* blocked */: nfound;
+			return nfound < 0 ? 0/* blocked */ : nfound;
 		}
 
 		/**
@@ -3940,8 +3931,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick, Function onRightClick)
 		{
 			checkDestroyed();
-			formController.setDesignMode(new DesignModeCallbacks(new Function[] { onDrag, onDrop, onSelect, onResize, onDblClick, onRightClick },
-				formController.application));
+			formController.setDesignMode(
+				new DesignModeCallbacks(new Function[] { onDrag, onDrop, onSelect, onResize, onDblClick, onRightClick }, formController.application));
 		}
 
 		/**

@@ -186,7 +186,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 		boolean relationsAdded = false;
 		String item = null;
 
-		Table table = null;
+		ITable table = null;
 		if (definedTable == null)
 		{
 			FormManager fm = (FormManager)application.getFormManager();
@@ -194,7 +194,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 			if (fc != null)
 			{
 				Form form = fc.getForm();
-				table = form.getTable();
+				table = application.getFlattenedSolution().getTable(form.getDataSource());
 			}
 		}
 		else
@@ -316,7 +316,7 @@ public class DataProviderEditor extends JPanel implements IOptimizedPropertyEdit
 				if (fc != null)
 				{
 					Form form = fc.getForm();
-					table = form.getTable();
+					table = application.getFlattenedSolution().getTable(form.getDataSource());
 				}
 			}
 			else
