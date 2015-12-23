@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.util;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -25,15 +24,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.servoy.base.util.DataSourceUtilsBase;
-import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.IServer;
-import com.servoy.j2db.persistence.IServerManager;
-import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.keyword.Ident;
 
 
@@ -197,75 +189,6 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		}
 		String server1 = getDataSourceServerName(dataSource1);
 		return server1 != null && server1.equals(getDataSourceServerName(dataSource2));
-	}
-
-	/**
-	 * Silently tries to get a table from the given datasource. If either server or table do not exist or something unexpected happens
-	 * it will return null.<br>
-	 *
-	 * It will try to get the server from the following sources in this order: rootObject, serverManager, app. server singleton's server manager, current client's foundset manager (in case it's not a standard server/table combo).
-	 *
-	 * @param rootObject if a solution should be used to get the server.
-	 * @param serverManager if this serverManager should be used to get the server.
-	 */
-	public static ITable getTable(String dataSource, IRootObject rootObject, IServerManager serverManager)
-	{
-		ITable t = null;
-		if (dataSource != null)
-		{
-			String[] stn = DataSourceUtilsBase.getDBServernameTablename(dataSource);
-			if (stn != null)
-			{
-				try
-				{
-					IServer server;
-					if (rootObject != null)
-					{
-						server = rootObject.getServer(stn[0]);
-					}
-					else
-					{
-						IServerManager sm = serverManager;
-						if (sm == null)
-						{
-							// use default
-							IApplicationServerSingleton as = ApplicationServerRegistry.get();
-							sm = as != null ? as.getServerManager() : null;
-						}
-						server = sm != null ? sm.getServer(stn[0], true, true) : null;
-					}
-					if (server != null)
-					{
-						t = server.getTable(stn[1]);
-					}
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
-				}
-				catch (RemoteException e)
-				{
-					Debug.error(e);
-				}
-			}
-			else
-			{
-				// not a server/table combi, ask the current clients foundset manager
-				if (J2DBGlobals.getServiceProvider() != null)
-				{
-					try
-					{
-						t = J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
-					}
-				}
-			}
-		}
-
-		return t;
 	}
 
 	public static boolean isDatasourceUri(String str)
