@@ -180,7 +180,15 @@ angular.module('window',['servoy'])
 						//if necessary popup on the top of the related component
 						if (position.top + $('#'+component).outerHeight() + popupheight > $( window ).height())
 						{
-							css["top"] = position.top - popupheight +"px";
+							if ((position.top - popupheight) > 0)
+							{
+								css["top"] = position.top - popupheight +"px";
+							}
+							else
+							{
+								// there is not enough space on bottom, there is not enough space on top; just leave the old one ?
+								//wc is different , see PopupPanel.html, do this way for minox menu
+							}	
 						}
 					}
 					$('#formpopup').css(css);
