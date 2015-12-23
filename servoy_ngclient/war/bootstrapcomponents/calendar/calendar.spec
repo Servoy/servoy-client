@@ -8,13 +8,13 @@
 {"name":"bootstrap-datetimepicker-servoy-extension", "version":"1.0", "url":"bootstrapcomponents/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker-servoy-extension.css", "mimetype":"text/css"}],
 	"model":
 	{
-	        "dataProviderID" : { "type":"dataprovider", "pushToServer": "allow","tags": { "scope" :"design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}},
-	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID"] },
-	        "format" : {"for":["dataProviderID"] , "type" :"format"},
-	        "readOnly" : { "type": "protected", "blockingOn": true, "default": false,"for": ["dataProviderID","onDataChangeMethodID"] },
-	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default" : "form-control"},
-					"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
-	        "visible" : "visible"
+	    "dataProviderID" : { "type":"dataprovider", "pushToServer": "allow","tags": { "scope" :"design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}},
+	    "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID"] },
+	    "format" : {"for":["dataProviderID"] , "type" :"format"},
+	    "readOnly" : { "type": "protected", "blockingOn": true, "default": false,"for": ["dataProviderID","onDataChangeMethodID"] },
+	    "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default" : "form-control"},
+	    "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
+	    "visible" : "visible"
 	},
 	"handlers":
 	{
