@@ -290,7 +290,7 @@ public class FormatPropertyType extends DefaultPropertyType<Object>
 									}
 									else
 									{
-										table = val.getTable();
+										table = application.getFlattenedSolution().getTable(val.getDataSource());
 									}
 
 									if (table != null)

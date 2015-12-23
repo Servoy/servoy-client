@@ -17,27 +17,24 @@
 package com.servoy.j2db.persistence;
 
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
  * A value list
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.VALUELISTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable,
-	ISupportDeprecated
+public class ValueList extends AbstractBase
+	implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable, ISupportDeprecated
 {
 
 	/**
@@ -59,7 +56,8 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 		{
 			ValueList other = (ValueList)obj;
 			return (("" + getName()).equals(other.getName()) && //$NON-NLS-1$
-				getValueListType() == other.getValueListType() && getValueListType() == CUSTOM_VALUES && ("" + getCustomValues()).equals(other.getCustomValues()) //$NON-NLS-1$
+				getValueListType() == other.getValueListType() && getValueListType() == CUSTOM_VALUES &&
+				("" + getCustomValues()).equals(other.getCustomValues()) //$NON-NLS-1$
 			);
 		}
 		return false;
@@ -75,7 +73,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void setName(String arg)
@@ -93,7 +91,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Set the valueListType
-	 * 
+	 *
 	 * @param arg the valueListType
 	 */
 	public void setValueListType(int arg)
@@ -117,7 +115,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the relationName.
-	 * 
+	 *
 	 * @param relationName The relationName to set
 	 */
 	public void setRelationName(String relName)
@@ -141,9 +139,9 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the relationNMName.
-	 * 
+	 *
 	 * @deprecated relationName supports multiple levels relations
-	 * 
+	 *
 	 * @param relationName The relationName to set
 	 */
 	@Deprecated
@@ -173,7 +171,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Get the relationNMName
-	 * 
+	 *
 	 * @deprecated relationName supports multiple levels relations
 	 */
 	@Deprecated
@@ -192,7 +190,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 	}
 
 	/**
-	 * A string with the elements in the valuelist. The elements 
+	 * A string with the elements in the valuelist. The elements
 	 * can be separated by linefeeds (custom1
 	 * custom2), optional with realvalues ((custom1|1
 	 * custom2|2)).
@@ -204,7 +202,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the customValues.
-	 * 
+	 *
 	 * @param customValues The customValues to set
 	 */
 	public void setCustomValues(String arg)
@@ -213,7 +211,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 	}
 
 	/**
-	 * Compact representation of the names of the server and table that 
+	 * Compact representation of the names of the server and table that
 	 * are used for loading the data from the database.
 	 */
 	public String getDataSource()
@@ -223,7 +221,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Set the data source
-	 * 
+	 *
 	 * @param arg the data source uri
 	 */
 	public void setDataSource(String arg)
@@ -232,7 +230,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 	}
 
 	/**
-	 * The name of the database server that is used for loading the values when 
+	 * The name of the database server that is used for loading the values when
 	 * the value list has the type set to database values.
 	 */
 	public String getServerName()
@@ -248,26 +246,17 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 			return stn[0];
 		}
 
-		// data source is not a server/table combi
-		ITable table = null;
-		try
+		if (DataSourceUtils.getInmemDataSourceName(dataSource) != null)
 		{
-			table = getTable();
+			return IServer.INMEM_SERVER;
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
-		return table == null ? null : table.getServerName();
+		// can return null if it is not a DB server/table combi
+		return null;
 	}
 
 	/**
 	 * Sets the serverName.
-	 * 
+	 *
 	 * @param serverName The serverName to set
 	 */
 	public void setServerName(String arg)
@@ -276,7 +265,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 	}
 
 	/**
-	 * The name of the database table that is used for loading the values when 
+	 * The name of the database table that is used for loading the values when
 	 * the value list has the type set to database values.
 	 */
 	public String getTableName()
@@ -292,55 +281,18 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 			return stn[1];
 		}
 
-		// data source is not a server/table combi
-		ITable table = null;
-		try
+		String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
+		if (inmemDataSourceName != null)
 		{
-			table = getTable();
+			return inmemDataSourceName;
 		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
-		return table == null ? null : table.getName();
-	}
-
-	public ITable getTable() throws RepositoryException, RemoteException
-	{
-		String dataSource = getDataSource();
-		if (dataSource == null)
-		{
-			return null;
-		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
-		if (stn != null)
-		{
-			IServer server = getRootObject().getServer(stn[0]);
-			if (server != null)
-			{
-				return server.getTable(stn[1]);
-			}
-			return null;
-		}
-
-		// not a server/table combi, ask the current clients foundset manager
-		if (J2DBGlobals.getServiceProvider() != null)
-		{
-			return J2DBGlobals.getServiceProvider().getFoundSetManager().getTable(dataSource);
-		}
-
-		// developer
+		// can return null when data source is not a server/table combi
 		return null;
 	}
 
-
 	/**
 	 * Sets the tableName.
-	 * 
+	 *
 	 * @param tableName The tableName to set
 	 */
 	public void setTableName(String arg)
@@ -350,7 +302,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Gets the dataProviderID1.
-	 * 
+	 *
 	 * @return Returns a String
 	 */
 	public String getDataProviderID1()
@@ -360,7 +312,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the dataProviderID1.
-	 * 
+	 *
 	 * @param dataProviderID1 The dataProviderID1 to set
 	 */
 	public void setDataProviderID1(String arg)
@@ -371,7 +323,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Gets the dataProviderID2.
-	 * 
+	 *
 	 * @return Returns a String
 	 */
 	public String getDataProviderID2()
@@ -381,7 +333,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the dataProviderID2.
-	 * 
+	 *
 	 * @param dataProviderID2 The dataProviderID2 to set
 	 */
 	public void setDataProviderID2(String arg)
@@ -392,7 +344,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Gets the dataProviderID3.
-	 * 
+	 *
 	 * @return Returns a String
 	 */
 	public String getDataProviderID3()
@@ -402,7 +354,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the dataProviderID3.
-	 * 
+	 *
 	 * @param dataProviderID3 The dataProviderID3 to set
 	 */
 	public void setDataProviderID3(String arg)
@@ -426,7 +378,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the separator.
-	 * 
+	 *
 	 * @param separator The separator to set
 	 */
 	public void setSeparator(String arg)
@@ -445,7 +397,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the sortOptions.
-	 * 
+	 *
 	 * @param sortOptions The sortOptions to set
 	 */
 	public void setSortOptions(String arg)
@@ -455,7 +407,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Gets the showDataProvider.
-	 * 
+	 *
 	 * @return Returns a int
 	 */
 	public int getShowDataProviders()
@@ -465,7 +417,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the showDataProvider.
-	 * 
+	 *
 	 * @param showDataProvider The showDataProvider to set
 	 */
 	public void setShowDataProviders(int arg)
@@ -475,7 +427,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Gets the returnDataProviders.
-	 * 
+	 *
 	 * @return Returns a int
 	 */
 	public int getReturnDataProviders()
@@ -485,7 +437,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the returnDataProviders.
-	 * 
+	 *
 	 * @param returnDataProviders The returnDataProviders to set
 	 */
 	public void setReturnDataProviders(int arg)
@@ -535,7 +487,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * Sets the addEmptyValue.
-	 * 
+	 *
 	 * @param addEmptyValue The addEmptyValue to set
 	 */
 	public void setAddEmptyValue(int arg)
@@ -575,10 +527,10 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 
 	/**
 	 * The encapsulation mode of this Valuelist. The following can be used:
-	 * 
+	 *
 	 * - Public (available in both scripting and designer from any module)
 	 * - Module Scope - available in both scripting and designer but only in the same module.
-	 * 
+	 *
 	 * @return the encapsulation mode/level of the persist.
 	 */
 	@Override
