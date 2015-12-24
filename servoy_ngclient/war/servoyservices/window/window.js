@@ -154,6 +154,41 @@ angular.module('window',['servoy'])
 				return defered.promise;
 			};
 			
+			function getLeftPosition(position,popupwidth,component,oldleft)
+			{
+				//if necessary right align popup on related component
+				if (position.left + popupwidth > $( window ).width())
+				{
+					if ((position.left - popupwidth + $('#'+component).outerWidth())>0)
+					{
+						return position.left - popupwidth + $('#'+component).outerWidth();
+					}
+					else
+					{
+						// does not fit to the right or left; do the same as for top
+					}
+				}
+				return oldleft;
+			}
+			
+			function getTopPosition(position,popupheight,component,oldtop)
+			{
+				//if necessary popup on the top of the related component
+				if (position.top + $('#'+component).outerHeight() + popupheight > $( window ).height())
+				{
+					if ((position.top - popupheight) > 0)
+					{
+						return position.top - popupheight;
+					}
+					else
+					{
+						// there is not enough space on bottom, there is not enough space on top; just leave the old one ?
+						//wc is different , see PopupPanel.html, do this way for minox menu
+					}	
+				}
+				return oldtop;
+			}
+			
 			scope.loadSize = function(){
 				$sabloApplication.getFormState(form).then(function(formState){
 					var popupwidth = width;
@@ -172,30 +207,15 @@ angular.module('window',['servoy'])
 					if (component)
 					{
 						var position = $('#'+component).offset();
-						//if necessary right align popup on related component
-						if (position.left + popupwidth > $( window ).width())
+						var left = getLeftPosition(position,popupwidth,component,null);
+						if (left)
 						{
-							if ((position.left - popupwidth + $('#'+component).outerWidth())>0)
-							{
-								css["left"] = position.left - popupwidth + $('#'+component).outerWidth()+"px";
-							}
-							else
-							{
-								// does not fit to the right or left; do the same as for top
-							}
+							css["left"] = left+"px";
 						}
-						//if necessary popup on the top of the related component
-						if (position.top + $('#'+component).outerHeight() + popupheight > $( window ).height())
+						var top = getTopPosition(position,popupheight,component,null);
+						if (top)
 						{
-							if ((position.top - popupheight) > 0)
-							{
-								css["top"] = position.top - popupheight +"px";
-							}
-							else
-							{
-								// there is not enough space on bottom, there is not enough space on top; just leave the old one ?
-								//wc is different , see PopupPanel.html, do this way for minox menu
-							}	
+							css["top"] = top+"px";
 						}
 					}
 					$('#formpopup').css(css);
@@ -206,21 +226,33 @@ angular.module('window',['servoy'])
 			{
 				var body = $('body');
 				var style = 'position:absolute;z-index:999;';
-				if (width && width > 0)
-				{
-					style+= 'width:'+width+'px;'
-				}
-				if (height && height > 0)
-				{
-					style+= 'height:'+height+'px;'
-				}
 				var left = $( window ).width() /2;
 				var top = $( window ).height() /2;
+				var position = null;
 				if (component)
 				{
 					var position = relatedElement.offset();
 					left = position.left;
 					top = position.top + relatedElement.outerHeight();
+					position = relatedElement.offset();
+				}
+				// set correct position right away, do not wait for loadSize as showing it in wrong position may interfere with calculations
+				// we should remove loadSize, but how to get the form size then ?
+				if (width && width > 0)
+				{
+					style+= 'width:'+width+'px;'
+					if (position)
+					{
+						left = getLeftPosition(position,width,component,left);
+					}	
+				}
+				if (height && height > 0)
+				{
+					style+= 'height:'+height+'px;'
+					if (position)
+					{
+						top = getTopPosition(position,height,component,top);
+					}
 				}
 				style+= 'left:'+left+'px;';
 				style+= 'top:'+top+'px;';
