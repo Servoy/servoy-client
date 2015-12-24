@@ -6,6 +6,9 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class DefaultNavigator extends Bean
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public final static String BEAN_CLASSNAME = "servoycore-navigator";
 	public final static String NAME_PROP_VALUE = "svy_default_navigator";
 	public final static String MAXINDEX_PROP = "maxIndex";
@@ -19,8 +22,8 @@ public class DefaultNavigator extends Bean
 	private DefaultNavigator()
 	{
 		super(null, 0, null);
-		setBeanXML("{" + MAXINDEX_PROP + ":0," + MININDEX_PROP + ":0," + CURRENTINDEX_PROP + ":0," + SETELECTEDINDEX_FUNCTION_NAME + ":'" + UUID.randomUUID() +
-			"'}");
+		setBeanXML(
+			"{" + MAXINDEX_PROP + ":0," + MININDEX_PROP + ":0," + CURRENTINDEX_PROP + ":0," + SETELECTEDINDEX_FUNCTION_NAME + ":'" + UUID.randomUUID() + "'}");
 		setName(NAME_PROP_VALUE);
 		setBeanClassName(BEAN_CLASSNAME);
 	}

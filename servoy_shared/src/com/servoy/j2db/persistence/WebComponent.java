@@ -40,20 +40,11 @@ import com.servoy.j2db.util.Utils;
 public class WebComponent extends BaseComponent implements IWebComponent
 {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final boolean sabloLoaded;
 
 	protected static Set<String> purePersistPropertyNames;
-	{
-		try
-		{
-			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebComponent.class).keySet();
-		}
-		catch (IntrospectionException e)
-		{
-			purePersistPropertyNames = new HashSet<String>();
-			Debug.error(e);
-		}
-	}
 
 	static
 	{
@@ -63,10 +54,21 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			Class.forName("org.sablo.BaseWebObject");
 			loaded = true;
 		}
-		catch (Throwable e)
+		catch (ClassNotFoundException e)
 		{
+			// it's not found so sablo is not loaded
 		}
 		sabloLoaded = loaded;
+
+		try
+		{
+			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebComponent.class).keySet();
+		}
+		catch (IntrospectionException e)
+		{
+			purePersistPropertyNames = new HashSet<String>();
+			Debug.error(e);
+		}
 	}
 
 	protected transient WebObjectBasicImpl webObjectImpl;
@@ -90,7 +92,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
 	{
 		stream.defaultReadObject();
-		createWebObjectImpl();
+		webObjectImpl = createWebObjectImpl();
 	}
 
 	public PropertyDescription getPropertyDescription()
@@ -276,8 +278,8 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	protected void fillClone(AbstractBase cloned)
 	{
-		if (cloned instanceof WebComponent) ((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned)
-			: new WebObjectBasicImpl((WebComponent)cloned);
+		if (cloned instanceof WebComponent)
+			((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned) : new WebObjectBasicImpl((WebComponent)cloned);
 		super.fillClone(cloned);
 	}
 

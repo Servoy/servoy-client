@@ -28,6 +28,9 @@ import com.servoy.j2db.persistence.Portal;
  */
 public class BodyPortal extends Portal
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private final Form form;
 	private final boolean tableview;
 

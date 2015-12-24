@@ -46,6 +46,9 @@ import com.servoy.j2db.util.UUID;
 public class Relation extends AbstractBase implements ISupportChilds, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
 	ISupportEncapsulation, ICloneable, IRelation, ISupportDeprecated
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final String INTERNAL_PREFIX = "-int-";
 
 	public static RuntimeProperty<ISQLTableJoin> RELATION_JOIN = new RuntimeProperty<ISQLTableJoin>()

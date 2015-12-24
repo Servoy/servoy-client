@@ -24,11 +24,14 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A normal tabpanel
- * 
+ *
  * @author jblok
  */
 public class TabPanel extends BaseComponent implements ISupportChilds, ISupportTabSeq
 {
+
+	private static final long serialVersionUID = 1L;
+
 	//orientations, see also SwingConstants.TOP,RIGHT,BOTTOM,LEFT
 	public static final int DEFAULT_ORIENTATION = 0; // DEFAULT would conflict with inherited interface constant
 	public static final int HIDE = -1;
@@ -49,7 +52,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 */
 	/**
 	 * Set the tabOrientation
-	 * 
+	 *
 	 * @param arg the tabOrientation
 	 */
 	public void setTabOrientation(int arg)
@@ -95,7 +98,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 
 	/**
 	 * Returns the selectedTabColor.
-	 * 
+	 *
 	 * @return java.awt.Color
 	 */
 	@Deprecated
@@ -106,7 +109,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 
 	/**
 	 * Sets the selectedTabColor.
-	 * 
+	 *
 	 * @param selectedTabColor The selectedTabColor to set
 	 */
 	@Deprecated
@@ -165,7 +168,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 
 	/**
 	 * Method to be executed when the selected tab is changed in the tab panel or divider position is changed in split pane.
-	 * 
+	 *
 	 * @templatedescription Callback method when the user changes tab in a tab panel or divider position in split pane
 	 * @templatename onTabChange
 	 * @templateparam Number previousIndex index of tab shown before the change
@@ -179,7 +182,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 
 	/**
 	 * Sets the onTabChangeMethodID.
-	 * 
+	 *
 	 * @param arg The onChangeMethodID to set
 	 */
 	public void setOnChangeMethodID(int arg)

@@ -23,12 +23,14 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author acostache
  *
  */
 public class BaseDocsGraphicalComponent extends GraphicalComponent implements IBaseDocsComponent
 {
+
+	private static final long serialVersionUID = 1L;
 
 	BaseDocsGraphicalComponent()
 	{

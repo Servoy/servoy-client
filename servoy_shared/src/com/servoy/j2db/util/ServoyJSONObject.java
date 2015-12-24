@@ -46,14 +46,7 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 	 * But JSONObject.NULL.equals() says it's equal to Java null and because of that java code is not able to handle correctly the difference between null and JSONObject.NULL.
 	 * This NULL_FOR_JAVA has the same meaning in Javascript but is for temporary use in Java portions of code that need to make that difference. Be sure to convert that back to JSONObject.NULL when working with org.json.
 	 */
-	public static final Object NULL_FOR_JAVA = new Object()
-	{
-		@Override
-		public boolean equals(Object obj)
-		{
-			return super.equals(obj) || obj == JSONObject.NULL;
-		}
-	};
+	public static final Object NULL_FOR_JAVA = new NullObject();
 
 	static
 	{
@@ -523,11 +516,20 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 			}
 			return array;
 		}
+		if (o == JSONObject.NULL)
+		{
+			return NULL_FOR_JAVA;
+		}
+
 		return o;
 	}
 
 	static Object fromSerializable(Object parent, Object o)
 	{
+		if (o instanceof NullObject)
+		{
+			return JSONObject.NULL;
+		}
 		if (o instanceof Map< ? , ? >)
 		{
 			JSONObject obj = parent != null ? (JSONObject)parent : new ServoyJSONObject();
@@ -639,4 +641,12 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		return v != null ? v.toString() : defaultValue;
 	}
 
+	private static final class NullObject implements Serializable
+	{
+		@Override
+		public boolean equals(Object obj)
+		{
+			return super.equals(obj) || obj == JSONObject.NULL;
+		}
+	}
 }

@@ -26,11 +26,14 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * a painted shape
- * 
+ *
  * @author jblok
  */
 public class Shape extends BaseComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final int LINE = 0;
 	public static final int POLYGON = 1;
 	public static final int SPLINE = 2;
@@ -50,7 +53,7 @@ public class Shape extends BaseComponent
 
 	/**
 	 * Returns the lineSize.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getLineSize()
@@ -60,7 +63,7 @@ public class Shape extends BaseComponent
 
 	/**
 	 * Returns the shapeType.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getShapeType()
@@ -70,7 +73,7 @@ public class Shape extends BaseComponent
 
 	/**
 	 * Sets the lineSize.
-	 * 
+	 *
 	 * @param lineSize The lineSize to set
 	 */
 	public void setLineSize(int arg)
@@ -80,7 +83,7 @@ public class Shape extends BaseComponent
 
 	/**
 	 * Sets the shapeType.
-	 * 
+	 *
 	 * @param shapeType The shapeType to set
 	 */
 	public void setShapeType(int arg)
@@ -90,7 +93,7 @@ public class Shape extends BaseComponent
 
 	/**
 	 * Sets the points.
-	 * 
+	 *
 	 * @param points The points to set
 	 */
 	public void setPoints(String points)
@@ -101,7 +104,7 @@ public class Shape extends BaseComponent
 
 	/**
 	 * Returns the points.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getPoints()

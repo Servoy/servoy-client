@@ -32,6 +32,9 @@ import com.servoy.j2db.util.UUID;
 public class ScriptCalculation extends AbstractScriptProvider implements IDataProvider, IColumn, ISupportHTMLToolTipText, ICloneable
 
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructor I
 	 */

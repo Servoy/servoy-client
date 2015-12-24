@@ -34,6 +34,9 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractContainer extends AbstractBase implements ISupportFormElements, ISupportUpdateableName, IPersistCloneable, ICloneable
 {
+
+	private static final long serialVersionUID = 1L;
+
 	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(type, parent, element_id, uuid);
@@ -348,6 +351,11 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 		return getAllObjectsAsList();
 	}
 
+	/**
+	 * Flatten this containers containment hierarchy into a list and return it sorted if the given comparator is not null.
+	 * @param comparator
+	 * @return
+	 */
 	public List<IFormElement> getFlattenedObjects(Comparator< ? super IFormElement> comparator)
 	{
 		List<IFormElement> flattenedPersists = new ArrayList<IFormElement>();
@@ -369,5 +377,25 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 			Arrays.sort(array, comparator);
 		}
 		return new ArrayList<IFormElement>(Arrays.<IFormElement> asList(array));
+	}
+
+	/**
+	 * Search this containers containment hierarchy recursively for the given uuid.
+	 * @param searchFor
+	 * @return
+	 */
+	public IFormElement findChild(UUID searchFor)
+	{
+		List<IPersist> children = getHierarchyChildren();
+		for (IPersist iPersist : children)
+		{
+			if (iPersist.getUUID().equals(searchFor)) return (IFormElement)iPersist;
+			if (iPersist instanceof LayoutContainer)
+			{
+				IFormElement result = ((LayoutContainer)iPersist).findChild(searchFor);
+				if (result != null) return result;
+			}
+		}
+		return null;
 	}
 }

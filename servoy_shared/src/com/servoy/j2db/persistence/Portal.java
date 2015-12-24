@@ -32,6 +32,9 @@ import com.servoy.j2db.util.UUID;
  */
 public class Portal extends BaseComponent implements ISupportFormElements, ISupportScrollbars, ISupportTabSeq
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructor I
 	 */

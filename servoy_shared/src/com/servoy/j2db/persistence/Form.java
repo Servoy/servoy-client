@@ -44,6 +44,9 @@ import com.servoy.j2db.util.Utils;
 public class Form extends AbstractContainer
 	implements ITableDisplay, ISupportScrollbars, ISupportSize, ISupportScriptProviders, ISupportExtendsID, ISupportEncapsulation, ISupportDeprecated
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * @sameas getNavigatorID()
 	 */

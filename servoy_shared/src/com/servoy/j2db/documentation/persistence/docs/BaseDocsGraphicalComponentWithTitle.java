@@ -22,11 +22,14 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author rgansevles
  */
 public class BaseDocsGraphicalComponentWithTitle extends BaseDocsGraphicalComponent implements IComponentWithTitle
 {
+
+	private static final long serialVersionUID = 1L;
+
 	BaseDocsGraphicalComponentWithTitle()
 	{
 	}

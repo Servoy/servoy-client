@@ -8,6 +8,7 @@
 	"model":
 	{
 			"imageStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
+			"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 			"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" },"default": "btn btn-default", "values" :["btn","btn-default","btn-lg","btn-sm","btn-xs"]},
 	        "text" : {"type":"tagstring" , "default":"Button"},
 	        "visible" : "visible"
@@ -15,36 +16,36 @@
 	"handlers":
 	{
 	       "onActionMethodID" : {
-	         	
+
 	        	"parameters":[
 								{
 						          "name":"event",
 								  "type":"JSEvent"
-								} 
+								}
 							 ]
-	        }, 
+	        },
 	        "onDoubleClickMethodID" : {
-	         	
+
 	        	"parameters":[
 								{
 						          "name":"event",
 								  "type":"JSEvent"
-								} 
+								}
 							 ]
-	        }, 
+	        },
 	        "onRightClickMethodID" : {
-	         	
+
 	        	"parameters":[
 								{
 						          "name":"event",
 								  "type":"JSEvent"
-								} 
+								}
 							 ]
-	        } 
+	        }
 	},
 	"api":
 	{
-	        
+
 	}
-	 
+
 }

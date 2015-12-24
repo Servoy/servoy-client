@@ -743,7 +743,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);

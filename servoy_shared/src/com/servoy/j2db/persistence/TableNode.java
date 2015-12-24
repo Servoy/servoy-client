@@ -35,6 +35,9 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Table", typeCode = IRepository.TABLENODES)
 public class TableNode extends AbstractBase implements ISupportChilds
 {
+
+	private static final long serialVersionUID = 1L;
+
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */

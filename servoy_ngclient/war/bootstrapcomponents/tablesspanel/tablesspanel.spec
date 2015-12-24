@@ -11,15 +11,16 @@
 			"relationName": "relation",
 			"styleClass" : { "type" :"styleclass"},
 			"height" : {"type":"int", "default":"500"},
-	        "visible" : "visible"
+			"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
+	    	"visible" : "visible"
 	},
 	"handlers":
 	{
-	
+
 	},
 	"api":
 	{
-	        
+
 	}
-	 
+
 }

@@ -5,9 +5,10 @@
 	   	svy-focuslost='handlers.onFocusLostMethodID($event)'
 	   	svy-enter='handlers.onActionMethodID($event)'
 	   	svy-rightclick='handlers.onRightClickMethodID($event)'
-       	svy-autoapply
-       	ng-show='model.visible'
-       	ng-disabled="!model.enabled"
+      	svy-autoapply
+      	ng-show='model.visible'
+      	ng-disabled="!model.enabled"
 	    ng-readonly="model.readOnly"
+		sablo-tabseq='model.tabSeq'
 	    >
-</textarea>	    
+</textarea>

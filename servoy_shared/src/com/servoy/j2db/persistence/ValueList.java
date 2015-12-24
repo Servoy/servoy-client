@@ -37,6 +37,9 @@ public class ValueList extends AbstractBase
 	implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable, ISupportDeprecated
 {
 
+	private static final long serialVersionUID = 1L;
+
+
 	/**
 	 * Constructor I
 	 */
@@ -45,11 +48,11 @@ public class ValueList extends AbstractBase
 		super(IRepository.VALUELISTS, parent, element_id, uuid);
 	}
 
-	/*
-	 * _____________________________________________________________ Methods from this class
-	 */
+/*
+ * _____________________________________________________________ Methods from this class
+ */
 
-	//the repository element id can differ!
+//the repository element id can differ!
 	public boolean contentEquals(Object obj)
 	{
 		if (obj instanceof ValueList)
@@ -554,6 +557,6 @@ public class ValueList extends AbstractBase
 	@Override
 	public void setDeprecated(String deprecatedInfo)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, "".equals(deprecatedInfo) ? null : deprecatedInfo);
 	}
 }

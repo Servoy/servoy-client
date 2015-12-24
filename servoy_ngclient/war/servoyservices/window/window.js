@@ -154,23 +154,68 @@ angular.module('window',['servoy'])
 				return defered.promise;
 			};
 			
+			function getLeftPosition(position,popupwidth,component,oldleft)
+			{
+				//if necessary right align popup on related component
+				if (position.left + popupwidth > $( window ).width())
+				{
+					if ((position.left - popupwidth + $('#'+component).outerWidth())>0)
+					{
+						return position.left - popupwidth + $('#'+component).outerWidth();
+					}
+					else
+					{
+						// does not fit to the right or left; do the same as for top
+					}
+				}
+				return oldleft;
+			}
+			
+			function getTopPosition(position,popupheight,component,oldtop)
+			{
+				//if necessary popup on the top of the related component
+				if (position.top + $('#'+component).outerHeight() + popupheight > $( window ).height())
+				{
+					if ((position.top - popupheight) > 0)
+					{
+						return position.top - popupheight;
+					}
+					else
+					{
+						// there is not enough space on bottom, there is not enough space on top; just leave the old one ?
+						//wc is different , see PopupPanel.html, do this way for minox menu
+					}	
+				}
+				return oldtop;
+			}
+			
 			scope.loadSize = function(){
 				$sabloApplication.getFormState(form).then(function(formState){
+					var popupwidth = width;
+					if (!popupwidth || popupwidth<=0)
+					{
+						popupwidth = formState.properties.designSize.width;
+					}
+					var popupheight = height;
+					if (!popupheight || popupheight<=0)
+					{
+						popupheight = formState.properties.designSize.height;
+					}
 					var css = {};
-					css["min-width"] = formState.properties.designSize.width+"px";
-					css["min-height"] = formState.properties.designSize.height+"px";
+					css["width"] = popupwidth+"px";
+					css["height"] = popupheight+"px";
 					if (component)
 					{
 						var position = $('#'+component).offset();
-						//if necessary right align popup on related component
-						if (position.left + formState.properties.designSize.width > $( window ).width())
+						var left = getLeftPosition(position,popupwidth,component,null);
+						if (left)
 						{
-							css["left"] = position.left - formState.properties.designSize.width + $('#'+component).outerWidth()+"px";
+							css["left"] = left+"px";
 						}
-						//if necessary popup on the top of the related component
-						if (position.top + $('#'+component).outerHeight() + formState.properties.designSize.height > $( window ).height())
+						var top = getTopPosition(position,popupheight,component,null);
+						if (top)
 						{
-							css["top"] = position.top - formState.properties.designSize.height +"px";
+							css["top"] = top+"px";
 						}
 					}
 					$('#formpopup').css(css);
@@ -181,21 +226,33 @@ angular.module('window',['servoy'])
 			{
 				var body = $('body');
 				var style = 'position:absolute;z-index:999;';
-				if (width && width > 0)
-				{
-					style+= 'width:'+width+'px;'
-				}
-				if (height && height > 0)
-				{
-					style+= 'height:'+height+'px;'
-				}
 				var left = $( window ).width() /2;
 				var top = $( window ).height() /2;
+				var position = null;
 				if (component)
 				{
 					var position = relatedElement.offset();
 					left = position.left;
 					top = position.top + relatedElement.outerHeight();
+					position = relatedElement.offset();
+				}
+				// set correct position right away, do not wait for loadSize as showing it in wrong position may interfere with calculations
+				// we should remove loadSize, but how to get the form size then ?
+				if (width && width > 0)
+				{
+					style+= 'width:'+width+'px;'
+					if (position)
+					{
+						left = getLeftPosition(position,width,component,left);
+					}	
+				}
+				if (height && height > 0)
+				{
+					style+= 'height:'+height+'px;'
+					if (position)
+					{
+						top = getTopPosition(position,height,component,top);
+					}
 				}
 				style+= 'left:'+left+'px;';
 				style+= 'top:'+top+'px;';
@@ -228,6 +285,7 @@ angular.module('window',['servoy'])
 					var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(scope.model.popupform.form);
 					if (formState) {
 						formState.getScope().$destroy();
+						$sabloApplication.clearFormState(scope.model.popupform.form);
 					}
 				}
 				popup.remove();

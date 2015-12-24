@@ -31,6 +31,8 @@ import com.servoy.j2db.util.UUID;
 public class AggregateVariable extends AbstractBase implements IColumn, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals
 {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final String[] AGGREGATE_TYPE_STRINGS = new String[] { "count", //$NON-NLS-1$
 	"maximum", //$NON-NLS-1$
 	"minimum", //$NON-NLS-1$
