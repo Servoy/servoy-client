@@ -175,7 +175,14 @@ angular.module('window',['servoy'])
 						//if necessary right align popup on related component
 						if (position.left + popupwidth > $( window ).width())
 						{
-							css["left"] = position.left - popupwidth + $('#'+component).outerWidth()+"px";
+							if ((position.left - popupwidth + $('#'+component).outerWidth())>0)
+							{
+								css["left"] = position.left - popupwidth + $('#'+component).outerWidth()+"px";
+							}
+							else
+							{
+								// does not fit to the right or left; do the same as for top
+							}
 						}
 						//if necessary popup on the top of the related component
 						if (position.top + $('#'+component).outerHeight() + popupheight > $( window ).height())
