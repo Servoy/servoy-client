@@ -226,8 +226,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (timeZone == null && Session.exists())
 		{
 			WebClientSession webClientSession = ((WebClientSession)Session.get());
-			// TODO do some better guessing? See ClientProperties.getTimeZone()
 			timeZone = ((WebClientInfo)webClientSession.getClientInfo()).getProperties().getTimeZone();
+			// if the timezone is really just the default of the server just use that one.
+			TimeZone dftZone = TimeZone.getDefault();
+			if (timeZone.getRawOffset() == dftZone.getRawOffset() && timeZone.getDSTSavings() == dftZone.getDSTSavings())
+			{
+				timeZone = dftZone;
+			}
 		}
 		return super.getTimeZone();
 	}
@@ -390,8 +395,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			try
 			{
-				cookieValue = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
-					Utils.decodeBASE64(cookieValue.substring(COOKIE_BASE64_PREFIX.length()))), "UTF-8")).readLine();
+				cookieValue = new BufferedReader(new InputStreamReader(
+					new ByteArrayInputStream(Utils.decodeBASE64(cookieValue.substring(COOKIE_BASE64_PREFIX.length()))), "UTF-8")).readLine();
 			}
 			catch (UnsupportedEncodingException e)
 			{
@@ -903,8 +908,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 										page = page.getCallingContainer();
 									}
 									CharSequence urlFor = page.urlFor(SelectSolution.class, null);
-									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
-										"_self", null, 0, true, false)));
+									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(
+										MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(), "_self", null, 0, true, false)));
 								}
 								else
 								{
@@ -928,8 +933,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								if ((urlShown || shownInDialog) && rc.getRequestTarget() instanceof AjaxRequestTarget)
 								{
 									CharSequence urlFor = mp.urlFor(SolutionLoader.class, new PageParameters(map));
-									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
-										"_self", null, 0, true, false)));
+									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(
+										MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(), "_self", null, 0, true, false)));
 								}
 								else
 								{
