@@ -1209,10 +1209,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (component.isVisibleInHierarchy())
 				{
 					Component innerComponent = CellContainer.getContentsForCell(component);
-					if (!ignoreStyles)
-					{
-						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
-					}
 					boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles)) && target != null)
@@ -1228,6 +1224,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					else if (innerComponentChanged)
 					{
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
+					}
+					if (!ignoreStyles)
+					{
+						// applyStyleOnComponent after the RenderEventExecutor has been updated by the call to updateComponentRenderState()
+						// because this can trigger an onRender call that has to have the correct record
+						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
 					}
 				}
 				updateAll = updateAll && updateCell;
