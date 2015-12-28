@@ -153,9 +153,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getTableName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
+		if (stn == null) stn = DataSourceUtils.getMemServernameTablename(getDataSource());
+
 		return stn == null ? null : stn[1];
 	}
+
 
 	public void setServerName(String arg)
 	{
@@ -164,7 +167,8 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getServerName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
+		if (stn == null) stn = DataSourceUtils.getMemServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 
