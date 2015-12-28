@@ -7,10 +7,10 @@
   	  ng-click="rowClicked(model.foundset.viewPort.rows.indexOf(row))"
   	  ng-class='getRowStyle(model.foundset.viewPort.rows.indexOf(row))'>
     <td ng-class="column.styleClass" ng-repeat="column in model.columns" ng-click="cellClicked(model.foundset.viewPort.rows.indexOf(row), model.columns.indexOf(column))">
-    	<img ng-show="column.dataprovider[model.foundset.viewPort.rows.indexOf(row)] && column.dataprovider[model.foundset.viewPort.rows.indexOf(row)].url" 
-    		ng-src="{{column.dataprovider[model.foundset.viewPort.rows.indexOf(row)].url}}"></img>
+    	<img ng-show="getUrl(column,row) != null" 
+    		ng-src="{{getUrl(column,row)}}"></img>
     	<div ng-bind='column.dataprovider[model.foundset.viewPort.rows.indexOf(row)]| getDisplayValue:column.valuelist | formatFilter:column.format.display:column.format.type'
-    	ng-show="!column.dataprovider[model.foundset.viewPort.rows.indexOf(row)] || !column.dataprovider[model.foundset.viewPort.rows.indexOf(row)].url">
+    	ng-show="getUrl(column,row) === null">
     	</div></td>
   </tr>
 </table>

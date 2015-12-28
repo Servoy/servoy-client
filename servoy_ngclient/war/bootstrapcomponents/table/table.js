@@ -34,6 +34,18 @@ angular.module('bootstrapcomponentsTable',['servoy']).directive('bootstrapcompon
     		  }	  
           });
     	  
+    	  $scope.getUrl = function(column,row) {
+    		 if (column && row)
+    		 {
+    			 var index = $scope.model.foundset.viewPort.rows.indexOf(row)
+    			if (index >= 0 && column.dataprovider[index] && column.dataprovider[index].url)
+    			{
+    				 return column.dataprovider[index].url;
+    			}	 
+    		 }	  
+       		 return null; 
+       	  }
+    	  
     	  $scope.hasNext = function() {
       		 return $scope.model.currentPage < Math.ceil($scope.model.foundset.serverSize / $scope.model.pageSize); 
       	  }
