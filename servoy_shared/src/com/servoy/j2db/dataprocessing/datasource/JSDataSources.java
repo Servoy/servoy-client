@@ -19,33 +19,20 @@ package com.servoy.j2db.dataprocessing.datasource;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
  * In scripting: <pre>datasources</pre>
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 7.4
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Datasources", scriptingName = "datasources")
 public class JSDataSources implements IDestroyable
 {
-	static
-	{
-		ScriptObjectRegistry.registerReturnedTypesProviderForClass(JSDataSources.class, new IReturnedTypesProvider()
-		{
-			public Class< ? >[] getAllReturnedTypes()
-			{
-				return new Class< ? >[] { JSDataSource.class };
-			}
-		});
-	}
-
 	private volatile IApplication application;
 
 	public JSDataSources(IApplication application)
@@ -57,9 +44,9 @@ public class JSDataSources implements IDestroyable
 
 	/**
 	 * Scope property for server/table based data sources.
-	 * 
+	 *
 	 * @sample
-	 * datasources.db.example_data.orders 
+	 * datasources.db.example_data.orders
 	 */
 	@JSReadonlyProperty
 	public DBDataSource db()
@@ -75,7 +62,7 @@ public class JSDataSources implements IDestroyable
 
 	/**
 	 * Scope property for in-memory data sources.
-	 * 
+	 *
 	 * @sample
 	 * datasources.mem['myds']
 	 */
