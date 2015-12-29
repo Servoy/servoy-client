@@ -81,4 +81,9 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 		layoutContainer.setTypedProperty(property, value);
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return layoutContainer.hashCode();
+	}
 }
