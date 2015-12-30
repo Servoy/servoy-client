@@ -460,7 +460,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					if(media.img){
 						imgStyle =parseImageOptions( media.img, mediaOptions, componentSize)
 						if(media.updateParentSize && (imgStyle.height == (componentSize.height + 'px'))) {
-							$(element[0].parentNode).css({height: imgStyle.height});
+							// if exact image, just make sure it shows well; vertical align center can have rounding issues
+							$(element[0].parentNode).css({height: imgStyle.height, top: 0, transform: 'none'});
 							imgStyle['vertical-align'] = "top";
 						}
 						element.css(imgStyle)
