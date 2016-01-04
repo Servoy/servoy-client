@@ -139,7 +139,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getName()
 		 */
 		@Override
@@ -151,7 +151,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageName()
 		 */
 		@Override
@@ -173,7 +173,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageDisplayname()
 		 */
 		@Override
@@ -195,7 +195,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getManifest()
 		 */
 		@Override
@@ -210,7 +210,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#readTextFile(java.lang.String, java.nio.charset.Charset)
 		 */
 		@Override
@@ -225,7 +225,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
 		 */
 		@Override
@@ -236,7 +236,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#getPackageURL()
 		 */
 		@Override
@@ -247,7 +247,7 @@ public abstract class AbstractSolutionTest
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.sablo.specification.WebComponentPackage.IPackageReader#reportError(java.lang.String, java.lang.Exception)
 		 */
 		@Override
@@ -271,15 +271,17 @@ public abstract class AbstractSolutionTest
 		if (f.isFile() && f.getName().startsWith("servoy_ngclient_") && f.getName().endsWith(".jar"))
 		{
 			ZipFile zipFile = new ZipFile(f);
-			componentsReaders = inMemPackageReader != null ? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(
-				zipFile, "war/servoydefault/"), inMemPackageReader }
+			componentsReaders = inMemPackageReader != null
+				? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile,
+					"war/servoydefault/"), inMemPackageReader }
 				: new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile, "war/servoydefault/") };
 			servicesReaders = new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoyservices/") };
 		}
 		else
 		{
-			componentsReaders = getReaders(new File[] { new File(f.getAbsoluteFile() + "/../war/servoycore/"), new File(f.getAbsoluteFile() +
-				"/../war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+			componentsReaders = getReaders(
+				new File[] { new File(f.getAbsoluteFile() + "/../war/servoycore/"), new File(f.getAbsoluteFile() + "/../war/servoydefault/") },
+				inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
 			servicesReaders = getReaders(new File[] { new File(f.getAbsoluteFile(), "/../war/servoyservices/") }, null);
 		}
 
@@ -315,12 +317,6 @@ public abstract class AbstractSolutionTest
 					return b;
 				}
 
-				@Override
-				public boolean isInDesigner()
-				{
-					// to prevent some caching which causes tests to influence each other
-					return true;
-				}
 			};
 			J2DBGlobals.setServiceProvider(client);
 			client.setUseLoginSolution(false);

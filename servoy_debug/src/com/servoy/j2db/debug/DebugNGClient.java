@@ -293,12 +293,6 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		//ignore
 	}
 
-	@Override
-	public boolean isInDesigner()
-	{
-		return false;
-	}
-
 	IDesignerCallback getDesignerCallback()
 	{
 		return designerCallback;

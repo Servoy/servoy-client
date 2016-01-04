@@ -228,9 +228,6 @@ public class FormLayoutGenerator
 		}
 		if (design)
 		{
-			writer.print(" svy-id='");
-			writer.print(getDesignId(fe));
-			writer.print("'");
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
@@ -241,27 +238,6 @@ public class FormLayoutGenerator
 			if (fe.getPersistIfAvailable() != null && Utils.isInheritedFormElement(fe.getPersistIfAvailable(), currentForm))
 			{
 				writer.print(" class='inherited_element'");
-			}
-			List<String> typeNames = fe.getSvyTypesNames();
-			if (typeNames.size() > 0)
-			{
-				writer.print(" svy-types='");
-				writer.print("[" + StringUtil.join(typeNames, ",") + "]");
-				writer.print("'");
-			}
-			List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
-			if (forbiddenComponentNames.size() > 0)
-			{
-				writer.print(" svy-forbidden-components='");
-				writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
-				writer.print("'");
-			}
-			String directEditPropertyName = getDirectEditProperty(fe);
-			if (directEditPropertyName != null)
-			{
-				writer.print(" directEditPropertyName='");
-				writer.print(directEditPropertyName);
-				writer.print("'");
 			}
 		}
 		writer.println(">");
@@ -319,33 +295,33 @@ public class FormLayoutGenerator
 		}
 		if (design)
 		{
-//			writer.print(" svy-id='");
-//			writer.print(fe.getDesignId());
-//			writer.print("'");
-//			if (form.isResponsiveLayout())
-//			{
-//				List<String> typeNames = fe.getSvyTypesNames();
-//				if (typeNames.size() > 0)
-//				{
-//					writer.print(" svy-types='");
-//					writer.print("[" + StringUtil.join(typeNames, ",") + "]");
-//					writer.print("'");
-//				}
-//				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
-//				if (forbiddenComponentNames.size() > 0)
-//				{
-//					writer.print(" svy-forbidden-components='");
-//					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
-//					writer.print("'");
-//				}
-//			}
-//			String directEditPropertyName = getDirectEditProperty(fe);
-//			if (directEditPropertyName != null)
-//			{
-//				writer.print(" directEditPropertyName='");
-//				writer.print(directEditPropertyName);
-//				writer.print("'");
-//			}
+			writer.print(" svy-id='");
+			writer.print(getDesignId(fe));
+			writer.print("'");
+			if (form.isResponsiveLayout())
+			{
+				List<String> typeNames = fe.getSvyTypesNames();
+				if (typeNames.size() > 0)
+				{
+					writer.print(" svy-types='");
+					writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+					writer.print("'");
+				}
+				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
+				if (forbiddenComponentNames.size() > 0)
+				{
+					writer.print(" svy-forbidden-components='");
+					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
+					writer.print("'");
+				}
+			}
+			String directEditPropertyName = getDirectEditProperty(fe);
+			if (directEditPropertyName != null)
+			{
+				writer.print(" directEditPropertyName='");
+				writer.print(directEditPropertyName);
+				writer.print("'");
+			}
 			writer.print(" svy-model=\"model('");
 			writer.print(fe.getName());
 			writer.print("')\"");

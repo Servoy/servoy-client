@@ -36,7 +36,5 @@ public interface INGApplication extends IApplication
 
 	NGRuntimeWindowManager getRuntimeWindowManager();
 
-	boolean isInDesigner();
-
 	void changesWillBeSend();
 }

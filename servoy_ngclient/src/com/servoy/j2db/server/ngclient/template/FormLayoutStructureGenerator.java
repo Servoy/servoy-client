@@ -139,8 +139,8 @@ public class FormLayoutStructureGenerator
 			}
 			else if (component instanceof IFormElement)
 			{
-				FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context, null), form, design,
-					highlight);
+				FormLayoutGenerator.generateFormElement(writer,
+					FormElementHelper.INSTANCE.getFormElement((IFormElement)component, context.getSolution(), null, design), form, design, highlight);
 			}
 		}
 		writer.print("</");

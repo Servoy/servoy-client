@@ -1165,12 +1165,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public boolean isInDesigner()
-	{
-		return false;
-	}
-
-	@Override
 	protected IClientPluginAccess createClientPluginAccess()
 	{
 		return new NGClientPluginAccessProvider(this);

@@ -96,7 +96,7 @@ public class FormElementHelper
 
 	public FormElement getFormElement(IFormElement formElement, IServoyDataConverterContext context, PropertyPath propertyPath)
 	{
-		return getFormElement(formElement, context.getSolution(), propertyPath, (context.getApplication() != null && context.getApplication().isInDesigner()));
+		return getFormElement(formElement, context.getSolution(), propertyPath, false);
 	}
 
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
@@ -120,9 +120,9 @@ public class FormElementHelper
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal) persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs),
-					designer);
-			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, false);
+			if (formElement instanceof BodyPortal)
+				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
+			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, designer);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{
@@ -290,7 +290,8 @@ public class FormElementHelper
 								String tabSeqPropertyName = tabSeqProperty.getName();
 								Integer tabSeqVal = (Integer)fe.getPropertyValue(tabSeqPropertyName);
 								if (tabSeqVal == null) tabSeqVal = Integer.valueOf(0); // default is 0 == DEFAULT tab sequence
-								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0)) minBodyPortalTabSeq = tabSeqVal.intValue();
+								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0))
+									minBodyPortalTabSeq = tabSeqVal.intValue();
 							}
 						}
 

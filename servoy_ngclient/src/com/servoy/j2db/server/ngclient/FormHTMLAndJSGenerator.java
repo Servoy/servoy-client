@@ -77,8 +77,8 @@ public class FormHTMLAndJSGenerator implements IFormHTMLAndJSGenerator
 		if (cachedJSTemplate == null)
 		{
 			StringWriter jsTemplate = new StringWriter(512);
-			new FormTemplateGenerator(new ServoyDataConverterContext(application), true, application.isInDesigner()).generate(form, realFormName,
-				"form_recordview_js.ftl", jsTemplate);
+			new FormTemplateGenerator(new ServoyDataConverterContext(application), true, false).generate(form, realFormName, "form_recordview_js.ftl",
+				jsTemplate);
 			cachedJSTemplate = jsTemplate.toString();
 		}
 		return cachedJSTemplate;
