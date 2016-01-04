@@ -188,15 +188,19 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return webObjectImpl.getTypeName();
 	}
 
-	//TODO remove this method
-	//WEIRD-some junit tests fail if i remove this method, even though it is not used (just set a breakpoint and debug, it is never called)
+	/**
+	 * DO NOT USE this method! Use setProperty instead.
+	 * @param arg
+	 */
 	public void setJson(JSONObject arg)
 	{
 		if (arg != null && !(arg instanceof ServoyJSONObject)) throw new RuntimeException("ServoyJSONObject is needed here in order to make it serializable");
 		webObjectImpl.setJson(arg);
 	}
 
-	//TODO remove, is just used from getFlattenedJson
+	/**
+	 * DO NOT USE this method! Use getProperty instead.
+	 */
 	public JSONObject getJson()
 	{
 		JSONObject x = webObjectImpl.getJson();
