@@ -153,8 +153,10 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) return super.getProperty(propertyName);
-		return webObjectImpl.getProperty(propertyName);
+		Object value = null;
+		if (webObjectImpl == null || purePersistPropertyNames.contains(propertyName)) value = super.getProperty(propertyName);
+		if (value == null) value = webObjectImpl.getProperty(propertyName);
+		return value;
 	}
 
 	@Override

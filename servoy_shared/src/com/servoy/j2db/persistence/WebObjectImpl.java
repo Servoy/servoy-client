@@ -344,7 +344,27 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			{
 				// it is a json property defined in spec, but it's not mapping to a persist
 				JSONObject json = getJson();
-				return json != null ? json.opt(propertyName) : null;
+				Object value = json != null ? json.opt(propertyName) : null;
+				IPropertyConverterForBrowser<Object> converter = (IPropertyConverterForBrowser<Object>)jsonConverters.get(childPd.getType());
+				if (converter != null)
+				{
+					if (value instanceof String && ((String)value).startsWith("{"))
+					{
+						try
+						{
+							value = converter.fromJSON(new JSONObject((String)value), null, childPd, null, null);
+						}
+						catch (Exception e)
+						{
+							Debug.error("can't parse '" + value + "' to the real type for property converter: " + childPd.getType(), e);
+						}
+					}
+					else
+					{
+						value = converter.fromJSON(value, null, childPd, null, null);
+					}
+				}
+				return value;
 			}
 		}
 
