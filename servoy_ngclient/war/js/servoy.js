@@ -794,7 +794,38 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			})
 		}
 	}
-}).directive("svyComponentWrapper", ['$compile', function ($compile) {
+}).directive("svyDecimalKeyConverter",[function(){
+	return {
+		restrict: 'A',
+		link: function(scope,element,attrs) {
+			function setCaretPosition(elem, caretPos) {
+			    if (elem != null) {
+			        if (elem.createTextRange) {
+			            var range = elem.createTextRange();
+			            range.move('character', caretPos);
+			            range.select();
+			        } else {
+			            if (elem.selectionStart) {
+			                elem.focus();
+			                elem.setSelectionRange(caretPos, caretPos);
+			            } else
+			                elem.focus();
+			        }
+			    }
+			}
+			element.on("keydown",function(event) {
+				if(event.which == 110) {
+			        var caretPos = element[0].selectionStart;
+			        var startString = element.val().slice(0, caretPos);
+			        var endString = element.val().slice(element[0].selectionEnd, element.val().length);
+			        element.val(startString + numeral.languageData().delimiters.decimal + endString);
+			        setCaretPosition(element[0], caretPos+1); // '+1' puts the caret after the input
+			        event.preventDefault ? event.preventDefault() : event.returnValue = false; //for IE8
+				}
+			});
+		}
+	}
+}]).directive("svyComponentWrapper", ['$compile', function ($compile) {
 	return {
 		priority: 1000,
 		//replace: true,
