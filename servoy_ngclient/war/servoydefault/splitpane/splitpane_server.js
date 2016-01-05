@@ -125,22 +125,6 @@
 			$scope.api.setTabTextAt = function(index, text) {
 			}
 			
-			$scope.api.getHeight = function() {
-				return $scope.model.size.height;
-			}
-			
-			$scope.api.getLocationX = function() {
-				return $scope.model.location.x;
-			}
-			
-			$scope.api.getLocationY = function() {
-				return $scope.model.location.y;
-			}
-			
-			$scope.api.getWidth = function() {
-				return $scope.model.size.width;
-			}
-			
 			$scope.api.setLocation = function(x, y) {
 				$scope.model.location.x = x;
 				$scope.model.location.y = y;
