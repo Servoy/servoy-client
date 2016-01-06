@@ -228,6 +228,9 @@ public class FormLayoutGenerator
 		}
 		if (design)
 		{
+			writer.print(" svy-id='");
+			writer.print(getDesignId(fe));
+			writer.print("'");
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
@@ -295,11 +298,11 @@ public class FormLayoutGenerator
 		}
 		if (design)
 		{
-			writer.print(" svy-id='");
-			writer.print(getDesignId(fe));
-			writer.print("'");
 			if (form.isResponsiveLayout())
 			{
+				writer.print(" svy-id='");
+				writer.print(getDesignId(fe));
+				writer.print("'");
 				List<String> typeNames = fe.getSvyTypesNames();
 				if (typeNames.size() > 0)
 				{
