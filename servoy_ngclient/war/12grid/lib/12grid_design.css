@@ -11,8 +11,8 @@
 	min-height: 20px;
 }
 
-/*column*/
-.row div {
+/*first level children divs are columns*/
+.row>div {
 	min-height: 20px;
 }
 
@@ -21,8 +21,12 @@
 	padding: 5px;
 	margin: 10px 0px 10px 0px;
 }
-
-.rowDesign div {
+/*first level children divs are columns*/
+.rowDesign>div {
 	border: 2px solid #DDDDDD;
 	padding: 5px;
+}
+
+data-bootstrapcomponents-table {
+	display: inline-block;
 }

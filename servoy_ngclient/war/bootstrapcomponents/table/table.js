@@ -47,11 +47,11 @@ angular.module('bootstrapcomponentsTable',['servoy']).directive('bootstrapcompon
        	  }
     	  
     	  $scope.hasNext = function() {
-      		 return $scope.model.currentPage < Math.ceil($scope.model.foundset.serverSize / $scope.model.pageSize); 
+      		 return $scope.model.foundset && $scope.model.currentPage < Math.ceil($scope.model.foundset.serverSize / $scope.model.pageSize); 
       	  }
     	  
     	  $scope.showPagination = function() {
-     		 return $scope.model.pageSize && $scope.model.foundset.serverSize > $scope.model.pageSize; 
+     		 return $scope.model.pageSize && $scope.model.foundset && $scope.model.foundset.serverSize > $scope.model.pageSize; 
      	  }
     	  
     	  $scope.modifyPage = function(count) {
