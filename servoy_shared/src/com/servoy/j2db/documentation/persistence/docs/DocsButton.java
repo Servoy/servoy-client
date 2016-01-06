@@ -26,13 +26,16 @@ import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsButton extends BaseDocsGraphicalComponent
 {
+
+	private static final long serialVersionUID = 1L;
+
 	DocsButton()
 	{
 	}

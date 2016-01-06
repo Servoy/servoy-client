@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Debug;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-public class JSWebComponent extends JSComponent<WebComponent> implements IJavaScriptType
+public class JSWebComponent extends JSComponent<WebComponent>implements IJavaScriptType
 {
 
 	protected final IApplication application;
@@ -207,6 +207,9 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * For more complex property types you can set a JSON value similar to what would be generated in the .frm file if you would design what you need using editor/properties view.
 	 * Some property types can be assigned values in the runtime accepted format (for example border, font typed properties have a string representation at runtime and here as well).
 	 *
+	 * @param propertyName the name of the property to set
+	 * @param value the new value of the property
+	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
 	 * wc.setJSONProperty('mytext', 'Hello World!');
@@ -224,6 +227,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * Reset the design-time value of the given property.
 	 * This makes it as if it was never set. It can be useful when working with form inheritance.
 	 *
+	 * @param propertyName the name of the property to reset
+	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent'); // form is extending another form who's 'mycomponent' has property 'mytext' set to something...
 	 * wc.setJSONProperty('mytext', 'Hello World Extended!');
@@ -238,6 +243,9 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	/**
 	 * Set the JSMethod handler for the given handler name. The handlerName is checked for existence in the component spec file, if the component does not declare this handler, an error is thrown.
 	 * If the handler is already set, it will be replaced with the new JSMethod.
+	 *
+	 * @param handlerName the name of the handler to get
+	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
 	 * wc.setHandler('onActionMethodID', form.getJSMethod('onAction'));
@@ -249,6 +257,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 
 	/**
 	 * Similar to resetJSONProperty but for handlers.
+	 *
+	 * @param handlerName the name of the handler to reset
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent'); // form is extending another form who's 'onActionMethodID' does something nice
@@ -263,6 +273,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 
 	/**
 	 * Returns the JSMethod handler with the given name.
+	 *
+	 * @param handlerName the name of the handler to get
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
@@ -302,6 +314,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 
 	/**
 	 * Get the design-time value of the given property.
+	 *
+	 * @param propertyName the name of the property to get
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');

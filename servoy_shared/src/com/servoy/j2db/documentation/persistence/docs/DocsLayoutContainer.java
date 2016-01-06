@@ -33,11 +33,9 @@ import com.servoy.j2db.util.UUID;
 public class DocsLayoutContainer extends LayoutContainer
 {
 
-	/**
-	 * @param parent
-	 * @param element_id
-	 * @param uuid
-	 */
+	private static final long serialVersionUID = 1L;
+
+
 	protected DocsLayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(parent, element_id, uuid);

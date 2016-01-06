@@ -5,6 +5,7 @@
 	   svy-enter='handlers.onActionMethodID($event)'
 	   ng-disabled="!model.enabled"
 	   ng-readonly="model.readOnly"
+       sablo-tabseq='model.tabSeq'
 	   ng-class='model.styleClass'/>
 	<span class="input-group-addon"  ng-show="!model.readOnly && model.enabled"><span class="glyphicon glyphicon-calendar"></span></span>
 </div>

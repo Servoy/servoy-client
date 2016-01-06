@@ -26,7 +26,7 @@ import java.io.Serializable;
  */
 public class Template extends StringResource implements Serializable
 {
-	public static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	public static final String PROP_FORM = "form"; //$NON-NLS-1$
 	public static final String PROP_ELEMENTS = "elements"; //$NON-NLS-1$

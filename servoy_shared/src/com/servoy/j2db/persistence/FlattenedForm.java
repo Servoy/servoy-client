@@ -35,6 +35,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form>
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final Comparator<IFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IFormElement>()
 	{
 		public int compare(IFormElement element1, IFormElement element2)

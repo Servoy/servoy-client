@@ -278,6 +278,7 @@ angular.module('servoyWindowManager',['sabloApp'])	// TODO Refactor so that wind
 							win.size = size;
 							if(win.storeBounds) storage.add(sol+name+'.storedBounds.size',size)
 							$sabloApplication.callService("$windowService", "resize", {name:win.name,size:win.size},true);
+							win.$scope.$broadcast("dialogResize");
 						},
 						onMove:function($event,location){
 							win.location = {x:location.left,y:location.top};

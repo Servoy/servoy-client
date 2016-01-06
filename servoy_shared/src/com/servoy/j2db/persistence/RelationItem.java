@@ -31,21 +31,26 @@ import com.servoy.j2db.util.UUID;
 public class RelationItem extends AbstractBase implements ISupportContentEquals, IPersistCloneable, ICloneable
 {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final int[] RELATION_OPERATORS = new int[] {
 		// standard set
-	ISQLCondition.EQUALS_OPERATOR, ISQLCondition.GT_OPERATOR, ISQLCondition.LT_OPERATOR, ISQLCondition.GTE_OPERATOR, ISQLCondition.LTE_OPERATOR, ISQLCondition.NOT_OPERATOR, ISQLCondition.IN_OPERATOR, ISQLCondition.LIKE_OPERATOR, ISQLCondition.NOT_LIKE_OPERATOR,
+		ISQLCondition.EQUALS_OPERATOR, ISQLCondition.GT_OPERATOR, ISQLCondition.LT_OPERATOR, ISQLCondition.GTE_OPERATOR, ISQLCondition.LTE_OPERATOR, ISQLCondition.NOT_OPERATOR, ISQLCondition.IN_OPERATOR, ISQLCondition.LIKE_OPERATOR, ISQLCondition.NOT_LIKE_OPERATOR,
 		// case insensitive
-	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.LIKE_OPERATOR |
-		ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER,
-		// or null
-	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LT_OPERATOR |
-		ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
-		ISQLCondition.ORNULL_MODIFIER, ISQLCondition.IN_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LIKE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR |
-		ISQLCondition.ORNULL_MODIFIER,
-		// case insensitive or null
-	ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
-		ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER,
-	// 
+		ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_OPERATOR |
+			ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.LIKE_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR |
+				ISQLCondition.CASEINSENTITIVE_MODIFIER,
+				// or null
+				ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GT_OPERATOR |
+					ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GTE_OPERATOR |
+						ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
+							ISQLCondition.ORNULL_MODIFIER, ISQLCondition.IN_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LIKE_OPERATOR |
+								ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.ORNULL_MODIFIER,
+								// case insensitive or null
+								ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER |
+									ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER |
+										ISQLCondition.ORNULL_MODIFIER,
+		//
 	};
 
 	/**
@@ -62,7 +67,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	/**
 	 * Set the tableName1
-	 * 
+	 *
 	 * @param arg the tableName1
 	 */
 	public void setPrimaryDataProviderID(String arg)
@@ -71,7 +76,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	}
 
 	/**
-	 * The name of the column from the source table 
+	 * The name of the column from the source table
 	 * that this relation item is based on.
 	 */
 	public String getPrimaryDataProviderID()
@@ -81,7 +86,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	/**
 	 * Set the foreignTableName
-	 * 
+	 *
 	 * @param arg the foreignTableName
 	 */
 	public void setForeignColumnName(String arg)
@@ -120,7 +125,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	/**
 	 * Swap the operator, leave the modifier in place
-	 * 
+	 *
 	 * @param op
 	 */
 	public static int swapOperator(int op)
@@ -210,7 +215,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	/**
 	 * Parse the operator string '[<modifier>]<operator>'
-	 * 
+	 *
 	 * @param str
 	 * @param operators includes modifiers when modifiers is null
 	 * @param modifiers
@@ -273,7 +278,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	/**
 	 * Sets the operator.
-	 * 
+	 *
 	 * @param operator The operator to set
 	 */
 	public void setOperator(int operator)
@@ -286,7 +291,8 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		if (obj instanceof RelationItem)
 		{
 			RelationItem other = (RelationItem)obj;
-			return (getPrimaryDataProviderID().equals(other.getPrimaryDataProviderID()) && getOperator() == other.getOperator() && getForeignColumnName() == other.getForeignColumnName());
+			return (getPrimaryDataProviderID().equals(other.getPrimaryDataProviderID()) && getOperator() == other.getOperator() &&
+				getForeignColumnName() == other.getForeignColumnName());
 		}
 		return false;
 	}

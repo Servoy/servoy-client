@@ -17,7 +17,6 @@
 package com.servoy.j2db.persistence;
 
 
-import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -25,11 +24,13 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * A so called aggregate
- * 
+ *
  * @author jblok
  */
 public class AggregateVariable extends AbstractBase implements IColumn, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals
 {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String[] AGGREGATE_TYPE_STRINGS = new String[] { "count", //$NON-NLS-1$
 	"maximum", //$NON-NLS-1$
@@ -69,7 +70,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void setName(String arg)
@@ -79,7 +80,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
@@ -97,7 +98,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Get the name
-	 * 
+	 *
 	 * @return the name
 	 */
 	public String getName()
@@ -107,7 +108,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the type
-	 * 
+	 *
 	 * @param arg the type
 	 */
 	public void setType(int arg)
@@ -117,7 +118,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Get the type
-	 * 
+	 *
 	 * @return the type
 	 */
 	public int getType()
@@ -127,7 +128,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Set the dataProviderIDToAggregate
-	 * 
+	 *
 	 * @param arg the dataProviderIDToAggregate
 	 */
 	public void setDataProviderIDToAggregate(String arg)
@@ -137,7 +138,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	/**
 	 * Get the dataProviderIDToAggregate
-	 * 
+	 *
 	 * @return the dataProviderIDToAggregate
 	 */
 	public String getDataProviderIDToAggregate()
@@ -267,8 +268,8 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 		if (obj instanceof AggregateVariable)
 		{
 			AggregateVariable other = (AggregateVariable)obj;
-			return (getDataProviderID().equals(other.getDataProviderID()) && getType() == other.getType() && getDataProviderIDToAggregate().equals(
-				other.getDataProviderIDToAggregate()));
+			return (getDataProviderID().equals(other.getDataProviderID()) && getType() == other.getType() &&
+				getDataProviderIDToAggregate().equals(other.getDataProviderIDToAggregate()));
 		}
 		return false;
 	}

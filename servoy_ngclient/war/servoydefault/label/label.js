@@ -1,13 +1,5 @@
 angular.module('servoydefaultLabel',['servoy'])
-.run(["$templateCache","$http",function($templateCache,$http){
-	$http.get("servoydefault/label/label.html").then(function(result){
-		$templateCache.put("template/servoydefault/label/label.html", result.data);
-    });
-	$http.get("servoydefault/label/labelfor.html").then(function(result){
-		$templateCache.put("template/servoydefault/label/labelfor.html", result.data);
-    });	
-}])
-.directive('servoydefaultLabel', ['$parse','$templateCache','$compile','$apifunctions','$sabloConstants','$svyProperties',function($parse,$templateCache,$compile,$apifunctions,$sabloConstants,$svyProperties) {
+.directive('servoydefaultLabel', ['$parse','$http','$templateCache','$compile','$apifunctions','$sabloConstants','$svyProperties',function($parse,$http,$templateCache,$compile,$apifunctions,$sabloConstants,$svyProperties) {
     return {
       restrict: 'E',
       scope: {
@@ -33,11 +25,11 @@ angular.module('servoydefaultLabel',['servoy'])
     	  }
       },
       link: function($scope, $element, $attrs) {
-    	  $element.html($templateCache.get($scope.model.labelFor && ($attrs.headercell == undefined) ? "template/servoydefault/label/labelfor.html" : "template/servoydefault/label/label.html"));
-          $compile($element.contents())($scope);
-          
-    	  
-			var tooltipState = null;
+		var templateUrl = $scope.model.labelFor && ($attrs.headercell == undefined) ? "servoydefault/label/labelfor.html" : "servoydefault/label/label.html";
+		$http.get(templateUrl, {cache: $templateCache}).then(function(result) {
+    	  	$element.html(result.data);
+          	$compile($element.contents())($scope);
+    	  	var tooltipState = null;
 			var className = null;
 			var element = $element.children().first();
 			Object.defineProperty($scope.model,$sabloConstants.modelChangeNotifier, {configurable:true,value:function(property,value) {
@@ -112,20 +104,21 @@ angular.module('servoydefaultLabel',['servoy'])
 				modelChangFunction(key,$scope.model[key]);
 			}
           
-		  if ($scope.model.dataProviderID === undefined && $scope.model.text === undefined && $scope.model.imageMediaID)
-		  {
-			  //image only, set line-height to default
+			if ($scope.model.dataProviderID === undefined && $scope.model.text === undefined && $scope.model.imageMediaID)
+			{
+				//image only, set line-height to default
 				$svyProperties.setCssProperty(element,"line-height","100%");
-		  }	  
-    	  $scope.api.getWidth = $apifunctions.getWidth($element[0]);
-    	  $scope.api.getHeight = $apifunctions.getHeight($element[0]);
-    	  $scope.api.getLocationX = $apifunctions.getX($element[0]);
-    	  $scope.api.getLocationY = $apifunctions.getY($element[0]);
-    	  
-    	  $scope.hasText = function() {
-    		  var txtValue = $scope.model.dataProviderID == null || $scope.model.dataProviderID.url ? $scope.model.text : $scope.model.dataProviderID;
-    		  return (txtValue && txtValue.length > 0);
-    	  }
+			}	  
+			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
+			$scope.api.getHeight = $apifunctions.getHeight($element[0]);
+			$scope.api.getLocationX = $apifunctions.getX($element[0]);
+			$scope.api.getLocationY = $apifunctions.getY($element[0]);
+		  
+			$scope.hasText = function() {
+				var txtValue = $scope.model.dataProviderID == null || $scope.model.dataProviderID.url ? $scope.model.text : $scope.model.dataProviderID;
+				return (txtValue && txtValue.length > 0);
+			}
+    	});
       }
     };
 }])

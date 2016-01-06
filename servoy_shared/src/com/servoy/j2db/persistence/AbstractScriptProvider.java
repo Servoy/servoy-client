@@ -20,11 +20,14 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
- * 
+ *
  */
-public abstract class AbstractScriptProvider extends AbstractBase implements IScriptProvider, ISupportUpdateableName, ISupportContentEquals,
-	ISupportDeprecatedAnnotation
+public abstract class AbstractScriptProvider extends AbstractBase
+	implements IScriptProvider, ISupportUpdateableName, ISupportContentEquals, ISupportDeprecatedAnnotation
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private transient String methodCode;
 	private transient Boolean isDeprecated;
 
@@ -81,7 +84,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 
 	/**
 	 * updates the name
-	 * 
+	 *
 	 * @param arg the name
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
@@ -108,7 +111,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 
 	/**
 	 * Set the declaration
-	 * 
+	 *
 	 * @param arg the declaration
 	 */
 	@Deprecated
@@ -128,7 +131,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 
 	/**
 	 * Get the declaration
-	 * 
+	 *
 	 * @return the declaration
 	 */
 	@Deprecated

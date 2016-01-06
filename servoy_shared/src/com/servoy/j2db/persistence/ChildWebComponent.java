@@ -32,6 +32,8 @@ import com.servoy.j2db.util.UUID;
 public class ChildWebComponent extends WebComponent implements IChildWebObject
 {
 
+//	private static final long serialVersionUID = 1L; // this shouldn't get serialized anyway for now; parent WebComponent just serializes it's json
+
 	public static final String COMPONENT_PROPERTY_TYPE_NAME = "component";
 
 	public final static String TYPE_NAME_KEY = "typeName";
@@ -44,7 +46,8 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 
 	private final PropertyDescription pdAsChildComponent;
 
-	public ChildWebComponent(IBasicWebObject parent, int element_id, UUID uuid, String jsonKey, int index, boolean isNew, PropertyDescription pdAsChildComponent)
+	public ChildWebComponent(IBasicWebObject parent, int element_id, UUID uuid, String jsonKey, int index, boolean isNew,
+		PropertyDescription pdAsChildComponent)
 	{
 		super(parent, element_id, uuid);
 

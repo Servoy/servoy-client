@@ -71,21 +71,22 @@ public class DebugNGClient extends NGClient implements IDebugClient
 
 		public void updateForm(Form form)
 		{
-			boolean isNew = !possibleForms.containsValue(form);
+			boolean isNew = !possibleForms.containsKey(form.getName());
 			boolean isDeleted = false;
 			if (!isNew)
 			{
 				isDeleted = !((AbstractBase)form.getParent()).getAllObjectsAsList().contains(form);
 			}
-			updateForm(form, isNew, isDeleted);
+			updateForm(form, isDeleted);
 		}
 
-		private void updateForm(Form form, boolean isNew, boolean isDeleted)
+		private void updateForm(Form form, boolean isDeleted)
 		{
 			if (isDeleted)
 			{
 				IFormController tmp = getCachedFormController(form.getName());
 				if (tmp != null) removeFormController((BasicFormController)tmp); // form was deleted in designer; remove it's controller from cached/already used forms
+				possibleForms.remove(form.getName());
 			}
 		}
 	}

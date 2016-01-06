@@ -72,7 +72,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebFormController extends BasicFormController implements IWebFormController
 {
-	private int view;
+	private int view = -1;
 	private WebFormUI formUI;
 	private boolean rendering;
 	private String[] tabSequence;
@@ -126,7 +126,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void setView(int view)
 	{
-		this.view = view;
+		if (view == -1) this.view = form.getView();
+		else this.view = view;
 	}
 
 	@Override

@@ -124,7 +124,8 @@ public class SolutionMetaData extends RootObjectMetaData
 		if (root instanceof Solution)
 		{
 			isServoyNGSolution = ((Solution)root).getSolutionType() == SolutionMetaData.NG_CLIENT_ONLY ||
-				((Solution)root).getSolutionType() == SolutionMetaData.SOLUTION || ((Solution)root).getSolutionType() == SolutionMetaData.MODULE; // TODO can this be done? just all modules are also NG_CLIENT?
+				((Solution)root).getSolutionType() == SolutionMetaData.SOLUTION || ((Solution)root).getSolutionType() == SolutionMetaData.MODULE ||
+				((Solution)root).getSolutionType() == SolutionMetaData.LOGIN_SOLUTION; // TODO can this be done? just all modules are also NG_CLIENT?
 		}
 		return isServoyNGSolution;
 	}
@@ -161,7 +162,7 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	public static boolean isImportHook(SolutionMetaData meta)
 	{
-		return meta != null &&
-			(isPreImportHook(meta.getName()) || isPostImportHook(meta.getName()) || meta.getSolutionType() == PRE_IMPORT_HOOK || meta.getSolutionType() == POST_IMPORT_HOOK);
+		return meta != null && (isPreImportHook(meta.getName()) || isPostImportHook(meta.getName()) || meta.getSolutionType() == PRE_IMPORT_HOOK ||
+			meta.getSolutionType() == POST_IMPORT_HOOK);
 	}
 }

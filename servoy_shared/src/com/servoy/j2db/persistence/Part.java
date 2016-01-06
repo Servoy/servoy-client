@@ -38,6 +38,9 @@ import com.servoy.j2db.util.UUID;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID, IBasePart
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;
 	public static final int HEADER = IPartConstants.HEADER;
 	public static final int LEADING_GRAND_SUMMARY = IPartConstants.LEADING_GRAND_SUMMARY;

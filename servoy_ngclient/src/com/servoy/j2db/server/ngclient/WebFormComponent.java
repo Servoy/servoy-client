@@ -185,9 +185,6 @@ public class WebFormComponent extends Container implements IContextProvider
 		return new ServoyDataConverterContext(dataAdapterList.getForm());
 	}
 
-	/**
-	 * @return the visibleForms
-	 */
 	public IWebFormUI[] getVisibleForms()
 	{
 		return visibleForms.keySet().toArray(new IWebFormUI[visibleForms.size()]);
@@ -211,11 +208,17 @@ public class WebFormComponent extends Container implements IContextProvider
 		return propertyDescription != null && "design".equals(propertyDescription.getTag(TAG_SCOPE));
 	}
 
+	/**
+	 * TODO What does this mean 'private'?
+	 */
 	public boolean isPrivateProperty(String propertyName)
 	{
 		return isPrivateProperty(specification.getProperty(propertyName));
 	}
 
+	/**
+	 * TODO What does this mean 'private'?
+	 */
 	public static boolean isPrivateProperty(PropertyDescription propertyDescription)
 	{
 		return propertyDescription != null && "private".equals(propertyDescription.getTag(TAG_SCOPE));
