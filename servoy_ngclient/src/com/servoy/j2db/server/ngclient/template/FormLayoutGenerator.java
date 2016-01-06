@@ -234,6 +234,20 @@ public class FormLayoutGenerator
 			writer.print(" name='");
 			writer.print(fe.getName());
 			writer.print("'");
+			List<String> typeNames = fe.getSvyTypesNames();
+			if (typeNames.size() > 0)
+			{
+				writer.print(" svy-types='");
+				writer.print("[" + StringUtil.join(typeNames, ",") + "]");
+				writer.print("'");
+			}
+			List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
+			if (forbiddenComponentNames.size() > 0)
+			{
+				writer.print(" svy-forbidden-components='");
+				writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
+				writer.print("'");
+			}
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 			Form currentForm = form;
 			if (form instanceof FlattenedForm) currentForm = ((FlattenedForm)form).getForm();
