@@ -241,6 +241,13 @@ public class FormLayoutGenerator
 				writer.print("[" + StringUtil.join(typeNames, ",") + "]");
 				writer.print("'");
 			}
+			String directEditPropertyName = getDirectEditProperty(fe);
+			if (directEditPropertyName != null)
+			{
+				writer.print(" directEditPropertyName='");
+				writer.print(directEditPropertyName);
+				writer.print("'");
+			}
 			List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
 			if (forbiddenComponentNames.size() > 0)
 			{
@@ -331,13 +338,13 @@ public class FormLayoutGenerator
 					writer.print("[" + StringUtil.join(forbiddenComponentNames, ",") + "]");
 					writer.print("'");
 				}
-			}
-			String directEditPropertyName = getDirectEditProperty(fe);
-			if (directEditPropertyName != null)
-			{
-				writer.print(" directEditPropertyName='");
-				writer.print(directEditPropertyName);
-				writer.print("'");
+				String directEditPropertyName = getDirectEditProperty(fe);
+				if (directEditPropertyName != null)
+				{
+					writer.print(" directEditPropertyName='");
+					writer.print(directEditPropertyName);
+					writer.print("'");
+				}
 			}
 			writer.print(" svy-model=\"model('");
 			writer.print(fe.getName());
