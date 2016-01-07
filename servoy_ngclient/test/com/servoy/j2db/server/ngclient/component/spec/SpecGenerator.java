@@ -149,25 +149,16 @@ public class SpecGenerator
 			}
 			// @formatter:on
 		));
-		specTemplateList.add(new SpecTemplateModel(
-				"portal",
-				"Portal",
-				"portal.gif",
-				IRepository.PORTALS,
-				com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-				new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"},"
-					+ "\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"},"
-					+ "\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
+		specTemplateList.add(
+			new SpecTemplateModel("portal", "Portal", "portal.gif", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
+				new String[] { "{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/js/ui-grid.js\", \"mimetype\":\"text/javascript\"}," +
+					"\n\t\t\t\t{\"name\":\"ui-grid\", \"version\":\"v3.0.0-rc.12\", \"url\":\"servoydefault/portal/css/ui-grid.min.css\", \"mimetype\":\"text/css\"}," +
+					"\n\t\t\t\t{\"name\":\"svy-portal\", \"version\":\"1\", \"url\":\"servoydefault/portal/portal.css\", \"mimetype\":\"text/css\"}" },
 				"servoydefault/portal/portal_server.js"));
-			specTemplateList.add(new SpecTemplateModel(
-				"spinner",
-				"Spinner",
-				"spinner.png",
-				IRepository.FIELDS,
-				com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
-				new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
-			specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class,
-				new String[0]));
+		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", "spinner.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
+			new String[] { "{\"name\":\"svy-spinner\", \"version\":\"1\", \"url\":\"servoydefault/spinner/spinner.css\", \"mimetype\":\"text/css\"}", "{\"name\":\"font-awesome\", \"version\":\"4.2.0\", \"url\":\"servoydefault/spinner/css/font-awesome.css\", \"mimetype\":\"text/css\"}" }));
+		specTemplateList.add(
+			new SpecTemplateModel("listbox", "ListBox", "listbox.png", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("rectangle", "Rectangle", "rectangle.gif", IRepository.RECTSHAPES,
 			com.servoy.j2db.ui.runtime.IRuntimeRectangle.class, new String[0]));
 
@@ -486,7 +477,7 @@ public class SpecGenerator
 
 
 		String findModeEditable = "{ \"type\":\"findmode\", \"tags\":{\"scope\":\"private\"}, \"for\" : {\"editable\":true}}";
-		String findModeEnabled = "{ \"type\":\"findmode\", \"tags\":{\"scope\":\"private\"}, \"for\" : { \"enabled\":true}}";
+		String findModeReadonly = "{ \"type\":\"findmode\", \"tags\":{\"scope\":\"private\"}, \"for\" : { \"readOnly\":false}}";
 
 		addFindmodeModelEntries.add("portal");
 		addFindmodeModelEntries.add("calendar");
@@ -567,7 +558,7 @@ public class SpecGenerator
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID.getPropertyName()+ "\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID.getPropertyName()+"\",\""
 			+ StaticContentSpecLoader.PROPERTY_ONDROPMETHODID.getPropertyName()+ "\"] }");
-		portalTypeMapping.put("findmode", findModeEnabled);
+		portalTypeMapping.put("findmode", findModeReadonly);
 		portalTypeMapping.put("readOnly", "{ \"type\": \"protected\" \"for\": [\"readOnly\"] }");
 		portalTypeMapping.put(IContentSpecConstants.PROPERTY_NG_READONLY_MODE, "{\"type\":\"protected\", \"for\": [\"readOnlyMode\"], \"default\": null}");
 		componentRepoTypeMappingExceptions.put("portal", portalTypeMapping);

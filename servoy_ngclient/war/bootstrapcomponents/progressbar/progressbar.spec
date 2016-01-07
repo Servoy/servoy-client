@@ -12,15 +12,16 @@
 			"animate": {"type":"boolean", "default":true},
 			"showValue" : {"type":"boolean", "default":true},
 			"max" : {"type":"int", "default":100},
-	        "visible" : "visible"
+			"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
+	    	"visible" : "visible"
 	},
 	"handlers":
 	{
-	
+
 	},
 	"api":
-	{   
-	
-	} 
-	
+	{
+
+	}
+
 }

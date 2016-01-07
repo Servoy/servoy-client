@@ -1,25 +1,27 @@
 <div class="table-responsive" ng-show='model.visible'>
-<table class='bts-table' ng-class="model.styleClass">
-  <tr>
-    <th ng-repeat="column in model.columns"><div ng-bind='column.headerText'></div></th>
-  </tr>
-  <tr ng-repeat="row in model.foundset.viewPort.rows"
-  	  ng-click="rowClicked(model.foundset.viewPort.rows.indexOf(row))"
-  	  ng-class='getRowStyle(model.foundset.viewPort.rows.indexOf(row))'>
-    <td ng-repeat="column in model.columns" ng-click="cellClicked(model.foundset.viewPort.rows.indexOf(row), model.columns.indexOf(column))">
-    	<div ng-class="column.styleClass"
-    		 ng-bind='column.dataprovider[model.foundset.viewPort.rows.indexOf(row)]| getDisplayValue:column.valuelist | formatFilter:column.format.display:column.format.type'>
-    	</div></td>
-  </tr>
-</table>
+	<table class='bts-table' ng-class="model.styleClass" sablo-tabseq='model.tabSeq'>
+	  <tr>
+	    <th ng-class="column.headerStyleClass" ng-repeat="column in model.columns"><div ng-bind='column.headerText'></div></th>
+	  </tr>
+	  <tr ng-repeat="row in model.foundset.viewPort.rows"
+	  	  ng-click="rowClicked(model.foundset.viewPort.rows.indexOf(row))"
+	  	  ng-class='getRowStyle(model.foundset.viewPort.rows.indexOf(row))'>
+	    <td ng-class="column.styleClass" ng-repeat="column in model.columns" ng-click="cellClicked(model.foundset.viewPort.rows.indexOf(row), model.columns.indexOf(column))">
+	    	<img ng-show="getUrl(column,row) != null" 
+	    		ng-src="{{getUrl(column,row)}}"></img>
+	    	<div ng-bind='column.dataprovider[model.foundset.viewPort.rows.indexOf(row)]| getDisplayValue:column.valuelist | formatFilter:column.format.display:column.format.type'
+	    	ng-show="getUrl(column,row) === null">
+	    	</div></td>
+	  </tr>
+	</table>
 </div>
 <ul class="bts-pagination pagination svy-nomargin" ng-show="showPagination()">
-    <li ng-class="model.currentPage == 1 ? 'disabled' : ''"><a href="#" ng-click="modifyPage(-1)">&laquo;</a></li>
-    <li class="disabled"><a href="#">{{model.currentPage}}</a></li>
-    <li ng-class="hasNext() ? '' : 'disabled'"><a href="#" ng-click="modifyPage(1)">&raquo;</a></li>
+	  <li ng-class="model.currentPage == 1 ? 'disabled' : ''"><a href="#" ng-click="modifyPage(-1)">&laquo;</a></li>
+	  <li class="disabled"><a href="#">{{model.currentPage}}</a></li>
+	  <li ng-class="hasNext() ? '' : 'disabled'"><a href="#" ng-click="modifyPage(1)">&raquo;</a></li>
 </ul>
 <div ng-class='model.styleClass' ng-show='!model.columns || model.columns.length == 0' ng-show='model.visible'>
-  <label>
-  	 <span>Drop table columns from pallette</span>
-  </label>
+	  <label>
+	  	 <span>Drop table columns from palette</span>
+	  </label>
 </div>

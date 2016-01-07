@@ -460,7 +460,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					if(media.img){
 						imgStyle =parseImageOptions( media.img, mediaOptions, componentSize)
 						if(media.updateParentSize && (imgStyle.height == (componentSize.height + 'px'))) {
-							$(element[0].parentNode).css({height: imgStyle.height});
+							// if exact image, just make sure it shows well; vertical align center can have rounding issues
+							$(element[0].parentNode).css({height: imgStyle.height, top: 0, transform: 'none'});
 							imgStyle['vertical-align'] = "top";
 						}
 						element.css(imgStyle)
@@ -475,11 +476,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			}
 
 			if (scope.model && scope.model.anchors && $solutionSettings.enableAnchoring) {
-				if (((scope.model.anchors & $anchorConstants.NORTH != 0) && (scope.model.anchors & $anchorConstants.SOUTH != 0)) || ((scope.model.anchors & $anchorConstants.EAST != 0) && (scope.model.anchors & $anchorConstants.WEST != 0)))
+				if ((((scope.model.anchors & $anchorConstants.NORTH) != 0) && ((scope.model.anchors & $anchorConstants.SOUTH) != 0)) || (((scope.model.anchors & $anchorConstants.EAST) != 0) && ((scope.model.anchors & $anchorConstants.WEST) != 0)))
 				{
 					// anchored image, add resize listener
 					var resizeTimeoutID = null;
 					$window.addEventListener('resize',setImageStyle);
+					scope.$on("dialogResize",setImageStyle);
 				}
 			}
 			scope.$watch(attrs.svyImagemediaid,function(newVal) {

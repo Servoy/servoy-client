@@ -269,6 +269,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					(val instanceof IChildWebObject[] && isArrayOfCustomJSONObject(propertyType)) ||
 					(val instanceof WebComponent && isComponent(propertyType)) || (val instanceof IChildWebObject[] && isArrayOfComponent(propertyType)))
 				{
+					if (getJson() == null) setJson(new ServoyJSONObject());
 					getPersistMappedProperties().put(propertyName, val);
 					persistMappedPropetiesByUUID = null;
 					updatePersistMappedPropeties();
