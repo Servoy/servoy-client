@@ -68,7 +68,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
 	public static final String TYPE_NAME = "tagstring";
 
-	private TagStringPropertyType()
+	protected TagStringPropertyType()
 	{
 	}
 
