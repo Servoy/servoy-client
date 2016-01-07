@@ -142,6 +142,23 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	{
 		return webObjectImpl.getTypeName();
 	}
+	
+	/**
+	 * DO NOT USE this method! Use setProperty instead.
+	 * @param arg
+	 */
+	public void setJson(JSONObject arg)
+	{
+		webObjectImpl.setJson(arg);
+	}
+
+	/**
+	 * DO NOT USE this method! Use setProperty instead.
+	 */
+	public JSONObject getJson()
+	{
+		return webObjectImpl.getJson();
+	}
 
 	@Override
 	public JSONObject getFlattenedJson()
