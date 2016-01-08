@@ -838,14 +838,18 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		IBasicWebObject parentWebObject = webObject.getParent();
 		try
 		{
-			//TODO make sure this is correct
-			Object v = parentWebObject.getProperty(webObject.getJsonKey());
-			if (!isNew && v != null)
+			JSONObject entireModel = (parentWebObject.getFlattenedJson() != null ? parentWebObject.getFlattenedJson() : new ServoyJSONObject());
+			if (!isNew && entireModel.has(webObject.getJsonKey()))
 			{
+				Object v = entireModel.get(webObject.getJsonKey());
 				JSONObject obj = null;
 				if (v instanceof JSONArray)
 				{
 					obj = ((JSONArray)v).optJSONObject(webObject.getIndex());
+				}
+				else
+				{
+					obj = entireModel.getJSONObject(webObject.getJsonKey());
 				}
 				return obj;
 			}
