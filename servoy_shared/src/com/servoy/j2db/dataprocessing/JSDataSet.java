@@ -640,7 +640,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * Most resources used by the datasource can be released by deleting all records:
 	 *   dataset.removeRow(-1) or databaseManager.getFoundSet(datasource).deleteAllRecords()
-
+	
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
@@ -1351,8 +1351,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 								}
 							}
 						}
-						Object compareResult = scriptEngine.executeFunction(comparator, rowComparatorScope, rowComparatorScope,
-							new Object[] { param1, param2 }, false, true);
+						Object compareResult = scriptEngine.executeFunction(comparator, rowComparatorScope, rowComparatorScope, new Object[] { param1, param2 },
+							false, true);
 						return Utils.getAsInteger(compareResult, true);
 					}
 					catch (Exception ex)
@@ -1980,7 +1980,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	public Scriptable getParentScope()
 	{
-		if (parentScope == null)
+		if (parentScope == null && application != null && application.getScriptEngine() != null)
 		{
 			return application.getScriptEngine().getSolutionScope();
 		}
