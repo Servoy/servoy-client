@@ -73,7 +73,7 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
-	private static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design,
+	public static void generateLayoutContainer(LayoutContainer container, Form form, ServoyDataConverterContext context, PrintWriter writer, boolean design,
 		boolean highlight) throws IOException
 	{
 		if (highlight) writer.print("<div class='highlight_element'>");

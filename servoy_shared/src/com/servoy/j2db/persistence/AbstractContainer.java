@@ -384,15 +384,15 @@ public abstract class AbstractContainer extends AbstractBase implements ISupport
 	 * @param searchFor
 	 * @return
 	 */
-	public IFormElement findChild(UUID searchFor)
+	public IPersist findChild(UUID searchFor)
 	{
 		List<IPersist> children = getHierarchyChildren();
 		for (IPersist iPersist : children)
 		{
-			if (iPersist.getUUID().equals(searchFor)) return (IFormElement)iPersist;
+			if (iPersist.getUUID().equals(searchFor)) return iPersist;
 			if (iPersist instanceof LayoutContainer)
 			{
-				IFormElement result = ((LayoutContainer)iPersist).findChild(searchFor);
+				IPersist result = ((LayoutContainer)iPersist).findChild(searchFor);
 				if (result != null) return result;
 			}
 		}
