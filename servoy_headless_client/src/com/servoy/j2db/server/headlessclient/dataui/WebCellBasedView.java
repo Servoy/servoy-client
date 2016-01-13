@@ -1209,14 +1209,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (component.isVisibleInHierarchy())
 				{
 					Component innerComponent = CellContainer.getContentsForCell(component);
-					if (!ignoreStyles)
-					{
-						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
-					}
-					boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
-						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles)) && target != null)
 					{
+						if (!ignoreStyles)
+						{
+							// applyStyleOnComponent after the RenderEventExecutor has been updated by the call to updateComponentRenderState()
+							// because this can trigger an onRender call that has to have the correct record
+							WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
+						}
 						updateCell = true;
 						componentsToUpdate.add(innerComponent.getParent() instanceof CellContainer ? innerComponent.getParent() : innerComponent);
 						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
@@ -1225,10 +1225,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
 						}
 					}
-					else if (innerComponentChanged)
+					else
 					{
-						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
+						if (!ignoreStyles)
+						{
+							// applyStyleOnComponent after the RenderEventExecutor has been updated by the call to updateComponentRenderState()
+							// because this can trigger an onRender call that has to have the correct record
+							WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, listItemBorder);
+						}
+						if (innerComponent instanceof IProviderStylePropertyChanges &&
+							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged())
+							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
 					}
+
 				}
 				updateAll = updateAll && updateCell;
 			}

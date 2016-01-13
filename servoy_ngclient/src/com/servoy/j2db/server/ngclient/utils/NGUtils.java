@@ -167,17 +167,21 @@ public abstract class NGUtils
 		return w.toString();
 	}
 
-	public static WebComponentSpecification[] getAllNonServoyWebServiceSpecifications()
+	public static WebComponentSpecification[] getAllWebServiceSpecificationsThatCanBeAddedToJavaPluginsList()
 	{
-		return getAllWebServiceSpecifications(new String[] { "sablo", "servoyservices", "servoydefaultservices" });
+		return getAllWebServiceSpecificationsExcept(new String[] { "sablo", "servoyservices", "servoydefaultservices" });
 	}
 
-	public static WebComponentSpecification[] getAllPublicWebServiceSpecifications()
+	/**
+	 * All 3rd party + some of the Servoy services (for example those that are based on bootstrap) should be avoidable when exporting.
+	 * The user might not be using them in the solution and he doesn't want all kinds of libs included that can mess up hist solution's UI.
+	 */
+	public static WebComponentSpecification[] getAllWebServiceSpecificationsThatCanBeUncheckedAtWarExport()
 	{
-		return getAllWebServiceSpecifications(new String[] { "sablo", "servoyservices" });
+		return getAllWebServiceSpecificationsExcept(new String[] { "sablo", "servoyservices" });
 	}
 
-	private static WebComponentSpecification[] getAllWebServiceSpecifications(String[] ignore)
+	private static WebComponentSpecification[] getAllWebServiceSpecificationsExcept(String[] ignore)
 	{
 		ArrayList<WebComponentSpecification> allPublicWebServiceSpecifications = new ArrayList<WebComponentSpecification>();
 		List<String> ignoreList = Arrays.asList(ignore);

@@ -52,6 +52,12 @@ angular.module('foundset_manager',['sabloApp'])
 				}
 			}
 			return null;
+		},
+		removeFoundSetFromCache: function(foundsethash) {
+			$sabloApplication.callService("$foundsetManager", "removeFoundSetFromCache", {foundsethash: foundsethash});
+		},
+		removeFoundSetsFromCache: function() {
+			$sabloApplication.callService("$foundsetManager", "removeFoundSetsFromCache");
 		}
 	}
 })

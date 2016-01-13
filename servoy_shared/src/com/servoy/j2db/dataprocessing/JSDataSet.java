@@ -1980,7 +1980,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	public Scriptable getParentScope()
 	{
-		if (parentScope == null)
+		if (parentScope == null && application != null && application.getScriptEngine() != null)
 		{
 			return application.getScriptEngine().getSolutionScope();
 		}

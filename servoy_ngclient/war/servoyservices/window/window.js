@@ -62,9 +62,18 @@ angular.module('window',['servoy'])
 				for (var j = 0;j< scope.model.shortcuts.length;j++)
 				{
 					if (scope.model.shortcuts[j].shortcut == shortcutcombination )
-					{
+					{	
 						var callback = scope.model.shortcuts[j].callback;
-						var contextFilter = scope.model.shortcuts[j].contextFilter;
+						var contextFilter = null;
+						var contextFilterElement = null;
+						if(scope.model.shortcuts[j].contextFilter) {
+							var contextFilterParts = scope.model.shortcuts[j].contextFilter.split('.');
+							contextFilter = contextFilterParts[0];
+							if(contextFilterParts.length > 1) {
+								contextFilterElement = contextFilterParts[1];
+							}
+						}
+
 						var args = scope.model.shortcuts[j].arguments;
 						
 						var form;
@@ -95,6 +104,10 @@ angular.module('window',['servoy'])
 									jsEvent.elementName = targetElNameChain[i];
 									break;
 								}
+							}
+							
+							if(contextFilterElement && (contextFilterElement != jsEvent.elementName)) {
+								continue;
 							}
 						}
 						
