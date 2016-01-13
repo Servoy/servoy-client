@@ -2824,9 +2824,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						if ((comp instanceof IDisplayData) || !(comp instanceof ILabel))
 						{
-							// labels/buttons that don't display data are not changed
-							((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setValueChanged();
-						}
+							// try to mark cells as changed only if there was a real value change; otherwise there is no use to replace the whole row...
+							checkForValueChanges(comp);
+						} // else labels/buttons that don't display data are not changed
 						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 				});
@@ -2918,6 +2918,29 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		MainPage mp = table.findParent(MainPage.class);
 		if (mp != null) mp.triggerBrowserRequestIfNeeded();
+	}
+
+	protected void checkForValueChanges(Object cell)
+	{
+		IStylePropertyChanges spc = ((IProviderStylePropertyChanges)cell).getStylePropertyChanges();
+		if (!spc.isChanged() && !spc.isValueChanged())
+		{
+			IModel innermostModel = ((Component)cell).getInnermostModel();
+			if (innermostModel instanceof RecordItemModel)
+			{
+				Object lastRenderedValue = ((RecordItemModel)innermostModel).getLastRenderedValue((Component)cell);
+				Object object = ((Component)cell).getDefaultModelObject();
+
+				if (!Utils.equalObjects(lastRenderedValue, object))
+				{
+					spc.setValueChanged();
+				}
+			}
+			else
+			{
+				spc.setChanged();
+			}
+		}
 	}
 
 	public IStylePropertyChanges getStylePropertyChanges()

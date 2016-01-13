@@ -45,6 +45,7 @@ import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
@@ -163,9 +164,6 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			return value;
 		}
 
-		/**
-		 * @see wicket.model.IModel#setObject(java.lang.Object)
-		 */
 		@Override
 		public void setObject(Object obj)
 		{
@@ -182,14 +180,9 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			String dataProviderID = getDataProviderID(component);
 			if (dataProviderID == null) return;
 
-			Object convertedObj = obj;
-			if (component instanceof IResolveObject)
+			if (!((IDisplayData)component).isValueValid() || !Utils.equalObjects(lastRenderedValues.get(component), obj))
 			{
-				convertedObj = ((IResolveObject)component).resolveRealValue(obj);
-			}
-			if (!((IDisplayData)component).isValueValid() || !Utils.equalObjects(lastRenderedValues.get(component), convertedObj))
-			{
-				lastRenderedValues.put(component, convertedObj);
+				lastRenderedValues.put(component, obj);
 				// this is normally called as a result of a change in the browser (so component in browser shows this value already); if this is called manually from server side code, setChanged() might also be needed on that component separately when it needs to be rendered back to the browser;
 				// this is needed not to interfere with components that use lots of JS like type-aheads when field contents change;
 				// if the field uses a formatter for example that would display the value different then it parsed it, setChanged() should be manually called (see FormatConverter use of StateFullSimpleDateFormat)
@@ -212,7 +205,7 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 					stringValue,
 					name,
 					webForm.getController().getApplication().getFlattenedSolution().getDataproviderLookup(
-						webForm.getController().getApplication().getFoundSetManager(), webForm.getController().getForm()));
+					webForm.getController().getApplication().getFoundSetManager(), webForm.getController().getForm()));
 			}
 			return null;
 		}
@@ -230,17 +223,18 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 
 	public void updateRenderedValue(Component comp)
 	{
-		Object convertedObj = comp.getDefaultModelObject();
-		if (comp instanceof IResolveObject)
-		{
-			convertedObj = ((IResolveObject)comp).resolveRealValue(convertedObj);
-		}
-		lastRenderedValues.put(comp, convertedObj);
+		lastRenderedValues.put(comp, comp.getDefaultModelObject());
 	}
 
 	public Object getLastRenderedValue(Component comp)
 	{
-		return lastRenderedValues.get(comp);
+		Object lrv = lastRenderedValues.get(comp);
+		if (lrv == null && comp instanceof IDelegate< ? >) // for example WebDataCalendar actually stores it's last-rendered-value through it's child WebDataField, so it should get it that way as well
+		{
+			Object dlg = ((IDelegate< ? >)comp).getDelegate();
+			if (dlg instanceof Component && dlg != comp) lrv = getLastRenderedValue((Component)dlg);
+		}
+		return lrv;
 	}
 
 	/**

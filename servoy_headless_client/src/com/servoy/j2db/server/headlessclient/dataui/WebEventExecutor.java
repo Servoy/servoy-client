@@ -95,7 +95,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * The event executor that handles the events for a webclient.
- * 
+ *
  * @author jcompagner
  */
 public class WebEventExecutor extends BaseEventExecutor
@@ -117,7 +117,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			}
 			else if (component instanceof WebBaseSelectBox.ISelector)
 			{
-				updatingBehavior = new ServoySelectBoxUpdatingBehavior("onclick", ((WebBaseSelectBox.ISelector)component).getSelectBox(), this, "FormUpdate"); //$NON-NLS-1$ //$NON-NLS-2$ 
+				updatingBehavior = new ServoySelectBoxUpdatingBehavior("onclick", ((WebBaseSelectBox.ISelector)component).getSelectBox(), this, "FormUpdate"); //$NON-NLS-1$ //$NON-NLS-2$
 				component.add(updatingBehavior);
 			}
 			else if (component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof AugmentedTextField ||
@@ -150,11 +150,6 @@ public class WebEventExecutor extends BaseEventExecutor
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ui.BaseEventExecutor#setValidationEnabled(boolean)
-	 */
 	@Override
 	public void setValidationEnabled(boolean b)
 	{
@@ -176,7 +171,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
 				!(component instanceof ILabel) && !(component instanceof WebBaseSelectBox.ISelector) && component instanceof FormComponent< ? >)
 			{
-				component.add(new ServoyActionEventBehavior("onKeyDown", component, this, "ActionCmd")); // please keep the case in the event name //$NON-NLS-1$ //$NON-NLS-2$ 
+				component.add(new ServoyActionEventBehavior("onKeyDown", component, this, "ActionCmd")); // please keep the case in the event name //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else if (component instanceof WebBaseSelectBox.ISelector)
 			{
@@ -334,7 +329,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				{
 					sharedName = null;
 				}
-				component.add(new ServoyAjaxEventBehavior("oncontextmenu", sharedName, true) //$NON-NLS-1$ 
+				component.add(new ServoyAjaxEventBehavior("oncontextmenu", sharedName, true) //$NON-NLS-1$
 				{
 					@Override
 					protected void onEvent(AjaxRequestTarget target)
@@ -521,7 +516,7 @@ public class WebEventExecutor extends BaseEventExecutor
 
 	/**
 	 * Convert JS modifiers to AWT/Swing modifiers (used by Servoy event)
-	 * 
+	 *
 	 * @param webModifiers
 	 * @return
 	 */
@@ -783,21 +778,27 @@ public class WebEventExecutor extends BaseEventExecutor
 						}
 						if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isValueChanged())
 						{
-							valueChangedIds.add(component.getMarkupId());
-							if (component instanceof MarkupContainer)
+							if (component.getParent().isVisibleInHierarchy())
 							{
-								((MarkupContainer)component).visitChildren(IDisplayData.class, new IVisitor<Component>()
+								// the component will get added to the target & rendered only if it's parent is visible in hierarchy because changed flag is also set (see the visitor below)
+								// so we will only list these components if they are visible otherwise ajax timer could end up sending hundreds of id's that don't actually render every 5 seconds
+								// because the valueChanged flag is cleared only by onRender
+								valueChangedIds.add(component.getMarkupId());
+								if (component instanceof MarkupContainer)
 								{
-									public Object component(Component comp)
+									((MarkupContainer)component).visitChildren(IDisplayData.class, new IVisitor<Component>()
 									{
-										// labels/buttons that don't display data are not changed
-										if (!(comp instanceof ILabel))
+										public Object component(Component comp)
 										{
-											valueChangedIds.add(comp.getMarkupId());
+											// labels/buttons that don't display data are not changed
+											if (!(comp instanceof ILabel))
+											{
+												valueChangedIds.add(comp.getMarkupId());
+											}
+											return CONTINUE_TRAVERSAL;
 										}
-										return CONTINUE_TRAVERSAL;
-									}
-								});
+									});
+								}
 							}
 						}
 						return CONTINUE_TRAVERSAL;
@@ -951,19 +952,22 @@ public class WebEventExecutor extends BaseEventExecutor
 					// the new window would be displayed in the background).
 					target.focusComponent(null);
 				}
-				argument = new StringBuffer();
-				for (String id : valueChangedIds)
+				if (valueChangedIds.size() > 0)
 				{
-					argument.append("\"");
-					argument.append(id);
-					argument.append("\"");
-					if (valueChangedIds.indexOf(id) != valueChangedIds.size() - 1)
+					argument = new StringBuffer();
+					for (String id : valueChangedIds)
 					{
-						argument.append(",");
+						argument.append("\"");
+						argument.append(id);
+						argument.append("\"");
+						if (valueChangedIds.indexOf(id) != valueChangedIds.size() - 1)
+						{
+							argument.append(",");
+						}
 					}
+					target.prependJavascript("storeValueAndCursorBeforeUpdate(" + argument + ");");
+					target.appendJavascript("restoreValueAndCursorAfterUpdate();");
 				}
-				target.prependJavascript("storeValueAndCursorBeforeUpdate(" + argument + ");");
-				target.appendJavascript("restoreValueAndCursorAfterUpdate();");
 
 				//if we have admin info, show it
 				String adminInfo = mainPage.getAdminInfo();
@@ -1188,7 +1192,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			}
 		}
 		else
-		//default handling 
+		//default handling
 		{
 			jsCode = "Servoy.DD.attachDrag(['" + component.getMarkupId() + "'],'" + dragUrl + "', " + bUseProxy + ", " + bResizeProxyFrame + ", " +
 				bXConstraint + ", " + bYConstraint + ")";
