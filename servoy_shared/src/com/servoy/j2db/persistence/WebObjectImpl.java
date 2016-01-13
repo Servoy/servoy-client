@@ -96,6 +96,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		jsonConverters.put(TypesRegistry.getType(InsetsPropertyType.TYPE_NAME),
 			(IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType(InsetsPropertyType.TYPE_NAME));
 		jsonConverters.put(TypesRegistry.getType("border"), (IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType("border"));
+		jsonConverters.put(TypesRegistry.getType("dataprovider"), (IPropertyConverterForBrowser< ? extends Object>)TypesRegistry.getType("dataprovider"));
+
 	}
 
 	/**
@@ -346,30 +348,52 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				// it is a json property defined in spec, but it's not mapping to a persist
 				JSONObject json = getJson();
 				Object value = json != null ? json.opt(propertyName) : null;
-				IPropertyConverterForBrowser<Object> converter = (IPropertyConverterForBrowser<Object>)jsonConverters.get(childPd.getType());
-				if (converter != null)
+				value = convertToJavaType(childPd, value);
+				if (value instanceof JSONArray)
 				{
-					if (value instanceof String && ((String)value).startsWith("{"))
+					PropertyDescription desc = null;
+					if (childPd.getType() instanceof CustomJSONArrayType< ? , ? >)
 					{
-						try
-						{
-							value = converter.fromJSON(new JSONObject((String)value), null, childPd, null, null);
-						}
-						catch (Exception e)
-						{
-							Debug.error("can't parse '" + value + "' to the real type for property converter: " + childPd.getType(), e);
-						}
+						desc = ((CustomJSONArrayType< ? , ? >)childPd.getType()).getCustomJSONTypeDefinition();
 					}
-					else
+					JSONArray arr = (JSONArray)value;
+					Object[] java_arr = new Object[arr.length()];
+					for (int i = 0; i < arr.length(); i++)
 					{
-						value = converter.fromJSON(value, null, childPd, null, null);
+						java_arr[i] = convertToJavaType(desc, arr.get(i));
 					}
+					return java_arr;
 				}
-				return value;
+				return convertToJavaType(childPd, value);
 			}
 		}
 
 		return null;
+	}
+
+	private Object convertToJavaType(PropertyDescription childPd, Object val)
+	{
+		Object value = val;
+		IPropertyConverterForBrowser<Object> converter = null;
+		if (value instanceof JSONObject && childPd != null && (converter = (IPropertyConverterForBrowser<Object>)jsonConverters.get(childPd.getType())) != null)
+		{
+			if (value instanceof String && ((String)value).startsWith("{"))
+			{
+				try
+				{
+					value = converter.fromJSON(new JSONObject((String)value), null, childPd, null, null);
+				}
+				catch (Exception e)
+				{
+					Debug.error("can't parse '" + value + "' to the real type for property converter: " + childPd.getType(), e);
+				}
+			}
+			else
+			{
+				value = converter.fromJSON(value, null, childPd, null, null);
+			}
+		}
+		return value;
 	}
 
 	@Override
