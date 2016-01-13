@@ -358,9 +358,11 @@ angular.module('servoyextraDbtreeview', ['servoyApp','foundset_manager']).direct
       			if(activeNode) {
       				for(var i = 0; i < activeNode.getParentList().length; i++) {
       					var parentNode = activeNode.getParentList()[i];
-      					selectionPath.push(parentNode.data.callbackinfoParamValue);
+        				var pkIdx = parentNode.key.indexOf('_');      					
+      					selectionPath.push(parentNode.key.substring(pkIdx + 1));
       				}
-      				selectionPath.push(activeNode.data.callbackinfoParamValue);
+      				var pkIdx = activeNode.key.indexOf('_');
+      				selectionPath.push(activeNode.key.substring(pkIdx + 1));
       			}
       		}
       		return selectionPath;
