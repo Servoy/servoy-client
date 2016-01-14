@@ -101,7 +101,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	@Override
 	public void setProperty(String propertyName, Object val)
 	{
-		if (!webObjectImpl.setProperty(propertyName, val))
+		if (webObjectImpl.setProperty(propertyName, val))
 		{
 			// see if it's not a direct persist property as well such as size, location, anchors... if it is set it here as well anyway so that they are in sync with spec properties
 			if (purePersistPropertyNames.contains(propertyName)) super.setProperty(propertyName, val);
@@ -142,7 +142,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject
 	{
 		return webObjectImpl.getTypeName();
 	}
-	
+
 	/**
 	 * DO NOT USE this method! Use setProperty instead.
 	 * @param arg
